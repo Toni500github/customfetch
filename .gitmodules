@@ -1,0 +1,4 @@
+[submodule "fmt"]
+	path = fmt
+	url = https://github.com/Toni500github/fmt
+	ignore = dirty
