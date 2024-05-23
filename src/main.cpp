@@ -2,7 +2,7 @@
 #include <display.hpp>
 
 int main (int argc, char *argv[]) {
-    SystemInformation sysInfo{};
+    SysInfo sysInfo{};
     sysInfo.systemName = query_sys.SystemName();
     sysInfo.GPUName = query_sys.GPUName();
 

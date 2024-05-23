@@ -4,8 +4,8 @@
 
 using namespace DisplaySystem;
 
-string DisplaySystem::Render(SystemInformation &systemInformation) {
-    return fmt::format("System: {}\nGPU: {}\n", systemInformation.systemName, systemInformation.GPUName);
+string DisplaySystem::Render(SysInfo& sysInfo) {
+    return fmt::format("System: {}\nGPU: {}\nOS Pretty name = {}\n", sysInfo.systemName, sysInfo.GPUName, query_sys.OS_Name());
 }
 
 void DisplaySystem::Display(string_view renderResult) {

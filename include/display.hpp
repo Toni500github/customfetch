@@ -5,13 +5,13 @@
 
 using std::string_view;
 
-struct SystemInformation {
+struct SysInfo {
     string systemName;
     string GPUName;
 };
 
 namespace DisplaySystem {
-    string Render(SystemInformation &systemInformation);
+    string Render(SysInfo& sysInfo);
     void Display(string_view renderResult);
 }
 

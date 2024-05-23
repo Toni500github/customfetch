@@ -1,36 +1,67 @@
-# Makefile totally not taken from https://github.com/BurntRanch/TabAUR
-# lmao
-# uncomment all the lines when you fix fmt/toml support
+CXX       	?= g++
+PREFIX	  	?= /usr
+LOCALEDIR 	?= $(PREFIX)/share/locale
+VARS  	  	?= -DENABLE_NLS=1
 
-CXX	?= g++
-SRC 	 = $(sort $(wildcard src/*.cpp))
-OBJ 	 = $(SRC:.cpp=.o)
-# LDFLAGS  = -L./src/fmt -lfmt
-LDFLAGS  = -lfmt
-TARGET   = cuftech
-CPPFLAGS = -ggdb -pedantic -funroll-all-loops -march=native -Iinclude -Wall -std=c++20
+DEBUG 		?= 1
+# https://stackoverflow.com/a/1079861
+# WAY easier way to build debug and release builds
+ifeq ($(DEBUG), 1)
+        BUILDDIR  = build/debug
+        CXXFLAGS := -ggdb -pedantic -Wall $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+else
+        BUILDDIR  = build/release
+        CXXFLAGS := -O2 $(CXXFLAGS)
+endif
 
-# all: fmt toml $(TARGET)
-all: $(TARGET)
+TARGET		 = cufetch
+VERSION    	 = 0.0.1
+BRANCH     	 = main
+SRC 	   	 = $(sort $(wildcard src/*.cpp))
+OBJ 	   	 = $(SRC:.cpp=.o)
+LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
+CXXFLAGS  	?= -mtune=generic -march=native
+CXXFLAGS	+= -funroll-all-loops -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
 
-# fmt:
-# ifeq (,$(wildcard ./src/fmt/libfmt.a))
-# 	make -C src/fmt
-# endif
-# 
-# toml:
-# ifeq (,$(wildcard ./src/toml++/toml.o))
-# 	make -C src/toml++
-# endif
+all: fmt toml $(TARGET)
 
-# $(TARGET): fmt toml ${OBJ}
-#	${CXX} $(OBJ) src/toml++/toml.o $(CPPFLAGS) -o $@ $(LDFLAGS)
-$(TARGET): $(OBJ)
-	${CXX} $(OBJ) $(CPPFLAGS) -o $@ $(LDFLAGS)
+fmt:
+ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
+	mkdir -p $(BUILDDIR)/fmt
+	make -C src/fmt BUILDDIR=$(BUILDDIR)/fmt
+endif
+
+toml:
+ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
+	mkdir -p $(BUILDDIR)/toml++
+	make -C src/toml++ BUILDDIR=$(BUILDDIR)/toml++
+endif
+
+locale:
+	scripts/make_mo.sh locale/
+
+$(TARGET): fmt toml $(OBJ)
+	mkdir -p $(BUILDDIR)
+	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
+
+dist: $(TARGET) locale
+	bsdtar --zstd -cf TabAUR-v$(VERSION).tar.zst LICENSE README.md locale/ -C $(BUILDDIR) $(TARGET)
 
 clean:
-	rm -rf $(TARGET) $(OBJ)
-#	make -C src/fmt clean
+	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)
 
-#.PHONY: $(TARGET) clean fmt toml all
-.PHONY: $(TARGET) clean all
+distclean:
+	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ) cpr/build
+	find . -type f -name "*.tar.zst" -exec rm -rf "{}" \;
+	find . -type f -name "*.o" -exec rm -rf "{}" \;
+	find . -type f -name "*.a" -exec rm -rf "{}" \;
+	#make -C tests/ clean
+
+install: $(TARGET) locale
+	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	find locale -type f -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
+
+test:
+	make -C tests
+
+.PHONY: $(TARGET) clean fmt toml locale install all
