@@ -2,12 +2,12 @@
 #include <display.hpp>
 #include <fmt/core.h>
 
-using namespace DisplaySystem;
+using namespace Display;
 
-string DisplaySystem::Render(SysInfo& sysInfo) {
-    return fmt::format("System: {}\nGPU: {}\nOS Pretty name = {}\n", sysInfo.systemName, sysInfo.GPUName, query_sys.OS_Name());
+string Display::render(SysInfo& sysInfo) {
+    return fmt::format("System: {}\nGPU: {}\nOS Pretty name = {}\n", sysInfo.systemName, sysInfo.GPUName, query_system.OS_Name());
 }
 
-void DisplaySystem::Display(string_view renderResult) {
+void Display::display(string_view renderResult) {
     fmt::print("{}", renderResult);
 }

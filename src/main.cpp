@@ -3,9 +3,9 @@
 
 int main (int argc, char *argv[]) {
     SysInfo sysInfo{};
-    sysInfo.systemName = query_sys.SystemName();
-    sysInfo.GPUName = query_sys.GPUName();
+    sysInfo.systemName = query_system.name();
+    sysInfo.GPUName = query_system.GPUName();
 
-    DisplaySystem::Display(DisplaySystem::Render(sysInfo));
+    Display::display(Display::render(sysInfo));
     return 0;
 }

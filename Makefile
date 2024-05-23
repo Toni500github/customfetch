@@ -14,10 +14,11 @@ else
         CXXFLAGS := -O2 $(CXXFLAGS)
 endif
 
+NAME		 = customfetch
 TARGET		 = cufetch
 VERSION    	 = 0.0.1
 BRANCH     	 = main
-SRC 	   	 = $(sort $(wildcard src/*.cpp))
+SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
@@ -45,7 +46,7 @@ $(TARGET): fmt toml $(OBJ)
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 
 dist: $(TARGET) locale
-	bsdtar --zstd -cf TabAUR-v$(VERSION).tar.zst LICENSE README.md locale/ -C $(BUILDDIR) $(TARGET)
+	bsdtar --zstd -cf $(NAME)-v$(VERSION).tar.zst LICENSE README.md locale/ -C $(BUILDDIR) $(TARGET)
 
 clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)

@@ -4,16 +4,19 @@
 #include "util.hpp"
 #include <sys/utsname.h>
 
-class QuerySystem {
+namespace Query {
+
+class System {
 public:
-    QuerySystem();
-    string_view SystemName();
+    System();
+    string_view name();
     string_view GPUName();
     string OS_Name();
-    struct utsname osInfo;
-    /* ... */
+    struct utsname sysInfos;
 };
 
-inline QuerySystem query_sys;
+};
+
+inline Query::System query_system;
 
 #endif
