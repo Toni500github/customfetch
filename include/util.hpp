@@ -1,3 +1,6 @@
+#ifndef UTILS_HPP
+#define UTILS_HPP
+
 #include "fmt/color.h"
 #include "fmt/core.h"
 
@@ -5,8 +8,6 @@
 #include <filesystem>
 #include <string>
 
-using std::string;
-using std::string_view;
 using std::filesystem::path;
 
 #ifdef ENABLE_NLS
@@ -22,20 +23,31 @@ using std::filesystem::path;
 #define BOLD           fmt::emphasis::bold
 #define BOLD_TEXT(x)   (fmt::emphasis::bold | fmt::fg(x))
 #define NOCOLOR        "\033[0m"
+#define UNKNOWN         "<unknown>"
+
+std::string name_from_id(const std::string& pci_ids, const std::string& id);
+std::string vendor_from_id(const std::string& pci_ids, const std::string& id_str);
 
 template <typename... Args>
-void error(fmt::runtime_format_string<> fmt, Args&&... args) {
+void _error_log(fmt::runtime_format_string<> fmt, Args&&... args) {
     fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt, std::forward<Args>(args)...));
 }
 
 template <typename... Args>
-void die(string_view fmt, Args&&... args) {
-    error(fmt::runtime(fmt), std::forward<Args>(args)...);
+void error(std::string_view fmt, Args&&... args) {
+    _error_log(fmt::runtime(fmt), std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+void die(std::string_view fmt, Args&&... args) {
+    _error_log(fmt::runtime(fmt), std::forward<Args>(args)...);
     std::exit(1);
 }
 
 template <typename... Args>
 void die(const char *fmt, Args&&... args) {
-    error(fmt::runtime(fmt), std::forward<Args>(args)...);
+    _error_log(fmt::runtime(fmt), std::forward<Args>(args)...);
     std::exit(1);
 }
+
+#endif

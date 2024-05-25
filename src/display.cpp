@@ -1,13 +1,26 @@
 /* Implementation of the system behind displaying/rendering the information */
-#include <display.hpp>
+#include "query.hpp"
+#include "display.hpp"
 #include <fmt/core.h>
 
-using namespace Display;
-
-string Display::render(SysInfo& sysInfo) {
-    return fmt::format("System: {}\nGPU: {}\nOS Pretty name = {}\n", sysInfo.systemName, sysInfo.GPUName, query_system.OS_Name());
+std::string Display::render() {
+    return fmt::format("System: {}\n"
+                       "GPU: {}\n"
+                       "GPU vendor: {}\n"
+                       "Kernel version: {}\n"
+                       "OS Pretty name: {}\n"
+                       "Arch: {}\n"
+                       "Hostname: {}\n",
+                       query_system.kernel_name(), 
+                       query_gpu.name(),
+                       query_gpu.vendor(),
+                       query_system.kernel_version(),
+                       query_system.OS_pretty_name(),
+                       query_system.arch(),
+                       query_system.hostname()
+                       );
 }
 
-void Display::display(string_view renderResult) {
+void Display::display(std::string renderResult) {
     fmt::print("{}", renderResult);
 }

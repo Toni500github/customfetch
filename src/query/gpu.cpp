@@ -1,40 +1,44 @@
+#include "query.hpp"
+#include "util.hpp"
+#include "pci.ids.hpp"
+
 #include <fstream>
-#include <query.hpp>
-#include <algorithm>
-#include <unistd.h>
+#include <sys/types.h>
 
 using namespace Query;
 
-string_view System::name() {
-    return this->sysInfos.sysname;
-}
+std::string GPU::name() {
+    static u_short id = 0;
+    std::string sys_path = "/sys/class/drm/card0/device/device";
+    //fmt::format("/sys/class/drm/card{}/", id);
+    
+    /*while (true) {
+        if (!std::filesystem::exists(sys_path))
+            continue;
+    }*/
 
-string System::OS_Name() {
-    string_view sysName = this->name(); // Query::System::name()
-
-    if (sysName == "Linux") {
-        string os_pretty_name;
-        path os_release_path = "/etc/os-release";
-        std::ifstream os_release_file(os_release_path);
-        if (!os_release_file.is_open())
-            die("Could not open {}", os_release_path.c_str());
-
-        string line;
-        while (std::getline(os_release_file, line)) {
-            if(line.find("PRETTY_NAME=") == 0) {
-                os_pretty_name = line.substr(12);
-                os_pretty_name.erase(std::remove(os_pretty_name.begin(), os_pretty_name.end(), '\"' ), os_pretty_name.end());
-                os_release_file.close();
-                return os_pretty_name;
-            }
-        }
-
+    std::ifstream file(sys_path);
+    if(!file.is_open()) {
+        error("Could not open {}", sys_path);
+        return UNKNOWN;
     }
 
-    return "System not supported yet";
+    std::string id_s;
+    while(file >> id_s);
 
+    return name_from_id(all_ids, id_s);
 }
 
-string_view System::GPUName() {
-    return "NVIDIA GeForce GTX 1650 Super" ; // example
+std::string GPU::vendor() {
+    std::string sys_path = "/sys/class/drm/card0/device/vendor";
+    std::ifstream file(sys_path);
+    if(!file.is_open()) {
+        error("Could not open {}", sys_path);
+        return UNKNOWN;
+    }
+
+    std::string id_s;
+    while(file >> id_s);
+
+    return vendor_from_id(all_ids, id_s);
 }
