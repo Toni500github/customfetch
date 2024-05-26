@@ -21,19 +21,9 @@ std::string binarySearchPCIArray(std::string_view vendor_id_s, std::string_view 
     std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
     std::string_view pci_id = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2) : pci_id_s;
 
-    int left = 0, right = pci_vendors_array.size() - 1;
+    long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
     
-    while (left <= right) {
-        int mid = left + (right - left) / 2;
-        if (pci_vendors_array[mid] == vendor_id)
-            return name_from_entry(all_ids.find(pci_id, pci_vendors_location_array[mid])); // returns the index of the device.
-        else if (pci_vendors_array[mid] < vendor_id)
-            left = mid + 1;
-        else
-            right = mid - 1;
-    }
-
-    return "";
+    return name_from_entry(all_ids.find(pci_id, pci_vendors_location_array[location_array_index]));
 }
 
 std::string name_from_entry(size_t dev_entry_pos) {
