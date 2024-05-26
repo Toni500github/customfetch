@@ -25,8 +25,9 @@ using std::filesystem::path;
 #define NOCOLOR        "\033[0m"
 #define UNKNOWN         "<unknown>"
 
-std::string name_from_id(const std::string& pci_ids, const std::string& id);
+std::string name_from_entry(size_t dev_entry_pos);
 std::string vendor_from_id(const std::string& pci_ids, const std::string& id_str);
+std::string binarySearchPCIArray(std::string_view vendor_id, std::string_view pci_id);
 
 template <typename... Args>
 void _error_log(fmt::runtime_format_string<> fmt, Args&&... args) {
