@@ -1,3 +1,4 @@
+#include <cerrno>
 #include <fstream>
 #include "query.hpp"
 #include <algorithm>
@@ -6,23 +7,31 @@
 using namespace Query;
 
 System::System() {
-    uname(&this->sysInfos);
+    if (uname(&this->uname_infos) != 0)
+        die("uname() failed: {}\nCould not get system infos", errno);
+
+    if (sysinfo(&this->sysInfos) != 0)
+        die("uname() failed: {}\nCould not get system infos", errno);
 }
 
 std::string_view System::kernel_name() {
-    return this->sysInfos.sysname;
+    return this->uname_infos.sysname;
 }
 
 std::string_view System::kernel_version() {
-    return this->sysInfos.release;
+    return this->uname_infos.release;
 }
 
 std::string_view System::hostname() {
-    return this->sysInfos.nodename;
+    return this->uname_infos.nodename;
 }
 
 std::string_view System::arch() {
-    return this->sysInfos.machine;
+    return this->uname_infos.machine;
+}
+
+long System::uptime() {
+    return this->sysInfos.uptime;
 }
 
 std::string System::OS_pretty_name() {

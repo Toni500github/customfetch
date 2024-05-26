@@ -1,6 +1,7 @@
 #include "util.hpp"
 #include "pci.ids.hpp"
 #include <algorithm>
+#include <vector>
 
 // https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
 bool hasEnding(std::string_view fullString, std::string_view ending) {
@@ -13,6 +14,59 @@ bool hasStart(std::string_view fullString, std::string_view start) {
     if (start.length() > fullString.length())
         return false;
     return (0 == fullString.compare(0, start.length(), start));
+}
+
+std::vector<std::string> split(std::string_view text, char delim) {
+    std::string            line;
+    std::vector<std::string>    vec;
+    std::stringstream ss(text.data());
+    while (std::getline(ss, line, delim)) {
+        vec.push_back(line);
+    }
+    return vec;
+}
+
+
+/**
+ * remove all white spaces (' ', '\t', '\n') from start and end of input
+ * inplace!
+ * @param input
+ * Original https://github.com/lfreist/hwinfo/blob/main/include/hwinfo/utils/stringutils.h#L50
+ */
+void strip(std::string& input) {
+  if (input.empty()) {
+    return;
+  }
+  // optimization for input size == 1
+  if (input.size() == 1) {
+    if (input[0] == ' ' || input[0] == '\t' || input[0] == '\n') {
+      input = "";
+      return;
+    } else {
+      return;
+    }
+  }
+  size_t start_index = 0;
+  while (true) {
+    char c = input[start_index];
+    if (c != ' ' && c != '\t' && c != '\n') {
+      break;
+    }
+    start_index++;
+  }
+  size_t end_index = input.size() - 1;
+  while (true) {
+    char c = input[end_index];
+    if (c != ' ' && c != '\t' && c != '\n') {
+      break;
+    }
+    end_index--;
+  }
+  if (end_index < start_index) {
+    input.assign("");
+    return;
+  }
+  input.assign(input.begin() + start_index, input.begin() + end_index + 1);
 }
 
 // Function to perform binary search on the pci vendors array to find a vendor.
