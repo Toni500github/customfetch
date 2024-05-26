@@ -4,6 +4,7 @@
 #include <fmt/core.h>
 
 std::string Display::render() {
+    std::string vendor_id = query_gpu.vendor_id();
     return fmt::format("System: {}\n"
                        "GPU: {}\n"
                        "GPU vendor: {}\n"
@@ -12,8 +13,8 @@ std::string Display::render() {
                        "Arch: {}\n"
                        "Hostname: {}\n",
                        query_system.kernel_name(), 
-                       query_gpu.name(),
-                       query_gpu.vendor(),
+                       query_gpu.name(vendor_id),
+                       query_gpu.vendor(vendor_id),
                        query_system.kernel_version(),
                        query_system.OS_pretty_name(),
                        query_system.arch(),

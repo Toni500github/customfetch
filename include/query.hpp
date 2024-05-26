@@ -28,8 +28,9 @@ public:
 class GPU {
 public:
     //GPU();
-    std::string name();
-    std::string vendor();
+    std::string vendor_id();
+    std::string name(const std::string &vendor_id);
+    std::string vendor(const std::string &vendor_id);
 };
 
 };
