@@ -2,16 +2,22 @@
 #include <fstream>
 #include "query.hpp"
 #include <algorithm>
+#include <pwd.h>
 #include <unistd.h>
 
 using namespace Query;
 
 System::System() {
+    uid_t uid = geteuid();
+
     if (uname(&this->uname_infos) != 0)
         die("uname() failed: {}\nCould not get system infos", errno);
 
     if (sysinfo(&this->sysInfos) != 0)
         die("uname() failed: {}\nCould not get system infos", errno);
+
+    if (this->pwd = getpwuid(uid), !this->pwd)
+        die("getpwent failed: {}\nCould not get user infos", errno);
 }
 
 std::string_view System::kernel_name() {
@@ -28,6 +34,10 @@ std::string_view System::hostname() {
 
 std::string_view System::arch() {
     return this->uname_infos.machine;
+}
+
+std::string_view System::username() {
+    return this->pwd->pw_name;
 }
 
 long System::uptime() {

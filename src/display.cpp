@@ -3,13 +3,19 @@
 #include "query.hpp"
 #include "display.hpp"
 #include <iostream>
+#include <chrono>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 
 std::string Display::render() {
     std::string vendor_id = query_gpu.vendor_id();
-    return fmt::format("System: {}\n"
-                       "Uptime: {}\n"
+    
+    std::chrono::seconds uptime_secs(query_system.uptime());
+    auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
+
+    return fmt::format("{}@{}\n\n"
+                       "System: {}\n"
+                       "Uptime: {} minutes\n"
                        "GPU: {}\n"
                        "GPU vendor: {}\n"
                        "CPU model name: {}\n"
@@ -17,10 +23,10 @@ std::string Display::render() {
                        "RAM free amount: {}Mib\n"
                        "Kernel version: {}\n"
                        "OS Pretty name: {}\n"
-                       "Arch: {}\n"
-                       "Hostname: {}\n",
+                       "Arch: {}\n",
+                       query_system.username(), query_system.hostname(),
                        query_system.kernel_name(),
-                       query_system.uptime(),
+                       uptime_mins.count(),
                        query_gpu.name(vendor_id),
                        query_gpu.vendor(vendor_id),
                        query_cpu.name(),
@@ -28,8 +34,7 @@ std::string Display::render() {
                        query_ram.free_amount(),
                        query_system.kernel_version(),
                        query_system.OS_pretty_name(),
-                       query_system.arch(),
-                       query_system.hostname()
+                       query_system.arch()
                        );
 }
 
@@ -41,12 +46,25 @@ void Display::display(std::string renderResult) {
     
     std::string line;
     std::vector<std::string> sys_info = split(renderResult, '\n');
+    std::vector<std::string> ascii_art;
+    
+    while (std::getline(file, line))
+        ascii_art.push_back(line);
 
-    for (int i = 0; std::getline(file, line); i++) {
-        fmt::print("{}", line);
+    size_t art_width = 0;
+    for (const auto& line : ascii_art)
+        if (line.size() > art_width)
+            art_width = line.size();
+
+    size_t max_lines = std::max(ascii_art.size(), sys_info.size());
+    for (size_t i = 0; i < max_lines; ++i) {
+        
+        fmt::print("{:<{}}", ascii_art[i], art_width);
+
         if (i < sys_info.size())
-            fmt::println("{}", sys_info[i]);
-        else
-            fmt::print("\n");
-    }
+            fmt::print("{}",sys_info[i]);
+
+        fmt::print("\n");
+    }    
+
 }

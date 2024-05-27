@@ -5,6 +5,8 @@
 #include <sys/sysinfo.h>
 #include <memory>
 #include <fstream>
+#include <unistd.h>
+#include <pwd.h>
 #include <sys/utsname.h>
 
 namespace Query {
@@ -16,12 +18,14 @@ public:
     std::string_view kernel_version();
     std::string_view hostname();
     std::string_view arch();
+    std::string_view username();
     std::string OS_pretty_name();
     long uptime();
 private: 
     // private just for the sake of (something idk?) since there are lazy access functions
     struct utsname uname_infos;
     struct sysinfo sysInfos;
+    struct passwd *pwd;
 };
 
 class CPU {
