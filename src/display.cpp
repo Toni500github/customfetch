@@ -59,7 +59,7 @@ void Display::display(std::string renderResult) {
     size_t max_lines = std::max(ascii_art.size(), sys_info.size());
     for (size_t i = 0; i < max_lines; ++i) {
         
-        fmt::print("{:<{}}", ascii_art[i], art_width);
+        fmt::print("{:<{}}\t", ascii_art[i], art_width);
 
         if (i < sys_info.size())
             fmt::print("{}",sys_info[i]);
