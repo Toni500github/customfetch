@@ -76,6 +76,8 @@ int main (int argc, char *argv[]) {
     std::string test_2 = "Hello, $(echo \"World\")!";
     std::string test_3 = "Hello, \\$(echo \"World\")!";
     std::string test_4 = "Hello, $\\(echo \"World\")!";
+    std::string test_5 = "Hello, \\\\$(echo \"World\")!";
+    std::string test_6 = "$(echo \"World\")!";
 
     fmt::print("Useless string (input: {}): ", test_1);
     parse(test_1);
@@ -89,6 +91,12 @@ int main (int argc, char *argv[]) {
     fmt::print("Bypassed exec string #2 (input: {}): ", test_4);
     parse(test_4);
     fmt::println("{}", test_4);
+    fmt::print("Escaped backslash before exec string (input: {}): ", test_5);
+    parse(test_5);
+    fmt::println("{}", test_5);
+    fmt::print("Exec string at start of the string (input: {}): ", test_6);
+    parse(test_6);
+    fmt::println("{}", test_6);
 #endif
 
 #if defined(ENABLE_NLS)

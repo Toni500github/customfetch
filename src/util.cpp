@@ -69,18 +69,25 @@ void strip(std::string& input) {
 }
 
 void parse(std::string& input) {
-    size_t dollarSignIndex = 0;
+  size_t dollarSignIndex = 0;
+  bool start = false;
 
     while (true) {
         size_t oldDollarSignIndex = dollarSignIndex;
         dollarSignIndex           = input.find('$', dollarSignIndex);
 
-        if (dollarSignIndex == std::string::npos || dollarSignIndex <= oldDollarSignIndex) 
-            break;
+      if (dollarSignIndex == std::string::npos || (dollarSignIndex <= oldDollarSignIndex && start))
+          break;
 
-        // check for bypass
-        if (dollarSignIndex > 0 and input[dollarSignIndex - 1] == '\\')
-            continue;
+      start = true;
+
+      // check for bypass
+      // YOU CAN USE AND/NOT IN C++????
+      // btw the second part checks if it has a \ before it and NOT a \ before the backslash, (check for escaped backslash)
+      // example: \$ is bypassed, \\$ is NOT bypassed.
+      // this will not make an effort to check multiple backslashes, thats your fault atp.
+      if (dollarSignIndex > 0 and (input[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or input[dollarSignIndex - 2] != '\\')))
+          continue;
 
         std::string command         = "";
         size_t      endBracketIndex = -1;
