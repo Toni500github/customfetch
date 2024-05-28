@@ -32,6 +32,9 @@ std::string shell_exec(std::string_view cmd);
 std::vector<std::string> split(std::string_view text, char delim);
 void strip(std::string& input);
 void parse(std::string& input);
+fmt::rgb hexStringToColor(std::string_view hexstr);
+std::string getHomeConfigDir();
+std::string getConfigDir();
 
 // it's std::binary_search but instead returns the std::string
 template<typename _ForwardIterator, typename _Tp>

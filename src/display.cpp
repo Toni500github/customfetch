@@ -1,8 +1,7 @@
 /* Implementation of the system behind displaying/rendering the information */
-#include "fmt/color.h"
 #include "query.hpp"
 #include "display.hpp"
-#include <iostream>
+#include "config.hpp"
 #include <chrono>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
@@ -12,8 +11,10 @@ std::string Display::render() {
     
     std::chrono::seconds uptime_secs(query_system.uptime());
     auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
+    parse(config.layout[1]);
 
     return fmt::format("{}@{}\n\n"
+                       "{}\n"
                        "System: {}\n"
                        "Uptime: {} minutes\n"
                        "GPU: {}\n"
@@ -25,6 +26,7 @@ std::string Display::render() {
                        "OS Pretty name: {}\n"
                        "Arch: {}\n",
                        query_system.username(), query_system.hostname(),
+                       config.layout[1],
                        query_system.kernel_name(),
                        uptime_mins.count(),
                        query_gpu.name(vendor_id),
@@ -61,7 +63,8 @@ void Display::display(std::string renderResult) {
     size_t max_lines = std::max(ascii_art.size(), sys_info.size());
     for (size_t i = 0; i < max_lines; ++i) {
         
-        fmt::print("{:<{}}\t", ascii_art[i], art_width);
+        if (i < art_width)
+            fmt::print("{:<{}}\t", ascii_art[i], art_width);
 
         if (i < sys_info.size())
             fmt::print("{}",sys_info[i]);

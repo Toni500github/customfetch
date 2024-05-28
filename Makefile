@@ -9,7 +9,7 @@ PARSER_TEST ?= 0
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
         BUILDDIR  = build/debug
-        CXXFLAGS := -ggdb -pedantic -Wall $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+        CXXFLAGS := -ggdb -Wall $(DEBUG_CXXFLAGS) $(CXXFLAGS)
 else
         BUILDDIR  = build/release
         CXXFLAGS := -O2 $(CXXFLAGS)
@@ -27,7 +27,7 @@ SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS	+= -funroll-all-loops -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
+CXXFLAGS	+= -Wno-ignored-attributes -funroll-all-loops -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
 
 all: fmt toml $(TARGET)
 

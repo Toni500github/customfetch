@@ -17,15 +17,14 @@ bool hasStart(std::string_view fullString, std::string_view start) {
 }
 
 std::vector<std::string> split(std::string_view text, char delim) {
-    std::string            line;
-    std::vector<std::string>    vec;
-    std::stringstream ss(text.data());
+    std::string              line;
+    std::vector<std::string> vec;
+    std::stringstream        ss(text.data());
     while (std::getline(ss, line, delim)) {
         vec.push_back(line);
     }
     return vec;
 }
-
 
 /**
  * remove all white spaces (' ', '\t', '\n') from start and end of input
@@ -34,114 +33,130 @@ std::vector<std::string> split(std::string_view text, char delim) {
  * Original https://github.com/lfreist/hwinfo/blob/main/include/hwinfo/utils/stringutils.h#L50
  */
 void strip(std::string& input) {
-  if (input.empty()) {
-    return;
-  }
-  // optimization for input size == 1
-  if (input.size() == 1) {
-    if (input[0] == ' ' || input[0] == '\t' || input[0] == '\n') {
-      input = "";
-      return;
-    } else {
-      return;
+    if (input.empty()) {
+        return;
     }
-  }
-  size_t start_index = 0;
-  while (true) {
-    char c = input[start_index];
-    if (c != ' ' && c != '\t' && c != '\n') {
-      break;
+    // optimization for input size == 1
+    if (input.size() == 1) {
+        if (input[0] == ' ' || input[0] == '\t' || input[0] == '\n') {
+            input = "";
+            return;
+        } else {
+            return;
+        }
     }
-    start_index++;
-  }
-  size_t end_index = input.size() - 1;
-  while (true) {
-    char c = input[end_index];
-    if (c != ' ' && c != '\t' && c != '\n') {
-      break;
+    size_t start_index = 0;
+    while (true) {
+        char c = input[start_index];
+        if (c != ' ' && c != '\t' && c != '\n') {
+            break;
+        }
+        start_index++;
     }
-    end_index--;
-  }
-  if (end_index < start_index) {
-    input.assign("");
-    return;
-  }
-  input.assign(input.begin() + start_index, input.begin() + end_index + 1);
+    size_t end_index = input.size() - 1;
+    while (true) {
+        char c = input[end_index];
+        if (c != ' ' && c != '\t' && c != '\n') {
+            break;
+        }
+        end_index--;
+    }
+    if (end_index < start_index) {
+        input.assign("");
+        return;
+    }
+    input.assign(input.begin() + start_index, input.begin() + end_index + 1);
 }
 
 void parse(std::string& input) {
-  size_t dollarSignIndex = 0;
+    size_t dollarSignIndex = 0;
 
-  while (true) {
-      size_t oldDollarSignIndex = dollarSignIndex;
-      dollarSignIndex = input.find('$', dollarSignIndex);
+    while (true) {
+        size_t oldDollarSignIndex = dollarSignIndex;
+        dollarSignIndex           = input.find('$', dollarSignIndex);
 
-      if (dollarSignIndex == std::string::npos || dollarSignIndex <= oldDollarSignIndex)
-          break;
+        if (dollarSignIndex == std::string::npos || dollarSignIndex <= oldDollarSignIndex) 
+            break;
 
-      // check for bypass
-      if (dollarSignIndex > 0 and input[dollarSignIndex - 1] == '\\')
-          continue;
+        // check for bypass
+        if (dollarSignIndex > 0 and input[dollarSignIndex - 1] == '\\')
+            continue;
 
-      std::string command = "";
-      size_t endBracketIndex = -1;
+        std::string command         = "";
+        size_t      endBracketIndex = -1;
 
-      char type = ' '; // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
+        char        type = ' '; // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
 
-      switch (input[dollarSignIndex+1]) {
-          case '(':
-              type = ')';
-              break;
-          case '<':
-              die("PARSER: Not implemented: module types (<gpu.name>)");
-              type = '>';
-              break;
-          default: // neither of them
-              break;
-      }
+        switch (input[dollarSignIndex + 1]) {
+            case '(':
+                type = ')';
+                break;
+            case '<':
+                die("PARSER: Not implemented: module types (<gpu.name>)");
+                type = '>';
+                break;
+            default: // neither of them
+                break;
+        }
 
-      if (type == ' ')
-          continue;
+        if (type == ' ')
+            continue;
 
-      for (size_t i = dollarSignIndex+2; i < input.size(); i++) {
-          if (input[i] == type && input[i-1] != '\\') {
-              endBracketIndex = i;
-              break;
-          } else if (input[i] == type)
-              command.erase(command.size()-1, 1);
+        for (size_t i = dollarSignIndex + 2; i < input.size(); i++) {
+            if (input[i] == type && input[i - 1] != '\\') {
+                endBracketIndex = i;
+                break;
+            } else if (input[i] == type)
+                command.erase(command.size() - 1, 1);
 
-          command += input[i];
-      }
+            command += input[i];
+        }
 
-      if (endBracketIndex == -1)
-          die("PARSER: Opened tag is not closed at index {} in string {}.", dollarSignIndex, input);
-      
-      switch (type) {
-          case ')':
-              input = input.replace(dollarSignIndex, (endBracketIndex+1)-dollarSignIndex, shell_exec(command));
-              break;
-          case '>':
-              input = input.replace(dollarSignIndex, (endBracketIndex+1)-dollarSignIndex, shell_exec(command));
-              break;
-      }
-  }
+        if (endBracketIndex == -1)
+            die("PARSER: Opened tag is not closed at index {} in string {}.", dollarSignIndex, input);
+
+        switch (type) {
+            case ')':
+                input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_exec(command));
+                break;
+            case '>':
+                input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_exec(command));
+                break;
+        }
+    }
+}
+
+fmt::rgb hexStringToColor(std::string_view hexstr) {
+    hexstr = hexstr.substr(1);
+    // convert the hexadecimal string to individual components
+    std::stringstream ss;
+    ss << std::hex << hexstr;
+
+    int intValue;
+    ss >> intValue;
+
+    int red   = (intValue >> 16) & 0xFF;
+    int green = (intValue >> 8) & 0xFF;
+    int blue  = intValue & 0xFF;
+
+    return fmt::rgb(red, green, blue);
 }
 
 // Function to perform binary search on the pci vendors array to find a vendor.
 // Also looks for a device after that.
 std::string binarySearchPCIArray(std::string_view vendor_id_s, std::string_view pci_id_s) {
     std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
-    std::string_view pci_id = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2) : pci_id_s;
+    std::string_view pci_id    = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2) : pci_id_s;
 
     long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
-    
+
     return name_from_entry(all_ids.find(pci_id, pci_vendors_location_array[location_array_index]));
 }
 
 // http://stackoverflow.com/questions/478898/ddg#478960
 std::string shell_exec(std::string_view cmd) {
-    std::array<char, 128> buffer;
-    std::string result;
+    std::array<char, 128>  buffer;
+    std::string            result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
 
     if (!pipe)
@@ -188,8 +203,8 @@ std::string vendor_from_id(const std::string& pci_ids, const std::string& id_str
     std::string line = pci_ids.substr(id_pos, end_line_pos - id_pos);
 
     // Step 4: Find the position after the ID (ID length plus possible spaces)
-    size_t after_id_pos = line.find(id) + id.length();
-    std::string description = line.substr(after_id_pos);
+    size_t      after_id_pos = line.find(id) + id.length();
+    std::string description  = line.substr(after_id_pos);
 
     size_t first = description.find_first_not_of(' ');
     if (first == std::string::npos)
@@ -197,4 +212,33 @@ std::string vendor_from_id(const std::string& pci_ids, const std::string& id_str
 
     size_t last = description.find_last_not_of(' ');
     return description.substr(first, (last - first + 1));
+}
+
+/*
+* Get the user config directory
+* either from $XDG_CONFIG_HOME or from $HOME/.config/
+* @return user's config directory  
+*/
+std::string getHomeConfigDir() {
+    char *dir = getenv("XDG_CONFIG_HOME");
+    if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir)) {
+        std::string str_dir(dir);
+        return hasEnding(str_dir, "/") ? str_dir.substr(0, str_dir.rfind('/')) : str_dir;
+    } else {
+        char *home = getenv("HOME");
+        if (home == nullptr)
+            die(_("Failed to find $HOME, set it to your home directory!"));
+
+        return std::string(home) + "/.config";
+    }
+}
+
+/*
+ * Get the TabAUR config directory 
+ * where we'll have both "config.toml" and "theme.toml"
+ * from Config::getHomeConfigDir()
+ * @return TabAUR's config directory
+ */
+std::string getConfigDir() {
+    return getHomeConfigDir() + "/customfetch";
 }
