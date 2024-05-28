@@ -28,8 +28,10 @@ using std::filesystem::path;
 std::string name_from_entry(size_t dev_entry_pos);
 std::string vendor_from_id(const std::string& pci_ids, const std::string& id_str);
 std::string binarySearchPCIArray(std::string_view vendor_id, std::string_view pci_id);
+std::string shell_exec(std::string_view cmd);
 std::vector<std::string> split(std::string_view text, char delim);
 void strip(std::string& input);
+void parse(std::string& input);
 
 // it's std::binary_search but instead returns the std::string
 template<typename _ForwardIterator, typename _Tp>

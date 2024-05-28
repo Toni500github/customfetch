@@ -4,6 +4,7 @@ LOCALEDIR 	?= $(PREFIX)/share/locale
 VARS  	  	?= -DENABLE_NLS=1
 
 DEBUG 		?= 1
+PARSER_TEST ?= 0
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
@@ -12,6 +13,10 @@ ifeq ($(DEBUG), 1)
 else
         BUILDDIR  = build/release
         CXXFLAGS := -O2 $(CXXFLAGS)
+endif
+
+ifeq ($(PARSER_TEST), 1)
+		CXXFLAGS += -DPARSER_TEST=1
 endif
 
 NAME		 = customfetch

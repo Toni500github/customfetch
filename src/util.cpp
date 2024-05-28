@@ -69,6 +69,64 @@ void strip(std::string& input) {
   input.assign(input.begin() + start_index, input.begin() + end_index + 1);
 }
 
+void parse(std::string& input) {
+  size_t dollarSignIndex = 0;
+
+  while (true) {
+      size_t oldDollarSignIndex = dollarSignIndex;
+      dollarSignIndex = input.find('$', dollarSignIndex);
+
+      if (dollarSignIndex == std::string::npos || dollarSignIndex <= oldDollarSignIndex)
+          break;
+
+      // check for bypass
+      if (dollarSignIndex > 0 and input[dollarSignIndex - 1] == '\\')
+          continue;
+
+      std::string command = "";
+      size_t endBracketIndex = -1;
+
+      char type = ' '; // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
+
+      switch (input[dollarSignIndex+1]) {
+          case '(':
+              type = ')';
+              break;
+          case '<':
+              die("PARSER: Not implemented: module types (<gpu.name>)");
+              type = '>';
+              break;
+          default: // neither of them
+              break;
+      }
+
+      if (type == ' ')
+          continue;
+
+      for (size_t i = dollarSignIndex+2; i < input.size(); i++) {
+          if (input[i] == type && input[i-1] != '\\') {
+              endBracketIndex = i;
+              break;
+          } else if (input[i] == type)
+              command.erase(command.size()-1, 1);
+
+          command += input[i];
+      }
+
+      if (endBracketIndex == -1)
+          die("PARSER: Opened tag is not closed at index {} in string {}.", dollarSignIndex, input);
+      
+      switch (type) {
+          case ')':
+              input = input.replace(dollarSignIndex, (endBracketIndex+1)-dollarSignIndex, shell_exec(command));
+              break;
+          case '>':
+              input = input.replace(dollarSignIndex, (endBracketIndex+1)-dollarSignIndex, shell_exec(command));
+              break;
+      }
+  }
+}
+
 // Function to perform binary search on the pci vendors array to find a vendor.
 // Also looks for a device after that.
 std::string binarySearchPCIArray(std::string_view vendor_id_s, std::string_view pci_id_s) {
@@ -78,6 +136,24 @@ std::string binarySearchPCIArray(std::string_view vendor_id_s, std::string_view 
     long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
     
     return name_from_entry(all_ids.find(pci_id, pci_vendors_location_array[location_array_index]));
+}
+
+// http://stackoverflow.com/questions/478898/ddg#478960
+std::string shell_exec(std::string_view cmd) {
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
+
+    if (!pipe)
+        die(_("popen() failed!"));
+
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+        result += buffer.data();
+
+    // why there is a '\n' at the end??
+    if (!result.empty() && result[result.length() - 1] == '\n')
+        result.erase(result.length() - 1);
+    return result;
 }
 
 std::string name_from_entry(size_t dev_entry_pos) {

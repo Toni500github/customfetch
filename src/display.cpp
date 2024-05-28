@@ -19,8 +19,8 @@ std::string Display::render() {
                        "GPU: {}\n"
                        "GPU vendor: {}\n"
                        "CPU model name: {}\n"
-                       "RAM usage: {}Mib / {}Mib\n"
-                       "RAM free amount: {}Mib\n"
+                       "RAM usage: {}MiB / {}MiB\n"
+                       "RAM free amount: {}MiB\n"
                        "Kernel version: {}\n"
                        "OS Pretty name: {}\n"
                        "Arch: {}\n",
@@ -41,8 +41,10 @@ std::string Display::render() {
 void Display::display(std::string renderResult) {
     std::string path = "/tmp/test.txt";
     std::ifstream file(path);
-    if (!file.is_open())
+    if (!file.is_open()) {
         error("Could not open {}", path);
+        return;
+    }
     
     std::string line;
     std::vector<std::string> sys_info = split(renderResult, '\n');
