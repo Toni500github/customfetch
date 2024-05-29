@@ -27,7 +27,7 @@ struct _color_t {
 class Config {
 public:
     bool initialized;
-    std::vector<std::string> layout;
+    std::vector<std::string> layouts;
     std::map<std::string, strOrBool> overrides;
 
 

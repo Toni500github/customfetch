@@ -1,6 +1,9 @@
 #include "util.hpp"
 #include "pci.ids.hpp"
 #include <algorithm>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 #include <vector>
 
 // https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
@@ -68,7 +71,29 @@ void strip(std::string& input) {
     input.assign(input.begin() + start_index, input.begin() + end_index + 1);
 }
 
-void parse(std::string& input) {
+std::string getInfoFromName(systemInfo_t &systemInfo, const std::string &name) {
+    std::vector<std::string> sections = split(name, '.');
+
+    try {
+        if (!systemInfo.contains(sections[0]))
+            throw std::out_of_range("genius");
+        if (!systemInfo[sections[0]].contains(sections[1]))
+            throw std::out_of_range("genius");
+
+        auto result = systemInfo[sections[0]][sections[1]];
+        std::string stringResult;
+        if (std::holds_alternative<size_t>(result))
+            stringResult = std::to_string(std::get<size_t>(result));
+        else
+            stringResult = std::get<std::string>(result);
+
+        return stringResult;
+    } catch (const std::out_of_range &err) {
+        return "";
+    };
+}
+
+void parse(std::string& input, systemInfo_t &systemInfo) {
   size_t dollarSignIndex = 0;
   bool start = false;
 
@@ -99,7 +124,7 @@ void parse(std::string& input) {
                 type = ')';
                 break;
             case '<':
-                die("PARSER: Not implemented: module types (<gpu.name>)");
+                //die("PARSER: Not implemented: module types (<gpu.name>)");
                 type = '>';
                 break;
             default: // neither of them
@@ -127,7 +152,7 @@ void parse(std::string& input) {
                 input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_exec(command));
                 break;
             case '>':
-                input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_exec(command));
+                input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, getInfoFromName(systemInfo, command));
                 break;
         }
     }

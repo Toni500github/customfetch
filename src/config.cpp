@@ -42,7 +42,7 @@ void Config::loadConfigFile(std::string_view filename) {
         {
             if (const auto* str_elem = el.as_string()) {
                 auto v = *str_elem;
-                this->layout.push_back(v->data()); // here's the thing
+                this->layouts.push_back(v->data()); // here's the thing
             }
             else 
                 die("An element of the layout variable in {} is not a string", filename);

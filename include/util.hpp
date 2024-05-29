@@ -7,6 +7,10 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <unordered_map>
+#include <variant>
+
+#define systemInfo_t std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t>>>
 
 using std::filesystem::path;
 
@@ -31,7 +35,7 @@ std::string binarySearchPCIArray(std::string_view vendor_id, std::string_view pc
 std::string shell_exec(std::string_view cmd);
 std::vector<std::string> split(std::string_view text, char delim);
 void strip(std::string& input);
-void parse(std::string& input);
+void parse(std::string& input, systemInfo_t &systemInfo);
 fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();
