@@ -1,4 +1,6 @@
 #include "util.hpp"
+#include "config.hpp"
+#include "fmt/color.h"
 #include "pci.ids.hpp"
 #include <algorithm>
 #include <stdexcept>
@@ -127,6 +129,9 @@ void parse(std::string& input, systemInfo_t &systemInfo) {
                 //die("PARSER: Not implemented: module types (<gpu.name>)");
                 type = '>';
                 break;
+            case '{':
+                type = '}';
+                break;
             default: // neither of them
                 break;
         }
@@ -153,6 +158,16 @@ void parse(std::string& input, systemInfo_t &systemInfo) {
                 break;
             case '>':
                 input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, getInfoFromName(systemInfo, command));
+                break;
+            case '}':
+                if (command == "norm")
+                    input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, NOCOLOR);
+                else {
+                    fmt::rgb clr = command == "c1" ? color.c1 : command == "c2" ? color.c2 : hexStringToColor(command);
+
+                    input = input.replace(dollarSignIndex, input.length()-dollarSignIndex, fmt::format(fmt::fg(clr), "{}", input.substr(endBracketIndex + 1)));
+                }
+
                 break;
         }
     }
