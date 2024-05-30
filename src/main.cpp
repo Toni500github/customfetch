@@ -126,9 +126,9 @@ int main (int argc, char *argv[]) {
         {"os",
             {
                 {"name",         VARIANT(query_system.os_name())},
-                {"uptime_secs",  VARIANT((size_t)uptime_secs.count())},
-                {"uptime_mins",  VARIANT((size_t)uptime_mins.count())},
-                {"uptime_hours", VARIANT((size_t)uptime_hours.count())},
+                {"uptime_secs",  VARIANT((size_t)uptime_secs.count()%60)},
+                {"uptime_mins",  VARIANT((size_t)uptime_mins.count()%60)},
+                {"uptime_hours", VARIANT((size_t)uptime_hours.count()%24)},
                 {"kernel_name",  VARIANT(query_system.kernel_name())},
                 {"kernel_version", VARIANT(query_system.kernel_version())},
                 {"hostname",     VARIANT(query_system.hostname())},
