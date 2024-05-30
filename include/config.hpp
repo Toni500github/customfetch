@@ -86,7 +86,7 @@ layout = [
     "${green}Kernel version${0}: $<os.kernel_version>",
     "${magenta}CPU${0}: $<cpu.name>",
     "${blue}GPU${0}: $<gpu.name>",
-    "${#0ff93}RAM usage${0}: $<ram.used>MB / $<ram.total>"
+    "${#03ff93}RAM usage${0}: $<ram.used> MB / $<ram.total> MB"
 ]
 
 red = "#ff2000"
@@ -113,6 +113,7 @@ magenta = "#ff11cc"
 
 # ${} is used to telling which color to use for colorizing the text
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
+# you can even put a custom hex color e.g: ${#ff6622}
 
 # Little FAQ
 # Q: "but then if I want to make only some words/chars in a color and the rest normal?"

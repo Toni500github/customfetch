@@ -58,7 +58,7 @@ void Display::display(std::vector<std::string> renderResult, systemInfo_t& syste
 
     size_t art_width = 0;
     for (auto& line : ascii_art) {
-        //parse(line, systemInfo_t());
+        parse(line, systemInfo);
         if (line.size() > art_width)
             art_width = line.size();
     }
@@ -70,9 +70,12 @@ void Display::display(std::vector<std::string> renderResult, systemInfo_t& syste
             fmt::print("{:<{}}\t", ascii_art[i], art_width);
 
         if (i < sys_info.size())
-            fmt::println("{}",sys_info[i]);
+            fmt::print("{}",sys_info[i]);
 
-        //fmt::print("\n");
+        if (i > art_width && i < sys_info.size())
+            fmt::println("{:<{}}\t", ascii_art[i], art_width);
+        else
+            fmt::println("");
     }    
 
 }
