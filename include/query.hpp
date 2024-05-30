@@ -14,12 +14,12 @@ namespace Query {
 class System {
 public:
     System();
-    std::string_view kernel_name();
-    std::string_view kernel_version();
-    std::string_view hostname();
-    std::string_view arch();
-    std::string_view username();
-    std::string OS_pretty_name();
+    std::string kernel_name();
+    std::string kernel_version();
+    std::string hostname();
+    std::string arch();
+    std::string username();
+    std::string os_name();
     long uptime();
 private: 
     // private just for the sake of (something idk?) since there are lazy access functions

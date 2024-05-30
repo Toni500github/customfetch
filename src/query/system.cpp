@@ -1,6 +1,8 @@
+#include "query.hpp"
+#include "util.hpp"
+
 #include <cerrno>
 #include <fstream>
-#include "query.hpp"
 #include <algorithm>
 #include <pwd.h>
 #include <unistd.h>
@@ -20,23 +22,23 @@ System::System() {
         die("getpwent failed: {}\nCould not get user infos", errno);
 }
 
-std::string_view System::kernel_name() {
+std::string System::kernel_name() {
     return this->uname_infos.sysname;
 }
 
-std::string_view System::kernel_version() {
+std::string System::kernel_version() {
     return this->uname_infos.release;
 }
 
-std::string_view System::hostname() {
+std::string System::hostname() {
     return this->uname_infos.nodename;
 }
 
-std::string_view System::arch() {
+std::string System::arch() {
     return this->uname_infos.machine;
 }
 
-std::string_view System::username() {
+std::string System::username() {
     return this->pwd->pw_name;
 }
 
@@ -44,8 +46,8 @@ long System::uptime() {
     return this->sysInfos.uptime;
 }
 
-std::string System::OS_pretty_name() {
-    std::string_view sysName = this->kernel_name(); // Query::System::name()
+std::string System::os_name() {
+    std::string sysName = this->kernel_name(); // Query::System::name()
 
     if (sysName == "Linux") {
         std::string os_pretty_name;

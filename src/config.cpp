@@ -45,11 +45,15 @@ void Config::loadConfigFile(std::string_view filename) {
                 this->layouts.push_back(v->data()); // here's the thing
             }
             else 
-                die("An element of the layout variable in {} is not a string", filename);
+                error("An element of the layout variable in {} is not a string", filename);
         });
 
-    color.c1 = this->getThemeValue("c1", "#ff2000");
-    color.c2 = this->getThemeValue("c2", "#ff8800");
+    color.red           = this->getThemeValue("red",     "#ff2000");
+    color.green         = this->getThemeValue("green",   "#00ff00");
+    color.blue          = this->getThemeValue("blue",    "#00aaff");
+    color.cyan          = this->getThemeValue("cyan",    "#00ffff");
+    color.yellow        = this->getThemeValue("yellow",  "#ffff00");
+    color.magenta       = this->getThemeValue("magenta", "#ff11cc");
 }
 
 fmt::rgb Config::getThemeValue(const std::string& value, const std::string& fallback) {

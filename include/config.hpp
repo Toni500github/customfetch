@@ -2,11 +2,14 @@
 #define _CONFIG_HPP
 
 #define TOML_HEADER_ONLY 0
-#define TOML_ENABLE_FORMATTERS 0
 
 #include "util.hpp"
 #include "fmt/color.h"
 #include "toml++/toml.hpp"
+
+#define TOML_UNRELEASED_FEATURES 1
+#define TOML_LANG_UNRELEASED 1
+#define TOML_ENABLE_FORMATTERS 1
 
 enum types {
     STR,
@@ -19,9 +22,13 @@ struct strOrBool {
     bool   boolValue   = false;
 };
 
-struct _color_t {
-    fmt::rgb c1;
-    fmt::rgb c2;
+struct color_t {
+    fmt::rgb red;
+    fmt::rgb green;
+    fmt::rgb blue;
+    fmt::rgb cyan;
+    fmt::rgb yellow;
+    fmt::rgb magenta;
 };
 
 class Config {
@@ -36,6 +43,7 @@ public:
     void loadConfigFile(std::string_view filename);
     fmt::rgb getThemeValue(const std::string& value, const std::string& fallback);
 
+    /*
     // stupid c++ that wants template functions in header
     template <typename T>
     T getConfigValue(const std::string& value, T fallback) {
@@ -56,26 +64,62 @@ public:
             return ret ? expandVar(ret.value()) : expandVar(fallback);
         else
             return ret.value_or(fallback);
-    }
+    }*/
 
 private:
     toml::table tbl;
 };
 
 inline Config config;
-inline struct _color_t color;
+inline struct color_t color;
 
 inline std::string configFile;
 
 inline const constexpr std::string_view AUTOCONFIG = R"#([config]
-layout = [
-    "=================",
-    "CPU: $<cpu.name>  ",
-    "================="
-    ]
+# check below for documentation about config
 
-c1 = "#fffff"
-c2 = "#ff000"
+layout = [
+    "${red}$<user.name>${0}@${cyan}$<os.hostname>",
+    "───────────────────────────",
+    "${red}OS${0}: $<os.name>",
+    "${cyan}Uptime${0}: $<os.uptime_hours> hours, $<os.uptime_mins> minutes",
+    "${green}Kernel version${0}: $<os.kernel_version>",
+    "${magenta}CPU${0}: $<cpu.name>",
+    "${blue}GPU${0}: $<gpu.name>",
+    "${#0ff93}RAM usage${0}: $<ram.used>MB / $<ram.total>"
+]
+
+red = "#ff2000"
+green = "#00ff00"
+blue = "#00aaff"
+cyan = "#00ffff"
+yellow = "#ffff00"
+magenta = "#ff11cc"
+
+# customfetch is designed with customizability in mind
+# here is how it works:
+# the variable "layout" is used for showing the infos and/or something else
+# as like as the user want, no limitation.
+# inside here there are 3 "modules": $<> $() ${}
+
+# $<> means you access a sub-member of a member
+# e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
+# list of builti-in components coming soon
+
+# $() let's you execute bash commands
+# e.g $(echo \"hello world\") will indeed echo out Hello world.
+# you can even use pipes
+# e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
+
+# ${} is used to telling which color to use for colorizing the text
+# e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
+
+# Little FAQ
+# Q: "but then if I want to make only some words/chars in a color and the rest normal?"
+# A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
+
+# Q: "can I use those "modules" in the ascii art text?"
+# A: yes you can ;)
 )#";
 
 #endif

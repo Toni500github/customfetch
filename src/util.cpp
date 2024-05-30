@@ -91,7 +91,7 @@ std::string getInfoFromName(systemInfo_t &systemInfo, const std::string &name) {
 
         return stringResult;
     } catch (const std::out_of_range &err) {
-        return "";
+        return UNKNOWN;
     };
 }
 
@@ -150,7 +150,7 @@ void parse(std::string& input, systemInfo_t &systemInfo) {
         }
 
         if (endBracketIndex == -1)
-            die("PARSER: Opened tag is not closed at index {} in string {}.", dollarSignIndex, input);
+            die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, input);
 
         switch (type) {
             case ')':
@@ -160,10 +160,19 @@ void parse(std::string& input, systemInfo_t &systemInfo) {
                 input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, getInfoFromName(systemInfo, command));
                 break;
             case '}':
-                if (command == "norm")
+                if (command == "0")
                     input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, NOCOLOR);
                 else {
-                    fmt::rgb clr = command == "c1" ? color.c1 : command == "c2" ? color.c2 : hexStringToColor(command);
+                    // yeah you can't do a switch case with strings in C/C++
+                    // hope it doesn't hit these perfomances
+                    fmt::rgb clr = 
+                        command == "red"     ? color.red    : 
+                        command == "blue"    ? color.blue   : 
+                        command == "green"   ? color.green  :
+                        command == "cyan"    ? color.cyan   :
+                        command == "yellow"  ? color.yellow :
+                        command == "magenta" ? color.magenta:
+                        hexStringToColor(command);
 
                     input = input.replace(dollarSignIndex, input.length()-dollarSignIndex, fmt::format(fmt::fg(clr), "{}", input.substr(endBracketIndex + 1)));
                 }

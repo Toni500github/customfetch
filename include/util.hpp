@@ -11,6 +11,7 @@
 #include <variant>
 
 #define systemInfo_t std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t>>>
+#define VARIANT std::variant<std::string, size_t>
 
 using std::filesystem::path;
 
@@ -39,17 +40,6 @@ void parse(std::string& input, systemInfo_t &systemInfo);
 fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();
-
-// it's std::binary_search but instead returns the std::string
-template<typename _ForwardIterator, typename _Tp>
-std::string binary_search_str(_ForwardIterator __first, _ForwardIterator __last,
-		  const _Tp& __val) 
-{
-    _ForwardIterator __i
-	= std::__lower_bound(__first, __last, __val,
-			     __gnu_cxx::__ops::__iter_less_val());
-      return (__i != __last && !(__val < *__i)) ? __val : UNKNOWN;
-}
 
 template <typename... Args>
 void _error_log(fmt::runtime_format_string<> fmt, Args&&... args) {
