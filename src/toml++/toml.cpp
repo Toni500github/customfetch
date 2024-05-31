@@ -10,4 +10,7 @@
 #define TOML_HEADER_ONLY 0
 #endif
 
+#define TOML_ENABLE_UNRELEASED_FEATURES 1
+#define TOML_ENABLE_FORMATTERS 1
+
 #include "toml++/toml.hpp"

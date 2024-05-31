@@ -7,10 +7,6 @@
 #include "fmt/color.h"
 #include "toml++/toml.hpp"
 
-#define TOML_UNRELEASED_FEATURES 1
-#define TOML_LANG_UNRELEASED 1
-#define TOML_ENABLE_FORMATTERS 1
-
 enum types {
     STR,
     BOOL
@@ -23,12 +19,12 @@ struct strOrBool {
 };
 
 struct color_t {
-    fmt::rgb red;
-    fmt::rgb green;
-    fmt::rgb blue;
-    fmt::rgb cyan;
-    fmt::rgb yellow;
-    fmt::rgb magenta;
+    std::string red;
+    std::string green;
+    std::string blue;
+    std::string cyan;
+    std::string yellow;
+    std::string magenta;
 };
 
 class Config {
@@ -41,7 +37,7 @@ public:
     // initialize Config, can only be ran once for each Config instance.
     void init(std::string& configFile, std::string& configDir);
     void loadConfigFile(std::string_view filename);
-    fmt::rgb getThemeValue(const std::string& value, const std::string& fallback);
+    std::string getThemeValue(const std::string& value, const std::string& fallback);
 
     /*
     // stupid c++ that wants template functions in header

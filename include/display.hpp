@@ -7,8 +7,8 @@
 
 namespace Display {
 
-std::vector<std::string> render(systemInfo_t& systemInfo);
-void display(std::vector<std::string> renderResult, systemInfo_t& systemInfo);
+std::vector<std::string>& render(systemInfo_t& systemInfo);
+void display(std::vector<std::string>& renderResult, systemInfo_t& systemInfo);
 
 }
 

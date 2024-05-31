@@ -41,6 +41,7 @@ void strip(std::string& input) {
     if (input.empty()) {
         return;
     }
+    
     // optimization for input size == 1
     if (input.size() == 1) {
         if (input[0] == ' ' || input[0] == '\t' || input[0] == '\n') {
@@ -50,6 +51,7 @@ void strip(std::string& input) {
             return;
         }
     }
+    
     size_t start_index = 0;
     while (true) {
         char c = input[start_index];
@@ -58,6 +60,7 @@ void strip(std::string& input) {
         }
         start_index++;
     }
+
     size_t end_index = input.size() - 1;
     while (true) {
         char c = input[end_index];
@@ -66,10 +69,12 @@ void strip(std::string& input) {
         }
         end_index--;
     }
+    
     if (end_index < start_index) {
         input.assign("");
         return;
     }
+    
     input.assign(input.begin() + start_index, input.begin() + end_index + 1);
 }
 
@@ -91,11 +96,11 @@ std::string getInfoFromName(systemInfo_t &systemInfo, const std::string &name) {
 
         return stringResult;
     } catch (const std::out_of_range &err) {
-        return UNKNOWN;
+        return "<unknown/invalid>";
     };
 }
 
-void parse(std::string& input, systemInfo_t &systemInfo) {
+void parse(std::string& input, systemInfo_t& systemInfo) {
   size_t dollarSignIndex = 0;
   bool start = false;
 
@@ -149,7 +154,7 @@ void parse(std::string& input, systemInfo_t &systemInfo) {
             command += input[i];
         }
 
-        if (endBracketIndex == -1)
+        if ((int)endBracketIndex == -1)
             die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, input);
 
         switch (type) {
@@ -164,17 +169,24 @@ void parse(std::string& input, systemInfo_t &systemInfo) {
                     input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, NOCOLOR);
                 else {
                     // yeah you can't do a switch case with strings in C/C++
-                    // hope it doesn't hit these perfomances
-                    fmt::rgb clr = 
+                    // hope it doesn't hit perfomances too much
+                    std::string str_clr = 
                         command == "red"     ? color.red    : 
                         command == "blue"    ? color.blue   : 
                         command == "green"   ? color.green  :
                         command == "cyan"    ? color.cyan   :
                         command == "yellow"  ? color.yellow :
                         command == "magenta" ? color.magenta:
-                        hexStringToColor(command);
-
-                    input = input.replace(dollarSignIndex, input.length()-dollarSignIndex, fmt::format(fmt::fg(clr), "{}", input.substr(endBracketIndex + 1)));
+                        command;
+                    
+                    fmt::rgb clr;
+                    if (str_clr[0] == '#') {
+                        clr = hexStringToColor(str_clr);
+                        input = input.replace(dollarSignIndex, input.length()-dollarSignIndex, fmt::format(fmt::fg(clr), "{}", input.substr(endBracketIndex + 1)));
+                    } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) {
+                        input = input.replace(dollarSignIndex, input.length()-dollarSignIndex, fmt::format("{:c}[{}{}", 0x1B, hasStart(str_clr, "\033") ? // "\\e" it's for checking in the ascii_art, \033 in the config
+                                                                                                                                str_clr.substr(2) : str_clr.substr(3), input.substr(endBracketIndex + 1)));
+                    }
                 }
 
                 break;

@@ -56,6 +56,6 @@ void Config::loadConfigFile(std::string_view filename) {
     color.magenta       = this->getThemeValue("magenta", "#ff11cc");
 }
 
-fmt::rgb Config::getThemeValue(const std::string& value, const std::string& fallback) {
-    return hexStringToColor(this->tbl["config"][value].value<std::string>().value_or(fallback));
+std::string Config::getThemeValue(const std::string& value, const std::string& fallback) {
+    return this->tbl["config"][value].value<std::string>().value_or(fallback);
 }

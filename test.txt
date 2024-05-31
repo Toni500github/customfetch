@@ -1,0 +1,15 @@
+${\e[1;31m}                     ./${\e[1;35m}o${\e[1;36m}.
+${\e[1;31m}                   ./${\e[1;35m}sssso${\e[1;36m}-
+${\e[1;31m}                 `:${\e[1;35m}osssssss+${\e[1;36m}-
+${\e[1;31m}               `:+${\e[1;35m}sssssssssso${\e[1;36m}/.
+${\e[1;31m}             `-/o${\e[1;35m}ssssssssssssso${\e[1;36m}/.
+${\e[1;31m}           `-/+${\e[1;35m}sssssssssssssssso${\e[1;36m}+:`
+${\e[1;31m}         `-:/+${\e[1;35m}sssssssssssssssssso${\e[1;36m}+/.
+${\e[1;31m}       `.://o${\e[1;35m}sssssssssssssssssssso${\e[1;36m}++-
+${\e[1;31m}      .://+${\e[1;35m}ssssssssssssssssssssssso${\e[1;36m}++:
+${\e[1;31m}    .:///o${\e[1;35m}ssssssssssssssssssssssssso${\e[1;36m}++:
+${\e[1;31m}  `:////${\e[1;35m}ssssssssssssssssssssssssssso${\e[1;36m}+++.
+${\e[1;31m}`-////+${\e[1;35m}ssssssssssssssssssssssssssso${\e[1;36m}++++-
+${\e[1;31m} `..-+${\e[1;35m}oosssssssssssssssssssssssso${\e[1;36m}+++++/`
+${\e[1;36m}   ./++++++++++++++++++++++++++++++/:.
+${\e[1;36m} `:::::::::::::::::::::::::------``
