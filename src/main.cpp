@@ -103,6 +103,9 @@ int main (int argc, char *argv[]) {
 #endif
 
 #ifdef VENDOR_TEST
+    // test
+    fmt::println("=== VENDOR TEST! ===");
+    
     fmt::println("Intel: {}", binarySearchPCIArray("8086"));
     fmt::println("AMD: {}", binarySearchPCIArray("1002"));
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
