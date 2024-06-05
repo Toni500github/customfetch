@@ -102,6 +102,12 @@ int main (int argc, char *argv[]) {
     fmt::println("{}", test_6);
 #endif
 
+#ifdef VENDOR_TEST
+    fmt::println("Intel: {}", binarySearchPCIArray("8086"));
+    fmt::println("AMD: {}", binarySearchPCIArray("1002"));
+    fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
+#endif
+
 #if defined(ENABLE_NLS)
     localize();
 #endif

@@ -228,7 +228,7 @@ std::string binarySearchPCIArray(std::string_view vendor_id_s) {
     long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
     size_t vendors_location = pci_vendors_location_array[location_array_index];
 
-    return vendor_from_entry(vendors_location+3 /* Why? I don't know, but I do know that this is how it works for my NVIDIA card, someone with an AMD card please check. */, vendor_id);
+    return vendor_from_entry(all_ids.find(vendor_id, vendors_location), vendor_id);
 }
 
 // http://stackoverflow.com/questions/478898/ddg#478960

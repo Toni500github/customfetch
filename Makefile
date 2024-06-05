@@ -5,6 +5,7 @@ VARS  	  	?= -DENABLE_NLS=1
 
 DEBUG 		?= 1
 PARSER_TEST ?= 0
+VENDOR_TEST ?= 0
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
@@ -17,6 +18,10 @@ endif
 
 ifeq ($(PARSER_TEST), 1)
 		CXXFLAGS += -DPARSER_TEST=1
+endif
+
+ifeq ($(VENDOR_TEST), 1)
+		CXXFLAGS += -DVENDOR_TEST=1
 endif
 
 NAME		 = customfetch
