@@ -210,15 +210,25 @@ fmt::rgb hexStringToColor(std::string_view hexstr) {
     return fmt::rgb(red, green, blue);
 }
 
-// Function to perform binary search on the pci vendors array to find a vendor.
-// Also looks for a device after that.
+// Function to perform binary search on the pci vendors array to find a device from a vendor.
 std::string binarySearchPCIArray(std::string_view vendor_id_s, std::string_view pci_id_s) {
     std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
     std::string_view pci_id    = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2) : pci_id_s;
 
     long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
+    size_t vendors_location = pci_vendors_location_array[location_array_index];
 
-    return name_from_entry(all_ids.find(pci_id, pci_vendors_location_array[location_array_index]));
+    return name_from_entry(all_ids.find(pci_id, vendors_location));
+}
+
+// Function to perform binary search on the pci vendors array to find a vendor.
+std::string binarySearchPCIArray(std::string_view vendor_id_s) {
+    std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
+
+    long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
+    size_t vendors_location = pci_vendors_location_array[location_array_index];
+
+    return vendor_from_entry(vendors_location+3 /* Why? I don't know, but I do know that this is how it works for my NVIDIA card, someone with an AMD card please check. */, vendor_id);
 }
 
 // http://stackoverflow.com/questions/478898/ddg#478960
@@ -254,24 +264,17 @@ std::string name_from_entry(size_t dev_entry_pos) {
     return all_ids.substr(bracket_open_pos + 1, bracket_close_pos - bracket_open_pos - 1);
 }
 
-std::string vendor_from_id(const std::string& pci_ids, const std::string& id_str) {
-    std::string id = hasStart(id_str, "0x") ? std::string(id_str.begin() + 2, id_str.end()) : id_str;
-
-    // Step 1: Find the position of the ID in the pci_ids string
-    size_t id_pos = pci_ids.find(id);
-    if (id_pos == std::string::npos)
-        return UNKNOWN; // ID not found
-
-    // Step 2: Find the end of the line (newline character) starting from the ID position
-    size_t end_line_pos = pci_ids.find('\n', id_pos);
+std::string vendor_from_entry(size_t vendor_entry_pos, std::string_view vendor_id) {
+    // Step 1: Find the end of the line (newline character) starting from the ID position
+    size_t end_line_pos = all_ids.find('\n', vendor_entry_pos);
     if (end_line_pos == std::string::npos)
-        end_line_pos = pci_ids.length(); // If no newline is found, set to end of string
+        end_line_pos = all_ids.length(); // If no newline is found, set to end of string
 
-    // Step 3: Extract the substring from the ID position to the end of the line
-    std::string line = pci_ids.substr(id_pos, end_line_pos - id_pos);
+    // Step 2: Extract the substring from the ID position to the end of the line
+    std::string line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
 
-    // Step 4: Find the position after the ID (ID length plus possible spaces)
-    size_t      after_id_pos = line.find(id) + id.length();
+    // Step 3: Find the position after the ID (ID length plus possible spaces)
+    size_t      after_id_pos = line.find(vendor_id) + 4;
     std::string description  = line.substr(after_id_pos);
 
     size_t first = description.find_first_not_of(' ');

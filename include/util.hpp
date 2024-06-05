@@ -31,12 +31,17 @@ using std::filesystem::path;
 #define UNKNOWN         "<unknown>"
 
 std::string name_from_entry(size_t dev_entry_pos);
-std::string vendor_from_id(const std::string& pci_ids, const std::string& id_str);
+std::string vendor_from_entry(size_t vendor_entry_pos, std::string_view vendor_id);
 std::string binarySearchPCIArray(std::string_view vendor_id, std::string_view pci_id);
+std::string binarySearchPCIArray(std::string_view vendor_id);
 std::string shell_exec(std::string_view cmd);
 std::vector<std::string> split(std::string_view text, char delim);
 void strip(std::string& input);
+
+// Parse input, in-place, with data from systemInfo.
+// Documentation on formatting is in the default config.toml file.
 void parse(std::string& input, systemInfo_t &systemInfo);
+
 fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();

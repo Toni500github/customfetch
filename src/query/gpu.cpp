@@ -43,6 +43,5 @@ std::string GPU::name(const std::string &vendor_id) {
 }
 
 std::string GPU::vendor(const std::string &vendor_id) {
-
-    return vendor_from_id(all_ids, vendor_id);
+    return binarySearchPCIArray(vendor_id);
 }
