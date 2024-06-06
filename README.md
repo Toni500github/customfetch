@@ -1,12 +1,12 @@
 # Customfetch
 
-A command-line system information tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program) which its focus point is the customizability and perfomance.\
-`customfetch` is designed to provide a really really customizable way to display your system informations in the way you like or want.
+A command-line system information tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), its focus point is the customizability and perfomance.\
+`customfetch` is designed to provide a really customizable way to display your system informations in the way you like or want.
 
 Currently supports Linux distros only, but our current goal is to be cross-platform, which will happen soon (windows support incoming)
 
-## Config (with explaination)
-Here's an example by using the default config
+## Config (with explanation)
+Here's an example using the default config
 
 ![image](https://github.com/Toni500github/customfetch/assets/88878648/8b1f6ca7-28a7-4b8a-b302-18dbfcd6af87)
 
@@ -62,9 +62,9 @@ We use our own parser for displaying the system informations or anything else, a
 We use something we call "modules" and they starts with a '$', **we use them on both the ascii art text file and the `layout` variable**\
 There are 3 modules:
 
-* <strong>The info module</strong> ($<>) let's you access a sub-member of a member\
+* <strong>The info module</strong> ($<>) lets you access a sub-member of a member\
   e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
-  list of builti-in components coming soon
+  list of built-in components coming soon
 
 * **The color module** (${}) displays the text with a color\
   e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable).\
@@ -76,4 +76,6 @@ There are 3 modules:
   you can even use pipes:\
   e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
 
-Hope that explained well
+Any end brackets (')', '}', '>') can be escaped with \.
+
+Hope that explained it well
