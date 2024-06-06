@@ -216,9 +216,15 @@ std::string binarySearchPCIArray(std::string_view vendor_id_s, std::string_view 
     std::string_view pci_id    = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2) : pci_id_s;
 
     long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
-    size_t vendors_location = pci_vendors_location_array[location_array_index];
+    size_t approx_vendors_location = pci_vendors_location_array[location_array_index];
+    size_t vendors_location = all_ids.find(pci_id, approx_vendors_location);
 
-    return name_from_entry(all_ids.find(pci_id, vendors_location));
+    if (vendors_location == std::string::npos)
+        return UNKNOWN;
+
+    // Here we use find from vendors_location because as it turns out, lower_bound doesn't return WHERE it is, but where "val" can be placed without affecting the order of the string (binary search stuff)
+    // so we have to find from the point onwards to find the actual line, it is still a shortcut, better than searching from 0.
+    return name_from_entry(vendors_location);
 }
 
 // Function to perform binary search on the pci vendors array to find a vendor.
@@ -226,9 +232,15 @@ std::string binarySearchPCIArray(std::string_view vendor_id_s) {
     std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
 
     long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
-    size_t vendors_location = pci_vendors_location_array[location_array_index];
+    size_t approx_vendors_location = pci_vendors_location_array[location_array_index];
+    size_t vendors_location = all_ids.find(vendor_id, approx_vendors_location);
 
-    return vendor_from_entry(all_ids.find(vendor_id, vendors_location), vendor_id);
+    if (vendors_location == std::string::npos)
+        return UNKNOWN;
+
+    // Here we use find from vendors_location because as it turns out, lower_bound doesn't return WHERE it is, but where "val" can be placed without affecting the order of the string (binary search stuff)
+    // so we have to find from the point onwards to find the actual line, it is still a shortcut, better than searching from 0.
+    return vendor_from_entry(vendors_location, vendor_id);
 }
 
 // http://stackoverflow.com/questions/478898/ddg#478960
