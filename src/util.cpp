@@ -100,13 +100,18 @@ std::string getInfoFromName(systemInfo_t &systemInfo, const std::string &name) {
     };
 }
 
-void parse(std::string& input, systemInfo_t& systemInfo) {
+std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<std::string> &pureOutput) {
+  std::string output = input;
+  if (pureOutput)
+    *pureOutput = output;
+
   size_t dollarSignIndex = 0;
+  size_t pureOutputOffset = 0;
   bool start = false;
 
     while (true) {
         size_t oldDollarSignIndex = dollarSignIndex;
-        dollarSignIndex           = input.find('$', dollarSignIndex);
+        dollarSignIndex           = output.find('$', dollarSignIndex);
 
       if (dollarSignIndex == std::string::npos || (dollarSignIndex <= oldDollarSignIndex && start))
           break;
@@ -118,7 +123,7 @@ void parse(std::string& input, systemInfo_t& systemInfo) {
       // btw the second part checks if it has a \ before it and NOT a \ before the backslash, (check for escaped backslash)
       // example: \$ is bypassed, \\$ is NOT bypassed.
       // this will not make an effort to check multiple backslashes, thats your fault atp.
-      if (dollarSignIndex > 0 and (input[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or input[dollarSignIndex - 2] != '\\')))
+      if (dollarSignIndex > 0 and (output[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\')))
           continue;
 
         std::string command         = "";
@@ -126,7 +131,7 @@ void parse(std::string& input, systemInfo_t& systemInfo) {
 
         char        type = ' '; // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
 
-        switch (input[dollarSignIndex + 1]) {
+        switch (output[dollarSignIndex + 1]) {
             case '(':
                 type = ')';
                 break;
@@ -144,32 +149,41 @@ void parse(std::string& input, systemInfo_t& systemInfo) {
         if (type == ' ')
             continue;
 
-        for (size_t i = dollarSignIndex + 2; i < input.size(); i++) {
-            if (input[i] == type && input[i - 1] != '\\') {
+        for (size_t i = dollarSignIndex + 2; i < output.size(); i++) {
+            if (output[i] == type && output[i - 1] != '\\') {
                 endBracketIndex = i;
                 break;
-            } else if (input[i] == type)
+            } else if (output[i] == type)
                 command.erase(command.size() - 1, 1);
 
-            command += input[i];
+            command += output[i];
         }
 
         if ((int)endBracketIndex == -1)
-            die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, input);
+            die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
 
         switch (type) {
             case ')':
-                input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_exec(command));
+                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_exec(command));
+                if (pureOutput)
+                    *pureOutput = pureOutput->replace(dollarSignIndex-pureOutputOffset, (endBracketIndex + 1) - dollarSignIndex, "");
+                pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 break;
             case '>':
-                input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, getInfoFromName(systemInfo, command));
+                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, getInfoFromName(systemInfo, command));
+                if (pureOutput)
+                    *pureOutput = pureOutput->replace(dollarSignIndex-pureOutputOffset, (endBracketIndex + 1) - dollarSignIndex, "");
+                pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 break;
             case '}':
-                if (command == "0")
-                    input = input.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, NOCOLOR);
-                else {
+                if (command == "0") {
+                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, NOCOLOR);
+                    if (pureOutput)
+                        *pureOutput = pureOutput->replace(dollarSignIndex-pureOutputOffset, (endBracketIndex + 1) - dollarSignIndex, "");
+                    pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
+                } else {
                     // yeah you can't do a switch case with strings in C/C++
-                    // hope it doesn't hit perfomances too much
+                    // hope it doesn't hurt performance too much
                     std::string str_clr = 
                         command == "red"     ? color.red    : 
                         command == "blue"    ? color.blue   : 
@@ -182,16 +196,23 @@ void parse(std::string& input, systemInfo_t& systemInfo) {
                     fmt::rgb clr;
                     if (str_clr[0] == '#') {
                         clr = hexStringToColor(str_clr);
-                        input = input.replace(dollarSignIndex, input.length()-dollarSignIndex, fmt::format(fmt::fg(clr), "{}", input.substr(endBracketIndex + 1)));
-                    } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) {
-                        input = input.replace(dollarSignIndex, input.length()-dollarSignIndex, fmt::format("{:c}[{}{}", 0x1B, hasStart(str_clr, "\033") ? // "\\e" it's for checking in the ascii_art, \033 in the config
-                                                                                                                                str_clr.substr(2) : str_clr.substr(3), input.substr(endBracketIndex + 1)));
+                        output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format(fmt::fg(clr), "{}", output.substr(endBracketIndex + 1)));
+                    } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) { // what?
+                        output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format("{:c}[{}{}", 0x1B, hasStart(str_clr, "\033") ? // "\\e" is for checking in the ascii_art, \033 in the config
+                                                                                                                                str_clr.substr(2) : str_clr.substr(3), output.substr(endBracketIndex + 1)));
                     }
+
+                    if (pureOutput)
+                        *pureOutput = pureOutput->replace(dollarSignIndex-pureOutputOffset, endBracketIndex - dollarSignIndex + 1, "");
+                    
+                    pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 }
 
                 break;
         }
     }
+
+    return output;
 }
 
 fmt::rgb hexStringToColor(std::string_view hexstr) {

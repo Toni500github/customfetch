@@ -40,7 +40,8 @@ void strip(std::string& input);
 
 // Parse input, in-place, with data from systemInfo.
 // Documentation on formatting is in the default config.toml file.
-void parse(std::string& input, systemInfo_t &systemInfo);
+// pureOutput is set to the string, but without the brackets.
+std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<std::string> &pureOutput);
 
 fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();
