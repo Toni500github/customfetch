@@ -1,6 +1,6 @@
 # Customfetch
 
-A command-line system information tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program) which its focus point is the customizability and perfomance\
+A command-line system information tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program) which its focus point is the customizability and perfomance.\
 `customfetch` is designed to provide a really really customizable way to display your system informations in the way you like or want.
 
 Currently supports Linux distros only, but our current goal is to be cross-platform, which will happen soon (windows support incoming)
