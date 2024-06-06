@@ -36,6 +36,7 @@ std::string binarySearchPCIArray(std::string_view vendor_id, std::string_view pc
 std::string binarySearchPCIArray(std::string_view vendor_id);
 std::string shell_exec(std::string_view cmd);
 std::vector<std::string> split(std::string_view text, char delim);
+std::string expandVar(std::string& str);
 void strip(std::string& input);
 
 // Parse input, in-place, with data from systemInfo.
@@ -72,6 +73,11 @@ void die(const char *fmt, Args&&... args) {
 template <typename... Args>
 void debug(std::string_view fmt, Args&&... args) {
     fmt::println(BOLD_TEXT(fmt::rgb(fmt::color::hot_pink)), "[DEBUG]: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+}
+
+template <typename... Args>
+void warn(std::string_view fmt, Args&&... args) {
+    fmt::println(BOLD_TEXT(fmt::rgb(fmt::color::yellow)), "WARNING: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 #endif

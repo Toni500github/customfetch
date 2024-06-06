@@ -45,8 +45,10 @@ void Config::loadConfigFile(std::string_view filename) {
                 this->layouts.push_back(v->data()); // here's the thing
             }
             else 
-                error("An element of the layout variable in {} is not a string", filename);
+                warn("An element of the layout variable in {} is not a string", filename);
         });
+
+    this->ascii_art_path = getConfigValue<std::string>("config.ascii-art-path", "");
 
     color.red           = this->getThemeValue("red",     "#ff2000");
     color.green         = this->getThemeValue("green",   "#00ff00");

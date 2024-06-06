@@ -7,57 +7,16 @@
 #include <fmt/ranges.h>
 #include <memory>
 
-std::string ascii_art_path = "/tmp/test.txt";
-
-// function taken from archlinux pacman utils
-static size_t string_length(const char *s) {
-    int      len;
-    wchar_t *wcstr;
-
-    if (!s || s[0] == '\0') {
-        return 0;
-    }
-    if (strstr(s, "\033")) {
-        char *replaced = (char *)malloc(sizeof(char) * strlen(s));
-        int   iter     = 0;
-        for (; *s; s++) {
-            if (*s == '\033') {
-                while (*s != 'm') {
-                    s++;
-                }
-            } else {
-                replaced[iter] = *s;
-                iter++;
-            }
-        }
-        replaced[iter] = '\0';
-        len            = iter;
-        wcstr          = (wchar_t *)calloc(len, sizeof(wchar_t));
-        len            = mbstowcs(wcstr, replaced, len);
-        len            = wcswidth(wcstr, len);
-        free(wcstr);
-        free(replaced);
-    } else {
-        /* len goes from # bytes -> # chars -> # cols */
-        len   = strlen(s) + 1;
-        wcstr = (wchar_t *)calloc(len, sizeof(wchar_t));
-        len   = mbstowcs(wcstr, s, len);
-        len   = wcswidth(wcstr, len);
-        free(wcstr);
-    }
-
-    return len;
-}
-
 std::vector<std::string>& Display::render(systemInfo_t& systemInfo) {
     for (std::string& layout : config.layouts) {
         std::unique_ptr<std::string> _;
         layout = parse(layout, systemInfo, _);
     }
 
-    std::ifstream file(ascii_art_path, std::ios_base::binary);
+    std::ifstream file(config.ascii_art_path, std::ios_base::binary);
     if (!file.is_open())
-        die("Could not open {}", ascii_art_path);
+        if (!config.ascii_art_path.empty())
+            error("Could not open ascii art file \"{}\"", config.ascii_art_path);
     
     std::string line;
     std::vector<std::string> asciiArt;

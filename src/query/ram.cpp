@@ -27,7 +27,7 @@ static std::array<size_t, 5> get_amount() {
 
     std::string line;
     while (std::getline(file, line)) {
-        if (line.find("MemFree:") != std::string::npos) {
+        if (line.find("MemAvailable:") != std::string::npos) {
             std::vector<std::string> memfree = split(line, ':');
             strip(memfree[1]);
             
@@ -35,14 +35,6 @@ static std::array<size_t, 5> get_amount() {
             memory_infos[FREE] = ret / 1024;
         }
         
-        if (line.find("Active:") != std::string::npos) {
-            std::vector<std::string> memused = split(line, ':');
-            strip(memused[1]);
-            
-            int32_t ret = std::stoi(memused[1]);
-            memory_infos[USED] = ret / 1024;
-        }
-
         if (line.find("MemTotal:") != std::string::npos) {
             std::vector<std::string> memtot = split(line, ':');
             strip(memtot[1]);
@@ -52,6 +44,8 @@ static std::array<size_t, 5> get_amount() {
         }
 
     }
+
+    memory_infos[USED] = memory_infos[TOTAL] - memory_infos[FREE];
 
     return memory_infos;
 }

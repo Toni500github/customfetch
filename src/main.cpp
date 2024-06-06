@@ -3,6 +3,7 @@
 #include "query.hpp"
 #include "config.hpp"
 
+#include <fstream>
 #include <unordered_map>
 #include <chrono>
 #include <getopt.h>
@@ -27,20 +28,20 @@ static void version() {
     std::exit(0);
 }
 
-static void help() {
+static void help(bool invalid_opt = false) {
     fmt::println("here is the help. nah later");
-    std::exit(1);
+    std::exit(invalid_opt);
 }
 
 static bool parseargs(int argc, char* argv[]) {
     int opt = 0;
     int option_index = 0;
-    const char *optstring = "Vhc:C:a";
+    const char *optstring = "Vhc:C:a:";
     static const struct option opts[] =
     {
         {"version",    no_argument,       0, 'V'},
         {"help",       no_argument,       0, 'h'},
-        {"colors",     no_argument,       0, 'c'},
+        {"no-colors",  required_argument, 0, 'c'},
         {"config",     required_argument, 0, 'C'},
         {"ascii-art",  required_argument, 0, 'a'},
         {0,0,0,0}
@@ -51,7 +52,7 @@ static bool parseargs(int argc, char* argv[]) {
         if (opt == 0)
             continue;
         else if (opt == '?')
-            return 1;
+            help(1);
         
         switch (opt) {
             case 'V':
@@ -62,6 +63,8 @@ static bool parseargs(int argc, char* argv[]) {
                 fmt::disable_colors = true; break;
             case 'C':
                 configFile = strndup(optarg, PATH_MAX); break;
+            case 'a':
+                config.overrides["config.ascii-art-path"] = {STR, strndup(optarg, PATH_MAX)}; break;
             default:
                 return false;
         }

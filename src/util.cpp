@@ -31,6 +31,30 @@ std::vector<std::string> split(std::string_view text, char delim) {
     return vec;
 }
 
+/** Replace special symbols such as ~ and $ in std::strings
+ * @param str The string
+ * @return The modified string
+ */
+std::string expandVar(std::string& str) {
+    const char *env;
+    if (str[0] == '~') {
+        env = getenv("HOME");
+        if (env == nullptr)
+            die(_("FATAL: $HOME enviroment variable is not set (how?)"));
+
+        str.replace(0, 1, env); // replace ~ with the $HOME value
+    } else if (str[0] == '$') {
+        str.erase(0, 1); // erase from str[0] to str[1]
+        env = getenv(str.c_str());
+        if (env == nullptr)
+            die(_("No such enviroment variable: {}"), str);
+
+        str = env;
+    }
+
+    return str;
+}
+
 /**
  * remove all white spaces (' ', '\t', '\n') from start and end of input
  * inplace!
@@ -82,9 +106,9 @@ std::string getInfoFromName(systemInfo_t &systemInfo, const std::string &name) {
     std::vector<std::string> sections = split(name, '.');
 
     try {
-        if (!systemInfo.contains(sections[0]))
+        if (systemInfo.find(sections[0]) == systemInfo.end())
             throw std::out_of_range("genius");
-        if (!systemInfo[sections[0]].contains(sections[1]))
+        if (systemInfo[sections[0]].find(sections[1]) == systemInfo[sections[0]].end())
             throw std::out_of_range("genius");
 
         auto result = systemInfo[sections[0]][sections[1]];
@@ -96,34 +120,34 @@ std::string getInfoFromName(systemInfo_t &systemInfo, const std::string &name) {
 
         return stringResult;
     } catch (const std::out_of_range &err) {
-        return "<unknown/invalid>";
+        return "<unknown/invalid module>";
     };
 }
 
 std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<std::string> &pureOutput) {
-  std::string output = input;
-  if (pureOutput)
-    *pureOutput = output;
+    std::string output = input;
+    if (pureOutput)
+        *pureOutput = output;
 
-  size_t dollarSignIndex = 0;
-  size_t pureOutputOffset = 0;
-  bool start = false;
+    size_t dollarSignIndex = 0;
+    size_t pureOutputOffset = 0;
+    bool start = false;
 
     while (true) {
         size_t oldDollarSignIndex = dollarSignIndex;
         dollarSignIndex           = output.find('$', dollarSignIndex);
 
-      if (dollarSignIndex == std::string::npos || (dollarSignIndex <= oldDollarSignIndex && start))
+        if (dollarSignIndex == std::string::npos || (dollarSignIndex <= oldDollarSignIndex && start))
           break;
 
-      start = true;
+        start = true;
 
-      // check for bypass
-      // YOU CAN USE AND/NOT IN C++????
-      // btw the second part checks if it has a \ before it and NOT a \ before the backslash, (check for escaped backslash)
-      // example: \$ is bypassed, \\$ is NOT bypassed.
-      // this will not make an effort to check multiple backslashes, thats your fault atp.
-      if (dollarSignIndex > 0 and (output[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\')))
+        // check for bypass
+        // YOU CAN USE AND/NOT IN C++????
+        // btw the second part checks if it has a \ before it and NOT a \ before the backslash, (check for escaped backslash)
+        // example: \$ is bypassed, \\$ is NOT bypassed.
+        // this will not make an effort to check multiple backslashes, thats your fault atp.
+        if (dollarSignIndex > 0 and (output[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\')))
           continue;
 
         std::string command         = "";
@@ -207,7 +231,6 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
                     
                     pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 }
-
                 break;
         }
     }
