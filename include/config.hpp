@@ -29,9 +29,11 @@ struct color_t {
 
 class Config {
 public:
-    bool initialized;
+    bool        initialized;
+    std::string ascii_art_path;
+    bool        disable_ascii_art = false;
+    u_short     offset = 0;
     std::vector<std::string> layouts;
-    std::string              ascii_art_path;
     std::map<std::string, strOrBool> overrides;
 
 
@@ -89,8 +91,10 @@ layout = [
     "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
 ]
 
-ascii-art-path = "test.txt"
+ascii-art-path = "test.txt" # leave it empty for disabling ascii-art displaying
 
+offset = 5 # offset between the ascii art and the system infos
+    
 # Colors can be with: hexcodes (#55ff88) OR bash escape code colors like "\e[1;34m"
 # remember to add ${0} where you want to reset color
 red = "#ff2000"

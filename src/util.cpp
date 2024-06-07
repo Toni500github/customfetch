@@ -3,6 +3,7 @@
 #include "fmt/color.h"
 #include "pci.ids.hpp"
 #include <algorithm>
+#include <cerrno>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -40,14 +41,14 @@ std::string expandVar(std::string& str) {
     if (str[0] == '~') {
         env = getenv("HOME");
         if (env == nullptr)
-            die(_("FATAL: $HOME enviroment variable is not set (how?)"));
+            die("FATAL: $HOME enviroment variable is not set (how?)");
 
         str.replace(0, 1, env); // replace ~ with the $HOME value
     } else if (str[0] == '$') {
         str.erase(0, 1); // erase from str[0] to str[1]
         env = getenv(str.c_str());
         if (env == nullptr)
-            die(_("No such enviroment variable: {}"), str);
+            die("No such enviroment variable: {}", str);
 
         str = env;
     }
@@ -294,7 +295,7 @@ std::string shell_exec(std::string_view cmd) {
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
 
     if (!pipe)
-        die(_("popen() failed!"));
+        die("popen() failed: {}", errno);
 
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
         result += buffer.data();
@@ -354,7 +355,7 @@ std::string getHomeConfigDir() {
     } else {
         char *home = getenv("HOME");
         if (home == nullptr)
-            die(_("Failed to find $HOME, set it to your home directory!"));
+            die("Failed to find $HOME, set it to your home directory!");
 
         return std::string(home) + "/.config";
     }

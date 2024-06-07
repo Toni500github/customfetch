@@ -15,8 +15,8 @@ std::vector<std::string>& Display::render(systemInfo_t& systemInfo) {
 
     std::ifstream file(config.ascii_art_path, std::ios_base::binary);
     if (!file.is_open())
-        if (!config.ascii_art_path.empty())
-            error("Could not open ascii art file \"{}\"", config.ascii_art_path);
+        if (!config.disable_ascii_art)
+            die("Could not open ascii art file \"{}\"", config.ascii_art_path);
     
     std::string line;
     std::vector<std::string> asciiArt;
@@ -41,15 +41,15 @@ std::vector<std::string>& Display::render(systemInfo_t& systemInfo) {
         size_t origin = 0;
 
         if (i < asciiArt.size()) {
-            config.layouts[i].insert(0, asciiArt[i]);
-            origin = asciiArt[i].length();
+            config.layouts.at(i).insert(0, asciiArt.at(i));
+            origin = asciiArt.at(i).length();
         }
 
-        size_t spaces = (maxLineLength + 5) - (i < asciiArt.size() ? pureAsciiArt[i]->length() : 0);
+        size_t spaces = (maxLineLength + (config.disable_ascii_art ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt.at(i)->length() : 0);
         for (size_t j = 0; j < spaces; j++)
-            config.layouts[i].insert(origin, " ");
+            config.layouts.at(i).insert(origin, " ");
         
-        config.layouts[i] += NOCOLOR;
+        config.layouts.at(i) += NOCOLOR;
     }
 
     if (i < asciiArt.size())

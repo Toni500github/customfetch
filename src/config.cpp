@@ -1,6 +1,7 @@
 #include "config.hpp"
 #include <fstream>
 #include <iostream>
+#include <sys/types.h>
 
 // initialize Config, can only be ran once for each Config instance.
 void Config::init(std::string& configFile, std::string& configDir) {
@@ -49,6 +50,7 @@ void Config::loadConfigFile(std::string_view filename) {
         });
 
     this->ascii_art_path = getConfigValue<std::string>("config.ascii-art-path", "");
+    this->offset         = getConfigValue<u_short>("config.offset", 5);
 
     color.red           = this->getThemeValue("red",     "#ff2000");
     color.green         = this->getThemeValue("green",   "#00ff00");

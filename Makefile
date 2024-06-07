@@ -1,11 +1,11 @@
 CXX       	?= g++
 PREFIX	  	?= /usr
 LOCALEDIR 	?= $(PREFIX)/share/locale
-VARS  	  	?= -DENABLE_NLS=1
+VARS  	  	?=
 
 DEBUG 		?= 1
-PARSER_TEST ?= 0
-VENDOR_TEST ?= 0
+PARSER_TEST 	?= 0
+VENDOR_TEST 	?= 0
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
@@ -48,15 +48,12 @@ ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
 	make -C src/toml++ BUILDDIR=$(BUILDDIR)/toml++
 endif
 
-locale:
-	scripts/make_mo.sh locale/
-
 $(TARGET): fmt toml $(OBJ)
 	mkdir -p $(BUILDDIR)
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 
-dist: $(TARGET) locale
-	bsdtar --zstd -cf $(NAME)-v$(VERSION).tar.zst LICENSE README.md locale/ -C $(BUILDDIR) $(TARGET)
+dist: $(TARGET)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE README.md -C $(BUILDDIR) $(TARGET)
 
 clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)

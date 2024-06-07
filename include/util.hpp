@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <sys/types.h>
 #include <unordered_map>
 #include <variant>
 
@@ -14,16 +15,6 @@
 #define VARIANT std::variant<std::string, size_t>
 
 using std::filesystem::path;
-
-#ifdef ENABLE_NLS
-/* here so it doesn't need to be included elsewhere */
-#include <libintl.h> 
-#include <locale.h>
-/* define _() as shortcut for gettext() */
-#define _(str) gettext(str)
-#else
-#define _(s) (char *)s
-#endif
 
 #define BOLD           fmt::emphasis::bold
 #define BOLD_TEXT(x)   (fmt::emphasis::bold | fmt::fg(x))
