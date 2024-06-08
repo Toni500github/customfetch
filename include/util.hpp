@@ -28,6 +28,7 @@ std::string binarySearchPCIArray(std::string_view vendor_id);
 std::string shell_exec(std::string_view cmd);
 std::vector<std::string> split(std::string_view text, char delim);
 std::string expandVar(std::string& str);
+std::string replace_str(std::string str, const std::string& from, const std::string& to);
 void strip(std::string& input);
 
 // Parse input, in-place, with data from systemInfo.

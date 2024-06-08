@@ -21,6 +21,7 @@ public:
     std::string username();
     std::string os_name();
     long uptime();
+
 private: 
     // private just for the sake of (something idk?) since there are lazy access functions
     struct utsname uname_infos;
@@ -41,6 +42,7 @@ public:
     std::string vendor_id();
     std::string name(const std::string &vendor_id);
     std::string vendor(const std::string &vendor_id);
+
 };
 
 class RAM {
@@ -50,7 +52,7 @@ public:
     size_t used_amount();
 };
 
-};
+}; // namespace Query
 
 inline Query::System query_system;
 inline Query::CPU query_cpu;

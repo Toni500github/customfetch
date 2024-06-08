@@ -6,4 +6,3 @@
 -DENABLE_NLS=1
 -DVERSION="0.0.1"
 -DBRANCH="main"
--DLOCALEDIR="/usr/share/locale"

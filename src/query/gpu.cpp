@@ -1,45 +1,60 @@
 #include "query.hpp"
 #include "util.hpp"
-#include "pci.ids.hpp"
 
+#include <filesystem>
 #include <fstream>
+#include <string>
 #include <sys/types.h>
 
 using namespace Query;
 
-std::string GPU::vendor_id() {
-    std::string sys_path = "/sys/class/drm/card0/device/vendor";
-    std::ifstream file(sys_path);
-    if(!file.is_open()) {
-        error("Could not open {}", sys_path);
+static std::string read_drm_by_path(const std::string& path) {
+    std::ifstream f_drm(path);
+    if (!f_drm.is_open())
         return UNKNOWN;
+
+    std::string ret;
+    std::getline(f_drm, ret);
+    return ret;
+}
+
+std::string GPU::vendor_id() {
+    std::string sys_path;
+    u_short id = 0;
+    while (true) {
+        if (!std::filesystem::exists(fmt::format("/sys/class/drm/card{}/device/vendor", id))) {
+            if (id > 3) break;
+        } else {
+            sys_path = fmt::format("/sys/class/drm/card{}/device/vendor", id);
+            break;
+        }
+        id++;
+        continue;
     }
 
-    std::string id_s;
-    while(file >> id_s);
-
-    return id_s;
+    return read_drm_by_path(sys_path);
 }
 
 std::string GPU::name(const std::string &vendor_id) {
-    std::string sys_device_path = "/sys/class/drm/card0/device/device";
-    //fmt::format("/sys/class/drm/card{}/", id);
-    
-    /*while (true) {
-        if (!std::filesystem::exists(sys_path))
-            continue;
-    }*/
-
-    std::ifstream device_file(sys_device_path);
-    if(!device_file.is_open()) {
-        error("Could not open {}", sys_device_path);
-        return UNKNOWN;
+    std::string sys_path;
+    u_short id = 0;
+    while (true) {
+        if (!std::filesystem::exists(fmt::format("/sys/class/drm/card{}/device/device", id))) {
+            if (id > 3) break;
+        } else {
+            sys_path = fmt::format("/sys/class/drm/card{}/device/device", id);
+            break;
+        }
+        id++;
+        continue;
     }
 
-    std::string id_s;
-    while(device_file >> id_s);
+    std::string id_s = read_drm_by_path(sys_path);
+    std::string ret = fmt::format("{} {}", this->vendor(vendor_id), binarySearchPCIArray(vendor_id, id_s));
 
-    return binarySearchPCIArray(vendor_id, id_s);
+    ret = replace_str(ret, "Advanced Micro Devices, Inc.", "AMD");
+    ret = replace_str(ret, "NVIDIA Corporation", "NVIDIA");
+    return ret;
 }
 
 std::string GPU::vendor(const std::string &vendor_id) {
