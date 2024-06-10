@@ -5,6 +5,7 @@
 
 #include "util.hpp"
 #include "fmt/color.h"
+#include <array>
 #include "toml++/toml.hpp"
 
 enum types {
@@ -34,6 +35,7 @@ public:
     bool        disable_ascii_art = false;
     u_short     offset = 0;
     std::vector<std::string> layouts;
+    std::vector<std::string> includes;
     std::map<std::string, strOrBool> overrides;
 
 
@@ -76,8 +78,14 @@ inline const constexpr std::string_view AUTOCONFIG = R"#([config]
 # check below for documentation about config
 # you can use those "modules" in the ascii art text file too
 
+# includes directive, include the top name of each module you use.
+# e.g. if you want to use $<os.name>, make includes = ["os"].
+# you can also put specific includes, for example if you only want os.name, make includes = ["os.name"]
+# note: os automatically includes user
+# includes = ["os", "cpu", "gpu", "ram"]
+
 layout = [
-    "${red}$<user.name>${0}@${cyan}$<os.hostname>",
+    "${red}$<os.username>${0}@${cyan}$<os.hostname>",
     "───────────────────────────",
     "${red}OS${0}: $<os.name>",
     "${cyan}Uptime${0}: $<os.uptime_hours> hours, $<os.uptime_mins> minutes",

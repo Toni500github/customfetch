@@ -2,6 +2,7 @@
 #include "config.hpp"
 #include "fmt/color.h"
 #include "pci.ids.hpp"
+#include "query.hpp"
 #include <algorithm>
 #include <cerrno>
 #include <stdexcept>
@@ -190,15 +191,9 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
         switch (type) {
             case ')':
                 output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_exec(command));
-                if (pureOutput)
-                    *pureOutput = pureOutput->replace(dollarSignIndex-pureOutputOffset, (endBracketIndex + 1) - dollarSignIndex, "");
-                pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 break;
             case '>':
                 output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, getInfoFromName(systemInfo, command));
-                if (pureOutput)
-                    *pureOutput = pureOutput->replace(dollarSignIndex-pureOutputOffset, (endBracketIndex + 1) - dollarSignIndex, "");
-                pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 break;
             case '}':
                 if (command == "0") {
@@ -239,6 +234,165 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
     return output;
 }
 
+void addModuleValues(systemInfo_t &sysInfo, std::string &moduleName) {
+    // yikes, here we go.
+
+    if (moduleName == "os") {
+        Query::System query_system;
+    
+        std::chrono::seconds uptime_secs(query_system.uptime());
+        auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
+        auto uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
+
+        sysInfo.insert(
+            {"os", {
+                {"name",         VARIANT(query_system.os_name())},
+                {"username",        VARIANT(query_system.username())},
+                {"uptime_secs",  VARIANT((size_t)uptime_secs.count()%60)},
+                {"uptime_mins",  VARIANT((size_t)uptime_mins.count()%60)},
+                {"uptime_hours", VARIANT((size_t)uptime_hours.count())},
+                {"kernel_name",  VARIANT(query_system.kernel_name())},
+                {"kernel_version", VARIANT(query_system.kernel_version())},
+                {"hostname",     VARIANT(query_system.hostname())},
+                {"arch",         VARIANT(query_system.arch())},
+            }}
+        );
+
+        return;
+    }
+    if (moduleName == "cpu") {
+        Query::CPU query_cpu;
+
+        sysInfo.insert(
+            {"cpu", {
+                {"name", VARIANT(query_cpu.name())},
+            }}
+        );
+
+        return;
+    }
+    if (moduleName == "gpu") {
+        Query::GPU query_gpu(pac);
+
+        sysInfo.insert(
+            {"gpu", {
+                {"name",   VARIANT(query_gpu.name())},
+                {"vendor", VARIANT(query_gpu.vendor())}
+            }}
+        );
+
+        return;
+    }
+    if (moduleName == "ram") {
+        Query::RAM query_ram;
+
+        sysInfo.insert(
+            {"ram", {
+                {"used",  VARIANT(query_ram.used_amount())},
+                {"total", VARIANT(query_ram.total_amount())},
+                {"free",  VARIANT(query_ram.free_amount())}
+            }}
+        );
+
+        return;
+    }
+
+    die("Invalid module name {}!", moduleName);
+}
+
+void addValueFromModule(systemInfo_t &sysInfo, std::string &moduleName, std::string &moduleValueName) {
+    // yikes, here we go.
+
+    if (moduleName == "os") {
+        Query::System query_system;
+    
+        std::chrono::seconds uptime_secs(query_system.uptime());
+        auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
+        auto uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+        
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+            if (moduleValueName == "name")
+                sysInfo[moduleName].insert({moduleValueName,         VARIANT(query_system.os_name())});
+            if (moduleValueName == "username")
+                sysInfo[moduleName].insert({moduleValueName,         VARIANT(query_system.username())});
+            if (moduleValueName == "uptime_secs")
+                sysInfo[moduleName].insert({moduleValueName,  VARIANT((size_t)uptime_secs.count()%60)});
+            if (moduleValueName == "uptime_mins")
+                sysInfo[moduleName].insert({moduleValueName,  VARIANT((size_t)uptime_mins.count()%60)});
+            if (moduleValueName == "uptime_hours")
+                sysInfo[moduleName].insert({moduleValueName, VARIANT((size_t)uptime_hours.count())});
+            if (moduleValueName == "kernel_name")
+                sysInfo[moduleName].insert({moduleValueName,  VARIANT(query_system.kernel_name())});
+            if (moduleValueName == "kernel_version")
+                sysInfo[moduleName].insert({moduleValueName, VARIANT(query_system.kernel_version())});
+            if (moduleValueName == "hostname")
+                sysInfo[moduleName].insert({moduleValueName,     VARIANT(query_system.hostname())});
+            if (moduleValueName == "arch")
+                sysInfo[moduleName].insert({moduleValueName,         VARIANT(query_system.arch())});
+        }
+
+        return;
+    }
+    if (moduleName == "cpu") {
+        Query::CPU query_cpu;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+        
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+            if (moduleValueName == "name")
+                sysInfo[moduleName].insert({moduleValueName,         VARIANT(query_cpu.name())});
+        }
+
+        return;
+    }
+    if (moduleName == "gpu") {
+        Query::GPU query_gpu(pac);
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+        
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+            if (moduleValueName == "name")
+                sysInfo[moduleName].insert({moduleValueName,         VARIANT(query_gpu.name())});
+            if (moduleValueName == "vendor")
+                sysInfo[moduleName].insert({moduleValueName,         VARIANT(query_gpu.vendor())});
+        }
+
+        return;
+    }
+    if (moduleName == "ram") {
+        Query::RAM query_ram;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+        
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+            if (moduleValueName == "used")
+                sysInfo[moduleName].insert({moduleValueName,         VARIANT(query_ram.used_amount())});
+            if (moduleValueName == "total")
+                sysInfo[moduleName].insert({moduleValueName,         VARIANT(query_ram.total_amount())});
+            if (moduleValueName == "free")
+                sysInfo[moduleName].insert({moduleValueName,         VARIANT(query_ram.free_amount())});
+        }
+
+        return;
+    }
+
+    die("Invalid include module name {}!", moduleName);
+}
+
 fmt::rgb hexStringToColor(std::string_view hexstr) {
     hexstr = hexstr.substr(1);
     // convert the hexadecimal string to individual components
@@ -255,14 +409,13 @@ fmt::rgb hexStringToColor(std::string_view hexstr) {
     return fmt::rgb(red, green, blue);
 }
 
-std::string replace_str(std::string str, const std::string& from, const std::string& to)
+void replace_str(std::string &str, const std::string& from, const std::string& to)
 {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
         str.replace(start_pos, from.length(), to);
         start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
     }
-    return str;
 }
 
 // Function to perform binary search on the pci vendors array to find a device from a vendor.

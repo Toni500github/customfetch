@@ -2,12 +2,33 @@
 #include "display.hpp"
 #include "config.hpp"
 #include "util.hpp"
+#include <algorithm>
 #include <fstream>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <memory>
 
-std::vector<std::string>& Display::render(systemInfo_t& systemInfo) {
+std::vector<std::string>& Display::render() {
+    systemInfo_t systemInfo{};
+
+    for (std::string& include : config.includes) {
+        std::vector<std::string> include_nodes = split(include, '.');
+
+        switch (std::count(include.begin(), include.end(), '.')) 
+        {   
+            // only 1 element
+            case 0:
+                addModuleValues(systemInfo, include);
+                break;
+            case 1:
+                addValueFromModule(systemInfo, include_nodes[0], include_nodes[1]);
+                break;
+                // die("Specific includes are not supported at this time.");
+            default:
+                die("Include has too many namespaces!");
+        }
+    }
+
     for (std::string& layout : config.layouts) {
         std::unique_ptr<std::string> _;
         layout = parse(layout, systemInfo, _);
@@ -58,6 +79,6 @@ std::vector<std::string>& Display::render(systemInfo_t& systemInfo) {
     return config.layouts;
 }
 
-void Display::display(std::vector<std::string>& renderResult, systemInfo_t& systemInfo) {
+void Display::display(std::vector<std::string>& renderResult) {
     fmt::println("{}", fmt::join(renderResult, "\n"));
 }

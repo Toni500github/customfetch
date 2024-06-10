@@ -28,13 +28,20 @@ std::string binarySearchPCIArray(std::string_view vendor_id);
 std::string shell_exec(std::string_view cmd);
 std::vector<std::string> split(std::string_view text, char delim);
 std::string expandVar(std::string& str);
-std::string replace_str(std::string str, const std::string& from, const std::string& to);
+// Replace string inplace
+void replace_str(std::string &str, const std::string& from, const std::string& to);
 void strip(std::string& input);
 
 // Parse input, in-place, with data from systemInfo.
 // Documentation on formatting is in the default config.toml file.
 // pureOutput is set to the string, but without the brackets.
 std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<std::string> &pureOutput);
+
+// Set module values to a systemInfo_t map.
+// If the name of said module matches any module name, it will be added
+// else, error out.
+void addModuleValues(systemInfo_t &sysInfo, std::string &moduleName);
+void addValueFromModule(systemInfo_t &sysInfo, std::string &moduleName, std::string &moduleValueName);
 
 fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();

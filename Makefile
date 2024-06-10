@@ -26,11 +26,11 @@ endif
 
 NAME		 = customfetch
 TARGET		 = cufetch
-VERSION    	 = 0.0.1
+VERSION    	 = 0.1.0
 BRANCH     	 = main
 SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
-LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
+LDFLAGS   	+= -lpci -lpciaccess -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS	+= -Wno-ignored-attributes -funroll-all-loops -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 

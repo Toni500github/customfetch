@@ -108,57 +108,10 @@ int main (int argc, char *argv[]) {
 
     if (config.ascii_art_path.empty())
         config.disable_ascii_art = true;
-    
-    std::string vendor_id = query_gpu.vendor_id();
-    
-    std::chrono::seconds uptime_secs(query_system.uptime());
-    auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
-    auto uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
 
-    // json looking ahh
-    static systemInfo_t systemInfo = 
-    {
-        {"os",
-            {
-                {"name",         VARIANT(query_system.os_name())},
-                {"uptime_secs",  VARIANT((size_t)uptime_secs.count()%60)},
-                {"uptime_mins",  VARIANT((size_t)uptime_mins.count()%60)},
-                {"uptime_hours", VARIANT((size_t)uptime_hours.count()%24)},
-                {"kernel_name",  VARIANT(query_system.kernel_name())},
-                {"kernel_version", VARIANT(query_system.kernel_version())},
-                {"hostname",     VARIANT(query_system.hostname())},
-                {"arch",         VARIANT(query_system.arch())},
-            }
-        },
+    pci_init(pac.get());
 
-        {"user",
-            {
-                {"name", VARIANT(query_system.username())}
-            }
-        },
-        
-        {"cpu", 
-            {
-                {"name", VARIANT(query_cpu.name())},
-            }
-        }, 
-        
-        {"gpu", 
-            {
-                {"name",   VARIANT(query_gpu.name(vendor_id))},
-                {"vendor", VARIANT(query_gpu.vendor(vendor_id))}
-            }
-        },
+    Display::display(Display::render());
 
-        {"ram", 
-            {
-                {"used",  VARIANT(query_ram.used_amount())},
-                {"total", VARIANT(query_ram.total_amount())},
-                {"free",  VARIANT(query_ram.free_amount())}
-            }
-        }
-    };
-
-    Display::display(Display::render(systemInfo), systemInfo);
     return 0;
 }

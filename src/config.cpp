@@ -48,9 +48,22 @@ void Config::loadConfigFile(std::string_view filename) {
             else 
                 warn("An element of the layout variable in {} is not a string", filename);
         });
+    
+    auto includes_array = tbl["config"]["includes"];
+    if (toml::array *arr = includes_array.as_array())
+        arr->for_each([this,filename](auto&& element)
+        {
+            if (const auto *str_element = element.as_string()) {
+                auto element_value = *str_element;
+                this->includes.push_back(element_value->data());
+            }
+            else
+                warn("An element of the includes variable in {} is not a string", filename);
+        });
 
     this->ascii_art_path = getConfigValue<std::string>("config.ascii-art-path", "");
     this->offset         = getConfigValue<u_short>("config.offset", 5);
+    
 
     color.red           = this->getThemeValue("red",     "#ff2000");
     color.green         = this->getThemeValue("green",   "#00ff00");

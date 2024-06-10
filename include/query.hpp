@@ -9,54 +9,66 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 
+extern "C" {
+    #include <pci/pci.h>
+}
+
+#define smart_pci_access_ptr std::unique_ptr<pci_access, decltype(&pci_cleanup)>
+
 namespace Query {
 
-class System {
-public:
-    System();
-    std::string kernel_name();
-    std::string kernel_version();
-    std::string hostname();
-    std::string arch();
-    std::string username();
-    std::string os_name();
-    long uptime();
-
+    class System {
+    public:
+        System();
+        std::string kernel_name();
+        std::string kernel_version();
+        std::string hostname();
+        std::string arch();
+        std::string username();
+        std::string os_name();
+        long uptime();
+    
 private: 
-    // private just for the sake of (something idk?) since there are lazy access functions
-    struct utsname uname_infos;
-    struct sysinfo sysInfos;
-    struct passwd *pwd;
+        // private just for the sake of (something idk?) since there are lazy access functions
+        struct utsname uname_infos;
+        struct sysinfo sysInfos;
+        struct passwd *pwd;
+    };
+
+    class CPU {
+    public:
+        //CPU();
+        std::string name();
+        std::string vendor();
+    };
+
+    class GPU {
+    public:
+        GPU(smart_pci_access_ptr &pac);
+        //std::string vendor_id();
+        std::string name();
+        std::string vendor();
+    private:
+        uint16_t vendor_id;
+        uint16_t device_id;
+
+        pci_access *pac;
+    
 };
 
-class CPU {
-public:
-    //CPU();
-    std::string name();
-    std::string vendor();
-};
-
-class GPU {
-public:
-    //GPU();
-    std::string vendor_id();
-    std::string name(const std::string &vendor_id);
-    std::string vendor(const std::string &vendor_id);
+    class RAM {
+    public:
+        size_t total_amount();
+        size_t free_amount();
+        size_t used_amount();
+    };
 
 };
 
-class RAM {
-public:
-    size_t total_amount();
-    size_t free_amount();
-    size_t used_amount();
-};
-
-}; // namespace Query
-
-inline Query::System query_system;
-inline Query::CPU query_cpu;
-inline Query::GPU query_gpu;
-inline Query::RAM query_ram;
+//inline Query::System query_system;
+//inline Query::CPU query_cpu;
+//inline Query::GPU query_gpu;
+//inline Query::RAM query_ram;
+inline smart_pci_access_ptr pac(pci_alloc(), pci_cleanup);
 
 #endif
