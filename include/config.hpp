@@ -79,10 +79,9 @@ inline const constexpr std::string_view AUTOCONFIG = R"#([config]
 # you can use those "modules" in the ascii art text file too
 
 # includes directive, include the top name of each module you use.
-# e.g. if you want to use $<os.name>, make includes = ["os"].
-# you can also put specific includes, for example if you only want os.name, make includes = ["os.name"]
-# note: os automatically includes user
-# includes = ["os", "cpu", "gpu", "ram"]
+# e.g. if you want to use $<os.name>, then `includes = ["os"]`.
+# you can also put specific includes, for example if you only want os.name, then `includes = ["os.name"]`
+includes = ["os", "cpu", "gpu", "ram"]
 
 layout = [
     "${red}$<os.username>${0}@${cyan}$<os.hostname>",
@@ -120,7 +119,7 @@ magenta = "#ff11cc"
 
 # $<> means you access a sub-member of a member
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
-# list of builti-in components coming soon
+# run "cufetch -l" for a list of builti-in components
 
 # $() let's you execute bash commands
 # e.g $(echo \"hello world\") will indeed echo out Hello world.

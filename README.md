@@ -8,7 +8,7 @@ Currently supports Linux distros only, but our current goal is to be cross-platf
 ## Config (with explanation)
 Here's an example using the default config
 
-![image](https://github.com/Toni500github/customfetch/assets/88878648/8b1f6ca7-28a7-4b8a-b302-18dbfcd6af87)
+![image](screenshot.png)
 
 The config:
 ```toml
@@ -59,12 +59,12 @@ ${\e[1;34m} `:::::::::::::::::::::::::------``
 You may be confused and have difficulty to understand, but this is why customfetch is different from the others.\
 We use our own parser for displaying the system informations or anything else, and so we use the variable `layout` along side the file.txt, which contains the ascii art.
 
-We use something we call "modules" and they starts with a '$', **we use them on both the ascii art text file and the `layout` variable**\
+We use something we call "modules" and they starts with a '$'. **We use them on both the ascii art text file and the `layout` variable**\
 There are 3 modules:
 
-* <strong>The info module</strong> ($<>) lets you access a sub-member of a member\
+* **The info module** ($<>) lets you access a sub-member of a built-in component\
   e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
-  list of built-in components coming soon
+  run "cufetch -l" for a list of builti-in components
 
 * **The color module** (${}) displays the text with a color\
   e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable).\

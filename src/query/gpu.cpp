@@ -24,7 +24,7 @@ static std::string read_drm_by_path(const std::string& path) {
 GPU::GPU(smart_pci_access_ptr &pac, u_short id) : m_pPac(pac.get()) {
     u_short id_iter = id;
     std::string sys_path;
-    while(id_iter <= 5) {
+    while(id_iter <= 10) {
         sys_path = "/sys/class/drm/card" + fmt::to_string(id_iter);
         if (std::filesystem::exists(sys_path))
             break;
@@ -32,7 +32,7 @@ GPU::GPU(smart_pci_access_ptr &pac, u_short id) : m_pPac(pac.get()) {
             id_iter++;
     }
 
-    if (id_iter >= 5) {
+    if (id_iter >= 10) {
         error("Failed to parse GPU infos on the path /sys/class/drm/");
         return;
     }
