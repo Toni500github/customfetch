@@ -2,6 +2,8 @@
 #include "display.hpp"
 #include "config.hpp"
 #include "util.hpp"
+#include "query.hpp"
+
 #include <algorithm>
 #include <fstream>
 #include <fmt/core.h>

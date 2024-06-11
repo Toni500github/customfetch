@@ -1,0 +1,62 @@
+---
+# Based on Source SDK 2013 style conventions
+BasedOnStyle: Google
+
+# Align assignments and similar statements
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+
+# Align the * in declarations
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+# Column limit for wrapping code
+ColumnLimit: 120
+
+# Indentation settings
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Bracing styles
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+
+# Control spaces around various constructs
+SpacesInParens: Custom
+SpacesInParensOptions:
+  InCStyleCasts: false
+  InEmptyParentheses: false
+  InConditionalStatements: true
+  Other: true
+
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpaceInEmptyParentheses: false
+SpacesInSquareBrackets: false
+
+# Control formatting of C++11 features
+Cpp11BracedListStyle: false
+
+# Namespace indentation
+NamespaceIndentation: None
+
+# Format comments
+ReflowComments: true
+
+# Additional settings to match Source SDK 2013 style
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: All
+BreakBeforeBraces: Allman
+IndentCaseLabels: false

@@ -8,11 +8,6 @@
 #include <vector>
 #include <string>
 #include <sys/types.h>
-#include <unordered_map>
-#include <variant>
-
-#define systemInfo_t std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t>>>
-#define VARIANT std::variant<std::string, size_t>
 
 using std::filesystem::path;
 
@@ -21,6 +16,8 @@ using std::filesystem::path;
 #define NOCOLOR        "\033[0m"
 #define UNKNOWN         "<unknown>"
 
+bool hasEnding(std::string_view fullString, std::string_view ending);
+bool hasStart(std::string_view fullString, std::string_view start);
 std::string name_from_entry(size_t dev_entry_pos);
 std::string vendor_from_entry(size_t vendor_entry_pos, std::string_view vendor_id);
 std::string binarySearchPCIArray(std::string_view vendor_id, std::string_view pci_id);
@@ -31,18 +28,6 @@ std::string expandVar(std::string& str);
 // Replace string inplace
 void replace_str(std::string &str, const std::string& from, const std::string& to);
 void strip(std::string& input);
-
-// Parse input, in-place, with data from systemInfo.
-// Documentation on formatting is in the default config.toml file.
-// pureOutput is set to the string, but without the brackets.
-std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<std::string> &pureOutput);
-
-// Set module values to a systemInfo_t map.
-// If the name of said module matches any module name, it will be added
-// else, error out.
-void addModuleValues(systemInfo_t &sysInfo, std::string &moduleName);
-void addValueFromModule(systemInfo_t &sysInfo, std::string &moduleName, std::string &moduleValueName);
-
 fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();

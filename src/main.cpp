@@ -3,8 +3,6 @@
 #include "query.hpp"
 #include "config.hpp"
 
-#include <unordered_map>
-#include <chrono>
 #include <getopt.h>
 
 static void version() {
