@@ -1,15 +1,15 @@
-${\e[1;31m}                     ./${\e[1;35m}o${\e[1;34m}.
-${\e[1;31m}                   ./${\e[1;35m}sssso${\e[1;34m}-
-${\e[1;31m}                 `:${\e[1;35m}osssssss+${\e[1;34m}-
-${\e[1;31m}               `:+${\e[1;35m}sssssssssso${\e[1;34m}/.
-${\e[1;31m}             `-/o${\e[1;35m}ssssssssssssso${\e[1;34m}/.
-${\e[1;31m}           `-/+${\e[1;35m}sssssssssssssssso${\e[1;34m}+:`
-${\e[1;31m}         `-:/+${\e[1;35m}sssssssssssssssssso${\e[1;34m}+/.
-${\e[1;31m}       `.://o${\e[1;35m}sssssssssssssssssssso${\e[1;34m}++-
-${\e[1;31m}      .://+${\e[1;35m}ssssssssssssssssssssssso${\e[1;34m}++:
-${\e[1;31m}    .:///o${\e[1;35m}ssssssssssssssssssssssssso${\e[1;34m}++:
-${\e[1;31m}  `:////${\e[1;35m}ssssssssssssssssssssssssssso${\e[1;34m}+++.
-${\e[1;31m}`-////+${\e[1;35m}ssssssssssssssssssssssssssso${\e[1;34m}++++-
-${\e[1;31m} `..-+${\e[1;35m}oosssssssssssssssssssssssso${\e[1;34m}+++++/`
-${\e[1;34m}   ./++++++++++++++++++++++++++++++/:.
-${\e[1;34m} `:::::::::::::::::::::::::------``
+${red}                     ./${magenta}o${blue}.
+${red}                   ./${magenta}sssso${blue}-
+${red}                 `:${magenta}osssssss+${blue}-
+${red}               `:+${magenta}sssssssssso${blue}/.
+${red}             `-/o${magenta}ssssssssssssso${blue}/.
+${red}           `-/+${magenta}sssssssssssssssso${blue}+:`
+${red}         `-:/+${magenta}sssssssssssssssssso${blue}+/.
+${red}       `.://o${magenta}sssssssssssssssssssso${blue}++-
+${red}      .://+${magenta}ssssssssssssssssssssssso${blue}++:
+${red}    .:///o${magenta}ssssssssssssssssssssssssso${blue}++:
+${red}  `:////${magenta}ssssssssssssssssssssssssssso${blue}+++.
+${red}`-////+${magenta}ssssssssssssssssssssssssssso${blue}++++-
+${red} `..-+${magenta}oosssssssssssssssssssssssso${blue}+++++/`
+${blue}   ./++++++++++++++++++++++++++++++/:.
+${blue} `:::::::::::::::::::::::::------``

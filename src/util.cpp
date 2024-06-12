@@ -118,7 +118,7 @@ fmt::rgb hexStringToColor(std::string_view hexstr) {
     return fmt::rgb(red, green, blue);
 }
 
-void replace_str(std::string &str, const std::string& from, const std::string& to)
+void replace_str(std::string& str, const std::string& from, const std::string& to)
 {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos) {

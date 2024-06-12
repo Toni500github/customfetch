@@ -63,6 +63,7 @@ void Config::loadConfigFile(std::string_view filename) {
 
     this->ascii_art_path = getConfigValue<std::string>("config.ascii-art-path", "");
     this->offset         = getConfigValue<u_short>("config.offset", 5);
+    this->gui            = getConfigValue<bool>("config.gui", true);
     
 
     color.red           = this->getThemeValue("red",     "#ff2000");

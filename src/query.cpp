@@ -63,7 +63,6 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
                 type = ')';
                 break;
             case '<':
-                //die("PARSER: Not implemented: module types (<gpu.name>)");
                 type = '>';
                 break;
             case '{':
@@ -104,26 +103,53 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
                     pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 } else {
                     // hope it doesn't hurt performance too much
-                    std::string str_clr = 
+                    std::string str_clr; /*= 
                         command == "red"     ? color.red    : 
                         command == "blue"    ? color.blue   : 
                         command == "green"   ? color.green  :
                         command == "cyan"    ? color.cyan   :
                         command == "yellow"  ? color.yellow :
                         command == "magenta" ? color.magenta:
-                        command;
+                        command;*/
+                    switch (fnv1a32::hash(command)) {
+                        case "red"_fnv1a32:
+                            str_clr = color.red; break;
+                        case "blue"_fnv1a32:
+                            str_clr = color.blue; break;
+                        case "green"_fnv1a32:
+                            str_clr = color.green; break;
+                        case "cyan"_fnv1a32:
+                            str_clr = color.cyan; break;
+                        case "yellow"_fnv1a32:
+                            str_clr = color.yellow; break;
+                        case "magenta"_fnv1a32:
+                            str_clr = color.magenta; break;
+                        default:
+                            str_clr = command; break;
+                    }
                     
                     fmt::rgb clr;
-                    if (str_clr[0] == '#') {
-                        clr = hexStringToColor(str_clr);
-                        output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format(fmt::fg(clr), "{}", output.substr(endBracketIndex + 1)));
-                    } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) { // what?
-                        output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format("{:c}[{}{}", 0x1B, hasStart(str_clr, "\033") ? // "\\e" is for checking in the ascii_art, \033 in the config
-                                                                                                                                str_clr.substr(2) : str_clr.substr(3), output.substr(endBracketIndex + 1)));
+                    if (config.gui) {
+                        if (str_clr[0] == '#') {
+                            output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format("<span foreground='{}'>{}</span>", str_clr, output.substr(endBracketIndex + 1)));
+                        } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) { // what?
+                            warn("bash color not supported on GUI mode");
+                            //output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format("{:c}[{}{}", 0x1B, hasStart(str_clr, "\033") ? // "\\e" is for checking in the ascii_art, \033 in the config
+                            //                                                                                                        str_clr.substr(2) : str_clr.substr(3), output.substr(endBracketIndex + 1)));
+                        }
                     }
-
+                    else {
+                        if (str_clr[0] == '#') {
+                            clr = hexStringToColor(str_clr);
+                            output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format(fmt::fg(clr), "{}", output.substr(endBracketIndex + 1)));
+                        } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) { // what?
+                            output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format("{:c}[{}{}", 0x1B, hasStart(str_clr, "\033") ? // "\\e" is for checking in the ascii_art, \033 in the config
+                                                                                                                                    str_clr.substr(2) : str_clr.substr(3), output.substr(endBracketIndex + 1)));
+                        }
+                    }
+                    //debug("dollarSignIndex = {}\npureOutputOffset = {}", dollarSignIndex, pureOutputOffset);
                     if (pureOutput)
-                        *pureOutput = pureOutput->replace(dollarSignIndex-pureOutputOffset, endBracketIndex - dollarSignIndex + 1, "");
+                        *pureOutput = pureOutput->replace(pureOutput->size()/*dollarSignIndex - pureOutputOffset*/, endBracketIndex - dollarSignIndex + 1, "");
                     
                     pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 }
@@ -146,15 +172,15 @@ void addModuleValues(systemInfo_t &sysInfo, std::string &moduleName) {
 
         sysInfo.insert(
             {"os", {
-                {"name",         VARIANT(query_system.os_name())},
-                {"username",        VARIANT(query_system.username())},
-                {"uptime_secs",  VARIANT((size_t)uptime_secs.count()%60)},
-                {"uptime_mins",  VARIANT((size_t)uptime_mins.count()%60)},
-                {"uptime_hours", VARIANT((size_t)uptime_hours.count())},
-                {"kernel_name",  VARIANT(query_system.kernel_name())},
+                {"name",           VARIANT(query_system.os_name())},
+                {"username",       VARIANT(query_system.username())},
+                {"uptime_secs",    VARIANT((size_t)uptime_secs.count()%60)},
+                {"uptime_mins",    VARIANT((size_t)uptime_mins.count()%60)},
+                {"uptime_hours",   VARIANT((size_t)uptime_hours.count())},
+                {"kernel_name",    VARIANT(query_system.kernel_name())},
                 {"kernel_version", VARIANT(query_system.kernel_version())},
-                {"hostname",     VARIANT(query_system.hostname())},
-                {"arch",         VARIANT(query_system.arch())},
+                {"hostname",       VARIANT(query_system.hostname())},
+                {"arch",           VARIANT(query_system.arch())},
             }}
         );
 

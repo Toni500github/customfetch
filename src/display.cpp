@@ -33,6 +33,7 @@ std::vector<std::string>& Display::render() {
 
     for (std::string& layout : config.layouts) {
         std::unique_ptr<std::string> _;
+        debug("parsing layout: {}", layout);
         layout = parse(layout, systemInfo, _);
     }
 
@@ -48,8 +49,9 @@ std::vector<std::string>& Display::render() {
     
     while (std::getline(file, line)) {
         std::unique_ptr<std::string> pureOutput = std::make_unique<std::string>();
+        //debug("Parsing ascii art: {}", line);
         std::string asciiArt_s = parse(line, systemInfo, pureOutput);
-        asciiArt_s += NOCOLOR;
+        asciiArt_s += config.gui ? "" : NOCOLOR;
 
         asciiArt.push_back(asciiArt_s);
 
@@ -72,7 +74,7 @@ std::vector<std::string>& Display::render() {
         for (size_t j = 0; j < spaces; j++)
             config.layouts.at(i).insert(origin, " ");
         
-        config.layouts.at(i) += NOCOLOR;
+        config.layouts.at(i) += config.gui ? "" : NOCOLOR;
     }
 
     if (i < asciiArt.size())

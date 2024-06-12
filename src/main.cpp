@@ -2,6 +2,7 @@
 #include "util.hpp"
 #include "query.hpp"
 #include "config.hpp"
+#include "gui.hpp"
 
 #include <getopt.h>
 
@@ -62,13 +63,14 @@ cpu
 static bool parseargs(int argc, char* argv[]) {
     int opt = 0;
     int option_index = 0;
-    const char *optstring = "VhnlC:a:";
+    const char *optstring = "VhnlgC:a:";
     static const struct option opts[] =
     {
         {"version",       no_argument,       0, 'V'},
         {"help",          no_argument,       0, 'h'},
         {"no-ascii-art",  no_argument,       0, 'n'},
-        {"list-modules",  no_argument,       0, 'l'},
+        {"list-component",no_argument,       0, 'l'},
+        {"gui",           no_argument,       0, 'g'},
         {"config",        required_argument, 0, 'C'},
         {"ascii-art",     required_argument, 0, 'a'},
         {0,0,0,0}
@@ -90,6 +92,8 @@ static bool parseargs(int argc, char* argv[]) {
                 config.disable_ascii_art = true; break;
             case 'l':
                 modules_list(); break;
+            case 'g':
+                config.overrides["config.gui"] = {BOOL, "", true}; break;
             case 'C':
                 configFile = strndup(optarg, PATH_MAX); break;
             case 'a':
@@ -156,7 +160,18 @@ int main (int argc, char *argv[]) {
 
     pci_init(pac.get());
 
+#ifdef GUI_SUPPORT
+    if (config.gui) {
+        auto app = Gtk::Application::create("org.test.toni");
+        GUI::MyWindow window;
+        return app->run(window);
+    }
+    else 
+        Display::display(Display::render());
+#else
+    if (config.gui) die("Can't run in GUI mode because it got disabled at compile time\nCompile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
     Display::display(Display::render());
+#endif
 
     return 0;
 }

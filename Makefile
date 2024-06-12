@@ -2,6 +2,7 @@ CXX       	?= g++
 PREFIX	  	?= /usr
 LOCALEDIR 	?= $(PREFIX)/share/locale
 VARS  	  	?=
+GUI_SUPPORT     ?= 1
 
 DEBUG 		?= 1
 PARSER_TEST 	?= 0
@@ -17,11 +18,17 @@ else
 endif
 
 ifeq ($(PARSER_TEST), 1)
-		CXXFLAGS += -DPARSER_TEST=1
+	VARS += -DPARSER_TEST=1
 endif
 
 ifeq ($(VENDOR_TEST), 1)
-		CXXFLAGS += -DVENDOR_TEST=1
+	VARS += -DVENDOR_TEST=1
+endif
+
+ifeq ($(GUI_SUPPORT), 1)
+        VARS 	 += -DGUI_SUPPORT=1
+	LDFLAGS	 += `pkg-config --libs gtkmm-3.0`
+	CXXFLAGS += `pkg-config --cflags gtkmm-3.0`
 endif
 
 NAME		 = customfetch
@@ -32,7 +39,7 @@ SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -lpci -lpciaccess -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS	+= -Wno-ignored-attributes -funroll-all-loops -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
+CXXFLAGS        += -Wno-ignored-attributes -funroll-all-loops -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
 all: fmt toml $(TARGET)
 

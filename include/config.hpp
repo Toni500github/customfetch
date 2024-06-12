@@ -34,6 +34,7 @@ public:
     std::string ascii_art_path;
     bool        disable_ascii_art = false;
     u_short     offset = 0;
+    bool        gui = false;
     std::vector<std::string> layouts;
     std::vector<std::string> includes;
     std::map<std::string, strOrBool> overrides;
@@ -98,10 +99,17 @@ layout = [
     "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
 ]
 
-ascii-art-path = "test.txt" # leave it empty for disabling ascii-art displaying
+# make it empty for disabling custom ascii-art displaying
+# and instead display the distro logo 
+ascii-art-path = "test.txt"
 
-offset = 5 # offset between the ascii art and the system infos
-    
+# offset between the ascii art and the system infos
+offset = 5
+
+# Open a window and print there instead of on the terminal.
+# note: customfetch needs to be compiled with GUI_SUPPORT=1 (which is enabled by default)
+gui = false
+
 # Colors can be with: hexcodes (#55ff88) OR bash escape code colors like "\e[1;34m"
 # remember to add ${0} where you want to reset color
 red = "#ff2000"
