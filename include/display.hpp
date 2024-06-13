@@ -7,7 +7,7 @@
 
 namespace Display {
 
-std::vector<std::string>& render();
+std::vector<std::string>& render(std::string reset_fgcolor = "");
 void display(std::vector<std::string>& renderResult);
 
 }

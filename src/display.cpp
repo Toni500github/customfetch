@@ -10,7 +10,7 @@
 #include <fmt/ranges.h>
 #include <memory>
 
-std::vector<std::string>& Display::render() {
+std::vector<std::string>& Display::render(std::string reset_fgcolor) {
     systemInfo_t systemInfo{};
 
     for (std::string& include : config.includes) {
@@ -33,8 +33,8 @@ std::vector<std::string>& Display::render() {
 
     for (std::string& layout : config.layouts) {
         std::unique_ptr<std::string> _;
-        debug("parsing layout: {}", layout);
-        layout = parse(layout, systemInfo, _);
+        //debug("parsing layout: {}", layout);
+        layout = parse(layout, systemInfo, _, reset_fgcolor);
     }
 
     std::ifstream file(config.ascii_art_path, std::ios_base::binary);
@@ -42,6 +42,9 @@ std::vector<std::string>& Display::render() {
         if (!config.disable_ascii_art)
             die("Could not open ascii art file \"{}\"", config.ascii_art_path);
     
+    if (config.disable_ascii_art)
+        file.close();
+
     std::string line;
     std::vector<std::string> asciiArt;
     std::vector<std::unique_ptr<std::string>> pureAsciiArt;
@@ -50,7 +53,7 @@ std::vector<std::string>& Display::render() {
     while (std::getline(file, line)) {
         std::unique_ptr<std::string> pureOutput = std::make_unique<std::string>();
         //debug("Parsing ascii art: {}", line);
-        std::string asciiArt_s = parse(line, systemInfo, pureOutput);
+        std::string asciiArt_s = parse(line, systemInfo, pureOutput, reset_fgcolor);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 
         asciiArt.push_back(asciiArt_s);

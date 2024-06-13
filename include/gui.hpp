@@ -10,12 +10,12 @@ namespace GUI {
 
 class MyWindow : public Gtk::Window {
 public:
+    std::string get_fgcolor();
+
     MyWindow();
     virtual ~MyWindow();
-private:
     Gtk::Label m_label;
-
-    std::string create_colored_text();
+    
 };
 
 }
