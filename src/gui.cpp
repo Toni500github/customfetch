@@ -28,15 +28,14 @@ MyWindow::MyWindow() {
 
 MyWindow::~MyWindow() { }
 
+
 static std::string rgba_to_hexstr(const Gdk::RGBA& color) {
-    int red = static_cast<int>(color.get_red() * 255);
-    int green = static_cast<int>(color.get_green() * 255);
-    int blue = static_cast<int>(color.get_blue() * 255);
+    int red = color.get_red() * 255;
+    int green = color.get_green() * 255;
+    int blue = color.get_blue() * 255;
     
     std::stringstream ss;
-    ss << "#" << std::hex << std::setfill('0') << std::setw(2) << red
-       << std::setfill('0') << std::setw(2) << green
-       << std::setfill('0') << std::setw(2) << blue;
+    ss << "#" << std::hex << (red << 16 | green << 8 | blue );    
     return ss.str();
 }
 
