@@ -28,7 +28,7 @@ MyWindow::MyWindow() {
 
 MyWindow::~MyWindow() { }
 
-
+// https://www.codespeedy.com/convert-rgb-to-hex-color-code-in-cpp/
 static std::string rgba_to_hexstr(const Gdk::RGBA& color) {
     int red = color.get_red() * 255;
     int green = color.get_green() * 255;
