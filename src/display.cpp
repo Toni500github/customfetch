@@ -19,7 +19,7 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
     magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
     magic_load(myt,NULL);
     std::string file_type = magic_file(myt, config.source_path.c_str());
-    if ((file_type.find("image") != std::string::npos) && !config.disable_source)
+    if ((file_type.find("text") == std::string::npos) && !config.disable_source)
         die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
 
     for (std::string& include : config.includes) {
