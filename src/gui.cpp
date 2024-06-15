@@ -9,7 +9,7 @@
 #include "fmt/ranges.h"
 #include "stb_image.h"
 
-#include <gtkmm-3.0/gtkmm/image.h>
+#include "gdkmm/pixbufanimation.h"
 
 using namespace GUI;
 
@@ -84,11 +84,12 @@ Window::Window() {
     magic_load(myt,NULL);
     std::string file_type = magic_file(myt, path.c_str());
     bool useImage = (file_type.find("image") != std::string::npos);
-
+    
+    // useImage can be either a gif or an image
     if (useImage && !config.disable_source) {
-        Glib::RefPtr<Gdk::Pixbuf> pic = Gdk::Pixbuf::create_from_file(path);
-        m_img = Gtk::manage(new Gtk::Image(pic));
-        m_img->set_valign(Gtk::ALIGN_CENTER);
+        Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path);
+        m_img = Gtk::manage(new Gtk::Image());
+        m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
         m_box.pack_start(*m_img);
         m_img->show();

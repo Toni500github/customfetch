@@ -7,6 +7,7 @@
 #include "gtkmm/label.h"
 #include "gtkmm/box.h"
 #include "gtkmm/container.h"
+#include "gtkmm/image.h"
 
 namespace GUI {
 
