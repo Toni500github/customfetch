@@ -3,19 +3,22 @@
 
 #ifdef GUI_SUPPORT
 
-#include <gtkmm-3.0/gtkmm/window.h>
-#include <gtkmm-3.0/gtkmm/label.h>
+#include "gtkmm/window.h"
+#include "gtkmm/label.h"
+#include "gtkmm/box.h"
+#include "gtkmm/container.h"
 
 namespace GUI {
 
-class MyWindow : public Gtk::Window {
+class Window : public Gtk::Window {
 public:
-    std::string get_fgcolor();
+    Window();
+    virtual ~Window();
 
-    MyWindow();
-    virtual ~MyWindow();
+private:
+    Gtk::Box m_box;
     Gtk::Label m_label;
-    
+    Gtk::Image *m_img;
 };
 
 }

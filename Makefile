@@ -37,7 +37,7 @@ VERSION    	 = 0.1.0
 BRANCH     	 = main
 SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
-LDFLAGS   	+= -lpci -lpciaccess -L./$(BUILDDIR)/fmt -lfmt
+LDFLAGS   	+= -lmagic -lpci -lpciaccess -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -Wno-ignored-attributes -funroll-all-loops -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 

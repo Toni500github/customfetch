@@ -1,6 +1,5 @@
 #include "query.hpp"
 #include <unistd.h>
-#include "gui.hpp"
 #include "switch_fnv1a.hpp"
 #include "config.hpp"
 #include <array>
@@ -10,7 +9,7 @@
 //using namespace Query;
 
 static std::array<std::string, 3> get_ansi_color(std::string str) {
-    #define light "bold"
+    #define light "light"
     #define bgcolor "bgcolor"
 
     std::string col = str.erase(str.find_first_of("m"));
@@ -162,11 +161,7 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
             case '}':
                 if (command == "0") {
                     resetclr = true;
-                    #ifdef GUI_SUPPORT
                     output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, config.gui ? fmt::format("<span fgcolor='{}'>", reset_fgcolor) : NOCOLOR);
-                    #else
-                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, NOCOLOR);
-                    #endif
                     if (pureOutput)
                         *pureOutput = pureOutput->replace(pureOutput->size()/*dollarSignIndex-pureOutputOffset*/, (endBracketIndex + 1) - dollarSignIndex, "");
                     pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
@@ -187,8 +182,7 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
                     if (config.gui) {
                         if (str_clr[0] == '#') {
                             output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format("<span fgcolor='{}'>{}</span>", str_clr, output.substr(endBracketIndex + 1)));
-                        } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) { // what?
-                            // "\\e" is for checking in the ascii_art, \033 in the config
+                        } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) { // "\\e" is for checking in the ascii_art, \033 in the config
                             std::array<std::string, 3> clrs = get_ansi_color(hasStart(str_clr, "\033") ?  str_clr.substr(2) : str_clr.substr(3));
                             std::string color = clrs.at(0);
                             std::string weight = clrs.at(1);
@@ -213,8 +207,11 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
                 }
                 break;
         }
+        // close the span tag of the reseted color
+        output += resetclr ? "</span>" : "";
+        resetclr = false;
     }
-    output += config.gui && resetclr ? "</span>" : "";
+
     return output;
 }
 

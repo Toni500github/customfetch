@@ -49,12 +49,6 @@ void die(std::string_view fmt, Args&&... args) {
 }
 
 template <typename... Args>
-void die(const char *fmt, Args&&... args) {
-    _error_log(fmt::runtime(fmt), std::forward<Args>(args)...);
-    std::exit(1);
-}
-
-template <typename... Args>
 void debug(std::string_view fmt, Args&&... args) {
     fmt::println(BOLD_TEXT(fmt::rgb(fmt::color::hot_pink)), "[DEBUG]: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }

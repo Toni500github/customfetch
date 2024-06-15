@@ -13,6 +13,15 @@
 std::vector<std::string>& Display::render(std::string reset_fgcolor) {
     systemInfo_t systemInfo{};
 
+    // first check if the file is an image
+    // using the same library that "file" uses
+    // No extra bloatware nice
+    magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
+    magic_load(myt,NULL);
+    std::string file_type = magic_file(myt, config.source_path.c_str());
+    if ((file_type.find("image") != std::string::npos) && !config.disable_source)
+        die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
+
     for (std::string& include : config.includes) {
         std::vector<std::string> include_nodes = split(include, '.');
 
@@ -37,12 +46,12 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
         layout = parse(layout, systemInfo, _, reset_fgcolor);
     }
 
-    std::ifstream file(config.ascii_art_path, std::ios_base::binary);
+    std::ifstream file(config.source_path, std::ios_base::binary);
     if (!file.is_open())
-        if (!config.disable_ascii_art)
-            die("Could not open ascii art file \"{}\"", config.ascii_art_path);
+        if (!config.disable_source)
+            die("Could not open ascii art file \"{}\"", config.source_path);
     
-    if (config.disable_ascii_art)
+    if (config.disable_source)
         file.close();
 
     std::string line;
@@ -73,7 +82,7 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
             origin = asciiArt.at(i).length();
         }
 
-        size_t spaces = (maxLineLength + (config.disable_ascii_art ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt.at(i)->length() : 0);
+        size_t spaces = (maxLineLength + (config.disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt.at(i)->length() : 0);
         for (size_t j = 0; j < spaces; j++)
             config.layouts.at(i).insert(origin, " ");
         

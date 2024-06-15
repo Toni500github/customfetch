@@ -19,7 +19,8 @@ A command-line system information tool (or neofetch like program), which its foc
     -n, --no-ascii-art		Do not dispay the ascii art
     -a, --ascii-art <path>	Path to the ascii art file to display
     -C, --config <path>		Path to the config file to use
-    -l. --list-modules		Print the list of the components and its members
+    -g, --gui                   Use GUI mode instead of priting in the terminal (customfetch needs GUI_SUPPORT to be enabled at compile time)
+    -l. --list-components	Print the list of the components and its members
     -h, --help			Print this help menu
     -V, --version		Print the version along with the git branch it was built
 
@@ -28,11 +29,13 @@ Read the "README.md" file for more infos about customfetch and how it works
     std::exit(invalid_opt);
 }
 
-static void modules_list() {
+static void components_list() {
     fmt::println(R"(
 Syntax:
 component
-  member	: description [e.g example]
+  member	: description [e.g example of what it prints]
+
+Should be used in the config as like as $<component.member>
 
 os
   name		: OS name [e.g Windows, Arch]
@@ -66,13 +69,13 @@ static bool parseargs(int argc, char* argv[]) {
     const char *optstring = "VhnlgC:a:";
     static const struct option opts[] =
     {
-        {"version",       no_argument,       0, 'V'},
-        {"help",          no_argument,       0, 'h'},
-        {"no-ascii-art",  no_argument,       0, 'n'},
-        {"list-component",no_argument,       0, 'l'},
-        {"gui",           no_argument,       0, 'g'},
-        {"config",        required_argument, 0, 'C'},
-        {"ascii-art",     required_argument, 0, 'a'},
+        {"version",         no_argument,       0, 'V'},
+        {"help",            no_argument,       0, 'h'},
+        {"no-ascii-art",    no_argument,       0, 'n'},
+        {"list-components", no_argument,       0, 'l'},
+        {"gui",             no_argument,       0, 'g'},
+        {"config",          required_argument, 0, 'C'},
+        {"ascii-art",       required_argument, 0, 'a'},
         {0,0,0,0}
     };
 
@@ -89,9 +92,9 @@ static bool parseargs(int argc, char* argv[]) {
             case 'h':
                 help(); break;
             case 'n':
-                config.disable_ascii_art = true; break;
+                config.disable_source = true; break;
             case 'l':
-                modules_list(); break;
+                components_list(); break;
             case 'g':
                 config.overrides["config.gui"] = {BOOL, "", true}; break;
             case 'C':
@@ -155,15 +158,15 @@ int main (int argc, char *argv[]) {
     
     config.init(configFile, configDir);
 
-    if (config.ascii_art_path.empty())
-        config.disable_ascii_art = true;
+    if (config.source_path.empty())
+        config.disable_source = true;
 
     pci_init(pac.get());
 
 #ifdef GUI_SUPPORT
     if (config.gui) {
-        auto app = Gtk::Application::create("org.test.toni");
-        GUI::MyWindow window;
+        auto app = Gtk::Application::create("org.toni.customfetch");
+        GUI::Window window;
         return app->run(window);
     }
     else 

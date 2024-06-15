@@ -61,7 +61,7 @@ void Config::loadConfigFile(std::string_view filename) {
                 warn("An element of the includes variable in {} is not a string", filename);
         });
 
-    this->ascii_art_path = getConfigValue<std::string>("config.ascii-art-path", "");
+    this->source_path = getConfigValue<std::string>("config.ascii-art-path", "");
     this->offset         = getConfigValue<u_short>("config.offset", 5);
     this->gui            = getConfigValue<bool>("config.gui", true);
     
