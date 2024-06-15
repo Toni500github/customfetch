@@ -208,7 +208,7 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
                 break;
         }
         // close the span tag of the reseted color
-        output += resetclr ? "</span>" : "";
+        output += (config.gui && resetclr) ? "</span>" : "";
         resetclr = false;
     }
 
