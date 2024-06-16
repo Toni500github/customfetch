@@ -10,17 +10,26 @@
 #include <fmt/ranges.h>
 #include <memory>
 
+std::string Display::detect_distro() {
+    Query::System system;
+    std::string file_path = fmt::format("{}/ascii/{}.txt", CUSTOMFETCH_DATA_DIR, system.os_name());
+    debug("file_path = {}", file_path);
+    return file_path;
+}
+
 std::vector<std::string>& Display::render(std::string reset_fgcolor) {
     systemInfo_t systemInfo{};
 
     // first check if the file is an image
     // using the same library that "file" uses
     // No extra bloatware nice
-    magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
-    magic_load(myt,NULL);
-    std::string file_type = magic_file(myt, config.source_path.c_str());
-    if ((file_type.find("text") == std::string::npos) && !config.disable_source)
-        die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
+    if (!config.source_path.empty()) {
+        magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
+        magic_load(myt,NULL);
+        std::string file_type = magic_file(myt, config.source_path.c_str());
+        if ((file_type.find("text") == std::string::npos) && !config.disable_source)
+            die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
+    }
 
     for (std::string& include : config.includes) {
         std::vector<std::string> include_nodes = split(include, '.');
@@ -34,7 +43,6 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
             case 1:
                 addValueFromModule(systemInfo, include_nodes[0], include_nodes[1]);
                 break;
-                // die("Specific includes are not supported at this time.");
             default:
                 die("Include has too many namespaces!");
         }
@@ -42,15 +50,15 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
 
     for (std::string& layout : config.layouts) {
         std::unique_ptr<std::string> _;
-        //debug("parsing layout: {}", layout);
         layout = parse(layout, systemInfo, _, reset_fgcolor);
     }
-
-    std::ifstream file(config.source_path, std::ios_base::binary);
+    
+    std::string path = config.source_path.empty() ? detect_distro() : config.source_path;
+    std::ifstream file(path, std::ios_base::app);
     if (!file.is_open())
         if (!config.disable_source)
-            die("Could not open ascii art file \"{}\"", config.source_path);
-    
+            die("Could not open ascii art file \"{}\"", path);
+
     if (config.disable_source)
         file.close();
 
@@ -61,7 +69,6 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
     
     while (std::getline(file, line)) {
         std::unique_ptr<std::string> pureOutput = std::make_unique<std::string>();
-        //debug("Parsing ascii art: {}", line);
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, reset_fgcolor);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 

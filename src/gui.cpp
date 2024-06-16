@@ -64,6 +64,7 @@ static std::vector<std::string>& render_with_image(std::string reset_fgcolor) {
         for (size_t _ = 0; _ < config.offset; _++) // I use _ because we don't need it 
             config.layouts.at(i).insert(0, " ");
     }
+    config.offset = 0;
 
     return config.layouts;
 }
@@ -83,7 +84,7 @@ Window::Window() {
     magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
     magic_load(myt,NULL);
     std::string file_type = magic_file(myt, path.c_str());
-    bool useImage = (file_type.find("image") != std::string::npos);
+    bool useImage = ((file_type.find("text") == std::string::npos) && !config.disable_source);
     
     // useImage can be either a gif or an image
     if (useImage && !config.disable_source) {
@@ -92,7 +93,6 @@ Window::Window() {
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
         m_box.pack_start(*m_img);
-        m_img->show();
     }
 
     // https://stackoverflow.com/a/76372996
@@ -116,8 +116,8 @@ Window::Window() {
     m_label.set_markup(colored_text);
     m_label.set_alignment(Gtk::ALIGN_CENTER);
     m_box.pack_start(m_label);
-    m_label.show();
-    m_box.show();
+
+    show_all_children();
 }
 
 Window::~Window() { }

@@ -125,7 +125,8 @@ layout = [
 # note: customfetch needs to be compiled with GUI_SUPPORT=1 (which is enabled by default)
 gui = true
 
-# make it empty for disabling custom ascii-art displaying
+# display the ascii-art or image/gif (GUI only)
+# make it empty for disabling custom ascii-art or image displaying
 # and instead display the distro logo
 source-path = "test.txt"
 

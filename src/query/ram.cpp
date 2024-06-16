@@ -6,6 +6,8 @@
 
 using namespace Query;
 
+static std::array<size_t, 3> get_amount();
+
 enum {
     USED = 0,
     AVAILABLE,
@@ -23,6 +25,22 @@ std::string_view meminfo_path = "/proc/meminfo";
 // minimaze the while loop iteration once we have all the values we needed
 // less cpu cicles and saving ms of time
 u_short iter_index = 0;
+
+RAM::RAM() {
+    m_memory_infos = get_amount();
+}
+
+size_t RAM::free_amount()  { 
+    return m_memory_infos.at(AVAILABLE) / 1024; 
+}
+
+size_t RAM::used_amount()  { 
+    return m_memory_infos.at(USED) / 1024; 
+}
+
+size_t RAM::total_amount() { 
+    return m_memory_infos.at(TOTAL) / 1024; 
+}
 
 static size_t get_from_text(std::string& line) {
     std::vector<std::string> amount = split(line, ':');
@@ -69,11 +87,3 @@ static std::array<size_t, 3> get_amount() {
 
     return memory_infos;
 }
-
-std::array<size_t, 3> memory_infos = get_amount();
-
-size_t RAM::free_amount()  { return memory_infos.at(AVAILABLE) / 1024; }
-
-size_t RAM::used_amount()  { return memory_infos.at(USED) / 1024; }
-
-size_t RAM::total_amount() { return memory_infos.at(TOTAL) / 1024; }

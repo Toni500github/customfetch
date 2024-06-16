@@ -1,7 +1,6 @@
 #include "config.hpp"
 #include <fstream>
 #include <iostream>
-#include <sys/types.h>
 
 // initialize Config, can only be ran once for each Config instance.
 void Config::init(std::string& configFile, std::string& configDir) {
@@ -61,7 +60,7 @@ void Config::loadConfigFile(std::string_view filename) {
                 warn("An element of the includes variable in {} is not a string", filename);
         });
 
-    this->source_path = getConfigValue<std::string>("config.ascii-art-path", "");
+    this->source_path    = getConfigValue<std::string>("config.source-path", "");
     this->offset         = getConfigValue<u_short>("config.offset", 5);
     this->gui            = getConfigValue<bool>("config.gui", true);
     

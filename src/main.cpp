@@ -158,8 +158,8 @@ int main (int argc, char *argv[]) {
     
     config.init(configFile, configDir);
 
-    if (config.source_path.empty())
-        config.disable_source = true;
+    //if (config.source_path.empty())
+    //    config.disable_source = true;
 
     pci_init(pac.get());
 
@@ -172,7 +172,9 @@ int main (int argc, char *argv[]) {
     else 
         Display::display(Display::render());
 #else
-    if (config.gui) die("Can't run in GUI mode because it got disabled at compile time\nCompile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
+    if (config.gui) 
+        die("Can't run in GUI mode because it got disabled at compile time\nCompile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
+    
     Display::display(Display::render());
 #endif
 

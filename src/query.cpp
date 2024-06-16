@@ -85,7 +85,7 @@ static std::string getInfoFromName(systemInfo_t& systemInfo, const std::string& 
 
         return stringResult;
     } catch (const std::out_of_range &err) {
-        return "<unknown/invalid module>";
+        return "<unknown/invalid component>";
     };
 }
 

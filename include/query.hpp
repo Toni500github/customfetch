@@ -3,6 +3,7 @@
 
 #include "util.hpp"
 
+#include <array>
 #include <fstream>
 #include <memory>
 #include <vector>
@@ -64,9 +65,12 @@ private:
 
 class RAM {
 public:
+    RAM();
     size_t total_amount();
     size_t free_amount();
     size_t used_amount();
+private:
+    std::array<size_t, 3> m_memory_infos;
 };
 
 };

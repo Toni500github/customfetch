@@ -1,7 +1,7 @@
 CXX       	?= g++
 PREFIX	  	?= /usr
 LOCALEDIR 	?= $(PREFIX)/share/locale
-VARS  	  	?=
+VARS  	  	?= -DCUSTOMFETCH_DATA_DIR=\"assets\"
 GUI_SUPPORT     ?= 1
 
 DEBUG 		?= 1
