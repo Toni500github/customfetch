@@ -74,7 +74,7 @@ Window::Window() {
     set_default_size(800, 600);
     add(m_box);
 
-    std::string path = config.source_path;
+    std::string path = config.m_display_distro ? Display::detect_distro() : config.source_path;
     if (!std::filesystem::exists(path))
         die("'{}' doesn't exist. Can't load image/text file", path);
     
@@ -84,10 +84,10 @@ Window::Window() {
     magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
     magic_load(myt,NULL);
     std::string file_type = magic_file(myt, path.c_str());
-    bool useImage = ((file_type.find("text") == std::string::npos) && !config.disable_source);
+    bool useImage = ((file_type.find("text") == std::string::npos) && !config.m_disable_source);
     
     // useImage can be either a gif or an image
-    if (useImage && !config.disable_source) {
+    if (useImage && !config.m_disable_source) {
         Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path);
         m_img = Gtk::manage(new Gtk::Image());
         m_img->set(img);

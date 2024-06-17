@@ -7,6 +7,7 @@
 #include "fmt/color.h"
 #include <array>
 #include "toml++/toml.hpp"
+#include <unordered_map>
 
 enum types {
     STR,
@@ -30,15 +31,19 @@ struct color_t {
 
 class Config {
 public:
-    bool        initialized;
+    // config file
     std::string source_path;
-    bool        disable_source = false;
     u_short     offset = 0;
     bool        gui = false;
     std::vector<std::string> layouts;
     std::vector<std::string> includes;
-    std::map<std::string, strOrBool> overrides;
-
+    
+    // inner management
+    std::unordered_map<std::string, strOrBool> overrides;
+    std::string m_custom_distro;
+    bool m_disable_source = false;
+    bool m_initialized;
+    bool m_display_distro = true;
 
     // initialize Config, can only be ran once for each Config instance.
     void init(std::string& configFile, std::string& configDir);
@@ -123,12 +128,13 @@ layout = [
 
 # enable it for displaying in GUI instead of in the terminal
 # note: customfetch needs to be compiled with GUI_SUPPORT=1 (which is enabled by default)
-gui = true
+gui = false
 
-# display the ascii-art or image/gif (GUI only)
-# make it empty for disabling custom ascii-art or image displaying
-# and instead display the distro logo
-source-path = "test.txt"
+# display ascii-art or image/gif (GUI only) near layout
+# put "ascii" for displaying the OS ascii-art
+# or the "/path/to/file" for displaying custom files
+# or "off" for disabling ascii-art or image displaying
+source-path = "off"
 
 # offset between the ascii art and the system infos
 offset = 5

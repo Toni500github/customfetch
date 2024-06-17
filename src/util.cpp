@@ -127,6 +127,13 @@ void replace_str(std::string& str, const std::string& from, const std::string& t
     }
 }
 
+std::string str_tolower(std::string str) {
+    for (auto& x : str) { 
+        x = std::tolower(x); 
+    }
+    return str; 
+}
+
 // Function to perform binary search on the pci vendors array to find a device from a vendor.
 std::string binarySearchPCIArray(std::string_view vendor_id_s, std::string_view pci_id_s) {
     std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;

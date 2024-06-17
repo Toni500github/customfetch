@@ -11,9 +11,17 @@
 #include <memory>
 
 std::string Display::detect_distro() {
-    Query::System system;
-    std::string file_path = fmt::format("{}/ascii/{}.txt", CUSTOMFETCH_DATA_DIR, system.os_name());
-    debug("file_path = {}", file_path);
+    std::string file_path;
+    
+    if (!config.m_custom_distro.empty()) 
+    {
+        file_path = fmt::format("{}/ascii/{}.txt", CUSTOMFETCH_DATA_DIR, config.m_custom_distro);
+    } 
+    else 
+    {
+        Query::System system;
+        file_path = fmt::format("{}/ascii/{}.txt", CUSTOMFETCH_DATA_DIR, system.os_name());
+    }
     return file_path;
 }
 
@@ -23,11 +31,11 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
     // first check if the file is an image
     // using the same library that "file" uses
     // No extra bloatware nice
-    if (!config.source_path.empty()) {
+    if (!config.m_display_distro && !config.m_disable_source && config.m_custom_distro.empty()) {
         magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
         magic_load(myt,NULL);
         std::string file_type = magic_file(myt, config.source_path.c_str());
-        if ((file_type.find("text") == std::string::npos) && !config.disable_source)
+        if ((file_type.find("text") == std::string::npos) && !config.m_disable_source)
             die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
     }
 
@@ -53,13 +61,13 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
         layout = parse(layout, systemInfo, _, reset_fgcolor);
     }
     
-    std::string path = config.source_path.empty() ? detect_distro() : config.source_path;
-    std::ifstream file(path, std::ios_base::app);
+    std::string path = config.m_display_distro ? detect_distro() : config.source_path;
+    std::ifstream file(path, std::ios_base::binary);
     if (!file.is_open())
-        if (!config.disable_source)
+        if (!config.m_disable_source)
             die("Could not open ascii art file \"{}\"", path);
 
-    if (config.disable_source)
+    if (config.m_disable_source)
         file.close();
 
     std::string line;
@@ -89,7 +97,7 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
             origin = asciiArt.at(i).length();
         }
 
-        size_t spaces = (maxLineLength + (config.disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt.at(i)->length() : 0);
+        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt.at(i)->length() : 0);
         for (size_t j = 0; j < spaces; j++)
             config.layouts.at(i).insert(origin, " ");
         

@@ -4,7 +4,7 @@
 
 // initialize Config, can only be ran once for each Config instance.
 void Config::init(std::string& configFile, std::string& configDir) {
-     if (this->initialized)
+     if (this->m_initialized)
         return;
     
     if (!std::filesystem::exists(configDir)) {
@@ -20,8 +20,7 @@ void Config::init(std::string& configFile, std::string& configDir) {
     }
 
     this->loadConfigFile(configFile);
-    this->initialized = true;
-
+    this->m_initialized = true;
 }
 
 void Config::loadConfigFile(std::string_view filename) {
@@ -60,17 +59,17 @@ void Config::loadConfigFile(std::string_view filename) {
                 warn("An element of the includes variable in {} is not a string", filename);
         });
 
-    this->source_path    = getConfigValue<std::string>("config.source-path", "");
+    this->source_path    = getConfigValue<std::string>("config.source-path", "ascii");
     this->offset         = getConfigValue<u_short>("config.offset", 5);
-    this->gui            = getConfigValue<bool>("config.gui", true);
+    this->gui            = getConfigValue<bool>("config.gui", false);
     
-
     color.red           = this->getThemeValue("red",     "#ff2000");
     color.green         = this->getThemeValue("green",   "#00ff00");
     color.blue          = this->getThemeValue("blue",    "#00aaff");
     color.cyan          = this->getThemeValue("cyan",    "#00ffff");
     color.yellow        = this->getThemeValue("yellow",  "#ffff00");
     color.magenta       = this->getThemeValue("magenta", "#ff11cc");
+
 }
 
 std::string Config::getThemeValue(const std::string& value, const std::string& fallback) {

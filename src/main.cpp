@@ -8,6 +8,13 @@
 
 static void version() {
     fmt::println("customfetch v{} branch {}", VERSION, BRANCH);
+
+#ifdef GUI_SUPPORT
+    fmt::println("GUI support enabled");
+#else
+    fmt::println("GUI support IS NOT enabled");
+#endif
+
     std::exit(0);
 }
 
@@ -16,9 +23,10 @@ static void help(bool invalid_opt = false) {
     fmt::println(R"(
 A command-line system information tool (or neofetch like program), which its focus point is customizability and perfomance
 
-    -n, --no-ascii-art		Do not dispay the ascii art
-    -a, --ascii-art <path>	Path to the ascii art file to display
+    -n, --no-display		Do not dispay the ascii art
+    -s, --source-path <path>	Path to the ascii art file to display
     -C, --config <path>		Path to the config file to use
+    -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase)
     -g, --gui                   Use GUI mode instead of priting in the terminal (customfetch needs GUI_SUPPORT to be enabled at compile time)
     -l. --list-components	Print the list of the components and its members
     -h, --help			Print this help menu
@@ -66,16 +74,17 @@ cpu
 static bool parseargs(int argc, char* argv[]) {
     int opt = 0;
     int option_index = 0;
-    const char *optstring = "VhnlgC:a:";
+    const char *optstring = "VhnlgC:d:s:";
     static const struct option opts[] =
     {
         {"version",         no_argument,       0, 'V'},
         {"help",            no_argument,       0, 'h'},
-        {"no-ascii-art",    no_argument,       0, 'n'},
+        {"no-display",      no_argument,       0, 'n'},
         {"list-components", no_argument,       0, 'l'},
         {"gui",             no_argument,       0, 'g'},
         {"config",          required_argument, 0, 'C'},
-        {"ascii-art",       required_argument, 0, 'a'},
+        {"distro",          required_argument, 0, 'd'},
+        {"source-path",     required_argument, 0, 's'},
         {0,0,0,0}
     };
 
@@ -92,15 +101,17 @@ static bool parseargs(int argc, char* argv[]) {
             case 'h':
                 help(); break;
             case 'n':
-                config.disable_source = true; break;
+                config.m_disable_source = true; break;
             case 'l':
                 components_list(); break;
             case 'g':
                 config.overrides["config.gui"] = {BOOL, "", true}; break;
             case 'C':
                 configFile = strndup(optarg, PATH_MAX); break;
-            case 'a':
-                config.overrides["config.ascii-art-path"] = {STR, strndup(optarg, PATH_MAX)}; break;
+            case 'd':
+                config.m_custom_distro = str_tolower(strndup(optarg, PATH_MAX)); break;
+            case 's':
+                config.overrides["config.source-path"] = {STR, strndup(optarg, PATH_MAX)}; break;
             default:
                 return false;
         }
@@ -158,8 +169,13 @@ int main (int argc, char *argv[]) {
     
     config.init(configFile, configDir);
 
-    //if (config.source_path.empty())
-    //    config.disable_source = true;
+    if ((config.source_path.empty() || config.source_path == "off") && config.m_custom_distro.empty())
+        config.m_disable_source = true;
+    
+    if (config.source_path == "ascii")
+        config.m_display_distro = true;
+    else
+        config.m_display_distro = false;
 
     pci_init(pac.get());
 
