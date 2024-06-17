@@ -20,7 +20,7 @@ std::string Display::detect_distro() {
     else 
     {
         Query::System system;
-        file_path = fmt::format("{}/ascii/{}.txt", CUSTOMFETCH_DATA_DIR, system.os_name());
+        file_path = fmt::format("{}/ascii/{}.txt", CUSTOMFETCH_DATA_DIR, str_tolower(system.os_name()));
     }
     return file_path;
 }
