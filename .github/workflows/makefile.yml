@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install Packages
-      run: apt-get install build-essential libgtk-3-dev pkg-config -y
+      run: sudo apt-get install build-essential libgtk-3-dev pkg-config -y
 
     - name: Clean
       run: make clean
