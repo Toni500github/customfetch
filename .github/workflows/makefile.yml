@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install Packages
-      run: sudo apt-get update && sudo apt-get install build-essential libgtk-3-dev pkg-config libpci-dev -y
+      run: sudo apt-get update && sudo apt-get install build-essential libgtk-3-dev pkg-config libpci-dev libgtkmm-3.0-dev -y
 
     - name: Clean
       run: make clean
