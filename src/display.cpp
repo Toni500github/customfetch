@@ -111,5 +111,6 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
 }
 
 void Display::display(std::vector<std::string>& renderResult) {
+    // for loops hell nah
     fmt::println("{}", fmt::join(renderResult, "\n"));
 }

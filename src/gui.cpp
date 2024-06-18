@@ -36,7 +36,7 @@ static std::vector<std::string>& render_with_image(std::string reset_fgcolor) {
     if (img)
         stbi_image_free(img);
     else
-        die("Unable to load image");
+        die("Unable to load image '{}'", config.source_path);
 
     for (std::string& include : config.includes) {
         std::vector<std::string> include_nodes = split(include, '.');

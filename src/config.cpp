@@ -59,19 +59,29 @@ void Config::loadConfigFile(std::string_view filename) {
                 warn("An element of the includes variable in {} is not a string", filename);
         });
 
-    this->source_path    = getConfigValue<std::string>("config.source-path", "ascii");
-    this->offset         = getConfigValue<u_short>("config.offset", 5);
-    this->gui            = getConfigValue<bool>("config.gui", false);
+    this->source_path   = getConfigValue<std::string>("config.source-path", "ascii");
+    this->offset        = getConfigValue<u_short>("config.offset", 5);
+    this->gui           = getConfigValue<bool>("config.gui", false);
     
-    color.red           = this->getThemeValue("red",     "#ff2000");
-    color.green         = this->getThemeValue("green",   "#00ff00");
-    color.blue          = this->getThemeValue("blue",    "#00aaff");
-    color.cyan          = this->getThemeValue("cyan",    "#00ffff");
-    color.yellow        = this->getThemeValue("yellow",  "#ffff00");
-    color.magenta       = this->getThemeValue("magenta", "#ff11cc");
+    color.black         = this->getThemeValue("config.red",     "\033[1;90m");
+    color.red           = this->getThemeValue("config.red",     "\033[1;91m");
+    color.green         = this->getThemeValue("config.green",   "\033[1;92m");
+    color.yellow        = this->getThemeValue("config.yellow",  "\033[1;93m");
+    color.blue          = this->getThemeValue("config.blue",    "\033[1;94m");
+    color.magenta       = this->getThemeValue("config.magenta", "\033[1;95m");
+    color.cyan          = this->getThemeValue("config.cyan",    "\033[1;96m");
+    color.white         = this->getThemeValue("config.red",     "\033[1;97m");
 
+    color.gui_black     = this->getThemeValue("gui.black",   "#000005");
+    color.gui_red       = this->getThemeValue("gui.red",     "#ff2000");
+    color.gui_green     = this->getThemeValue("gui.green",   "#00ff00");
+    color.gui_blue      = this->getThemeValue("gui.blue",    "#00aaff");
+    color.gui_cyan      = this->getThemeValue("gui.cyan",    "#00ffff");
+    color.gui_yellow    = this->getThemeValue("gui.yellow",  "#ffff00");
+    color.gui_magenta   = this->getThemeValue("gui.magenta", "#ff11cc");
+    color.gui_white     = this->getThemeValue("gui.white",   "#ffffff");
 }
 
 std::string Config::getThemeValue(const std::string& value, const std::string& fallback) {
-    return this->tbl["config"][value].value<std::string>().value_or(fallback);
+    return this->tbl.at_path(value).value<std::string>().value_or(fallback);
 }

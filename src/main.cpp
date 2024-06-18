@@ -162,14 +162,14 @@ int main (int argc, char *argv[]) {
 #endif
 
     std::string configDir = getConfigDir();
-    configFile = getConfigDir() + "/config.toml";
+    configFile = configDir + "/config.toml";
 
     if (!parseargs(argc, argv))
         return 1;
     
     config.init(configFile, configDir);
 
-    if ((config.source_path.empty() || config.source_path == "off") && config.m_custom_distro.empty())
+    if ( config.source_path.empty() || config.source_path == "off" )
         config.m_disable_source = true;
     
     if (config.source_path == "ascii")
@@ -185,14 +185,12 @@ int main (int argc, char *argv[]) {
         GUI::Window window;
         return app->run(window);
     }
-    else 
-        Display::display(Display::render());
 #else
     if (config.gui) 
         die("Can't run in GUI mode because it got disabled at compile time\nCompile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
-    
-    Display::display(Display::render());
 #endif
+
+    Display::display(Display::render());
 
     return 0;
 }

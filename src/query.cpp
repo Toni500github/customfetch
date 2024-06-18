@@ -1,97 +1,124 @@
 #include "query.hpp"
+
 #include <unistd.h>
-#include "switch_fnv1a.hpp"
-#include "config.hpp"
+
 #include <array>
 #include <stdexcept>
 #include <string>
 
-//using namespace Query;
+#include "config.hpp"
+#include "switch_fnv1a.hpp"
 
-static std::array<std::string, 3> get_ansi_color(std::string str) {
-    #define light "light"
-    #define bgcolor "bgcolor"
+// using namespace Query;
 
-    std::string col = str.erase(str.find_first_of("m"));
-    std::string weight = hasStart(col, "1;") ? "bold" : "normal";
-    std::string type = "fgcolor";
+static std::array<std::string, 3> get_ansi_color( std::string str )
+{
+#define light "light"
+#define bgcolor "bgcolor"
 
-    if (hasStart(col, "1;") || hasStart(col, "0;"))
+    auto first_m = str.find( "m" );
+    if ( first_m == std::string::npos )
+        die( "Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code" );
+
+    std::string col    = str.erase( first_m );
+    std::string weight = hasStart( col, "1;" ) ? "bold" : "normal";
+    std::string type   = "fgcolor";
+
+    if ( hasStart(col, "1;") || hasStart(col, "0;") )
         col.erase(0, 2);
 
-    int n = std::stoi(col);
-    
+    int n = std::stoi( col );
+
     // ugly but efficent code
-    switch (n) {
+    switch ( n )
+    {
         case 40: type = bgcolor;
         case 100: weight = light;
         case 30:
-            col = "black"; break;
-        
+            col = color.gui_black;
+            break;
+
         case 41: type = bgcolor;
         case 101: weight = light;
         case 31:
-            col = "red"; break;
-        
+            col = color.gui_red;
+            break;
+
         case 42: type = bgcolor;
         case 102: weight = light;
         case 32:
-            col = "green"; break;
-        
+            col = color.gui_green;
+            break;
+
         case 43: type = bgcolor;
         case 103: weight = light;
         case 33:
-            col = "yellow"; break;
-        
+            col = color.gui_yellow;
+            break;
+
         case 44: type = bgcolor;
         case 104: weight = light;
         case 34:
-            col = "blue"; break;
+            col = color.gui_blue;
+            break;
 
         case 45: type = bgcolor;
         case 105: weight = light;
         case 35:
-            col = "magenta"; break;
+            col = color.gui_magenta;
+            break;
 
         case 46: type = bgcolor;
         case 106: weight = light;
         case 36:
-            col = "cyan"; break;
+            col = color.gui_cyan;
+            break;
 
         case 47: type = bgcolor;
         case 107: weight = light;
         case 37:
-            col = "white";
+            col = color.gui_white;
+            break;
     }
 
-    return {col, weight ,type};
+    if ( col[0] != '#' )
+        col.erase(0, col.find("#"));
+
+    return { col, weight, type };
 }
 
-static std::string getInfoFromName(systemInfo_t& systemInfo, const std::string& name) {
-    std::vector<std::string> sections = split(name, '.');
+static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string& name )
+{
+    std::vector<std::string> sections = split( name, '.' );
 
-    try {
-        if (systemInfo.find(sections[0]) == systemInfo.end())
-            throw std::out_of_range("genius");
-        if (systemInfo[sections[0]].find(sections[1]) == systemInfo[sections[0]].end())
-            throw std::out_of_range("genius");
+    try
+    {
+        if ( systemInfo.find( sections[0] ) == systemInfo.end() )
+            throw std::out_of_range( "genius" );
+        if ( systemInfo[sections[0]].find( sections[1] ) == systemInfo[sections[0]].end() )
+            throw std::out_of_range( "genius" );
 
         auto result = systemInfo[sections[0]][sections[1]];
         std::string stringResult;
-        if (std::holds_alternative<size_t>(result))
-            stringResult = std::to_string(std::get<size_t>(result));
+        
+        if ( std::holds_alternative<size_t>( result ) )
+            stringResult = std::to_string( std::get<size_t>( result ) );
         else
-            stringResult = std::get<std::string>(result);
+            stringResult = std::get<std::string>( result );
 
         return stringResult;
-    } catch (const std::out_of_range &err) {
+    }
+    catch ( const std::out_of_range& err )
+    {
         return "<unknown/invalid component>";
     };
 }
 
-std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<std::string> &pureOutput, std::string reset_fgcolor) {
+std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr<std::string>& pureOutput,
+                   std::string reset_fgcolor )
+{
     std::string output = input;
-    if (pureOutput)
+    if ( pureOutput )
         *pureOutput = output;
 
     size_t dollarSignIndex = 0;
@@ -99,29 +126,32 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
     bool start = false;
     bool resetclr = false;
 
-    while (true) {
+    while ( true )
+    {
         size_t oldDollarSignIndex = dollarSignIndex;
-        dollarSignIndex           = output.find('$', dollarSignIndex);
+        dollarSignIndex           = output.find( '$', dollarSignIndex );
 
-        if (dollarSignIndex == std::string::npos || (dollarSignIndex <= oldDollarSignIndex && start))
-          break;
+        if ( dollarSignIndex == std::string::npos || ( dollarSignIndex <= oldDollarSignIndex && start ) )
+            break;
 
         start = true;
 
         // check for bypass
         // YOU CAN USE AND/NOT IN C++????
-        // btw the second part checks if it has a \ before it and NOT a \ before the backslash, (check for escaped backslash)
-        // example: \$ is bypassed, \\$ is NOT bypassed.
-        // this will not make an effort to check multiple backslashes, thats your fault atp.
-        if (dollarSignIndex > 0 and (output[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\')))
-          continue;
+        // btw the second part checks if it has a \ before it and NOT a \ before the backslash, (check for escaped
+        // backslash) example: \$ is bypassed, \\$ is NOT bypassed. this will not make an effort to check multiple
+        // backslashes, thats your fault atp.
+        if ( dollarSignIndex > 0 and ( output[dollarSignIndex - 1] == '\\' and
+                                       ( dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\' ) ) )
+            continue;
 
         std::string command         = "";
         size_t      endBracketIndex = -1;
 
-        char        type = ' '; // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
+        char type = ' ';  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
 
-        switch (output[dollarSignIndex + 1]) {
+        switch ( output[dollarSignIndex + 1] )
+        {
             case '(':
                 type = ')';
                 break;
@@ -131,81 +161,151 @@ std::string parse(std::string& input, systemInfo_t &systemInfo, std::unique_ptr<
             case '{':
                 type = '}';
                 break;
-            default: // neither of them
+            default:  // neither of them
                 break;
         }
 
-        if (type == ' ')
+        if ( type == ' ' )
             continue;
 
-        for (size_t i = dollarSignIndex + 2; i < output.size(); i++) {
-            if (output[i] == type && output[i - 1] != '\\') {
+        for ( size_t i = dollarSignIndex + 2; i < output.size(); i++ )
+        {
+            if ( output[i] == type && output[i - 1] != '\\' )
+            {
                 endBracketIndex = i;
                 break;
-            } else if (output[i] == type)
-                command.erase(command.size() - 1, 1);
+            }
+            else if ( output[i] == type )
+                command.erase( command.size() - 1, 1 );
 
             command += output[i];
         }
 
-        if ((int)endBracketIndex == -1)
-            die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
+        if ( (int)endBracketIndex == -1 )
+            die( "PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output );
 
-        switch (type) {
-            case ')':
-                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_exec(command));
-                break;
-            case '>':
-                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, getInfoFromName(systemInfo, command));
-                break;
-            case '}':
-                if (command == "0") {
-                    resetclr = true;
-                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, config.gui ? fmt::format("<span fgcolor='{}'>", reset_fgcolor) : NOCOLOR);
-                    if (pureOutput)
-                        *pureOutput = pureOutput->replace(pureOutput->size()/*dollarSignIndex-pureOutputOffset*/, (endBracketIndex + 1) - dollarSignIndex, "");
-                    pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
-                } else {
+        switch ( type )
+        {
+        case ')':
+            output =
+                output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex, shell_exec( command ) );
+            break;
+        case '>':
+            output = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex,
+                                     getInfoFromName( systemInfo, command ) );
+            break;
+        case '}':  // please pay very attention when reading this unreadable code
+            if ( command == "0" )
+            {
+                resetclr = true;
+                output   = output.replace(
+                    dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex,
+                    config.gui ? fmt::format( "<span fgcolor='{}' weight='normal'>", reset_fgcolor ) : NOCOLOR );
 
-                    std::string str_clr;
-                    switch (fnv1a32::hash(command)) {
-                        case "red"_fnv1a32:     str_clr = color.red; break;
-                        case "blue"_fnv1a32:    str_clr = color.blue; break;
-                        case "green"_fnv1a32:   str_clr = color.green; break;
-                        case "cyan"_fnv1a32:    str_clr = color.cyan; break;
-                        case "yellow"_fnv1a32:  str_clr = color.yellow; break;
-                        case "magenta"_fnv1a32: str_clr = color.magenta; break;
+                if ( pureOutput )
+                    *pureOutput = pureOutput->replace( pureOutput->size() /*dollarSignIndex-pureOutputOffset*/,
+                                                       ( endBracketIndex + 1 ) - dollarSignIndex, "" );
+
+                pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
+            }
+            else
+            {
+                std::string str_clr;
+                if ( config.gui )
+                {
+                    switch ( fnv1a32::hash(command) )
+                    {
+                        case "red"_fnv1a32:         str_clr = color.gui_red;break;
+                        case "blue"_fnv1a32:        str_clr = color.gui_blue; break;
+                        case "green"_fnv1a32:       str_clr = color.gui_green; break;
+                        case "cyan"_fnv1a32:        str_clr = color.gui_cyan; break;
+                        case "yellow"_fnv1a32:      str_clr = color.gui_yellow; break;
+                        case "magenta"_fnv1a32:     str_clr = color.gui_magenta; break;
                         default:
-                            str_clr = command; break;
+                            str_clr = command;
+                            break;
                     }
-                    
-                    if (config.gui) {
-                        if (str_clr[0] == '#') {
-                            output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format("<span fgcolor='{}'>{}</span>", str_clr, output.substr(endBracketIndex + 1)));
-                        } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) { // "\\e" is for checking in the ascii_art, \033 in the config
-                            std::array<std::string, 3> clrs = get_ansi_color(hasStart(str_clr, "\033") ?  str_clr.substr(2) : str_clr.substr(3));
-                            std::string color = clrs.at(0);
-                            std::string weight = clrs.at(1);
-                            std::string type = clrs.at(2);
-                            output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color, weight, output.substr(endBracketIndex + 1)));
-                        }
+
+                    if ( str_clr[0] == '!' && str_clr[1] == '#' )
+                        output = output.replace(
+                            dollarSignIndex, output.length() - dollarSignIndex,
+                            fmt::format( "<span fgcolor='{}' weight='bold'>{}</span>", str_clr.replace( 0, 1, "" ),
+                                         output.substr( endBracketIndex + 1 ) ) );
+
+                    else if ( str_clr[0] == '#' )
+                        output = output.replace( dollarSignIndex, output.length() - dollarSignIndex,
+                                                 fmt::format( "<span fgcolor='{}'>{}</span>", str_clr,
+                                                              output.substr( endBracketIndex + 1 ) ) );
+
+                    else if ( hasStart(str_clr, "\\e") ||
+                              hasStart(str_clr, "\033") )  // "\\e" is for checking in the ascii_art, \033 in the config
+                    {
+                        std::array<std::string, 3> clrs = get_ansi_color( hasStart( str_clr, "\033" ) ? str_clr.substr( 2 ) : str_clr.substr( 3 ) );
+                        std::string color  = clrs.at( 0 );
+                        std::string weight = clrs.at( 1 );
+                        std::string type   = clrs.at( 2 );
+                        output = output.replace( dollarSignIndex, output.length() - dollarSignIndex,
+                                                 fmt::format( "<span {}='{}' weight='{}'>{}</span>", type, color, weight, 
+                                                 output.substr( endBracketIndex + 1 ) ) );
                     }
-                    else {
-                        if (str_clr[0] == '#') {
-                            fmt::rgb clr = hexStringToColor(str_clr);
-                            output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format(fmt::fg(clr), "{}", output.substr(endBracketIndex + 1)));
-                        } else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033")) { // what?
-                            output = output.replace(dollarSignIndex, output.length()-dollarSignIndex, fmt::format("{:c}[{}{}", 0x1B, hasStart(str_clr, "\033") ? // "\\e" is for checking in the ascii_art, \033 in the config
-                                                                                                                                    str_clr.substr(2) : str_clr.substr(3), output.substr(endBracketIndex + 1)));
-                        }
-                    }
-                    //debug("dollarSignIndex = {}\npureOutputOffset = {}", dollarSignIndex, pureOutputOffset);
-                    if (pureOutput)
-                        *pureOutput = pureOutput->replace(pureOutput->size()/*dollarSignIndex - pureOutputOffset*/, endBracketIndex - dollarSignIndex + 1, "");
-                    
-                    pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
+
+                    else
+                        error( "PARSER: failed to parse line with color '{}'", str_clr );
                 }
-                break;
+
+                else
+                {
+                    switch ( fnv1a32::hash(command) )
+                    {
+                        case "red"_fnv1a32:         str_clr = color.red; break;
+                        case "blue"_fnv1a32:        str_clr = color.blue;break;
+                        case "green"_fnv1a32:       str_clr = color.green; break;
+                        case "cyan"_fnv1a32:        str_clr = color.cyan; break;
+                        case "yellow"_fnv1a32:      str_clr = color.yellow; break;
+                        case "magenta"_fnv1a32:     str_clr = color.magenta; break;
+                        default:
+                            str_clr = command;
+                            break;
+                    }
+
+                    if ( str_clr[0] == '!' && str_clr[1] == '#' )
+                    {
+                        fmt::rgb clr = hexStringToColor( str_clr.replace( 0, 1, "" ) );
+                        output = output.replace( dollarSignIndex, output.length() - dollarSignIndex,
+                                                fmt::format( fmt::fg( clr ) | fmt::emphasis::bold, "{}",
+                                                output.substr( endBracketIndex + 1 ) ) );
+                    }
+
+                    else if ( str_clr[0] == '#' )
+                    {
+                        fmt::rgb clr = hexStringToColor( str_clr );
+                        output =
+                            output.replace( dollarSignIndex, output.length() - dollarSignIndex,
+                                            fmt::format( fmt::fg( clr ), "{}", 
+                                            output.substr( endBracketIndex + 1 ) ) );
+                    }
+
+                    else if ( hasStart( str_clr, "\\e" ) || hasStart( str_clr, "\033" ) )
+                    {
+                        output = output.replace(
+                            dollarSignIndex, output.length() - dollarSignIndex,
+                            fmt::format( "\x1B[{}{}",
+                                         hasStart( str_clr, "\033" ) ? // "\\e" is for checking in the ascii_art, \033 in the config
+                                         str_clr.substr(2) : str_clr.substr(3),
+                                         output.substr( endBracketIndex + 1 ) ) );
+                    }
+
+                    else
+                        die( "PARSER: failed to parse line with color '{}'", str_clr );
+                }
+
+                if ( pureOutput )
+                    *pureOutput = pureOutput->replace( pureOutput->size() /*dollarSignIndex - pureOutputOffset*/,
+                                                       endBracketIndex - dollarSignIndex + 1, "" );
+
+                pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
+            }
+            break;
         }
         // close the span tag of the reseted color
         output += (config.gui && resetclr) ? "</span>" : "";
