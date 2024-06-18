@@ -327,7 +327,7 @@ void addModuleValues(systemInfo_t &sysInfo, std::string &moduleName) {
 
         sysInfo.insert(
             {"os", {
-                {"name",           VARIANT(query_system.os_name())},
+                {"name",           VARIANT(query_system.os_pretty_name())},
                 {"username",       VARIANT(query_system.username())},
                 {"uptime_secs",    VARIANT((size_t)uptime_secs.count()%60)},
                 {"uptime_mins",    VARIANT((size_t)uptime_mins.count()%60)},
@@ -402,7 +402,7 @@ void addValueFromModule(systemInfo_t& sysInfo, std::string& moduleName, std::str
             // thanks god clangd has an auto completer
             switch (fnv1a32::hash(moduleValueName)) {
                 case "name"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, VARIANT(query_system.os_name())}); break;
+                    sysInfo[moduleName].insert({moduleValueName, VARIANT(query_system.os_pretty_name())}); break;
             
                 case "username"_fnv1a32:
                     sysInfo[moduleName].insert({moduleValueName, VARIANT(query_system.username())}); break;

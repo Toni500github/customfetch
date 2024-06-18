@@ -33,6 +33,7 @@ public:
     std::string hostname();
     std::string arch();
     std::string username();
+    std::string os_pretty_name();
     std::string os_name();
     long        uptime();
 
