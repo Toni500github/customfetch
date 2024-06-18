@@ -87,8 +87,8 @@ std::string System::os_name() {
 
         std::string line;
         while (std::getline(os_release_file, line)) {
-            if(line.find("NAME=") != std::string::npos) {
-                os_pretty_name = line.substr(5);
+            if(line.find("ID=") != std::string::npos) {
+                os_pretty_name = line.substr(3);
                 os_pretty_name.erase(std::remove(os_pretty_name.begin(), os_pretty_name.end(), '\"'), os_pretty_name.end());
                 
                 return os_pretty_name;

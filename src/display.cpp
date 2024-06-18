@@ -13,6 +13,7 @@
 std::string Display::detect_distro() {
     std::string file_path;
     
+    debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
     if (!config.m_custom_distro.empty()) 
     {
         file_path = fmt::format("{}/ascii/{}.txt", CUSTOMFETCH_DATA_DIR, config.m_custom_distro);
