@@ -61,7 +61,7 @@ void Config::loadConfigFile(std::string_view filename) {
 
     this->source_path   = getConfigValue<std::string>("config.source-path", "ascii");
     this->offset        = getConfigValue<u_short>("config.offset", 5);
-    this->gui           = getConfigValue<bool>("config.gui", false);
+    this->gui           = getConfigValue<bool>("gui.enable", false);
     
     color.black         = this->getThemeValue("config.red",     "\033[1;90m");
     color.red           = this->getThemeValue("config.red",     "\033[1;91m");
