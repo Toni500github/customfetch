@@ -46,6 +46,7 @@ long System::uptime() {
     return m_sysInfos.uptime;
 }
 
+// TODO: this just temp, i'll then fix it
 std::string System::os_pretty_name() {
     std::string sysName = this->kernel_name();
 
@@ -60,7 +61,7 @@ std::string System::os_pretty_name() {
 
         std::string line;
         while (std::getline(os_release_file, line)) {
-            if(line.find("PRETTY_NAME=") != std::string::npos) {
+            if(line.rfind("PRETTY_NAME=", 0) == 0) {
                 os_pretty_name = line.substr(12);
                 os_pretty_name.erase(std::remove(os_pretty_name.begin(), os_pretty_name.end(), '\"'), os_pretty_name.end());
                 
@@ -87,8 +88,8 @@ std::string System::os_name() {
 
         std::string line;
         while (std::getline(os_release_file, line)) {
-            if(line.find("ID=") != std::string::npos) {
-                os_pretty_name = line.substr(3);
+            if(line.rfind("NAME=", 0) == 0) {
+                os_pretty_name = line.substr(5);
                 os_pretty_name.erase(std::remove(os_pretty_name.begin(), os_pretty_name.end(), '\"'), os_pretty_name.end());
                 
                 return os_pretty_name;
