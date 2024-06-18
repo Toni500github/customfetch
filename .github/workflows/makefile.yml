@@ -21,7 +21,7 @@ jobs:
       run: make clean
 
     - name: Compile
-      run: make DEBUG=0 PARSER_TEST=1 VENDOR_TEST=1 GUI_SUPPORT=1
+      run: make DEBUG=0 VENDOR_TEST=1 GUI_SUPPORT=1
 
     - name: Test taur
       run: ./build/release/cufetch

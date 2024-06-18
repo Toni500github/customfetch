@@ -131,25 +131,33 @@ int main (int argc, char *argv[]) {
     std::string test_4 = "Hello, $\\(echo \"World\")!";
     std::string test_5 = "Hello, \\\\$(echo \"World\")!";
     std::string test_6 = "$(echo \"World\")!";
+    systemInfo_t systemInfo;
+    std::unique_ptr<std::string> pureOutput = std::make_unique<std::string>();
+    std::string clr = "#d3dae3";
 
     fmt::print("Useless string (input: {}): ", test_1);
-    parse(test_1);
-    fmt::println("{}", test_1);
+    parse(test_1, systemInfo, pureOutput, clr);
+    fmt::println("\t{}", test_1);
+    
     fmt::print("Exec string (input: {}): ", test_2);
-    parse(test_2);
-    fmt::println("{}", test_2);
+    parse(test_2, systemInfo, pureOutput, clr);
+    fmt::println("\t{}", test_2);
+    
     fmt::print("Bypassed exec string #1 (input: {}): ", test_3);
-    parse(test_3);
-    fmt::println("{}", test_3);
+    parse(test_3, systemInfo, pureOutput, clr);
+    fmt::println("\t{}", test_3);
+    
     fmt::print("Bypassed exec string #2 (input: {}): ", test_4);
-    parse(test_4);
-    fmt::println("{}", test_4);
+    parse(test_4, systemInfo, pureOutput, clr);
+    fmt::println("\t{}", test_4);
+    
     fmt::print("Escaped backslash before exec string (input: {}): ", test_5);
-    parse(test_5);
-    fmt::println("{}", test_5);
+    parse(test_5, systemInfo, pureOutput, clr);
+    fmt::println("\t{}", test_5);
+    
     fmt::print("Exec string at start of the string (input: {}): ", test_6);
-    parse(test_6);
-    fmt::println("{}", test_6);
+    parse(test_6, systemInfo, pureOutput, clr);
+    fmt::println("\t{}", test_6);
 #endif
 
 #ifdef VENDOR_TEST
