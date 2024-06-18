@@ -1,0 +1,27 @@
+name: Makefile CI (Test customfetch)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Packages
+      run: apt-get install build-essential libgtk-3-dev pkg-config -y
+
+    - name: Clean
+      run: make clean
+
+    - name: Compile
+      run: make DEBUG=0 PARSER_TEST=1 VENDOR_TEST=1 GUI_SUPPORT=1
+
+    - name: Test taur
+      run: ./build/release/cufetch
