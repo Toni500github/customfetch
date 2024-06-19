@@ -23,5 +23,5 @@ jobs:
     - name: Compile
       run: make DEBUG=0 VENDOR_TEST=1 GUI_SUPPORT=1
 
-    - name: Test taur
+    - name: Test customfetch
       run: ./build/release/cufetch
