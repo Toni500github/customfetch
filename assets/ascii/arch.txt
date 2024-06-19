@@ -1,19 +1,19 @@
-${c1}                   -`
-                  .o+`
-                 `ooo/
-                `+oooo:
-               `+oooooo:
-               -+oooooo+:
-             `/:-:++oooo+:
-            `/++++/+++++++:
-           `/++++++++++++++:
-          `/+++o${c2}oooooooo${c1}oooo/`
-${c2}         ${c1}./${c2}ooosssso++osssssso${c1}+`
-${c2}        .oossssso-````/ossssss+`
-       -osssssso.      :ssssssso.
-      :osssssss/        osssso+++.
-     /ossssssss/        +ssssooo/-
-   `/ossssso+/:-        -:/+osssso+-
-  `+sso+:-`                 `.-/+oso:
- `++:.                           `-/+/
- .`                                 `/
+${cyan}                   -`
+${cyan}                  .o+`
+${cyan}                 `ooo/
+${cyan}                `+oooo:
+${cyan}               `+oooooo:
+${cyan}               -+oooooo+:
+${cyan}             `/:-:++oooo+:
+${cyan}            `/++++/+++++++:
+${cyan}           `/++++++++++++++:
+${cyan}          `/+++o${blue}oooooooo${cyan}oooo/`
+${blue}         ${cyan}./${blue}ooosssso++osssssso${cyan}+`
+${blue}        .oossssso-````/ossssss+`
+${blue}       -osssssso.      :ssssssso.
+${blue}      :osssssss/        osssso+++.
+${blue}     /ossssssss/        +ssssooo/-
+${blue}   `/ossssso+/:-        -:/+osssso+-
+${blue}  `+sso+:-`                 `.-/+oso:
+${blue} `++:.                           `-/+/
+${blue} .`                                 `/

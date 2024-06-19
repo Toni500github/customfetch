@@ -484,7 +484,7 @@ void addValueFromModule(systemInfo_t& sysInfo, std::string& moduleName, std::str
             );
         
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-            switch (fnv1a32::hash(moduleName)) {
+            switch (fnv1a32::hash(moduleValueName)) {
                 case "used"_fnv1a32:
                     sysInfo[moduleName].insert({moduleValueName, VARIANT(query_ram.used_amount())}); break;
                 
