@@ -254,6 +254,12 @@ std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr
 
                     else
                         error( "PARSER: failed to parse line with color '{}'", str_clr );
+
+                    if ( pureOutput )
+                        *pureOutput = pureOutput->replace( pureOutput->size() /*dollarSignIndex - pureOutputOffset*/,
+                                                        endBracketIndex - dollarSignIndex + 1, "" );
+
+                    pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 }
 
                 else
@@ -273,42 +279,45 @@ std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr
                             break;
                     }
 
+                    std::string formatted_replacement_string;
+                    std::string unformatted_replacement_string;
+
                     if ( str_clr[0] == '!' && str_clr[1] == '#' )
                     {
                         fmt::rgb clr = hexStringToColor( str_clr.replace( 0, 1, "" ) );
-                        output = output.replace( dollarSignIndex, output.length() - dollarSignIndex,
-                                                fmt::format( fmt::fg( clr ) | fmt::emphasis::bold, "{}",
-                                                output.substr( endBracketIndex + 1 ) ) );
+                        unformatted_replacement_string = output.substr( endBracketIndex + 1 );
+                        formatted_replacement_string = fmt::format( fmt::fg( clr ) | fmt::emphasis::bold, "{}",
+                                                unformatted_replacement_string);
                     }
 
                     else if ( str_clr[0] == '#' )
                     {
                         fmt::rgb clr = hexStringToColor( str_clr );
-                        output =
-                            output.replace( dollarSignIndex, output.length() - dollarSignIndex,
-                                            fmt::format( fmt::fg( clr ), "{}", 
-                                            output.substr( endBracketIndex + 1 ) ) );
+                        unformatted_replacement_string = output.substr( endBracketIndex + 1 );
+                        formatted_replacement_string = fmt::format( fmt::fg( clr ), "{}", 
+                                            unformatted_replacement_string );
                     }
 
                     else if ( hasStart( str_clr, "\\e" ) || hasStart( str_clr, "\033" ) )
                     {
-                        output = output.replace(
-                            dollarSignIndex, output.length() - dollarSignIndex,
-                            fmt::format( "\x1B[{}{}",
+                        unformatted_replacement_string = output.substr( endBracketIndex + 1 );
+                        formatted_replacement_string = fmt::format( "\x1B[{}{}",
                                          hasStart( str_clr, "\033" ) ? // "\\e" is for checking in the ascii_art, \033 in the config
                                          str_clr.substr(2) : str_clr.substr(3),
-                                         output.substr( endBracketIndex + 1 ) ) );
+                                         unformatted_replacement_string );
                     }
 
                     else
                         die( "PARSER: failed to parse line with color '{}'", str_clr );
+                
+                    output = output.replace( dollarSignIndex, output.length() - dollarSignIndex, formatted_replacement_string);
+
+                    if ( pureOutput )
+                        *pureOutput = pureOutput->replace(dollarSignIndex - pureOutputOffset,
+                                                        endBracketIndex - dollarSignIndex + 1, "" );
+
+                    pureOutputOffset += formatted_replacement_string.length() - unformatted_replacement_string.length() - 1;
                 }
-
-                if ( pureOutput )
-                    *pureOutput = pureOutput->replace( pureOutput->size() /*dollarSignIndex - pureOutputOffset*/,
-                                                       endBracketIndex - dollarSignIndex + 1, "" );
-
-                pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
             }
             break;
         }
