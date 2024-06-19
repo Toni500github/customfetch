@@ -215,12 +215,14 @@ std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr
                 {
                     switch ( fnv1a32::hash(command) )
                     {
+                        case "black"_fnv1a32:       str_clr = color.gui_black; break;   
                         case "red"_fnv1a32:         str_clr = color.gui_red;break;
                         case "blue"_fnv1a32:        str_clr = color.gui_blue; break;
                         case "green"_fnv1a32:       str_clr = color.gui_green; break;
                         case "cyan"_fnv1a32:        str_clr = color.gui_cyan; break;
                         case "yellow"_fnv1a32:      str_clr = color.gui_yellow; break;
                         case "magenta"_fnv1a32:     str_clr = color.gui_magenta; break;
+                        case "white"_fnv1a32:       str_clr = color.gui_white; break;
                         default:
                             str_clr = command;
                             break;
@@ -257,12 +259,14 @@ std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr
                 {
                     switch ( fnv1a32::hash(command) )
                     {
+                        case "black"_fnv1a32:       str_clr = color.black; break;
                         case "red"_fnv1a32:         str_clr = color.red; break;
                         case "blue"_fnv1a32:        str_clr = color.blue;break;
                         case "green"_fnv1a32:       str_clr = color.green; break;
                         case "cyan"_fnv1a32:        str_clr = color.cyan; break;
                         case "yellow"_fnv1a32:      str_clr = color.yellow; break;
                         case "magenta"_fnv1a32:     str_clr = color.magenta; break;
+                        case "white"_fnv1a32:       str_clr = color.white; break;
                         default:
                             str_clr = command;
                             break;
