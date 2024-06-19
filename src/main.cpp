@@ -105,7 +105,7 @@ static bool parseargs(int argc, char* argv[]) {
             case 'l':
                 components_list(); break;
             case 'g':
-                config.overrides["config.gui"] = {BOOL, "", true}; break;
+                config.overrides["gui.enable"] = {BOOL, "", true}; break;
             case 'C':
                 configFile = strndup(optarg, PATH_MAX); break;
             case 'd':

@@ -14,7 +14,7 @@
 using namespace GUI;
 
 // https://www.codespeedy.com/convert-rgb-to-hex-color-code-in-cpp/
-static std::string rgba_to_hexstr(const Gdk::RGBA& color) {
+/*static std::string rgba_to_hexstr(const Gdk::RGBA& color) {
     int red = color.get_red() * 255;
     int green = color.get_green() * 255;
     int blue = color.get_blue() * 255;
@@ -22,10 +22,10 @@ static std::string rgba_to_hexstr(const Gdk::RGBA& color) {
     std::stringstream ss;
     ss << "#" << std::hex << (red << 16 | green << 8 | blue);    
     return ss.str();
-}
+}*/
 
 // Display::render but only for images on GUI
-static std::vector<std::string>& render_with_image(std::string reset_fgcolor) {
+static std::vector<std::string>& render_with_image() {
     systemInfo_t systemInfo{};
 
     int image_width, image_height, channels;
@@ -57,7 +57,7 @@ static std::vector<std::string>& render_with_image(std::string reset_fgcolor) {
 
     for (std::string& layout : config.layouts) {
         std::unique_ptr<std::string> _;
-        layout = parse(layout, systemInfo, _, reset_fgcolor);
+        layout = parse(layout, systemInfo, _);
     }
 
     for (size_t i = 0; i < config.layouts.size(); i++) {
@@ -103,15 +103,15 @@ Window::Window() {
     context->set_font_description(font);
 
     auto style_context = m_label.get_style_context();
-    Gdk::RGBA fg_color;
+    /*Gdk::RGBA fg_color;
     style_context->lookup_color("theme_fg_color", fg_color);
-    std::string fg_color_str = rgba_to_hexstr(fg_color);
+    std::string fg_color_str = rgba_to_hexstr(fg_color);*/
     
     std::string colored_text;
     if (useImage)
-        colored_text = fmt::format("{}", fmt::join(render_with_image(fg_color_str), "\n"));
+        colored_text = fmt::format("{}", fmt::join(render_with_image(), "\n"));
     else
-        colored_text = fmt::format("{}", fmt::join(Display::render(fg_color_str), "\n"));
+        colored_text = fmt::format("{}", fmt::join(Display::render(), "\n"));
 
     m_label.set_markup(colored_text);
     m_label.set_alignment(Gtk::ALIGN_CENTER);

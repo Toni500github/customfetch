@@ -26,7 +26,7 @@ std::string Display::detect_distro() {
     return file_path;
 }
 
-std::vector<std::string>& Display::render(std::string reset_fgcolor) {
+std::vector<std::string>& Display::render() {
     systemInfo_t systemInfo{};
 
     // first check if the file is an image
@@ -59,7 +59,7 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
 
     for (std::string& layout : config.layouts) {
         std::unique_ptr<std::string> _;
-        layout = parse(layout, systemInfo, _, reset_fgcolor);
+        layout = parse(layout, systemInfo, _);
     }
     
     std::string path = config.m_display_distro ? detect_distro() : config.source_path;
@@ -78,7 +78,7 @@ std::vector<std::string>& Display::render(std::string reset_fgcolor) {
     
     while (std::getline(file, line)) {
         std::unique_ptr<std::string> pureOutput = std::make_unique<std::string>();
-        std::string asciiArt_s = parse(line, systemInfo, pureOutput, reset_fgcolor);
+        std::string asciiArt_s = parse(line, systemInfo, pureOutput);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 
         asciiArt.push_back(asciiArt_s);

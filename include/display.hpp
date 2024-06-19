@@ -12,7 +12,7 @@
 
 namespace Display {
 
-std::vector<std::string>& render(std::string reset_fgcolor = "");
+std::vector<std::string>& render();
 void display(std::vector<std::string>& renderResult);
 std::string detect_distro();
 

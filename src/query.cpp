@@ -1,11 +1,9 @@
-#include "query.hpp"
-
 #include <unistd.h>
-
 #include <array>
 #include <stdexcept>
 #include <string>
 
+#include "query.hpp"
 #include "config.hpp"
 #include "switch_fnv1a.hpp"
 
@@ -13,72 +11,79 @@
 
 static std::array<std::string, 3> get_ansi_color( std::string str )
 {
-#define light "light"
 #define bgcolor "bgcolor"
 
     auto first_m = str.find( "m" );
     if ( first_m == std::string::npos )
         die( "Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code" );
 
-    std::string col    = str.erase( first_m );
+    std::string col    = str.erase( first_m ); // 1;42
     std::string weight = hasStart( col, "1;" ) ? "bold" : "normal";
-    std::string type   = "fgcolor";
+    std::string type   = "fgcolor"; // either fgcolor or bgcolor
 
     if ( hasStart(col, "1;") || hasStart(col, "0;") )
         col.erase(0, 2);
 
     int n = std::stoi( col );
 
-    // ugly but efficent code
-    switch ( n )
-    {
-        case 40: type = bgcolor;
-        case 100: weight = light;
-        case 30:
-            col = color.gui_black;
+    // copy paste ahh code
+    // unfortunatly you can't do bold and light in pango
+    switch (n) {
+        case 90:
+        case 30: col = color.gui_black; 
+            break;
+        
+        case 91:
+        case 31: col = color.gui_red; 
+            break;
+        
+        case 92:
+        case 32: col = color.gui_green; 
+            break;
+        
+        case 93:
+        case 33: col = color.gui_yellow; 
+            break;
+        
+        case 94:
+        case 34: col = color.gui_blue; 
             break;
 
-        case 41: type = bgcolor;
-        case 101: weight = light;
-        case 31:
-            col = color.gui_red;
+        case 95:
+        case 35: col = color.gui_magenta; 
+            break;
+        
+        case 96:
+        case 36: col = color.gui_cyan; 
+            break;
+        
+        case 97:
+        case 37: col = color.gui_white; 
             break;
 
-        case 42: type = bgcolor;
-        case 102: weight = light;
-        case 32:
-            col = color.gui_green;
-            break;
-
-        case 43: type = bgcolor;
-        case 103: weight = light;
-        case 33:
-            col = color.gui_yellow;
-            break;
-
-        case 44: type = bgcolor;
-        case 104: weight = light;
-        case 34:
-            col = color.gui_blue;
-            break;
-
-        case 45: type = bgcolor;
-        case 105: weight = light;
-        case 35:
-            col = color.gui_magenta;
-            break;
-
-        case 46: type = bgcolor;
-        case 106: weight = light;
-        case 36:
-            col = color.gui_cyan;
-            break;
-
-        case 47: type = bgcolor;
-        case 107: weight = light;
-        case 37:
-            col = color.gui_white;
-            break;
+        case 100:
+        case 40: col = color.gui_black;  type = bgcolor; break;
+        
+        case 101:
+        case 41: col = color.gui_red;    type = bgcolor; break;
+        
+        case 102:
+        case 42: col = color.gui_green;  type = bgcolor; break;
+        
+        case 103:
+        case 43: col = color.gui_yellow; type = bgcolor; break;
+        
+        case 104:
+        case 44: col = color.gui_blue;   type = bgcolor; break;
+        
+        case 105:
+        case 45: col = color.gui_magenta; type = bgcolor; break;
+        
+        case 106:
+        case 46: col = color.gui_cyan;   type = bgcolor; break;
+        
+        case 107:
+        case 47: col = color.gui_white;  type = bgcolor; break;
     }
 
     if ( col[0] != '#' )
@@ -100,7 +105,7 @@ static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string&
 
         auto result = systemInfo[sections[0]][sections[1]];
         std::string stringResult;
-        
+
         if ( std::holds_alternative<size_t>( result ) )
             stringResult = std::to_string( std::get<size_t>( result ) );
         else
@@ -114,8 +119,7 @@ static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string&
     };
 }
 
-std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr<std::string>& pureOutput,
-                   std::string reset_fgcolor )
+std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr<std::string>& pureOutput )
 {
     std::string output = input;
     if ( pureOutput )
@@ -196,12 +200,9 @@ std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr
             break;
         case '}':  // please pay very attention when reading this unreadable code
             if ( command == "0" )
-            {
+            {   
                 resetclr = true;
-                output   = output.replace(
-                    dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex,
-                    config.gui ? fmt::format( "<span fgcolor='{}' weight='normal'>", reset_fgcolor ) : NOCOLOR );
-
+                output   = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex, config.gui ? "</span><span>" : NOCOLOR );
                 if ( pureOutput )
                     *pureOutput = pureOutput->replace( pureOutput->size() /*dollarSignIndex-pureOutputOffset*/,
                                                        ( endBracketIndex + 1 ) - dollarSignIndex, "" );
@@ -312,7 +313,7 @@ std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr
             break;
         }
         // close the span tag of the reseted color
-        output += (config.gui && resetclr) ? "</span>" : "";
+        //output += (config.gui && resetclr) ? "</span>" : "";
         resetclr = false;
     }
 
