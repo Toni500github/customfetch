@@ -144,10 +144,10 @@ layout = [
 ]
 
 # display ascii-art or image/gif (GUI only) near layout
-# put "ascii" for displaying the OS ascii-art
+# put "os" for displaying the OS ascii-art
 # or the "/path/to/file" for displaying custom files
 # or "off" for disabling ascii-art or image displaying
-source-path = "ascii"
+source-path = "os"
 
 # offset between the ascii art and the system infos
 offset = 5

@@ -27,7 +27,7 @@ A command-line system information tool (or neofetch like program), which its foc
     -s, --source-path <path>	Path to the ascii art file to display
     -C, --config <path>		Path to the config file to use
     -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase)
-    -g, --gui                   Use GUI mode instead of priting in the terminal (customfetch needs GUI_SUPPORT to be enabled at compile time)
+    -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it's enabled)
     -l. --list-components	Print the list of the components and its members
     -h, --help			Print this help menu
     -V, --version		Print the version along with the git branch it was built
@@ -180,7 +180,7 @@ int main (int argc, char *argv[]) {
     if ( config.source_path.empty() || config.source_path == "off" )
         config.m_disable_source = true;
     
-    if (config.source_path == "ascii")
+    if (config.source_path == "os")
         config.m_display_distro = true;
     else
         config.m_display_distro = false;

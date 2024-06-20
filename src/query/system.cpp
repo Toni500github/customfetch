@@ -1,6 +1,7 @@
 #include "query.hpp"
 #include "util.hpp"
 
+#include <array>
 #include <cerrno>
 #include <fstream>
 #include <algorithm>
@@ -8,6 +9,50 @@
 #include <unistd.h>
 
 using namespace Query;
+
+enum {
+    PRETTY_NAME = 0,
+    NAME,
+    ID_LIKE,
+    ID,
+    BUILD_ID,
+    VERSION_ID,
+    _VERSION, // conflicts with the macro VERSION so had to put _
+    VERSION_CODENAME
+};
+
+static std::string get_var(std::string& line, u_short& iter_index) {
+    std::vector<std::string> var = split(line, '=');
+    std::string ret = var.at(1);
+    ret.erase(std::remove(ret.begin(), ret.end(), '\"'), ret.end());
+    ++iter_index;
+    return ret;
+}
+
+static std::array<std::string, 8> get_os_release_vars() {
+    std::array<std::string, 8> ret;
+    for (int i = 0; i < 8; i++)
+            ret.at(i) = UNKNOWN;
+
+    std::string_view os_release_path = "/etc/os-release";
+    std::ifstream os_release_file(os_release_path.data());
+    if (!os_release_file.is_open()) {
+        error("Could not open {}", os_release_path);
+        return ret;
+    }
+    
+    u_short iter_index = 0;
+    std::string line;
+    while (std::getline(os_release_file, line) && iter_index < 2) {
+        if(hasStart(line, "PRETTY_NAME="))
+            ret.at(PRETTY_NAME) = get_var(line, iter_index);
+
+        if(hasStart(line, "NAME="))
+            ret.at(NAME) = get_var(line, iter_index);
+    }
+
+    return ret;
+}
 
 System::System() {
     uid_t uid = geteuid();
@@ -20,6 +65,8 @@ System::System() {
 
     if (m_pPwd = getpwuid(uid), !m_pPwd)
         die("getpwent failed: {}\nCould not get user infos", errno);
+
+    m_os_release_vars = get_os_release_vars();
 }
 
 std::string System::kernel_name() {
@@ -46,57 +93,10 @@ long System::uptime() {
     return m_sysInfos.uptime;
 }
 
-// TODO: this just temp, i'll then fix it
 std::string System::os_pretty_name() {
-    std::string sysName = this->kernel_name();
-
-    if (sysName == "Linux") {
-        std::string os_pretty_name;
-        std::string_view os_release_path = "/etc/os-release";
-        std::ifstream os_release_file(os_release_path.data());
-        if (!os_release_file.is_open()) {
-            error("Could not open {}", os_release_path.data());
-            return UNKNOWN;
-        }
-
-        std::string line;
-        while (std::getline(os_release_file, line)) {
-            if(line.rfind("PRETTY_NAME=", 0) == 0) {
-                os_pretty_name = line.substr(12);
-                os_pretty_name.erase(std::remove(os_pretty_name.begin(), os_pretty_name.end(), '\"'), os_pretty_name.end());
-                
-                return os_pretty_name;
-            }
-        }
-
-    }
-
-    return UNKNOWN;
+    return m_os_release_vars.at(PRETTY_NAME);
 }
 
 std::string System::os_name() {
-    std::string sysName = this->kernel_name();
-
-    if (sysName == "Linux") {
-        std::string os_pretty_name;
-        std::string_view os_release_path = "/etc/os-release";
-        std::ifstream os_release_file(os_release_path.data());
-        if (!os_release_file.is_open()) {
-            error("Could not open {}", os_release_path.data());
-            return UNKNOWN;
-        }
-
-        std::string line;
-        while (std::getline(os_release_file, line)) {
-            if(line.rfind("NAME=", 0) == 0) {
-                os_pretty_name = line.substr(5);
-                os_pretty_name.erase(std::remove(os_pretty_name.begin(), os_pretty_name.end(), '\"'), os_pretty_name.end());
-                
-                return os_pretty_name;
-            }
-        }
-
-    }
-
-    return UNKNOWN;
+    return m_os_release_vars.at(NAME);
 }

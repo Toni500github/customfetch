@@ -11,7 +11,7 @@ VENDOR_TEST 	?= 0
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
         BUILDDIR  = build/debug
-        CXXFLAGS := -ggdb -Wall $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+        CXXFLAGS := -ggdb -Wall -DDEBUG=1 $(DEBUG_CXXFLAGS) $(CXXFLAGS)
 else
         BUILDDIR  = build/release
         CXXFLAGS := -O2 $(CXXFLAGS)

@@ -128,7 +128,6 @@ std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr
     size_t dollarSignIndex = 0;
     size_t pureOutputOffset = 0;
     bool start = false;
-    bool resetclr = false;
 
     while ( true )
     {
@@ -201,7 +200,6 @@ std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr
         case '}':  // please pay very attention when reading this unreadable code
             if ( command == "0" )
             {   
-                resetclr = true;
                 output   = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex, config.gui ? "</span><span>" : NOCOLOR );
                 if ( pureOutput )
                     *pureOutput = pureOutput->replace( pureOutput->size() /*dollarSignIndex-pureOutputOffset*/,
@@ -321,9 +319,6 @@ std::string parse( std::string& input, systemInfo_t& systemInfo, std::unique_ptr
             }
             break;
         }
-        // close the span tag of the reseted color
-        //output += (config.gui && resetclr) ? "</span>" : "";
-        resetclr = false;
     }
 
     return output;

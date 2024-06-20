@@ -6,8 +6,6 @@
 
 using namespace Query;
 
-static std::array<size_t, 3> get_amount();
-
 enum {
     USED = 0,
     AVAILABLE,
@@ -24,25 +22,8 @@ std::string_view meminfo_path = "/proc/meminfo";
 
 // minimaze the while loop iteration once we have all the values we needed
 // less cpu cicles and saving ms of time
-u_short iter_index = 0;
 
-RAM::RAM() {
-    m_memory_infos = get_amount();
-}
-
-size_t RAM::free_amount()  { 
-    return m_memory_infos.at(AVAILABLE) / 1024; 
-}
-
-size_t RAM::used_amount()  { 
-    return m_memory_infos.at(USED) / 1024; 
-}
-
-size_t RAM::total_amount() { 
-    return m_memory_infos.at(TOTAL) / 1024; 
-}
-
-static size_t get_from_text(std::string& line) {
+static size_t get_from_text(std::string& line, u_short& iter_index) {
     std::vector<std::string> amount = split(line, ':');
     strip(amount.at(1));
     ++iter_index;
@@ -59,12 +40,13 @@ static std::array<size_t, 3> get_amount() {
     }
     
     std::string line;
+    u_short iter_index = 0;
     while (std::getline(file, line) && iter_index < 2) {
         if (line.find("MemAvailable:") != std::string::npos)
-            memory_infos.at(AVAILABLE) = get_from_text(line);
+            memory_infos.at(AVAILABLE) = get_from_text(line, iter_index);
 
         if (line.find("MemTotal:") != std::string::npos)
-            memory_infos.at(TOTAL) = get_from_text(line);
+            memory_infos.at(TOTAL) = get_from_text(line, iter_index);
 
         /*if (line.find("Shmem:") != std::string::npos)
             extra_mem_info.at(SHMEM) = get_from_text(line);
@@ -87,3 +69,20 @@ static std::array<size_t, 3> get_amount() {
 
     return memory_infos;
 }
+
+RAM::RAM() {
+    m_memory_infos = get_amount();
+}
+
+size_t RAM::free_amount()  { 
+    return m_memory_infos.at(AVAILABLE) / 1024; 
+}
+
+size_t RAM::used_amount()  { 
+    return m_memory_infos.at(USED) / 1024; 
+}
+
+size_t RAM::total_amount() { 
+    return m_memory_infos.at(TOTAL) / 1024; 
+}
+

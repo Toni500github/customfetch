@@ -18,7 +18,7 @@ bool hasEnding(std::string_view fullString, std::string_view ending) {
 bool hasStart(std::string_view fullString, std::string_view start) {
     if (start.length() > fullString.length())
         return false;
-    return (0 == fullString.compare(0, start.length(), start));
+    return (fullString.substr(0, start.size()) == start);
 }
 
 std::vector<std::string> split(std::string_view text, char delim) {

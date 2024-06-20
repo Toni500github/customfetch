@@ -38,6 +38,7 @@ public:
     long        uptime();
 
 private:
+    std::array<std::string, 8> m_os_release_vars;
     struct utsname m_uname_infos;
     struct sysinfo m_sysInfos;
     struct passwd *m_pPwd;
