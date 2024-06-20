@@ -22,8 +22,7 @@ enum {
 };
 
 static std::string get_var(std::string& line, u_short& iter_index) {
-    std::vector<std::string> var = split(line, '=');
-    std::string ret = var.at(1);
+    std::string ret = line.substr(line.find('=')+1);
     ret.erase(std::remove(ret.begin(), ret.end(), '\"'), ret.end());
     ++iter_index;
     return ret;

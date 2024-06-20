@@ -3,7 +3,7 @@
 #include <iostream>
 
 // initialize Config, can only be ran once for each Config instance.
-void Config::init(std::string& configFile, std::string& configDir) {
+void Config::init(const std::string_view& configFile, const std::string_view& configDir, colors_t& colors) {
      if (this->m_initialized)
         return;
     
@@ -14,16 +14,16 @@ void Config::init(std::string& configFile, std::string& configDir) {
 
     if (!std::filesystem::exists(configFile)) {
         fmt::println("{} not found, generating new one", configFile);
-        std::ofstream f(configFile, std::ios::trunc);
+        std::ofstream f(configFile.data(), std::ios::trunc);
         f << AUTOCONFIG;
         f.close();
     }
 
-    this->loadConfigFile(configFile);
+    this->loadConfigFile(configFile, colors);
     this->m_initialized = true;
 }
 
-void Config::loadConfigFile(std::string_view filename) {
+void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
     try {
         this->tbl = toml::parse_file(filename);
     } catch (const toml::parse_error& err) {
@@ -63,23 +63,23 @@ void Config::loadConfigFile(std::string_view filename) {
     this->offset        = getConfigValue<u_short>("config.offset", 5);
     this->gui           = getConfigValue<bool>("gui.enable", false);
     
-    color.black         = this->getThemeValue("config.black",   "\033[1;90m");
-    color.red           = this->getThemeValue("config.red",     "\033[1;91m");
-    color.green         = this->getThemeValue("config.green",   "\033[1;92m");
-    color.yellow        = this->getThemeValue("config.yellow",  "\033[1;93m");
-    color.blue          = this->getThemeValue("config.blue",    "\033[1;94m");
-    color.magenta       = this->getThemeValue("config.magenta", "\033[1;95m");
-    color.cyan          = this->getThemeValue("config.cyan",    "\033[1;96m");
-    color.white         = this->getThemeValue("config.white",   "\033[1;97m");
+    colors.black         = this->getThemeValue("config.black",   "\033[1;90m");
+    colors.red           = this->getThemeValue("config.red",     "\033[1;91m");
+    colors.green         = this->getThemeValue("config.green",   "\033[1;92m");
+    colors.yellow        = this->getThemeValue("config.yellow",  "\033[1;93m");
+    colors.blue          = this->getThemeValue("config.blue",    "\033[1;94m");
+    colors.magenta       = this->getThemeValue("config.magenta", "\033[1;95m");
+    colors.cyan          = this->getThemeValue("config.cyan",    "\033[1;96m");
+    colors.white         = this->getThemeValue("config.white",   "\033[1;97m");
 
-    color.gui_black     = this->getThemeValue("gui.black",   "!#000005");
-    color.gui_red       = this->getThemeValue("gui.red",     "!#ff2000");
-    color.gui_green     = this->getThemeValue("gui.green",   "!#00ff00");
-    color.gui_blue      = this->getThemeValue("gui.blue",    "!#00aaff");
-    color.gui_cyan      = this->getThemeValue("gui.cyan",    "!#00ffff");
-    color.gui_yellow    = this->getThemeValue("gui.yellow",  "!#ffff00");
-    color.gui_magenta   = this->getThemeValue("gui.magenta", "!#ff11cc");
-    color.gui_white     = this->getThemeValue("gui.white",   "!#ffffff");
+    colors.gui_black     = this->getThemeValue("gui.black",   "!#000005");
+    colors.gui_red       = this->getThemeValue("gui.red",     "!#ff2000");
+    colors.gui_green     = this->getThemeValue("gui.green",   "!#00ff00");
+    colors.gui_blue      = this->getThemeValue("gui.blue",    "!#00aaff");
+    colors.gui_cyan      = this->getThemeValue("gui.cyan",    "!#00ffff");
+    colors.gui_yellow    = this->getThemeValue("gui.yellow",  "!#ffff00");
+    colors.gui_magenta   = this->getThemeValue("gui.magenta", "!#ff11cc");
+    colors.gui_white     = this->getThemeValue("gui.white",   "!#ffffff");
 }
 
 std::string Config::getThemeValue(const std::string& value, const std::string& fallback) {

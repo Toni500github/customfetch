@@ -71,7 +71,7 @@ cpu
     std::exit(0);
 }
 
-static bool parseargs(int argc, char* argv[]) {
+static bool parseargs(int argc, char* argv[], Config& config, std::string configFile) {
     int opt = 0;
     int option_index = 0;
     const char *optstring = "VhnlgC:d:s:";
@@ -168,14 +168,17 @@ int main (int argc, char *argv[]) {
     fmt::println("AMD: {}", binarySearchPCIArray("1002"));
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
 #endif
+    
+    Config config;
+    struct colors_t colors;
 
     std::string configDir = getConfigDir();
-    configFile = configDir + "/config.toml";
+    std::string configFile = configDir + "/config.toml";
 
-    if (!parseargs(argc, argv))
+    if (!parseargs(argc, argv, config, configFile))
         return 1;
     
-    config.init(configFile, configDir);
+    config.init(configFile, configDir, colors);
 
     if ( config.source_path.empty() || config.source_path == "off" )
         config.m_disable_source = true;
@@ -190,7 +193,7 @@ int main (int argc, char *argv[]) {
 #ifdef GUI_SUPPORT
     if (config.gui) {
         auto app = Gtk::Application::create("org.toni.customfetch");
-        GUI::Window window;
+        GUI::Window window(config, colors);
         return app->run(window);
     }
 #else
@@ -198,7 +201,7 @@ int main (int argc, char *argv[]) {
         die("Can't run in GUI mode because it got disabled at compile time\nCompile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
 #endif
 
-    Display::display(Display::render());
+    Display::display(Display::render(config, colors));
 
     return 0;
 }

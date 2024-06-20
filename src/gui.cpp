@@ -25,7 +25,7 @@ using namespace GUI;
 }*/
 
 // Display::render but only for images on GUI
-static std::vector<std::string>& render_with_image() {
+static std::vector<std::string>& render_with_image(Config& config, colors_t& colors) {
     systemInfo_t systemInfo{};
 
     int image_width, image_height, channels;
@@ -57,7 +57,7 @@ static std::vector<std::string>& render_with_image() {
 
     for (std::string& layout : config.layouts) {
         std::unique_ptr<std::string> _;
-        layout = parse(layout, systemInfo, _);
+        layout = parse(layout, systemInfo, _, config, colors);
     }
 
     for (size_t i = 0; i < config.layouts.size(); i++) {
@@ -69,12 +69,12 @@ static std::vector<std::string>& render_with_image() {
     return config.layouts;
 }
 
-Window::Window() {
+Window::Window(Config& config, colors_t& colors) {
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(800, 600);
     add(m_box);
 
-    std::string path = config.m_display_distro ? Display::detect_distro() : config.source_path;
+    std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
     if (!std::filesystem::exists(path))
         die("'{}' doesn't exist. Can't load image/text file", path);
     
@@ -109,9 +109,9 @@ Window::Window() {
     
     std::string colored_text;
     if (useImage)
-        colored_text = fmt::format("{}", fmt::join(render_with_image(), "\n"));
+        colored_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
     else
-        colored_text = fmt::format("{}", fmt::join(Display::render(), "\n"));
+        colored_text = fmt::format("{}", fmt::join(Display::render(config, colors), "\n"));
 
     m_label.set_markup(colored_text);
     m_label.set_alignment(Gtk::ALIGN_CENTER);

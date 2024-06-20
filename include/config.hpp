@@ -23,7 +23,7 @@ struct strOrBool
     bool        boolValue   = false;
 };
 
-struct color_t
+struct colors_t
 {
     std::string black;
     std::string red;
@@ -62,12 +62,12 @@ class Config
     bool                                       m_display_distro = true;
 
     // initialize Config, can only be ran once for each Config instance.
-    void        init( std::string& configFile, std::string& configDir );
-    void        loadConfigFile( std::string_view filename );
+    void        init( const std::string_view& configFile, const std::string_view& configDir, colors_t& colors );
+    void        loadConfigFile( std::string_view filename, colors_t& colors );
     std::string getThemeValue( const std::string& value, const std::string& fallback );
 
     template <typename T>
-    T getConfigValue( const std::string& value, T fallback )
+    T getConfigValue( const std::string& value, T&& fallback )
     {
         auto overridePos = overrides.find( value );
 
@@ -91,11 +91,6 @@ class Config
    private:
     toml::table tbl;
 };
-
-inline Config         config;
-inline struct color_t color;
-
-inline std::string configFile;
 
 inline const constexpr std::string_view AUTOCONFIG = R"#([config]
 # customfetch is designed with customizability in mind
@@ -165,13 +160,13 @@ cyan = "\e[1;96m"
 white = "\e[1;97m"
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_SUPPORT=1 (which is enabled by default)
+# note: customfetch needs to be compiled with GUI_SUPPORT=1 (check with "cufetch -V")
 [gui]
 enable = false
 
 # These are the colors palette you can use in the GUI mode.
 # They can overwritte with ANSI escape code colors
-# in the layout variable or ascii-art
+# but they don't work with those, only hexcodes
 black = "!#000005"
 red = "!#ff2000"
 green = "!#00ff00"

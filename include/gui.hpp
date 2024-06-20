@@ -3,6 +3,7 @@
 
 #ifdef GUI_SUPPORT
 
+#include "config.hpp"
 #include "gtkmm/window.h"
 #include "gtkmm/label.h"
 #include "gtkmm/box.h"
@@ -13,7 +14,7 @@ namespace GUI {
 
 class Window : public Gtk::Window {
 public:
-    Window();
+    Window(Config& config, colors_t& colors);
     virtual ~Window();
 
 private:

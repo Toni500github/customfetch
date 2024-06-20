@@ -18,19 +18,18 @@ enum {
     SRECLAIMABLE
 };
 
-std::string_view meminfo_path = "/proc/meminfo";
-
 // minimaze the while loop iteration once we have all the values we needed
 // less cpu cicles and saving ms of time
 
 static size_t get_from_text(std::string& line, u_short& iter_index) {
-    std::vector<std::string> amount = split(line, ':');
-    strip(amount.at(1));
+    std::string amount = line.substr(line.find(':')+1);
+    strip(amount);
     ++iter_index;
-    return std::stoi(amount.at(1));
+    return std::stoi(amount);
 }
 
 static std::array<size_t, 3> get_amount() {
+    constexpr std::string_view meminfo_path = "/proc/meminfo";
     std::array<size_t, 3> memory_infos;
     //std::array<size_t, 5> extra_mem_info;
     std::ifstream file(meminfo_path.data());
@@ -85,4 +84,3 @@ size_t RAM::used_amount()  {
 size_t RAM::total_amount() { 
     return m_memory_infos.at(TOTAL) / 1024; 
 }
-

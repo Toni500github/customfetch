@@ -76,30 +76,10 @@ void strip(std::string& input) {
         }
     }
     
-    size_t start_index = 0;
-    while (true) {
-        char c = input[start_index];
-        if (c != ' ' && c != '\t' && c != '\n') {
-            break;
-        }
-        start_index++;
-    }
-
-    size_t end_index = input.size() - 1;
-    while (true) {
-        char c = input[end_index];
-        if (c != ' ' && c != '\t' && c != '\n') {
-            break;
-        }
-        end_index--;
-    }
-    
-    if (end_index < start_index) {
-        input.assign("");
-        return;
-    }
-    
-    input.assign(input.begin() + start_index, input.begin() + end_index + 1);
+    // https://stackoverflow.com/a/25385766
+    const char* ws = " \t\n\r\f\v";
+    input.erase(input.find_last_not_of(ws) + 1);
+    input.erase(0, input.find_first_not_of(ws));
 }
 
 fmt::rgb hexStringToColor(std::string_view hexstr) {

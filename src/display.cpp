@@ -10,7 +10,7 @@
 #include <fmt/ranges.h>
 #include <memory>
 
-std::string Display::detect_distro() {
+std::string Display::detect_distro(Config& config) {
     std::string file_path;
     
     debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
@@ -26,7 +26,7 @@ std::string Display::detect_distro() {
     return file_path;
 }
 
-std::vector<std::string>& Display::render() {
+std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     systemInfo_t systemInfo{};
 
     // first check if the file is an image
@@ -34,7 +34,7 @@ std::vector<std::string>& Display::render() {
     // No extra bloatware nice
     if (!config.m_display_distro && !config.m_disable_source && config.m_custom_distro.empty()) {
         magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
-        magic_load(myt,NULL);
+        magic_load(myt, NULL);
         std::string file_type = magic_file(myt, config.source_path.c_str());
         if ((file_type.find("text") == std::string::npos) && !config.m_disable_source)
             die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
@@ -59,10 +59,10 @@ std::vector<std::string>& Display::render() {
 
     for (std::string& layout : config.layouts) {
         std::unique_ptr<std::string> _;
-        layout = parse(layout, systemInfo, _);
+        layout = parse(layout, systemInfo, _, config, colors);
     }
     
-    std::string path = config.m_display_distro ? detect_distro() : config.source_path;
+    std::string path = config.m_display_distro ? detect_distro(config) : config.source_path;
     std::ifstream file(path, std::ios_base::binary);
     if (!file.is_open())
         if (!config.m_disable_source)
@@ -78,12 +78,12 @@ std::vector<std::string>& Display::render() {
     
     while (std::getline(file, line)) {
         std::unique_ptr<std::string> pureOutput = std::make_unique<std::string>();
-        std::string asciiArt_s = parse(line, systemInfo, pureOutput);
+        std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 
         asciiArt.push_back(asciiArt_s);
 
-        if ((int)pureOutput->length() > maxLineLength)
+        if (static_cast<int>(pureOutput->length()) > maxLineLength)
             maxLineLength = pureOutput->length();
 
         pureAsciiArt.push_back(std::move(pureOutput));

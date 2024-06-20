@@ -17,9 +17,9 @@ std::string CPU::name() {
     std::string line;
     while (std::getline(file, line)) {
         if (line.find("model name") != std::string::npos) {
-            std::vector<std::string> _model = split(line, ':');
-            strip(_model[1]);
-            return _model[1];
+            std::string name = line.substr(line.find(':')+1);
+            strip(name);
+            return name;
         }
     }
 
