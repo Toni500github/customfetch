@@ -71,7 +71,7 @@ cpu
     std::exit(0);
 }
 
-static bool parseargs(int argc, char* argv[], Config& config, std::string configFile) {
+static bool parseargs(int argc, char* argv[], Config& config, std::string& configFile) {
     int opt = 0;
     int option_index = 0;
     const char *optstring = "VhnlgC:d:s:";

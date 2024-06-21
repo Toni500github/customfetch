@@ -58,7 +58,6 @@ class Config
     std::unordered_map<std::string, strOrBool> overrides;
     std::string                                m_custom_distro;
     bool                                       m_disable_source = false;
-    bool                                       m_initialized;
     bool                                       m_display_distro = true;
 
     // initialize Config, can only be ran once for each Config instance.

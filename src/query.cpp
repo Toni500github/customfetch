@@ -9,7 +9,7 @@
 
 // using namespace Query;
 
-static std::array<std::string, 3> get_ansi_color( const std::string_view& str, colors_t& colors )
+static std::array<std::string, 3> get_ansi_color( const std::string_view str, colors_t& colors )
 {
 #define bgcolor "bgcolor"
 
@@ -323,7 +323,7 @@ std::string parse( const std::string& input, systemInfo_t& systemInfo, const std
     return output;
 }
 
-void addModuleValues(systemInfo_t& sysInfo, const std::string_view& moduleName) {
+void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
     // yikes, here we go.
 
     if (moduleName == "os") {
