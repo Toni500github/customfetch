@@ -94,6 +94,13 @@ static std::array<std::string, 3> get_ansi_color( const std::string_view str, co
     return { col, weight, type };
 }
 
+static std::string check_gui_ansi_clr(std::string& str) {
+    if (hasStart(str, "\033") || hasStart(str, "\\e"))
+        die("GUI colors can't be in ANSI escape sequence");
+
+    return str;
+}
+
 static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string& name )
 {
     std::vector<std::string> sections = split( name, '.' );
@@ -213,14 +220,14 @@ std::string parse( const std::string& input, systemInfo_t& systemInfo, const std
                 {
                     switch ( fnv1a32::hash(command) )
                     {
-                        case "black"_fnv1a32:       str_clr = colors.gui_black; break;   
-                        case "red"_fnv1a32:         str_clr = colors.gui_red;break;
-                        case "blue"_fnv1a32:        str_clr = colors.gui_blue; break;
-                        case "green"_fnv1a32:       str_clr = colors.gui_green; break;
-                        case "cyan"_fnv1a32:        str_clr = colors.gui_cyan; break;
-                        case "yellow"_fnv1a32:      str_clr = colors.gui_yellow; break;
-                        case "magenta"_fnv1a32:     str_clr = colors.gui_magenta; break;
-                        case "white"_fnv1a32:       str_clr = colors.gui_white; break;
+                        case "black"_fnv1a32:       str_clr = check_gui_ansi_clr(colors.gui_black);  break;   
+                        case "red"_fnv1a32:         str_clr = check_gui_ansi_clr(colors.gui_red);    break;
+                        case "blue"_fnv1a32:        str_clr = check_gui_ansi_clr(colors.gui_blue);   break;
+                        case "green"_fnv1a32:       str_clr = check_gui_ansi_clr(colors.gui_green);  break;
+                        case "cyan"_fnv1a32:        str_clr = check_gui_ansi_clr(colors.gui_cyan);   break;
+                        case "yellow"_fnv1a32:      str_clr = check_gui_ansi_clr(colors.gui_yellow); break;
+                        case "magenta"_fnv1a32:     str_clr = check_gui_ansi_clr(colors.gui_magenta);break;
+                        case "white"_fnv1a32:       str_clr = check_gui_ansi_clr(colors.gui_white);  break;
                         default:
                             str_clr = command;
                             break;

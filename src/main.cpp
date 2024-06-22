@@ -71,9 +71,42 @@ cpu
     std::exit(0);
 }
 
-static bool parseargs(int argc, char* argv[], Config& config, std::string& configFile) {
+// parseargs() but only for parsing the user config path trough args
+// and so we can directly construct Config
+static bool parse_config_path(int argc, char* argv[], std::string& configFile) {
     int opt = 0;
     int option_index = 0;
+    opterr = 0;
+    const char *optstring = "C:";
+    static const struct option opts[] =
+    {
+        {"config", required_argument, 0, 'C'},
+        {0,0,0,0}
+    };
+    
+    while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1) {
+        if (opt == 0 || opt == '?')
+            continue;
+
+        switch (opt) {
+            case 'C':
+                configFile = strndup(optarg, PATH_MAX); 
+                if (!std::filesystem::exists(configFile))
+                    die("config file '{}' doesn't exist", configFile);
+
+                break;
+            default:
+                return false;
+        }
+    }
+
+    return true;
+}
+
+static bool parseargs(int argc, char* argv[], Config& config) {
+    int opt = 0;
+    int option_index = 0;
+    opterr = 1; // re-enable since before we disabled for "invalid option" error
     const char *optstring = "VhnlgC:d:s:";
     static const struct option opts[] =
     {
@@ -89,6 +122,7 @@ static bool parseargs(int argc, char* argv[], Config& config, std::string& confi
     };
 
     /* parse operation */
+    optind = 0;
     while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1) {
         if (opt == 0)
             continue;
@@ -105,13 +139,13 @@ static bool parseargs(int argc, char* argv[], Config& config, std::string& confi
             case 'l':
                 components_list(); break;
             case 'g':
-                config.overrides["gui.enable"] = {BOOL, "", true}; break;
-            case 'C':
-                configFile = strndup(optarg, PATH_MAX); break;
+                config.gui = true; break;
+            case 'C': // we have already did it in parse_config_path()
+                continue;
             case 'd':
                 config.m_custom_distro = str_tolower(strndup(optarg, PATH_MAX)); break;
             case 's':
-                config.overrides["config.source-path"] = {STR, strndup(optarg, PATH_MAX)}; break;
+                config.source_path = strndup(optarg, PATH_MAX); break;
             default:
                 return false;
         }
@@ -169,16 +203,16 @@ int main (int argc, char *argv[]) {
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
 #endif
     
-    Config config;
     struct colors_t colors;
 
     std::string configDir = getConfigDir();
-    std::string configFile = configDir + "/config.toml";
-
-    if (!parseargs(argc, argv, config, configFile))
-        return 1;
+    std::string configFile = configDir + "/config.toml";    
+    parse_config_path(argc, argv, configFile);
     
-    config.init(configFile, configDir, colors);
+    Config config(configFile, configDir, colors);
+
+    if (!parseargs(argc, argv, config))
+        return 1;
 
     if ( config.source_path.empty() || config.source_path == "off" )
         config.m_disable_source = true;

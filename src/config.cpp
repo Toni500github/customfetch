@@ -3,7 +3,7 @@
 #include <iostream>
 
 // initialize Config, can only be ran once for each Config instance.
-void Config::init(const std::string_view& configFile, const std::string_view& configDir, colors_t& colors) {
+Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors) {
     
     if (!std::filesystem::exists(configDir)) {
         fmt::println("customfetch config folder was not found, Creating folders at {}!", configDir);

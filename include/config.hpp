@@ -4,7 +4,6 @@
 #define TOML_HEADER_ONLY 0
 
 #include <array>
-#include <unordered_map>
 
 #include "fmt/color.h"
 #include "toml++/toml.hpp"
@@ -46,7 +45,9 @@ struct colors_t
 
 class Config
 {
-   public:
+public:
+    Config( const std::string_view configFile, const std::string_view configDir, colors_t& colors );
+    
     // config file
     std::string              source_path;
     u_short                  offset = 0;
@@ -55,31 +56,16 @@ class Config
     std::vector<std::string> includes;
 
     // inner management
-    std::unordered_map<std::string, strOrBool> overrides;
     std::string                                m_custom_distro;
     bool                                       m_disable_source = false;
     bool                                       m_display_distro = true;
 
-    // initialize Config, can only be ran once for each Config instance.
-    void        init( const std::string_view& configFile, const std::string_view& configDir, colors_t& colors );
     void        loadConfigFile( std::string_view filename, colors_t& colors );
     std::string getThemeValue( const std::string& value, const std::string& fallback );
 
     template <typename T>
     T getConfigValue( const std::string& value, T&& fallback )
     {
-        auto overridePos = overrides.find( value );
-
-        // user wants a bool (overridable), we found an override matching the name, and the override is a bool.
-        if constexpr ( std::is_same<T, bool>() )
-            if ( overridePos != overrides.end() && overrides[value].valueType == BOOL )
-                return overrides[value].boolValue;
-
-        // user wants a str (overridable), we found an override matching the name, and the override is a str.
-        if constexpr ( std::is_same<T, std::string>() )
-            if ( overridePos != overrides.end() && overrides[value].valueType == STR )
-                return overrides[value].stringValue;
-
         std::optional<T> ret = this->tbl.at_path( value ).value<T>();
         if constexpr ( toml::is_string<T> )  // if we want to get a value that's a string
             return ret ? expandVar( ret.value() ) : expandVar( fallback );
@@ -87,7 +73,7 @@ class Config
             return ret.value_or( fallback );
     }
 
-   private:
+private:
     toml::table tbl;
 };
 
