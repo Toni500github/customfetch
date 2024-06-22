@@ -3,24 +3,9 @@
 
 #define TOML_HEADER_ONLY 0
 
-#include <array>
-
 #include "fmt/color.h"
 #include "toml++/toml.hpp"
 #include "util.hpp"
-
-enum types
-{
-    STR,
-    BOOL
-};
-
-struct strOrBool
-{
-    types       valueType;
-    std::string stringValue = "";
-    bool        boolValue   = false;
-};
 
 struct colors_t
 {
@@ -56,9 +41,9 @@ public:
     std::vector<std::string> includes;
 
     // inner management
-    std::string                                m_custom_distro;
-    bool                                       m_disable_source = false;
-    bool                                       m_display_distro = true;
+    std::string m_custom_distro;
+    bool        m_disable_source = false;
+    bool        m_display_distro = true;
 
     void        loadConfigFile( std::string_view filename, colors_t& colors );
     std::string getThemeValue( const std::string& value, const std::string& fallback );
