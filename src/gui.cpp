@@ -56,13 +56,12 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
     }
 
     for (std::string& layout : config.layouts) {
-        std::unique_ptr<std::string> _;
-        layout = parse(layout, systemInfo, _, config, colors);
+        layout = parse(layout, systemInfo, config, colors);
     }
 
     for (size_t i = 0; i < config.layouts.size(); i++) {
         for (size_t _ = 0; _ < config.offset; _++) // I use _ because we don't need it 
-            config.layouts.at(i).insert(0, " ");
+            config.layouts[i].insert(0, " ");
     }
     config.offset = 0;
 

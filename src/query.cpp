@@ -125,11 +125,10 @@ static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string&
     };
 }
 
-std::string parse( const std::string& input, systemInfo_t& systemInfo, const std::unique_ptr<std::string>& pureOutput, Config& config, colors_t& colors )
+std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::string &pureOutput, Config& config, colors_t& colors )
 {
     std::string output = input;
-    if ( pureOutput )
-        *pureOutput = output;
+    pureOutput = output;
 
     size_t dollarSignIndex = 0;
     size_t pureOutputOffset = 0;
@@ -207,8 +206,7 @@ std::string parse( const std::string& input, systemInfo_t& systemInfo, const std
             if ( command == "0" )
             {   
                 output   = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex, config.gui ? "</span><span>" : NOCOLOR );
-                if ( pureOutput )
-                    *pureOutput = pureOutput->replace( pureOutput->size() /*dollarSignIndex-pureOutputOffset*/,
+                pureOutput = pureOutput.replace( pureOutput.size() /*dollarSignIndex-pureOutputOffset*/,
                                                        ( endBracketIndex + 1 ) - dollarSignIndex, "" );
 
                 pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
@@ -259,8 +257,7 @@ std::string parse( const std::string& input, systemInfo_t& systemInfo, const std
                     else
                         error( "PARSER: failed to parse line with color '{}'", str_clr );
 
-                    if ( pureOutput )
-                        *pureOutput = pureOutput->replace( pureOutput->size() /*dollarSignIndex - pureOutputOffset*/,
+                    pureOutput = pureOutput.replace( pureOutput.size() /*dollarSignIndex - pureOutputOffset*/,
                                                         endBracketIndex - dollarSignIndex + 1, "" );
 
                     pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
@@ -316,11 +313,10 @@ std::string parse( const std::string& input, systemInfo_t& systemInfo, const std
                 
                     output = output.replace( dollarSignIndex, output.length() - dollarSignIndex, formatted_replacement_string);
 
-                    if ( pureOutput )
-                        *pureOutput = pureOutput->replace(dollarSignIndex - pureOutputOffset,
+                    pureOutput = pureOutput.replace(dollarSignIndex - pureOutputOffset,
                                                         endBracketIndex - dollarSignIndex + 1, "" );
 
-                    pureOutputOffset += formatted_replacement_string.length() - unformatted_replacement_string.length() - 1;
+                    pureOutputOffset += formatted_replacement_string.length() - unformatted_replacement_string.length() - 4;
                 }
             }
             break;
@@ -328,6 +324,14 @@ std::string parse( const std::string& input, systemInfo_t& systemInfo, const std
     }
 
     return output;
+}
+
+std::string parse(const std::string& input, systemInfo_t& systemInfo, std::string &pureOutput, Config& config, colors_t& colors ) {
+    return _parse(input, systemInfo, pureOutput, config, colors);
+}
+std::string parse(const std::string& input, systemInfo_t& systemInfo, Config& config, colors_t& colors ) {
+    std::string _;
+    return _parse(input, systemInfo, _, config, colors);
 }
 
 void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {

@@ -1,5 +1,5 @@
 ${red}            .-/+oossssoo+\-.
-${red}        ´:+ssssssssssssssssss+:`
+${red}        `:+ssssssssssssssssss+:`
 ${red}      -+ssssssssssssssssssyyssss+-
 ${red}    .ossssssssssssssssss${white}dMMMNy${red}sssso.
 ${red}   /sssssssssss${white}hdmmNNmmyNMMMMh${red}ssssss\

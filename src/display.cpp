@@ -9,6 +9,7 @@
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <magic.h>
+#include <iostream>
 #include <memory>
 
 std::string Display::detect_distro(Config& config) {
@@ -60,8 +61,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     }
 
     for (std::string& layout : config.layouts) {
-        std::unique_ptr<std::string> _;
-        layout = parse(layout, systemInfo, _, config, colors);
+        layout = parse(layout, systemInfo, config, colors);
     }
     
     std::string path = config.m_display_distro ? detect_distro(config) : config.source_path;
@@ -75,20 +75,20 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
 
     std::string line;
     std::vector<std::string> asciiArt;
-    std::vector<std::unique_ptr<std::string>> pureAsciiArt;
+    std::vector<std::string> pureAsciiArt;
     int maxLineLength = -1;
     
     while (std::getline(file, line)) {
-        std::unique_ptr<std::string> pureOutput = std::make_unique<std::string>();
+        std::string pureOutput;
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 
         asciiArt.push_back(asciiArt_s);
 
-        if (static_cast<int>(pureOutput->length()) > maxLineLength)
-            maxLineLength = pureOutput->length();
+        if (static_cast<int>(pureOutput.length()) > maxLineLength)
+            maxLineLength = pureOutput.length();
 
-        pureAsciiArt.push_back(std::move(pureOutput));
+        pureAsciiArt.push_back(pureOutput);
     }
 
     size_t i;
@@ -100,7 +100,10 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
             origin = asciiArt[i].length();
         }
 
-        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt[i]->length() : 0);
+        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt[i].length() : 0);
+
+        debug("spaces: {}", spaces);
+
         for (size_t j = 0; j < spaces; j++)
             config.layouts[i].insert(origin, " ");
         
