@@ -90,6 +90,9 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
 
         pureAsciiArt.push_back(pureOutput);
     }
+    
+    debug("SkeletonAsciiArt = \n{}", fmt::join(pureAsciiArt, "\n"));
+    debug("asciiArt = \n{}", fmt::join(asciiArt, "\n"));
 
     size_t i;
     for (i = 0; i < config.layouts.size(); i++) {

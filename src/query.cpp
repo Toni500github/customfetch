@@ -131,7 +131,6 @@ std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::str
     pureOutput = output;
 
     size_t dollarSignIndex = 0;
-    size_t pureOutputOffset = 0;
     bool start = false;
 
     while ( true )
@@ -157,8 +156,9 @@ std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::str
         size_t      endBracketIndex = -1;
 
         char type = ' ';  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
+        char opentag = output[dollarSignIndex + 1];
 
-        switch ( output[dollarSignIndex + 1] )
+        switch ( opentag )
         {
             case '(':
                 type = ')';
@@ -192,6 +192,12 @@ std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::str
         if ( static_cast<int>(endBracketIndex) == -1 )
             die( "PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output );
 
+        std::string strToRemove = fmt::format("${}{}{}", opentag, command, type);
+        size_t start_pos = 0;
+        if((start_pos = pureOutput.find(strToRemove)) != std::string::npos) {
+            pureOutput.erase(start_pos, strToRemove.length());
+        }
+
         switch ( type )
         {
         case ')':
@@ -203,13 +209,8 @@ std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::str
                                      getInfoFromName( systemInfo, command ) );
             break;
         case '}':  // please pay very attention when reading this unreadable code
-            if ( command == "0" )
-            {   
-                output   = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex, config.gui ? "</span><span>" : NOCOLOR );
-                pureOutput = pureOutput.replace( pureOutput.size() /*dollarSignIndex-pureOutputOffset*/,
-                                                       ( endBracketIndex + 1 ) - dollarSignIndex, "" );
-
-                pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
+            if ( command == "0" ) {   
+                output = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex, config.gui ? "</span><span>" : NOCOLOR );
             }
             else
             {
@@ -257,10 +258,6 @@ std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::str
                     else
                         error( "PARSER: failed to parse line with color '{}'", str_clr );
 
-                    pureOutput = pureOutput.replace( pureOutput.size() /*dollarSignIndex - pureOutputOffset*/,
-                                                        endBracketIndex - dollarSignIndex + 1, "" );
-
-                    pureOutputOffset += endBracketIndex - dollarSignIndex + 1;
                 }
 
                 else
@@ -312,11 +309,6 @@ std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::str
                         die( "PARSER: failed to parse line with color '{}'", str_clr );
                 
                     output = output.replace( dollarSignIndex, output.length() - dollarSignIndex, formatted_replacement_string);
-
-                    pureOutput = pureOutput.replace(dollarSignIndex - pureOutputOffset,
-                                                        endBracketIndex - dollarSignIndex + 1, "" );
-
-                    pureOutputOffset += formatted_replacement_string.length() - unformatted_replacement_string.length() - 4;
                 }
             }
             break;
