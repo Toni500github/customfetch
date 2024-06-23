@@ -23,7 +23,7 @@ static void help(bool invalid_opt = false) {
     fmt::println(R"(
 A command-line system information tool (or neofetch like program), which its focus point is customizability and perfomance
 
-    -n, --no-display		Do not dispay the ascii art
+    -n, --no-display		Do not display the ascii art
     -s, --source-path <path>	Path to the ascii art file to display
     -C, --config <path>		Path to the config file to use
     -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase)
