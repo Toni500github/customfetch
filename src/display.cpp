@@ -8,6 +8,7 @@
 #include <fstream>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
+#include <magic.h>
 #include <memory>
 
 std::string Display::detect_distro(Config& config) {
@@ -38,6 +39,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         std::string file_type = magic_file(myt, config.source_path.c_str());
         if ((file_type.find("text") == std::string::npos) && !config.m_disable_source)
             die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
+        magic_close(myt);
     }
 
     for (std::string& include : config.includes) {
@@ -94,15 +96,15 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         size_t origin = 0;
 
         if (i < asciiArt.size()) {
-            config.layouts.at(i).insert(0, asciiArt.at(i));
-            origin = asciiArt.at(i).length();
+            config.layouts[i].insert(0, asciiArt[i]);
+            origin = asciiArt[i].length();
         }
 
-        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt.at(i)->length() : 0);
+        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt[i]->length() : 0);
         for (size_t j = 0; j < spaces; j++)
-            config.layouts.at(i).insert(origin, " ");
+            config.layouts[i].insert(origin, " ");
         
-        config.layouts.at(i) += config.gui ? "" : NOCOLOR;
+        config.layouts[i] += config.gui ? "" : NOCOLOR;
     }
 
     if (i < asciiArt.size())
