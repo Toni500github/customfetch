@@ -101,7 +101,7 @@ layout = [
     "${cyan}Uptime${0}: $<os.uptime_hours> hours, $<os.uptime_mins> minutes",
     "${green}Kernel${0}: $<os.kernel_name> $<os.kernel_version>",
     "${yellow}Arch${0}: $<os.arch>",
-    "${magenta}CPU${0}: $<cpu.name>",
+    "${magenta}CPU${0}: $<cpu.name> ($<cpu.nproc>) @ $<cpu.freq_max>",
     "${blue}GPU${0}: $<gpu.name>",
     "${#03ff93}RAM usage${0}: $<ram.used> MB / $<ram.total> MB",
     "",
