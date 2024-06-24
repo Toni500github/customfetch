@@ -2,9 +2,9 @@ name: Makefile CI (Test customfetch)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "test" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "test" ]
 
 jobs:
   build:
@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-
+    - uses: actions/checkout@v4
+    
     - name: Install Packages
-      run: sudo apt-get update && sudo apt-get install build-essential libgtk-3-dev pkg-config libpci-dev libgtkmm-3.0-dev -y
-
+      run: sudo apt-get update && sudo apt-get install build-essential cmake neofetch tree libgtk-3-dev pkg-config libpci-dev libgtkmm-3.0-dev -y
+    
     - name: Clean
       run: make clean
 
@@ -24,4 +24,8 @@ jobs:
       run: make DEBUG=0 VENDOR_TEST=1 GUI_SUPPORT=1
 
     - name: Test customfetch
-      run: ./build/release/cufetch
+      run: |
+        tree /sys/devices/system/cpu/cpu0/
+        cat /proc/cpuinfo
+        ./build/release/cufetch
+        neofetch

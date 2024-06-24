@@ -61,7 +61,7 @@ public:
 
 private:
     std::array<float, 4> m_cpu_infos_t;
-    std::array<std::string, 2> m_cpu_infos_str;
+    std::array<std::string, 3> m_cpu_infos_str;
 };
 
 class GPU {
