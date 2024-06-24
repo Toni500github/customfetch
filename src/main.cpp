@@ -67,6 +67,11 @@ gpu
 
 cpu
   name		: CPU model name [e.g AMD Ryzen 5 5500]
+  nproc         : CPU number of virtual proccessors [e.g 12]
+  freq_bios_limit: CPU freq (limited by bios, in GHz) [e.g 4.32]
+  freq_cur	: CPU freq (current, in GHz) [e.g 3.42]
+  freq_min	: CPU freq (mininum, in GHz) [e.g 2.45]
+  freq_max	: CPU freq (maxinum, in GHz) [e.g 4.90]
 )");
     std::exit(0);
 }

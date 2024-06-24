@@ -30,7 +30,7 @@ static std::string get_var(std::string& line, u_short& iter_index) {
 
 static std::array<std::string, 8> get_os_release_vars() {
     std::array<std::string, 8> ret;
-    for (int i = 0; i < 8; i++)
+    for (size_t i = 0; i < ret.size(); i++)
             ret.at(i) = UNKNOWN;
 
     std::string_view os_release_path = "/etc/os-release";

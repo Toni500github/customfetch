@@ -30,6 +30,7 @@ std::string Display::detect_distro(Config& config) {
 
 std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     systemInfo_t systemInfo{};
+    systemInfofloat_t systemInfofloat{};
 
     // first check if the file is an image
     // using the same library that "file" uses
@@ -50,10 +51,10 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         {   
             // only 1 element
             case 0:
-                addModuleValues(systemInfo, include);
+                addModuleValues(systemInfo, systemInfofloat, include);
                 break;
             case 1:
-                addValueFromModule(systemInfo, include_nodes[0], include_nodes[1]);
+                addValueFromModule(systemInfo, systemInfofloat, include_nodes[0], include_nodes[1]);
                 break;
             default:
                 die("Include has too many namespaces!");
@@ -61,7 +62,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     }
 
     for (std::string& layout : config.layouts) {
-        layout = parse(layout, systemInfo, config, colors);
+        layout = parse(layout, systemInfo, systemInfofloat, config, colors);
     }
     
     std::string path = config.m_display_distro ? detect_distro(config) : config.source_path;
@@ -80,7 +81,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     
     while (std::getline(file, line)) {
         std::string pureOutput;
-        std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors);
+        std::string asciiArt_s = parse(line, systemInfo, systemInfofloat, pureOutput, config, colors);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 
         asciiArt.push_back(asciiArt_s);

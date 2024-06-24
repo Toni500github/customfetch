@@ -101,21 +101,31 @@ static std::string check_gui_ansi_clr(std::string& str) {
     return str;
 }
 
-static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string& name )
+static std::string getInfoFromName( systemInfo_t& systemInfo, systemInfofloat_t& systemInfofloat, const std::string& name )
 {
     std::vector<std::string> sections = split( name, '.' );
 
     try
     {
-        if ( systemInfo.find( sections[0] ) == systemInfo.end() )
-            throw std::out_of_range( "genius" );
+        /*if ( systemInfo.find( sections[0] ) == systemInfo.end() )
+            throw std::out_of_range("genius");
         if ( systemInfo[sections[0]].find( sections[1] ) == systemInfo[sections[0]].end() )
-            throw std::out_of_range( "genius" );
+            throw std::out_of_range("genius");
+        
+        if ( systemInfofloat.find( sections[0] ) == systemInfofloat.end() )
+            throw std::out_of_range("genius");
+        if ( systemInfofloat[sections[0]].find( sections[1] ) == systemInfofloat[sections[0]].end() )
+            throw std::out_of_range("genius");*/
 
         auto result = systemInfo[sections[0]][sections[1]];
+        auto resultfloat = systemInfofloat[sections[0]][sections[1]];
 
         if ( std::holds_alternative<size_t>( result ) )
             return std::to_string( std::get<size_t>( result ) );
+        
+        else if ( std::holds_alternative<float>(resultfloat) )
+            return fmt::format("{:.2f}", (std::get<float>(resultfloat)));
+        
         else
             return std::get<std::string>( result );
     }
@@ -125,7 +135,7 @@ static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string&
     };
 }
 
-std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::string &pureOutput, Config& config, colors_t& colors )
+static std::string _parse( const std::string& input, systemInfo_t& systemInfo, systemInfofloat_t& sysInfofloat, std::string &pureOutput, Config& config, colors_t& colors )
 {
     std::string output = input;
     pureOutput = output;
@@ -206,7 +216,7 @@ std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::str
             break;
         case '>':
             output = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex,
-                                     getInfoFromName( systemInfo, command ) );
+                                     getInfoFromName( systemInfo, sysInfofloat, command ) );
             break;
         case '}':  // please pay very attention when reading this unreadable code
             if ( command == "0" ) {   
@@ -318,15 +328,15 @@ std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::str
     return output;
 }
 
-std::string parse(const std::string& input, systemInfo_t& systemInfo, std::string &pureOutput, Config& config, colors_t& colors ) {
-    return _parse(input, systemInfo, pureOutput, config, colors);
+std::string parse(const std::string& input, systemInfo_t& systemInfo, systemInfofloat_t& sysInfofloat, std::string &pureOutput, Config& config, colors_t& colors) {
+    return _parse(input, systemInfo, sysInfofloat, pureOutput, config, colors);
 }
-std::string parse(const std::string& input, systemInfo_t& systemInfo, Config& config, colors_t& colors ) {
+std::string parse(const std::string& input, systemInfo_t& systemInfo, systemInfofloat_t& sysInfofloat, Config& config, colors_t& colors) {
     std::string _;
-    return _parse(input, systemInfo, _, config, colors);
+    return _parse(input, systemInfo, sysInfofloat, _, config, colors);
 }
 
-void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
+void addModuleValues(systemInfo_t& sysInfo, systemInfofloat_t& sysInfofloat, const std::string_view moduleName) {
     // yikes, here we go.
 
     if (moduleName == "os") {
@@ -357,7 +367,16 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
         sysInfo.insert(
             {"cpu", {
-                {"name", variant(query_cpu.name())},
+                {"name",        variant(query_cpu.name())},
+                {"nproc",       variant(query_cpu.nproc())}
+             }}
+        );
+        sysInfofloat.insert(
+            {"cpu", {
+                {"freq_cur",    variantfloat(query_cpu.freq_cur())},
+                {"freq_max",    variantfloat(query_cpu.freq_max())},
+                {"freq_min",    variantfloat(query_cpu.freq_min())},
+                {"freq_bios_limit", variantfloat(query_cpu.freq_bios_limit())}
             }}
         );
 
@@ -393,8 +412,10 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
     die("Invalid module name {}!", moduleName);
 }
 
-void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName) {
+void addValueFromModule(systemInfo_t& sysInfo, systemInfofloat_t& sysInfofloat, const std::string& moduleName, const std::string& moduleValueName) {
     // yikes, here we go.
+    auto module_hash = fnv1a32::hash(moduleValueName);
+    
     if (moduleName == "os") {
         Query::System query_system;
 
@@ -411,7 +432,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             
             // this string switch case library name is so damn shitty
             // thanks god clangd has an auto completer
-            switch (fnv1a32::hash(moduleValueName)) {
+            switch (module_hash) {
                 case "name"_fnv1a32:
                     sysInfo[moduleName].insert({moduleValueName, variant(query_system.os_pretty_name())}); break;
             
@@ -453,8 +474,26 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             );
         
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-            if (moduleValueName == "name")
-                sysInfo[moduleName].insert({moduleValueName,    variant(query_cpu.name())});
+            
+            switch (module_hash) {
+                case "name"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_cpu.name())}); break;
+            
+                case "nproc"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_cpu.nproc())}); break;
+
+                case "freq_bios_limit"_fnv1a32:
+                    sysInfofloat[moduleName].insert({moduleValueName, variantfloat(query_cpu.freq_bios_limit())}); break;
+
+                case "freq_cur"_fnv1a32:
+                    sysInfofloat[moduleName].insert({moduleValueName, variantfloat(query_cpu.freq_cur())}); break;
+
+                case "freq_max"_fnv1a32:
+                    sysInfofloat[moduleName].insert({moduleValueName, variantfloat(query_cpu.freq_max())}); break;
+
+                case "freq_min"_fnv1a32:
+                    sysInfofloat[moduleName].insert({moduleValueName, variantfloat(query_cpu.freq_min())}); break;
+            }
         }
 
         return;

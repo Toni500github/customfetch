@@ -22,7 +22,9 @@ extern "C" {
 using smart_pci_access_ptr = std::unique_ptr<pci_access, decltype(&pci_cleanup)>;
 
 using systemInfo_t = std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t>>>;
+using systemInfofloat_t = std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, float>>>;
 using variant = std::variant<std::string, size_t>;
+using variantfloat = std::variant<std::string, float>;
 
 namespace Query {
 
@@ -48,9 +50,18 @@ private:
 
 class CPU {
 public:
-    //CPU();
+    CPU();
     std::string name();
-    std::string vendor();
+    std::string nproc();
+
+    float freq_max();
+    float freq_min();
+    float freq_cur();
+    float freq_bios_limit();
+
+private:
+    std::array<float, 4> m_cpu_infos_t;
+    std::array<std::string, 2> m_cpu_infos_str;
 };
 
 class GPU {
@@ -82,14 +93,14 @@ private:
 // Parse input, in-place, with data from systemInfo.
 // Documentation on formatting is in the default config.toml file.
 // pureOutput is set to the string, but without the brackets.
-std::string parse(const std::string& input, systemInfo_t& systemInfo, std::string &pureOutput, Config& config, colors_t& colors );
-std::string parse(const std::string& input, systemInfo_t& systemInfo, Config& config, colors_t& colors );
+std::string parse(const std::string& input, systemInfo_t& systemInfo, systemInfofloat_t& sysInfofloat, std::string &pureOutput, Config& config, colors_t& colors);
+std::string parse(const std::string& input, systemInfo_t& systemInfo, systemInfofloat_t& sysInfofloat, Config& config, colors_t& colors);
 
 // Set module values to a systemInfo_t map.
 // If the name of said module matches any module name, it will be added
 // else, error out.
-void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName);
-void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName);
+void addModuleValues(systemInfo_t& sysInfo, systemInfofloat_t& sysInfofloat, const std::string_view moduleName);
+void addValueFromModule(systemInfo_t& sysInfo, systemInfofloat_t& sysInfofloat, const std::string& moduleName, const std::string& moduleValueName);
 
 //inline Query::System query_system;
 //inline Query::CPU query_cpu;
