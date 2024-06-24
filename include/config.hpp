@@ -35,6 +35,7 @@ public:
     
     // config file
     std::string              source_path;
+    std::string              font;
     u_short                  offset = 0;
     bool                     gui    = false;
     std::vector<std::string> layouts;
@@ -130,9 +131,15 @@ cyan = "\e[1;96m"
 white = "\e[1;97m"
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_SUPPORT=1 (check with "cufetch -V")
+# note: customfetch needs to be compiled with GUI_SUPPORT=1 (check with "cufetch --version")
 [gui]
 enable = false
+
+# Font to be used
+# syntax must be [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]
+# e.g "Liberation Mono Normal 12"
+# check https://lazka.github.io/pgi-docs/Pango-1.0/classes/FontDescription.html#Pango.FontDescription for more infos
+font = "Liberation Mono Normal 12"
 
 # These are the colors palette you can use in the GUI mode.
 # They can overwritte with ANSI escape code colors

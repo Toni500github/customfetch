@@ -178,15 +178,15 @@ std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::str
 
         for ( size_t i = dollarSignIndex + 2; i < output.size(); i++ )
         {
-            if ( output[i] == type && output[i - 1] != '\\' )
+            if ( output.at(i) == type && output[i - 1] != '\\' )
             {
                 endBracketIndex = i;
                 break;
             }
-            else if ( output[i] == type )
+            else if ( output.at(i) == type )
                 command.erase( command.size() - 1, 1 );
 
-            command += output[i];
+            command += output.at(i);
         }
 
         if ( static_cast<int>(endBracketIndex) == -1 )

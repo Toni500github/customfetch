@@ -1,6 +1,7 @@
 #ifdef GUI_SUPPORT
 
 #define STB_IMAGE_IMPLEMENTATION
+#include <magic.h>
 #include "gui.hpp"
 #include "config.hpp"
 #include "display.hpp"
@@ -9,6 +10,7 @@
 #include "fmt/ranges.h"
 #include "stb_image.h"
 
+#include "pangomm/fontdescription.h"
 #include "gdkmm/pixbufanimation.h"
 
 using namespace GUI;
@@ -61,7 +63,7 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
 
     for (size_t i = 0; i < config.layouts.size(); i++) {
         for (size_t _ = 0; _ < config.offset; _++) // I use _ because we don't need it 
-            config.layouts[i].insert(0, " ");
+            config.layouts.at(i).insert(0, " ");
     }
     config.offset = 0;
 
@@ -81,9 +83,10 @@ Window::Window(Config& config, colors_t& colors) {
     // using the same library that "file" uses
     // No extra bloatware nice
     magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
-    magic_load(myt,NULL);
+    magic_load(myt, NULL);
     std::string file_type = magic_file(myt, path.c_str());
     bool useImage = ((file_type.find("text") == std::string::npos) && !config.m_disable_source);
+    magic_close(myt);
     
     // useImage can be either a gif or an image
     if (useImage && !config.m_disable_source) {
@@ -96,12 +99,12 @@ Window::Window(Config& config, colors_t& colors) {
 
     // https://stackoverflow.com/a/76372996
     auto context = m_label.get_pango_context();
-    auto font = context->get_font_description();
-    font.set_family("Liberation Mono");
-    font.set_size(12 * PANGO_SCALE);
+    Pango::FontDescription font(config.font);
+    debug("font family = {}", font.get_family().raw());
+    debug("font style = {}", fmt::underlying(font.get_style()));
+    debug("font weight = {}", fmt::underlying(font.get_weight()));
     context->set_font_description(font);
 
-    auto style_context = m_label.get_style_context();
     /*Gdk::RGBA fg_color;
     style_context->lookup_color("theme_fg_color", fg_color);
     std::string fg_color_str = rgba_to_hexstr(fg_color);*/

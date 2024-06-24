@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Customfetch
+Comment=Highly customizable and fast fetch program
+Type=Application
+Path=/home/toni/stupid_projects/customfetch/
+Exec=./cufetch --gui
+Terminal=false
+Categories=Viewer;GTK;
+Icon=lookswitcher
+Keywords=neofetch;

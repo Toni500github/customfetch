@@ -99,18 +99,18 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         size_t origin = 0;
 
         if (i < asciiArt.size()) {
-            config.layouts[i].insert(0, asciiArt[i]);
-            origin = asciiArt[i].length();
+            config.layouts.at(i).insert(0, asciiArt.at(i));
+            origin = asciiArt.at(i).length();
         }
 
-        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt[i].length() : 0);
+        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt.at(i).length() : 0);
 
         debug("spaces: {}", spaces);
 
         for (size_t j = 0; j < spaces; j++)
-            config.layouts[i].insert(origin, " ");
+            config.layouts.at(i).insert(origin, " ");
         
-        config.layouts[i] += config.gui ? "" : NOCOLOR;
+        config.layouts.at(i) += config.gui ? "" : NOCOLOR;
     }
 
     if (i < asciiArt.size())

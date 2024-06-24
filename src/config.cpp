@@ -59,7 +59,8 @@ void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
     this->source_path   = getConfigValue<std::string>("config.source-path", "os");
     this->offset        = getConfigValue<u_short>("config.offset", 5);
     this->gui           = getConfigValue<bool>("gui.enable", false);
-    
+    this->font          = getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
+
     colors.black         = this->getThemeValue("config.black",   "\033[1;90m");
     colors.red           = this->getThemeValue("config.red",     "\033[1;91m");
     colors.green         = this->getThemeValue("config.green",   "\033[1;92m");
