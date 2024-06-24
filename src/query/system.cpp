@@ -42,12 +42,15 @@ static std::array<std::string, 8> get_os_release_vars() {
     
     u_short iter_index = 0;
     std::string line;
-    while (std::getline(os_release_file, line) && iter_index < 2) {
+    while (std::getline(os_release_file, line) && iter_index < 3) {
         if(hasStart(line, "PRETTY_NAME="))
             ret.at(PRETTY_NAME) = get_var(line, iter_index);
 
         if(hasStart(line, "NAME="))
             ret.at(NAME) = get_var(line, iter_index);
+
+        if(hasStart(line, "ID="))
+            ret.at(ID) = get_var(line, iter_index);
     }
 
     return ret;
@@ -98,4 +101,8 @@ std::string System::os_pretty_name() {
 
 std::string System::os_name() {
     return m_os_release_vars.at(NAME);
+}
+
+std::string System::os_id() {
+    return m_os_release_vars.at(ID);
 }

@@ -36,6 +36,7 @@ public:
     std::string username();
     std::string os_pretty_name();
     std::string os_name();
+    std::string os_id();
     long        uptime();
 
 private:
