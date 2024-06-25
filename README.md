@@ -1,11 +1,16 @@
 # Customfetch
 
-A command-line system information tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), its focus point is the customizability and perfomance.\
+A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\
 `customfetch` is designed to provide a really customizable way to display your system informations in the way you like or want.
 
 Currently supports Linux distros only, but our current goal is to be cross-platform, which will happen soon (windows support incoming)
 
-## Config (with explanation)
+## Key Features
+* **GUI support (for GTK3)**
+* Really customizable and fast, check [Config (with explanation)](#config) section
+* Lightweight
+
+## Config (with explanation) <a name="Config"></a>
 Here's an example using the default config
 
 ![image](screenshot.png)
