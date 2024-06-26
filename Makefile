@@ -66,17 +66,13 @@ clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)
 
 distclean:
-	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ) cpr/build
-	find . -type f -name "*.tar.zst" -exec rm -rf "{}" \;
+	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ)
+	find . -type f -name "*.tar.gz" -exec rm -rf "{}" \;
 	find . -type f -name "*.o" -exec rm -rf "{}" \;
 	find . -type f -name "*.a" -exec rm -rf "{}" \;
-	#make -C tests/ clean
 
 install: $(TARGET) locale
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-	find locale -type f -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
+	cd assets/ && find ascii/ -type f -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
 
-test:
-	make -C tests
-
-.PHONY: $(TARGET) clean fmt toml locale install all
+.PHONY: $(TARGET) dist distclean fmt toml install all
