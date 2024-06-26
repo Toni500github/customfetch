@@ -7,10 +7,49 @@ Currently supports Linux distros only, but our current goal is to be cross-platf
 
 ## Key Features
 
-* **GUI support (for GTK3)**
+* **GUI support (for GTK3 (GTK4 soon))**
 * Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Lightweight
 
+## Depends
+>[!NOTE]
+>using GUI support will probably slow down customfetch a bit because of linking the GUI libraries at runtime
+### Debian/Ubuntu and based
+```sh
+$ sudo apt-get install libpci3 libgtkmm-3.0-1v5
+```
+### Arch and based
+```sh
+# the depends such as "pciutils" are already required by the "base" package
+$ sudo pacman -S gtkmm3 gtk3
+```
+
+## Installation
+>[!NOTE]
+>using GUI support will probably slow down customfetch a bit because of linking the GUI libraries at runtime
+### Arch and based (unstable) (AUR)
+```bash
+# with GUI support
+# btw checkout our other project https://github.com/BurntRanch/TabAUR ;)
+taur -S customfetch-git
+
+# WITHOUT GUI support
+taur -S customfetch-nogui-git
+```
+
+### Compile from source
+```bash
+# clone the git dir
+git clone --depth=1 https://github.com/Toni500github/customfetch
+cd customfetch
+
+# DEBUG=0 for release build
+# GUI_SUPPORT=1 for having GUI mode, or =0 for not
+make install DEBUG=0 GUI_SUPPORT=1
+
+# automatically generates a config
+cufetch
+```
 ## Config (with explanation)
 
 Here's an example using the default config
@@ -46,6 +85,10 @@ layout = [
 # or the "/path/to/file" for displaying custom files
 # or "off" for disabling ascii-art or image displaying
 source-path = "os"
+
+# Path to where we'll take all the distros/OSs ascii arts
+# it MUST contain an "ascii" subdirectory
+data-dir = "/usr/share/customfetch"
 
 # offset between the ascii art and the system infos
 offset = 5
@@ -98,7 +141,7 @@ There are 3 modules:
 
 * **The color module** (${}) displays the text with a color\
   e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable).\
-  you can even put a custom hex color e.g: ${#ff6622} OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.\
+  you can even put a custom hex color e.g: ${#ff6622} (for bold put '!' at start) OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.\
   To reset color use ${0}
 
 * **The bash command module** ($()) let's you execute bash commands.\
@@ -107,7 +150,3 @@ There are 3 modules:
   e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
 
 Any end brackets (')', '}', '>') can be escaped with \\
-
-
-
-# 
