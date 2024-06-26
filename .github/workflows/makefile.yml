@@ -21,7 +21,7 @@ jobs:
       run: make clean
 
     - name: Compile
-      run: make DEBUG=0 VENDOR_TEST=1 GUI_SUPPORT=1
+      run: sudo make install DEBUG=0 VENDOR_TEST=1 GUI_SUPPORT=1
 
     - name: Test neofetch
       run: |
