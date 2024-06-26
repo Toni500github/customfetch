@@ -7,7 +7,7 @@ on:
     branches: [ "main", "test" ]
 
 jobs:
-  build:
+  build_ubuntu-latest:
 
     runs-on: ubuntu-latest
 
@@ -23,9 +23,42 @@ jobs:
     - name: Compile
       run: make DEBUG=0 VENDOR_TEST=1 GUI_SUPPORT=1
 
-    - name: Test customfetch
+    - name: Test neofetch
       run: |
         tree /sys/devices/system/cpu/cpu0/
         cat /proc/cpuinfo
-        ./build/release/cufetch
         neofetch
+
+    - name: Test customfetch
+      run: ./build/release/cufetch
+
+  build_arch-AUR:
+  
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install git
+      run: pacman -Syyu git sudo base-devel fakeroot pkgconf --noconfirm --needed
+    
+    - name: get /etc/sudoers
+      run: |
+        sed -i "s#root ALL=(ALL:ALL) ALL#root ALL=(ALL:ALL) NOPASSWD: ALL\nnobody ALL=(ALL:ALL) NOPASSWD: ALL#g" /etc/sudoers
+        cat /etc/sudoers
+    - name: get /etc/makepkg.conf
+      run: |
+        sed -i "s#purge debug lto#purge !debug lto#" /etc/makepkg.conf
+        cat /etc/makepkg.conf
+
+    - name: Build and install using makepkg
+      run: |
+        git clone https://aur.archlinux.org/customfetch-git.git
+        chown -R nobody customfetch-git
+        cd customfetch-git
+        sudo -u nobody makepkg -si --noconfirm
+
+    - name: Test customfetch
+      run: cufetch
