@@ -8,7 +8,7 @@ Currently supports Linux distros only, but our current goal is to be cross-platf
 ## Key Features
 
 * **GUI support (for GTK3)**
-* Really customizable and fast, check [Config (with explanation)](#config-with-explanation-) section
+* Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Lightweight
 
 ## Config (with explanation)
