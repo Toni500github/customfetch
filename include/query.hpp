@@ -3,11 +3,14 @@
 
 #include "util.hpp"
 #include "config.hpp"
-#include "parse.hpp"
 
 #include <array>
 #include <fstream>
 #include <vector>
+#include <unordered_map>
+#include <variant>
+#include <string>
+#include <memory>
 #include <pwd.h>
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -18,6 +21,9 @@ extern "C" {
 }
 
 using smart_pci_access_ptr = std::unique_ptr<pci_access, decltype(&pci_cleanup)>;
+using systemInfo_t = std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
+using variant = std::variant<std::string, size_t, float>;
+
 
 namespace Query {
 

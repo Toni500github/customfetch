@@ -32,7 +32,7 @@ void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
     // https://stackoverflow.com/a/78266628
     // changed instead of vector<int> to vector<string>
     // just a workaround for having the layout config variable as a vector<string>
-    auto layout_array = tbl["config"]["layout"];
+    auto layout_array = tbl.at_path("config.layout");
     if (toml::array* arr = layout_array.as_array())
         arr->for_each([this,filename](auto&& el)
         {
@@ -44,7 +44,7 @@ void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
                 warn("An element of the layout variable in {} is not a string", filename);
         });
     
-    auto includes_array = tbl["config"]["includes"];
+    auto includes_array = tbl.at_path("config.includes");
     if (toml::array *arr = includes_array.as_array())
         arr->for_each([this,filename](auto&& element)
         {

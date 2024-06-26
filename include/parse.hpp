@@ -1,12 +1,5 @@
-#include <unordered_map>
-#include <variant>
-#include <string>
-#include <memory>
-
+#include "query.hpp"
 #include "config.hpp"
-
-using systemInfo_t = std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
-using variant = std::variant<std::string, size_t, float>;
 
 // Parse input, in-place, with data from systemInfo.
 // Documentation on formatting is in the default config.toml file.

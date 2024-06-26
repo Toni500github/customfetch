@@ -1,6 +1,7 @@
 #include "display.hpp"
 #include "util.hpp"
 #include "query.hpp"
+#include "parse.hpp"
 #include "config.hpp"
 #include "gui.hpp"
 

@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "parse.hpp"
 #include "query.hpp"
 #include "config.hpp"
 #include "switch_fnv1a.hpp"

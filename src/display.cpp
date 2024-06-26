@@ -2,6 +2,7 @@
 #include "display.hpp"
 #include "config.hpp"
 #include "util.hpp"
+#include "parse.hpp"
 #include "query.hpp"
 
 #include <algorithm>

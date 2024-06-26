@@ -1,3 +1,7 @@
+[![customfetch-git](https://img.shields.io/aur/version/customfetch-git?color=1793d1&label=customfetch-git&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch-git/)
+[![customfetch-nogui-git](https://img.shields.io/aur/version/customfetch-nogui-git?color=1793d1&label=customfetch-nogui-git&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch-nogui-git/)\
+[![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
+
 # Customfetch
 
 A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\

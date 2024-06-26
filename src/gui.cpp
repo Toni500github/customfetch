@@ -7,6 +7,7 @@
 #include "display.hpp"
 #include "util.hpp"
 #include "query.hpp"
+#include "parse.hpp"
 #include "fmt/ranges.h"
 #include "stb_image.h"
 
