@@ -13,7 +13,6 @@ ifeq ($(DEBUG), 1)
         CXXFLAGS := -ggdb3 -Wall -DDEBUG=1 $(DEBUG_CXXFLAGS) $(CXXFLAGS)
 else
         BUILDDIR  = build/release
-        CXXFLAGS := -O2 $(CXXFLAGS)
 endif
 
 ifeq ($(PARSER_TEST), 1)
@@ -38,7 +37,7 @@ SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -lmagic -lpci -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -Wno-ignored-attributes -funroll-all-loops -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
+CXXFLAGS        += -02 -Wno-ignored-attributes -funroll-all-loops -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
 all: fmt toml $(TARGET)
 
