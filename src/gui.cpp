@@ -29,7 +29,6 @@ using namespace GUI;
 // Display::render but only for images on GUI
 static std::vector<std::string>& render_with_image(Config& config, colors_t& colors) {
     systemInfo_t systemInfo{};
-    systemInfofloat_t systemInfofloat;
 
     int image_width, image_height, channels;
     
@@ -48,10 +47,10 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
         {   
             // only 1 element
             case 0:
-                addModuleValues(systemInfo, systemInfofloat, include);
+                addModuleValues(systemInfo, include);
                 break;
             case 1:
-                addValueFromModule(systemInfo, systemInfofloat, include_nodes[0], include_nodes[1]);
+                addValueFromModule(systemInfo, include_nodes[0], include_nodes[1]);
                 break;
             default:
                 die("Include has too many namespaces!");
@@ -59,7 +58,7 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
     }
 
     for (std::string& layout : config.layouts) {
-        layout = parse(layout, systemInfo, systemInfofloat, config, colors);
+        layout = parse(layout, systemInfo, config, colors);
     }
 
     for (size_t i = 0; i < config.layouts.size(); i++) {
