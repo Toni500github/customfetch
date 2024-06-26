@@ -1,7 +1,6 @@
 CXX       	?= g++
 PREFIX	  	?= /usr
 VARS  	  	?=
-CUSTOMFETCH_DATA_DIR ?= assets
 GUI_SUPPORT     ?= 1
 
 DEBUG 		?= 1
@@ -39,7 +38,7 @@ SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -lmagic -lpci -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -Wno-ignored-attributes -funroll-all-loops -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\" -DCUSTOMFETCH_DATA_DIR=\"$(CUSTOMFETCH_DATA_DIR)\"
+CXXFLAGS        += -Wno-ignored-attributes -funroll-all-loops -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
 all: fmt toml $(TARGET)
 

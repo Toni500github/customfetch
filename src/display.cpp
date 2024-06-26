@@ -10,7 +10,6 @@
 #include <fmt/ranges.h>
 #include <magic.h>
 #include <iostream>
-#include <memory>
 
 std::string Display::detect_distro(Config& config) {
     std::string file_path;
@@ -18,12 +17,12 @@ std::string Display::detect_distro(Config& config) {
     debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
     if (!config.m_custom_distro.empty()) 
     {
-        file_path = fmt::format("{}/ascii/{}.txt", CUSTOMFETCH_DATA_DIR, config.m_custom_distro);
+        file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, config.m_custom_distro);
     } 
     else 
     {
         Query::System system;
-        file_path = fmt::format("{}/ascii/{}.txt", CUSTOMFETCH_DATA_DIR, str_tolower(system.os_id()));
+        file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
     }
     return file_path;
 }

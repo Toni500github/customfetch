@@ -36,6 +36,7 @@ public:
     // config file
     std::string              source_path;
     std::string              font;
+    std::string              data_dir;
     u_short                  offset = 0;
     bool                     gui    = false;
     std::vector<std::string> layouts;
@@ -115,6 +116,10 @@ layout = [
 # or "off" for disabling ascii-art or image displaying
 source-path = "os"
 
+# Path to where we'll take all the distros/OSs ascii arts
+# it MUST contain an "ascii" subdirectory
+data-dir = "/usr/share/customfetch"
+    
 # offset between the ascii art and the system infos
 offset = 5
 

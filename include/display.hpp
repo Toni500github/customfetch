@@ -8,10 +8,6 @@
 #include <magic.h>
 #include <vector>
 
-#ifndef CUSTOMFETCH_DATA_DIR
-#define CUSTOMFETCH_DATA_DIR "/usr/share/customfetch"
-#endif
-
 namespace Display {
 
 std::vector<std::string>& render(Config& config, colors_t& colors);
