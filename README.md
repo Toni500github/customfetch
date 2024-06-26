@@ -10,10 +10,12 @@ Currently supports Linux distros only, but our current goal is to be cross-platf
 * **GUI support (for GTK3 (GTK4 soon))**
 * Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Lightweight
+>[!NOTE]
+>enabling GUI support may slow down customfetch a bit because of linking the GUI libraries at runtime\
+>consider using the non-GUI version if you only want to use customfetch on the terminal.\
+>To check if it's enable or not, run "cufetch --version"
 
 ## Depends
->[!NOTE]
->using GUI support will probably slow down customfetch a bit because of linking the GUI libraries at runtime
 ### Debian/Ubuntu and based
 ```sh
 $ sudo apt-get install libpci3 libgtkmm-3.0-1v5
@@ -25,8 +27,6 @@ $ sudo pacman -S gtkmm3 gtk3
 ```
 
 ## Installation
->[!NOTE]
->using GUI support will probably slow down customfetch a bit because of linking the GUI libraries at runtime
 ### Arch and based (unstable) (AUR)
 ```bash
 # with GUI support
