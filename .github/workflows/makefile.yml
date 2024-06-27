@@ -24,11 +24,15 @@ jobs:
       run: sudo make install DEBUG=0 VENDOR_TEST=1 GUI_SUPPORT=1
 
     - name: Test neofetch
-      run: |
-        tree /sys/devices/system/cpu/cpu0/
-        cat /proc/cpuinfo
-        neofetch
+      run: neofetch
 
+#    - name: Check system values
+#      run: |
+#        ls -l /sys/devices/virtual/dmi/id/ /sys/class/dmi/id/
+#        grep -Eri "virtual" /sys/class/dmi/id/ || true
+#        cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
+#        tree /sys/devices/system/cpu/cpu0/
+       
     - name: Test customfetch
       run: ./build/release/cufetch
 
@@ -59,6 +63,9 @@ jobs:
         chown -R nobody customfetch-git
         cd customfetch-git
         sudo -u nobody makepkg -si --noconfirm
+
+    - name: Test neofetch
+      run: neofetch
 
     - name: Test customfetch
       run: cufetch
