@@ -3,9 +3,7 @@
 
 #include <array>
 #include <cerrno>
-#include <fstream>
 #include <algorithm>
-#include <pwd.h>
 #include <unistd.h>
 
 using namespace Query;
@@ -57,16 +55,12 @@ static std::array<std::string, 4> get_os_release_vars() {
 }
 
 System::System() {
-    uid_t uid = geteuid();
 
     if (uname(&m_uname_infos) != 0)
         die("uname() failed: {}\nCould not get system infos", errno);
 
     if (sysinfo(&m_sysInfos) != 0)
         die("uname() failed: {}\nCould not get system infos", errno);
-
-    if (m_pPwd = getpwuid(uid), !m_pPwd)
-        die("getpwent failed: {}\nCould not get user infos", errno);
 
     m_os_release_vars = get_os_release_vars();
 }
@@ -85,10 +79,6 @@ std::string System::hostname() {
 
 std::string System::arch() {
     return m_uname_infos.machine;
-}
-
-std::string System::username() {
-    return m_pPwd->pw_name;
 }
 
 long System::uptime() {

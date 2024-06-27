@@ -57,6 +57,12 @@ os
   hostname	: hostname of the OS [mymainPC]
   arch		: the architecture of the machine [x86_64, aarch64]
 
+user
+  name		: name you are currently logged in (not real name) [toni69]
+  shell		: login shell [zsh]
+  shell_path	: login shell (with path) [/bin/zsh]
+  shell_version : login shell version (may be not correct) [5.9]
+
 system
   host_name	: Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
   host_version	: Host (aka. Motherboard) model version [1.0]

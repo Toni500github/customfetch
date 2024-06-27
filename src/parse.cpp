@@ -344,7 +344,6 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
         sysInfo.insert(
             {"os", {
                 {"name",           variant(query_system.os_pretty_name())},
-                {"username",       variant(query_system.username())},
                 {"uptime_secs",    variant((size_t)uptime_secs.count()%60)},
                 {"uptime_mins",    variant((size_t)uptime_mins.count()%60)},
                 {"uptime_hours",   variant((size_t)uptime_hours.count())},
@@ -365,6 +364,20 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
                 {"host_name",    variant(query_system.host_modelname())},
                 {"host_vendor",  variant(query_system.host_vendor())},
                 {"host_version", variant(query_system.host_version())}
+            }}
+        );
+
+        return;
+    }
+    if (moduleName == "user") {
+        Query::User query_user;
+
+        sysInfo.insert(
+            {"user", {
+                {"name",          variant(query_user.name())},
+                {"shell",         variant(query_user.shell())},
+                {"shell_path",    variant(query_user.shell_path())},
+                {"shell_version", variant(query_user.shell_version())}
             }}
         );
 
@@ -439,9 +452,6 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "name"_fnv1a32:
                     sysInfo[moduleName].insert({moduleValueName, variant(query_system.os_pretty_name())}); break;
             
-                case "username"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.username())}); break;
-            
                 case "uptime_secs"_fnv1a32:
                     sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_secs.count()%60)}); break;
             
@@ -491,6 +501,35 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         }
 
         return;
+    }
+
+    if (moduleName == "user") {
+        Query::User query_user;
+        
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) 
+        {
+            switch (module_hash) {
+                case "name"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.name())}); break;
+
+                case "shell"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.shell())}); break;
+
+                case "shell_path"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.shell_path())}); break;
+
+                case "shell_version"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.shell_version())}); break;
+            }
+        }
+
+        return;
+
     }
 
     if (moduleName == "cpu") {

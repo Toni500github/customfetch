@@ -34,7 +34,6 @@ public:
     std::string kernel_version();
     std::string hostname();
     std::string arch();
-    std::string username();
     std::string os_pretty_name();
     std::string os_name();
     std::string os_id();
@@ -49,6 +48,17 @@ private:
     std::array<std::string, 4> m_os_release_vars;
     struct utsname m_uname_infos;
     struct sysinfo m_sysInfos;
+};
+
+class User {
+public:
+    User();
+    std::string name();
+    std::string shell();
+    std::string shell_path();
+    std::string shell_version();
+
+private:
     struct passwd *m_pPwd;
 };
 
