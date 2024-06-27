@@ -17,7 +17,7 @@ std::string User::name() {
 
 std::string User::shell() {
     std::string shell = this->shell_path();
-    shell.erase(0, shell.find_last_of('/'));
+    shell.erase(0, shell.find_last_of('/')+1);
     
     return shell;
 }
@@ -33,17 +33,18 @@ std::string User::shell_version() {
     switch (fnv1a32::hash(shell)) {
         case "bash"_fnv1a32:
         case "osh"_fnv1a32:
-        case "zsh"_fnv1a32:
-            ret = shell_exec(fmt::format("{} -c \"printf %s \"${}_VERSION\"\"", shell, str_toupper(shell))); break;
+        case "zsh"_fnv1a32: 
+            ret = shell_exec(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell, str_toupper(shell))); break;
 
         case "nu"_fnv1a32:
             ret = shell_exec("nu -c \"version | get version\""); break;
 
         default:
             ret = shell_exec(fmt::format("{} --version", shell));
-            ret.erase(0, ret.find(shell));
+            //ret.erase(0, ret.find(shell));
     }
     
+    debug("ret = {}", ret);
     strip(ret);
     return ret;
 }
