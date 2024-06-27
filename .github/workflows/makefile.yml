@@ -46,7 +46,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install git
-      run: pacman -Syyu git sudo base-devel fakeroot pkgconf --noconfirm --needed
+      run: pacman -Syyu git sudo base-devel fakeroot pkgconf neofetch --noconfirm --needed
     
     - name: get /etc/sudoers
       run: |
