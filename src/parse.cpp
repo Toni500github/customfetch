@@ -334,41 +334,42 @@ std::string parse(const std::string& input, systemInfo_t& systemInfo, Config& co
 void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
     // yikes, here we go.
 
-    if (moduleName == "os") {
+    if (moduleName == "os" || moduleName == "system") {
         Query::System query_system;
     
         std::chrono::seconds uptime_secs(query_system.uptime());
         auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
         auto uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
 
-        sysInfo.insert(
-            {"os", {
-                {"name",           variant(query_system.os_pretty_name())},
-                {"uptime_secs",    variant((size_t)uptime_secs.count()%60)},
-                {"uptime_mins",    variant((size_t)uptime_mins.count()%60)},
-                {"uptime_hours",   variant((size_t)uptime_hours.count())},
-                {"kernel_name",    variant(query_system.kernel_name())},
-                {"kernel_version", variant(query_system.kernel_version())},
-                {"hostname",       variant(query_system.hostname())},
-                {"arch",           variant(query_system.arch())},
-            }}
-        );
+        // stupid way to not construct query_system twice, more faster 
+        if (moduleName == "system") {
+            sysInfo.insert(
+                {"system", {
+                    {"host_name",    variant(query_system.host_modelname())},
+                    {"host_vendor",  variant(query_system.host_vendor())},
+                    {"host_version", variant(query_system.host_version())}
+                }}
+            );
+        }
+            
+        else { 
+            sysInfo.insert(
+                {"os", {
+                    {"name",           variant(query_system.os_pretty_name())},
+                    {"uptime_secs",    variant((size_t)uptime_secs.count()%60)},
+                    {"uptime_mins",    variant((size_t)uptime_mins.count()%60)},
+                    {"uptime_hours",   variant((size_t)uptime_hours.count())},
+                    {"kernel_name",    variant(query_system.kernel_name())},
+                    {"kernel_version", variant(query_system.kernel_version())},
+                    {"hostname",       variant(query_system.hostname())},
+                    {"arch",           variant(query_system.arch())},
+                }}
+            );
+        }
 
         return;
     }
-    if (moduleName == "system") {
-        Query::System query_system;
-
-        sysInfo.insert(
-            {"system", {
-                {"host_name",    variant(query_system.host_modelname())},
-                {"host_vendor",  variant(query_system.host_vendor())},
-                {"host_version", variant(query_system.host_version())}
-            }}
-        );
-
-        return;
-    }
+    
     if (moduleName == "user") {
         Query::User query_user;
 
@@ -431,8 +432,9 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName) {
     // yikes, here we go.
     auto module_hash = fnv1a32::hash(moduleValueName);
-    
-    if (moduleName == "os") {
+   
+    // stupid way to not construct query_system twice, more faster 
+    if (moduleName == "os" || moduleName == "system") {
         Query::System query_system;
 
         std::chrono::seconds uptime_secs(query_system.uptime());
@@ -444,59 +446,47 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 {moduleName, { }}
             );
         
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-            
-            // this string switch case library name is so damn shitty
-            // thanks god clangd has an auto completer
-            switch (module_hash) {
-                case "name"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.os_pretty_name())}); break;
-            
-                case "uptime_secs"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_secs.count()%60)}); break;
-            
-                case "uptime_mins"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_mins.count()%60)}); break;
-            
-                case "uptime_hours"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_hours.count())}); break;
-            
-                case "kernel_name"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.kernel_name())}); break;
-            
-                case "kernel_version"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.kernel_version())}); break;
-            
-                case "hostname"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.hostname())}); break;
-            
-                case "arch"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.arch())}); break;
+        if (moduleName == "os") {
+            if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+                
+                switch (module_hash) {
+                    case "name"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.os_pretty_name())}); break;
+                
+                    case "uptime_secs"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_secs.count()%60)}); break;
+                
+                    case "uptime_mins"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_mins.count()%60)}); break;
+                
+                    case "uptime_hours"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_hours.count())}); break;
+                
+                    case "kernel_name"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.kernel_name())}); break;
+                
+                    case "kernel_version"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.kernel_version())}); break;
+                
+                    case "hostname"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.hostname())}); break;
+                
+                    case "arch"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.arch())}); break;
+                }
             }
-        }
+        } else {
+            if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+                switch (module_hash) {
+                    case "host_name"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_modelname())}); break;
 
-        return;
-    }
+                    case "host_vendor"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_vendor())}); break;
 
-    if (moduleName == "system") {
-        Query::System query_system;
-
-        if (sysInfo.find(moduleName) == sysInfo.end())
-            sysInfo.insert(
-                {moduleName, { }}
-            );
-
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) 
-        {
-            switch (module_hash) {
-                case "host_name"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_modelname())}); break;
-
-                case "host_vendor"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_vendor())}); break;
-
-                case "host_version"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_version())}); break;
+                    case "host_version"_fnv1a32:
+                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_version())}); break;
+                }
             }
         }
 

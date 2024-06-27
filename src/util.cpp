@@ -179,7 +179,7 @@ std::string shell_exec(std::string_view cmd) {
 
     // why there is a '\n' at the end??
     if (!result.empty() && result[result.length() - 1] == '\n')
-        result.erase(result.length() - 1);
+        result.pop_back();
     return result;
 }
 
