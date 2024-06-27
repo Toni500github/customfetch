@@ -357,6 +357,19 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
         return;
     }
+    if (moduleName == "system") {
+        Query::System query_system;
+
+        sysInfo.insert(
+            {"system", {
+                {"host_name",    variant(query_system.host_modelname())},
+                {"host_vendor",  variant(query_system.host_vendor())},
+                {"host_version", variant(query_system.host_version())}
+            }}
+        );
+
+        return;
+    }
     if (moduleName == "cpu") {
         Query::CPU query_cpu;
 
@@ -449,6 +462,31 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             
                 case "arch"_fnv1a32:
                     sysInfo[moduleName].insert({moduleValueName, variant(query_system.arch())}); break;
+            }
+        }
+
+        return;
+    }
+
+    if (moduleName == "system") {
+        Query::System query_system;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) 
+        {
+            switch (module_hash) {
+                case "host_name"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_modelname())}); break;
+
+                case "host_vendor"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_vendor())}); break;
+
+                case "host_version"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_version())}); break;
             }
         }
 

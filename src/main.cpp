@@ -42,37 +42,42 @@ static void components_list() {
     fmt::println(R"(
 Syntax:
 component
-  member	: description [e.g example of what it prints]
+  member	: description [example of what it prints, maybe another]
 
 Should be used in the config as like as $<component.member>
 
 os
-  name		: OS name [e.g Windows, Arch]
-  kernel_name	: kernel name [e.g Linux]
-  kernel_version: kernel version [e.g 6.9.3-zen1-1-zen]
-  username	: the user name you are currently logged in (not real name) [e.g toni69]
-  uptime_secs	: uptime of the system in seconds (should be used along with uptime_mins and/or uptime_hours) [e.g 45]
-  uptime_mins   : uptime of the system in minutes (should be used along with uptime_secs and/or uptime_hours) [e.g 12]
-  uptime_hours  : uptime of the system in hours   (should be used along with uptime_mins and/or uptime_secs)  [e.g 34]
-  hostname	: hostname of the OS [e.g mymainPC]
-  arch		: the architecture of the machine [e.g x86_64, aarch64]
+  name		: OS name [Windows, Arch]
+  kernel_name	: kernel name [Linux]
+  kernel_version: kernel version [6.9.3-zen1-1-zen]
+  username	: the user name you are currently logged in (not real name) [toni69]
+  uptime_secs	: uptime of the system in seconds (should be used along with uptime_mins and/or uptime_hours) [45]
+  uptime_mins   : uptime of the system in minutes (should be used along with uptime_secs and/or uptime_hours) [12]
+  uptime_hours  : uptime of the system in hours   (should be used along with uptime_mins and/or uptime_secs)  [34]
+  hostname	: hostname of the OS [mymainPC]
+  arch		: the architecture of the machine [x86_64, aarch64]
+
+system
+  host_name	: Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
+  host_version	: Host (aka. Motherboard) model version [1.0]
+  host_vendor	: Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
 
 ram
-  used		: used amount of RAM (in MB) [e.g 2815]
-  free		: available amount of RAM (in MB) [e.g 10456]
-  total		: total amount of RAM (in MB) [e.g 15881]
+  used		: used amount of RAM (in MB) [2815]
+  free		: available amount of RAM (in MB) [10456]
+  total		: total amount of RAM (in MB) [15881]
 
 gpu
-  name		: GPU model name [e.g NVIDIA GeForce GTX 1650]
-  vendor	: GPU vendor [e.g NVIDIA Corporation]
+  name		: GPU model name [NVIDIA GeForce GTX 1650]
+  vendor	: GPU vendor [NVIDIA Corporation]
 
 cpu
-  name		: CPU model name [e.g AMD Ryzen 5 5500]
-  nproc         : CPU number of virtual proccessors [e.g 12]
-  freq_bios_limit: CPU freq (limited by bios, in GHz) [e.g 4.32]
-  freq_cur	: CPU freq (current, in GHz) [e.g 3.42]
-  freq_min	: CPU freq (mininum, in GHz) [e.g 2.45]
-  freq_max	: CPU freq (maxinum, in GHz) [e.g 4.90]
+  name		: CPU model name [AMD Ryzen 5 5500]
+  nproc         : CPU number of virtual proccessors [12]
+  freq_bios_limit: CPU freq (limited by bios, in GHz) [4.32]
+  freq_cur	: CPU freq (current, in GHz) [3.42]
+  freq_min	: CPU freq (mininum, in GHz) [2.45]
+  freq_max	: CPU freq (maxinum, in GHz) [4.90]
 )");
     std::exit(0);
 }

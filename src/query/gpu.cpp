@@ -10,17 +10,6 @@
 
 using namespace Query;
 
-static std::string read_drm_by_path(const std::string& path) {
-    std::ifstream f_drm(path);
-    if (!f_drm.is_open()) {
-        error("Could not open {}: Failed to get GPU infos", path);
-        return UNKNOWN;
-    }
-    std::string ret;
-    std::getline(f_drm, ret);
-    return ret;
-}
-
 GPU::GPU(smart_pci_access_ptr &pac, u_short id) : m_pPac(pac.get()) {
     const u_short max_iter = 10;
     u_short id_iter = id;
@@ -39,10 +28,10 @@ GPU::GPU(smart_pci_access_ptr &pac, u_short id) : m_pPac(pac.get()) {
     }
 
     /* Read the vendor ID, in hex. */
-    std::string vendor_id_string = read_drm_by_path(sys_path + "/device/vendor");
+    std::string vendor_id_string = read_by_syspath(sys_path + "/device/vendor");
     
     /* Read the device ID, in hex. */
-    std::string device_id_string = read_drm_by_path(sys_path + "/device/device");
+    std::string device_id_string = read_by_syspath(sys_path + "/device/device");
 
     /* Convert vendor and device IDs */
     std::istringstream vendor_id_converter(vendor_id_string);

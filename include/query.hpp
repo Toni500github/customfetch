@@ -39,9 +39,14 @@ public:
     std::string os_name();
     std::string os_id();
     long        uptime();
+    
+    // motherboard (host)
+    std::string host_modelname();
+    std::string host_vendor();
+    std::string host_version();
 
 private:
-    std::array<std::string, 8> m_os_release_vars;
+    std::array<std::string, 4> m_os_release_vars;
     struct utsname m_uname_infos;
     struct sysinfo m_sysInfos;
     struct passwd *m_pPwd;

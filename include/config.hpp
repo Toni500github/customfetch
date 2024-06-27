@@ -93,15 +93,15 @@ inline const constexpr std::string_view AUTOCONFIG = R"#([config]
 # includes directive, include the top name of each module you use.
 # e.g. if you want to use $<os.name>, then `includes = ["os"]`.
 # you can also put specific includes, for example if you only want os.name, then `includes = ["os.name"]`
-includes = ["os", "cpu", "gpu", "ram"]
+includes = ["os", "system", "cpu", "gpu", "ram"]
 
 layout = [
     "${red}$<os.username>${0}@${cyan}$<os.hostname>",
     "───────────────────────────",
-    "${red}OS${0}: $<os.name>",
+    "${red}OS${0}: $<os.name> $<os.arch>",
+    "${yellow}Host${0}: $<system.host_vendor> $<system.host_name>",
     "${cyan}Uptime${0}: $<os.uptime_hours> hours, $<os.uptime_mins> minutes",
     "${green}Kernel${0}: $<os.kernel_name> $<os.kernel_version>",
-    "${yellow}Arch${0}: $<os.arch>",
     "${magenta}CPU${0}: $<cpu.name> ($<cpu.nproc>) @ $<cpu.freq_max>GHz",
     "${blue}GPU${0}: $<gpu.name>",
     "${#03ff93}RAM usage${0}: $<ram.used> MB / $<ram.total> MB",

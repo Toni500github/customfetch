@@ -6,6 +6,7 @@
 
 #include <filesystem>
 #include <vector>
+#include <fstream>
 #include <string>
 #include <sys/types.h>
 
@@ -27,6 +28,7 @@ std::string expandVar(std::string& str);
 void replace_str(std::string &str, const std::string& from, const std::string& to);
 std::string str_tolower(std::string str);
 void strip(std::string& input);
+std::string read_by_syspath(const std::string_view path);
 fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();

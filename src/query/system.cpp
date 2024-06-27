@@ -28,8 +28,8 @@ static std::string get_var(std::string& line, u_short& iter_index) {
     return ret;
 }
 
-static std::array<std::string, 8> get_os_release_vars() {
-    std::array<std::string, 8> ret;
+static std::array<std::string, 4> get_os_release_vars() {
+    std::array<std::string, 4> ret;
     for (size_t i = 0; i < ret.size(); i++)
             ret.at(i) = UNKNOWN;
 
@@ -105,4 +105,16 @@ std::string System::os_name() {
 
 std::string System::os_id() {
     return m_os_release_vars.at(ID);
+}
+
+std::string System::host_modelname() {
+    return read_by_syspath("/sys/devices/virtual/dmi/id/board_name");
+}
+
+std::string System::host_vendor() {
+    return read_by_syspath("/sys/devices/virtual/dmi/id/board_vendor");
+}
+
+std::string System::host_version() {
+    return read_by_syspath("/sys/devices/virtual/dmi/id/board_version");
 }

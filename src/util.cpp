@@ -55,6 +55,17 @@ std::string expandVar(std::string& str) {
     return str;
 }
 
+std::string read_by_syspath(const std::string_view path) {
+    std::ifstream f_drm(path.data());
+    if (!f_drm.is_open()) {
+        error("Failed to open {}", path);
+        return UNKNOWN;
+    }
+    std::string ret;
+    std::getline(f_drm, ret);
+    return ret;
+}
+
 /**
  * remove all white spaces (' ', '\t', '\n') from start and end of input
  * inplace!
