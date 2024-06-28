@@ -67,18 +67,20 @@ The config:
 # includes directive, include the top name of each module you use.
 # e.g. if you want to use $<os.name>, then `includes = ["os"]`.
 # you can also put specific includes, for example if you only want os.name, then `includes = ["os.name"]`
-includes = ["os", "cpu", "gpu", "ram"]
+includes = ["os", "system", "user", "cpu", "gpu", "ram", "disk(/)"]
 
 layout = [
-    "${red}$<os.username>${0}@${cyan}$<os.hostname>",
+    "${red}$<user.name>${0}@${cyan}$<os.hostname>",
     "───────────────────────────",
-    "${red}OS${0}: $<os.name>",
-    "${cyan}Uptime${0}: $<os.uptime_hours> hours, $<os.uptime_mins> minutes",
-    "${green}Kernel${0}: $<os.kernel_name> $<os.kernel_version>",
-    "${yellow}Arch${0}: $<os.arch>",
-    "${magenta}CPU${0}: $<cpu.name> ($<cpu.nproc>) @ $<cpu.freq_max>GHz",
-    "${blue}GPU${0}: $<gpu.name>",
-    "${#03ff93}RAM usage${0}: $<ram.used> MB / $<ram.total> MB",
+    "${red}OS ->  $<os.name> $<os.arch>",
+    "${yellow}Host -> $<system.host_name>",
+    "${cyan}Uptime -> $<os.uptime_hours> hours, $<os.uptime_mins> minutes",
+    "${cyan}Shell -> $<user.shell> $<user.shell_version>",
+    "${!#448aa4}Disk(/) ->  $<disk(/).used>GB / $<disk(/).total>GB ($<disk(/).fs>)",
+    "${green}Kernel -> $<os.kernel_name> $<os.kernel_version>",
+    "${magenta}CPU -> $<cpu.name> ($<cpu.nproc>) @ $<cpu.freq_max>GHz",
+    "${blue}GPU -> $<gpu.name>",
+    "${!#03ff93}RAM usage -> $<ram.used> MB / $<ram.total> MB",
     "",
     "${\e[40m}   ${\e[41m}   ${\e[42m}   ${\e[43m}   ${\e[44m}   ${\e[45m}   ${\e[46m}   ${\e[47m}   ", # normal colors
     "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
@@ -96,25 +98,29 @@ data-dir = "/usr/share/customfetch"
 
 # offset between the ascii art and the system infos
 offset = 5
+# A character that when ecountered, will automatically
+# reset color, aka. automatically ${0}.
+# Make it empty for disabling
+sep-reset = " -> "
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
 # remember to add ${0} where you want to reset color
-black = "\e[1;90m"
-red = "\e[1;91m"
-green = "\e[1;92m"
-yellow = "\e[1;93m"
-blue = "\e[1;94m"
-magenta = "\e[1;95m"
-cyan = "\e[1;96m"
-white = "\e[1;97m"
+black = "\e[1;30m"
+red = "\e[1;31m"
+green = "\e[1;32m"
+yellow = "\e[1;33m"
+blue = "\e[1;34m"
+magenta = "\e[1;35m"
+cyan = "\e[1;36m"
+white = "\e[1;37m"
 
 # GUI options
 # note: customfetch needs to be compiled with GUI_SUPPORT=1 (check with "cufetch --version")
 [gui]
 enable = false
 
-# Font to be used
+# Font to be used (Strongly reccomend family "Liberation Mono")
 # syntax must be [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]
 # e.g "Liberation Mono Normal 12"
 # check https://lazka.github.io/pgi-docs/Pango-1.0/classes/FontDescription.html#Pango.FontDescription for more infos
@@ -136,7 +142,7 @@ white = "!#ffffff"
 You may be confused and have difficulty to understand, but this is why customfetch is different from the others.\
 We use our own parser for displaying the system informations or anything else, and so we use the variable `layout` along side the OS ascii art text file.
 
-We use something we call "modules" and they starts with a '$'. **We use them on both the ascii art text file and the `layout` variable**\
+We use something we call "modules", inspired by bash syntax, and they starts with a '$'. **We use them on both the ascii art text file and the `layout` variable**\
 There are 3 modules:
 
 * **The info module** ($<>) lets you access a sub-member of a built-in component\
