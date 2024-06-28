@@ -37,6 +37,7 @@ public:
     std::string              source_path;
     std::string              font;
     std::string              data_dir;
+    std::string              sep_reset;
     u_short                  offset = 0;
     bool                     gui    = false;
     std::vector<std::string> layouts;
@@ -98,14 +99,14 @@ includes = ["os", "system", "user", "cpu", "gpu", "ram"]
 layout = [
     "${red}$<user.name>${0}@${cyan}$<os.hostname>",
     "───────────────────────────",
-    "${red}OS${0}: $<os.name> $<os.arch>",
-    "${yellow}Host${0}: $<system.host_vendor> $<system.host_name>",
-    "${cyan}Uptime${0}: $<os.uptime_hours> hours, $<os.uptime_mins> minutes",
-    "${cyan}Shell${0}: $<user.shell> $<user.shell_version>",
-    "${green}Kernel${0}: $<os.kernel_name> $<os.kernel_version>",
-    "${magenta}CPU${0}: $<cpu.name> ($<cpu.nproc>) @ $<cpu.freq_max>GHz",
-    "${blue}GPU${0}: $<gpu.name>",
-    "${#03ff93}RAM usage${0}: $<ram.used> MB / $<ram.total> MB",
+    "${red}OS: $<os.name> $<os.arch>",
+    "${yellow}Host: $<system.host_vendor> $<system.host_name>",
+    "${cyan}Uptime: $<os.uptime_hours> hours, $<os.uptime_mins> minutes",
+    "${cyan}Shell: $<user.shell> $<user.shell_version>",
+    "${green}Kernel: $<os.kernel_name> $<os.kernel_version>",
+    "${magenta}CPU: $<cpu.name> ($<cpu.nproc>) @ $<cpu.freq_max>GHz",
+    "${blue}GPU: $<gpu.name>",
+    "${#03ff93}RAM usage: $<ram.used> MB / $<ram.total> MB",
     "",
     "${\e[40m}   ${\e[41m}   ${\e[42m}   ${\e[43m}   ${\e[44m}   ${\e[45m}   ${\e[46m}   ${\e[47m}   ", # normal colors
     "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
@@ -118,23 +119,28 @@ layout = [
 source-path = "os"
 
 # Path to where we'll take all the distros/OSs ascii arts
-# it MUST contain an "ascii" subdirectory
+# note: it MUST contain an "ascii" subdirectory
 data-dir = "/usr/share/customfetch"
     
-# offset between the ascii art and the system infos
+# A separetor (string) that when ecountered, will automatically
+# reset color, aka. automatically add ${0} (only in layout)
+# Make it empty for disabling
+sep-reset = ":"
+
+# Offset between the ascii art and the system infos
 offset = 5
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
 # remember to add ${0} where you want to reset color
-black = "\e[1;90m"
-red = "\e[1;91m"
-green = "\e[1;92m"
-yellow = "\e[1;93m"
-blue = "\e[1;94m"
-magenta = "\e[1;95m"
-cyan = "\e[1;96m"
-white = "\e[1;97m"
+black = "\e[1;30m"
+red = "\e[1;31m"
+green = "\e[1;32m"
+yellow = "\e[1;33m"
+blue = "\e[1;34m"
+magenta = "\e[1;35m"
+cyan = "\e[1;36m"
+white = "\e[1;37m"
 
 # GUI options
 # note: customfetch needs to be compiled with GUI_SUPPORT=1 (check with "cufetch --version")

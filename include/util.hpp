@@ -10,10 +10,9 @@
 #include <string>
 #include <sys/types.h>
 
-#define BOLD           fmt::emphasis::bold
 #define BOLD_TEXT(x)   (fmt::emphasis::bold | fmt::fg(x))
 #define NOCOLOR        "\033[0m"
-#define UNKNOWN         "<unknown>"
+#define UNKNOWN         "(unknown)"
 
 bool hasEnding(std::string_view fullString, std::string_view ending);
 bool hasStart(std::string_view fullString, std::string_view start);

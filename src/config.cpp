@@ -58,18 +58,19 @@ void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
 
     this->source_path   = getConfigValue<std::string>("config.source-path", "os");
     this->data_dir      = getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
+    this->sep_reset     = getConfigValue<std::string>("config.sep-reset", ":");
     this->offset        = getConfigValue<u_short>("config.offset", 5);
     this->gui           = getConfigValue<bool>("gui.enable", false);
     this->font          = getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
 
-    colors.black         = this->getThemeValue("config.black",   "\033[1;90m");
-    colors.red           = this->getThemeValue("config.red",     "\033[1;91m");
-    colors.green         = this->getThemeValue("config.green",   "\033[1;92m");
-    colors.yellow        = this->getThemeValue("config.yellow",  "\033[1;93m");
-    colors.blue          = this->getThemeValue("config.blue",    "\033[1;94m");
-    colors.magenta       = this->getThemeValue("config.magenta", "\033[1;95m");
-    colors.cyan          = this->getThemeValue("config.cyan",    "\033[1;96m");
-    colors.white         = this->getThemeValue("config.white",   "\033[1;97m");
+    colors.black         = this->getThemeValue("config.black",   "\033[1;30m");
+    colors.red           = this->getThemeValue("config.red",     "\033[1;31m");
+    colors.green         = this->getThemeValue("config.green",   "\033[1;32m");
+    colors.yellow        = this->getThemeValue("config.yellow",  "\033[1;33m");
+    colors.blue          = this->getThemeValue("config.blue",    "\033[1;34m");
+    colors.magenta       = this->getThemeValue("config.magenta", "\033[1;35m");
+    colors.cyan          = this->getThemeValue("config.cyan",    "\033[1;36m");
+    colors.white         = this->getThemeValue("config.white",   "\033[1;37m");
 
     colors.gui_black     = this->getThemeValue("gui.black",   "!#000005");
     colors.gui_red       = this->getThemeValue("gui.red",     "!#ff2000");

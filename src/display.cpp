@@ -79,7 +79,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     int maxLineLength = -1;
     
     while (std::getline(file, line)) {
-        std::string pureOutput;
+        std::string pureOutput = "i";
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 

@@ -53,6 +53,13 @@ static std::array<std::string, 3> get_cpu_infos_str() {
                 cpu_mhz = tmp;
         }
     }
+    
+    // sometimes /proc/cpuinfo at model name
+    // the name will contain the min freq
+    // happens on intel cpus especially
+    size_t pos = 0;
+    if ((pos = ret[NAME].find('@')) != std::string::npos)
+        ret[NAME].erase(pos-1);
 
     cpu_mhz /= 1000;
     ret.at(FREQ_MAX_CPUINFO) = std::to_string(cpu_mhz);

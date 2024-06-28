@@ -7,6 +7,7 @@
 #include "query.hpp"
 #include "config.hpp"
 #include "switch_fnv1a.hpp"
+#include "util.hpp"
 
 // using namespace Query;
 
@@ -126,17 +127,24 @@ static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string&
     }
     catch ( const std::out_of_range& err )
     {
-        return "<unknown/invalid component>";
+        return "(unknown/invalid component)";
     };
 }
 
-static std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::string &pureOutput, Config& config, colors_t& colors )
+static std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::string& pureOutput, Config& config, colors_t& colors )
 {
     std::string output = input;
     pureOutput = output;
 
     size_t dollarSignIndex = 0;
     bool start = false;
+
+    if (!config.char_reset.empty() && !pureOutput.empty() && 
+        (output.find(config.char_reset) != std::string::npos))
+    {
+        replace_str(output, config.char_reset, "${0}" + config.char_reset);
+        replace_str(pureOutput, config.char_reset, "${0}" + config.char_reset);
+    }
 
     while ( true )
     {
@@ -202,7 +210,7 @@ static std::string _parse( const std::string& input, systemInfo_t& systemInfo, s
         if((start_pos = pureOutput.find(strToRemove)) != std::string::npos) {
             pureOutput.erase(start_pos, strToRemove.length());
         }
-
+        
         switch ( type )
         {
         case ')':
