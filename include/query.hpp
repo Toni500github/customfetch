@@ -11,12 +11,15 @@
 #include <variant>
 #include <string>
 #include <memory>
+
+extern "C" {
 #include <pwd.h>
+#include <sys/stat.h>
+#include <sys/statvfs.h>
+#include <mntent.h>
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #include <unistd.h>
-
-extern "C" {
 #include <pci/pci.h>
 }
 
@@ -90,6 +93,19 @@ private:
     uint16_t    m_device_id;
 
     pci_access *m_pPac;
+};
+
+class Disk {
+public:
+    Disk(const std::string_view path);
+    float total_amount();
+    float free_amount();
+    float used_amount();
+    std::string typefs();
+
+private:
+    struct statvfs m_statvfs;
+    std::string m_typefs;
 };
 
 class RAM {

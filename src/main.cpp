@@ -63,11 +63,6 @@ user
   shell_path	: login shell (with path) [/bin/zsh]
   shell_version : login shell version (may be not correct) [5.9]
 
-system
-  host_name	: Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
-  host_version	: Host (aka. Motherboard) model version [1.0]
-  host_vendor	: Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
-
 ram
   used		: used amount of RAM (in MB) [2815]
   free		: available amount of RAM (in MB) [10456]
@@ -84,6 +79,18 @@ cpu
   freq_cur	: CPU freq (current, in GHz) [3.42]
   freq_min	: CPU freq (mininum, in GHz) [2.45]
   freq_max	: CPU freq (maxinum, in GHz) [4.90]
+
+system
+  host_name	: Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
+  host_version	: Host (aka. Motherboard) model version [1.0]
+  host_vendor	: Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
+
+disk(/path/to/fs)
+  used          : used amount of disk space (in MB) [360.02]
+  free          : available amount of disk space (in MB) [438.08]
+  total         : total amount of disk space (in MB) [100.08]
+  fs		: type of filesystem [ext4]
+
 )");
     std::exit(0);
 }

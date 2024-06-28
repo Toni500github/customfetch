@@ -38235,8 +38235,8 @@ C 40  Coprocessor
 C ff  Unassigned class)";
 }
 
-static std::string all_ids = get_pci_ids();
-static std::array<std::string, 2381> pci_vendors_array = get_pci_vendors_array();
-static std::array<int, 2381> pci_vendors_location_array = get_pci_vendors_location_array();
+static std::string all_ids;// = get_pci_ids();
+static std::array<std::string, 2381> pci_vendors_array;// = get_pci_vendors_array();
+static std::array<int, 2381> pci_vendors_location_array;// = get_pci_vendors_location_array();
 
 #endif // PCI_IDS_HPP

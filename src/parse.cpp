@@ -1,6 +1,5 @@
 #include <unistd.h>
 #include <array>
-#include <stdexcept>
 #include <string>
 
 #include "parse.hpp"
@@ -103,32 +102,29 @@ static std::string check_gui_ansi_clr(std::string& str) {
     return str;
 }
 
-static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string& name )
+static std::string getInfoFromName( const systemInfo_t& systemInfo, const std::string& name )
 {
-    std::vector<std::string> sections = split( name, '.' );
-
-    try
+    const std::vector<std::string> sections = split( name, '.' );
+    
+    if (const auto it1 = systemInfo.find(sections[0]); it1 != systemInfo.end())
     {
-        if ( systemInfo.find( sections[0] ) == systemInfo.end() )
-            throw std::out_of_range("genius");
-        if ( systemInfo[sections[0]].find( sections[1] ) == systemInfo[sections[0]].end() )
-            throw std::out_of_range("genius");
-        
-        auto result = systemInfo[sections[0]][sections[1]];
+        if (const auto it2 = it1->second.find(sections[1]); it2 != it1->second.end()) 
+        {
+            const variant& result = it2->second;
 
-        if ( std::holds_alternative<size_t>( result ) )
-            return std::to_string( std::get<size_t>( result ) );
-        
-        else if ( std::holds_alternative<float>(result) )
-            return fmt::format("{:.2f}", (std::get<float>(result)));
-        
-        else
-            return std::get<std::string>( result );
+            if ( std::holds_alternative<size_t>(result) )
+                return fmt::to_string(std::get<size_t>(result));
+
+            else if ( std::holds_alternative<float>(result) )
+                return fmt::format("{:.2f}", (std::get<float>(result)));
+
+            else
+                return std::get<std::string>(result);
+        }
     }
-    catch ( const std::out_of_range& err )
-    {
-        return "(unknown/invalid component)";
-    };
+
+    return "(unknown/invalid component)";;
+
 }
 
 static std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::string& pureOutput, Config& config, colors_t& colors, bool parsingLaoyut )
@@ -198,7 +194,7 @@ static std::string _parse( const std::string& input, systemInfo_t& systemInfo, s
                 break;
             }
             else if ( output.at(i) == type )
-                command.erase( command.size() - 1, 1 );
+                command.pop_back();
 
             command += output.at(i);
         }
@@ -383,7 +379,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
         Query::User query_user;
 
         sysInfo.insert(
-            {"user", {
+            {moduleName.data(), {
                 {"name",          variant(query_user.name())},
                 {"shell",         variant(query_user.shell())},
                 {"shell_path",    variant(query_user.shell_path())},
@@ -393,11 +389,12 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
         return;
     }
+    
     if (moduleName == "cpu") {
         Query::CPU query_cpu;
 
         sysInfo.insert(
-            {"cpu", {
+            {moduleName.data(), {
                 {"name",        variant(query_cpu.name())},
                 {"nproc",       variant(query_cpu.nproc())},
                 {"freq_cur",    variant(query_cpu.freq_cur())},
@@ -408,12 +405,13 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
         );
         return;
     }
+    
     if (hasStart(moduleName, "gpu")) {
         u_short id = moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0;
         Query::GPU query_gpu(pac, id);
 
         sysInfo.insert(
-            {"gpu", {
+            {moduleName.data(), {
                 {"name",   variant(query_gpu.name())},
                 {"vendor", variant(query_gpu.vendor())}
             }}
@@ -421,11 +419,36 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
         return;
     }
+    
+    if (hasStart(moduleName, "disk")) {
+        debug("disk module name = {}", moduleName);
+        if (moduleName.length() <= 5)
+            die(" PARSER: invalid disk component name ({}), must be disk(/path/to/fs)", moduleName);
+
+        std::string path = moduleName.data();
+        path.erase(0, 5); // disk(
+        path.pop_back(); // )
+        debug("disk path = {}", path);
+
+        Query::Disk query_disk(path);
+
+        sysInfo.insert(
+            {moduleName.data(), {
+                {"total", variant(query_disk.total_amount())},
+                {"free",  variant(query_disk.free_amount())},
+                {"used",  variant(query_disk.used_amount())},
+                {"fs",    variant(query_disk.typefs())}
+            }}
+        );
+
+        return;
+    }
+
     if (moduleName == "ram") {
         Query::RAM query_ram;
 
         sysInfo.insert(
-            {"ram", {
+            {moduleName.data(), {
                 {"used",  variant(query_ram.used_amount())},
                 {"total", variant(query_ram.total_amount())},
                 {"free",  variant(query_ram.free_amount())}
@@ -585,6 +608,41 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
         return;
     }
+
+    if (hasStart(moduleName, "disk")) {
+        if (moduleName.length() <= 5)
+            die(" PARSER: invalid disk component name ({}), must be disk(/path/to/fs)", moduleName);
+
+        std::string path = moduleName.data();
+        path.erase(0, 5); // disk(
+        path.pop_back(); // )
+        debug("disk path = {}", path);
+
+        Query::Disk query_disk(path);
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+            switch (module_hash) {
+                case "used"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_disk.used_amount())}); break;
+                
+                case "total"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_disk.total_amount())}); break;
+                
+                case "free"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_disk.free_amount())}); break;
+
+                case "fs"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_disk.typefs())}); break;
+            }
+        }
+
+        return;
+    }
     
     if (moduleName == "ram") {
         Query::RAM query_ram;
@@ -595,7 +653,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             );
         
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-            switch (fnv1a32::hash(moduleValueName)) {
+            switch (module_hash) {
                 case "used"_fnv1a32:
                     sysInfo[moduleName].insert({moduleValueName, variant(query_ram.used_amount())}); break;
                 
