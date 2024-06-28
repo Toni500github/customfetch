@@ -105,7 +105,7 @@ layout = [
     "${cyan}Shell: $<user.shell> $<user.shell_version>",
     "${green}Kernel: $<os.kernel_name> $<os.kernel_version>",
     "${magenta}CPU: $<cpu.name> ($<cpu.nproc>) @ $<cpu.freq_max>GHz",
-    "${!#334223}Disk(/): $<disk(/).free> / $<disk(/).total> ($<disk(/).fs>)",
+    "${!#334223}Disk(/): $<disk(/).free> GB / $<disk(/).total> GB ($<disk(/).fs>)",
     "${blue}GPU: $<gpu.name>",
     "${#03ff93}RAM usage: $<ram.used> MB / $<ram.total> MB",
     "",
