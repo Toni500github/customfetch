@@ -59,7 +59,7 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
     }
 
     for (std::string& layout : config.layouts) {
-        layout = parse(layout, systemInfo, config, colors);
+        layout = parse(layout, systemInfo, config, colors, true);
     }
 
     for (size_t i = 0; i < config.layouts.size(); i++) {

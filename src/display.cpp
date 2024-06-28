@@ -61,7 +61,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     }
 
     for (std::string& layout : config.layouts) {
-        layout = parse(layout, systemInfo, config, colors);
+        layout = parse(layout, systemInfo, config, colors, true);
     }
     
     std::string path = config.m_display_distro ? detect_distro(config) : config.source_path;
@@ -79,8 +79,8 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     int maxLineLength = -1;
     
     while (std::getline(file, line)) {
-        std::string pureOutput = "i";
-        std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors);
+        std::string pureOutput;
+        std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 
         asciiArt.push_back(asciiArt_s);

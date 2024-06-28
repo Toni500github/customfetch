@@ -131,7 +131,7 @@ static std::string getInfoFromName( systemInfo_t& systemInfo, const std::string&
     };
 }
 
-static std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::string& pureOutput, Config& config, colors_t& colors )
+static std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::string& pureOutput, Config& config, colors_t& colors, bool parsingLaoyut )
 {
     std::string output = input;
     pureOutput = output;
@@ -139,11 +139,12 @@ static std::string _parse( const std::string& input, systemInfo_t& systemInfo, s
     size_t dollarSignIndex = 0;
     bool start = false;
 
-    if (!config.char_reset.empty() && !pureOutput.empty() && 
-        (output.find(config.char_reset) != std::string::npos))
-    {
-        replace_str(output, config.char_reset, "${0}" + config.char_reset);
-        replace_str(pureOutput, config.char_reset, "${0}" + config.char_reset);
+    if (!config.sep_reset.empty() && parsingLaoyut) {
+        size_t pos = output.find(config.sep_reset);
+        if (pos != std::string::npos) {
+            replace_str(output, config.sep_reset, "${0}" + config.sep_reset);
+            replace_str(pureOutput, config.sep_reset, "${0}" + config.sep_reset);
+        }
     }
 
     while ( true )
@@ -331,12 +332,12 @@ static std::string _parse( const std::string& input, systemInfo_t& systemInfo, s
     return output;
 }
 
-std::string parse(const std::string& input, systemInfo_t& systemInfo, std::string &pureOutput, Config& config, colors_t& colors) {
-    return _parse(input, systemInfo, pureOutput, config, colors);
+std::string parse(const std::string& input, systemInfo_t& systemInfo, std::string& pureOutput, Config& config, colors_t& colors, bool parsingLaoyut) {
+    return _parse(input, systemInfo, pureOutput, config, colors, parsingLaoyut);
 }
-std::string parse(const std::string& input, systemInfo_t& systemInfo, Config& config, colors_t& colors) {
+std::string parse(const std::string& input, systemInfo_t& systemInfo, Config& config, colors_t& colors, bool parsingLaoyut) {
     std::string _;
-    return _parse(input, systemInfo, _, config, colors);
+    return _parse(input, systemInfo, _, config, colors, parsingLaoyut);
 }
 
 void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
