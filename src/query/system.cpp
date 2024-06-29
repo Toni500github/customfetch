@@ -28,7 +28,7 @@ static std::string get_var(std::string& line, u_short& iter_index) {
 
 static std::array<std::string, 4> get_os_release_vars() {
     std::array<std::string, 4> ret;
-    init_array(ret, UNKNOWN);
+    std::fill(ret.begin(), ret.end(), -1);
 
     debug("calling {}", __PRETTY_FUNCTION__);
     std::string_view os_release_path = "/etc/os-release";

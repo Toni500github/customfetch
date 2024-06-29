@@ -58,7 +58,6 @@ static std::array<std::string, 2> get_gpu_infos(uint16_t& m_vendor_id, uint16_t&
 GPU::GPU(smart_pci_access_ptr &pac, u_short id) : m_pPac(pac.get()) {
     debug("Constructing {}", __func__);
     if (!m_bInit) {
-        init_array(m_gpu_infos, UNKNOWN);
         const u_short max_iter = 10;
         u_short id_iter = id;
         std::string sys_path;

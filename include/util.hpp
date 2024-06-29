@@ -33,14 +33,6 @@ fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();
 
-// must be used with std::array
-template <typename T, typename E>
-void init_array(T&& array, E&& elements) {
-    for (size_t i = 0; i < array.size(); i++) {
-        array.at(i) = elements;
-    }
-}
-
 template <typename... Args>
 void _error_log(fmt::runtime_format_string<> fmt, Args&&... args) {
     fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt, std::forward<Args>(args)...));

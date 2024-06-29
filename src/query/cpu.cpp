@@ -20,16 +20,15 @@ enum {
     FREQ_MIN
 };
 
-static std::string get_from_text(std::string& line, u_short& iter_index) {
+static std::string get_from_text(std::string& line) {
     std::string amount = line.substr(line.find(':')+1);
     strip(amount);
-    iter_index++;
     return amount;
 }
 
 static std::array<std::string, 3> get_cpu_infos_str() {
     std::array<std::string, 3> ret;
-    init_array(ret, UNKNOWN);
+    std::fill(ret.begin(), ret.end(), UNKNOWN);
 
     debug("calling in CPU {}", __PRETTY_FUNCTION__);
     constexpr std::string_view cpuinfo_path = "/proc/cpuinfo";
@@ -40,17 +39,16 @@ static std::array<std::string, 3> get_cpu_infos_str() {
     }
 
     std::string line;
-    static u_short iter_index = 0;
     float cpu_mhz = -1;
-    while (std::getline(file, line) && iter_index < 3) {
-        if (line.find("model name") != std::string::npos)
-            ret.at(NAME) = get_from_text(line, iter_index);
+    while (std::getline(file, line)) {
+        if (hasStart(line, "model name"))
+            ret.at(NAME) = get_from_text(line);
         
-        if (line.find("siblings") != std::string::npos)
-            ret.at(NPROC) = get_from_text(line, iter_index);
+        if (hasStart(line, "siblings"))
+            ret.at(NPROC) = get_from_text(line);
 
-        if (line.find("cpu MHz") != std::string::npos) {
-            float tmp = std::stof(get_from_text(line, iter_index));
+        if (hasStart(line, "cpu MHz")) {
+            float tmp = std::stof(get_from_text(line));
             if (tmp > cpu_mhz)
                 cpu_mhz = tmp;
         }
@@ -64,7 +62,7 @@ static std::array<std::string, 3> get_cpu_infos_str() {
         ret[NAME].erase(pos-1);
 
     cpu_mhz /= 1000;
-    ret.at(FREQ_MAX_CPUINFO) = std::to_string(cpu_mhz);
+    ret.at(FREQ_MAX_CPUINFO) = fmt::to_string(cpu_mhz);
 
     return ret;
 }
@@ -72,8 +70,8 @@ static std::array<std::string, 3> get_cpu_infos_str() {
 static std::array<float, 4> get_cpu_infos_t() {
     debug("calling in CPU {}", __PRETTY_FUNCTION__);
     std::array<float, 4> ret;
-    init_array(ret, -1);
-
+    std::fill(ret.begin(), ret.end(), -1);
+    
     constexpr std::string_view freq_dir = "/sys/devices/system/cpu/cpu0/cpufreq";
     
     if (std::filesystem::exists(freq_dir)) {
