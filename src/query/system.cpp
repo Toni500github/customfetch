@@ -28,14 +28,13 @@ static std::string get_var(std::string& line, u_short& iter_index) {
 
 static std::array<std::string, 4> get_os_release_vars() {
     std::array<std::string, 4> ret;
-    for (size_t i = 0; i < ret.size(); i++)
-            ret.at(i) = UNKNOWN;
-    
+    init_array(ret, UNKNOWN);
+
     debug("calling {}", __PRETTY_FUNCTION__);
     std::string_view os_release_path = "/etc/os-release";
     std::ifstream os_release_file(os_release_path.data());
     if (!os_release_file.is_open()) {
-        error("Could not open {}", os_release_path);
+        error("Could not open {}\nFailed to get OS infos", os_release_path);
         return ret;
     }
     

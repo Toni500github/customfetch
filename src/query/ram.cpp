@@ -32,11 +32,13 @@ static std::array<size_t, 3> get_amount() {
     debug("calling in RAM {}", __PRETTY_FUNCTION__);
     constexpr std::string_view meminfo_path = "/proc/meminfo";
     std::array<size_t, 3> memory_infos;
+    init_array(memory_infos, 0);
+
     //std::array<size_t, 5> extra_mem_info;
     std::ifstream file(meminfo_path.data());
     if (!file.is_open()) {
-        error("Could not open {}", meminfo_path);
-        return {0};
+        error("Could not open {}\nFailed to get RAM infos", meminfo_path);
+        return memory_infos;
     }
     
     std::string line;

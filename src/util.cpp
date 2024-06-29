@@ -35,24 +35,34 @@ std::vector<std::string> split(std::string_view text, char delim) {
  * @param str The string
  * @return The modified string
  */
-std::string expandVar(std::string& str) {
+std::string expandVar(const std::string_view str) {
+    std::string ret = str.data();
     const char *env;
-    if (str[0] == '~') {
+    if (ret[0] == '~') {
         env = getenv("HOME");
         if (env == nullptr)
             die("FATAL: $HOME enviroment variable is not set (how?)");
 
-        str.replace(0, 1, env); // replace ~ with the $HOME value
+        ret.replace(0, 1, env); // replace ~ with the $HOME value
     } else if (str[0] == '$') {
-        str.erase(0, 1); // erase from str[0] to str[1]
-        env = getenv(str.c_str());
+        ret.erase(0, 1);
+        
+        std::string temp;
+        size_t pos = ret.find('/');
+        if (pos != std::string::npos) {
+            temp = str.substr(pos+1);
+            ret.erase(pos);
+        }
+
+        env = getenv(ret.c_str());
         if (env == nullptr)
             die("No such enviroment variable: {}", str);
 
-        str = env;
+        ret = env;
+        ret += temp;
     }
 
-    return str;
+    return ret;
 }
 
 std::string read_by_syspath(const std::string_view path) {
@@ -61,6 +71,7 @@ std::string read_by_syspath(const std::string_view path) {
         error("Failed to open {}", path);
         return UNKNOWN;
     }
+
     std::string ret;
     std::getline(f_drm, ret);
     return ret;

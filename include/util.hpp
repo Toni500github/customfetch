@@ -22,7 +22,7 @@ std::string binarySearchPCIArray(std::string_view vendor_id, std::string_view pc
 std::string binarySearchPCIArray(std::string_view vendor_id);
 std::string shell_exec(std::string_view cmd);
 std::vector<std::string> split(std::string_view text, char delim);
-std::string expandVar(std::string& str);
+std::string expandVar(const std::string_view str);
 // Replace string inplace
 void replace_str(std::string &str, const std::string& from, const std::string& to);
 std::string str_tolower(std::string str);
@@ -32,6 +32,14 @@ std::string read_by_syspath(const std::string_view path);
 fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();
+
+// must be used with std::array
+template <typename T, typename E>
+void init_array(T&& array, E&& elements) {
+    for (size_t i = 0; i < array.size(); i++) {
+        array.at(i) = elements;
+    }
+}
 
 template <typename... Args>
 void _error_log(fmt::runtime_format_string<> fmt, Args&&... args) {

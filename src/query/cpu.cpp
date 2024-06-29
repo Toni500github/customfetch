@@ -20,16 +20,16 @@ enum {
     FREQ_MIN
 };
 
-static std::string get_from_text(std::string& line) {
+static std::string get_from_text(std::string& line, u_short& iter_index) {
     std::string amount = line.substr(line.find(':')+1);
     strip(amount);
+    iter_index++;
     return amount;
 }
 
 static std::array<std::string, 3> get_cpu_infos_str() {
     std::array<std::string, 3> ret;
-    for (size_t i = 0; i < ret.size(); i++)
-            ret.at(i) = UNKNOWN;
+    init_array(ret, UNKNOWN);
 
     debug("calling in CPU {}", __PRETTY_FUNCTION__);
     constexpr std::string_view cpuinfo_path = "/proc/cpuinfo";
@@ -40,16 +40,17 @@ static std::array<std::string, 3> get_cpu_infos_str() {
     }
 
     std::string line;
+    static u_short iter_index = 0;
     float cpu_mhz = -1;
-    while (std::getline(file, line)) {
+    while (std::getline(file, line) && iter_index < 3) {
         if (line.find("model name") != std::string::npos)
-            ret.at(NAME) = get_from_text(line);
+            ret.at(NAME) = get_from_text(line, iter_index);
         
         if (line.find("siblings") != std::string::npos)
-            ret.at(NPROC) = get_from_text(line);
+            ret.at(NPROC) = get_from_text(line, iter_index);
 
         if (line.find("cpu MHz") != std::string::npos) {
-            float tmp = std::stof(get_from_text(line));
+            float tmp = std::stof(get_from_text(line, iter_index));
             if (tmp > cpu_mhz)
                 cpu_mhz = tmp;
         }
@@ -71,8 +72,7 @@ static std::array<std::string, 3> get_cpu_infos_str() {
 static std::array<float, 4> get_cpu_infos_t() {
     debug("calling in CPU {}", __PRETTY_FUNCTION__);
     std::array<float, 4> ret;
-    for (size_t i = 0; i < ret.size(); i++)
-            ret.at(i) = -1;
+    init_array(ret, -1);
 
     constexpr std::string_view freq_dir = "/sys/devices/system/cpu/cpu0/cpufreq";
     

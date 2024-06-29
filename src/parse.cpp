@@ -18,10 +18,12 @@ std::array<float, 4> Query::CPU::m_cpu_infos_t;
 struct statvfs Query::Disk::m_statvfs;
 std::string Query::Disk::m_typefs;
 std::array<size_t, 3> Query::RAM::m_memory_infos;
+std::array<std::string, 2> Query::GPU::m_gpu_infos;
 
 bool Query::System::m_bInit = false;
 bool Query::RAM::m_bInit = false;
 bool Query::CPU::m_bInit = false;
+bool Query::GPU::m_bInit = false;
 bool Query::Disk::m_bInit = false;
 bool Query::User::m_bInit = false;
 

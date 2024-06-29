@@ -94,8 +94,10 @@ public:
 private:
     uint16_t    m_vendor_id;
     uint16_t    m_device_id;
-
     pci_access *m_pPac;
+
+    static std::array<std::string, 2> m_gpu_infos;
+    static bool m_bInit;
 };
 
 class Disk {
