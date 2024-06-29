@@ -5,10 +5,15 @@
 using namespace Query;
 
 User::User() {
-    uid_t uid = geteuid();
+    debug("Constructing {}", __func__);
+    if (!m_bInit) {
+        uid_t uid = geteuid();
 
-    if (m_pPwd = getpwuid(uid), !m_pPwd)
-        die("getpwent failed: {}\nCould not get user infos", errno);
+        if (m_pPwd = getpwuid(uid), !m_pPwd)
+            die("getpwent failed: {}\nCould not get user infos", errno);
+
+        m_bInit = true;
+    }
 }
 
 std::string User::name() {
@@ -44,7 +49,6 @@ std::string User::shell_version() {
             //ret.erase(0, ret.find(shell));
     }
     
-    debug("ret = {}", ret);
     strip(ret);
     return ret;
 }

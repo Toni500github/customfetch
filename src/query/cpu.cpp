@@ -31,6 +31,7 @@ static std::array<std::string, 3> get_cpu_infos_str() {
     for (size_t i = 0; i < ret.size(); i++)
             ret.at(i) = UNKNOWN;
 
+    debug("calling in CPU {}", __PRETTY_FUNCTION__);
     constexpr std::string_view cpuinfo_path = "/proc/cpuinfo";
     std::ifstream file(cpuinfo_path.data());
     if (!file.is_open()) {
@@ -68,6 +69,7 @@ static std::array<std::string, 3> get_cpu_infos_str() {
 }
 
 static std::array<float, 4> get_cpu_infos_t() {
+    debug("calling in CPU {}", __PRETTY_FUNCTION__);
     std::array<float, 4> ret;
     for (size_t i = 0; i < ret.size(); i++)
             ret.at(i) = -1;
@@ -97,8 +99,11 @@ static std::array<float, 4> get_cpu_infos_t() {
 }
 
 CPU::CPU() {
-    m_cpu_infos_str = get_cpu_infos_str();
-    m_cpu_infos_t = get_cpu_infos_t();
+    debug("Constructing {}", __func__);
+    if (!m_bInit) {
+        m_cpu_infos_str = get_cpu_infos_str();
+        m_cpu_infos_t = get_cpu_infos_t();
+    }
 }
 
 std::string CPU::name() {

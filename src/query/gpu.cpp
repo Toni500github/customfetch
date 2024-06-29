@@ -2,7 +2,6 @@
 #include "util.hpp"
 
 #include <filesystem>
-#include <fstream>
 #include <pci/pci.h>
 #include <sstream>
 #include <string>

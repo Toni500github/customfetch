@@ -30,7 +30,8 @@ static std::array<std::string, 4> get_os_release_vars() {
     std::array<std::string, 4> ret;
     for (size_t i = 0; i < ret.size(); i++)
             ret.at(i) = UNKNOWN;
-
+    
+    debug("calling {}", __PRETTY_FUNCTION__);
     std::string_view os_release_path = "/etc/os-release";
     std::ifstream os_release_file(os_release_path.data());
     if (!os_release_file.is_open()) {
@@ -38,7 +39,7 @@ static std::array<std::string, 4> get_os_release_vars() {
         return ret;
     }
     
-    u_short iter_index = 0;
+    static u_short iter_index = 0;
     std::string line;
     while (std::getline(os_release_file, line) && iter_index < 3) {
         if(hasStart(line, "PRETTY_NAME="))
@@ -55,14 +56,18 @@ static std::array<std::string, 4> get_os_release_vars() {
 }
 
 System::System() {
+    debug("Constructing {}", __func__);
+    
+    if (!m_bInit) {
+        if (uname(&m_uname_infos) != 0)
+            die("uname() failed: {}\nCould not get system infos", errno);
 
-    if (uname(&m_uname_infos) != 0)
-        die("uname() failed: {}\nCould not get system infos", errno);
+        if (sysinfo(&m_sysInfos) != 0)
+            die("uname() failed: {}\nCould not get system infos", errno);
 
-    if (sysinfo(&m_sysInfos) != 0)
-        die("uname() failed: {}\nCould not get system infos", errno);
-
-    m_os_release_vars = get_os_release_vars();
+        m_os_release_vars = get_os_release_vars();
+        m_bInit = true;
+    }
 }
 
 std::string System::kernel_name() {

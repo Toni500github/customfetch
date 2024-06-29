@@ -9,6 +9,21 @@
 #include "util.hpp"
 
 // using namespace Query;
+std::array<std::string, 4> Query::System::m_os_release_vars;
+struct utsname Query::System::m_uname_infos;
+struct sysinfo Query::System::m_sysInfos;
+struct passwd* Query::User::m_pPwd;
+std::array<std::string, 3> Query::CPU::m_cpu_infos_str;
+std::array<float, 4> Query::CPU::m_cpu_infos_t;
+struct statvfs Query::Disk::m_statvfs;
+std::string Query::Disk::m_typefs;
+std::array<size_t, 3> Query::RAM::m_memory_infos;
+
+bool Query::System::m_bInit = false;
+bool Query::RAM::m_bInit = false;
+bool Query::CPU::m_bInit = false;
+bool Query::Disk::m_bInit = false;
+bool Query::User::m_bInit = false;
 
 static std::array<std::string, 3> get_ansi_color( const std::string_view str, colors_t& colors )
 {

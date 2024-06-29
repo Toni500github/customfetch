@@ -48,9 +48,10 @@ public:
     std::string host_version();
 
 private:
-    std::array<std::string, 4> m_os_release_vars;
-    struct utsname m_uname_infos;
-    struct sysinfo m_sysInfos;
+    static std::array<std::string, 4> m_os_release_vars;
+    static bool m_bInit;
+    static struct utsname m_uname_infos;
+    static struct sysinfo m_sysInfos;
 };
 
 class User {
@@ -62,7 +63,8 @@ public:
     std::string shell_version();
 
 private:
-    struct passwd *m_pPwd;
+    static bool m_bInit;
+    static struct passwd *m_pPwd;
 };
 
 class CPU {
@@ -77,8 +79,9 @@ public:
     float freq_bios_limit();
 
 private:
-    std::array<float, 4> m_cpu_infos_t;
-    std::array<std::string, 3> m_cpu_infos_str;
+    static bool m_bInit;
+    static std::array<float, 4> m_cpu_infos_t;
+    static std::array<std::string, 3> m_cpu_infos_str;
 };
 
 class GPU {
@@ -104,8 +107,9 @@ public:
     std::string typefs();
 
 private:
-    struct statvfs m_statvfs;
-    std::string m_typefs;
+    static bool m_bInit;
+    static struct statvfs m_statvfs;
+    static std::string m_typefs;
 };
 
 class RAM {
@@ -115,7 +119,8 @@ public:
     size_t free_amount();
     size_t used_amount();
 private:
-    std::array<size_t, 3> m_memory_infos;
+    static bool m_bInit;
+    static std::array<size_t, 3> m_memory_infos;
 };
 
 };

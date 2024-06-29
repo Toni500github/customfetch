@@ -29,6 +29,7 @@ static size_t get_from_text(std::string& line, u_short& iter_index) {
 }
 
 static std::array<size_t, 3> get_amount() {
+    debug("calling in RAM {}", __PRETTY_FUNCTION__);
     constexpr std::string_view meminfo_path = "/proc/meminfo";
     std::array<size_t, 3> memory_infos;
     //std::array<size_t, 5> extra_mem_info;
@@ -39,7 +40,7 @@ static std::array<size_t, 3> get_amount() {
     }
     
     std::string line;
-    u_short iter_index = 0;
+    static u_short iter_index = 0;
     while (std::getline(file, line) && iter_index < 2) {
         if (line.find("MemAvailable:") != std::string::npos)
             memory_infos.at(AVAILABLE) = get_from_text(line, iter_index);
@@ -70,7 +71,11 @@ static std::array<size_t, 3> get_amount() {
 }
 
 RAM::RAM() {
-    m_memory_infos = get_amount();
+    debug("Constructing {}", __func__);
+    if (!m_bInit) {
+        m_memory_infos = get_amount();
+        m_bInit = true;
+    }
 }
 
 size_t RAM::free_amount()  { 
