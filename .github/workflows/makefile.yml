@@ -2,9 +2,9 @@ name: Makefile CI (Test customfetch)
 
 on:
   push:
-    branches: [ "main", "test" ]
+    branches: [ "main", "test", "windows" ]
   pull_request:
-    branches: [ "main", "test" ]
+    branches: [ "main", "test", "windows" ]
 
 jobs:
   build_ubuntu-latest:
@@ -70,8 +70,7 @@ jobs:
 
     - name: Test customfetch
       run: cufetch
-
-
+      
   build_Arch:
   
     runs-on: ubuntu-latest
@@ -115,3 +114,20 @@ jobs:
        
     - name: Test customfetch
       run: ./build/debug/cufetch
+
+
+  build_Windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Visual Studio
+        uses: egor-tensin/vs-shell@v2
+        with:
+          arch: x64
+
+      - name: Build
+        run: make clean && make DEBUG=1 VENDOR_TEST=1 GUI_SUPPORT=0
+
+      - name: Test customfetch
+        run: ./build/debug/cufetch
