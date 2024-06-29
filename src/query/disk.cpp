@@ -27,6 +27,9 @@ Disk::Disk(const std::string_view path) {
             m_typefs = pDevice->mnt_type;
             break;
         }
+        
+        if (mountsFile)
+            free(mountsFile);
 
         m_bInit = true;
     }
