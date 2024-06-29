@@ -21,22 +21,23 @@ jobs:
       run: make clean
 
     - name: Compile
-      run: sudo make install DEBUG=0 VENDOR_TEST=1 GUI_SUPPORT=1
+      run: sudo make install DEBUG=1 VENDOR_TEST=1 GUI_SUPPORT=0
 
     - name: Test neofetch
       run: neofetch
 
-#    - name: Check system values
-#      run: |
-#        ls -l /sys/devices/virtual/dmi/id/ /sys/class/dmi/id/
-#        grep -Eri "virtual" /sys/class/dmi/id/ || true
-#        cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
-#        tree /sys/devices/system/cpu/cpu0/
+    - name: Check system values
+      run: |
+        ls -l /sys/devices/virtual/dmi/id/ /sys/class/dmi/id/
+        grep -Eri "virtual" /sys/class/dmi/id/ || true
+        cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
+        tree /sys/devices/system/cpu/cpu0/
+        printf "/etc/os-release\n" && cat /etc/os-release
        
     - name: Test customfetch
-      run: ./build/release/cufetch
+      run: ./build/debug/cufetch
 
-  build_arch-AUR:
+  build_Arch-AUR:
   
     runs-on: ubuntu-latest
     container:
@@ -45,7 +46,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install git
+    - name: Install the packages
       run: pacman -Syyu git sudo base-devel fakeroot pkgconf neofetch --noconfirm --needed
     
     - name: get /etc/sudoers
@@ -69,3 +70,48 @@ jobs:
 
     - name: Test customfetch
       run: cufetch
+
+
+  build_Arch:
+  
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install the packages
+      run: pacman -Syyu git sudo base-devel fakeroot pkgconf neofetch fastfetch --noconfirm --needed
+    
+    - name: get /etc/sudoers
+      run: |
+        sed -i "s#root ALL=(ALL:ALL) ALL#root ALL=(ALL:ALL) NOPASSWD: ALL\nnobody ALL=(ALL:ALL) NOPASSWD: ALL#g" /etc/sudoers
+        cat /etc/sudoers
+    - name: get /etc/makepkg.conf
+      run: |
+        sed -i "s#purge debug lto#purge !debug lto#" /etc/makepkg.conf
+        cat /etc/makepkg.conf
+
+    - name: Clean
+      run: make clean
+
+    - name: Compile
+      run: make install DEBUG=1 VENDOR_TEST=1 GUI_SUPPORT=0
+
+    - name: Test neofetch
+      run: neofetch
+
+    - name: Test fastfetch
+      run: fastfetch
+
+    - name: Check system values
+      run: |
+        ls -l /sys/devices/virtual/dmi/id/ /sys/class/dmi/id/
+        grep -Eri "virtual" /sys/class/dmi/id/ || true
+        cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
+        tree /sys/devices/system/cpu/cpu0/
+        printf "/etc/os-release\n" && cat /etc/os-release
+       
+    - name: Test customfetch
+      run: ./build/debug/cufetch
