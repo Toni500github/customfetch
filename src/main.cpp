@@ -47,7 +47,7 @@ component
 Should be used in the config as like as $<component.member>
 
 os
-  name		: OS name [Windows, Arch]
+  name		: OS name (pretty_name) [Ubuntu 22.04.4 LTS, Arch Linux]
   kernel_name	: kernel name [Linux]
   kernel_version: kernel version [6.9.3-zen1-1-zen]
   username	: the user name you are currently logged in (not real name) [toni69]
@@ -55,11 +55,10 @@ os
   uptime_mins   : uptime of the system in minutes (should be used along with uptime_secs and/or uptime_hours) [12]
   uptime_hours  : uptime of the system in hours   (should be used along with uptime_mins and/or uptime_secs)  [34]
   hostname	: hostname of the OS [mymainPC]
-  arch		: the architecture of the machine [x86_64, aarch64]
 
 user
   name		: name you are currently logged in (not real name) [toni69]
-  shell		: login shell [zsh]
+  shell_name	: login shell [zsh]
   shell_path	: login shell (with path) [/bin/zsh]
   shell_version : login shell version (may be not correct) [5.9]
 
@@ -67,6 +66,12 @@ ram
   used		: used amount of RAM (in MB) [2815]
   free		: available amount of RAM (in MB) [10456]
   total		: total amount of RAM (in MB) [15881]
+
+disk(/path/to/fs)
+  used          : used amount of disk space (in GB) [360.02]
+  free          : available amount of disk space (in GB) [438.08]
+  total         : total amount of disk space (in GB) [100.08]
+  fs            : type of filesystem [ext4]
 
 gpu
   name		: GPU model name [NVIDIA GeForce GTX 1650]
@@ -84,12 +89,7 @@ system
   host_name	: Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
   host_version	: Host (aka. Motherboard) model version [1.0]
   host_vendor	: Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
-
-disk(/path/to/fs)
-  used          : used amount of disk space (in MB) [360.02]
-  free          : available amount of disk space (in MB) [438.08]
-  total         : total amount of disk space (in MB) [100.08]
-  fs		: type of filesystem [ext4]
+  arch          : the architecture of the machine [x86_64, aarch64]
 
 )");
     std::exit(0);

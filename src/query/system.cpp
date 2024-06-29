@@ -11,12 +11,12 @@ using namespace Query;
 enum {
     PRETTY_NAME = 0,
     NAME,
-    ID_LIKE,
     ID,
-    BUILD_ID,
     VERSION_ID,
+    VERSION_CODENAME,
+    ID_LIKE,
+    BUILD_ID,
     _VERSION, // conflicts with the macro VERSION so had to put _
-    VERSION_CODENAME
 };
 
 static std::string get_var(std::string& line, u_short& iter_index) {
@@ -26,9 +26,9 @@ static std::string get_var(std::string& line, u_short& iter_index) {
     return ret;
 }
 
-static std::array<std::string, 4> get_os_release_vars() {
-    std::array<std::string, 4> ret;
-    std::fill(ret.begin(), ret.end(), -1);
+static std::array<std::string, 5> get_os_release_vars() {
+    std::array<std::string, 5> ret;
+    std::fill(ret.begin(), ret.end(), UNKNOWN);
 
     debug("calling {}", __PRETTY_FUNCTION__);
     std::string_view os_release_path = "/etc/os-release";
@@ -40,15 +40,21 @@ static std::array<std::string, 4> get_os_release_vars() {
     
     static u_short iter_index = 0;
     std::string line;
-    while (std::getline(os_release_file, line) && iter_index < 3) {
-        if(hasStart(line, "PRETTY_NAME="))
+    while (std::getline(os_release_file, line) && iter_index < 5) {
+        if (hasStart(line, "PRETTY_NAME="))
             ret.at(PRETTY_NAME) = get_var(line, iter_index);
 
-        if(hasStart(line, "NAME="))
+        if (hasStart(line, "NAME="))
             ret.at(NAME) = get_var(line, iter_index);
 
-        if(hasStart(line, "ID="))
+        if (hasStart(line, "ID="))
             ret.at(ID) = get_var(line, iter_index);
+        
+        if (hasStart(line, "VERSION_ID="))
+            ret.at(VERSION_ID) = get_var(line, iter_index);
+
+        if (hasStart(line, "VERSION_CODENAME="))
+            ret.at(VERSION_CODENAME) = get_var(line, iter_index);
     }
 
     return ret;
@@ -99,6 +105,14 @@ std::string System::os_name() {
 
 std::string System::os_id() {
     return m_os_release_vars.at(ID);
+}
+
+std::string System::os_versionid() {
+    return m_os_release_vars.at(VERSION_ID);
+}
+
+std::string System::os_version_codename() {
+    return m_os_release_vars.at(VERSION_CODENAME);
 }
 
 std::string System::host_modelname() {

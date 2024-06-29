@@ -9,7 +9,7 @@
 #include "util.hpp"
 
 // using namespace Query;
-std::array<std::string, 4> Query::System::m_os_release_vars;
+std::array<std::string, 5> Query::System::m_os_release_vars;
 struct utsname Query::System::m_uname_infos;
 struct sysinfo Query::System::m_sysInfos;
 struct passwd* Query::User::m_pPwd;
@@ -369,7 +369,8 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
                 {"system", {
                     {"host_name",    variant(query_system.host_modelname())},
                     {"host_vendor",  variant(query_system.host_vendor())},
-                    {"host_version", variant(query_system.host_version())}
+                    {"host_version", variant(query_system.host_version())},
+                    {"arch",         variant(query_system.arch())},
                 }}
             );
         }
@@ -378,13 +379,14 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
             sysInfo.insert(
                 {"os", {
                     {"name",           variant(query_system.os_pretty_name())},
+                    {"version_id",     variant(query_system.os_versionid())},
+                    {"version_codename", variant(query_system.os_version_codename())},
                     {"uptime_secs",    variant((size_t)uptime_secs.count()%60)},
                     {"uptime_mins",    variant((size_t)uptime_mins.count()%60)},
                     {"uptime_hours",   variant((size_t)uptime_hours.count())},
                     {"kernel_name",    variant(query_system.kernel_name())},
                     {"kernel_version", variant(query_system.kernel_version())},
                     {"hostname",       variant(query_system.hostname())},
-                    {"arch",           variant(query_system.arch())},
                 }}
             );
         }
@@ -398,7 +400,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
         sysInfo.insert(
             {moduleName.data(), {
                 {"name",          variant(query_user.name())},
-                {"shell",         variant(query_user.shell())},
+                {"shell_name",    variant(query_user.shell())},
                 {"shell_path",    variant(query_user.shell_path())},
                 {"shell_version", variant(query_user.shell_version())}
             }}

@@ -99,15 +99,15 @@ includes = ["os", "system", "user", "cpu", "gpu", "ram", "disk(/)"]
 layout = [
     "${red}$<user.name>${0}@${cyan}$<os.hostname>",
     "───────────────────────────",
-    "${red}OS: $<os.name> $<os.arch>",
+    "${red}OS: $<os.name> $<system.arch>",
     "${yellow}Host: $<system.host_vendor> $<system.host_name>",
     "${cyan}Uptime: $<os.uptime_hours> hours, $<os.uptime_mins> minutes",
-    "${cyan}Shell: $<user.shell> $<user.shell_version>",
+    "${cyan}Shell: $<user.shell_name> $<user.shell_version>",
     "${green}Kernel: $<os.kernel_name> $<os.kernel_version>",
     "${magenta}CPU: $<cpu.name> ($<cpu.nproc>) @ $<cpu.freq_max>GHz",
-    "${!#334223}Disk(/): $<disk(/).free> GB / $<disk(/).total> GB ($<disk(/).fs>)",
+    "${!#117f23}Disk(/): $<disk(/).free> GB / $<disk(/).total> GB ($<disk(/).fs>)",
     "${blue}GPU: $<gpu.name>",
-    "${#03ff93}RAM usage: $<ram.used> MB / $<ram.total> MB",
+    "${!#03ff93}RAM usage: $<ram.used> MB / $<ram.total> MB",
     "",
     "${\e[40m}   ${\e[41m}   ${\e[42m}   ${\e[43m}   ${\e[44m}   ${\e[45m}   ${\e[46m}   ${\e[47m}   ", # normal colors
     "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
