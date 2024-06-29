@@ -47,7 +47,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install the packages
-      run: pacman -Syyu git sudo base-devel fakeroot pkgconf neofetch --noconfirm --needed
+      run: pacman -Syyu git sudo base-devel fakeroot pkgconf tree neofetch --noconfirm --needed
     
     - name: get /etc/sudoers
       run: |
@@ -82,7 +82,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install the packages
-      run: pacman -Syyu git sudo base-devel fakeroot pkgconf neofetch fastfetch --noconfirm --needed
+      run: pacman -Syyu git sudo base-devel fakeroot pkgconf tree neofetch fastfetch --noconfirm --needed
     
     - name: get /etc/sudoers
       run: |
