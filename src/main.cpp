@@ -50,6 +50,8 @@ os
   name		: OS name (pretty_name) [Ubuntu 22.04.4 LTS, Arch Linux]
   kernel_name	: kernel name [Linux]
   kernel_version: kernel version [6.9.3-zen1-1-zen]
+  version_id	: OS version id [22.04.4, 20240101.0.204074]
+  version_codename: OS version codename [jammy]
   username	: the user name you are currently logged in (not real name) [toni69]
   uptime_secs	: uptime of the system in seconds (should be used along with uptime_mins and/or uptime_hours) [45]
   uptime_mins   : uptime of the system in minutes (should be used along with uptime_secs and/or uptime_hours) [12]
