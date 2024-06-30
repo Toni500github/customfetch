@@ -59,7 +59,7 @@ void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
     this->source_path   = getConfigValue<std::string>("config.source-path", "os");
     this->data_dir      = getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
     this->sep_reset     = getConfigValue<std::string>("config.sep-reset", ":");
-    this->offset        = getConfigValue<unsigned short>("config.offset", 5);
+    this->offset        = getConfigValue<u_short>("config.offset", 5);
     this->gui           = getConfigValue<bool>("gui.enable", false);
     this->font          = getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
 

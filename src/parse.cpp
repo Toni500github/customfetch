@@ -8,7 +8,7 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-// using namespace Query;
+using namespace Query;
 std::array<std::string, 5> Query::System::m_os_release_vars;
 struct utsname Query::System::m_uname_infos;
 struct sysinfo Query::System::m_sysInfos;

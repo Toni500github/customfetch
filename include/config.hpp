@@ -39,7 +39,7 @@ public:
     std::string              font;
     std::string              data_dir;
     std::string              sep_reset;
-    unsigned short           offset = 0;
+    u_short                  offset = 0;
     bool                     gui    = false;
     std::vector<std::string> layouts;
     std::vector<std::string> includes;

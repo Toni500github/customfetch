@@ -89,7 +89,7 @@ private:
 
 class GPU {
 public:
-    GPU(unsigned short id = 0);
+    GPU(u_short id = 0);
     //std::string vendor_id();
     std::string name();
     std::string vendor();
