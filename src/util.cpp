@@ -2,9 +2,9 @@
 #include "fmt/color.h"
 #include "pci.ids.hpp"
 
-#include <algorithm>
 #include <cerrno>
 #include <string>
+#include <sstream>
 #include <string_view>
 #include <vector>
 
