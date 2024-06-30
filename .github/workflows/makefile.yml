@@ -33,7 +33,7 @@ jobs:
         cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
         tree /sys/devices/system/cpu/cpu0/
         printf "/etc/os-release\n" && cat /etc/os-release
-        printf "getting 0x5353 hexcode\n" && grep -nri "5353" /sys/class/dmi/id/ /sys/class/drm/ || true
+        printf "getting 0x5353 hexcode\n" && grep -nri "5353" /sys/class/ || true
        
     - name: Test customfetch
       run: ./build/debug/cufetch
