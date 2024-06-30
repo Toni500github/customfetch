@@ -10,7 +10,7 @@
 
 #if !(defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
 #define CF_WINDOWS 1
-typedef unsigned short int u_short; // they don't have sys/types.h XDDD
+typedef unsigned short u_short; // they don't have sys/types.h XDDD
 
 // https://github.com/msys2/MINGW-packages/issues/4999#issuecomment-1530791650
 inline char *strndup(const char* src, size_t size) {
