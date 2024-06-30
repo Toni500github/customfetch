@@ -93,8 +93,8 @@ void strip(std::string& input) {
     input.erase(0, input.find_first_not_of(ws));
 }
 
-fmt::rgb hexStringToColor(const std::string &hexstr) {
-    //hexstr = hexstr.substr(1);
+fmt::rgb hexStringToColor(std::string_view hexstr) {
+    hexstr = hexstr.substr(1);
     // convert the hexadecimal string to individual components
     std::stringstream ss;
     ss << std::hex << hexstr;

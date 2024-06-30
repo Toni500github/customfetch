@@ -29,7 +29,7 @@ std::string str_tolower(std::string str);
 std::string str_toupper(std::string str);
 void strip(std::string& input);
 std::string read_by_syspath(const std::string &path);
-fmt::rgb hexStringToColor(const std::string &hexstr);
+fmt::rgb hexStringToColor(std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();
 
