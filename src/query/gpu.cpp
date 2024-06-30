@@ -39,6 +39,8 @@ static std::string _get_vendor(const std::string& m_vendor_id_s) {
 static std::array<std::string, 2> get_gpu_infos(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s) {
     debug("calling GPU {}", __func__);
     std::array<std::string, 2> ret;
+    
+    debug("m_vendor_id_s = {} || m_device_id_s = {}", m_vendor_id_s, m_device_id_s);
 
     ret[VENDOR] = _get_vendor(m_vendor_id_s.data());
     ret[NAME] = _get_name(m_vendor_id_s.data(), m_device_id_s.data(), ret[VENDOR]);
