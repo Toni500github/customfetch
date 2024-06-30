@@ -20,13 +20,10 @@ extern "C" {
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #include <unistd.h>
-#include <pci/pci.h>
 }
 
-using smart_pci_access_ptr = std::unique_ptr<pci_access, decltype(&pci_cleanup)>;
 using systemInfo_t = std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
 using variant = std::variant<std::string, size_t, float>;
-
 
 namespace Query {
 
@@ -86,7 +83,7 @@ private:
 
 class GPU {
 public:
-    GPU(smart_pci_access_ptr& pac, u_short id = 0);
+    GPU(u_short id = 0);
     //std::string vendor_id();
     std::string name();
     std::string vendor();
@@ -95,7 +92,8 @@ private:
     uint16_t    m_vendor_id;
     uint16_t    m_device_id;
 
-    pci_access *m_pPac;
+    std::string m_vendor_id_s;
+    std::string m_device_id_s;
 };
 
 class Disk {
@@ -129,6 +127,5 @@ private:
 //inline Query::CPU query_cpu;
 //inline Query::GPU query_gpu;
 //inline Query::RAM query_ram;
-inline smart_pci_access_ptr pac(pci_alloc(), pci_cleanup);
 
 #endif

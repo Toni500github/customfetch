@@ -34,14 +34,14 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     // first check if the file is an image
     // using the same library that "file" uses
     // No extra bloatware nice
-    if (!config.m_display_distro && !config.m_disable_source && config.m_custom_distro.empty()) {
-        magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
-        magic_load(myt, NULL);
-        std::string file_type = magic_file(myt, config.source_path.c_str());
-        if ((file_type.find("text") == std::string::npos) && !config.m_disable_source)
-            die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
-        magic_close(myt);
-    }
+    // if (!config.m_display_distro && !config.m_disable_source && config.m_custom_distro.empty()) {
+    //     magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
+    //     magic_load(myt, NULL);
+    //     std::string file_type = magic_file(myt, config.source_path.c_str());
+    //     if ((file_type.find("text") == std::string::npos) && !config.m_disable_source)
+    //         die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
+    //     magic_close(myt);
+    // }
 
     for (std::string& include : config.includes) {
         std::vector<std::string> include_nodes = split(include, '.');

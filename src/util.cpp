@@ -9,19 +9,19 @@
 #include <vector>
 
 // https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
-bool hasEnding(std::string_view fullString, std::string_view ending) {
+bool hasEnding(const std::string &fullString, const std::string &ending) {
     if (ending.length() > fullString.length())
         return false;
     return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
 }
 
-bool hasStart(std::string_view fullString, std::string_view start) {
+bool hasStart(const std::string &fullString, const std::string &start) {
     if (start.length() > fullString.length())
         return false;
     return (fullString.substr(0, start.size()) == start);
 }
 
-std::vector<std::string> split(std::string_view text, char delim) {
+std::vector<std::string> split(const std::string &text, char delim) {
     std::string              line;
     std::vector<std::string> vec;
     std::stringstream        ss(text.data());
@@ -55,7 +55,7 @@ std::string expandVar(std::string& str) {
     return str;
 }
 
-std::string read_by_syspath(const std::string_view path) {
+std::string read_by_syspath(const std::string &path) {
     std::ifstream f_drm(path.data());
     if (!f_drm.is_open()) {
         error("Failed to open {}", path);
@@ -93,8 +93,8 @@ void strip(std::string& input) {
     input.erase(0, input.find_first_not_of(ws));
 }
 
-fmt::rgb hexStringToColor(std::string_view hexstr) {
-    hexstr = hexstr.substr(1);
+fmt::rgb hexStringToColor(const std::string &hexstr) {
+    //hexstr = hexstr.substr(1);
     // convert the hexadecimal string to individual components
     std::stringstream ss;
     ss << std::hex << hexstr;
@@ -133,29 +133,69 @@ std::string str_toupper(std::string str) {
 }
 
 // Function to perform binary search on the pci vendors array to find a device from a vendor.
-std::string binarySearchPCIArray(std::string_view vendor_id_s, std::string_view pci_id_s) {
-    std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
-    std::string_view pci_id    = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2) : pci_id_s;
+std::string binarySearchPCIArray(const std::string &vendor_id_s, const std::string &pci_id_s) {
+    std::string vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
+    std::string pci_id    = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2) : pci_id_s;
 
-    long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
-    size_t approx_vendors_location = pci_vendors_location_array[location_array_index];
-    size_t vendors_location = all_ids.find(pci_id, approx_vendors_location);
+    size_t left = 0, right = pci_vendors_array.size(), mid;
 
-    if (vendors_location == std::string::npos)
+    while (right >= left) {
+        mid = left + (right - left) / 2;
+
+        // If the element is present at the middle
+        // itself
+        if (pci_vendors_array[mid] == vendor_id)
+            break;
+
+        // If element is smaller than mid, then
+        // it can only be present in left subarray
+        if (pci_vendors_array[mid] > vendor_id)
+            right = mid - 1;
+
+        // Else the element can only be present
+        // in right subarray
+        if (pci_vendors_array[mid] < vendor_id)
+            left = mid + 1;
+    }
+
+    size_t approx_vendors_location = pci_vendors_location_array[mid];
+    size_t vendor_location = all_ids.find(vendor_id, approx_vendors_location);
+    size_t device_location = all_ids.find(pci_id, vendor_location);
+
+    if (vendor_location == std::string::npos || device_location == std::string::npos)
         return UNKNOWN;
 
     // Here we use find from vendors_location because as it turns out, lower_bound doesn't return WHERE it is, but where "val" can be placed without affecting the order of the string (binary search stuff)
     // so we have to find from the point onwards to find the actual line, it is still a shortcut, better than searching from 0.
-    return name_from_entry(vendors_location);
+    return vendor_from_entry(vendor_location, vendor_id) + " " + name_from_entry(device_location);
 }
 
 // Function to perform binary search on the pci vendors array to find a vendor.
-std::string binarySearchPCIArray(std::string_view vendor_id_s) {
-    std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
+std::string binarySearchPCIArray(const std::string &vendor_id_s) {
+    std::string vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
 
-    long location_array_index = std::distance(pci_vendors_array.begin(), std::lower_bound(pci_vendors_array.begin(), pci_vendors_array.end(), vendor_id));
-    size_t approx_vendors_location = pci_vendors_location_array[location_array_index];
-    size_t vendors_location = all_ids.find(vendor_id, approx_vendors_location);
+    size_t left = 0, right = pci_vendors_array.size(), mid;
+
+    while (right >= left) {
+        mid = left + (right - left) / 2;
+
+        // If the element is present at the middle
+        // itself
+        if (pci_vendors_array[mid] == vendor_id)
+            break;
+
+        // If element is smaller than mid, then
+        // it can only be present in left subarray
+        if (pci_vendors_array[mid] > vendor_id)
+            right = mid - 1;
+
+        // Else the element can only be present
+        // in right subarray
+        left = mid + 1;
+    }
+
+    size_t approximate_vendors_location = pci_vendors_location_array[mid];
+    size_t vendors_location = all_ids.find(vendor_id, approximate_vendors_location);
 
     if (vendors_location == std::string::npos)
         return UNKNOWN;
@@ -166,7 +206,7 @@ std::string binarySearchPCIArray(std::string_view vendor_id_s) {
 }
 
 // http://stackoverflow.com/questions/478898/ddg#478960
-std::string shell_exec(std::string_view cmd) {
+std::string shell_exec(const std::string &cmd) {
     std::array<char, 128>  buffer;
     std::string            result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
@@ -198,7 +238,7 @@ std::string name_from_entry(size_t dev_entry_pos) {
     return all_ids.substr(bracket_open_pos + 1, bracket_close_pos - bracket_open_pos - 1);
 }
 
-std::string vendor_from_entry(size_t vendor_entry_pos, std::string_view vendor_id) {
+std::string vendor_from_entry(size_t vendor_entry_pos, const std::string &vendor_id) {
     // Step 1: Find the end of the line (newline character) starting from the ID position
     size_t end_line_pos = all_ids.find('\n', vendor_entry_pos);
     if (end_line_pos == std::string::npos)

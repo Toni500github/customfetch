@@ -142,7 +142,7 @@ static std::string getInfoFromName( const systemInfo_t& systemInfo, const std::s
 
 }
 
-static std::string _parse( const std::string& input, systemInfo_t& systemInfo, std::string& pureOutput, Config& config, colors_t& colors, bool parsingLaoyut )
+static std::string _parse( const std::string& input, const systemInfo_t& systemInfo, std::string& pureOutput, const Config& config, colors_t& colors, bool parsingLaoyut )
 {
     std::string output = input;
     pureOutput = output;
@@ -343,15 +343,15 @@ static std::string _parse( const std::string& input, systemInfo_t& systemInfo, s
     return output;
 }
 
-std::string parse(const std::string& input, systemInfo_t& systemInfo, std::string& pureOutput, Config& config, colors_t& colors, bool parsingLaoyut) {
+std::string parse(const std::string& input, const systemInfo_t& systemInfo, std::string& pureOutput, const Config& config, colors_t& colors, bool parsingLaoyut) {
     return _parse(input, systemInfo, pureOutput, config, colors, parsingLaoyut);
 }
-std::string parse(const std::string& input, systemInfo_t& systemInfo, Config& config, colors_t& colors, bool parsingLaoyut) {
+std::string parse(const std::string& input, const systemInfo_t& systemInfo, const Config& config, colors_t& colors, bool parsingLaoyut) {
     std::string _;
     return _parse(input, systemInfo, _, config, colors, parsingLaoyut);
 }
 
-void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
+void addModuleValues(systemInfo_t& sysInfo, const std::string &moduleName) {
     // yikes, here we go.
 
     if (moduleName == "os" || moduleName == "system") {
@@ -423,7 +423,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
     
     if (hasStart(moduleName, "gpu")) {
         u_short id = moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0;
-        Query::GPU query_gpu(pac, id);
+        Query::GPU query_gpu(id);
 
         sysInfo.insert(
             {moduleName.data(), {
@@ -605,7 +605,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     if (hasStart(moduleName, "gpu")) {
         u_short id = moduleName.length() > 3 ? std::stoi(moduleName.substr(3, 4)) : 0;
-        Query::GPU query_gpu(pac, id);
+        Query::GPU query_gpu(id);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert(

@@ -2,14 +2,13 @@
 #include "util.hpp"
 
 #include <filesystem>
-#include <pci/pci.h>
 #include <sstream>
 #include <string>
 #include <sys/types.h>
 
 using namespace Query;
 
-GPU::GPU(smart_pci_access_ptr &pac, u_short id) : m_pPac(pac.get()) {
+GPU::GPU(u_short id) {
     const u_short max_iter = 10;
     u_short id_iter = id;
     std::string sys_path;
@@ -27,25 +26,21 @@ GPU::GPU(smart_pci_access_ptr &pac, u_short id) : m_pPac(pac.get()) {
     }
 
     /* Read the vendor ID, in hex. */
-    std::string vendor_id_string = read_by_syspath(sys_path + "/device/vendor");
+    m_vendor_id_s = read_by_syspath(sys_path + "/device/vendor");
     
     /* Read the device ID, in hex. */
-    std::string device_id_string = read_by_syspath(sys_path + "/device/device");
+    m_device_id_s = read_by_syspath(sys_path + "/device/device");
 
     /* Convert vendor and device IDs */
-    std::istringstream vendor_id_converter(vendor_id_string);
+    std::istringstream vendor_id_converter(m_vendor_id_s);
     vendor_id_converter >> std::hex >> m_vendor_id;
 
-    std::istringstream device_id_converter(device_id_string);
+    std::istringstream device_id_converter(m_device_id_s);
     device_id_converter >> std::hex >> m_device_id;
 }
 
 std::string GPU::name() {
-    char devbuf[256];
-
-    pci_lookup_name(m_pPac, devbuf, sizeof(devbuf), PCI_LOOKUP_DEVICE, m_vendor_id, m_device_id);
-
-    std::string name(devbuf);
+    std::string name = binarySearchPCIArray(m_vendor_id_s, m_device_id_s);
     auto first_bracket = name.find_first_of('[');
     auto last_bracket = name.find_last_of(']');
     
@@ -54,7 +49,7 @@ std::string GPU::name() {
     if (first_bracket != std::string::npos && last_bracket != std::string::npos)
         name = name.substr(first_bracket + 1, last_bracket - first_bracket - 1);
 
-    name = this->vendor() + ' ' + name;
+    //name = this->vendor() + ' ' + name;
 
     replace_str(name, "NVIDIA Corporation", "NVIDIA");
     replace_str(name, "Advanced Micro Devices Inc.", "AMD");
@@ -64,9 +59,5 @@ std::string GPU::name() {
 }
 
 std::string GPU::vendor() {
-    char devbuf[256];
-
-    pci_lookup_name(m_pPac, devbuf, sizeof(devbuf), PCI_LOOKUP_VENDOR, m_vendor_id);
-
-    return devbuf;
+    return binarySearchPCIArray(m_vendor_id_s);
 }
