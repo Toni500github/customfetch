@@ -6,6 +6,7 @@
 #include "fmt/color.h"
 #include "toml++/toml.hpp"
 #include "util.hpp"
+#include "platform.hpp"
 
 struct colors_t
 {

@@ -11,8 +11,9 @@
 #if !(defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
 #define CF_WINDOWS 1
 typedef unsigned short int u_short; // they don't have sys/types.h XDDD
+
 // https://github.com/msys2/MINGW-packages/issues/4999#issuecomment-1530791650
-char *strndup(const char* src, size_t size) {
+inline char *strndup(const char* src, size_t size) {
   size_t len = strnlen(src, size);
   len = len < size ? len : size;
   char *dst = (char*)malloc(len + 1);
@@ -22,6 +23,7 @@ char *strndup(const char* src, size_t size) {
   dst[len] = '\0';
   return dst;
 }
-#endif
+
+#endif // CF_WINDOWS
 
 #endif // PLATFORM_H
