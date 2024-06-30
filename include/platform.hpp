@@ -8,7 +8,7 @@
 # define CF_UNIX 1
 #endif
 
-#if !(defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
+#if (defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
 #define CF_WINDOWS 1
 typedef unsigned short u_short; // they don't have sys/types.h XDDD
 
