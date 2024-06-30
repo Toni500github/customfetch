@@ -139,4 +139,4 @@ jobs:
         run: make clean && make CXX=clang++ DEBUG=1 VENDOR_TEST=1 GUI_SUPPORT=0 #|| mingw-w64-clang-x86_64-make clean && mingw-w64-clang-x86_64-make DEBUG=1 VENDOR_TEST=1 GUI_SUPPORT=0
 
       - name: Test customfetch
-        run: ./build/debug/cufetch -d "windows 11"
+        run: ./build/debug/cufetch --data-dir=assets -d "windows 11"

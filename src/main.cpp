@@ -132,7 +132,7 @@ static bool parseargs(int argc, char* argv[], Config& config) {
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "VhnlgC:d:s:";
+    const char *optstring = "VhnlgC:d:D:s:";
     static const struct option opts[] =
     {
         {"version",         no_argument,       0, 'V'},
@@ -142,6 +142,7 @@ static bool parseargs(int argc, char* argv[], Config& config) {
         {"gui",             no_argument,       0, 'g'},
         {"config",          required_argument, 0, 'C'},
         {"distro",          required_argument, 0, 'd'},
+        {"data-dir",        required_argument, 0, 'D'},
         {"source-path",     required_argument, 0, 's'},
         {0,0,0,0}
     };
@@ -169,6 +170,8 @@ static bool parseargs(int argc, char* argv[], Config& config) {
                 continue;
             case 'd':
                 config.m_custom_distro = str_tolower(strndup(optarg, PATH_MAX)); break;
+            case 'D':
+                config.data_dir = strndup(optarg, PATH_MAX); break;
             case 's':
                 config.source_path = strndup(optarg, PATH_MAX); break;
             default:
