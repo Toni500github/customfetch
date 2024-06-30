@@ -29,13 +29,17 @@ ifeq ($(GUI_SUPPORT), 1)
 	CXXFLAGS += `pkg-config --cflags gtkmm-3.0`
 endif
 
+ifneq ($(OS),Windows_NT)
+	LDFLAGS += -lmagic
+endif
+
 NAME		 = customfetch
 TARGET		 = cufetch
 VERSION    	 = 0.1.0
 BRANCH     	 = main
 SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/unix/*.cpp src/query/windows/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
-LDFLAGS   	+= -lmagic -L./$(BUILDDIR)/fmt -lfmt
+LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -O3 -Wno-ignored-attributes -funroll-all-loops -fvisibility=hidden -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
