@@ -122,7 +122,7 @@ source-path = "os"
 
 # Path to where we'll take all the distros/OSs ascii arts
 # note: it MUST contain an "ascii" subdirectory
-data-dir = "/usr/share/customfetch"
+data-dir = "assets"
     
 # A separetor (string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
