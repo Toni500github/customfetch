@@ -168,9 +168,9 @@ static bool parseargs(int argc, char* argv[], Config& config) {
             case 'C': // we have already did it in parse_config_path()
                 continue;
             case 'd':
-                config.m_custom_distro = str_tolower(optarg); break;
+                config.m_custom_distro = str_tolower(strndup(optarg, PATH_MAX)); break;
             case 's':
-                config.source_path = optarg; break;
+                config.source_path = strndup(optarg, PATH_MAX); break;
             default:
                 return false;
         }
