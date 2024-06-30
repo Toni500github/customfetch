@@ -248,8 +248,6 @@ int main (int argc, char *argv[]) {
     else
         config.m_display_distro = false;
 
-    pci_init(pac.get());
-
 #ifdef GUI_SUPPORT
     if (config.gui) {
         auto app = Gtk::Application::create("org.toni.customfetch");
