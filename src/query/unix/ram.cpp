@@ -1,6 +1,8 @@
 #include "query.hpp"
 #include "util.hpp"
 
+#ifdef CF_UNIX
+
 #include <algorithm>
 #include <array>
 #include <fstream>
@@ -92,3 +94,5 @@ size_t RAM::used_amount()  {
 size_t RAM::total_amount() { 
     return m_memory_infos.at(TOTAL) / 1024; 
 }
+
+#endif

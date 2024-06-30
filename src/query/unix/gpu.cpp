@@ -1,8 +1,9 @@
 #include "query.hpp"
 #include "util.hpp"
 
+#ifdef CF_UNIX
+
 #include <filesystem>
-#include <sstream>
 #include <string>
 #include <sys/types.h>
 
@@ -83,3 +84,5 @@ std::string GPU::name() {
 std::string GPU::vendor() {
     return m_gpu_infos.at(VENDOR);
 }
+
+#endif

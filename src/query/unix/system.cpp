@@ -1,6 +1,8 @@
 #include "query.hpp"
 #include "util.hpp"
 
+#ifdef CF_UNIX
+
 #include <array>
 #include <cerrno>
 #include <algorithm>
@@ -126,3 +128,5 @@ std::string System::host_vendor() {
 std::string System::host_version() {
     return read_by_syspath("/sys/devices/virtual/dmi/id/board_version");
 }
+
+#endif

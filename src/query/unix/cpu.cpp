@@ -2,6 +2,8 @@
 #include "query.hpp"
 #include "util.hpp"
 
+#ifdef CF_UNIX
+
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -127,3 +129,5 @@ float CPU::freq_max() {
 float CPU::freq_min() {
     return m_cpu_infos_t.at(FREQ_MIN);
 }
+
+#endif

@@ -1,6 +1,8 @@
-#include <cstdio>
 #include "query.hpp"
 #include "util.hpp"
+
+#ifdef CF_UNIX
+#include <cstdio>
 
 using namespace Query;
 
@@ -53,3 +55,5 @@ float Disk::free_amount() {
 std::string Disk::typefs() {
     return m_typefs;
 }
+
+#endif

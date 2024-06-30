@@ -2,6 +2,8 @@
 #include "util.hpp"
 #include "switch_fnv1a.hpp"
 
+#ifdef CF_UNIX
+
 using namespace Query;
 
 User::User() {
@@ -52,3 +54,5 @@ std::string User::shell_version() {
     strip(ret);
     return ret;
 }
+
+#endif
