@@ -1,4 +1,4 @@
-name: Makefile CI (Test customfetch NOGUI)
+name: Makefile CI (Test customfetch)
 
 on:
   push:
@@ -114,3 +114,29 @@ jobs:
        
     - name: Test customfetch
       run: ./build/debug/cufetch
+
+
+  build_Windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: setup-msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: true
+          install: git make mingw-w64-clang-x86_64-7zip mingw-w64-clang-x86_64-make mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-opencl-icd mingw-w64-clang-x86_64-opencl-headers mingw-w64-clang-x86_64-cppwinrt
+
+      - name: print msys version
+        run: uname -a
+
+      - name: Build
+        run: make clean && make CXX=clang++ DEBUG=1 VENDOR_TEST=1 GUI_SUPPORT=0 #|| mingw-w64-clang-x86_64-make clean && mingw-w64-clang-x86_64-make DEBUG=1 VENDOR_TEST=1 GUI_SUPPORT=0
+
+      - name: Test customfetch
+        run: ./build/debug/cufetch

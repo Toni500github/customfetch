@@ -1,7 +1,6 @@
 #ifdef GUI_SUPPORT
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <magic.h>
 #include "gui.hpp"
 #include "config.hpp"
 #include "display.hpp"
@@ -10,6 +9,10 @@
 #include "parse.hpp"
 #include "fmt/ranges.h"
 #include "stb_image.h"
+
+#ifdef CF_UNIX
+# include <magic.h>
+#endif
 
 #include "pangomm/fontdescription.h"
 #include "gdkmm/pixbufanimation.h"

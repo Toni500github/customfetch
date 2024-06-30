@@ -5,7 +5,6 @@
 #include "config.hpp"
 
 #include <string>
-#include <magic.h>
 #include <vector>
 
 namespace Display {

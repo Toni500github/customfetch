@@ -12,6 +12,8 @@
 #include <string>
 #include <memory>
 
+#ifdef CF_UNIX
+
 extern "C" {
 #include <pwd.h>
 #include <sys/stat.h>
@@ -21,6 +23,8 @@ extern "C" {
 #include <sys/utsname.h>
 #include <unistd.h>
 }
+
+#endif
 
 using systemInfo_t = std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
 using variant = std::variant<std::string, size_t, float>;

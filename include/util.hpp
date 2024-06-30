@@ -3,12 +3,12 @@
 
 #include "fmt/color.h"
 #include "fmt/core.h"
+#include "platform.hpp"
 
 #include <filesystem>
 #include <vector>
 #include <fstream>
 #include <string>
-#include <sys/types.h>
 
 #define BOLD_TEXT(x)   (fmt::emphasis::bold | fmt::fg(x))
 #define NOCOLOR        "\033[0m"

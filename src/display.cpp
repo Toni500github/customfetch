@@ -4,12 +4,14 @@
 #include "util.hpp"
 #include "parse.hpp"
 #include "query.hpp"
+#include "fmt/core.h"
+#include "fmt/ranges.h"
 
 #include <algorithm>
 #include <fstream>
-#include <fmt/core.h>
-#include <fmt/ranges.h>
-#include <magic.h>
+#ifdef CF_UNIX
+# include <magic.h>
+#endif
 #include <iostream>
 
 std::string Display::detect_distro(Config& config) {
@@ -34,6 +36,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     // first check if the file is an image
     // using the same library that "file" uses
     // No extra bloatware nice
+    #ifdef CF_UNIX
     if (!config.m_display_distro && !config.m_disable_source && config.m_custom_distro.empty()) {
         magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
         magic_load(myt, NULL);
@@ -42,6 +45,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
             die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
         magic_close(myt);
     }
+    #endif
 
     for (std::string& include : config.includes) {
         std::vector<std::string> include_nodes = split(include, '.');
