@@ -1,7 +1,7 @@
 CXX       	?= g++
 PREFIX	  	?= /usr
 VARS  	  	?=
-GUI_SUPPORT     ?= 1
+GUI_SUPPORT     ?= 0
 
 DEBUG 		?= 1
 PARSER_TEST 	?= 0
@@ -25,7 +25,7 @@ endif
 
 ifeq ($(GUI_SUPPORT), 1)
         VARS 	 += -DGUI_SUPPORT=1
-	LDFLAGS	 += `pkg-config --libs gtkmm-3.0` -lmagic
+	LDFLAGS	 += `pkg-config --libs gtkmm-3.0`
 	CXXFLAGS += `pkg-config --cflags gtkmm-3.0`
 endif
 
@@ -35,7 +35,7 @@ VERSION    	 = 0.1.0
 BRANCH     	 = main
 SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
-LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
+LDFLAGS   	+= -lmagic -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -O3 -Wno-ignored-attributes -funroll-all-loops -fvisibility=hidden -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
