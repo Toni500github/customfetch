@@ -115,7 +115,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
 
     if (i < asciiArt.size())
         config.layouts.insert(config.layouts.end(), asciiArt.begin() + i, asciiArt.end());
-
+    
     return config.layouts;
 }
 

@@ -11,12 +11,11 @@ Currently supports Linux distros only, but our current goal is to be cross-platf
 
 ## Key Features
 
-* **GUI support (for GTK3 (GTK4 soon))**
+* **GUI support (GTK3)**
 * Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Lightweight
 >[!NOTE]
 >enabling GUI support may slow down customfetch a bit because of linking the GUI libraries at runtime\
->consider using the non-GUI version if you only want to use customfetch on the terminal.\
 >To check if it's enable or not, run "cufetch --version"
 
 ## Depends

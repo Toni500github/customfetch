@@ -15,7 +15,7 @@ Disk::Disk(const std::string_view path) {
         
         FILE *mountsFile = setmntent("/proc/mounts", "r");
         if (mountsFile == NULL)
-            error("setmntent() failed. Could not get disk info");
+            die("setmntent() failed. Could not get disk info");
         
         struct mntent *pDevice;
         while((pDevice = getmntent(mountsFile)))
@@ -27,7 +27,10 @@ Disk::Disk(const std::string_view path) {
             m_typefs = pDevice->mnt_type;
             break;
         }
-
+        
+        if (mountsFile)
+            fclose(mountsFile);
+        
         m_bInit = true;
     }
 }

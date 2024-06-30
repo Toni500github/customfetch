@@ -8,38 +8,12 @@
 
 using namespace Query;
 
-GPU::GPU(u_short id) {
-    const u_short max_iter = 10;
-    u_short id_iter = id;
-    std::string sys_path;
-    while(id_iter <= max_iter) {
-        sys_path = "/sys/class/drm/card" + fmt::to_string(id_iter);
-        if (std::filesystem::exists(sys_path))
-            break;
-        else
-            id_iter++;
-    }
+enum {
+    NAME = 0,
+    VENDOR
+};
 
-    if (id_iter >= max_iter) {
-        error("Failed to parse GPU infos on the path /sys/class/drm/");
-        return;
-    }
-
-    /* Read the vendor ID, in hex. */
-    m_vendor_id_s = read_by_syspath(sys_path + "/device/vendor");
-    
-    /* Read the device ID, in hex. */
-    m_device_id_s = read_by_syspath(sys_path + "/device/device");
-
-    /* Convert vendor and device IDs */
-    std::istringstream vendor_id_converter(m_vendor_id_s);
-    vendor_id_converter >> std::hex >> m_vendor_id;
-
-    std::istringstream device_id_converter(m_device_id_s);
-    device_id_converter >> std::hex >> m_device_id;
-}
-
-std::string GPU::name() {
+static std::string _get_name(const std::string& m_vendor_id_s, const std::string& m_device_id_s, std::string vendor_str) {
     std::string name = binarySearchPCIArray(m_vendor_id_s, m_device_id_s);
     auto first_bracket = name.find_first_of('[');
     auto last_bracket = name.find_last_of(']');
@@ -58,6 +32,52 @@ std::string GPU::name() {
     return name;
 }
 
-std::string GPU::vendor() {
+static std::string _get_vendor(const std::string& m_vendor_id_s) {
     return binarySearchPCIArray(m_vendor_id_s);
+}
+
+static std::array<std::string, 2> get_gpu_infos(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s) {
+    debug("calling GPU {}", __func__);
+    std::array<std::string, 2> ret;
+
+    ret[VENDOR] = _get_vendor(m_vendor_id_s.data());
+    ret[NAME] = _get_name(m_vendor_id_s.data(), m_device_id_s.data(), ret[VENDOR]);
+
+    return ret;
+}
+
+GPU::GPU(u_short id) {
+    debug("Constructing {}", __func__);
+    if (!m_bInit) {
+        const u_short max_iter = 10;
+        u_short id_iter = id;
+        std::string sys_path;
+        while(id_iter <= max_iter) {
+            sys_path = "/sys/class/drm/card" + fmt::to_string(id_iter);
+            if (std::filesystem::exists(sys_path))
+                break;
+            else
+                id_iter++;
+        }
+
+        if (id_iter >= max_iter) {
+            error("Failed to parse GPU infos on the path /sys/class/drm/");
+            return;
+        }
+
+        m_vendor_id_s = read_by_syspath(sys_path + "/device/vendor");
+        m_device_id_s = read_by_syspath(sys_path + "/device/device");
+
+        m_gpu_infos = get_gpu_infos(m_vendor_id_s, m_device_id_s);
+
+        m_bInit = true;
+    }
+}
+
+std::string GPU::name() {
+    return m_gpu_infos.at(NAME);
+}
+
+std::string GPU::vendor() {
+    return m_gpu_infos.at(VENDOR);
 }
