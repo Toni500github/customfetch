@@ -53,8 +53,10 @@ public:
 private:
     static std::array<std::string, 5> m_os_release_vars;
     static bool m_bInit;
+#ifdef CF_UNIX
     static struct utsname m_uname_infos;
     static struct sysinfo m_sysInfos;
+#endif
 };
 
 class User {
@@ -67,7 +69,9 @@ public:
 
 private:
     static bool m_bInit;
+#ifdef CF_UNIX
     static struct passwd *m_pPwd;
+#endif
 };
 
 class CPU {
@@ -114,7 +118,9 @@ public:
 
 private:
     static bool m_bInit;
+#ifdef CF_UNIX
     static struct statvfs m_statvfs;
+#endif
     static std::string m_typefs;
 };
 
