@@ -1,7 +1,7 @@
 CXX       	?= g++
 PREFIX	  	?= /usr
 VARS  	  	?=
-GUI_SUPPORT     ?= 1
+GUI_SUPPORT     ?= 0
 
 DEBUG 		?= 1
 PARSER_TEST 	?= 0

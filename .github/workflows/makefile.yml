@@ -1,4 +1,4 @@
-name: Makefile CI (Test customfetch)
+name: Makefile CI (Test customfetch NOGUI)
 
 on:
   push:
