@@ -10,15 +10,18 @@
 
 using namespace Query;
 std::array<std::string, 5> Query::System::m_os_release_vars;
-struct utsname Query::System::m_uname_infos;
-struct sysinfo Query::System::m_sysInfos;
-struct passwd* Query::User::m_pPwd;
 std::array<std::string, 3> Query::CPU::m_cpu_infos_str;
 std::array<float, 4> Query::CPU::m_cpu_infos_t;
-struct statvfs Query::Disk::m_statvfs;
 std::string Query::Disk::m_typefs;
 std::array<size_t, 3> Query::RAM::m_memory_infos;
 std::array<std::string, 2> Query::GPU::m_gpu_infos;
+
+#ifdef CF_UNIX
+struct utsname Query::System::m_uname_infos;
+struct sysinfo Query::System::m_sysInfos;
+struct passwd* Query::User::m_pPwd;
+struct statvfs Query::Disk::m_statvfs;
+#endif
 
 bool Query::System::m_bInit = false;
 bool Query::RAM::m_bInit = false;
