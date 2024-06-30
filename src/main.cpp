@@ -1,6 +1,5 @@
 #include "display.hpp"
 #include "util.hpp"
-#include "query.hpp"
 #include "parse.hpp"
 #include "config.hpp"
 #include "gui.hpp"
@@ -169,9 +168,9 @@ static bool parseargs(int argc, char* argv[], Config& config) {
             case 'C': // we have already did it in parse_config_path()
                 continue;
             case 'd':
-                config.m_custom_distro = str_tolower(strndup(optarg, PATH_MAX)); break;
+                config.m_custom_distro = str_tolower(optarg); break;
             case 's':
-                config.source_path = strndup(optarg, PATH_MAX); break;
+                config.source_path = optarg; break;
             default:
                 return false;
         }
