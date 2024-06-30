@@ -351,7 +351,7 @@ std::string parse(const std::string& input, const systemInfo_t& systemInfo, cons
     return _parse(input, systemInfo, _, config, colors, parsingLaoyut);
 }
 
-void addModuleValues(systemInfo_t& sysInfo, const std::string &moduleName) {
+void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
     // yikes, here we go.
 
     if (moduleName == "os" || moduleName == "system") {

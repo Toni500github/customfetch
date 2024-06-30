@@ -9,19 +9,19 @@
 #include <vector>
 
 // https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
-bool hasEnding(const std::string &fullString, const std::string &ending) {
+bool hasEnding(const std::string_view fullString, const std::string_view ending) {
     if (ending.length() > fullString.length())
         return false;
     return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
 }
 
-bool hasStart(const std::string &fullString, const std::string &start) {
+bool hasStart(const std::string_view fullString, const std::string_view start) {
     if (start.length() > fullString.length())
         return false;
     return (fullString.substr(0, start.size()) == start);
 }
 
-std::vector<std::string> split(const std::string &text, char delim) {
+std::vector<std::string> split(const std::string_view text, char delim) {
     std::string              line;
     std::vector<std::string> vec;
     std::stringstream        ss(text.data());
@@ -55,7 +55,7 @@ std::string expandVar(std::string& str) {
     return str;
 }
 
-std::string read_by_syspath(const std::string &path) {
+std::string read_by_syspath(const std::string_view path) {
     std::ifstream f_drm(path.data());
     if (!f_drm.is_open()) {
         error("Failed to open {}", path);
@@ -93,11 +93,11 @@ void strip(std::string& input) {
     input.erase(0, input.find_first_not_of(ws));
 }
 
-fmt::rgb hexStringToColor(std::string_view hexstr) {
-    hexstr = hexstr.substr(1);
+fmt::rgb hexStringToColor(const std::string_view hexstr) {
+    std::string _hexstr = hexstr.substr(1).data();
     // convert the hexadecimal string to individual components
     std::stringstream ss;
-    ss << std::hex << hexstr;
+    ss << std::hex << _hexstr;
 
     int intValue;
     ss >> intValue;
@@ -118,24 +118,26 @@ void replace_str(std::string& str, const std::string& from, const std::string& t
     }
 }
 
-std::string str_tolower(std::string str) {
-    for (auto& x : str) { 
+std::string str_tolower(const std::string_view str) {
+    std::string ret = str.data();
+    for (auto& x : ret)
         x = std::tolower(x); 
-    }
-    return str; 
+    
+    return ret;
 }
 
-std::string str_toupper(std::string str) {
-    for (auto& x : str) { 
+std::string str_toupper(const std::string_view str) {
+    std::string ret = str.data();
+    for (auto& x : ret)
         x = std::toupper(x); 
-    }
-    return str; 
+    
+    return ret;
 }
 
 // Function to perform binary search on the pci vendors array to find a device from a vendor.
-std::string binarySearchPCIArray(const std::string &vendor_id_s, const std::string &pci_id_s) {
-    std::string vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
-    std::string pci_id    = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2) : pci_id_s;
+std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::string_view pci_id_s) {
+    std::string vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2).data() : vendor_id_s.data();
+    std::string pci_id    = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2).data() : pci_id_s.data();
 
     size_t left = 0, right = pci_vendors_array.size(), mid;
 
@@ -171,8 +173,8 @@ std::string binarySearchPCIArray(const std::string &vendor_id_s, const std::stri
 }
 
 // Function to perform binary search on the pci vendors array to find a vendor.
-std::string binarySearchPCIArray(const std::string &vendor_id_s) {
-    std::string vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
+std::string binarySearchPCIArray(const std::string_view vendor_id_s) {
+    std::string vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2).data() : vendor_id_s.data();
 
     size_t left = 0, right = pci_vendors_array.size(), mid;
 
@@ -206,7 +208,7 @@ std::string binarySearchPCIArray(const std::string &vendor_id_s) {
 }
 
 // http://stackoverflow.com/questions/478898/ddg#478960
-std::string shell_exec(const std::string &cmd) {
+std::string shell_exec(const std::string_view cmd) {
     std::array<char, 128>  buffer;
     std::string            result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
@@ -238,7 +240,7 @@ std::string name_from_entry(size_t dev_entry_pos) {
     return all_ids.substr(bracket_open_pos + 1, bracket_close_pos - bracket_open_pos - 1);
 }
 
-std::string vendor_from_entry(size_t vendor_entry_pos, const std::string &vendor_id) {
+std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view vendor_id) {
     // Step 1: Find the end of the line (newline character) starting from the ID position
     size_t end_line_pos = all_ids.find('\n', vendor_entry_pos);
     if (end_line_pos == std::string::npos)

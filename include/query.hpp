@@ -91,9 +91,11 @@ public:
 private:
     uint16_t    m_vendor_id;
     uint16_t    m_device_id;
-
     std::string m_vendor_id_s;
     std::string m_device_id_s;
+
+    static std::array<std::string, 2> m_gpu_infos;
+    static bool m_bInit;
 };
 
 class Disk {
