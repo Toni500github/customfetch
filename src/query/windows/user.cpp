@@ -1,7 +1,7 @@
 #include "query.hpp"
 #include "util.hpp"
 
-#ifndef CF_WINDOWS
+#ifdef CF_WINDOWS
 
 using namespace Query;
 
