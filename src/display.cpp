@@ -18,30 +18,40 @@ std::string Display::detect_distro(Config& config) {
     debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
     if (!config.m_custom_distro.empty()) 
     {
-        file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, config.m_custom_distro);
+        file_path = fmt::format("{:s}/ascii/{:s}.txt", config.data_dir, config.m_custom_distro);
     } 
     else 
     {
         Query::System system;
-        file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
+        file_path = fmt::format("{:s}/ascii/{:s}.txt", config.data_dir, str_tolower(system.os_id()));
     }
     return file_path;
 }
 
 std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     systemInfo_t systemInfo{};
+    std::string path = config.m_display_distro ? detect_distro(config) : config.source_path;
 
     // first check if the file is an image
     // using the same library that "file" uses
     // No extra bloatware nice
-    if (!config.m_display_distro && !config.m_disable_source && config.m_custom_distro.empty()) {
+    if (!config.m_display_distro && 
+        !config.m_disable_source && 
+        !config.source_path.empty()) 
+    {
+        path = config.source_path;
+        if (!config.m_custom_distro.empty())
+            die("You need to specify if either using a custom distro ascii art OR a custom source path");
+
         magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
         magic_load(myt, NULL);
-        std::string file_type = magic_file(myt, config.source_path.c_str());
+        std::string file_type = magic_file(myt, path.c_str());
         if ((file_type.find("text") == std::string::npos) && !config.m_disable_source)
             die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
         magic_close(myt);
     }
+
+    debug("path = {:s}", path);
 
     for (std::string& include : config.includes) {
         std::vector<std::string> include_nodes = split(include, '.');
@@ -64,7 +74,6 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         layout = parse(layout, systemInfo, config, colors, true);
     }
     
-    std::string path = config.m_display_distro ? detect_distro(config) : config.source_path;
     std::ifstream file(path, std::ios_base::binary);
     if (!file.is_open())
         if (!config.m_disable_source)
@@ -86,7 +95,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         asciiArt.push_back(asciiArt_s);
 
         if (static_cast<int>(pureOutput.length()) > maxLineLength)
-            maxLineLength = pureOutput.length();
+            maxLineLength = static_cast<int>(pureOutput.length());
 
         pureAsciiArt.push_back(pureOutput);
     }

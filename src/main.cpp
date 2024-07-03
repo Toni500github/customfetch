@@ -1,6 +1,5 @@
 #include "display.hpp"
 #include "util.hpp"
-#include "query.hpp"
 #include "parse.hpp"
 #include "config.hpp"
 #include "gui.hpp"
@@ -27,7 +26,8 @@ A command-line system information tool (or neofetch like program), which its foc
     -n, --no-display		Do not display the ascii art
     -s, --source-path <path>	Path to the ascii art file to display
     -C, --config <path>		Path to the config file to use
-    -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase)
+    -D, --data-dir <path>       Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
+    -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11")
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it's enabled)
     -l. --list-components	Print the list of the components and its members
     -h, --help			Print this help menu
@@ -103,7 +103,7 @@ static bool parse_config_path(int argc, char* argv[], std::string& configFile) {
     int opt = 0;
     int option_index = 0;
     opterr = 0;
-    const char *optstring = "C:";
+    const char *optstring = "-C:";
     static const struct option opts[] =
     {
         {"config", required_argument, 0, 'C'},
@@ -111,10 +111,12 @@ static bool parse_config_path(int argc, char* argv[], std::string& configFile) {
     };
     
     while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1) {
-        if (opt == 0 || opt == '?')
-            continue;
-
         switch (opt) {
+            // skip errors or anything else
+            case 0:
+            case '?':
+                break;
+
             case 'C':
                 configFile = strndup(optarg, PATH_MAX); 
                 if (!std::filesystem::exists(configFile))
@@ -133,7 +135,7 @@ static bool parseargs(int argc, char* argv[], Config& config) {
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "VhnlgC:d:s:";
+    const char *optstring = "-VhnlgC:d:D:s:";
     static const struct option opts[] =
     {
         {"version",         no_argument,       0, 'V'},
@@ -142,6 +144,7 @@ static bool parseargs(int argc, char* argv[], Config& config) {
         {"list-components", no_argument,       0, 'l'},
         {"gui",             no_argument,       0, 'g'},
         {"config",          required_argument, 0, 'C'},
+        {"data-dir",        required_argument, 0, 'D'},
         {"distro",          required_argument, 0, 'd'},
         {"source-path",     required_argument, 0, 's'},
         {0,0,0,0}
@@ -150,12 +153,12 @@ static bool parseargs(int argc, char* argv[], Config& config) {
     /* parse operation */
     optind = 0;
     while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1) {
-        if (opt == 0)
-            continue;
-        else if (opt == '?')
-            help(1);
-
         switch (opt) {
+            case 0:
+                break;
+            case '?':
+                help(1); break;
+
             case 'V':
                 version(); break;
             case 'h':
@@ -167,11 +170,14 @@ static bool parseargs(int argc, char* argv[], Config& config) {
             case 'g':
                 config.gui = true; break;
             case 'C': // we have already did it in parse_config_path()
-                continue;
+                break;
+            case 'D':
+                config.data_dir = optarg; break;
             case 'd':
-                config.m_custom_distro = str_tolower(strndup(optarg, PATH_MAX)); break;
+                config.m_custom_distro = str_tolower(optarg); break;
             case 's':
-                config.source_path = strndup(optarg, PATH_MAX); break;
+                config.source_path = optarg; break;
+            
             default:
                 return false;
         }

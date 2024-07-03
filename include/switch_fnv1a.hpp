@@ -80,7 +80,7 @@ struct fnv1a
         // See <https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function>
         std::size_t j = 0;
         for (; j < l; j++) {
-            const uint8_t byte = s[j];
+            const uint8_t byte = static_cast<uint8_t>(s[j]);
             if constexpr (stop != 0) {
                 if (byte == stop) {
                     if constexpr (!std::is_same<L, decltype(nullptr)>::value) {
