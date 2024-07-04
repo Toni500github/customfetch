@@ -21,4 +21,12 @@ size_t RAM::used_amount() {
     return total_amount() - free_amount();
 }
 
+size_t RAM::swap_free_amount() {
+    return 512;
+}
+
+size_t RAM::swap_total_amount() {
+    return 512;
+}
+
 #endif
