@@ -3,6 +3,7 @@
 #include "pci.ids.hpp"
 
 #include <cerrno>
+#include <cstdint>
 #include <string>
 #include <sstream>
 #include <string_view>
@@ -41,13 +42,14 @@ std::string expandVar(const std::string_view str) {
     if (ret[0] == '~') {
 #ifdef CF_WINDOWS
 	env = getenv("USERPROFILE");
+        if (env == nullptr)
+            die("FATAL: %USERPROFILE% enviroment variable is not set (how?)");
 #else
-        env = getenv("HOME");
-#endif
+        env = std::getenv("HOME");
         if (env == nullptr)
             die("FATAL: $HOME enviroment variable is not set (how?)");
-
-        ret.replace(0, 1, env); // replace ~ with the $HOME value
+#endif
+        ret.replace(0, 1, env);
     } else if (str[0] == '$') {
         ret.erase(0, 1);
         
@@ -114,12 +116,12 @@ fmt::rgb hexStringToColor(const std::string_view hexstr) {
     std::stringstream ss;
     ss << std::hex << _hexstr;
 
-    uint intValue;
+    std::uint_fast32_t intValue;
     ss >> intValue;
 
-    uint red   = (intValue >> 16) & 0xFF;
-    uint green = (intValue >> 8) & 0xFF;
-    uint blue  = intValue & 0xFF;
+    std::uint_fast32_t red   = (intValue >> 16) & 0xFF;
+    std::uint_fast32_t green = (intValue >> 8) & 0xFF;
+    std::uint_fast32_t blue  = intValue & 0xFF;
 
     return fmt::rgb(red, green, blue);
 }

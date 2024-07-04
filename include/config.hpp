@@ -1,6 +1,7 @@
 #ifndef _CONFIG_HPP
 #define _CONFIG_HPP
 
+#include <cstdint>
 #define TOML_HEADER_ONLY 0
 
 #include "fmt/color.h"
@@ -39,7 +40,7 @@ public:
     std::string              font;
     std::string              data_dir;
     std::string              sep_reset;
-    u_short                  offset = 0;
+    std::uint_fast16_t       offset = 0;
     bool                     gui    = false;
     std::vector<std::string> layouts;
     std::vector<std::string> includes;
