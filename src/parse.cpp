@@ -429,7 +429,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
     }
     
     if (hasStart(moduleName, "gpu")) {
-        u_short id = moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0;
+        u_short id = static_cast<u_short>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
         Query::GPU query_gpu(id);
 
         sysInfo.insert(
@@ -611,7 +611,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
     }
 
     if (hasStart(moduleName, "gpu")) {
-        u_short id = moduleName.length() > 3 ? std::stoi(moduleName.substr(3, 4)) : 0;
+        u_short id = static_cast<u_short>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
         Query::GPU query_gpu(id);
 
         if (sysInfo.find(moduleName) == sysInfo.end())

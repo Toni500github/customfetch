@@ -114,12 +114,12 @@ fmt::rgb hexStringToColor(const std::string_view hexstr) {
     std::stringstream ss;
     ss << std::hex << _hexstr;
 
-    int intValue;
+    uint intValue;
     ss >> intValue;
 
-    int red   = (intValue >> 16) & 0xFF;
-    int green = (intValue >> 8) & 0xFF;
-    int blue  = intValue & 0xFF;
+    uint red   = (intValue >> 16) & 0xFF;
+    uint green = (intValue >> 8) & 0xFF;
+    uint blue  = intValue & 0xFF;
 
     return fmt::rgb(red, green, blue);
 }
@@ -135,7 +135,7 @@ void replace_str(std::string& str, const std::string& from, const std::string& t
 
 std::string str_tolower(const std::string_view str) {
     std::string ret = str.data();
-    for (auto& x : ret)
+    for (char& x : ret)
         x = std::tolower(x); 
     
     return ret;
@@ -143,7 +143,7 @@ std::string str_tolower(const std::string_view str) {
 
 std::string str_toupper(const std::string_view str) {
     std::string ret = str.data();
-    for (auto& x : ret)
+    for (char& x : ret)
         x = std::toupper(x); 
     
     return ret;
