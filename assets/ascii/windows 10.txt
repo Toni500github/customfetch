@@ -1,19 +1,19 @@
-${c1}                                ..,
-                    ....,,:;+ccllll
-      ...,,+:;  cllllllllllllllllll
-,cclllllllllll  lllllllllllllllllll
-llllllllllllll  lllllllllllllllllll
-llllllllllllll  lllllllllllllllllll
-llllllllllllll  lllllllllllllllllll
-llllllllllllll  lllllllllllllllllll
-llllllllllllll  lllllllllllllllllll
-
-llllllllllllll  lllllllllllllllllll
-llllllllllllll  lllllllllllllllllll
-llllllllllllll  lllllllllllllllllll
-llllllllllllll  lllllllllllllllllll
-llllllllllllll  lllllllllllllllllll
-`'ccllllllllll  lllllllllllllllllll
-       `' \\*::  :ccllllllllllllllll
-                       ````''*::cll
-                                 ``
+${blue}                                ..,
+${blue}                    ....,,:;+ccllll
+${blue}      ...,,+:;  cllllllllllllllllll
+${blue},cclllllllllll  lllllllllllllllllll
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}llllllllllllll  lllllllllllllllllll
+${blue}`'ccllllllllll  lllllllllllllllllll
+${blue}       `' \\*::  :ccllllllllllllllll
+${blue}                       ````''*::cll
+${blue}                                 ``

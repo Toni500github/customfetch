@@ -84,6 +84,11 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     
     while (std::getline(file, line)) {
         std::string pureOutput;
+#ifdef CF_WINDOWS
+        if (hasEnding(line, "\r")) {
+            line.pop_back();
+        }
+#endif
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 

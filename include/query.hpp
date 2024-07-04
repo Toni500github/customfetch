@@ -12,7 +12,11 @@
 #include <string>
 #include <memory>
 
-#ifdef CF_UNIX
+#ifdef CF_WINDOWS
+
+#include <windows.h>
+
+#else
 
 extern "C" {
 #include <pwd.h>

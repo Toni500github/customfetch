@@ -5,7 +5,7 @@
 #include <cstdlib>
 
 #if (defined(unix) || defined(__unix) || defined(__unix__))
-# define CF_UNIX 1
+#define CF_UNIX 1
 #endif
 
 #if (defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))

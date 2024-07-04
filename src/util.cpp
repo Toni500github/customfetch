@@ -39,7 +39,11 @@ std::string expandVar(const std::string_view str) {
     std::string ret = str.data();
     const char *env;
     if (ret[0] == '~') {
+#ifdef CF_WINDOWS
+	env = getenv("USERPROFILE");
+#else
         env = getenv("HOME");
+#endif
         if (env == nullptr)
             die("FATAL: $HOME enviroment variable is not set (how?)");
 
@@ -283,7 +287,11 @@ std::string getHomeConfigDir() {
         std::string str_dir(dir);
         return hasEnding(str_dir, "/") ? str_dir.substr(0, str_dir.rfind('/')) : str_dir;
     } else {
+#ifdef CF_WINDOWS
+	char *home = getenv("USERPROFILE");
+#else
         char *home = getenv("HOME");
+#endif
         if (home == nullptr)
             die("Failed to find $HOME, set it to your home directory!");
 
