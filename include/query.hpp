@@ -134,9 +134,11 @@ public:
     size_t total_amount();
     size_t free_amount();
     size_t used_amount();
+    size_t swap_free_amount();
+    size_t swap_total_amount();
 private:
     static bool m_bInit;
-    static std::array<size_t, 3> m_memory_infos;
+    static std::array<size_t, 6> m_memory_infos;
 };
 
 };

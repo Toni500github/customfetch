@@ -48,11 +48,13 @@ Should be used in the config as like as $<component.member>
 
 os
   name		: OS name (pretty_name) [Ubuntu 22.04.4 LTS, Arch Linux]
+  kernel	: kernel name and version [Linux 6.9.3-zen1-1-zen]
   kernel_name	: kernel name [Linux]
   kernel_version: kernel version [6.9.3-zen1-1-zen]
   version_id	: OS version id [22.04.4, 20240101.0.204074]
   version_codename: OS version codename [jammy]
   username	: the user name you are currently logged in (not real name) [toni69]
+  uptime	: (auto) uptime of the system [36 mins, 3 hours, 23 mins]
   uptime_secs	: uptime of the system in seconds (should be used along with uptime_mins and/or uptime_hours) [45]
   uptime_mins   : uptime of the system in minutes (should be used along with uptime_secs and/or uptime_hours) [12]
   uptime_hours  : uptime of the system in hours   (should be used along with uptime_mins and/or uptime_secs)  [34]
@@ -60,16 +62,21 @@ os
 
 user
   name		: name you are currently logged in (not real name) [toni69]
+  shell		: login shell name and version [zsh 5.9]
   shell_name	: login shell [zsh]
   shell_path	: login shell (with path) [/bin/zsh]
   shell_version : login shell version (may be not correct) [5.9]
 
 ram
+  ram		: used and total amount of RAM (in MB) [2815 MB / 15881 MB]
   used		: used amount of RAM (in MB) [2815]
   free		: available amount of RAM (in MB) [10456]
   total		: total amount of RAM (in MB) [15881]
+  swap_free	: swapfile available amount of RAM (in MB) [34]
+  swap_total	: swapfile total amount of RAM (in MB) [512]
 
 disk(/path/to/fs)
+  disk		: used and total amount of disk space (in GB) with type of filesystem [360.02 GB / 438.08 GB - ext4]
   used          : used amount of disk space (in GB) [360.02]
   free          : available amount of disk space (in GB) [438.08]
   total         : total amount of disk space (in GB) [100.08]
@@ -80,6 +87,7 @@ gpu
   vendor	: GPU vendor [NVIDIA Corporation]
 
 cpu
+  cpu		: CPU model name with number of virtual proccessors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]
   name		: CPU model name [AMD Ryzen 5 5500]
   nproc         : CPU number of virtual proccessors [12]
   freq_bios_limit: CPU freq (limited by bios, in GHz) [4.32]
@@ -88,6 +96,7 @@ cpu
   freq_max	: CPU freq (maxinum, in GHz) [4.90]
 
 system
+  host		: Host (aka. Motherboard) model name and vendor [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95)]
   host_name	: Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
   host_version	: Host (aka. Motherboard) model version [1.0]
   host_vendor	: Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]

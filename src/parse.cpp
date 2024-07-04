@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <array>
+#include <chrono>
 #include <string>
 
 #include "parse.hpp"
@@ -13,7 +14,7 @@ std::array<std::string, 5> Query::System::m_os_release_vars;
 std::array<std::string, 3> Query::CPU::m_cpu_infos_str;
 std::array<float, 4> Query::CPU::m_cpu_infos_t;
 std::string Query::Disk::m_typefs;
-std::array<size_t, 3> Query::RAM::m_memory_infos;
+std::array<size_t, 6> Query::RAM::m_memory_infos;
 std::array<std::string, 2> Query::GPU::m_gpu_infos;
 
 #ifdef CF_UNIX
@@ -348,6 +349,22 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
     return output;
 }
 
+static std::string get_auto_uptime(size_t mins, size_t hours) {
+    std::string ret;
+    size_t local_mins = mins%60;
+    
+    // shut up pls
+    if (hours != 0 && local_mins != 0)
+        ret += fmt::format("{} hours, ", hours);
+    else if (local_mins == 0)
+        ret += fmt::format("{} hours", hours);
+
+    if (local_mins != 0)
+        ret += fmt::format("{} mins", local_mins);
+
+    return ret;
+}
+
 std::string parse(const std::string& input, const systemInfo_t& systemInfo, std::string& pureOutput, const Config& config, colors_t& colors, bool parsingLaoyut) {
     return _parse(input, systemInfo, pureOutput, config, colors, parsingLaoyut);
 }
@@ -370,9 +387,11 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
         if (moduleName == "system") {
             sysInfo.insert(
                 {"system", {
+                    {"host",         variant(fmt::format("{} {}", query_system.host_vendor(), query_system.host_modelname()))},
                     {"host_name",    variant(query_system.host_modelname())},
                     {"host_vendor",  variant(query_system.host_vendor())},
                     {"host_version", variant(query_system.host_version())},
+                    
                     {"arch",         variant(query_system.arch())},
                 }}
             );
@@ -384,11 +403,16 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
                     {"name",           variant(query_system.os_pretty_name())},
                     {"version_id",     variant(query_system.os_versionid())},
                     {"version_codename", variant(query_system.os_version_codename())},
-                    {"uptime_secs",    variant((size_t)uptime_secs.count()%60)},
-                    {"uptime_mins",    variant((size_t)uptime_mins.count()%60)},
-                    {"uptime_hours",   variant((size_t)uptime_hours.count())},
+                    
+                    {"uptime",         variant(get_auto_uptime(uptime_mins.count(), uptime_hours.count()))},
+                    {"uptime_secs",    variant(static_cast<size_t>(uptime_secs.count()%60))},
+                    {"uptime_mins",    variant(static_cast<size_t>(uptime_mins.count()%60))},
+                    {"uptime_hours",   variant(static_cast<size_t>(uptime_hours.count()))},
+
+                    {"kernel",         variant(fmt::format("{} {}", query_system.kernel_name(), query_system.kernel_version()))},
                     {"kernel_name",    variant(query_system.kernel_name())},
                     {"kernel_version", variant(query_system.kernel_version())},
+                    
                     {"hostname",       variant(query_system.hostname())},
                 }}
             );
@@ -403,6 +427,8 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
         sysInfo.insert(
             {moduleName.data(), {
                 {"name",          variant(query_user.name())},
+
+                {"shell",         variant(fmt::format("{} {}", query_user.shell(), query_user.shell_version()))},
                 {"shell_name",    variant(query_user.shell())},
                 {"shell_path",    variant(query_user.shell_path())},
                 {"shell_version", variant(query_user.shell_version())}
@@ -417,6 +443,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
         sysInfo.insert(
             {moduleName.data(), {
+                {"cpu",         variant(fmt::format("{} ({}) @ {:.2f} GHz", query_cpu.name(), query_cpu.nproc(), query_cpu.freq_max()))},
                 {"name",        variant(query_cpu.name())},
                 {"nproc",       variant(query_cpu.nproc())},
                 {"freq_cur",    variant(query_cpu.freq_cur())},
@@ -456,6 +483,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
         sysInfo.insert(
             {moduleName.data(), {
+                {"disk",  variant(fmt::format("{:.2f} GB / {:.2f} GB - {}", query_disk.used_amount(), query_disk.total_amount(), query_disk.typefs()))},
                 {"total", variant(query_disk.total_amount())},
                 {"free",  variant(query_disk.free_amount())},
                 {"used",  variant(query_disk.used_amount())},
@@ -471,9 +499,13 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
         sysInfo.insert(
             {moduleName.data(), {
+                {"ram",   variant(fmt::format("{} MB / {} MB", query_ram.used_amount(), query_ram.total_amount()))},
                 {"used",  variant(query_ram.used_amount())},
                 {"total", variant(query_ram.total_amount())},
-                {"free",  variant(query_ram.free_amount())}
+                {"free",  variant(query_ram.free_amount())},
+                
+                {"swap_total", variant(query_ram.swap_total_amount())},
+                {"swap_free",  variant(query_ram.swap_free_amount())},
             }}
         );
 

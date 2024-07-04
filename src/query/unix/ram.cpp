@@ -13,6 +13,8 @@ enum {
     USED = 0,
     AVAILABLE,
     TOTAL,
+    SWAP_FREE,
+    SWAP_TOTAL,
 
     SHMEM = 0,
     FREE,
@@ -31,10 +33,10 @@ static size_t get_from_text(std::string& line, u_short& iter_index) {
     return std::stoi(amount);
 }
 
-static std::array<size_t, 3> get_amount() {
+static std::array<size_t, 6> get_amount() {
     debug("calling in RAM {}", __PRETTY_FUNCTION__);
     constexpr std::string_view meminfo_path = "/proc/meminfo";
-    std::array<size_t, 3> memory_infos;
+    std::array<size_t, 6> memory_infos;
     std::fill(memory_infos.begin(), memory_infos.end(), 0);
 
     //std::array<size_t, 5> extra_mem_info;
@@ -47,11 +49,17 @@ static std::array<size_t, 3> get_amount() {
     std::string line;
     static u_short iter_index = 0;
     while (std::getline(file, line) && iter_index < 2) {
-        if (line.find("MemAvailable:") != std::string::npos)
+        if (hasStart(line, "MemAvailable:"))
             memory_infos.at(AVAILABLE) = get_from_text(line, iter_index);
 
-        if (line.find("MemTotal:") != std::string::npos)
+        if (hasStart(line, "MemTotal:"))
             memory_infos.at(TOTAL) = get_from_text(line, iter_index);
+        
+        if (hasStart(line, "SwapFree:"))
+            memory_infos.at(SWAP_FREE) = get_from_text(line, iter_index);
+
+        if (hasStart(line, "SwapTotal:"))
+            memory_infos.at(SWAP_TOTAL) = get_from_text(line, iter_index);
 
         /*if (line.find("Shmem:") != std::string::npos)
             extra_mem_info.at(SHMEM) = get_from_text(line);
@@ -93,6 +101,14 @@ size_t RAM::used_amount()  {
 
 size_t RAM::total_amount() { 
     return m_memory_infos.at(TOTAL) / 1024; 
+}
+
+size_t RAM::swap_total_amount() {
+    return m_memory_infos.at(SWAP_TOTAL) / 1024;
+}
+
+size_t RAM::swap_free_amount() {
+    return m_memory_infos.at(SWAP_FREE) / 1024;
 }
 
 #endif
