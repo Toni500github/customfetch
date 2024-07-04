@@ -352,9 +352,9 @@ static std::string get_auto_uptime(size_t mins, size_t hours) {
     
     // shut up pls
     if (hours != 0 && local_mins != 0)
-        ret = fmt::format("{} hours, ", hours);
-    else
-        ret = fmt::format("{} hours", hours);
+        ret += fmt::format("{} hours, ", hours);
+    else if (local_mins == 0)
+        ret += fmt::format("{} hours", hours);
 
     if (local_mins != 0)
         ret += fmt::format("{} mins", local_mins);
@@ -440,7 +440,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
         sysInfo.insert(
             {moduleName.data(), {
-                {"cpu",         variant(fmt::format("{} ({}) @ {} GHz", query_cpu.name(), query_cpu.nproc(), query_cpu.freq_max()))},
+                {"cpu",         variant(fmt::format("{} ({}) @ {:.2f} GHz", query_cpu.name(), query_cpu.nproc(), query_cpu.freq_max()))},
                 {"name",        variant(query_cpu.name())},
                 {"nproc",       variant(query_cpu.nproc())},
                 {"freq_cur",    variant(query_cpu.freq_cur())},
@@ -480,7 +480,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
         sysInfo.insert(
             {moduleName.data(), {
-                {"disk",  variant(fmt::format("{} GB / {} GB - {}", query_disk.used_amount(), query_disk.total_amount(), query_disk.typefs()))},
+                {"disk",  variant(fmt::format("{:.2f} GB / {:.2f} GB - {}", query_disk.used_amount(), query_disk.total_amount(), query_disk.typefs()))},
                 {"total", variant(query_disk.total_amount())},
                 {"free",  variant(query_disk.free_amount())},
                 {"used",  variant(query_disk.used_amount())},
