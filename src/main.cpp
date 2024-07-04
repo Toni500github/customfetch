@@ -118,7 +118,7 @@ static bool parse_config_path(int argc, char* argv[], std::string& configFile) {
                 break;
 
             case 'C':
-                configFile = strndup(optarg, PATH_MAX); 
+                configFile = optarg; 
                 if (!std::filesystem::exists(configFile))
                     die("config file '{}' doesn't exist", configFile);
 
