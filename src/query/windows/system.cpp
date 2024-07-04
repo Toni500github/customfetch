@@ -48,10 +48,10 @@ static std::array<std::string, 5> get_os_release_vars() {
 
     RTL_OSVERSIONINFOW osVersion = GetRealOSVersion();
 
-    ret.at(PRETTY_NAME) = "Windows " + std::to_string(osVersion.dwMajorVersion);
+    ret.at(PRETTY_NAME) = "Windows " + fmt::to_string(osVersion.dwMajorVersion);
     ret.at(NAME) = "Windows";
-    ret.at(ID) = "windows " + std::to_string(osVersion.dwMajorVersion);
-    ret.at(VERSION_ID) = std::to_string(osVersion.dwBuildNumber);
+    ret.at(ID) = "windows " + fmt::to_string(osVersion.dwMajorVersion);
+    ret.at(VERSION_ID) = fmt::to_string(osVersion.dwBuildNumber);
 
     return ret;
 }
@@ -63,6 +63,10 @@ System::System() {
         m_os_release_vars = get_os_release_vars();
 
         m_bInit = true;
+    }
+
+    for (auto& i : m_os_release_vars) {
+        fmt::println("{}", i);
     }
 }
 
