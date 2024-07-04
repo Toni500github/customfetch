@@ -10,7 +10,7 @@ RAM::RAM() {
 }
 
 size_t RAM::free_amount() {
-    return 104442;
+    return 10442;
 }
 
 size_t RAM::total_amount() {
