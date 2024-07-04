@@ -1,5 +1,5 @@
 CXX       	?= g++
-PREFIX	  	?= .
+PREFIX	  	?= /usr
 VARS  	  	?=
 GUI_SUPPORT     ?= 0
 
@@ -9,10 +9,10 @@ VENDOR_TEST 	?= 0
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
-        BUILDDIR  = build\debug
+        BUILDDIR  = build/debug
         CXXFLAGS := -ggdb3 -Wall -DDEBUG=1 $(DEBUG_CXXFLAGS) $(CXXFLAGS)
 else
-        BUILDDIR  = build\release
+        BUILDDIR  = build/release
 endif
 
 ifeq ($(PARSER_TEST), 1)
@@ -37,36 +37,44 @@ NAME		 = customfetch
 TARGET		 = cufetch
 VERSION    	 = 0.1.0
 BRANCH     	 = main
-SRC 	   	 = src\config.cpp src\display.cpp src\main.cpp src\parse.cpp src\util.cpp \
-			src\query\windows\cpu.cpp src\query\windows\disk.cpp src\query\windows\gpu.cpp \
-			src\query\windows\ram.cpp src\query\windows\system.cpp src\query\windows\user.cpp
-ifeq ($(GUI_SUPPORT), 1)
-        SRC 	 += src\gui.cpp
-endif
+SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/unix/*.cpp src/query/windows/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
-LDFLAGS   	+= -L.\$(BUILDDIR)\fmt -lfmt
+LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -Wno-ignored-attributes -funroll-all-loops -fvisibility=hidden -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
+CXXFLAGS        += -O3 -Wno-ignored-attributes -funroll-all-loops -fvisibility=hidden -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
 all: fmt toml $(TARGET)
 
 fmt:
-ifeq ($(wildcard $(BUILDDIR)\fmt\libfmt.a),)
-	if not exist $(BUILDDIR)\fmt md $(BUILDDIR)\fmt
-	make -C src\fmt BUILDDIR=$(BUILDDIR)\fmt
+ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
+	mkdir -p $(BUILDDIR)/fmt
+	make -C src/fmt BUILDDIR=$(BUILDDIR)/fmt
 endif
 
 toml:
-ifeq ($(wildcard $(BUILDDIR)\toml++\toml.o),)
-	if not exist $(BUILDDIR)\toml++ md $(BUILDDIR)\toml++
-	make -C src\toml++ BUILDDIR=$(BUILDDIR)\toml++
+ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
+	mkdir -p $(BUILDDIR)/toml++
+	make -C src/toml++ BUILDDIR=$(BUILDDIR)/toml++
 endif
 
 $(TARGET): fmt toml $(OBJ)
-	if not exist $(BUILDDIR) md $(BUILDDIR)
-	$(CXX) $(OBJ) $(BUILDDIR)\toml++\toml.o -o $(BUILDDIR)\$(TARGET) $(LDFLAGS) $(CXXFLAGS)
+	mkdir -p $(BUILDDIR)
+	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
+
+dist: $(TARGET)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE README.md -C $(BUILDDIR) $(TARGET)
 
 clean:
-	del $(BUILDDIR)\$(TARGET) $(OBJ)
+	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)
 
-.PHONY: $(TARGET) fmt toml all
+distclean:
+	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ)
+	find . -type f -name "*.tar.gz" -exec rm -rf "{}" \;
+	find . -type f -name "*.o" -exec rm -rf "{}" \;
+	find . -type f -name "*.a" -exec rm -rf "{}" \;
+
+install: $(TARGET)
+	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	cd assets/ && find ascii/ -type f -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
+
+.PHONY: $(TARGET) dist distclean fmt toml install all
