@@ -57,12 +57,15 @@ class User {
 public:
     User();
     std::string name();
-    std::string shell();
+    std::string shell_name();
     std::string shell_path();
     std::string shell_version();
+    std::string wm_name();
+    std::string de_name();
 
 private:
     static bool m_bInit;
+    static std::array<std::string, 6> m_users_infos;
     static struct passwd *m_pPwd;
 };
 

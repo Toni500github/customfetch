@@ -18,6 +18,7 @@ std::array<std::string, 3> Query::CPU::m_cpu_infos_str;
 std::array<float, 4> Query::CPU::m_cpu_infos_t;
 struct statvfs Query::Disk::m_statvfs;
 std::string Query::Disk::m_typefs;
+std::array<std::string, 6> Query::User::m_users_infos;
 std::array<size_t, 6> Query::RAM::m_memory_infos;
 std::array<std::string, 2> Query::GPU::m_gpu_infos;
 
@@ -425,10 +426,13 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
             {moduleName.data(), {
                 {"name",          variant(query_user.name())},
 
-                {"shell",         variant(fmt::format("{} {}", query_user.shell(), query_user.shell_version()))},
-                {"shell_name",    variant(query_user.shell())},
+                {"shell",         variant(fmt::format("{} {}", query_user.shell_name(), query_user.shell_version()))},
+                {"shell_name",    variant(query_user.shell_name())},
                 {"shell_path",    variant(query_user.shell_path())},
-                {"shell_version", variant(query_user.shell_version())}
+                {"shell_version", variant(query_user.shell_version())},
+
+                {"wm_name",       variant(query_user.wm_name())},
+                {"de_name",       variant(query_user.de_name())}
             }}
         );
 
@@ -590,8 +594,8 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "name"_fnv1a32:
                     sysInfo[moduleName].insert({moduleValueName, variant(query_user.name())}); break;
 
-                case "shell"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.shell())}); break;
+                case "shell_name"_fnv1a32:
+                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.shell_name())}); break;
 
                 case "shell_path"_fnv1a32:
                     sysInfo[moduleName].insert({moduleValueName, variant(query_user.shell_path())}); break;
