@@ -10,9 +10,12 @@
 #include <string>
 #include <sys/types.h>
 
-#define BOLD_TEXT(x)   (fmt::emphasis::bold | fmt::fg(x))
-#define NOCOLOR        "\033[0m"
+#define BOLD_TEXT(x)    (fmt::emphasis::bold | fmt::fg(x))
+#define NOCOLOR         "\033[0m"
 #define UNKNOWN         "(unknown)"
+
+// magic line to be sure that I don't cut the wrong line 
+#define MAGIC_LINE      "(cut this shit NOW!! RAHHH)"
 
 bool hasEnding(const std::string_view fullString, const std::string_view ending);
 bool hasStart(const std::string_view fullString, const std::string_view start);

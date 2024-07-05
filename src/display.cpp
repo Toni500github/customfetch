@@ -8,7 +8,6 @@
 #include <fstream>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
-#include <magic.h>
 #include <iostream>
 
 std::string Display::detect_distro(Config& config) {
@@ -42,12 +41,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         if (!config.m_custom_distro.empty())
             die("You need to specify if either using a custom distro ascii art OR a custom source path");
 
-        magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
-        magic_load(myt, NULL);
-        std::string file_type = magic_file(myt, path.c_str());
-        if ((file_type.find("text") == std::string::npos) && !config.m_disable_source)
-            die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
-        magic_close(myt);
+        //if (std::filesystem::path::has_extension() && !config.m_disable_source)
     }
 
     debug("path = {:s}", path);
@@ -60,19 +54,24 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         layout = parse(layout, systemInfo, config, colors, true);
     }
     
-    std::ifstream file(path, std::ios_base::binary);
-    if (!file.is_open())
-        if (!config.m_disable_source)
+    std::ifstream file;
+    std::ifstream fileToAnalyze; // Input iterators are invalidated when you advance them. both have same path
+    if (!config.m_disable_source) {
+        file.open(path, std::ios::binary);
+        fileToAnalyze.open(path, std::ios::binary);
+        if (!file.is_open() || !fileToAnalyze.is_open())
             die("Could not open ascii art file \"{}\"", path);
-
-    if (config.m_disable_source)
-        file.close();
+    }
 
     std::string line;
     std::vector<std::string> asciiArt;
     std::vector<std::string> pureAsciiArt;
     int maxLineLength = -1;
     
+    int c;
+    while((c = fileToAnalyze.get()) != EOF)
+        if (c >= 127) die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image/gif (use -h for more details)", path);
+
     while (std::getline(file, line)) {
         std::string pureOutput;
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
@@ -92,6 +91,9 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     size_t i;
     for (i = 0; i < config.layouts.size(); i++) {
         size_t origin = 0;
+
+        if (config.layouts.at(i).find(MAGIC_LINE) != std::string::npos)
+            config.layouts.erase(config.layouts.begin() + i);
 
         if (i < asciiArt.size()) {
             config.layouts.at(i).insert(0, asciiArt.at(i));

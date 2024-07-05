@@ -63,6 +63,8 @@ public:
     std::string wm_name();
     std::string de_name();
 
+    std::string term_name();
+
 private:
     static bool m_bInit;
     static std::array<std::string, 6> m_users_infos;

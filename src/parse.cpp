@@ -343,7 +343,7 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
             break;
         }
     }
-
+    
     return output;
 }
 
@@ -432,7 +432,8 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
                 {"shell_version", variant(query_user.shell_version())},
 
                 {"wm_name",       variant(query_user.wm_name())},
-                {"de_name",       variant(query_user.de_name())}
+                {"de_name",       variant(query_user.de_name())},
+                //{"term_name",     variant(query_user.term_name())},
             }}
         );
 

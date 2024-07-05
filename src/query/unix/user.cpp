@@ -1,4 +1,8 @@
+#include <unistd.h>
 #include <cstdlib>
+#include <fstream>
+//#include <sys/socket.h>
+//#include <wayland-client.h>
 #include "query.hpp"
 #include "util.hpp"
 #include "switch_fnv1a.hpp"
@@ -9,10 +13,11 @@ enum {
     WM_NAME = 0,
     DE_NAME,
     SH_VERSION,
-    SH_NAME
+    SH_NAME,
+    TERM_NAME,
 };
 
-std::string _get_wm_name() {
+static std::string _get_de_name() {
     const char *env = std::getenv("DESKTOP_SESSION");
     if (env == NULL) {
         env = std::getenv("XDG_CURRENT_DESKTOP");
@@ -25,6 +30,22 @@ std::string _get_wm_name() {
     }
 
     return env;
+}
+
+static std::string _get_wm_name() {
+    std::string ret = MAGIC_LINE;
+    
+    /*struct wl_display *display = wl_display_connect(NULL);
+    struct ucred ucred;
+    socklen_t len = sizeof(struct ucred);
+    if (getsockopt(wl_display_get_fd(display), SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1)
+        return MAGIC_LINE;
+    
+    std::ifstream f(fmt::format("/proc/{}/comm", ucred.pid), std::ios::in);
+    f >> ret;
+    wl_display_disconnect(display)*/;
+
+    return ret;
 }
 
 static std::string _get_shell_version(const std::string_view shell_name) {
@@ -55,14 +76,37 @@ static std::string _get_shell_name(const std::string_view shell_path) {
     return ret;
 }
 
+// don't mind, TODO make it work
+static std::string _get_term_name() {
+    std::string ret;
+    auto ppid = getppid();
+    
+    std::ifstream f(fmt::format("/proc/{}/comm", ppid), std::ios::in);
+    std::string name;
+    f >> name;
+    f.close();
+    
+    // st (suckless terminal)
+    if (name == "exe")
+        ret = "st";
+    else 
+        ret = name;
+
+    return ret;
+}
+
 static std::array<std::string, 6> get_users_infos(const std::string_view shell_path) {
     std::array<std::string, 6> ret;
     std::fill(ret.begin(), ret.end(), UNKNOWN);
 
     ret.at(SH_NAME) = _get_shell_name(shell_path);
     ret.at(SH_VERSION) = _get_shell_version(ret.at(SH_NAME));
+    ret.at(DE_NAME) = _get_de_name();
     ret.at(WM_NAME) = _get_wm_name();
-    ret.at(DE_NAME) = ret.at(WM_NAME);
+    ret.at(TERM_NAME) = _get_term_name();
+
+    if (ret.at(DE_NAME) == ret.at(WM_NAME))
+        ret.at(DE_NAME) = MAGIC_LINE;
 
     return ret;
 }
@@ -103,4 +147,8 @@ std::string User::wm_name() {
 
 std::string User::de_name() {
     return m_users_infos.at(DE_NAME);
+}
+
+std::string User::term_name() {
+    return m_users_infos.at(TERM_NAME);
 }
