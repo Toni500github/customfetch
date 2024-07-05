@@ -7,7 +7,6 @@
 #include "fmt/core.h"
 #include "fmt/ranges.h"
 
-#include <algorithm>
 #include <fstream>
 #ifdef CF_UNIX
 # include <magic.h>
@@ -58,20 +57,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     debug("path = {:s}", path);
 
     for (std::string& include : config.includes) {
-        std::vector<std::string> include_nodes = split(include, '.');
-
-        switch (std::count(include.begin(), include.end(), '.')) 
-        {   
-            // only 1 element
-            case 0:
-                addModuleValues(systemInfo, include);
-                break;
-            case 1:
-                addValueFromModule(systemInfo, include_nodes[0], include_nodes[1]);
-                break;
-            default:
-                die("Include has too many namespaces!");
-        }
+        addModuleValues(systemInfo, include);
     }
 
     for (std::string& layout : config.layouts) {

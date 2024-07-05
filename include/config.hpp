@@ -95,7 +95,6 @@ inline const constexpr std::string_view AUTOCONFIG = R"#([config]
 
 # includes directive, include the top name of each module you use.
 # e.g. if you want to use $<os.name>, then `includes = ["os"]`.
-# you can also put specific includes, for example if you only want os.name, then `includes = ["os.name"]`
 includes = ["os", "system", "user", "cpu", "gpu", "ram", "disk(/)"]
 
 layout = [

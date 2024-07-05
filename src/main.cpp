@@ -66,6 +66,8 @@ user
   shell_name	: login shell [zsh]
   shell_path	: login shell (with path) [/bin/zsh]
   shell_version : login shell version (may be not correct) [5.9]
+  de_name	: Desktop Enviroment current session name [Plasma]
+  wm_name	: Windows manager current session name [dwm]
 
 ram
   ram		: used and total amount of RAM (in MB) [2815 MB / 15881 MB]

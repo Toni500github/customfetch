@@ -14,6 +14,7 @@ std::array<std::string, 5> Query::System::m_os_release_vars;
 std::array<std::string, 3> Query::CPU::m_cpu_infos_str;
 std::array<float, 4> Query::CPU::m_cpu_infos_t;
 std::string Query::Disk::m_typefs;
+std::array<std::string, 6> Query::User::m_users_infos;
 std::array<size_t, 6> Query::RAM::m_memory_infos;
 std::array<std::string, 2> Query::GPU::m_gpu_infos;
 
@@ -428,10 +429,13 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
             {moduleName.data(), {
                 {"name",          variant(query_user.name())},
 
-                {"shell",         variant(fmt::format("{} {}", query_user.shell(), query_user.shell_version()))},
-                {"shell_name",    variant(query_user.shell())},
+                {"shell",         variant(fmt::format("{} {}", query_user.shell_name(), query_user.shell_version()))},
+                {"shell_name",    variant(query_user.shell_name())},
                 {"shell_path",    variant(query_user.shell_path())},
-                {"shell_version", variant(query_user.shell_version())}
+                {"shell_version", variant(query_user.shell_version())},
+
+                {"wm_name",       variant(query_user.wm_name())},
+                {"de_name",       variant(query_user.de_name())}
             }}
         );
 
@@ -513,214 +517,4 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
     }
 
     die("Invalid module name {}!", moduleName);
-}
-
-void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName) {
-    // yikes, here we go.
-    auto module_hash = fnv1a32::hash(moduleValueName);
-   
-    // stupid way to not construct query_system twice, more faster 
-    if (moduleName == "os" || moduleName == "system") {
-        Query::System query_system;
-
-        std::chrono::seconds uptime_secs(query_system.uptime());
-        auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
-        auto uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
-
-        if (sysInfo.find(moduleName) == sysInfo.end())
-            sysInfo.insert(
-                {moduleName, { }}
-            );
-        
-        if (moduleName == "os") {
-            if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-                
-                switch (module_hash) {
-                    case "name"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.os_pretty_name())}); break;
-                
-                    case "uptime_secs"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_secs.count()%60)}); break;
-                
-                    case "uptime_mins"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_mins.count()%60)}); break;
-                
-                    case "uptime_hours"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant((size_t)uptime_hours.count())}); break;
-                
-                    case "kernel_name"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.kernel_name())}); break;
-                
-                    case "kernel_version"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.kernel_version())}); break;
-                
-                    case "hostname"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.hostname())}); break;
-                
-                    case "arch"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.arch())}); break;
-                }
-            }
-        } else {
-            if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-                switch (module_hash) {
-                    case "host_name"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_modelname())}); break;
-
-                    case "host_vendor"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_vendor())}); break;
-
-                    case "host_version"_fnv1a32:
-                        sysInfo[moduleName].insert({moduleValueName, variant(query_system.host_version())}); break;
-                }
-            }
-        }
-
-        return;
-    }
-
-    if (moduleName == "user") {
-        Query::User query_user;
-        
-        if (sysInfo.find(moduleName) == sysInfo.end())
-            sysInfo.insert(
-                {moduleName, { }}
-            );
-
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) 
-        {
-            switch (module_hash) {
-                case "name"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.name())}); break;
-
-                case "shell"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.shell())}); break;
-
-                case "shell_path"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.shell_path())}); break;
-
-                case "shell_version"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_user.shell_version())}); break;
-            }
-        }
-
-        return;
-
-    }
-
-    if (moduleName == "cpu") {
-        Query::CPU query_cpu;
-
-        if (sysInfo.find(moduleName) == sysInfo.end())
-            sysInfo.insert(
-                {moduleName, { }}
-            );
-        
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-            
-            switch (module_hash) {
-                case "name"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_cpu.name())}); break;
-            
-                case "nproc"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_cpu.nproc())}); break;
-
-                case "freq_bios_limit"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_cpu.freq_bios_limit())}); break;
-
-                case "freq_cur"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_cpu.freq_cur())}); break;
-
-                case "freq_max"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_cpu.freq_max())}); break;
-
-                case "freq_min"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_cpu.freq_min())}); break;
-            }
-        }
-
-        return;
-    }
-
-    if (hasStart(moduleName, "gpu")) {
-        u_short id = static_cast<u_short>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
-        Query::GPU query_gpu(id);
-
-        if (sysInfo.find(moduleName) == sysInfo.end())
-            sysInfo.insert(
-                {moduleName, { }}
-            );
-        
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-            
-            if (moduleValueName == "name")
-                sysInfo[moduleName].insert({moduleValueName, variant(query_gpu.name())});
-            
-            if (moduleValueName == "vendor")
-                sysInfo[moduleName].insert({moduleValueName, variant(query_gpu.vendor())});
-        }
-
-        return;
-    }
-
-    if (hasStart(moduleName, "disk")) {
-        if (moduleName.length() <= 5)
-            die(" PARSER: invalid disk component name ({}), must be disk(/path/to/fs)", moduleName);
-
-        std::string path = moduleName.data();
-        path.erase(0, 5); // disk(
-        path.pop_back(); // )
-        debug("disk path = {}", path);
-
-        Query::Disk query_disk(path);
-
-        if (sysInfo.find(moduleName) == sysInfo.end())
-            sysInfo.insert(
-                {moduleName, { }}
-            );
-
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-            switch (module_hash) {
-                case "used"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_disk.used_amount())}); break;
-                
-                case "total"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_disk.total_amount())}); break;
-                
-                case "free"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_disk.free_amount())}); break;
-
-                case "fs"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_disk.typefs())}); break;
-            }
-        }
-
-        return;
-    }
-    
-    if (moduleName == "ram") {
-        Query::RAM query_ram;
-
-        if (sysInfo.find(moduleName) == sysInfo.end())
-            sysInfo.insert(
-                {moduleName, { }}
-            );
-        
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
-            switch (module_hash) {
-                case "used"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_ram.used_amount())}); break;
-                
-                case "total"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_ram.total_amount())}); break;
-                
-                case "free"_fnv1a32:
-                    sysInfo[moduleName].insert({moduleValueName, variant(query_ram.free_amount())}); break;
-            }
-        }
-
-        return;
-    }
-
-    die("Invalid include module name {}!", moduleName);
 }
