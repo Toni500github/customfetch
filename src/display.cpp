@@ -5,7 +5,6 @@
 #include "parse.hpp"
 #include "query.hpp"
 
-#include <algorithm>
 #include <fstream>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
@@ -18,12 +17,12 @@ std::string Display::detect_distro(Config& config) {
     debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
     if (!config.m_custom_distro.empty()) 
     {
-        file_path = fmt::format("{:s}/ascii/{:s}.txt", config.data_dir, config.m_custom_distro);
+        file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, config.m_custom_distro);
     } 
     else 
     {
         Query::System system;
-        file_path = fmt::format("{:s}/ascii/{:s}.txt", config.data_dir, str_tolower(system.os_id()));
+        file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
     }
     return file_path;
 }
@@ -54,20 +53,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     debug("path = {:s}", path);
 
     for (std::string& include : config.includes) {
-        std::vector<std::string> include_nodes = split(include, '.');
-
-        switch (std::count(include.begin(), include.end(), '.')) 
-        {   
-            // only 1 element
-            case 0:
-                addModuleValues(systemInfo, include);
-                break;
-            case 1:
-                addValueFromModule(systemInfo, include_nodes[0], include_nodes[1]);
-                break;
-            default:
-                die("Include has too many namespaces!");
-        }
+        addModuleValues(systemInfo, include);
     }
 
     for (std::string& layout : config.layouts) {
