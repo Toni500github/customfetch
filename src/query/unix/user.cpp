@@ -6,7 +6,7 @@
 
 #include "query.hpp"
 #include "util.hpp"
-#include "utils/wm.hpp"
+#include "utils/dewm.hpp"
 #include "switch_fnv1a.hpp"
 
 using namespace Query;
@@ -20,7 +20,7 @@ enum {
 };
 
 static std::string _get_de_name() {
-    return parse_wm_env();
+    return parse_de_env();
 }
 
 static std::string _get_wm_name() {
@@ -28,7 +28,6 @@ static std::string _get_wm_name() {
     uid_t uid = getuid();
 
     for (auto const& dir_entry : std::filesystem::directory_iterator{"/proc/"}) {
-        debug("dir_entry.path().string() = {}", dir_entry.path().string().at(6));
         if (!std::isdigit((dir_entry.path().string().at(6))))
             continue;
 

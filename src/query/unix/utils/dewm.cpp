@@ -3,7 +3,7 @@
 #include "query.hpp"
 
 // https://github.com/fastfetch-cli/fastfetch/blob/a61765c8b1387777be67d967bc2f69031c8ca399/src/detection/displayserver/linux/wmde.c#L19
-std::string parse_wm_env(void)
+std::string parse_de_env(void)
 {
     const char* env;
 
@@ -42,7 +42,7 @@ std::string parse_wm_env(void)
     if(std::getenv("HYPRLAND_CMD") != NULL)
         return "Hyprland";
 
-    return UNKNOWN;
+    return MAGIC_LINE;
 }
 
 std::string prettify_wm_name(const std::string_view name) {
@@ -61,8 +61,8 @@ std::string prettify_wm_name(const std::string_view name) {
     if (name.find("Marco") != std::string::npos)
         return "Marco";
 
-    std::array<std::string, 30> wms = {"dwm", "awesome", "i3", "i3wm", "xfwm4", "qtile", "bspwm", "herbstluftwm", "tinywm", "dtwm", "hyprland", "sway", "weston", "wayfire", "openbox", "xmonad", "icewm"};
-    if (std::find(wms.begin(), wms.end(), str_tolower(name)) != wms.end())
+    std::array<std::string, 30> wms = {"awesome", "bspwm", "dtwm", "dwm", "herbstluftwm", "hyprland", "i3", "i3wm", "icewm", "openbox", "qtile", "sway", "tinywm", "wayfire", "weston", "xmonad", "xfwm4"};
+    if (std::binary_search(wms.begin(), wms.end(), str_tolower(name)))
         return name.data();
 
     return MAGIC_LINE;

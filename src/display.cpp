@@ -5,6 +5,7 @@
 #include "parse.hpp"
 #include "query.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
@@ -69,7 +70,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, bool
     if (!already_analyzed_file)
     {
         debug("Display::render() analyzing file");
-        unsigned char buffer[128];
+        unsigned char buffer[16];
         fileToAnalyze.read((char*) (&buffer[0]), sizeof(buffer));
         if (is_file_image(buffer))
                 die("The source file '{}' is a binary file.\n"
@@ -91,13 +92,15 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, bool
     
     debug("SkeletonAsciiArt = \n{}", fmt::join(pureAsciiArt, "\n"));
     debug("asciiArt = \n{}", fmt::join(asciiArt, "\n"));
+    
+    // erase each element for each instance of MAGIC_LINE
+    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), 
+                                        [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }
+                                        ), config.layouts.end());
 
     size_t i;
     for (i = 0; i < config.layouts.size(); i++) {
         size_t origin = 0;
-
-        if (config.layouts.at(i).find(MAGIC_LINE) != std::string::npos)
-            config.layouts.erase(config.layouts.begin() + i);
 
         if (i < asciiArt.size()) {
             config.layouts.at(i).insert(0, asciiArt.at(i));
