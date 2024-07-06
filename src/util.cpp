@@ -2,7 +2,9 @@
 #include "fmt/color.h"
 #include "pci.ids.hpp"
 
+#include <array>
 #include <cerrno>
+#include <cstring>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -74,6 +76,38 @@ std::string read_by_syspath(const std::string_view path) {
     std::string ret;
     std::getline(f_drm, ret);
     return ret;
+}
+
+bool is_file_image(const unsigned char *bytes) {
+    debug("util bytes = {}", (char*)bytes);
+    
+    // https://stackoverflow.com/a/49683945
+    std::array<unsigned char, 3> jpeg = {0xff, 0xd8, 0xff};
+    std::array<unsigned char, 8> png = {0x89, 0x50, 0x4e, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    std::array<unsigned char, 6> gif89a = {0x47, 0x49, 0x46, 0x38, 0x39, 0x61};
+    std::array<unsigned char, 6> gif87a = {0x47, 0x49, 0x46, 0x38, 0x37, 0x61};
+    std::array<unsigned char, 2> bmp =  {0x42, 0x4D};
+    std::array<unsigned char, 4> tiffI = {0x49, 0x49, 0x2A, 0x00};
+    std::array<unsigned char, 4> tiffM = {0x4D, 0x4D, 0x00, 0x2A};
+
+    if (std::memcmp(bytes, png.data(), png.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, jpeg.data(), jpeg.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, gif89a.data(), gif89a.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, gif87a.data(), gif87a.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, tiffM.data(), tiffM.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, tiffI.data(), tiffI.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, bmp.data(), bmp.size()) == 0)
+        return true;
+
+
+
+    return false;
 }
 
 /**

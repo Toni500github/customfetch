@@ -25,6 +25,7 @@ std::string binarySearchPCIArray(const std::string_view vendor_id, const std::st
 std::string binarySearchPCIArray(const std::string_view vendor_id);
 std::string shell_exec(const std::string_view cmd);
 std::vector<std::string> split(const std::string_view text, char delim);
+bool is_file_image(const unsigned char *bytes);
 std::string expandVar(const std::string_view str);
 // Replace string inplace
 void replace_str(std::string &str, const std::string& from, const std::string& to);

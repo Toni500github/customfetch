@@ -26,13 +26,10 @@ std::string Display::detect_distro(Config& config) {
     return file_path;
 }
 
-std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
+std::vector<std::string>& Display::render(Config& config, colors_t& colors, bool already_analyzed_file) {
     systemInfo_t systemInfo{};
     std::string path = config.m_display_distro ? detect_distro(config) : config.source_path;
 
-    // first check if the file is an image
-    // using the same library that "file" uses
-    // No extra bloatware nice
     if (!config.m_display_distro && 
         !config.m_disable_source && 
         !config.source_path.empty()) 
@@ -40,11 +37,9 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         path = config.source_path;
         if (!config.m_custom_distro.empty())
             die("You need to specify if either using a custom distro ascii art OR a custom source path");
-
-        //if (std::filesystem::path::has_extension() && !config.m_disable_source)
     }
 
-    debug("path = {:s}", path);
+    debug("path = {}", path);
 
     for (std::string& include : config.includes) {
         addModuleValues(systemInfo, include);
@@ -68,9 +63,18 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     std::vector<std::string> pureAsciiArt;
     int maxLineLength = -1;
     
-    int c;
-    while((c = fileToAnalyze.get()) != EOF)
-        if (c >= 127) die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image/gif (use -h for more details)", path);
+    // first check if the file is an image
+    // without even using the same library that "file" uses
+    // No extra bloatware nice
+    if (!already_analyzed_file)
+    {
+        debug("Display::render() analyzing file");
+        unsigned char buffer[128];
+        fileToAnalyze.read((char*) (&buffer[0]), sizeof(buffer));
+        if (is_file_image(buffer))
+                die("The source file '{}' is a binary file.\n"
+                    "Please currently use the GUI mode for rendering the image/gif (use -h for more details)", path);
+    }
 
     while (std::getline(file, line)) {
         std::string pureOutput;

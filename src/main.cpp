@@ -276,7 +276,7 @@ int main (int argc, char *argv[]) {
         die("Can't run in GUI mode because it got disabled at compile time\nCompile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
 #endif
 
-    Display::display(Display::render(config, colors));
+    Display::display(Display::render(config, colors, false));
 
     return 0;
 }
