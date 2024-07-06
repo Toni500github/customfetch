@@ -1,10 +1,12 @@
 #include <unistd.h>
+#include <cctype>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
-//#include <sys/socket.h>
-//#include <wayland-client.h>
+
 #include "query.hpp"
 #include "util.hpp"
+#include "utils/wm.hpp"
 #include "switch_fnv1a.hpp"
 
 using namespace Query;
@@ -18,34 +20,45 @@ enum {
 };
 
 static std::string _get_de_name() {
-    const char *env = std::getenv("DESKTOP_SESSION");
-    if (env == NULL) {
-        env = std::getenv("XDG_CURRENT_DESKTOP");
-        if (env == NULL) {
-            error("Couldn't get WM/DE name, failed to get $DESKTOP_SESSION and $XDG_CURRENT_DESKTOP");
-            return UNKNOWN;
-        } else {
-            return env;
-        }
-    }
-
-    return env;
+    return parse_wm_env();
 }
 
 static std::string _get_wm_name() {
-    std::string ret = MAGIC_LINE;
-    
-    /*struct wl_display *display = wl_display_connect(NULL);
-    struct ucred ucred;
-    socklen_t len = sizeof(struct ucred);
-    if (getsockopt(wl_display_get_fd(display), SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1)
-        return MAGIC_LINE;
-    
-    std::ifstream f(fmt::format("/proc/{}/comm", ucred.pid), std::ios::in);
-    f >> ret;
-    wl_display_disconnect(display)*/;
+    std::string path, proc_name, wm_name;
+    uid_t uid = getuid();
 
-    return ret;
+    for (auto const& dir_entry : std::filesystem::directory_iterator{"/proc/"}) {
+        debug("dir_entry.path().string() = {}", dir_entry.path().string().at(6));
+        if (!std::isdigit((dir_entry.path().string().at(6))))
+            continue;
+
+        path = dir_entry.path().string() + "/loginuid";
+        std::ifstream f_uid(path, std::ios::binary);
+        std::string s_uid;
+        std::getline(f_uid, s_uid);
+        if (std::stoul(s_uid) != uid)
+            continue;
+        
+        path = dir_entry.path().string() + "/cmdline";
+        std::ifstream f(path, std::ios::binary);
+        std::getline(f, proc_name);
+        debug("proc_name = {}", proc_name);
+        
+        size_t pos = 0;
+        if ((pos = proc_name.find('\0')) != std::string::npos)
+            proc_name.erase(pos);
+        
+        if ((pos = proc_name.rfind('/')) != std::string::npos)
+            proc_name.erase(pos);
+        
+        if ((wm_name = prettify_wm_name(proc_name)) == MAGIC_LINE)
+            continue;
+
+        break;
+    }
+    
+    debug("wm_name = {}", wm_name);
+    return wm_name;
 }
 
 static std::string _get_shell_version(const std::string_view shell_name) {
