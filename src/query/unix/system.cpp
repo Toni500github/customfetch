@@ -4,6 +4,7 @@
 #include <array>
 #include <cerrno>
 #include <algorithm>
+#include <filesystem>
 #include <unistd.h>
 
 using namespace Query;
@@ -19,11 +20,35 @@ enum {
     _VERSION, // conflicts with the macro VERSION so had to put _
 };
 
+struct host_paths {
+    std::string name;
+    std::string version;
+    std::string vendor;
+} host;
+
 static std::string get_var(std::string& line, u_short& iter_index) {
     std::string ret = line.substr(line.find('=')+1);
     ret.erase(std::remove(ret.begin(), ret.end(), '\"'), ret.end());
     ++iter_index;
     return ret;
+}
+
+static void get_host_paths(struct host_paths& paths) {
+    std::string syspath = "/sys/devices/virtual/dmi/id/";
+
+    if (std::filesystem::exists(syspath + "/board_name")) {
+        paths.name = read_by_syspath(syspath + "/board_name");
+        paths.version = read_by_syspath(syspath + "/board_version");
+        paths.vendor = read_by_syspath(syspath + "/board_vendor");
+    }
+
+    else if (std::filesystem::exists(syspath + "/product_name")) {
+        paths.name = read_by_syspath(syspath + "/product_name");
+        if (hasStart(paths.name, "Standard PC"))
+            paths.vendor = "KVM/QEMU";
+
+        paths.version = read_by_syspath(syspath + "/product_version");
+    }
 }
 
 static std::array<std::string, 5> get_os_release_vars() {
@@ -71,6 +96,7 @@ System::System() {
             die("uname() failed: {}\nCould not get system infos", errno);
 
         m_os_release_vars = get_os_release_vars();
+        get_host_paths(host);
         m_bInit = true;
     }
 }
@@ -116,13 +142,13 @@ std::string System::os_version_codename() {
 }
 
 std::string System::host_modelname() {
-    return read_by_syspath("/sys/devices/virtual/dmi/id/board_name");
+    return host.name;
 }
 
 std::string System::host_vendor() {
-    return read_by_syspath("/sys/devices/virtual/dmi/id/board_vendor");
+    return host.vendor;
 }
 
 std::string System::host_version() {
-    return read_by_syspath("/sys/devices/virtual/dmi/id/board_version");
+    return host.version;
 }

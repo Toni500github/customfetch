@@ -107,7 +107,6 @@ static std::string _get_shell_name(const std::string_view shell_path) {
     return ret;
 }
 
-// don't mind, TODO make it work
 static std::string _get_term_name() {
     std::string ret;
     // ./cufetch -> shell -> terminal
@@ -119,6 +118,8 @@ static std::string _get_term_name() {
     if (readproc(pt_ptr, &proc_info) == NULL)
         return MAGIC_LINE;
     
+    closeproc(pt_ptr);
+    
     std::ifstream f(fmt::format("/proc/{}/comm", proc_info.ppid), std::ios::in);
     std::string name;
     f >> name;
@@ -129,8 +130,6 @@ static std::string _get_term_name() {
         ret = "st";
     else 
         ret = name;
-
-    closeproc(pt_ptr);
 
     return ret;
 }
@@ -172,7 +171,14 @@ static std::array<std::string, 6> get_users_infos(const std::string_view shell_p
     ret.at(DE_NAME) = _get_de_name();
     ret.at(WM_NAME) = _get_wm_name();
     ret.at(TERM_NAME) = _get_term_name();
-    ret.at(TERM_VERISON) = _get_term_version(ret.at(TERM_NAME));
+
+    if (hasStart(str_tolower(ret.at(TERM_NAME)), "login") ||
+        hasStart(str_tolower(ret.at(TERM_NAME)), "init")) {
+        ret.at(TERM_NAME) = ttyname(STDIN_FILENO);
+        ret.at(TERM_VERISON) = ""; // lets not make it unknown
+    } else {
+        ret.at(TERM_VERISON) = _get_term_version(ret.at(TERM_NAME));
+    }
 
     if (ret.at(DE_NAME) == ret.at(WM_NAME))
         ret.at(DE_NAME) = MAGIC_LINE;
