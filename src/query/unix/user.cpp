@@ -3,6 +3,9 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+//#include <sys/socket.h>
+//#include <wayland-client.h>
+#include <proc/readproc.h>
 
 #include "query.hpp"
 #include "util.hpp"
@@ -17,6 +20,7 @@ enum {
     SH_VERSION,
     SH_NAME,
     TERM_NAME,
+    TERM_VERISON
 };
 
 static std::string _get_de_name() {
@@ -60,21 +64,36 @@ static std::string _get_wm_name() {
     return wm_name;
 }
 
+/*static std::string _get_wm_wayland_name() {
+    std::string ret = MAGIC_LINE;
+
+    struct wl_display *display = wl_display_connect(NULL);
+
+    struct ucred ucred;
+    socklen_t len = sizeof(struct ucred);
+    if (getsockopt(wl_display_get_fd(display), SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1)
+        return MAGIC_LINE;
+    
+    std::ifstream f(fmt::format("/proc/{}/comm", ucred.pid), std::ios::in);
+    f >> ret;
+    wl_display_disconnect(display);
+
+    return ret;
+}*/
+
 static std::string _get_shell_version(const std::string_view shell_name) {
     std::string shell = shell_name.data();
     std::string ret = UNKNOWN;
 
     switch (fnv1a32::hash(shell)) {
+        case "nu"_fnv1a32:
+            ret = shell_exec("nu -c \"version | get version\""); break;
+        
         case "bash"_fnv1a32:
         case "osh"_fnv1a32:
         case "zsh"_fnv1a32: 
-            ret = shell_exec(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell, str_toupper(shell))); break;
-
-        case "nu"_fnv1a32:
-            ret = shell_exec("nu -c \"version | get version\""); break;
-
         default:
-            ret = shell_exec(fmt::format("{} --version", shell));
+            ret = shell_exec(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell, str_toupper(shell)));
             //ret.erase(0, ret.find(shell));
     }
     
@@ -91,9 +110,16 @@ static std::string _get_shell_name(const std::string_view shell_path) {
 // don't mind, TODO make it work
 static std::string _get_term_name() {
     std::string ret;
-    auto ppid = getppid();
+    // ./cufetch -> shell -> terminal
+    // https://ubuntuforums.org/showthread.php?t=2372923&p=13693160#post13693160
+    pid_t ppid = getppid();
+    proc_t proc_info;
+    memset(&proc_info, 0, sizeof(proc_info));
+    PROCTAB *pt_ptr = openproc(PROC_FILLSTATUS | PROC_PID, &ppid);
+    if (readproc(pt_ptr, &proc_info) == NULL)
+        return MAGIC_LINE;
     
-    std::ifstream f(fmt::format("/proc/{}/comm", ppid), std::ios::in);
+    std::ifstream f(fmt::format("/proc/{}/comm", proc_info.ppid), std::ios::in);
     std::string name;
     f >> name;
     f.close();
@@ -104,6 +130,36 @@ static std::string _get_term_name() {
     else 
         ret = name;
 
+    closeproc(pt_ptr);
+
+    return ret;
+}
+
+static std::string _get_term_version(std::string_view term_name) {
+    std::string ret;
+    if (hasStart(term_name, "kitty"))
+        term_name = "kitten";
+
+    if (hasStart(term_name, "st"))
+        read_exec({term_name.data(), "-v"}, ret, true);
+    
+    else if (hasStart(term_name, "kitty"))
+        read_exec({"kitten", "--version"}, ret);
+
+    else // tell your terminal to NOT RETURN ERROR WHEN ASKING FOR ITS VERSION (looking at you st)
+        read_exec({term_name.data(), "--version"}, ret);
+
+    debug("ret = {}", ret);
+    
+    if (ret.empty())
+        return UNKNOWN;
+
+    size_t pos = 0;
+    ret.erase(0, term_name.length()+1);
+    if ((pos = ret.find(' ')) != std::string::npos)
+        ret.erase(pos);
+
+    debug("ret after = {}", ret);
     return ret;
 }
 
@@ -116,6 +172,7 @@ static std::array<std::string, 6> get_users_infos(const std::string_view shell_p
     ret.at(DE_NAME) = _get_de_name();
     ret.at(WM_NAME) = _get_wm_name();
     ret.at(TERM_NAME) = _get_term_name();
+    ret.at(TERM_VERISON) = _get_term_version(ret.at(TERM_NAME));
 
     if (ret.at(DE_NAME) == ret.at(WM_NAME))
         ret.at(DE_NAME) = MAGIC_LINE;
@@ -163,4 +220,8 @@ std::string User::de_name() {
 
 std::string User::term_name() {
     return m_users_infos.at(TERM_NAME);
+}
+
+std::string User::term_version() {
+    return m_users_infos.at(TERM_VERISON);
 }

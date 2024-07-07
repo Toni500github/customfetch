@@ -64,6 +64,7 @@ public:
     std::string de_name();
 
     std::string term_name();
+    std::string term_version();
 
 private:
     static bool m_bInit;

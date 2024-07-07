@@ -44,7 +44,7 @@ static std::array<std::string, 3> get_cpu_infos_str() {
         if (hasStart(line, "model name"))
             ret.at(NAME) = get_from_text(line);
         
-        if (hasStart(line, "siblings"))
+        if (hasStart(line, "processor"))
             ret.at(NPROC) = get_from_text(line);
 
         if (hasStart(line, "cpu MHz")) {
@@ -63,6 +63,9 @@ static std::array<std::string, 3> get_cpu_infos_str() {
 
     cpu_mhz /= 1000;
     ret.at(FREQ_MAX_CPUINFO) = fmt::to_string(cpu_mhz);
+    
+    // add 1 to the nproc 
+    ret.at(NPROC) = fmt::to_string(std::stoi(ret[NPROC]) + 1);
 
     return ret;
 }

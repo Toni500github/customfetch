@@ -35,7 +35,7 @@ VERSION    	 = 0.1.0
 BRANCH     	 = main
 SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
-LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt #-lwayland-client
+LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -lprocps
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -O3 -funroll-all-loops -fvisibility=hidden -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 

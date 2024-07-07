@@ -433,7 +433,10 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
 
                 {"wm_name",       variant(query_user.wm_name())},
                 {"de_name",       variant(query_user.de_name())},
-                //{"term_name",     variant(query_user.term_name())},
+
+                {"term",          variant(query_user.term_name() + ' ' + query_user.term_version())},
+                {"term_name",     variant(query_user.term_name())},
+                {"term_version",  variant(query_user.term_version())}
             }}
         );
 

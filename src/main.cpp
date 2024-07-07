@@ -45,6 +45,8 @@ component
   member	: description [example of what it prints, maybe another]
 
 Should be used in the config as like as $<component.member>
+NOTE: there are components such as "user" that will kinda slow down cufetch because of querying things like terminal version
+      cufetch is still fast tho :)
 
 os
   name		: OS name (pretty_name) [Ubuntu 22.04.4 LTS, Arch Linux]
@@ -68,6 +70,9 @@ user
   shell_version : login shell version (may be not correct) [5.9]
   de_name	: Desktop Enviroment current session name [Plasma]
   wm_name	: Windows manager current session name [dwm, xfwm4]
+  term		: Terminal name and version [alacritty 0.13.2]
+  term_name	: Terminal name [alacritty]
+  term_version	: Terminal version [0.13.2]
 
 ram
   ram		: used and total amount of RAM (in MB) [2815 MB / 15881 MB]
@@ -245,7 +250,7 @@ int main (int argc, char *argv[]) {
     fmt::println("AMD: {}", binarySearchPCIArray("1002"));
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
 #endif
-    
+
     struct colors_t colors;
 
     std::string configDir = getConfigDir();

@@ -29,6 +29,7 @@ bool is_file_image(const unsigned char *bytes);
 std::string expandVar(const std::string_view str);
 // Replace string inplace
 void replace_str(std::string &str, const std::string& from, const std::string& to);
+bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdErr = false);
 std::string str_tolower(const std::string_view str);
 std::string str_toupper(const std::string_view str);
 void strip(std::string& input);
