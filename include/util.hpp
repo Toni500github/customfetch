@@ -35,8 +35,8 @@ std::string str_toupper(const std::string str);
 void strip(std::string& input);
 std::string read_by_syspath(const std::string_view path);
 fmt::rgb hexStringToColor(const std::string_view hexstr);
-const std::string getHomeConfigDir();
-const std::string getConfigDir();
+std::string getHomeConfigDir();
+std::string getConfigDir();
 
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) {

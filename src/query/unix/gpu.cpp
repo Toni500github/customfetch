@@ -7,7 +7,7 @@
 
 using namespace Query;
 
-static const std::string _get_name(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s) {
+static std::string _get_name(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s) {
     std::string name = binarySearchPCIArray(m_vendor_id_s, m_device_id_s);
     size_t first_bracket = name.find_first_of('[');
     size_t last_bracket = name.find_last_of(']');
@@ -26,11 +26,11 @@ static const std::string _get_name(const std::string_view m_vendor_id_s, const s
     return name;
 }
 
-static const std::string _get_vendor(const std::string_view m_vendor_id_s) {
+static std::string _get_vendor(const std::string_view m_vendor_id_s) {
     return binarySearchPCIArray(m_vendor_id_s);
 }
 
-static const GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s) {
+static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s) {
     debug("calling GPU {}", __func__);
     GPU::GPU_t ret;
     

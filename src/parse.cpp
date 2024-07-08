@@ -29,7 +29,7 @@ bool Query::GPU::m_bInit = false;
 bool Query::Disk::m_bInit = false;
 bool Query::User::m_bInit = false;
 
-static const std::array<std::string, 3> get_ansi_color( const std::string_view str, colors_t& colors )
+static std::array<std::string, 3> get_ansi_color( const std::string_view str, colors_t& colors )
 {
     size_t first_m = str.find( "m" );
     if ( first_m == std::string::npos )
@@ -112,14 +112,14 @@ static const std::array<std::string, 3> get_ansi_color( const std::string_view s
     return { col, weight, type };
 }
 
-static std::string check_gui_ansi_clr(std::string& str) {
+static const std::string& check_gui_ansi_clr(std::string& str) {
     if (hasStart(str, "\033") || hasStart(str, "\\e"))
         die("GUI colors can't be in ANSI escape sequence");
 
     return str;
 }
 
-static const std::string getInfoFromName( const systemInfo_t& systemInfo, const std::string& name )
+static std::string getInfoFromName( const systemInfo_t& systemInfo, const std::string& name )
 {
     const std::vector<std::string> sections = split( name, '.' );
     
@@ -345,7 +345,7 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
     return output;
 }
 
-static const std::string get_auto_uptime(size_t mins, size_t hours) {
+static std::string get_auto_uptime(size_t mins, size_t hours) {
     std::string ret;
     size_t local_mins = mins%60;
     

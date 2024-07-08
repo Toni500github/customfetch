@@ -364,7 +364,7 @@ std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view ve
 * either from $XDG_CONFIG_HOME or from $HOME/.config/
 * @return user's config directory  
 */
-const std::string getHomeConfigDir() {
+std::string getHomeConfigDir() {
     char *dir = getenv("XDG_CONFIG_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir)) {
         std::string str_dir(dir);
@@ -384,6 +384,6 @@ const std::string getHomeConfigDir() {
  * from Config::getHomeConfigDir()
  * @return TabAUR's config directory
  */
-const std::string getConfigDir() {
+std::string getConfigDir() {
     return getHomeConfigDir() + "/customfetch";
 }

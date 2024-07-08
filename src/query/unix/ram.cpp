@@ -13,14 +13,14 @@ using namespace Query;
     SRECLAIMABLE
 };*/
 
-static const size_t get_from_text(std::string& line, u_short& iter_index) {
+static size_t get_from_text(std::string& line, u_short& iter_index) {
     std::string amount = line.substr(line.find(':')+1);
     strip(amount);
     ++iter_index;
     return std::stoi(amount);
 }
 
-static const RAM::RAM_t get_amount() {
+static RAM::RAM_t get_amount() {
     debug("calling in RAM {}", __PRETTY_FUNCTION__);
     constexpr std::string_view meminfo_path = "/proc/meminfo";
     RAM::RAM_t memory_infos;

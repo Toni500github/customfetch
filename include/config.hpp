@@ -50,10 +50,10 @@ public:
     bool        m_display_distro = true;
 
     void        loadConfigFile( std::string_view filename, colors_t& colors );
-    const std::string getThemeValue( const std::string& value, const std::string& fallback );
+    std::string getThemeValue( const std::string& value, const std::string& fallback ) const;
 
     template <typename T>
-    const T getConfigValue( const std::string& value, T&& fallback )
+    T getConfigValue( const std::string& value, T&& fallback ) const
     {
         std::optional<T> ret = this->tbl.at_path( value ).value<T>();
         if constexpr ( toml::is_string<T> )  // if we want to get a value that's a string

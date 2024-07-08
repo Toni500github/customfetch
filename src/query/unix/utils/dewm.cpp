@@ -4,7 +4,7 @@
 #include "util.hpp"
 
 // https://github.com/fastfetch-cli/fastfetch/blob/a61765c8b1387777be67d967bc2f69031c8ca399/src/detection/displayserver/linux/wmde.c#L19
-const std::string parse_de_env(void)
+std::string parse_de_env(void)
 {
     const char* env;
 
@@ -46,7 +46,7 @@ const std::string parse_de_env(void)
     return MAGIC_LINE;
 }
 
-const std::string prettify_wm_name(const std::string_view name) {
+std::string prettify_wm_name(const std::string_view name) {
 
     if (name.find("kwin") != std::string::npos)
         return "Kwin";

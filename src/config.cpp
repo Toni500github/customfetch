@@ -82,6 +82,6 @@ void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
     colors.gui_white     = this->getThemeValue("gui.white",   "!#ffffff");
 }
 
-const std::string Config::getThemeValue(const std::string& value, const std::string& fallback) {
+std::string Config::getThemeValue(const std::string& value, const std::string& fallback) const {
     return this->tbl.at_path(value).value<std::string>().value_or(fallback);
 }

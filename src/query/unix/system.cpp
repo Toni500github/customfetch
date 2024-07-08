@@ -8,7 +8,7 @@
 
 using namespace Query;
 
-static const std::string get_var(std::string& line, u_short& iter_index) {
+static std::string get_var(std::string& line, u_short& iter_index) {
     std::string ret = line.substr(line.find('=')+1);
     ret.erase(std::remove(ret.begin(), ret.end(), '\"'), ret.end());
     ++iter_index;
@@ -33,7 +33,7 @@ static void get_host_paths(System::System_t& paths) {
     }
 }
 
-static const System::System_t get_os_release_vars() {
+static System::System_t get_os_release_vars() {
     System::System_t ret;
 
     debug("calling {}", __PRETTY_FUNCTION__);
