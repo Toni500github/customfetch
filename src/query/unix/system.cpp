@@ -1,30 +1,12 @@
 #include "query.hpp"
 #include "util.hpp"
 
-#include <array>
 #include <cerrno>
 #include <algorithm>
 #include <filesystem>
 #include <unistd.h>
 
 using namespace Query;
-
-enum {
-    PRETTY_NAME = 0,
-    NAME,
-    ID,
-    VERSION_ID,
-    VERSION_CODENAME,
-    
-    INIT, // init system
-    //_VERSION, // conflicts with the macro VERSION so had to put _
-};
-
-struct host_paths {
-    std::string name;
-    std::string version;
-    std::string vendor;
-} host;
 
 static std::string get_var(std::string& line, u_short& iter_index) {
     std::string ret = line.substr(line.find('=')+1);
@@ -33,27 +15,26 @@ static std::string get_var(std::string& line, u_short& iter_index) {
     return ret;
 }
 
-static void get_host_paths(struct host_paths& paths) {
-    std::string syspath = "/sys/devices/virtual/dmi/id/";
+static void get_host_paths(System::System_t& paths) {
+    const std::string syspath = "/sys/devices/virtual/dmi/id/";
 
     if (std::filesystem::exists(syspath + "/board_name")) {
-        paths.name = read_by_syspath(syspath + "/board_name");
-        paths.version = read_by_syspath(syspath + "/board_version");
-        paths.vendor = read_by_syspath(syspath + "/board_vendor");
+        paths.host_modelname = read_by_syspath(syspath + "/board_name");
+        paths.host_version = read_by_syspath(syspath + "/board_version");
+        paths.host_vendor = read_by_syspath(syspath + "/board_vendor");
     }
 
     else if (std::filesystem::exists(syspath + "/product_name")) {
-        paths.name = read_by_syspath(syspath + "/product_name");
-        if (hasStart(paths.name, "Standard PC"))
-            paths.vendor = "KVM/QEMU";
+        paths.host_modelname = read_by_syspath(syspath + "/product_name");
+        if (hasStart(paths.host_modelname, "Standard PC"))
+            paths.host_vendor = "KVM/QEMU";
 
-        paths.version = read_by_syspath(syspath + "/product_version");
+        paths.host_version = read_by_syspath(syspath + "/product_version");
     }
 }
 
-static std::array<std::string, 7> get_os_release_vars() {
-    std::array<std::string, 7> ret;
-    std::fill(ret.begin(), ret.end(), UNKNOWN);
+static System::System_t get_os_release_vars() {
+    System::System_t ret;
 
     debug("calling {}", __PRETTY_FUNCTION__);
     std::string_view os_release_path = "/etc/os-release";
@@ -67,19 +48,19 @@ static std::array<std::string, 7> get_os_release_vars() {
     std::string line;
     while (std::getline(os_release_file, line) && iter_index < 5) {
         if (hasStart(line, "PRETTY_NAME="))
-            ret.at(PRETTY_NAME) = get_var(line, iter_index);
+            ret.os_pretty_name = get_var(line, iter_index);
 
         if (hasStart(line, "NAME="))
-            ret.at(NAME) = get_var(line, iter_index);
+            ret.os_name = get_var(line, iter_index);
 
         if (hasStart(line, "ID="))
-            ret.at(ID) = get_var(line, iter_index);
+            ret.os_id = get_var(line, iter_index);
         
         if (hasStart(line, "VERSION_ID="))
-            ret.at(VERSION_ID) = get_var(line, iter_index);
+            ret.os_version_id = get_var(line, iter_index);
 
         if (hasStart(line, "VERSION_CODENAME="))
-            ret.at(VERSION_CODENAME) = get_var(line, iter_index);
+            ret.os_version_codename = get_var(line, iter_index);
     }
 
     std::ifstream f_initsys("/proc/1/cmdline", std::ios::binary);
@@ -93,7 +74,7 @@ static std::array<std::string, 7> get_os_release_vars() {
         initsys.erase(0, pos+1);
 
     
-    ret.at(INIT) = initsys;
+    ret.os_initsys_name = initsys;
 
     return ret;
 }
@@ -108,8 +89,8 @@ System::System() {
         if (sysinfo(&m_sysInfos) != 0)
             die("uname() failed: {}\nCould not get system infos", errno);
 
-        m_os_infos = get_os_release_vars();
-        get_host_paths(host);
+        m_system_infos = get_os_release_vars();
+        get_host_paths(m_system_infos);
         m_bInit = true;
     }
 }
@@ -135,37 +116,37 @@ long System::uptime() {
 }
 
 std::string System::os_pretty_name() {
-    return m_os_infos.at(PRETTY_NAME);
+    return m_system_infos.os_pretty_name;
 }
 
 std::string System::os_name() {
-    return m_os_infos.at(NAME);
+    return m_system_infos.os_name;
 }
 
 std::string System::os_id() {
-    return m_os_infos.at(ID);
+    return m_system_infos.os_id;
 }
 
 std::string System::os_versionid() {
-    return m_os_infos.at(VERSION_ID);
+    return m_system_infos.os_version_id;
 }
 
 std::string System::os_version_codename() {
-    return m_os_infos.at(VERSION_CODENAME);
+    return m_system_infos.os_version_codename;
 }
 
 std::string System::os_initsys_name() {
-    return m_os_infos.at(INIT);
+    return m_system_infos.os_initsys_name;
 }
 
 std::string System::host_modelname() {
-    return host.name;
+    return m_system_infos.host_modelname;
 }
 
 std::string System::host_vendor() {
-    return host.vendor;
+    return m_system_infos.host_version;
 }
 
 std::string System::host_version() {
-    return host.version;
+    return m_system_infos.host_version;
 }

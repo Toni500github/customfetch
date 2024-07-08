@@ -10,17 +10,17 @@
 #include "util.hpp"
 
 // using namespace Query;
-std::array<std::string, 7> Query::System::m_os_infos;
+Query::System::System_t Query::System::m_system_infos;
+Query::CPU::CPU_t Query::CPU::m_cpu_infos;
+std::string Query::Disk::m_typefs;
+Query::User::User_t Query::User::m_users_infos;
+Query::RAM::RAM_t Query::RAM::m_memory_infos;
+Query::GPU::GPU_t Query::GPU::m_gpu_infos;
+
+struct statvfs Query::Disk::m_statvfs;
 struct utsname Query::System::m_uname_infos;
 struct sysinfo Query::System::m_sysInfos;
 struct passwd* Query::User::m_pPwd;
-std::array<std::string, 3> Query::CPU::m_cpu_infos_str;
-std::array<float, 4> Query::CPU::m_cpu_infos_t;
-struct statvfs Query::Disk::m_statvfs;
-std::string Query::Disk::m_typefs;
-std::array<std::string, 6> Query::User::m_users_infos;
-std::array<size_t, 6> Query::RAM::m_memory_infos;
-std::array<std::string, 2> Query::GPU::m_gpu_infos;
 
 bool Query::System::m_bInit = false;
 bool Query::RAM::m_bInit = false;
