@@ -10,15 +10,14 @@
 #include "query.hpp"
 #include "util.hpp"
 #include "utils/dewm.hpp"
-#include "switch_fnv1a.hpp"
 
 using namespace Query;
 
-static std::string _get_de_name() {
+static const std::string _get_de_name() {
     return parse_de_env();
 }
 
-static std::string _get_wm_name() {
+static const std::string _get_wm_name() {
     std::string path, proc_name, wm_name;
     uid_t uid = getuid();
 
@@ -72,7 +71,7 @@ static std::string _get_wm_name() {
     return ret;
 }*/
 
-static std::string _get_shell_version(const std::string_view shell_name) {
+static const std::string _get_shell_version(const std::string_view shell_name) {
     std::string ret;
 
     if (shell_name == "nu")
@@ -84,13 +83,13 @@ static std::string _get_shell_version(const std::string_view shell_name) {
     return ret;
 }
 
-static std::string _get_shell_name(const std::string_view shell_path) {
+static const std::string _get_shell_name(const std::string_view shell_path) {
     std::string ret = shell_path.substr(shell_path.rfind('/')+1).data();
 
     return ret;
 }
 
-static std::string _get_term_name() {
+static const std::string _get_term_name() {
     std::string ret;
     // ./cufetch -> shell -> terminal
     // https://ubuntuforums.org/showthread.php?t=2372923&p=13693160#post13693160
@@ -117,7 +116,7 @@ static std::string _get_term_name() {
     return ret;
 }
 
-static std::string _get_term_version(std::string_view term_name) {
+static const std::string _get_term_version(std::string_view term_name) {
     std::string ret;
     if (hasStart(term_name, "kitty"))
         term_name = "kitten";
@@ -141,7 +140,7 @@ static std::string _get_term_version(std::string_view term_name) {
     return ret;
 }
 
-static User::User_t get_users_infos(const std::string_view shell_path) {
+static const User::User_t get_users_infos(const std::string_view shell_path) {
     User::User_t ret;
 
     ret.shell_name = _get_shell_name(shell_path);

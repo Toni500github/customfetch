@@ -9,13 +9,13 @@
 
 using namespace Query;
 
-static std::string get_from_text(std::string& line) {
+static const std::string get_from_text(std::string& line) {
     std::string amount = line.substr(line.find(':')+1);
     strip(amount);
     return amount;
 }
 
-static CPU::CPU_t get_cpu_infos() {
+static const CPU::CPU_t get_cpu_infos() {
     CPU::CPU_t ret;
     debug("calling in CPU {}", __PRETTY_FUNCTION__);
     constexpr std::string_view cpuinfo_path = "/proc/cpuinfo";

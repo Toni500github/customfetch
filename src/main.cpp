@@ -1,6 +1,5 @@
 #include "display.hpp"
 #include "util.hpp"
-#include "parse.hpp"
 #include "config.hpp"
 #include "gui.hpp"
 
@@ -116,7 +115,7 @@ system
 
 // parseargs() but only for parsing the user config path trough args
 // and so we can directly construct Config
-static bool parse_config_path(int argc, char* argv[], std::string& configFile) {
+static std::string parse_config_path(int argc, char* argv[], const std::string& configDir) {
     int opt = 0;
     int option_index = 0;
     opterr = 0;
@@ -134,18 +133,16 @@ static bool parse_config_path(int argc, char* argv[], std::string& configFile) {
             case '?':
                 break;
 
-            case 'C':
-                configFile = strndup(optarg, PATH_MAX); 
-                if (!std::filesystem::exists(configFile))
-                    die("config file '{}' doesn't exist", configFile);
+            case 'C': 
+                if (!std::filesystem::exists(optarg))
+                    die("config file '{}' doesn't exist", optarg);
+                return optarg;
 
                 break;
-            default:
-                return false;
         }
     }
 
-    return true;
+    return configDir + "/config.toml";
 }
 
 static bool parseargs(int argc, char* argv[], Config& config) {
@@ -252,11 +249,10 @@ int main (int argc, char *argv[]) {
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
 #endif
 
-    struct colors_t colors;
+    colors_t colors;
 
-    std::string configDir = getConfigDir();
-    std::string configFile = configDir + "/config.toml";    
-    parse_config_path(argc, argv, configFile);
+    const std::string configDir = getConfigDir();
+    std::string configFile = parse_config_path(argc, argv, configDir);
     
     Config config(configFile, configDir, colors);
 
@@ -266,10 +262,7 @@ int main (int argc, char *argv[]) {
     if ( config.source_path.empty() || config.source_path == "off" )
         config.m_disable_source = true;
     
-    if (config.source_path == "os")
-        config.m_display_distro = true;
-    else
-        config.m_display_distro = false;
+    config.m_display_distro = (config.source_path == "os");
 
 #ifdef GUI_SUPPORT
     if (config.gui) {
@@ -279,7 +272,8 @@ int main (int argc, char *argv[]) {
     }
 #else
     if (config.gui) 
-        die("Can't run in GUI mode because it got disabled at compile time\nCompile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
+        die("Can't run in GUI mode because it got disabled at compile time\n"
+            "Compile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
 #endif
 
     Display::display(Display::render(config, colors, false));

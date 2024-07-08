@@ -29,11 +29,9 @@ bool Query::GPU::m_bInit = false;
 bool Query::Disk::m_bInit = false;
 bool Query::User::m_bInit = false;
 
-static std::array<std::string, 3> get_ansi_color( const std::string_view str, colors_t& colors )
+static const std::array<std::string, 3> get_ansi_color( const std::string_view str, colors_t& colors )
 {
-#define bgcolor "bgcolor"
-
-    auto first_m = str.find( "m" );
+    size_t first_m = str.find( "m" );
     if ( first_m == std::string::npos )
         die( "Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code" );
 
@@ -84,28 +82,28 @@ static std::array<std::string, 3> get_ansi_color( const std::string_view str, co
             break;
 
         case 100:
-        case 40: col = colors.gui_black;  type = bgcolor; break;
+        case 40: col = colors.gui_black;  type = "bgcolor"; break;
         
         case 101:
-        case 41: col = colors.gui_red;    type = bgcolor; break;
+        case 41: col = colors.gui_red;    type = "bgcolor"; break;
         
         case 102:
-        case 42: col = colors.gui_green;  type = bgcolor; break;
+        case 42: col = colors.gui_green;  type = "bgcolor"; break;
         
         case 103:
-        case 43: col = colors.gui_yellow; type = bgcolor; break;
+        case 43: col = colors.gui_yellow; type = "bgcolor"; break;
         
         case 104:
-        case 44: col = colors.gui_blue;   type = bgcolor; break;
+        case 44: col = colors.gui_blue;   type = "bgcolor"; break;
         
         case 105:
-        case 45: col = colors.gui_magenta; type = bgcolor; break;
+        case 45: col = colors.gui_magenta; type = "bgcolor"; break;
         
         case 106:
-        case 46: col = colors.gui_cyan;   type = bgcolor; break;
+        case 46: col = colors.gui_cyan;   type = "bgcolor"; break;
         
         case 107:
-        case 47: col = colors.gui_white;  type = bgcolor; break;
+        case 47: col = colors.gui_white;  type = "bgcolor"; break;
     }
 
     if ( col[0] != '#' )
@@ -121,7 +119,7 @@ static std::string check_gui_ansi_clr(std::string& str) {
     return str;
 }
 
-static std::string getInfoFromName( const systemInfo_t& systemInfo, const std::string& name )
+static const std::string getInfoFromName( const systemInfo_t& systemInfo, const std::string& name )
 {
     const std::vector<std::string> sections = split( name, '.' );
     
@@ -347,7 +345,7 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
     return output;
 }
 
-static std::string get_auto_uptime(size_t mins, size_t hours) {
+static const std::string get_auto_uptime(size_t mins, size_t hours) {
     std::string ret;
     size_t local_mins = mins%60;
     

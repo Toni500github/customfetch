@@ -1,3 +1,6 @@
+#ifndef _PARSE_HPP
+#define _PARSE_HPP
+
 #include "query.hpp"
 #include "config.hpp"
 
@@ -11,3 +14,5 @@ std::string parse(const std::string& input, const systemInfo_t& systemInfo, cons
 // If the name of said module matches any module name, it will be added
 // else, error out.
 void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName);
+
+#endif

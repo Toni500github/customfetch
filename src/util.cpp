@@ -43,7 +43,7 @@ std::string expandVar(const std::string_view str) {
     std::string ret = str.data();
     const char *env;
     if (ret[0] == '~') {
-        env = getenv("HOME");
+        env = std::getenv("HOME");
         if (env == nullptr)
             die("FATAL: $HOME enviroment variable is not set (how?)");
 
@@ -58,7 +58,7 @@ std::string expandVar(const std::string_view str) {
             ret.erase(pos);
         }
 
-        env = getenv(ret.c_str());
+        env = std::getenv(ret.c_str());
         if (env == nullptr)
             die("No such enviroment variable: {}", str);
 
@@ -218,20 +218,18 @@ bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdEr
     return false;
 }
 
-std::string str_tolower(const std::string_view str) {
-    std::string ret = str.data();
-    for (char& x : ret)
+std::string str_tolower(std::string str) {
+    for (char& x : str)
         x = std::tolower(x); 
     
-    return ret;
+    return str;
 }
 
-std::string str_toupper(const std::string_view str) {
-    std::string ret = str.data();
-    for (char& x : ret)
+std::string str_toupper(std::string str) {
+    for (char& x : str)
         x = std::toupper(x); 
     
-    return ret;
+    return str;
 }
 
 // Function to perform binary search on the pci vendors array to find a device from a vendor.
@@ -366,7 +364,7 @@ std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view ve
 * either from $XDG_CONFIG_HOME or from $HOME/.config/
 * @return user's config directory  
 */
-std::string getHomeConfigDir() {
+const std::string getHomeConfigDir() {
     char *dir = getenv("XDG_CONFIG_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir)) {
         std::string str_dir(dir);
@@ -386,6 +384,6 @@ std::string getHomeConfigDir() {
  * from Config::getHomeConfigDir()
  * @return TabAUR's config directory
  */
-std::string getConfigDir() {
+const std::string getConfigDir() {
     return getHomeConfigDir() + "/customfetch";
 }

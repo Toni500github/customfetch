@@ -1,6 +1,7 @@
 #ifndef _CONFIG_HPP
 #define _CONFIG_HPP
 
+#include <cstdint>
 #define TOML_HEADER_ONLY 0
 
 #include "fmt/color.h"
@@ -38,7 +39,7 @@ public:
     std::string              font;
     std::string              data_dir;
     std::string              sep_reset;
-    u_short                  offset = 0;
+    std::uint8_t             offset = 0;
     bool                     gui    = false;
     std::vector<std::string> layouts;
     std::vector<std::string> includes;
@@ -49,10 +50,10 @@ public:
     bool        m_display_distro = true;
 
     void        loadConfigFile( std::string_view filename, colors_t& colors );
-    std::string getThemeValue( const std::string& value, const std::string& fallback );
+    const std::string getThemeValue( const std::string& value, const std::string& fallback );
 
     template <typename T>
-    T getConfigValue( const std::string& value, T&& fallback )
+    const T getConfigValue( const std::string& value, T&& fallback )
     {
         std::optional<T> ret = this->tbl.at_path( value ).value<T>();
         if constexpr ( toml::is_string<T> )  // if we want to get a value that's a string
@@ -65,7 +66,7 @@ private:
     toml::table tbl;
 };
 
-inline const constexpr std::string_view AUTOCONFIG = R"#([config]
+inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # customfetch is designed with customizability in mind
 # here is how it works:
 # the variable "layout" is used for showing the infos and/or something else

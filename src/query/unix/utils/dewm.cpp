@@ -4,7 +4,7 @@
 #include "util.hpp"
 
 // https://github.com/fastfetch-cli/fastfetch/blob/a61765c8b1387777be67d967bc2f69031c8ca399/src/detection/displayserver/linux/wmde.c#L19
-std::string parse_de_env(void)
+const std::string parse_de_env(void)
 {
     const char* env;
 
@@ -46,7 +46,7 @@ std::string parse_de_env(void)
     return MAGIC_LINE;
 }
 
-std::string prettify_wm_name(const std::string_view name) {
+const std::string prettify_wm_name(const std::string_view name) {
 
     if (name.find("kwin") != std::string::npos)
         return "Kwin";
@@ -64,7 +64,7 @@ std::string prettify_wm_name(const std::string_view name) {
         return "Marco";
 
     std::array<std::string_view, 30> wms = {"awesome", "bspwm", "dtwm", "dwm", "herbstluftwm", "hyprland", "i3", "i3wm", "icewm", "openbox", "qtile", "sway", "tinywm", "wayfire", "weston", "xfwm4", "xmonad",};
-    if (std::binary_search(wms.begin(), wms.end(), str_tolower(name)))
+    if (std::binary_search(wms.begin(), wms.end(), str_tolower(name.data())))
         return name.data();
 
     return MAGIC_LINE;
