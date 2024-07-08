@@ -34,7 +34,7 @@ class Config
 {
 public:
     Config( const std::string_view configFile, const std::string_view configDir, colors_t& colors );
-    
+
     // config file
     std::string              source_path;
     std::string              font;
@@ -102,9 +102,12 @@ layout = [
     "───────────────────────────",
     "${red}OS: $<os.name> $<system.arch>",
     "${yellow}Host: $<system.host>",
-    "${green}Kernel: $<os.kernel_name> $<os.kernel_version>",
+    "${green}Kernel: $<os.kernel>",
     "${cyan}Uptime: $<os.uptime>",
+    "${!#fff220}Terminal: $<user.term>",
     "${cyan}Shell: $<user.shell>",
+    "${!#fa1bba}WM: $<user.wm_name>",
+    "${!#f11f2a}DE: $<user.de_name>",
     "${!#117f23}Disk(/): $<disk(/).disk>",
     "${magenta}CPU: $<cpu.cpu>",
     "${blue}GPU: $<gpu.name>",
@@ -123,7 +126,7 @@ source-path = "os"
 # Path to where we'll take all the distros/OSs ascii arts
 # note: it MUST contain an "ascii" subdirectory
 data-dir = "/usr/share/customfetch"
-    
+
 # A separetor (string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling

@@ -45,6 +45,8 @@ component
   member	: description [example of what it prints, maybe another]
 
 Should be used in the config as like as $<component.member>
+NOTE: there are components such as "user" that will kinda slow down cufetch because of querying things like terminal version
+      cufetch is still fast tho :)
 
 os
   name		: OS name (pretty_name) [Ubuntu 22.04.4 LTS, Arch Linux]
@@ -59,6 +61,7 @@ os
   uptime_mins   : uptime of the system in minutes (should be used along with uptime_secs and/or uptime_hours) [12]
   uptime_hours  : uptime of the system in hours   (should be used along with uptime_mins and/or uptime_secs)  [34]
   hostname	: hostname of the OS [mymainPC]
+  initsys_name	: Init system name [systemd]
 
 user
   name		: name you are currently logged in (not real name) [toni69]
@@ -67,7 +70,10 @@ user
   shell_path	: login shell (with path) [/bin/zsh]
   shell_version : login shell version (may be not correct) [5.9]
   de_name	: Desktop Enviroment current session name [Plasma]
-  wm_name	: Windows manager current session name [dwm]
+  wm_name	: Windows manager current session name [dwm, xfwm4]
+  term		: Terminal name and version [alacritty 0.13.2]
+  term_name	: Terminal name [alacritty]
+  term_version	: Terminal version [0.13.2]
 
 ram
   ram		: used and total amount of RAM (in MB) [2815 MB / 15881 MB]
@@ -246,7 +252,7 @@ int main (int argc, char *argv[]) {
     fmt::println("AMD: {}", binarySearchPCIArray("1002"));
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
 #endif
-    
+
     struct colors_t colors;
 
     std::string configDir = getConfigDir();
@@ -277,7 +283,7 @@ int main (int argc, char *argv[]) {
         die("Can't run in GUI mode because it got disabled at compile time\nCompile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
 #endif
 
-    Display::display(Display::render(config, colors));
+    Display::display(Display::render(config, colors, false));
 
     return 0;
 }

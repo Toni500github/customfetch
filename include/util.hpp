@@ -10,9 +10,12 @@
 #include <fstream>
 #include <string>
 
-#define BOLD_TEXT(x)   (fmt::emphasis::bold | fmt::fg(x))
-#define NOCOLOR        "\033[0m"
+#define BOLD_TEXT(x)    (fmt::emphasis::bold | fmt::fg(x))
+#define NOCOLOR         "\033[0m"
 #define UNKNOWN         "(unknown)"
+
+// magic line to be sure that I don't cut the wrong line 
+#define MAGIC_LINE      "(cut this shit NOW!! RAHHH)"
 
 bool hasEnding(const std::string_view fullString, const std::string_view ending);
 bool hasStart(const std::string_view fullString, const std::string_view start);
@@ -22,9 +25,11 @@ std::string binarySearchPCIArray(const std::string_view vendor_id, const std::st
 std::string binarySearchPCIArray(const std::string_view vendor_id);
 std::string shell_exec(const std::string_view cmd);
 std::vector<std::string> split(const std::string_view text, char delim);
+bool is_file_image(const unsigned char *bytes);
 std::string expandVar(const std::string_view str);
 // Replace string inplace
 void replace_str(std::string &str, const std::string& from, const std::string& to);
+bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdErr = false);
 std::string str_tolower(const std::string_view str);
 std::string str_toupper(const std::string_view str);
 void strip(std::string& input);

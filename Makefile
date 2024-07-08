@@ -30,14 +30,14 @@ ifeq ($(GUI_SUPPORT), 1)
 endif
 
 ifneq ($(OS),Windows_NT)
-	LDFLAGS += -lmagic
+	LDFLAGS += -lprocps
 endif
 
 NAME		 = customfetch
 TARGET		 = cufetch
 VERSION    	 = 0.1.0
 BRANCH     	 = main
-SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/unix/*.cpp src/query/windows/*.cpp))
+SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp src/query/windows/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native

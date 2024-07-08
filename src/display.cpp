@@ -7,10 +7,10 @@
 #include "fmt/core.h"
 #include "fmt/ranges.h"
 
+#include <algorithm>
 #include <fstream>
-#ifdef CF_UNIX
-# include <magic.h>
-#endif
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <iostream>
 
 std::string Display::detect_distro(Config& config) {
@@ -29,13 +29,10 @@ std::string Display::detect_distro(Config& config) {
     return file_path;
 }
 
-std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
+std::vector<std::string>& Display::render(Config& config, colors_t& colors, bool already_analyzed_file) {
     systemInfo_t systemInfo{};
     std::string path = config.m_display_distro ? detect_distro(config) : config.source_path;
 
-    // first check if the file is an image
-    // using the same library that "file" uses
-    // No extra bloatware nice
 #ifdef CF_UNIX
     if (!config.m_display_distro && 
         !config.m_disable_source && 
@@ -44,17 +41,10 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         path = config.source_path;
         if (!config.m_custom_distro.empty())
             die("You need to specify if either using a custom distro ascii art OR a custom source path");
-
-        magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
-        magic_load(myt, NULL);
-        std::string file_type = magic_file(myt, path.c_str());
-        if ((file_type.find("text") == std::string::npos) && !config.m_disable_source)
-            die("The source file '{}' is a binary file. Please currently use the GUI mode for rendering the image (use -h for more details)", config.source_path);
-        magic_close(myt);
     }
 #endif
 
-    debug("path = {:s}", path);
+    debug("path = {}", path);
 
     for (std::string& include : config.includes) {
         addModuleValues(systemInfo, include);
@@ -64,19 +54,33 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
         layout = parse(layout, systemInfo, config, colors, true);
     }
     
-    std::ifstream file(path, std::ios_base::binary);
-    if (!file.is_open())
-        if (!config.m_disable_source)
+    std::ifstream file;
+    std::ifstream fileToAnalyze; // Input iterators are invalidated when you advance them. both have same path
+    if (!config.m_disable_source) {
+        file.open(path, std::ios::binary);
+        fileToAnalyze.open(path, std::ios::binary);
+        if (!file.is_open() || !fileToAnalyze.is_open())
             die("Could not open ascii art file \"{}\"", path);
-
-    if (config.m_disable_source)
-        file.close();
+    }
 
     std::string line;
     std::vector<std::string> asciiArt;
     std::vector<std::string> pureAsciiArt;
     int maxLineLength = -1;
     
+    // first check if the file is an image
+    // without even using the same library that "file" uses
+    // No extra bloatware nice
+    if (!already_analyzed_file)
+    {
+        debug("Display::render() analyzing file");
+        unsigned char buffer[16];
+        fileToAnalyze.read((char*) (&buffer[0]), sizeof(buffer));
+        if (is_file_image(buffer))
+                die("The source file '{}' is a binary file.\n"
+                    "Please currently use the GUI mode for rendering the image/gif (use -h for more details)", path);
+    }
+
     while (std::getline(file, line)) {
         std::string pureOutput;
 
@@ -98,6 +102,11 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors) {
     
     debug("SkeletonAsciiArt = \n{}", fmt::join(pureAsciiArt, "\n"));
     debug("asciiArt = \n{}", fmt::join(asciiArt, "\n"));
+    
+    // erase each element for each instance of MAGIC_LINE
+    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), 
+                                        [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }
+                                        ), config.layouts.end());
 
     size_t i;
     for (i = 0; i < config.layouts.size(); i++) {

@@ -45,20 +45,7 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
         die("Unable to load image '{}'", config.source_path);
 
     for (std::string& include : config.includes) {
-        std::vector<std::string> include_nodes = split(include, '.');
-
-        switch (std::count(include.begin(), include.end(), '.')) 
-        {   
-            // only 1 element
-            case 0:
-                addModuleValues(systemInfo, include);
-                break;
-            case 1:
-                addValueFromModule(systemInfo, include_nodes[0], include_nodes[1]);
-                break;
-            default:
-                die("Include has too many namespaces!");
-        }
+        addModuleValues(systemInfo, include);
     }
 
     for (std::string& layout : config.layouts) {
@@ -66,6 +53,9 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
     }
 
     for (size_t i = 0; i < config.layouts.size(); i++) {
+        if (config.layouts.at(i).find(MAGIC_LINE) != std::string::npos)
+            config.layouts.erase(config.layouts.begin() + i);
+
         for (size_t _ = 0; _ < config.offset; _++) // I use _ because we don't need it 
             config.layouts.at(i).insert(0, " ");
     }
@@ -76,21 +66,21 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
 
 Window::Window(Config& config, colors_t& colors) {
     set_title("customfetch - Higly customizable and fast neofetch like program");
-    set_default_size(800, 600);
+    set_default_size(1000, 800);
     add(m_box);
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
     if (!std::filesystem::exists(path))
         die("'{}' doesn't exist. Can't load image/text file", path);
     
-    // check if the file is an image
-    // using the same library that "file" uses
-    // No extra bloatware nice
-    magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
-    magic_load(myt, NULL);
-    std::string file_type = magic_file(myt, path.c_str());
-    bool useImage = ((file_type.find("text") == std::string::npos) && !config.m_disable_source);
-    magic_close(myt);
+    bool useImage = false;
+    
+    debug("Window::Window analyzing file");
+    std::ifstream f(path);
+    unsigned char buffer[128];
+    f.read((char*) (&buffer[0]), 128);
+    if (is_file_image(buffer))
+        useImage = true;
     
     // useImage can be either a gif or an image
     if (useImage && !config.m_disable_source) {
@@ -113,13 +103,13 @@ Window::Window(Config& config, colors_t& colors) {
     style_context->lookup_color("theme_fg_color", fg_color);
     std::string fg_color_str = rgba_to_hexstr(fg_color);*/
     
-    std::string colored_text;
+    std::string markup_text;
     if (useImage)
-        colored_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
+        markup_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
     else
-        colored_text = fmt::format("{}", fmt::join(Display::render(config, colors), "\n"));
+        markup_text = fmt::format("{}", fmt::join(Display::render(config, colors, true), "\n"));
 
-    m_label.set_markup(colored_text);
+    m_label.set_markup(markup_text);
     m_label.set_alignment(Gtk::ALIGN_CENTER);
     m_box.pack_start(m_label);
 

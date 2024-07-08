@@ -21,12 +21,11 @@ Currently supports Linux distros only, but our current goal is to be cross-platf
 ## Depends
 ### Debian/Ubuntu and based
 ```sh
-$ sudo apt-get install libpci3 libgtkmm-3.0-1v5
+$ sudo apt-get install libprocps-dev libgtkmm-3.0-1v5
 ```
 ### Arch and based
 ```sh
-# the depends such as "pciutils" are already required by the "base" package
-$ sudo pacman -S gtkmm3 gtk3
+$ sudo pacman -S gtkmm3 gtk3 libprocps
 ```
 
 ## Installation

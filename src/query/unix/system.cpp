@@ -6,6 +6,7 @@
 #include <array>
 #include <cerrno>
 #include <algorithm>
+#include <filesystem>
 #include <unistd.h>
 
 using namespace Query;
@@ -16,10 +17,16 @@ enum {
     ID,
     VERSION_ID,
     VERSION_CODENAME,
-    ID_LIKE,
-    BUILD_ID,
-    _VERSION, // conflicts with the macro VERSION so had to put _
+    
+    INIT, // init system
+    //_VERSION, // conflicts with the macro VERSION so had to put _
 };
+
+struct host_paths {
+    std::string name;
+    std::string version;
+    std::string vendor;
+} host;
 
 static std::string get_var(std::string& line, u_short& iter_index) {
     std::string ret = line.substr(line.find('=')+1);
@@ -28,8 +35,26 @@ static std::string get_var(std::string& line, u_short& iter_index) {
     return ret;
 }
 
-static std::array<std::string, 5> get_os_release_vars() {
-    std::array<std::string, 5> ret;
+static void get_host_paths(struct host_paths& paths) {
+    std::string syspath = "/sys/devices/virtual/dmi/id/";
+
+    if (std::filesystem::exists(syspath + "/board_name")) {
+        paths.name = read_by_syspath(syspath + "/board_name");
+        paths.version = read_by_syspath(syspath + "/board_version");
+        paths.vendor = read_by_syspath(syspath + "/board_vendor");
+    }
+
+    else if (std::filesystem::exists(syspath + "/product_name")) {
+        paths.name = read_by_syspath(syspath + "/product_name");
+        if (hasStart(paths.name, "Standard PC"))
+            paths.vendor = "KVM/QEMU";
+
+        paths.version = read_by_syspath(syspath + "/product_version");
+    }
+}
+
+static std::array<std::string, 7> get_os_release_vars() {
+    std::array<std::string, 7> ret;
     std::fill(ret.begin(), ret.end(), UNKNOWN);
 
     debug("calling {}", __PRETTY_FUNCTION__);
@@ -59,6 +84,19 @@ static std::array<std::string, 5> get_os_release_vars() {
             ret.at(VERSION_CODENAME) = get_var(line, iter_index);
     }
 
+    std::ifstream f_initsys("/proc/1/cmdline", std::ios::binary);
+    std::string initsys;
+    std::getline(f_initsys, initsys);
+    size_t pos = 0;
+    if ((pos = initsys.find('\0')) != std::string::npos)
+        initsys.erase(pos);
+        
+    if ((pos = initsys.rfind('/')) != std::string::npos)
+        initsys.erase(0, pos+1);
+
+    
+    ret.at(INIT) = initsys;
+
     return ret;
 }
 
@@ -72,7 +110,8 @@ System::System() {
         if (sysinfo(&m_sysInfos) != 0)
             die("uname() failed: {}\nCould not get system infos", errno);
 
-        m_os_release_vars = get_os_release_vars();
+        m_os_infos = get_os_release_vars();
+        get_host_paths(host);
         m_bInit = true;
     }
 }
@@ -98,35 +137,39 @@ long System::uptime() {
 }
 
 std::string System::os_pretty_name() {
-    return m_os_release_vars.at(PRETTY_NAME);
+    return m_os_infos.at(PRETTY_NAME);
 }
 
 std::string System::os_name() {
-    return m_os_release_vars.at(NAME);
+    return m_os_infos.at(NAME);
 }
 
 std::string System::os_id() {
-    return m_os_release_vars.at(ID);
+    return m_os_infos.at(ID);
 }
 
 std::string System::os_versionid() {
-    return m_os_release_vars.at(VERSION_ID);
+    return m_os_infos.at(VERSION_ID);
 }
 
 std::string System::os_version_codename() {
-    return m_os_release_vars.at(VERSION_CODENAME);
+    return m_os_infos.at(VERSION_CODENAME);
+}
+
+std::string System::os_initsys_name() {
+    return m_os_infos.at(INIT);
 }
 
 std::string System::host_modelname() {
-    return read_by_syspath("/sys/devices/virtual/dmi/id/board_name");
+    return host.name;
 }
 
 std::string System::host_vendor() {
-    return read_by_syspath("/sys/devices/virtual/dmi/id/board_vendor");
+    return host.vendor;
 }
 
 std::string System::host_version() {
-    return read_by_syspath("/sys/devices/virtual/dmi/id/board_version");
+    return host.version;
 }
 
 #endif

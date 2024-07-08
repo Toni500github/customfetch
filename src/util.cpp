@@ -2,8 +2,13 @@
 #include "fmt/color.h"
 #include "pci.ids.hpp"
 
+#include <sys/wait.h>
+#include <array>
+#include <fcntl.h>
+#include <fmt/ranges.h>
 #include <cerrno>
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <sstream>
 #include <string_view>
@@ -83,6 +88,38 @@ std::string read_by_syspath(const std::string_view path) {
     return ret;
 }
 
+bool is_file_image(const unsigned char *bytes) {
+    debug("util bytes = {}", (char*)bytes);
+    
+    // https://stackoverflow.com/a/49683945
+    constexpr std::array<unsigned char, 3> jpeg = {0xff, 0xd8, 0xff};
+    constexpr std::array<unsigned char, 8> png = {0x89, 0x50, 0x4e, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    constexpr std::array<unsigned char, 6> gif89a = {0x47, 0x49, 0x46, 0x38, 0x39, 0x61};
+    constexpr std::array<unsigned char, 6> gif87a = {0x47, 0x49, 0x46, 0x38, 0x37, 0x61};
+    constexpr std::array<unsigned char, 2> bmp =  {0x42, 0x4D};
+    constexpr std::array<unsigned char, 4> tiffI = {0x49, 0x49, 0x2A, 0x00};
+    constexpr std::array<unsigned char, 4> tiffM = {0x4D, 0x4D, 0x00, 0x2A};
+
+    if (std::memcmp(bytes, png.data(), png.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, jpeg.data(), jpeg.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, gif89a.data(), gif89a.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, gif87a.data(), gif87a.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, tiffM.data(), tiffM.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, tiffI.data(), tiffI.size()) == 0)
+        return true;
+    else if (std::memcmp(bytes, bmp.data(), bmp.size()) == 0)
+        return true;
+
+
+
+    return false;
+}
+
 /**
  * remove all white spaces (' ', '\t', '\n') from start and end of input
  * inplace!
@@ -133,6 +170,59 @@ void replace_str(std::string& str, const std::string& from, const std::string& t
         str.replace(start_pos, from.length(), to);
         start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
     }
+}
+
+bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdErr) {
+    int pipeout[2];
+
+    if (pipe(pipeout) < 0)
+        die("pipe() failed: {}", strerror(errno));
+
+    int pid = fork();
+
+    if (pid > 0) { // we wait for the command to finish then start executing the rest
+        close(pipeout[1]);
+
+        int status;
+        waitpid(pid, &status, 0); // Wait for the child to finish
+
+        if (WIFEXITED(status) && (WEXITSTATUS(status) == 0 || useStdErr)) {
+            // read stdout
+            debug("reading stdout");
+            char c;
+            while (read(pipeout[0], &c, 1) == 1) {
+                output += c;
+            }
+
+            close(pipeout[0]);
+            if (!output.empty() && output.at(output.length()-1) == '\n')
+                output.pop_back();
+
+            return true;
+        } else {
+            if (!useStdErr)
+                error("Failed to execute the command: {}", fmt::join(cmd, " "));
+        }
+    } else if (pid == 0) {
+        int nullFile = open("/dev/null", O_WRONLY | O_CLOEXEC);
+        dup2(pipeout[1], useStdErr ? STDERR_FILENO : STDOUT_FILENO);
+        dup2(nullFile, useStdErr ? STDOUT_FILENO : STDERR_FILENO);
+
+        setenv("LANG", "C", 1);
+        cmd.push_back(nullptr);
+        execvp(cmd[0], const_cast<char *const *>(cmd.data()));
+
+        die("An error has occurred: {}", strerror(errno));
+    } else {
+        close(pipeout[0]);
+        close(pipeout[1]);
+        die("fork() failed: {}", strerror(errno));
+    }
+
+    close(pipeout[0]);
+    close(pipeout[1]);
+
+    return false;
 }
 
 std::string str_tolower(const std::string_view str) {

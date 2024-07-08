@@ -10,7 +10,7 @@
 #include "util.hpp"
 
 using namespace Query;
-std::array<std::string, 5> Query::System::m_os_release_vars;
+std::array<std::string, 7> Query::System::m_os_infos;
 std::array<std::string, 3> Query::CPU::m_cpu_infos_str;
 std::array<float, 4> Query::CPU::m_cpu_infos_t;
 std::string Query::Disk::m_typefs;
@@ -346,7 +346,7 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
             break;
         }
     }
-
+    
     return output;
 }
 
@@ -415,6 +415,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
                     {"kernel_version", variant(query_system.kernel_version())},
                     
                     {"hostname",       variant(query_system.hostname())},
+                    {"initsys_name",   variant(query_system.os_initsys_name())},
                 }}
             );
         }
@@ -435,7 +436,11 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
                 {"shell_version", variant(query_user.shell_version())},
 
                 {"wm_name",       variant(query_user.wm_name())},
-                {"de_name",       variant(query_user.de_name())}
+                {"de_name",       variant(query_user.de_name())},
+
+                {"term",          variant(query_user.term_name() + ' ' + query_user.term_version())},
+                {"term_name",     variant(query_user.term_name())},
+                {"term_version",  variant(query_user.term_version())}
             }}
         );
 
