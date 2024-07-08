@@ -13,6 +13,9 @@
 #include "pangomm/fontdescription.h"
 #include "gdkmm/pixbufanimation.h"
 
+#include <filesystem>
+#include <fstream>
+
 using namespace GUI;
 
 // https://www.codespeedy.com/convert-rgb-to-hex-color-code-in-cpp/

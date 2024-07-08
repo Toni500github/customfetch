@@ -1,6 +1,8 @@
 #include "config.hpp"
+
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 // initialize Config, can only be ran once for each Config instance.
 Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors) {

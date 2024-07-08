@@ -1,12 +1,11 @@
 #ifndef _CONFIG_HPP
 #define _CONFIG_HPP
 
-#include <cstdint>
 #define TOML_HEADER_ONLY 0
 
-#include "fmt/color.h"
 #include "toml++/toml.hpp"
 #include "util.hpp"
+#include <cstdint>
 
 struct colors_t
 {

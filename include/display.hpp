@@ -1,7 +1,6 @@
 #ifndef DISPLAY_HPP
 #define DISPLAY_HPP
 
-#include "util.hpp"
 #include "config.hpp"
 
 #include <string>

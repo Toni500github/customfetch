@@ -4,9 +4,7 @@
 #include "fmt/color.h"
 #include "fmt/core.h"
 
-#include <filesystem>
 #include <vector>
-#include <fstream>
 #include <string>
 #include <sys/types.h>
 

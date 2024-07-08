@@ -4,6 +4,7 @@
 #include "gui.hpp"
 
 #include <getopt.h>
+#include <filesystem>
 
 static void version() {
     fmt::println("customfetch v{} branch {}", VERSION, BRANCH);

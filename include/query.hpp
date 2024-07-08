@@ -2,15 +2,10 @@
 #define QUERY_HPP
 
 #include "util.hpp"
-#include "config.hpp"
-
-#include <array>
 #include <fstream>
-#include <vector>
 #include <unordered_map>
 #include <variant>
 #include <string>
-#include <memory>
 
 extern "C" {
 #include <pwd.h>

@@ -4,10 +4,14 @@
 
 #include <sys/wait.h>
 #include <array>
+#include <filesystem>
 #include <fcntl.h>
 #include <fmt/ranges.h>
 #include <cerrno>
 #include <cstring>
+#include <memory>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
