@@ -61,6 +61,7 @@ os
   uptime_mins   : uptime of the system in minutes (should be used along with uptime_secs and/or uptime_hours) [12]
   uptime_hours  : uptime of the system in hours   (should be used along with uptime_mins and/or uptime_secs)  [34]
   hostname	: hostname of the OS [mymainPC]
+  initsys_name	: Init system name [systemd]
 
 user
   name		: name you are currently logged in (not real name) [toni69]

@@ -10,7 +10,7 @@
 #include "util.hpp"
 
 // using namespace Query;
-std::array<std::string, 5> Query::System::m_os_release_vars;
+std::array<std::string, 7> Query::System::m_os_infos;
 struct utsname Query::System::m_uname_infos;
 struct sysinfo Query::System::m_sysInfos;
 struct passwd* Query::User::m_pPwd;
@@ -412,6 +412,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
                     {"kernel_version", variant(query_system.kernel_version())},
                     
                     {"hostname",       variant(query_system.hostname())},
+                    {"initsys_name",   variant(query_system.os_initsys_name())},
                 }}
             );
         }

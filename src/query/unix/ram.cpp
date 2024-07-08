@@ -21,9 +21,6 @@ enum {
     SRECLAIMABLE
 };
 
-// minimaze the while loop iteration once we have all the values we needed
-// less cpu cicles and saving ms of time
-
 static size_t get_from_text(std::string& line, u_short& iter_index) {
     std::string amount = line.substr(line.find(':')+1);
     strip(amount);

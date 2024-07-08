@@ -141,10 +141,6 @@ static std::string _get_term_version(std::string_view term_name) {
 
     if (hasStart(term_name, "st"))
         read_exec({term_name.data(), "-v"}, ret, true);
-    
-    else if (hasStart(term_name, "kitty"))
-        read_exec({"kitten", "--version"}, ret);
-
     else // tell your terminal to NOT RETURN ERROR WHEN ASKING FOR ITS VERSION (looking at you st)
         read_exec({term_name.data(), "--version"}, ret);
 

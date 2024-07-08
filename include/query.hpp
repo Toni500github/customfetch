@@ -37,6 +37,7 @@ public:
     std::string os_pretty_name();
     std::string os_name();
     std::string os_id();
+    std::string os_initsys_name();
     std::string os_versionid();
     std::string os_version_codename();
     long        uptime();
@@ -47,7 +48,7 @@ public:
     std::string host_version();
 
 private:
-    static std::array<std::string, 5> m_os_release_vars;
+    static std::array<std::string, 7> m_os_infos;
     static bool m_bInit;
     static struct utsname m_uname_infos;
     static struct sysinfo m_sysInfos;

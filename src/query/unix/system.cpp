@@ -15,9 +15,9 @@ enum {
     ID,
     VERSION_ID,
     VERSION_CODENAME,
-    ID_LIKE,
-    BUILD_ID,
-    _VERSION, // conflicts with the macro VERSION so had to put _
+    
+    INIT, // init system
+    //_VERSION, // conflicts with the macro VERSION so had to put _
 };
 
 struct host_paths {
@@ -51,8 +51,8 @@ static void get_host_paths(struct host_paths& paths) {
     }
 }
 
-static std::array<std::string, 5> get_os_release_vars() {
-    std::array<std::string, 5> ret;
+static std::array<std::string, 7> get_os_release_vars() {
+    std::array<std::string, 7> ret;
     std::fill(ret.begin(), ret.end(), UNKNOWN);
 
     debug("calling {}", __PRETTY_FUNCTION__);
@@ -82,6 +82,19 @@ static std::array<std::string, 5> get_os_release_vars() {
             ret.at(VERSION_CODENAME) = get_var(line, iter_index);
     }
 
+    std::ifstream f_initsys("/proc/1/cmdline", std::ios::binary);
+    std::string initsys;
+    std::getline(f_initsys, initsys);
+    size_t pos = 0;
+    if ((pos = initsys.find('\0')) != std::string::npos)
+        initsys.erase(pos);
+        
+    if ((pos = initsys.rfind('/')) != std::string::npos)
+        initsys.erase(0, pos+1);
+
+    
+    ret.at(INIT) = initsys;
+
     return ret;
 }
 
@@ -95,7 +108,7 @@ System::System() {
         if (sysinfo(&m_sysInfos) != 0)
             die("uname() failed: {}\nCould not get system infos", errno);
 
-        m_os_release_vars = get_os_release_vars();
+        m_os_infos = get_os_release_vars();
         get_host_paths(host);
         m_bInit = true;
     }
@@ -122,23 +135,27 @@ long System::uptime() {
 }
 
 std::string System::os_pretty_name() {
-    return m_os_release_vars.at(PRETTY_NAME);
+    return m_os_infos.at(PRETTY_NAME);
 }
 
 std::string System::os_name() {
-    return m_os_release_vars.at(NAME);
+    return m_os_infos.at(NAME);
 }
 
 std::string System::os_id() {
-    return m_os_release_vars.at(ID);
+    return m_os_infos.at(ID);
 }
 
 std::string System::os_versionid() {
-    return m_os_release_vars.at(VERSION_ID);
+    return m_os_infos.at(VERSION_ID);
 }
 
 std::string System::os_version_codename() {
-    return m_os_release_vars.at(VERSION_CODENAME);
+    return m_os_infos.at(VERSION_CODENAME);
+}
+
+std::string System::os_initsys_name() {
+    return m_os_infos.at(INIT);
 }
 
 std::string System::host_modelname() {
