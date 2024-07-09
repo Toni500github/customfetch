@@ -1,7 +1,6 @@
 #ifndef DISPLAY_HPP
 #define DISPLAY_HPP
 
-#include "util.hpp"
 #include "config.hpp"
 
 #include <string>
@@ -9,7 +8,7 @@
 
 namespace Display {
 
-std::vector<std::string>& render(Config& config, colors_t& colors, bool already_analyzed_path);
+std::vector<std::string> render(Config& config, colors_t& colors, const bool already_analyzed_path, std::string& path);
 void display(std::vector<std::string>& renderResult);
 std::string detect_distro(Config& config);
 

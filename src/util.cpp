@@ -4,11 +4,15 @@
 
 #include <sys/wait.h>
 #include <array>
+#include <filesystem>
 #include <fcntl.h>
 #include <fmt/ranges.h>
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
+#include <memory>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <sstream>
 #include <string_view>
@@ -65,7 +69,7 @@ std::string expandVar(const std::string_view str) {
             ret.erase(pos);
         }
 
-        env = getenv(ret.c_str());
+        env = std::getenv(ret.c_str());
         if (env == nullptr)
             die("No such enviroment variable: {}", str);
 
@@ -225,20 +229,18 @@ bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdEr
     return false;
 }
 
-std::string str_tolower(const std::string_view str) {
-    std::string ret = str.data();
-    for (char& x : ret)
+std::string str_tolower(std::string str) {
+    for (char& x : str)
         x = std::tolower(x); 
     
-    return ret;
+    return str;
 }
 
-std::string str_toupper(const std::string_view str) {
-    std::string ret = str.data();
-    for (char& x : ret)
+std::string str_toupper(std::string str) {
+    for (char& x : str)
         x = std::toupper(x); 
     
-    return ret;
+    return str;
 }
 
 // Function to perform binary search on the pci vendors array to find a device from a vendor.

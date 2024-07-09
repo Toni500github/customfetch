@@ -1,10 +1,10 @@
 #include "display.hpp"
 #include "util.hpp"
-#include "parse.hpp"
 #include "config.hpp"
 #include "gui.hpp"
 
 #include <getopt.h>
+#include <filesystem>
 
 static void version() {
     fmt::println("customfetch v{} branch {}", VERSION, BRANCH);
@@ -31,6 +31,7 @@ A command-line system information tool (or neofetch like program), which its foc
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it's enabled)
     -l. --list-components	Print the list of the components and its members
     -h, --help			Print this help menu
+    -L, --logo-only             Print only the logo
     -V, --version		Print the version along with the git branch it was built
 
 Read the "README.md" file for more infos about customfetch and how it works
@@ -56,6 +57,7 @@ os
   version_id	: OS version id [22.04.4, 20240101.0.204074]
   version_codename: OS version codename [jammy]
   username	: the user name you are currently logged in (not real name) [toni69]
+  pkgs		: the count of the installed packages by a package manager [1869 (pacman), 4 (flatpak)]
   uptime	: (auto) uptime of the system [36 mins, 3 hours, 23 mins]
   uptime_secs	: uptime of the system in seconds (should be used along with uptime_mins and/or uptime_hours) [45]
   uptime_mins   : uptime of the system in minutes (should be used along with uptime_secs and/or uptime_hours) [12]
@@ -104,7 +106,7 @@ cpu
   freq_max	: CPU freq (maxinum, in GHz) [4.90]
 
 system
-  host		: Host (aka. Motherboard) model name and vendor [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95)]
+  host		: Host (aka. Motherboard) model name with vendor and version [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95) 1.0]
   host_name	: Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
   host_version	: Host (aka. Motherboard) model version [1.0]
   host_vendor	: Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
@@ -116,7 +118,7 @@ system
 
 // parseargs() but only for parsing the user config path trough args
 // and so we can directly construct Config
-static bool parse_config_path(int argc, char* argv[], std::string& configFile) {
+static std::string parse_config_path(int argc, char* argv[], const std::string& configDir) {
     int opt = 0;
     int option_index = 0;
     opterr = 0;
@@ -134,31 +136,29 @@ static bool parse_config_path(int argc, char* argv[], std::string& configFile) {
             case '?':
                 break;
 
-            case 'C':
-                configFile = optarg; 
-                if (!std::filesystem::exists(configFile))
-                    die("config file '{}' doesn't exist", configFile);
-
+            case 'C': 
+                if (!std::filesystem::exists(optarg))
+                    die("config file '{}' doesn't exist", optarg);
+                return optarg;
                 break;
-            default:
-                return false;
         }
     }
 
-    return true;
+    return configDir + "/config.toml";
 }
 
 static bool parseargs(int argc, char* argv[], Config& config) {
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnlgC:d:D:s:";
+    const char *optstring = "-VhnLlgC:d:D:s:";
     static const struct option opts[] =
     {
         {"version",         no_argument,       0, 'V'},
         {"help",            no_argument,       0, 'h'},
         {"no-display",      no_argument,       0, 'n'},
         {"list-components", no_argument,       0, 'l'},
+        {"logo-only",       no_argument,       0, 'L'},
         {"gui",             no_argument,       0, 'g'},
         {"config",          required_argument, 0, 'C'},
         {"data-dir",        required_argument, 0, 'D'},
@@ -185,6 +185,8 @@ static bool parseargs(int argc, char* argv[], Config& config) {
                 config.m_disable_source = true; break;
             case 'l':
                 components_list(); break;
+            case 'L':
+                config.m_print_logo_only = true; break;
             case 'g':
                 config.gui = true; break;
             case 'C': // we have already did it in parse_config_path()
@@ -253,11 +255,10 @@ int main (int argc, char *argv[]) {
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
 #endif
 
-    struct colors_t colors;
+    colors_t colors;
 
-    std::string configDir = getConfigDir();
-    std::string configFile = configDir + "/config.toml";    
-    parse_config_path(argc, argv, configFile);
+    const std::string configDir = getConfigDir();
+    std::string configFile = parse_config_path(argc, argv, configDir);
     
     Config config(configFile, configDir, colors);
 
@@ -267,10 +268,7 @@ int main (int argc, char *argv[]) {
     if ( config.source_path.empty() || config.source_path == "off" )
         config.m_disable_source = true;
     
-    if (config.source_path == "os")
-        config.m_display_distro = true;
-    else
-        config.m_display_distro = false;
+    config.m_display_distro = (config.source_path == "os");
 
 #ifdef GUI_SUPPORT
     if (config.gui) {
@@ -280,10 +278,13 @@ int main (int argc, char *argv[]) {
     }
 #else
     if (config.gui) 
-        die("Can't run in GUI mode because it got disabled at compile time\nCompile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
+        die("Can't run in GUI mode because it got disabled at compile time\n"
+            "Compile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
 #endif
 
-    Display::display(Display::render(config, colors, false));
+    std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
+    std::vector<std::string> rendered_text{Display::render(config, colors, false, path)};
+    Display::display(rendered_text);
 
     return 0;
 }

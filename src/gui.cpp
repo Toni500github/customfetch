@@ -17,6 +17,9 @@
 #include "pangomm/fontdescription.h"
 #include "gdkmm/pixbufanimation.h"
 
+#include <filesystem>
+#include <fstream>
+
 using namespace GUI;
 
 // https://www.codespeedy.com/convert-rgb-to-hex-color-code-in-cpp/
@@ -44,8 +47,9 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
     else
         die("Unable to load image '{}'", config.source_path);
 
+    
     for (std::string& include : config.includes) {
-        addModuleValues(systemInfo, include);
+        addModuleValues(systemInfo, include, config);
     }
 
     for (std::string& layout : config.layouts) {
@@ -70,7 +74,8 @@ Window::Window(Config& config, colors_t& colors) {
     add(m_box);
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
-    if (!std::filesystem::exists(path))
+    if (!std::filesystem::exists(path) && 
+        !std::filesystem::exists((path = fmt::format("{}/ascii/linux.txt", config.data_dir))))
         die("'{}' doesn't exist. Can't load image/text file", path);
     
     bool useImage = false;
@@ -104,11 +109,13 @@ Window::Window(Config& config, colors_t& colors) {
     std::string fg_color_str = rgba_to_hexstr(fg_color);*/
     
     std::string markup_text;
-    if (useImage)
-        markup_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
+    if (useImage) {
+        if (!config.m_print_logo_only) 
+            markup_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
+    }
     else
-        markup_text = fmt::format("{}", fmt::join(Display::render(config, colors, true), "\n"));
-
+        markup_text = fmt::format("{}", fmt::join(Display::render(config, colors, true, path), "\n"));
+    
     m_label.set_markup(markup_text);
     m_label.set_alignment(Gtk::ALIGN_CENTER);
     m_box.pack_start(m_label);

@@ -3,14 +3,11 @@
 
 #include "util.hpp"
 #include "config.hpp"
-
-#include <array>
+#include <cstdint>
 #include <fstream>
-#include <vector>
 #include <unordered_map>
 #include <variant>
 #include <string>
-#include <memory>
 
 #ifdef CF_WINDOWS
 
@@ -37,7 +34,28 @@ namespace Query {
 
 class System {
 public:
-    System();
+    struct System_t {
+        std::string os_pretty_name{UNKNOWN};
+        std::string os_name{UNKNOWN};
+        std::string os_id{UNKNOWN};
+        std::string os_version_id{UNKNOWN};
+        std::string os_version_codename{UNKNOWN};
+        std::string os_initsys_name{UNKNOWN};
+        std::string os_initsys_version{UNKNOWN};
+
+        std::string host_modelname;
+        std::string host_version;
+        std::string host_vendor;
+
+        std::string pkgs_installed;
+    };
+
+    struct pkg_managers_t {
+        std::uint16_t pacman_pkgs = 0;
+        std::uint16_t flatpak_pkgs = 0;
+    };
+
+    System(const Config& config);
     std::string kernel_name();
     std::string kernel_version();
     std::string hostname();
@@ -55,8 +73,10 @@ public:
     std::string host_vendor();
     std::string host_version();
 
+    std::string pkgs_installed();
+
 private:
-    static std::array<std::string, 7> m_os_infos;
+    static System_t m_system_infos;
     static bool m_bInit;
 #ifdef CF_UNIX
     static struct utsname m_uname_infos;
@@ -66,6 +86,16 @@ private:
 
 class User {
 public:
+    struct User_t {
+        std::string name{UNKNOWN};
+        std::string shell_name{UNKNOWN};
+        std::string shell_version{UNKNOWN};
+        std::string wm_name{MAGIC_LINE};
+        std::string de_name{MAGIC_LINE};
+        std::string term_name{MAGIC_LINE};
+        std::string term_version{MAGIC_LINE};
+    };
+
     User();
     std::string name();
     std::string shell_name();
@@ -79,7 +109,7 @@ public:
 
 private:
     static bool m_bInit;
-    static std::array<std::string, 6> m_users_infos;
+    static User_t m_users_infos;
 #ifdef CF_UNIX
     static struct passwd *m_pPwd;
 #endif
@@ -87,6 +117,19 @@ private:
 
 class CPU {
 public:
+    struct CPU_t {
+        std::string name{UNKNOWN};
+        std::string nproc{UNKNOWN};
+        
+        float freq_max = 0;
+        float freq_min = 0;
+        float freq_cur = 0;
+        float freq_bios_limit = 0;
+
+        // private:
+        float freq_max_cpuinfo = 0;
+    };
+
     CPU();
     std::string name();
     std::string nproc();
@@ -98,14 +141,17 @@ public:
 
 private:
     static bool m_bInit;
-    static std::array<float, 4> m_cpu_infos_t;
-    static std::array<std::string, 3> m_cpu_infos_str;
+    static CPU_t m_cpu_infos;
 };
 
 class GPU {
 public:
+    struct GPU_t {
+        std::string name{UNKNOWN};
+        std::string vendor{UNKNOWN};
+    };
+
     GPU(u_short id = 0);
-    //std::string vendor_id();
     std::string name();
     std::string vendor();
 
@@ -115,12 +161,13 @@ private:
     std::string m_vendor_id_s;
     std::string m_device_id_s;
 
-    static std::array<std::string, 2> m_gpu_infos;
+    static GPU_t m_gpu_infos;
     static bool m_bInit;
 };
 
 class Disk {
 public:
+    // no need for a struct because we'll use m_statvfs members
     Disk(const std::string_view path);
     float total_amount();
     float free_amount();
@@ -137,6 +184,14 @@ private:
 
 class RAM {
 public:
+    struct RAM_t {
+        size_t total_amount = 0;
+        size_t free_amount = 0;
+        size_t used_amount = 0;
+        size_t swap_free_amount = 0;
+        size_t swap_total_amount = 0;
+    };
+
     RAM();
     size_t total_amount();
     size_t free_amount();
@@ -145,7 +200,7 @@ public:
     size_t swap_total_amount();
 private:
     static bool m_bInit;
-    static std::array<size_t, 6> m_memory_infos;
+    static RAM_t m_memory_infos;
 };
 
 };

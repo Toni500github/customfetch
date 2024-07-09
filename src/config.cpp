@@ -1,6 +1,8 @@
 #include "config.hpp"
+
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 // initialize Config, can only be ran once for each Config instance.
 Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors) {
@@ -20,7 +22,7 @@ Config::Config(const std::string_view configFile, const std::string_view configD
     this->loadConfigFile(configFile, colors);
 }
 
-void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
+void Config::loadConfigFile(const std::string_view filename, colors_t& colors) {
     try {
         this->tbl = toml::parse_file(filename);
     } catch (const toml::parse_error& err) {
@@ -56,6 +58,18 @@ void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
                 warn("An element of the includes variable in {} is not a string", filename);
         });
 
+    auto pkg_managers_array = tbl.at_path("config.pkg-managers");
+    if (toml::array *arr = pkg_managers_array.as_array())
+        arr->for_each([this,filename](auto&& element)
+        {
+            if (const auto *str_element = element.as_string()) {
+                auto element_value = *str_element;
+                this->pkgs_managers.push_back(element_value->data());
+            }
+            else
+                warn("An element of the includes variable in {} is not a string", filename);
+        });
+
     this->source_path   = getConfigValue<std::string>("config.source-path", "os");
     this->data_dir      = getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
     this->sep_reset     = getConfigValue<std::string>("config.sep-reset", ":");
@@ -82,6 +96,6 @@ void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
     colors.gui_white     = this->getThemeValue("gui.white",   "!#ffffff");
 }
 
-std::string Config::getThemeValue(const std::string& value, const std::string& fallback) {
+std::string Config::getThemeValue(const std::string& value, const std::string& fallback) const {
     return this->tbl.at_path(value).value<std::string>().value_or(fallback);
 }

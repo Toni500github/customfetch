@@ -9,14 +9,13 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-using namespace Query;
-std::array<std::string, 7> Query::System::m_os_infos;
-std::array<std::string, 3> Query::CPU::m_cpu_infos_str;
-std::array<float, 4> Query::CPU::m_cpu_infos_t;
+// using namespace Query;
+Query::System::System_t Query::System::m_system_infos;
+Query::CPU::CPU_t Query::CPU::m_cpu_infos;
 std::string Query::Disk::m_typefs;
-std::array<std::string, 6> Query::User::m_users_infos;
-std::array<size_t, 6> Query::RAM::m_memory_infos;
-std::array<std::string, 2> Query::GPU::m_gpu_infos;
+Query::User::User_t Query::User::m_users_infos;
+Query::RAM::RAM_t Query::RAM::m_memory_infos;
+Query::GPU::GPU_t Query::GPU::m_gpu_infos;
 
 #ifdef CF_UNIX
 struct utsname Query::System::m_uname_infos;
@@ -34,9 +33,7 @@ bool Query::User::m_bInit = false;
 
 static std::array<std::string, 3> get_ansi_color( const std::string_view str, colors_t& colors )
 {
-#define bgcolor "bgcolor"
-
-    auto first_m = str.find( "m" );
+    size_t first_m = str.find( "m" );
     if ( first_m == std::string::npos )
         die( "Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code" );
 
@@ -87,28 +84,28 @@ static std::array<std::string, 3> get_ansi_color( const std::string_view str, co
             break;
 
         case 100:
-        case 40: col = colors.gui_black;  type = bgcolor; break;
+        case 40: col = colors.gui_black;  type = "bgcolor"; break;
         
         case 101:
-        case 41: col = colors.gui_red;    type = bgcolor; break;
+        case 41: col = colors.gui_red;    type = "bgcolor"; break;
         
         case 102:
-        case 42: col = colors.gui_green;  type = bgcolor; break;
+        case 42: col = colors.gui_green;  type = "bgcolor"; break;
         
         case 103:
-        case 43: col = colors.gui_yellow; type = bgcolor; break;
+        case 43: col = colors.gui_yellow; type = "bgcolor"; break;
         
         case 104:
-        case 44: col = colors.gui_blue;   type = bgcolor; break;
+        case 44: col = colors.gui_blue;   type = "bgcolor"; break;
         
         case 105:
-        case 45: col = colors.gui_magenta; type = bgcolor; break;
+        case 45: col = colors.gui_magenta; type = "bgcolor"; break;
         
         case 106:
-        case 46: col = colors.gui_cyan;   type = bgcolor; break;
+        case 46: col = colors.gui_cyan;   type = "bgcolor"; break;
         
         case 107:
-        case 47: col = colors.gui_white;  type = bgcolor; break;
+        case 47: col = colors.gui_white;  type = "bgcolor"; break;
     }
 
     if ( col[0] != '#' )
@@ -117,7 +114,7 @@ static std::array<std::string, 3> get_ansi_color( const std::string_view str, co
     return { col, weight, type };
 }
 
-static std::string check_gui_ansi_clr(std::string& str) {
+static const std::string& check_gui_ansi_clr(std::string& str) {
     if (hasStart(str, "\033") || hasStart(str, "\\e"))
         die("GUI colors can't be in ANSI escape sequence");
 
@@ -374,11 +371,11 @@ std::string parse(const std::string& input, const systemInfo_t& systemInfo, cons
     return _parse(input, systemInfo, _, config, colors, parsingLaoyut);
 }
 
-void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
+void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName, const Config& config) {
     // yikes, here we go.
 
     if (moduleName == "os" || moduleName == "system") {
-        Query::System query_system;
+        Query::System query_system(config);
     
         std::chrono::seconds uptime_secs(query_system.uptime());
         auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
@@ -388,7 +385,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
         if (moduleName == "system") {
             sysInfo.insert(
                 {"system", {
-                    {"host",         variant(fmt::format("{} {}", query_system.host_vendor(), query_system.host_modelname()))},
+                    {"host",         variant(fmt::format("{} {} {}", query_system.host_vendor(), query_system.host_modelname(), query_system.host_version()))},
                     {"host_name",    variant(query_system.host_modelname())},
                     {"host_vendor",  variant(query_system.host_vendor())},
                     {"host_version", variant(query_system.host_version())},
@@ -416,6 +413,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
                     
                     {"hostname",       variant(query_system.hostname())},
                     {"initsys_name",   variant(query_system.os_initsys_name())},
+                    {"pkgs",           variant(query_system.pkgs_installed())},
                 }}
             );
         }

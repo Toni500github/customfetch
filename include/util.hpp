@@ -5,9 +5,7 @@
 #include "fmt/core.h"
 #include "platform.hpp"
 
-#include <filesystem>
 #include <vector>
-#include <fstream>
 #include <string>
 
 #define BOLD_TEXT(x)    (fmt::emphasis::bold | fmt::fg(x))
@@ -30,8 +28,8 @@ std::string expandVar(const std::string_view str);
 // Replace string inplace
 void replace_str(std::string &str, const std::string& from, const std::string& to);
 bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdErr = false);
-std::string str_tolower(const std::string_view str);
-std::string str_toupper(const std::string_view str);
+std::string str_tolower(const std::string str);
+std::string str_toupper(const std::string str);
 void strip(std::string& input);
 std::string read_by_syspath(const std::string_view path);
 fmt::rgb hexStringToColor(const std::string_view hexstr);
@@ -39,30 +37,25 @@ std::string getHomeConfigDir();
 std::string getConfigDir();
 
 template <typename... Args>
-constexpr void _error_log(fmt::runtime_format_string<> fmt, Args&&... args) {
+void error(const std::string_view fmt, Args&&... args) {
     fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt, std::forward<Args>(args)...));
 }
 
 template <typename... Args>
-constexpr void error(const std::string_view fmt, Args&&... args) {
-    _error_log(fmt::runtime(fmt), std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-constexpr void die(const std::string_view fmt, Args&&... args) {
-    _error_log(fmt::runtime(fmt), std::forward<Args>(args)...);
+void die(const std::string_view fmt, Args&&... args) {
+    fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt, std::forward<Args>(args)...));
     std::exit(1);
 }
 
 template <typename... Args>
-constexpr void debug(const std::string_view fmt, Args&&... args) {
-#if defined(DEBUG) || DEBUG
+void debug(const std::string_view fmt, Args&&... args) {
+#if DEBUG
     fmt::println(BOLD_TEXT(fmt::rgb(fmt::color::hot_pink)), "[DEBUG]: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 #endif
 }
 
 template <typename... Args>
-constexpr void warn(const std::string_view fmt, Args&&... args) {
+void warn(const std::string_view fmt, Args&&... args) {
     fmt::println(BOLD_TEXT(fmt::rgb(fmt::color::yellow)), "WARNING: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 

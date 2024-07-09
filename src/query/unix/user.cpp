@@ -10,19 +10,9 @@
 #include "query.hpp"
 #include "util.hpp"
 #include "utils/dewm.hpp"
-#include "switch_fnv1a.hpp"
 
 #ifdef CF_UNIX
 using namespace Query;
-
-enum {
-    WM_NAME = 0,
-    DE_NAME,
-    SH_VERSION,
-    SH_NAME,
-    TERM_NAME,
-    TERM_VERISON
-};
 
 static std::string _get_de_name() {
     return parse_de_env();
@@ -83,20 +73,12 @@ static std::string _get_wm_name() {
 }*/
 
 static std::string _get_shell_version(const std::string_view shell_name) {
-    std::string shell = shell_name.data();
-    std::string ret = UNKNOWN;
+    std::string ret;
 
-    switch (fnv1a32::hash(shell)) {
-        case "nu"_fnv1a32:
-            ret = shell_exec("nu -c \"version | get version\""); break;
-        
-        case "bash"_fnv1a32:
-        case "osh"_fnv1a32:
-        case "zsh"_fnv1a32: 
-        default:
-            ret = shell_exec(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell, str_toupper(shell)));
-            //ret.erase(0, ret.find(shell));
-    }
+    if (shell_name == "nu")
+        ret = shell_exec("nu -c \"version | get version\"");
+    else
+        ret = shell_exec(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())));
     
     strip(ret);
     return ret;
@@ -110,7 +92,7 @@ static std::string _get_shell_name(const std::string_view shell_path) {
 
 static std::string _get_term_name() {
     std::string ret;
-    // ./cufetch -> shell -> terminal
+    // cufetch -> shell -> terminal
     // https://ubuntuforums.org/showthread.php?t=2372923&p=13693160#post13693160
     pid_t ppid = getppid();
     proc_t proc_info;
@@ -119,12 +101,12 @@ static std::string _get_term_name() {
     if (readproc(pt_ptr, &proc_info) == NULL)
         return MAGIC_LINE;
     
-    closeproc(pt_ptr);
-    
     std::ifstream f(fmt::format("/proc/{}/comm", proc_info.ppid), std::ios::in);
     std::string name;
-    f >> name;
-    f.close();
+    std::getline(f, name);
+
+    closeproc(pt_ptr);
+    //freeproc(&proc_info); // "munmap_chunk(): invalid pointer"
     
     // st (suckless terminal)
     if (name == "exe")
@@ -159,26 +141,28 @@ static std::string _get_term_version(std::string_view term_name) {
     return ret;
 }
 
-static std::array<std::string, 6> get_users_infos(const std::string_view shell_path) {
-    std::array<std::string, 6> ret;
-    std::fill(ret.begin(), ret.end(), UNKNOWN);
+static User::User_t get_users_infos(const std::string_view shell_path) {
+    User::User_t ret;
 
-    ret.at(SH_NAME) = _get_shell_name(shell_path);
-    ret.at(SH_VERSION) = _get_shell_version(ret.at(SH_NAME));
-    ret.at(DE_NAME) = _get_de_name();
-    ret.at(WM_NAME) = _get_wm_name();
-    ret.at(TERM_NAME) = _get_term_name();
-
-    if (hasStart(str_tolower(ret.at(TERM_NAME)), "login") ||
-        hasStart(str_tolower(ret.at(TERM_NAME)), "init")) {
-        ret.at(TERM_NAME) = ttyname(STDIN_FILENO);
-        ret.at(TERM_VERISON) = ""; // lets not make it unknown
+    ret.shell_name = _get_shell_name(shell_path);
+    ret.shell_version = _get_shell_version(ret.shell_name);
+    ret.term_name = _get_term_name();
+    
+    // first let's see if we are not in a tty
+    // if so don't even try to get the DE or WM names
+    // they waste times
+    if (hasStart(str_tolower(ret.term_name), "login") ||
+        hasStart(str_tolower(ret.term_name), "init")) {
+        ret.term_name = ttyname(STDIN_FILENO);
+        ret.term_version = ""; // lets not make it unknown
     } else {
-        ret.at(TERM_VERISON) = _get_term_version(ret.at(TERM_NAME));
-    }
+        ret.term_version = _get_term_version(ret.term_name);
+        ret.de_name = _get_de_name();
+        ret.wm_name = _get_wm_name();
 
-    if (ret.at(DE_NAME) == ret.at(WM_NAME))
-        ret.at(DE_NAME) = MAGIC_LINE;
+        if (ret.de_name == ret.wm_name)
+            ret.de_name = MAGIC_LINE;
+    }
 
     return ret;
 }
@@ -206,27 +190,27 @@ std::string User::shell_path() {
 }
 
 std::string User::shell_name() {
-    return m_users_infos.at(SH_NAME);
+    return m_users_infos.shell_name;
 }
 
 std::string User::shell_version() {
-    return m_users_infos.at(SH_VERSION);
+    return m_users_infos.shell_version;
 }
 
 std::string User::wm_name() {
-    return m_users_infos.at(WM_NAME);
+    return m_users_infos.wm_name;
 }
 
 std::string User::de_name() {
-    return m_users_infos.at(DE_NAME);
+    return m_users_infos.de_name;
 }
 
 std::string User::term_name() {
-    return m_users_infos.at(TERM_NAME);
+    return m_users_infos.term_name;
 }
 
 std::string User::term_version() {
-    return m_users_infos.at(TERM_VERISON);
+    return m_users_infos.term_version;
 }
 
 #endif

@@ -64,7 +64,7 @@ std::string prettify_wm_name(const std::string_view name) {
         return "Marco";
 
     std::array<std::string_view, 30> wms = {"awesome", "bspwm", "dtwm", "dwm", "herbstluftwm", "hyprland", "i3", "i3wm", "icewm", "openbox", "qtile", "sway", "tinywm", "wayfire", "weston", "xfwm4", "xmonad",};
-    if (std::binary_search(wms.begin(), wms.end(), str_tolower(name)))
+    if (std::binary_search(wms.begin(), wms.end(), str_tolower(name.data())))
         return name.data();
 
     return MAGIC_LINE;

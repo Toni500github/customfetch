@@ -9,15 +9,10 @@
 
 using namespace Query;
 
-enum {
-    NAME = 0,
-    VENDOR
-};
-
-static std::string _get_name(const std::string& m_vendor_id_s, const std::string& m_device_id_s, std::string vendor_str) {
+static std::string _get_name(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s) {
     std::string name = binarySearchPCIArray(m_vendor_id_s, m_device_id_s);
-    auto first_bracket = name.find_first_of('[');
-    auto last_bracket = name.find_last_of(']');
+    size_t first_bracket = name.find_first_of('[');
+    size_t last_bracket = name.find_last_of(']');
     
     // remove the chips name "TU106 [GeForce GTX 1650]"
     // This should work for AMD and Intel too.
@@ -33,18 +28,18 @@ static std::string _get_name(const std::string& m_vendor_id_s, const std::string
     return name;
 }
 
-static std::string _get_vendor(const std::string& m_vendor_id_s) {
+static std::string _get_vendor(const std::string_view m_vendor_id_s) {
     return binarySearchPCIArray(m_vendor_id_s);
 }
 
-static std::array<std::string, 2> get_gpu_infos(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s) {
+static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s) {
     debug("calling GPU {}", __func__);
-    std::array<std::string, 2> ret;
+    GPU::GPU_t ret;
     
     debug("m_vendor_id_s = {} || m_device_id_s = {}", m_vendor_id_s, m_device_id_s);
 
-    ret[VENDOR] = _get_vendor(m_vendor_id_s.data());
-    ret[NAME] = _get_name(m_vendor_id_s.data(), m_device_id_s.data(), ret[VENDOR]);
+    ret.name = _get_name(m_vendor_id_s.data(), m_device_id_s.data());
+    ret.vendor = _get_vendor(m_vendor_id_s);
 
     return ret;
 }
@@ -78,11 +73,11 @@ GPU::GPU(u_short id) {
 }
 
 std::string GPU::name() {
-    return m_gpu_infos.at(NAME);
+    return m_gpu_infos.name;
 }
 
 std::string GPU::vendor() {
-    return m_gpu_infos.at(VENDOR);
+    return m_gpu_infos.vendor;
 }
 
 #endif
