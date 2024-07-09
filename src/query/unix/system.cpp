@@ -16,7 +16,7 @@ static std::string get_var(std::string& line, u_short& iter_index) {
 }
 
 static void get_host_paths(System::System_t& paths) {
-    const std::string syspath = "/sys/devices/virtual/dmi/id/";
+    const std::string syspath = "/sys/devices/virtual/dmi/id";
 
     if (std::filesystem::exists(syspath + "/board_name")) {
         paths.host_modelname = read_by_syspath(syspath + "/board_name");
@@ -26,10 +26,15 @@ static void get_host_paths(System::System_t& paths) {
 
     else if (std::filesystem::exists(syspath + "/product_name")) {
         paths.host_modelname = read_by_syspath(syspath + "/product_name");
-        if (hasStart(paths.host_modelname, "Standard PC"))
+        if (hasStart(paths.host_modelname, "Standard PC")) {
             paths.host_vendor = "KVM/QEMU";
-
-        paths.host_version = read_by_syspath(syspath + "/product_version");
+            // everyone does it like "KVM/QEMU Standard PC (...) (host_version)" so why not
+            paths.host_version = read_by_syspath(syspath + "/product_version");
+            paths.host_version = '(' + paths.host_version;
+            paths.host_version += ')';
+        } 
+        else
+            paths.host_version = read_by_syspath(syspath + "/product_version");
     }
 }
 
@@ -144,7 +149,7 @@ std::string System::host_modelname() {
 }
 
 std::string System::host_vendor() {
-    return m_system_infos.host_version;
+    return m_system_infos.host_vendor;
 }
 
 std::string System::host_version() {

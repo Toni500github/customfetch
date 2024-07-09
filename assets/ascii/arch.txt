@@ -7,13 +7,13 @@ ${cyan}               -+oooooo+:
 ${cyan}             `/:-:++oooo+:
 ${cyan}            `/++++/+++++++:
 ${cyan}           `/++++++++++++++:
-${cyan}          `/+++o${blue}oooooooo${cyan}oooo/`
-${blue}         ${cyan}./${blue}ooosssso++osssssso${cyan}+`
-${blue}        .oossssso-````/ossssss+`
-${blue}       -osssssso.      :ssssssso.
-${blue}      :osssssss/        osssso+++.
-${blue}     /ossssssss/        +ssssooo/-
-${blue}   `/ossssso+/:-        -:/+osssso+-
-${blue}  `+sso+:-`                 `.-/+oso:
-${blue} `++:.                           `-/+/
-${blue} .`                                 `/
+${cyan}          `/+++ooooooooooooo/`
+${cyan}         ./ooosssso++osssssso+`
+${cyan}        .oossssso-````/ossssss+`
+${cyan}       -osssssso.      :ssssssso.
+${cyan}      :osssssss/        osssso+++.
+${cyan}     /ossssssss/        +ssssooo/-
+${cyan}   `/ossssso+/:-        -:/+osssso+-
+${cyan}  `+sso+:-`                 `.-/+oso:
+${cyan} `++:.                           `-/+/
+${cyan} .`                                 `/

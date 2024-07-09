@@ -33,9 +33,9 @@ public:
         std::string os_initsys_name{UNKNOWN};
         std::string os_initsys_version{UNKNOWN};
 
-        std::string host_modelname{UNKNOWN};
-        std::string host_version{UNKNOWN};
-        std::string host_vendor{UNKNOWN};
+        std::string host_modelname;
+        std::string host_version;
+        std::string host_vendor;
     };
 
     System();

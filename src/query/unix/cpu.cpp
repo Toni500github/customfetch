@@ -103,7 +103,7 @@ float CPU::freq_cur() {
 }
 
 float CPU::freq_max() {
-    return (m_cpu_infos.freq_max < 0) ? m_cpu_infos.freq_max_cpuinfo : m_cpu_infos.freq_max;
+    return (m_cpu_infos.freq_max <= 0) ? m_cpu_infos.freq_max_cpuinfo : m_cpu_infos.freq_max;
 }
 
 float CPU::freq_min() {

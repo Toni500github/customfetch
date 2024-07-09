@@ -145,20 +145,23 @@ static User::User_t get_users_infos(const std::string_view shell_path) {
 
     ret.shell_name = _get_shell_name(shell_path);
     ret.shell_version = _get_shell_version(ret.shell_name);
-    ret.de_name = _get_de_name();
-    ret.wm_name = _get_wm_name();
     ret.term_name = _get_term_name();
-
+    
+    // first let's see if we are not in a tty
+    // if so don't even try to get the DE or WM names
+    // they waste times
     if (hasStart(str_tolower(ret.term_name), "login") ||
         hasStart(str_tolower(ret.term_name), "init")) {
         ret.term_name = ttyname(STDIN_FILENO);
         ret.term_version = ""; // lets not make it unknown
     } else {
         ret.term_version = _get_term_version(ret.term_name);
-    }
+        ret.de_name = _get_de_name();
+        ret.wm_name = _get_wm_name();
 
-    if (ret.de_name == ret.wm_name)
-        ret.de_name = MAGIC_LINE;
+        if (ret.de_name == ret.wm_name)
+            ret.de_name = MAGIC_LINE;
+    }
 
     return ret;
 }
