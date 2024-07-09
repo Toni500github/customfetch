@@ -70,7 +70,8 @@ Window::Window(Config& config, colors_t& colors) {
     add(m_box);
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
-    if (!std::filesystem::exists(path))
+    if (!std::filesystem::exists(path) && 
+        !std::filesystem::exists((path = fmt::format("{}/ascii/linux.txt", config.data_dir))))
         die("'{}' doesn't exist. Can't load image/text file", path);
     
     bool useImage = false;
@@ -109,7 +110,7 @@ Window::Window(Config& config, colors_t& colors) {
             markup_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
     }
     else
-        markup_text = fmt::format("{}", fmt::join(Display::render(config, colors, true), "\n"));
+        markup_text = fmt::format("{}", fmt::join(Display::render(config, colors, true, path), "\n"));
     
     m_label.set_markup(markup_text);
     m_label.set_alignment(Gtk::ALIGN_CENTER);

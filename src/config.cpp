@@ -22,7 +22,7 @@ Config::Config(const std::string_view configFile, const std::string_view configD
     this->loadConfigFile(configFile, colors);
 }
 
-void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
+void Config::loadConfigFile(const std::string_view filename, colors_t& colors) {
     try {
         this->tbl = toml::parse_file(filename);
     } catch (const toml::parse_error& err) {
@@ -53,6 +53,18 @@ void Config::loadConfigFile(std::string_view filename, colors_t& colors) {
             if (const auto *str_element = element.as_string()) {
                 auto element_value = *str_element;
                 this->includes.push_back(element_value->data());
+            }
+            else
+                warn("An element of the includes variable in {} is not a string", filename);
+        });
+
+    auto pkg_managers_array = tbl.at_path("config.pkg-managers");
+    if (toml::array *arr = pkg_managers_array.as_array())
+        arr->for_each([this,filename](auto&& element)
+        {
+            if (const auto *str_element = element.as_string()) {
+                auto element_value = *str_element;
+                this->pkgs_managers.push_back(element_value->data());
             }
             else
                 warn("An element of the includes variable in {} is not a string", filename);

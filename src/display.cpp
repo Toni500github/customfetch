@@ -21,15 +21,14 @@ std::string Display::detect_distro(Config& config) {
     } 
     else 
     {
-        Query::System system;
+        Query::System system(config);
         file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
     }
     return file_path;
 }
 
-std::vector<std::string> Display::render(Config& config, colors_t& colors, bool already_analyzed_file) {
+std::vector<std::string> Display::render(Config& config, colors_t& colors, const bool already_analyzed_file, std::string& path) {
     systemInfo_t systemInfo{};
-    std::string path = config.m_display_distro ? detect_distro(config) : config.source_path;
 
     if (!config.m_display_distro && 
         !config.m_disable_source && 
@@ -45,7 +44,7 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, bool 
     if (!config.m_print_logo_only) 
     {
         for (std::string& include : config.includes) {
-            addModuleValues(systemInfo, include);
+            addModuleValues(systemInfo, include, config);
         }
 
         for (std::string& layout : config.layouts) {

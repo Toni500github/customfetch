@@ -57,6 +57,7 @@ os
   version_id	: OS version id [22.04.4, 20240101.0.204074]
   version_codename: OS version codename [jammy]
   username	: the user name you are currently logged in (not real name) [toni69]
+  pkgs		: the count of the installed packages by a package manager [1869 (pacman), 4 (flatpak)]
   uptime	: (auto) uptime of the system [36 mins, 3 hours, 23 mins]
   uptime_secs	: uptime of the system in seconds (should be used along with uptime_mins and/or uptime_hours) [45]
   uptime_mins   : uptime of the system in minutes (should be used along with uptime_secs and/or uptime_hours) [12]
@@ -281,7 +282,8 @@ int main (int argc, char *argv[]) {
             "Compile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
 #endif
 
-    std::vector<std::string> rendered_text{Display::render(config, colors, false)};
+    std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
+    std::vector<std::string> rendered_text{Display::render(config, colors, false, path)};
     Display::display(rendered_text);
 
     return 0;

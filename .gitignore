@@ -1,3 +1,9 @@
+build/
+cufetch
+test.txt
+pci.ids
+output/
+
 # Prerequisites
 *.d
 
@@ -30,8 +36,3 @@
 *.exe
 *.out
 *.app
-
-build/
-cufetch
-
-output/

@@ -369,11 +369,11 @@ std::string parse(const std::string& input, const systemInfo_t& systemInfo, cons
     return _parse(input, systemInfo, _, config, colors, parsingLaoyut);
 }
 
-void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
+void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName, const Config& config) {
     // yikes, here we go.
 
     if (moduleName == "os" || moduleName == "system") {
-        Query::System query_system;
+        Query::System query_system(config);
     
         std::chrono::seconds uptime_secs(query_system.uptime());
         auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
@@ -411,6 +411,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
                     
                     {"hostname",       variant(query_system.hostname())},
                     {"initsys_name",   variant(query_system.os_initsys_name())},
+                    {"pkgs",           variant(query_system.pkgs_installed())},
                 }}
             );
         }

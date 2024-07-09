@@ -2,6 +2,8 @@
 #define QUERY_HPP
 
 #include "util.hpp"
+#include "config.hpp"
+#include <cstdint>
 #include <fstream>
 #include <unordered_map>
 #include <variant>
@@ -36,9 +38,16 @@ public:
         std::string host_modelname;
         std::string host_version;
         std::string host_vendor;
+
+        std::string pkgs_installed;
     };
 
-    System();
+    struct pkg_managers_t {
+        std::uint16_t pacman_pkgs = 0;
+        std::uint16_t flatpak_pkgs = 0;
+    };
+
+    System(const Config& config);
     std::string kernel_name();
     std::string kernel_version();
     std::string hostname();
@@ -55,6 +64,8 @@ public:
     std::string host_modelname();
     std::string host_vendor();
     std::string host_version();
+
+    std::string pkgs_installed();
 
 private:
     static System_t m_system_infos;

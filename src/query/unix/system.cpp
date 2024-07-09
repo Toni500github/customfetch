@@ -1,5 +1,7 @@
+#include "config.hpp"
 #include "query.hpp"
 #include "util.hpp"
+#include "utils/packages.hpp"
 
 #include <cerrno>
 #include <algorithm>
@@ -7,13 +9,6 @@
 #include <unistd.h>
 
 using namespace Query;
-
-static std::string get_var(std::string& line, u_short& iter_index) {
-    std::string ret = line.substr(line.find('=')+1);
-    ret.erase(std::remove(ret.begin(), ret.end(), '\"'), ret.end());
-    ++iter_index;
-    return ret;
-}
 
 static void get_host_paths(System::System_t& paths) {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
@@ -37,7 +32,14 @@ static void get_host_paths(System::System_t& paths) {
     }
 }
 
-static System::System_t get_os_release_vars() {
+static std::string get_var(std::string& line, u_short& iter_index) {
+    std::string ret = line.substr(line.find('=')+1);
+    ret.erase(std::remove(ret.begin(), ret.end(), '\"'), ret.end());
+    ++iter_index;
+    return ret;
+}
+
+static System::System_t get_system_infos() {
     System::System_t ret;
 
     debug("calling {}", __PRETTY_FUNCTION__);
@@ -48,6 +50,7 @@ static System::System_t get_os_release_vars() {
         return ret;
     }
     
+    // get OS /etc/os-release infos
     static u_short iter_index = 0;
     std::string line;
     while (std::getline(os_release_file, line) && iter_index < 5) {
@@ -66,7 +69,8 @@ static System::System_t get_os_release_vars() {
         if (hasStart(line, "VERSION_CODENAME="))
             ret.os_version_codename = get_var(line, iter_index);
     }
-
+    
+    // get init system name
     std::ifstream f_initsys("/proc/1/cmdline", std::ios::binary);
     std::string initsys;
     std::getline(f_initsys, initsys);
@@ -76,14 +80,13 @@ static System::System_t get_os_release_vars() {
         
     if ((pos = initsys.rfind('/')) != std::string::npos)
         initsys.erase(0, pos+1);
-
     
     ret.os_initsys_name = initsys;
 
     return ret;
 }
 
-System::System() {
+System::System(const Config& config) {
     debug("Constructing {}", __func__);
     
     if (!m_bInit) {
@@ -93,8 +96,11 @@ System::System() {
         if (sysinfo(&m_sysInfos) != 0)
             die("uname() failed: {}\nCould not get system infos", errno);
 
-        m_system_infos = get_os_release_vars();
+        m_system_infos = get_system_infos();
         get_host_paths(m_system_infos);
+        static System::pkg_managers_t pkgs_managers;
+        m_system_infos.pkgs_installed = get_all_pkgs(pkgs_managers, config);
+
         m_bInit = true;
     }
 }
@@ -153,4 +159,8 @@ std::string System::host_vendor() {
 
 std::string System::host_version() {
     return m_system_infos.host_version;
+}
+
+std::string System::pkgs_installed() {
+    return m_system_infos.pkgs_installed;
 }
