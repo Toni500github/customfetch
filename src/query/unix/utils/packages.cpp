@@ -29,8 +29,10 @@ std::string get_all_pkgs(System::pkg_managers_t& pkg_manager, const Config& conf
 
     }
 
-    if (!ret.empty())
-        ret.erase(ret.length() - 2); // remove last ", "
+    if (ret.empty())
+        return MAGIC_LINE;
+
+    ret.erase(ret.length() - 2); // remove last ", "
 
     return ret;
 }
