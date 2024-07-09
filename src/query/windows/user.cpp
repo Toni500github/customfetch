@@ -13,16 +13,23 @@ std::string User::name() {
     return UNKNOWN;
 }
 
-std::string User::shell() {
+std::string User::shell_name() {
     return "batch";
 }
 
 std::string User::shell_path() {
-    return UNKNOWN;
+    return "";
 }
 
 std::string User::shell_version() {
-    return UNKNOWN;
+    return "";
 }
+
+std::string wm_name() { return MAGIC_LINE; }
+std::string de_name() { return MAGIC_LINE; }
+
+std::string term_name() { return "CMD"; }
+std::string term_version() { return UNKNOWN; }
+
 
 #endif

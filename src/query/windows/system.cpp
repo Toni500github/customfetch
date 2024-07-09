@@ -6,17 +6,6 @@
 
 using namespace Query;
 
-enum {
-    PRETTY_NAME = 0,
-    NAME,
-    ID,
-    VERSION_ID,
-    VERSION_CODENAME,
-    ID_LIKE,
-    BUILD_ID,
-    _VERSION, // conflicts with the macro VERSION so had to put _
-};
-
 /* https://stackoverflow.com/questions/36543301/detecting-windows-10-version */
 
 // Fuck windows.
@@ -42,32 +31,28 @@ RTL_OSVERSIONINFOW GetRealOSVersion() {
     return rovi;
 }
 
-static std::array<std::string, 5> get_os_release_vars() {
-    std::array<std::string, 5> ret;
-    std::fill(ret.begin(), ret.end(), UNKNOWN);
+static System::System_t get_os_release_vars() {
+    System::System_t ret;
 
     RTL_OSVERSIONINFOW osVersion = GetRealOSVersion();
 
-    ret.at(PRETTY_NAME) = "Windows " + fmt::to_string(osVersion.dwMajorVersion);
-    ret.at(NAME) = "Windows";
-    ret.at(ID) = "windows " + fmt::to_string(osVersion.dwMajorVersion);
-    ret.at(VERSION_ID) = fmt::to_string(osVersion.dwBuildNumber);
+    ret.os_pretty_name = "Windows " + fmt::to_string(osVersion.dwMajorVersion);
+    ret.os_name = "Windows";
+    ret.os_id = "windows " + fmt::to_string(osVersion.dwMajorVersion);
+    ret.os_version_id = fmt::to_string(osVersion.dwBuildNumber);
 
     return ret;
 }
 
-System::System() {
+System::System(const Config& config) {
     debug("constructing {}", __func__);
 
     if (!m_bInit) {
-        m_os_release_vars = get_os_release_vars();
+        m_system_infos = get_os_release_vars();
 
         m_bInit = true;
     }
 
-    for (auto& i : m_os_release_vars) {
-        fmt::println("{}", i);
-    }
 }
 
 std::string System::arch() {
@@ -75,7 +60,7 @@ std::string System::arch() {
 }
 
 std::string System::os_id() {
-    return m_os_release_vars.at(ID);
+    return m_system_infos.os_id;
 }
 
 long System::uptime() {
@@ -83,7 +68,7 @@ long System::uptime() {
 }
 
 std::string System::os_name() {
-    return m_os_release_vars.at(NAME);
+    return m_system_infos.os_name;
 }
 
 std::string System::hostname() {
@@ -113,15 +98,15 @@ std::string System::host_modelname() {
 }
 
 std::string System::os_versionid() {
-    return m_os_release_vars.at(VERSION_ID);
+    return m_system_infos.os_version_id;
 }
 
 std::string System::kernel_version() {
-    return m_os_release_vars.at(VERSION_ID);
+    return m_system_infos.os_version_id;
 }
 
 std::string System::os_pretty_name() {
-    return m_os_release_vars.at(PRETTY_NAME);
+    return m_system_infos.os_pretty_name;
 }
 
 std::string System::os_version_codename() {

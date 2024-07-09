@@ -1,3 +1,9 @@
+#include "query.hpp"
+#include "util.hpp"
+#include "utils/dewm.hpp"
+
+#ifdef CF_UNIX
+
 #include <unistd.h>
 #include <cctype>
 #include <cstdlib>
@@ -7,11 +13,6 @@
 //#include <wayland-client.h>
 #include <proc/readproc.h>
 
-#include "query.hpp"
-#include "util.hpp"
-#include "utils/dewm.hpp"
-
-#ifdef CF_UNIX
 using namespace Query;
 
 static std::string _get_de_name() {

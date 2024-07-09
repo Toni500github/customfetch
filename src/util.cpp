@@ -2,7 +2,9 @@
 #include "fmt/color.h"
 #include "pci.ids.hpp"
 
-#include <sys/wait.h>
+#ifdef CF_UNIX
+# include <sys/wait.h>
+#endif
 #include <array>
 #include <filesystem>
 #include <fcntl.h>
@@ -177,6 +179,7 @@ void replace_str(std::string& str, const std::string& from, const std::string& t
 }
 
 bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdErr) {
+#ifdef CF_UNIX
     int pipeout[2];
 
     if (pipe(pipeout) < 0)
@@ -227,6 +230,7 @@ bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdEr
     close(pipeout[1]);
 
     return false;
+#endif
 }
 
 std::string str_tolower(std::string str) {
