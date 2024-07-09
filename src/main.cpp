@@ -31,6 +31,7 @@ A command-line system information tool (or neofetch like program), which its foc
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it's enabled)
     -l. --list-components	Print the list of the components and its members
     -h, --help			Print this help menu
+    -L, --logo-only             Print only the logo
     -V, --version		Print the version along with the git branch it was built
 
 Read the "README.md" file for more infos about customfetch and how it works
@@ -104,7 +105,7 @@ cpu
   freq_max	: CPU freq (maxinum, in GHz) [4.90]
 
 system
-  host		: Host (aka. Motherboard) model name and vendor [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95)]
+  host		: Host (aka. Motherboard) model name with vendor and version [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95) 1.0]
   host_name	: Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
   host_version	: Host (aka. Motherboard) model version [1.0]
   host_vendor	: Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
@@ -150,13 +151,14 @@ static bool parseargs(int argc, char* argv[], Config& config) {
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnlgC:d:D:s:";
+    const char *optstring = "-VhnLlgC:d:D:s:";
     static const struct option opts[] =
     {
         {"version",         no_argument,       0, 'V'},
         {"help",            no_argument,       0, 'h'},
         {"no-display",      no_argument,       0, 'n'},
         {"list-components", no_argument,       0, 'l'},
+        {"logo-only",       no_argument,       0, 'L'},
         {"gui",             no_argument,       0, 'g'},
         {"config",          required_argument, 0, 'C'},
         {"data-dir",        required_argument, 0, 'D'},
@@ -182,6 +184,8 @@ static bool parseargs(int argc, char* argv[], Config& config) {
                 config.m_disable_source = true; break;
             case 'l':
                 components_list(); break;
+            case 'L':
+                config.m_print_logo_only = true; break;
             case 'g':
                 config.gui = true; break;
             case 'C': // we have already did it in parse_config_path()
@@ -277,7 +281,8 @@ int main (int argc, char *argv[]) {
             "Compile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
 #endif
 
-    Display::display(Display::render(config, colors, false));
+    std::vector<std::string> rendered_text{Display::render(config, colors, false)};
+    Display::display(rendered_text);
 
     return 0;
 }

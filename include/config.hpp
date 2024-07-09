@@ -47,6 +47,7 @@ public:
     std::string m_custom_distro;
     bool        m_disable_source = false;
     bool        m_display_distro = true;
+    bool        m_print_logo_only = false;
 
     void        loadConfigFile( std::string_view filename, colors_t& colors );
     std::string getThemeValue( const std::string& value, const std::string& fallback ) const;

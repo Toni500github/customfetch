@@ -91,7 +91,7 @@ static std::string _get_shell_name(const std::string_view shell_path) {
 
 static std::string _get_term_name() {
     std::string ret;
-    // ./cufetch -> shell -> terminal
+    // cufetch -> shell -> terminal
     // https://ubuntuforums.org/showthread.php?t=2372923&p=13693160#post13693160
     pid_t ppid = getppid();
     proc_t proc_info;
@@ -100,12 +100,12 @@ static std::string _get_term_name() {
     if (readproc(pt_ptr, &proc_info) == NULL)
         return MAGIC_LINE;
     
-    closeproc(pt_ptr);
-    
     std::ifstream f(fmt::format("/proc/{}/comm", proc_info.ppid), std::ios::in);
     std::string name;
-    f >> name;
-    f.close();
+    std::getline(f, name);
+
+    closeproc(pt_ptr);
+    //freeproc(&proc_info); // "munmap_chunk(): invalid pointer"
     
     // st (suckless terminal)
     if (name == "exe")

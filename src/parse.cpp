@@ -383,7 +383,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName) {
         if (moduleName == "system") {
             sysInfo.insert(
                 {"system", {
-                    {"host",         variant(fmt::format("{} {}", query_system.host_vendor(), query_system.host_modelname()))},
+                    {"host",         variant(fmt::format("{} {} {}", query_system.host_vendor(), query_system.host_modelname(), query_system.host_version()))},
                     {"host_name",    variant(query_system.host_modelname())},
                     {"host_vendor",  variant(query_system.host_vendor())},
                     {"host_version", variant(query_system.host_version())},

@@ -30,8 +30,7 @@ static void get_host_paths(System::System_t& paths) {
             paths.host_vendor = "KVM/QEMU";
             // everyone does it like "KVM/QEMU Standard PC (...) (host_version)" so why not
             paths.host_version = read_by_syspath(syspath + "/product_version");
-            paths.host_version = '(' + paths.host_version;
-            paths.host_version += ')';
+            paths.host_version = fmt::format("({})", paths.host_version);
         } 
         else
             paths.host_version = read_by_syspath(syspath + "/product_version");

@@ -43,6 +43,7 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
     else
         die("Unable to load image '{}'", config.source_path);
 
+    
     for (std::string& include : config.includes) {
         addModuleValues(systemInfo, include);
     }
@@ -103,11 +104,13 @@ Window::Window(Config& config, colors_t& colors) {
     std::string fg_color_str = rgba_to_hexstr(fg_color);*/
     
     std::string markup_text;
-    if (useImage)
-        markup_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
+    if (useImage) {
+        if (!config.m_print_logo_only) 
+            markup_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
+    }
     else
         markup_text = fmt::format("{}", fmt::join(Display::render(config, colors, true), "\n"));
-
+    
     m_label.set_markup(markup_text);
     m_label.set_alignment(Gtk::ALIGN_CENTER);
     m_box.pack_start(m_label);
