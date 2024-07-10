@@ -37,7 +37,7 @@ SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/util
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -lprocps
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -O3 -funroll-all-loops -fvisibility=hidden -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
+CXXFLAGS        += -O3 -fvisibility=hidden -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
 all: fmt toml $(TARGET)
 

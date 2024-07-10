@@ -345,18 +345,19 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
     return output;
 }
 
-static std::string get_auto_uptime(size_t mins, size_t hours) {
+static std::string get_auto_uptime(size_t hours, u_short mins, u_short secs) {
     std::string ret;
-    size_t local_mins = mins%60;
-    
-    // shut up pls
-    if (hours != 0 && local_mins != 0)
-        ret += fmt::format("{} hours, ", hours);
-    else if (local_mins == 0)
-        ret += fmt::format("{} hours", hours);
 
-    if (local_mins != 0)
-        ret += fmt::format("{} mins", local_mins);
+    // shut up pls
+    if (hours == 0 && mins == 0)
+        return fmt::format("{} secs", secs);
+    
+    if (hours != 0 && mins != 0) {
+        ret += fmt::format("{} hours, ", hours);
+        ret += fmt::format("{} mins", mins);
+    }
+    else if (mins == 0)
+        ret += fmt::format("{} hours", hours);
 
     return ret;
 }
@@ -400,7 +401,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName, c
                     {"version_id",     variant(query_system.os_versionid())},
                     {"version_codename", variant(query_system.os_version_codename())},
                     
-                    {"uptime",         variant(get_auto_uptime(uptime_mins.count(), uptime_hours.count()))},
+                    {"uptime",         variant(get_auto_uptime(uptime_hours.count(), uptime_mins.count()%60, uptime_secs.count()%60))},
                     {"uptime_secs",    variant(static_cast<size_t>(uptime_secs.count()%60))},
                     {"uptime_mins",    variant(static_cast<size_t>(uptime_mins.count()%60))},
                     {"uptime_hours",   variant(static_cast<size_t>(uptime_hours.count()))},
@@ -434,7 +435,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName, c
                 {"wm_name",       variant(query_user.wm_name())},
                 {"de_name",       variant(query_user.de_name())},
 
-                {"term",          variant(query_user.term_name() + ' ' + query_user.term_version())},
+                {"term",          variant(fmt::format("{} {}", query_user.term_name(), query_user.term_version()))},
                 {"term_name",     variant(query_user.term_name())},
                 {"term_version",  variant(query_user.term_version())}
             }}

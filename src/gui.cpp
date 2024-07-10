@@ -45,7 +45,7 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
 
     
     for (std::string& include : config.includes) {
-        addModuleValues(systemInfo, include);
+        addModuleValues(systemInfo, include, config);
     }
 
     for (std::string& layout : config.layouts) {

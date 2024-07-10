@@ -145,10 +145,9 @@ void strip(std::string& input) {
 }
 
 fmt::rgb hexStringToColor(const std::string_view hexstr) {
-    std::string _hexstr = hexstr.substr(1).data();
     // convert the hexadecimal string to individual components
     std::stringstream ss;
-    ss << std::hex << _hexstr;
+    ss << std::hex << hexstr.substr(1).data();
 
     uint intValue;
     ss >> intValue;
@@ -238,8 +237,8 @@ std::string str_toupper(std::string str) {
 
 // Function to perform binary search on the pci vendors array to find a device from a vendor.
 std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::string_view pci_id_s) {
-    std::string vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2).data() : vendor_id_s.data();
-    std::string pci_id    = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2).data() : pci_id_s.data();
+    const std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
+    const std::string_view pci_id    = hasStart(pci_id_s, "0x") ? pci_id_s.substr(2) : pci_id_s;
 
     size_t left = 0, right = pci_vendors_array.size(), mid;
 
@@ -276,7 +275,7 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::
 
 // Function to perform binary search on the pci vendors array to find a vendor.
 std::string binarySearchPCIArray(const std::string_view vendor_id_s) {
-    std::string vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2).data() : vendor_id_s.data();
+    const std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
 
     size_t left = 0, right = pci_vendors_array.size(), mid;
 
@@ -328,30 +327,24 @@ std::string shell_exec(const std::string_view cmd) {
 }
 
 std::string name_from_entry(size_t dev_entry_pos) {
-    // Step 1: Find the position of the opening square bracket after the ID
     size_t bracket_open_pos = all_ids.find('[', dev_entry_pos);
     if (bracket_open_pos == std::string::npos)
-        return UNKNOWN; // Opening bracket not found
+        return UNKNOWN;
 
-    // Step 2: Find the position of the closing square bracket after the opening bracket
     size_t bracket_close_pos = all_ids.find(']', bracket_open_pos);
     if (bracket_close_pos == std::string::npos)
-        return UNKNOWN; // Closing bracket not found
+        return UNKNOWN;
 
-    // Step 3: Extract the substring between the brackets
     return all_ids.substr(bracket_open_pos + 1, bracket_close_pos - bracket_open_pos - 1);
 }
 
 std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view vendor_id) {
-    // Step 1: Find the end of the line (newline character) starting from the ID position
     size_t end_line_pos = all_ids.find('\n', vendor_entry_pos);
     if (end_line_pos == std::string::npos)
         end_line_pos = all_ids.length(); // If no newline is found, set to end of string
 
-    // Step 2: Extract the substring from the ID position to the end of the line
     std::string line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
 
-    // Step 3: Find the position after the ID (ID length plus possible spaces)
     size_t      after_id_pos = line.find(vendor_id) + 4;
     std::string description  = line.substr(after_id_pos);
 
