@@ -1,4 +1,6 @@
 build/
+assets/distro_ascii_arts.json
+assets/distro_ascii_arts.txt
 cufetch
 test.txt
 pci.ids
