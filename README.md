@@ -3,12 +3,23 @@
 [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
 
 # Customfetch
+>[!WARNING]
+>customfetch it's still in WIP, it will be ready with a release.\
+>If you still wanna try tho, go ahead and compile it. Don't forget to open an issue/PR for any problem.\
+>Thanks
 
 A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\
 `customfetch` is designed to provide a really customizable way to display your system informations in the way you like or want.
 
-Currently supports Linux distros only, but our current goal is to be cross-platform, which will happen soon (windows support incoming)
-
+Currently supports Linux distros only, but windows support is incoming
+<!-- Comment this because it's still in WIP for 3 weeks, no shit it won't work on some OSs
+>[!NOTE]
+>The goal is to be cross-platform, so maybe Android and MacOS support will come some day\
+>but if you're using a UNIX OS, such as FreeBSD or MINIX, or those "obscure" OSs\
+>then some, if not most, query infos won't probably work.\
+>So you may want to relay to shell commands for quering\
+>or maybe continue using neofetch/fastfetch if it still works great for you 
+-->
 ## Key Features
 
 * **GUI support (GTK3)**
