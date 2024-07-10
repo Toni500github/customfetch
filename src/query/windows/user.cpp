@@ -25,11 +25,11 @@ std::string User::shell_version() {
     return "";
 }
 
-std::string wm_name() { return MAGIC_LINE; }
-std::string de_name() { return MAGIC_LINE; }
+std::string User::wm_name() { return MAGIC_LINE; }
+std::string User::de_name() { return MAGIC_LINE; }
 
-std::string term_name() { return "CMD"; }
-std::string term_version() { return UNKNOWN; }
+std::string User::term_name() { return "CMD"; }
+std::string User::term_version() { return UNKNOWN; }
 
 
 #endif

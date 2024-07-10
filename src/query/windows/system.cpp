@@ -113,4 +113,12 @@ std::string System::os_version_codename() {
     return UNKNOWN;
 }
 
+std::string System::os_initsys_name() {
+    return MAGIC_LINE;
+}
+
+std::string System::pkgs_installed() {
+    return MAGIC_LINE;
+}
+
 #endif
