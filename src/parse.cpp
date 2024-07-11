@@ -352,12 +352,12 @@ static std::string get_auto_uptime(size_t hours, u_short mins, u_short secs) {
     if (hours == 0 && mins == 0)
         return fmt::format("{} secs", secs);
     
-    if (hours != 0 && mins != 0) {
-        ret += fmt::format("{} hours, ", hours);
-        ret += fmt::format("{} mins", mins);
-    }
-    else if (mins == 0)
+    if (hours != 0 && mins != 0)
+        ret += fmt::format("{} hours, {} mins", hours, mins);
+    else if (mins == 0 && hours != 0)
         ret += fmt::format("{} hours", hours);
+    else if (hours == 0 && mins != 0)
+        ret += fmt::format("{} mins", mins);
 
     return ret;
 }
@@ -375,7 +375,7 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName, c
 
     if (moduleName == "os" || moduleName == "system") {
         Query::System query_system(config);
-    
+
         std::chrono::seconds uptime_secs(query_system.uptime());
         auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
         auto uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
