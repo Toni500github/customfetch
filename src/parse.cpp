@@ -346,20 +346,18 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
 }
 
 static std::string get_auto_uptime(size_t hours, u_short mins, u_short secs) {
-    std::string ret;
-
     // shut up pls
     if (hours == 0 && mins == 0)
         return fmt::format("{} secs", secs);
-    
-    if (hours != 0 && mins != 0)
-        ret += fmt::format("{} hours, {} mins", hours, mins);
-    else if (mins == 0 && hours != 0)
-        ret += fmt::format("{} hours", hours);
-    else if (hours == 0 && mins != 0)
-        ret += fmt::format("{} mins", mins);
 
-    return ret;
+    else if (hours != 0 && mins != 0)
+        return fmt::format("{} hours, {} mins", hours, mins);
+
+    else if (mins == 0 && hours != 0)
+        return fmt::format("{} hours", hours);
+
+    else if (hours == 0 && mins != 0)
+        return fmt::format("{} mins", mins);
 }
 
 std::string parse(const std::string& input, const systemInfo_t& systemInfo, std::string& pureOutput, const Config& config, colors_t& colors, bool parsingLaoyut) {
