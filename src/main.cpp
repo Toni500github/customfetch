@@ -267,8 +267,7 @@ int main (int argc, char *argv[]) {
     struct colors_t colors;
 
     std::string configDir = getConfigDir();
-    std::string configFile = configDir + "/config.toml";    
-    parse_config_path(argc, argv, configFile);
+    std::string configFile = parse_config_path(argc, argv, configDir);
     
     Config config(configFile, configDir, colors);
 

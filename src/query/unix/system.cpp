@@ -17,6 +17,9 @@ static void get_host_paths(System::System_t& paths) {
         paths.host_modelname = read_by_syspath(syspath + "/board_name");
         paths.host_version = read_by_syspath(syspath + "/board_version");
         paths.host_vendor = read_by_syspath(syspath + "/board_vendor");
+    
+        if (paths.host_vendor == "Micro-Star International Co., Ltd.")
+            paths.host_vendor = "MSI";
     }
 
     else if (std::filesystem::exists(syspath + "/product_name")) {
@@ -154,12 +157,7 @@ std::string System::host_modelname() {
 }
 
 std::string System::host_vendor() {
-    std::string vendor = m_system_infos.host_vendor;
-    
-    if (vendor == "Micro-Star International Co., Ltd.")
-        vendor = "MSI";
-
-    return vendor;
+    return m_system_infos.host_vendor;
 }
 
 std::string System::host_version() {
