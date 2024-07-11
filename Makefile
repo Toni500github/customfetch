@@ -6,6 +6,7 @@ GUI_SUPPORT     ?= 0
 DEBUG 		?= 1
 PARSER_TEST 	?= 0
 VENDOR_TEST 	?= 0
+DEVICE_TEST     ?= 0
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
@@ -21,6 +22,10 @@ endif
 
 ifeq ($(VENDOR_TEST), 1)
 	VARS += -DVENDOR_TEST=1
+endif
+
+ifeq ($(DEVICE_TEST), 1)
+	VARS += -DDEVICE_TEST=1
 endif
 
 ifeq ($(GUI_SUPPORT), 1)

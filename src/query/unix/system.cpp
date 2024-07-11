@@ -154,7 +154,12 @@ std::string System::host_modelname() {
 }
 
 std::string System::host_vendor() {
-    return m_system_infos.host_vendor;
+    std::string vendor = m_system_infos.host_vendor;
+    
+    if (vendor == "Micro-Star International Co., Ltd.")
+        vendor = "MSI";
+
+    return vendor;
 }
 
 std::string System::host_version() {

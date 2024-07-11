@@ -19,9 +19,9 @@ static std::string _get_name(const std::string_view m_vendor_id_s, const std::st
 
     //name = this->vendor() + ' ' + name;
 
-    replace_str(name, "NVIDIA Corporation", "NVIDIA");
-    replace_str(name, "Advanced Micro Devices Inc.", "AMD");
-    replace_str(name, "Intel Corporation", "Intel");
+    // replace_str(name, "NVIDIA Corporation", "NVIDIA");
+    // replace_str(name, "Advanced Micro Devices Inc.", "AMD");
+    // replace_str(name, "Intel Corporation", "Intel");
 
     return name;
 }

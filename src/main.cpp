@@ -255,10 +255,20 @@ int main (int argc, char *argv[]) {
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
 #endif
 
-    colors_t colors;
+#ifdef DEVICE_TEST
+    // test
+    fmt::println("=== DEVICE TEST! ===");
 
-    const std::string configDir = getConfigDir();
-    std::string configFile = parse_config_path(argc, argv, configDir);
+    fmt::println("an Intel iGPU: {}", binarySearchPCIArray("8086", "0f31"));
+    fmt::println("RX 7700 XT: {}", binarySearchPCIArray("1002", "747e"));
+    fmt::println("GTX 1650: {}", binarySearchPCIArray("10de", "1f0a"));
+#endif
+    
+    struct colors_t colors;
+
+    std::string configDir = getConfigDir();
+    std::string configFile = configDir + "/config.toml";    
+    parse_config_path(argc, argv, configFile);
     
     Config config(configFile, configDir, colors);
 

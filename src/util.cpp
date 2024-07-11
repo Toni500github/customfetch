@@ -10,6 +10,7 @@
 #include <cerrno>
 #include <cstring>
 #include <memory>
+#include <iterator>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -327,15 +328,16 @@ std::string shell_exec(const std::string_view cmd) {
 }
 
 std::string name_from_entry(size_t dev_entry_pos) {
-    size_t bracket_open_pos = all_ids.find('[', dev_entry_pos);
-    if (bracket_open_pos == std::string::npos)
-        return UNKNOWN;
+    dev_entry_pos += 6; // Offset from the first character to the actual name that we want (xxxx  <device name>)
 
-    size_t bracket_close_pos = all_ids.find(']', bracket_open_pos);
-    if (bracket_close_pos == std::string::npos)
-        return UNKNOWN;
+    std::string name = all_ids.substr(dev_entry_pos, all_ids.find('\n', dev_entry_pos) - dev_entry_pos);
 
-    return all_ids.substr(bracket_open_pos + 1, bracket_close_pos - bracket_open_pos - 1);
+    size_t bracket_open_pos = name.find('[');
+    size_t bracket_close_pos = name.find(']');
+    if (bracket_open_pos != std::string::npos && bracket_close_pos != std::string::npos)
+        name = name.substr(bracket_open_pos + 1, bracket_close_pos - bracket_open_pos - 1);
+
+    return name;
 }
 
 std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view vendor_id) {
@@ -353,7 +355,17 @@ std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view ve
         return UNKNOWN;
 
     size_t last = description.find_last_not_of(' ');
-    return description.substr(first, (last - first + 1));
+
+    std::string vendor = description.substr(first, (last - first + 1));
+
+    if (vendor == "Intel Corporation")
+        vendor = "Intel";
+    if (vendor == "Advanced Micro Devices, Inc.")
+        vendor = "AMD";
+    if (vendor == "NVIDIA Corporation")
+        vendor = "NVIDIA";
+
+    return vendor;
 }
 
 /*
