@@ -10,7 +10,7 @@ User::User() {
 }
 
 std::string User::name() {
-    return UNKNOWN;
+    return std::string(getenv("USERNAME"));
 }
 
 std::string User::shell_name() {

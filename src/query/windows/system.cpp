@@ -36,6 +36,11 @@ static System::System_t get_os_release_vars() {
 
     RTL_OSVERSIONINFOW osVersion = GetRealOSVersion();
 
+    // Windows 11 detection, Microsoft is bad.
+    if (osVersion.dwBuildNumber >= 22000) {
+        osVersion.dwMajorVersion = 11;
+    }
+
     ret.os_pretty_name = "Windows " + fmt::to_string(osVersion.dwMajorVersion);
     ret.os_name = "Windows";
     ret.os_id = "windows " + fmt::to_string(osVersion.dwMajorVersion);

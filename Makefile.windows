@@ -63,6 +63,6 @@ $(TARGET): fmt toml $(OBJ)
 	$(CXX) $(OBJ) $(BUILDDIR)\toml++\toml.o -o $(BUILDDIR)\$(TARGET) $(LDFLAGS) $(CXXFLAGS)
 
 clean:
-	del $(BUILDDIR)\$(TARGET) $(OBJ) $(BUILDDIR)
+	del /s $(BUILDDIR) $(OBJ)
 
 .PHONY: $(TARGET) fmt toml clean all

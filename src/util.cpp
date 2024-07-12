@@ -95,7 +95,8 @@ std::string read_by_syspath(const std::string_view path) {
 }
 
 bool is_file_image(const unsigned char *bytes) {
-    debug("util bytes = {}", (char*)bytes);
+    // Printing bytes as a string?????
+    // debug("util bytes = {}", (char*)bytes);
     
     // https://stackoverflow.com/a/49683945
     constexpr std::array<unsigned char, 3> jpeg = {0xff, 0xd8, 0xff};
