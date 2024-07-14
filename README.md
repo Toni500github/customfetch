@@ -4,9 +4,9 @@
 
 # Customfetch
 >[!WARNING]
->customfetch it's still in WIP, it will be ready with a release.\
->If you still wanna try tho, go ahead and compile it. Don't forget to open an issue/PR for any problem.\
->Thanks
+>customfetch is still WIP, it will be ready with a release.\
+>If you still wanna try, go ahead and compile it. Don't forget to open an issue/PR for any problem.\
+>Thanks!
 
 A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\
 `customfetch` is designed to provide a really customizable way to display your system informations in the way you like or want.
@@ -26,8 +26,8 @@ Currently supports Linux distros only, but windows support is incoming
 * Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Lightweight
 >[!NOTE]
->enabling GUI support may slow down customfetch a bit because of linking the GUI libraries at runtime\
->To check if it's enable or not, run "cufetch --version"
+>enabling GUI support may slow down customfetch a bit because it needs to load the GUI libraries at runtime\
+>To check if it's enabled or not, run "cufetch --version"
 
 ## Depends
 ### Debian/Ubuntu and based
