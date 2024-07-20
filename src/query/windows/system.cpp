@@ -49,7 +49,7 @@ static System::System_t get_os_release_vars() {
     return ret;
 }
 
-System::System(const Config& config) {
+System::System() {
     debug("constructing {}", __func__);
 
     if (!m_bInit) {
@@ -122,7 +122,7 @@ std::string System::os_initsys_name() {
     return MAGIC_LINE;
 }
 
-std::string System::pkgs_installed() {
+std::string System::pkgs_installed(const Config& config) {
     return MAGIC_LINE;
 }
 
