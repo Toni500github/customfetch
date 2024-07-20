@@ -19,6 +19,9 @@ static void get_host_paths(System::System_t& paths) {
         paths.host_modelname = read_by_syspath(syspath + "/board_name");
         paths.host_version = read_by_syspath(syspath + "/board_version");
         paths.host_vendor = read_by_syspath(syspath + "/board_vendor");
+    
+        if (paths.host_vendor == "Micro-Star International Co., Ltd.")
+            paths.host_vendor = "MSI";
     }
 
     else if (std::filesystem::exists(syspath + "/product_name")) {
@@ -71,27 +74,15 @@ static System::System_t get_system_infos() {
         if (hasStart(line, "VERSION_CODENAME="))
             ret.os_version_codename = get_var(line, iter_index);
     }
-    
-    // get init system name
-    std::ifstream f_initsys("/proc/1/cmdline", std::ios::binary);
-    std::string initsys;
-    std::getline(f_initsys, initsys);
-    size_t pos = 0;
-    if ((pos = initsys.find('\0')) != std::string::npos)
-        initsys.erase(pos);
-        
-    if ((pos = initsys.rfind('/')) != std::string::npos)
-        initsys.erase(0, pos+1);
-    
-    ret.os_initsys_name = initsys;
 
     return ret;
 }
 
-System::System(const Config& config) {
+System::System() {
     debug("Constructing {}", __func__);
     
-    if (!m_bInit) {
+    if (!m_bInit)
+    {
         if (uname(&m_uname_infos) != 0)
             die("uname() failed: {}\nCould not get system infos", errno);
 
@@ -100,9 +91,6 @@ System::System(const Config& config) {
 
         m_system_infos = get_system_infos();
         get_host_paths(m_system_infos);
-        static System::pkg_managers_t pkgs_managers;
-        m_system_infos.pkgs_installed = get_all_pkgs(pkgs_managers, config);
-
         m_bInit = true;
     }
 }
@@ -148,6 +136,24 @@ std::string System::os_version_codename() {
 }
 
 std::string System::os_initsys_name() {
+    static bool done = false;
+    if (!done)
+    {
+        std::ifstream f_initsys("/proc/1/cmdline", std::ios::binary);
+        std::string initsys;
+        std::getline(f_initsys, initsys);
+        size_t pos = 0;
+
+        if ((pos = initsys.find('\0')) != std::string::npos)
+            initsys.erase(pos);
+        
+        if ((pos = initsys.rfind('/')) != std::string::npos)
+            initsys.erase(0, pos+1);
+
+        m_system_infos.os_initsys_name = initsys;
+        done = true;
+    }
+
     return m_system_infos.os_initsys_name;
 }
 
@@ -163,7 +169,14 @@ std::string System::host_version() {
     return m_system_infos.host_version;
 }
 
-std::string System::pkgs_installed() {
+std::string System::pkgs_installed(const Config& config) {
+    static bool done = false;
+    if (!done)
+    {
+        static System::pkg_managers_t pkgs_managers;
+        m_system_infos.pkgs_installed = get_all_pkgs(pkgs_managers, config);
+        done = true;
+    }
     return m_system_infos.pkgs_installed;
 }
 

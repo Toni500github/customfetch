@@ -46,7 +46,7 @@ component
   member	: description [example of what it prints, maybe another]
 
 Should be used in the config as like as $<component.member>
-NOTE: there are components such as "user" that will kinda slow down cufetch because of querying things like terminal version
+NOTE: there are components such as "user.term_version" that will kinda slow down cufetch because of querying things like terminal version
       cufetch is still fast tho :)
 
 os
@@ -56,7 +56,6 @@ os
   kernel_version: kernel version [6.9.3-zen1-1-zen]
   version_id	: OS version id [22.04.4, 20240101.0.204074]
   version_codename: OS version codename [jammy]
-  username	: the user name you are currently logged in (not real name) [toni69]
   pkgs		: the count of the installed packages by a package manager [1869 (pacman), 4 (flatpak)]
   uptime	: (auto) uptime of the system [36 mins, 3 hours, 23 mins]
   uptime_secs	: uptime of the system in seconds (should be used along with uptime_mins and/or uptime_hours) [45]
@@ -255,9 +254,18 @@ int main (int argc, char *argv[]) {
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
 #endif
 
-    colors_t colors;
+#ifdef DEVICE_TEST
+    // test
+    fmt::println("=== DEVICE TEST! ===");
 
-    const std::string configDir = getConfigDir();
+    fmt::println("an Intel iGPU: {}", binarySearchPCIArray("8086", "0f31"));
+    fmt::println("RX 7700 XT: {}", binarySearchPCIArray("1002", "747e"));
+    fmt::println("GTX 1650: {}", binarySearchPCIArray("10de", "1f0a"));
+#endif
+    
+    struct colors_t colors;
+
+    std::string configDir = getConfigDir();
     std::string configFile = parse_config_path(argc, argv, configDir);
     
     Config config(configFile, configDir, colors);

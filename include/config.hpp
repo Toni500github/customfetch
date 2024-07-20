@@ -43,7 +43,6 @@ public:
     std::uint8_t             offset = 0;
     bool                     gui    = false;
     std::vector<std::string> layouts;
-    std::vector<std::string> includes;
     std::vector<std::string> pkgs_managers;
 
     // inner management
@@ -93,11 +92,6 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # Little FAQ
 # Q: "but then if I want to make only some words/chars in a color and the rest normal?"
 # A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
-
-
-# includes directive, include the top name of each module you use.
-# e.g. if you want to use $<os.name>, then `includes = ["os"]`.
-includes = ["os", "system", "user", "cpu", "gpu", "ram", "disk(/)"]
 
 layout = [
     "${red}$<user.name>${0}@${cyan}$<os.hostname>",

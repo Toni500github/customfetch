@@ -63,7 +63,7 @@ std::string prettify_wm_name(const std::string_view name) {
     if (name.find("Marco") != std::string::npos)
         return "Marco";
 
-    std::array<std::string_view, 30> wms = {"awesome", "bspwm", "dtwm", "dwm", "herbstluftwm", "hyprland", "i3", "i3wm", "icewm", "openbox", "qtile", "sway", "tinywm", "wayfire", "weston", "xfwm4", "xmonad",};
+    constexpr std::array<std::string_view, 30> wms = {"awesome", "bspwm", "dtwm", "dwm", "herbstluftwm", "hyprland", "i3", "i3wm", "icewm", "openbox", "qtile", "sway", "tinywm", "wayfire", "weston", "xfwm4", "xmonad",};
     if (std::binary_search(wms.begin(), wms.end(), str_tolower(name.data())))
         return name.data();
 

@@ -23,7 +23,7 @@ std::string Display::detect_distro(Config& config) {
     } 
     else 
     {
-        Query::System system(config);
+        Query::System system;
         file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
     }
     return file_path;
@@ -47,12 +47,10 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
 
     if (!config.m_print_logo_only) 
     {
-        for (std::string& include : config.includes) {
-            addModuleValues(systemInfo, include, config);
-        }
-
-        for (std::string& layout : config.layouts) {
-            layout = parse(layout, systemInfo, config, colors, true);
+        for (std::string& layout : config.layouts)
+        {
+            std::string _;
+            layout = parse(layout, systemInfo, _, config, colors, true);
         }
     }
     
@@ -105,39 +103,37 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
     debug("SkeletonAsciiArt = \n{}", fmt::join(pureAsciiArt, "\n"));
     debug("asciiArt = \n{}", fmt::join(asciiArt, "\n"));
     
-    if (!config.m_print_logo_only) 
-    {
-        // erase each element for each instance of MAGIC_LINE
-        config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), 
-                                        [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }
-                                        ), config.layouts.end());
+    if (config.m_print_logo_only) 
+        return asciiArt;
 
-        size_t i;
-        for (i = 0; i < config.layouts.size(); i++) {
-            size_t origin = 0;
+    // erase each element for each instance of MAGIC_LINE
+    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), 
+                                    [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }
+                                    ), config.layouts.end());
 
-            if (i < asciiArt.size()) {
-                config.layouts.at(i).insert(0, asciiArt.at(i));
-                origin = asciiArt.at(i).length();
-            }
+    size_t i;
+    for (i = 0; i < config.layouts.size(); i++) {
+        size_t origin = 0;
 
-            size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt.at(i).length() : 0);
-
-            debug("spaces: {}", spaces);
-
-            for (size_t j = 0; j < spaces; j++)
-                config.layouts.at(i).insert(origin, " ");
-            
-            config.layouts.at(i) += config.gui ? "" : NOCOLOR;
+        if (i < asciiArt.size()) {
+            config.layouts.at(i).insert(0, asciiArt.at(i));
+            origin = asciiArt.at(i).length();
         }
 
-        if (i < asciiArt.size())
-            config.layouts.insert(config.layouts.end(), asciiArt.begin() + i, asciiArt.end());
+        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) - (i < asciiArt.size() ? pureAsciiArt.at(i).length() : 0);
 
-        return config.layouts;
-    } 
-    else
-        return asciiArt;
+        debug("spaces: {}", spaces);
+
+        for (size_t j = 0; j < spaces; j++)
+            config.layouts.at(i).insert(origin, " ");
+        
+        config.layouts.at(i) += config.gui ? "" : NOCOLOR;
+    }
+
+    if (i < asciiArt.size())
+        config.layouts.insert(config.layouts.end(), asciiArt.begin() + i, asciiArt.end());
+
+    return config.layouts;
     
 }
 

@@ -119,6 +119,9 @@ static std::string _get_term_name() {
 }
 
 static std::string _get_term_version(std::string_view term_name) {
+    if (term_name.empty())
+        return UNKNOWN;
+
     std::string ret;
     if (hasStart(term_name, "kitty"))
         term_name = "kitten";
@@ -142,32 +145,6 @@ static std::string _get_term_version(std::string_view term_name) {
     return ret;
 }
 
-static User::User_t get_users_infos(const std::string_view shell_path) {
-    User::User_t ret;
-
-    ret.shell_name = _get_shell_name(shell_path);
-    ret.shell_version = _get_shell_version(ret.shell_name);
-    ret.term_name = _get_term_name();
-    
-    // first let's see if we are not in a tty
-    // if so don't even try to get the DE or WM names
-    // they waste times
-    if (hasStart(str_tolower(ret.term_name), "login") ||
-        hasStart(str_tolower(ret.term_name), "init")) {
-        ret.term_name = ttyname(STDIN_FILENO);
-        ret.term_version = ""; // lets not make it unknown
-    } else {
-        ret.term_version = _get_term_version(ret.term_name);
-        ret.de_name = _get_de_name();
-        ret.wm_name = _get_wm_name();
-
-        if (ret.de_name == ret.wm_name)
-            ret.de_name = MAGIC_LINE;
-    }
-
-    return ret;
-}
-
 User::User() {
     debug("Constructing {}", __func__);
     if (!m_bInit) {
@@ -175,8 +152,6 @@ User::User() {
 
         if (m_pPwd = getpwuid(uid), !m_pPwd)
             die("getpwent failed: {}\nCould not get user infos", errno);
-
-        m_users_infos = get_users_infos(this->shell_path());
 
         m_bInit = true;
     }
@@ -191,26 +166,102 @@ std::string User::shell_path() {
 }
 
 std::string User::shell_name() {
+    static bool done = false;
+    if (!done)
+    {
+        m_users_infos.shell_name = _get_shell_name(this->shell_path());
+        done = true;
+    }
+
     return m_users_infos.shell_name;
 }
 
-std::string User::shell_version() {
+std::string User::shell_version(const std::string_view shell_name) {
+    if (m_users_infos.shell_name.empty())
+        return UNKNOWN;
+    
+    static bool done = false;
+    if (!done)
+    {
+        m_users_infos.shell_version = _get_shell_version(shell_name);
+        done = true;
+    }
+
     return m_users_infos.shell_version;
 }
 
-std::string User::wm_name() {
+std::string User::wm_name(const std::string_view term_name) {
+    if (m_bDont_query_dewm || hasStart(m_users_infos.term_name, "/dev"))
+        return MAGIC_LINE;
+
+    static bool done = false;
+    if (!done)
+    {
+        m_users_infos.wm_name = _get_wm_name();
+        if (m_users_infos.de_name == m_users_infos.wm_name)
+            m_users_infos.de_name = MAGIC_LINE;
+
+        done = true;
+    }
+
     return m_users_infos.wm_name;
 }
 
-std::string User::de_name() {
+std::string User::de_name(const std::string_view term_name) {
+    // first let's see if we are not in a tty or if the user doesn't want to
+    // if so don't even try to get the DE or WM names
+    // they waste times
+    if (m_bDont_query_dewm                        ||
+        hasStart(m_users_infos.term_name, "/dev") || 
+        m_users_infos.de_name == MAGIC_LINE)
+        return MAGIC_LINE;
+
+    static bool done = false;
+    if (!done)
+    {
+        m_users_infos.de_name = _get_de_name();
+        if (m_users_infos.de_name == m_users_infos.wm_name)
+            m_users_infos.de_name = MAGIC_LINE;
+
+        done = true;
+    }
+
     return m_users_infos.de_name;
 }
 
 std::string User::term_name() {
+    static bool done = false;
+    if (!done)
+    {
+        m_users_infos.term_name = _get_term_name();
+        if (hasStart(str_tolower(m_users_infos.term_name), "login") ||
+            hasStart(m_users_infos.term_name, "init" ) ||
+            hasStart(m_users_infos.term_name, "(init)"))
+        {
+            m_users_infos.term_name = ttyname(STDIN_FILENO);
+            m_users_infos.term_version = "NO VERSIONS ABOSULETY"; // lets not make it unknown
+            m_bDont_query_dewm = true;
+        }
+
+        done = true;
+    }
     return m_users_infos.term_name;
 }
 
-std::string User::term_version() {
+std::string User::term_version(const std::string_view term_name) {
+    static bool done = false;
+    if (!done)
+    {
+        if (m_users_infos.term_version == "NO VERSIONS ABOSULETY")
+        {
+            done = true;
+            m_users_infos.term_version.clear();
+            return m_users_infos.term_version;
+        }
+
+        m_users_infos.term_version = _get_term_version(term_name);
+        done = true;
+    }
     return m_users_infos.term_version;
 }
 

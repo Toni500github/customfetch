@@ -8,12 +8,12 @@
 Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors) {
     
     if (!std::filesystem::exists(configDir)) {
-        fmt::println("customfetch config folder was not found, Creating folders at {}!", configDir);
+        warn("customfetch config folder was not found, Creating folders at {}!", configDir);
         std::filesystem::create_directories(configDir);
     }
 
     if (!std::filesystem::exists(configFile)) {
-        fmt::println("{} not found, generating new one", configFile);
+        warn("{} not found, generating new one", configFile);
         std::ofstream f(configFile.data(), std::ios::trunc);
         f << AUTOCONFIG;
         f.close();
@@ -46,18 +46,6 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors) {
                 warn("An element of the layout variable in {} is not a string", filename);
         });
     
-    auto includes_array = tbl.at_path("config.includes");
-    if (toml::array *arr = includes_array.as_array())
-        arr->for_each([this,filename](auto&& element)
-        {
-            if (const auto *str_element = element.as_string()) {
-                auto element_value = *str_element;
-                this->includes.push_back(element_value->data());
-            }
-            else
-                warn("An element of the includes variable in {} is not a string", filename);
-        });
-
     auto pkg_managers_array = tbl.at_path("config.pkg-managers");
     if (toml::array *arr = pkg_managers_array.as_array())
         arr->for_each([this,filename](auto&& element)
