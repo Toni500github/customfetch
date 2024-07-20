@@ -47,7 +47,7 @@ public:
         std::uint16_t flatpak_pkgs = 0;
     };
 
-    System(const Config& config);
+    System();
     std::string kernel_name();
     std::string kernel_version();
     std::string hostname();
@@ -65,7 +65,7 @@ public:
     std::string host_vendor();
     std::string host_version();
 
-    std::string pkgs_installed();
+    std::string pkgs_installed(const Config& config);
 
 private:
     static System_t m_system_infos;
@@ -90,13 +90,14 @@ public:
     std::string name();
     std::string shell_name();
     std::string shell_path();
-    std::string shell_version();
-    std::string wm_name();
-    std::string de_name();
+    std::string shell_version(const std::string_view shell_name);
+    std::string wm_name(const std::string_view term_name);
+    std::string de_name(const std::string_view term_name);
 
     std::string term_name();
-    std::string term_version();
-
+    std::string term_version(const std::string_view term_name);
+    
+    static bool m_bDont_query_dewm;
 private:
     static bool m_bInit;
     static User_t m_users_infos;

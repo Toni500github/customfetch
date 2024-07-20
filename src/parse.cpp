@@ -14,6 +14,7 @@ Query::System::System_t Query::System::m_system_infos;
 Query::CPU::CPU_t Query::CPU::m_cpu_infos;
 std::string Query::Disk::m_typefs;
 Query::User::User_t Query::User::m_users_infos;
+bool Query::User::m_bDont_query_dewm = false;
 Query::RAM::RAM_t Query::RAM::m_memory_infos;
 Query::GPU::GPU_t Query::GPU::m_gpu_infos;
 
@@ -119,13 +120,12 @@ static const std::string& check_gui_ansi_clr(std::string& str) {
     return str;
 }
 
-static std::string getInfoFromName( const systemInfo_t& systemInfo, const std::string& name )
+static std::string getInfoFromName( const systemInfo_t& systemInfo, const std::string_view moduleName, const std::string_view moduleValueName )
 {
-    const std::vector<std::string> sections = split( name, '.' );
-    
-    if (const auto it1 = systemInfo.find(sections[0]); it1 != systemInfo.end())
+
+    if (const auto it1 = systemInfo.find(moduleName.data()); it1 != systemInfo.end())
     {
-        if (const auto it2 = it1->second.find(sections[1]); it2 != it1->second.end()) 
+        if (const auto it2 = it1->second.find(moduleValueName.data()); it2 != it1->second.end()) 
         {
             const variant& result = it2->second;
 
@@ -144,17 +144,19 @@ static std::string getInfoFromName( const systemInfo_t& systemInfo, const std::s
 
 }
 
-static std::string _parse( const std::string& input, const systemInfo_t& systemInfo, std::string& pureOutput, const Config& config, colors_t& colors, bool parsingLaoyut )
+std::string parse( const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config, colors_t& colors, bool parsingLaoyut )
 {
-    std::string output = input;
+    std::string output = input.data();
     pureOutput = output;
 
     size_t dollarSignIndex = 0;
     bool start = false;
 
-    if (!config.sep_reset.empty() && parsingLaoyut) {
+    if (!config.sep_reset.empty() && parsingLaoyut)
+    {
         size_t pos = output.find(config.sep_reset);
-        if (pos != std::string::npos) {
+        if (pos != std::string::npos) 
+        {
             replace_str(output, config.sep_reset, "${0}" + config.sep_reset);
             replace_str(pureOutput, config.sep_reset, "${0}" + config.sep_reset);
         }
@@ -179,7 +181,7 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
                                        ( dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\' ) ) )
             continue;
 
-        std::string command         = "";
+        std::string command;
         size_t      endBracketIndex = -1;
 
         char type = ' ';  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
@@ -220,10 +222,9 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
             die( "PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output );
 
         std::string strToRemove = fmt::format("${}{}{}", opentag, command, type);
-        size_t start_pos = 0;
-        if((start_pos = pureOutput.find(strToRemove)) != std::string::npos) {
+        size_t start_pos = pureOutput.find(strToRemove);
+        if (start_pos != std::string::npos)
             pureOutput.erase(start_pos, strToRemove.length());
-        }
         
         switch ( type )
         {
@@ -232,13 +233,19 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
                 output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex, shell_exec( command ) );
             break;
         case '>':
-            output = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex,
-                                     getInfoFromName( systemInfo, command ) );
+            {
+                const size_t dot_pos = command.find('.');
+                const std::string moduleName(command.substr(0, dot_pos));
+                const std::string moduleValueName(command.substr(dot_pos+1));
+            
+                addValueFromModule(systemInfo, moduleName, moduleValueName, config);
+                output = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex,
+                                        getInfoFromName( systemInfo, moduleName, moduleValueName ) );
+            }
             break;
         case '}':  // please pay very attention when reading this unreadable code
-            if ( command == "0" ) {   
+            if ( command == "0" )
                 output = output.replace( dollarSignIndex, ( endBracketIndex + 1 ) - dollarSignIndex, config.gui ? "</span><span>" : NOCOLOR );
-            }
             else
             {
                 std::string str_clr;
@@ -341,7 +348,7 @@ static std::string _parse( const std::string& input, const systemInfo_t& systemI
             break;
         }
     }
-    
+
     return output;
 }
 
@@ -360,19 +367,272 @@ static std::string get_auto_uptime(size_t hours, u_short mins, u_short secs) {
         return fmt::format("{} mins", mins);
 }
 
-std::string parse(const std::string& input, const systemInfo_t& systemInfo, std::string& pureOutput, const Config& config, colors_t& colors, bool parsingLaoyut) {
-    return _parse(input, systemInfo, pureOutput, config, colors, parsingLaoyut);
-}
-std::string parse(const std::string& input, const systemInfo_t& systemInfo, const Config& config, colors_t& colors, bool parsingLaoyut) {
-    std::string _;
-    return _parse(input, systemInfo, _, config, colors, parsingLaoyut);
+void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName, const Config& config) {
+    // yikes, here we go.
+    auto module_hash = fnv1a32::hash(moduleValueName);
+    #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({moduleValueName, variant(x)})
+
+    // stupid way to not construct query_system twice, more faster 
+    if (moduleName == "os" || moduleName == "system") {
+        Query::System query_system;
+
+        std::chrono::seconds uptime_secs(query_system.uptime());
+        auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
+        auto uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+
+        if (moduleName == "os") {
+            if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+
+                switch (module_hash) {
+                    case "name"_fnv1a32:
+                        SYSINFO_INSERT(query_system.os_pretty_name()); break;
+
+                    case "uptime"_fnv1a32:
+                        SYSINFO_INSERT(get_auto_uptime(uptime_hours.count(), uptime_mins.count()%60, uptime_secs.count()%60)); break;
+
+                    case "uptime_secs"_fnv1a32:
+                        SYSINFO_INSERT((size_t)uptime_secs.count()%60); break;
+
+                    case "uptime_mins"_fnv1a32:
+                        SYSINFO_INSERT((size_t)uptime_mins.count()%60); break;
+
+                    case "uptime_hours"_fnv1a32:
+                        SYSINFO_INSERT((size_t)uptime_hours.count()); break;
+
+                    case "kernel"_fnv1a32:
+                        SYSINFO_INSERT(query_system.kernel_name() + ' ' + query_system.kernel_version()); break;
+
+                    case "kernel_name"_fnv1a32:
+                        SYSINFO_INSERT(query_system.kernel_name()); break;
+
+                    case "kernel_version"_fnv1a32:
+                        SYSINFO_INSERT(query_system.kernel_version()); break;
+
+                    case "pkgs"_fnv1a32:
+                        SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
+
+                    case "initsys_name"_fnv1a32:
+                        SYSINFO_INSERT(query_system.os_initsys_name()); break;
+
+                    case "hostname"_fnv1a32:
+                        SYSINFO_INSERT(query_system.hostname()); break;
+
+                }
+            }
+        } else {
+            if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+                switch (module_hash) {
+                    case "host"_fnv1a32:
+                        SYSINFO_INSERT(fmt::format("{} {} {}", query_system.host_vendor(), query_system.host_modelname(), query_system.host_version())); break;
+                    
+                    case "host_name"_fnv1a32:
+                        SYSINFO_INSERT(query_system.host_modelname()); break;
+
+                    case "host_vendor"_fnv1a32:
+                        SYSINFO_INSERT(query_system.host_vendor()); break;
+
+                    case "host_version"_fnv1a32:
+                        SYSINFO_INSERT(query_system.host_version()); break;
+
+                    case "arch"_fnv1a32:
+                        SYSINFO_INSERT(query_system.arch()); break;
+                }
+            }
+        }
+
+        return;
+    }
+
+    if (moduleName == "user") {
+        Query::User query_user;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) 
+        {
+            switch (module_hash) {
+                case "name"_fnv1a32:
+                    SYSINFO_INSERT(query_user.name()); break;
+
+                case "shell"_fnv1a32:
+                    SYSINFO_INSERT(query_user.shell_name() + ' ' + query_user.shell_version(query_user.shell_name())); break;
+
+                case "shell_name"_fnv1a32:
+                    SYSINFO_INSERT(query_user.shell_name()); break;
+
+                case "shell_path"_fnv1a32:
+                    SYSINFO_INSERT(query_user.shell_path()); break;
+
+                case "shell_version"_fnv1a32:
+                    SYSINFO_INSERT(query_user.shell_version(query_user.shell_name())); break;
+
+                case "de_name"_fnv1a32:
+                    SYSINFO_INSERT(query_user.de_name(query_user.term_name())); break;
+
+                case "wm_name"_fnv1a32:
+                    SYSINFO_INSERT(query_user.wm_name(query_user.term_name())); break;
+
+                case "term"_fnv1a32:
+                    SYSINFO_INSERT(query_user.term_name() + ' ' + query_user.term_version(query_user.term_name()));
+
+                case "term_name"_fnv1a32:
+                    SYSINFO_INSERT(query_user.term_name());
+
+                case "term_version"_fnv1a32:
+                    SYSINFO_INSERT(query_user.term_version(query_user.term_name()));
+            }
+        }
+
+        return;
+
+    }
+
+    if (moduleName == "cpu") {
+        Query::CPU query_cpu;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+
+            switch (module_hash) {
+                case "cpu"_fnv1a32:
+                    SYSINFO_INSERT(fmt::format("{} ({}) @ {:.2f} GHz", query_cpu.name(), query_cpu.nproc(), query_cpu.freq_max())); break;
+
+                case "name"_fnv1a32:
+                    SYSINFO_INSERT(query_cpu.name()); break;
+
+                case "nproc"_fnv1a32:
+                    SYSINFO_INSERT(query_cpu.nproc()); break;
+
+                case "freq_bios_limit"_fnv1a32:
+                    SYSINFO_INSERT(query_cpu.freq_bios_limit()); break;
+
+                case "freq_cur"_fnv1a32:
+                    SYSINFO_INSERT(query_cpu.freq_cur()); break;
+
+                case "freq_max"_fnv1a32:
+                    SYSINFO_INSERT(query_cpu.freq_max()); break;
+
+                case "freq_min"_fnv1a32:
+                    SYSINFO_INSERT(query_cpu.freq_min()); break;
+            }
+        }
+
+        return;
+    }
+
+    if (hasStart(moduleName, "gpu")) {
+        u_short id = static_cast<u_short>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
+        Query::GPU query_gpu(id);
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+
+            if (moduleValueName == "name")
+                SYSINFO_INSERT(query_gpu.name());
+
+            if (moduleValueName == "vendor")
+                SYSINFO_INSERT(query_gpu.vendor());
+        }
+
+        return;
+    }
+
+    if (hasStart(moduleName, "disk")) {
+        if (moduleName.length() < 7)
+            die(" PARSER: invalid disk component name ({}), must be disk(/path/to/fs)", moduleName);
+
+        std::string path = moduleName.data();
+        path.erase(0, 5); // disk(
+        path.pop_back(); // )
+        debug("disk path = {}", path);
+
+        Query::Disk query_disk(path);
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+            switch (module_hash) {
+                case "disk"_fnv1a32:
+                    SYSINFO_INSERT(fmt::format("{:.2f} GB / {:.2f} GB - {}", query_disk.used_amount(), query_disk.total_amount(), query_disk.typefs())); break;
+
+                case "used"_fnv1a32:
+                    SYSINFO_INSERT(query_disk.used_amount()); break;
+
+                case "total"_fnv1a32:
+                    SYSINFO_INSERT(query_disk.total_amount()); break;
+
+                case "free"_fnv1a32:
+                    SYSINFO_INSERT(query_disk.free_amount()); break;
+
+                case "fs"_fnv1a32:
+                    SYSINFO_INSERT(query_disk.typefs()); break;
+            }
+        }
+
+        return;
+    }
+
+    if (moduleName == "ram") {
+        Query::RAM query_ram;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert(
+                {moduleName, { }}
+            );
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+            switch (module_hash) {
+                case "ram"_fnv1a32:
+                    SYSINFO_INSERT(fmt::format("{} MB / {} MB", query_ram.used_amount(), query_ram.total_amount())); break;
+
+                case "used"_fnv1a32:
+                    SYSINFO_INSERT(query_ram.used_amount()); break;
+
+                case "total"_fnv1a32:
+                    SYSINFO_INSERT(query_ram.total_amount()); break;
+
+                case "free"_fnv1a32:
+                    SYSINFO_INSERT(query_ram.free_amount()); break;
+
+                case "swap_free"_fnv1a32:
+                    SYSINFO_INSERT(query_ram.swap_free_amount()); break;
+
+                case "swap_total"_fnv1a32:
+                    SYSINFO_INSERT(query_ram.swap_total_amount()); break;
+            }
+        }
+
+        return;
+    }
+
+    die("Invalid include module name {}!", moduleName);
 }
 
+#if 0
 void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName, const Config& config) {
     // yikes, here we go.
 
     if (moduleName == "os" || moduleName == "system") {
-        Query::System query_system(config);
+        Query::System query_system;
 
         std::chrono::seconds uptime_secs(query_system.uptime());
         auto uptime_mins = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
@@ -518,3 +778,4 @@ void addModuleValues(systemInfo_t& sysInfo, const std::string_view moduleName, c
 
     die("Invalid module name {}!", moduleName);
 }
+#endif

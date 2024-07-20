@@ -165,12 +165,12 @@ white = "!#ffffff"
 
 You may be confused and have difficulty to understand, but this is why customfetch is different from the others.\
 
-We use something we call "modules", inspired by bash syntax, and they starts with a '$'. **We use them on both the ascii art text file and the `layout` variable**\
+We use something we call "components", 2 inspired by bash syntax, and they starts with a '$'. **We use them on both the ascii art text file and the `layout` variable**\
 There are 3 modules:
 
-* **The info module** ($<>) lets you access a sub-member of a built-in component\
+* **The info module** ($<>) lets you access a sub-member of a built-in module\
   e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
-  run "cufetch -l" for a list of builti-in components
+  run "cufetch -l" for a list of builti-in modules
 
 * **The color module** (${}) displays the text with a color\
   e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable).\

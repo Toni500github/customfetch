@@ -21,7 +21,7 @@ std::string Display::detect_distro(Config& config) {
     } 
     else 
     {
-        Query::System system(config);
+        Query::System system;
         file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
     }
     return file_path;
@@ -43,12 +43,10 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
 
     if (!config.m_print_logo_only) 
     {
-        for (std::string& include : config.includes) {
-            addModuleValues(systemInfo, include, config);
-        }
-
-        for (std::string& layout : config.layouts) {
-            layout = parse(layout, systemInfo, config, colors, true);
+        for (std::string& layout : config.layouts)
+        {
+            std::string _;
+            layout = parse(layout, systemInfo, _, config, colors, true);
         }
     }
     

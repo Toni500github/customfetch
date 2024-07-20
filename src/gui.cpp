@@ -44,12 +44,9 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
         die("Unable to load image '{}'", config.source_path);
 
     
-    for (std::string& include : config.includes) {
-        addModuleValues(systemInfo, include, config);
-    }
-
     for (std::string& layout : config.layouts) {
-        layout = parse(layout, systemInfo, config, colors, true);
+        std::string _;
+        layout = parse(layout, systemInfo, _, config, colors, true);
     }
 
     for (size_t i = 0; i < config.layouts.size(); i++) {

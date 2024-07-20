@@ -35,6 +35,8 @@ static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std:
     GPU::GPU_t ret;
     
     debug("m_vendor_id_s = {} || m_device_id_s = {}", m_vendor_id_s, m_device_id_s);
+    if (m_device_id_s == UNKNOWN || m_vendor_id_s == UNKNOWN)
+        return ret;
 
     ret.name = _get_name(m_vendor_id_s.data(), m_device_id_s.data());
     ret.vendor = _get_vendor(m_vendor_id_s);
