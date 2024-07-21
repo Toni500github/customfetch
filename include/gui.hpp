@@ -1,7 +1,6 @@
 #ifndef _GUI_HPP
 #define _GUI_HPP
 
-#include <memory>
 #ifdef GUI_SUPPORT
 
 #include "config.hpp"
@@ -21,7 +20,8 @@ public:
 private:
     Gtk::Box m_box;
     Gtk::Label m_label;
-    std::unique_ptr<Gtk::Image> m_img = std::make_unique<Gtk::Image>();
+    Gtk::Image *m_img;
+    Glib::RefPtr<Gdk::PixbufAnimation> m_img_animation;
 };
 
 }
