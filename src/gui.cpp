@@ -83,11 +83,13 @@ Window::Window(Config& config, colors_t& colors) {
     f.read((char*) (&buffer[0]), 128);
     if (is_file_image(buffer))
         useImage = true;
+
+    debug("path = {} && useImage = {}", path, useImage);
     
     // useImage can be either a gif or an image
     if (useImage && !config.m_disable_source) {
         Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path);
-        m_img = Gtk::manage(new Gtk::Image());
+        if (img) debug("IMG IS SET OH MY LORD");
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
         m_box.pack_start(*m_img);
