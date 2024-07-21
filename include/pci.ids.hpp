@@ -38236,7 +38236,7 @@ C ff  Unassigned class)";
 }
 
 const std::string all_ids = get_pci_ids();
-const std::array<std::string_view, 2381> pci_vendors_array = get_pci_vendors_array();
-const std::array<int, 2381> pci_vendors_location_array = get_pci_vendors_location_array();
+constexpr std::array<std::string_view, 2381> pci_vendors_array = get_pci_vendors_array();
+constexpr std::array<int, 2381> pci_vendors_location_array = get_pci_vendors_location_array();
 
 #endif // PCI_IDS_HPP
