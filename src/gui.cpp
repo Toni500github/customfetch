@@ -89,7 +89,7 @@ Window::Window(Config& config, colors_t& colors) {
     // useImage can be either a gif or an image
     if (useImage && !config.m_disable_source) {
         m_img_animation = Gdk::PixbufAnimation::create_from_file(path);
-        m_img = Gtk::manage(new Gtk::Image());
+        m_img = Gtk::manage(new Gtk::Image(m_img_animation));
         if (m_img_animation) debug("IMG IS SET OH MY LORD");
         m_img->set(m_img_animation);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
