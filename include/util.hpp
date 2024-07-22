@@ -36,14 +36,18 @@ fmt::rgb hexStringToColor(const std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();
 
+constexpr std::size_t operator""_len(const char*,std::size_t ln) noexcept{
+    return ln;
+}
+
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) {
-    fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt, std::forward<Args>(args)...));
+    fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void die(const std::string_view fmt, Args&&... args) {
-    fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt, std::forward<Args>(args)...));
+    fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
     std::exit(1);
 }
 

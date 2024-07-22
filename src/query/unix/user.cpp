@@ -8,6 +8,7 @@
 #include <proc/readproc.h>
 
 #include "query.hpp"
+#include "switch_fnv1a.hpp"
 #include "util.hpp"
 #include "utils/dewm.hpp"
 
@@ -54,6 +55,32 @@ static std::string _get_wm_name() {
     return wm_name;
 }
 
+static std::string get_de_version(const std::string_view de_name)
+{
+    switch (fnv1a32::hash(de_name.data())) {
+        case "mate"_fnv1a32:
+            return get_mate_version();
+        case "cinnamon"_fnv1a32:
+            return get_cinnamon_version();
+        case "gnome"_fnv1a32:
+            {
+                std::string ret;
+                read_exec({"gnome-shell", "--version"}, ret);
+                ret.erase(0, ret.rfind(' '));
+                return ret;
+            }
+        case "xfce"_fnv1a32:
+        case "xfce4"_fnv1a32:
+            {
+                std::string ret;
+                read_exec({"xfce4-session", "--version"}, ret);
+                ret.erase(0, "xfce4-session"_len+1);
+                ret.erase(ret.find(' '));
+                return ret;
+            }
+    }
+}
+
 /*static std::string _get_wm_wayland_name() {
     std::string ret = MAGIC_LINE;
 
@@ -71,7 +98,7 @@ static std::string _get_wm_name() {
     return ret;
 }*/
 
-static std::string _get_shell_version(const std::string_view shell_name) {
+static std::string _get_shell_version(const std::string_view shell_name) noexcept {
     std::string ret;
 
     if (shell_name == "nu")
@@ -83,13 +110,13 @@ static std::string _get_shell_version(const std::string_view shell_name) {
     return ret;
 }
 
-static std::string _get_shell_name(const std::string_view shell_path) {
+static std::string _get_shell_name(const std::string_view shell_path) noexcept {
     std::string ret = shell_path.substr(shell_path.rfind('/')+1).data();
 
     return ret;
 }
 
-static std::string _get_term_name() {
+static std::string _get_term_name() noexcept {
     std::string ret;
     // cufetch -> shell -> terminal
     // https://ubuntuforums.org/showthread.php?t=2372923&p=13693160#post13693160
@@ -155,15 +182,15 @@ User::User() {
     }
 }
 
-std::string User::name() {
+std::string User::name() noexcept {
     return m_pPwd->pw_name;
 }
 
-std::string User::shell_path() {
+std::string User::shell_path() noexcept {
     return m_pPwd->pw_shell;
 }
 
-std::string User::shell_name() {
+std::string User::shell_name() noexcept {
     static bool done = false;
     if (!done)
     {
@@ -174,7 +201,7 @@ std::string User::shell_name() {
     return m_users_infos.shell_name;
 }
 
-std::string User::shell_version(const std::string_view shell_name) {
+std::string User::shell_version(const std::string_view shell_name) noexcept{
     if (m_users_infos.shell_name.empty())
         return UNKNOWN;
     
@@ -210,7 +237,7 @@ std::string User::de_name(const std::string_view term_name) {
     // if so don't even try to get the DE or WM names
     // they waste times
     if (m_bDont_query_dewm                        ||
-        hasStart(m_users_infos.term_name, "/dev") || 
+        hasStart(term_name, "/dev") || 
         (m_users_infos.de_name != MAGIC_LINE && m_users_infos.de_name == m_users_infos.wm_name))
         return MAGIC_LINE;
 
@@ -225,6 +252,21 @@ std::string User::de_name(const std::string_view term_name) {
     }
 
     return m_users_infos.de_name;
+}
+
+std::string User::de_version(const std::string_view de_name) {
+    if (m_bDont_query_dewm ||
+        de_name == UNKNOWN || de_name == MAGIC_LINE || de_name.empty())
+        return UNKNOWN;
+
+    static bool done = false;
+    if (!done)
+    {
+        m_users_infos.de_version = get_de_version(str_tolower(de_name.data()));
+        done = true;
+    }
+
+    return m_users_infos.de_version;
 }
 
 std::string User::term_name() {

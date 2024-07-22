@@ -355,12 +355,12 @@ std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view ve
     size_t last = description.find_last_not_of(' ');
 
     std::string vendor = description.substr(first, (last - first + 1));
-
-    if (vendor == "Intel Corporation")
-        vendor = "Intel";
+    
     if (vendor == "Advanced Micro Devices, Inc.")
         vendor = "AMD";
-    if (vendor == "NVIDIA Corporation")
+    else if (vendor == "Intel Corporation")
+        vendor = "Intel";
+    else if (vendor == "NVIDIA Corporation")
         vendor = "NVIDIA";
 
     return vendor;

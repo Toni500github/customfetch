@@ -2,6 +2,7 @@ CXX       	?= g++
 PREFIX	  	?= /usr
 VARS  	  	?=
 GUI_SUPPORT     ?= 0
+CXX_STD		?= c++20
 
 DEBUG 		?= 1
 PARSER_TEST 	?= 0
@@ -42,7 +43,7 @@ SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/util
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -lprocps
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -O3 -fvisibility=hidden -Iinclude -std=c++17 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
+CXXFLAGS        += -Wno-return-type -O3 -fvisibility=hidden -Iinclude -std=$(CXX_STD) $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
 all: fmt toml $(TARGET)
 

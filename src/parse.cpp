@@ -477,6 +477,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "de_name"_fnv1a32:
                     SYSINFO_INSERT(query_user.de_name(query_user.term_name())); break;
 
+                case "de_version"_fnv1a32:
+                    SYSINFO_INSERT(query_user.de_version(query_user.de_name(query_user.term_name()))); break;
+
                 case "wm_name"_fnv1a32:
                     SYSINFO_INSERT(query_user.wm_name(query_user.term_name())); break;
 

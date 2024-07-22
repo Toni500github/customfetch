@@ -2,7 +2,7 @@
 -pedantic
 -Wall
 -Wno-return-type
--std=c++17
+-std=c++20
 -DVERSION="0.1.0"
 -DBRANCH="main"
 -DGUI_SUPPORT=1

@@ -4,6 +4,7 @@
 #include "gui.hpp"
 
 #include <getopt.h>
+#include <cstdlib>
 #include <filesystem>
 
 static void version() {
@@ -27,8 +28,9 @@ A command-line system information tool (or neofetch like program), which its foc
     -s, --source-path <path>	Path to the ascii art file to display
     -C, --config <path>		Path to the config file to use
     -D, --data-dir <path>       Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
-    -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11")
+    -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "arch")
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it's enabled)
+    -o, --offset                Offset between the ascii art and the system infos
     -l. --list-components	Print the list of the components and its members
     -h, --help			Print this help menu
     -L, --logo-only             Print only the logo
@@ -46,7 +48,7 @@ component
   member	: description [example of what it prints, maybe another]
 
 Should be used in the config as like as $<component.member>
-NOTE: there are components such as "user.term_version" that will kinda slow down cufetch because of querying things like terminal version
+NOTE: there are components such as "user.de_version" that will kinda slow down cufetch because of querying things like the DE version
       cufetch is still fast tho :)
 
 os
@@ -151,7 +153,7 @@ static bool parseargs(int argc, char* argv[], Config& config) {
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlgC:d:D:s:";
+    const char *optstring = "-VhnLlgo:C:d:D:s:";
     static const struct option opts[] =
     {
         {"version",         no_argument,       0, 'V'},
@@ -160,6 +162,7 @@ static bool parseargs(int argc, char* argv[], Config& config) {
         {"list-components", no_argument,       0, 'l'},
         {"logo-only",       no_argument,       0, 'L'},
         {"gui",             no_argument,       0, 'g'},
+        {"offset",          required_argument, 0, 'o'},
         {"config",          required_argument, 0, 'C'},
         {"data-dir",        required_argument, 0, 'D'},
         {"distro",          required_argument, 0, 'd'},
@@ -188,6 +191,8 @@ static bool parseargs(int argc, char* argv[], Config& config) {
                 config.m_print_logo_only = true; break;
             case 'g':
                 config.gui = true; break;
+            case 'o':
+                config.offset = std::atoi(optarg); break;
             case 'C': // we have already did it in parse_config_path()
                 break;
             case 'D':

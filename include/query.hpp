@@ -82,21 +82,23 @@ public:
         std::string shell_version{UNKNOWN};
         std::string wm_name{MAGIC_LINE};
         std::string de_name{MAGIC_LINE};
+        std::string de_version{UNKNOWN};
         std::string term_name{MAGIC_LINE};
         std::string term_version{MAGIC_LINE};
     };
 
     User();
-    std::string name();
-    std::string shell_name();
-    std::string shell_path();
-    std::string shell_version(const std::string_view shell_name);
+    std::string name() noexcept;
+    std::string shell_name() noexcept;
+    std::string shell_path() noexcept;
+    std::string shell_version(const std::string_view shell_name) noexcept;
     std::string wm_name(const std::string_view term_name);
     std::string de_name(const std::string_view term_name);
+    std::string de_version(const std::string_view de_name);
 
     std::string term_name();
     std::string term_version(const std::string_view term_name);
-    
+   
     static bool m_bDont_query_dewm;
 private:
     static bool m_bInit;
