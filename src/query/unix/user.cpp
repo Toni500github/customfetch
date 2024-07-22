@@ -3,8 +3,17 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-//#include <sys/socket.h>
-//#include <wayland-client.h>
+#include <dlfcn.h>
+
+#if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
+# include <sys/socket.h>
+# include <wayland-client.h>
+#endif
+
+//#if __has_include(<sys/socket.h>) && __has_include(<X11/Xlib.h>)
+//# include <X11/Xlib.h>
+//#endif
+
 #include <proc/readproc.h>
 
 #include "query.hpp"
@@ -84,7 +93,16 @@ static std::string get_de_version(const std::string_view de_name)
     }
 }
 
-/*static std::string _get_wm_wayland_name() {
+static std::string _get_wm_wayland_name() {
+#if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
+    LOAD_LIBRARY("libwayland-client.so", return MAGIC_LINE;)
+
+    // clear any existing error
+    dlerror();
+    LOAD_LIB_SYMBOL(wl_display *, wl_display_connect, const char *name)
+    LOAD_LIB_SYMBOL(void, wl_display_disconnect, wl_display *display)
+    LOAD_LIB_SYMBOL(int, wl_display_get_fd, wl_display *display)
+
     std::string ret = MAGIC_LINE;
 
     struct wl_display *display = wl_display_connect(NULL);
@@ -98,7 +116,37 @@ static std::string get_de_version(const std::string_view de_name)
     f >> ret;
     wl_display_disconnect(display);
 
+    UNLOAD_LIBRARY()
+
     return ret;
+#endif
+}
+
+/*static std::string get_wm_x11_name() {
+#if __has_include(<sys/socket.h>) && __has_include(<X11/Xlib.h>)
+    LOAD_LIBRARY("libX11.so", return MAGIC_LINE;)
+    dlerror();
+    LOAD_LIB_SYMBOL(Display *, XOpenDisplay, char*)
+    LOAD_LIB_SYMBOL(int, XCloseDisplay, Display *)
+
+    Display *display = XOpenDisplay(NULL);
+    if (display == NULL)
+        return MAGIC_LINE;
+
+    debug("Connection x11 = {}", ConnectionNumber(display));
+    std::string ret = MAGIC_LINE;
+
+    struct ucred ucred;
+    socklen_t len = sizeof(struct ucred);
+    if (getsockopt(ConnectionNumber(display), SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1)
+        return UNKNOWN;
+
+    std::ifstream f(fmt::format("/proc/{}/comm", ucred.pid), std::ios::in);
+    f >> ret;
+    XCloseDisplay(display);
+
+    return ret;
+#endif
 }*/
 
 static std::string _get_shell_version(const std::string_view shell_name) noexcept {
@@ -219,13 +267,20 @@ std::string User::shell_version(const std::string_view shell_name) noexcept{
 }
 
 std::string User::wm_name(const std::string_view term_name) {
-    if (m_bDont_query_dewm || hasStart(m_users_infos.term_name, "/dev"))
+    if (m_bDont_query_dewm ||
+        hasStart(term_name, "/dev") || 
+        (!m_users_infos.de_name.empty() && m_users_infos.de_name != MAGIC_LINE && m_users_infos.de_name == m_users_infos.wm_name))
         return MAGIC_LINE;
 
     static bool done = false;
     if (!done)
     {
-        m_users_infos.wm_name = _get_wm_name();
+        const char *env = std::getenv("WAYLAND_DISPLAY");
+        if (env != nullptr && env[0] != '\0')
+            m_users_infos.wm_name = _get_wm_wayland_name();
+        else
+            m_users_infos.wm_name = _get_wm_name();
+        
         if (m_users_infos.de_name == m_users_infos.wm_name)
             m_users_infos.de_name = MAGIC_LINE;
 
@@ -239,9 +294,9 @@ std::string User::de_name(const std::string_view term_name) {
     // first let's see if we are not in a tty or if the user doesn't want to
     // if so don't even try to get the DE or WM names
     // they waste times
-    if (m_bDont_query_dewm                        ||
+    if (m_bDont_query_dewm          ||
         hasStart(term_name, "/dev") || 
-        (m_users_infos.de_name != MAGIC_LINE && m_users_infos.de_name == m_users_infos.wm_name))
+        (!m_users_infos.wm_name.empty() && m_users_infos.de_name != MAGIC_LINE && m_users_infos.de_name == m_users_infos.wm_name))
         return MAGIC_LINE;
 
     static bool done = false;

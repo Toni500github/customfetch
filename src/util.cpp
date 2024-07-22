@@ -120,7 +120,7 @@ bool is_file_image(const unsigned char *bytes) {
  * remove all white spaces (' ', '\t', '\n') from start and end of input
  * inplace!
  * @param input
- * Original https://github.com/lfreist/hwinfo/blob/main/include/hwinfo/utils/stringutils.h#L50
+ * @Original https://github.com/lfreist/hwinfo/blob/main/include/hwinfo/utils/stringutils.h#L50
  */
 void strip(std::string& input) {
     if (input.empty()) {
@@ -223,14 +223,14 @@ bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdEr
 std::string str_tolower(std::string str) {
     for (char& x : str)
         x = std::tolower(x); 
-    
+
     return str;
 }
 
 std::string str_toupper(std::string str) {
     for (char& x : str)
         x = std::toupper(x); 
-    
+
     return str;
 }
 
@@ -372,12 +372,12 @@ std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view ve
 * @return user's config directory  
 */
 std::string getHomeConfigDir() {
-    char *dir = getenv("XDG_CONFIG_HOME");
+    char *dir = std::getenv("XDG_CONFIG_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir)) {
         std::string str_dir(dir);
         return hasEnding(str_dir, "/") ? str_dir.substr(0, str_dir.rfind('/')) : str_dir;
     } else {
-        char *home = getenv("HOME");
+        char *home = std::getenv("HOME");
         if (home == nullptr)
             die("Failed to find $HOME, set it to your home directory!");
 

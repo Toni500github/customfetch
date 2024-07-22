@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <dlfcn.h>
 #include <sys/types.h>
 
 #define BOLD_TEXT(x)    (fmt::emphasis::bold | fmt::fg(x))
@@ -14,6 +15,22 @@
 
 // magic line to be sure that I don't cut the wrong line 
 #define MAGIC_LINE      "(cut this shit NOW!! RAHHH)"
+
+// x = library to load
+// y = code to execute if anything goes wrong
+#define LOAD_LIBRARY(x,y) \
+void *handle = dlopen(x, RTLD_LAZY); \
+if (!handle) \
+    y
+
+// x = type of what the function returns
+// y = the function name
+// ... = the arguments in a function if any
+#define LOAD_LIB_SYMBOL(x, y, ...) \
+typedef x (* y ## _t)(__VA_ARGS__); \
+y ## _t y = reinterpret_cast<y ## _t>(dlsym(handle, #y)); \
+
+#define UNLOAD_LIBRARY() dlclose(handle);
 
 bool hasEnding(const std::string_view fullString, const std::string_view ending);
 bool hasStart(const std::string_view fullString, const std::string_view start);
@@ -36,7 +53,7 @@ fmt::rgb hexStringToColor(const std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();
 
-constexpr std::size_t operator""_len(const char*,std::size_t ln) noexcept{
+consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept{
     return ln;
 }
 
