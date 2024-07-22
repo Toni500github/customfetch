@@ -5,11 +5,11 @@
 #include "parse.hpp"
 #include "query.hpp"
 
-#include <algorithm>
 #include <fstream>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <iostream>
+#include <vector>
 
 std::string Display::detect_distro(Config& config) {
     std::string file_path;
@@ -97,9 +97,8 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
         return asciiArt;
 
     // erase each element for each instance of MAGIC_LINE
-    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), 
-                                    [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }
-                                    ), config.layouts.end());
+    std::erase_if(config.layouts,
+                  [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; });
 
     size_t i;
     for (i = 0; i < config.layouts.size(); i++) {

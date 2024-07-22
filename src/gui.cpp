@@ -48,11 +48,11 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
         std::string _;
         layout = parse(layout, systemInfo, _, config, colors, true);
     }
+    
+    std::erase_if(config.layouts,
+                  [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; });
 
     for (size_t i = 0; i < config.layouts.size(); i++) {
-        if (config.layouts.at(i).find(MAGIC_LINE) != std::string::npos)
-            config.layouts.erase(config.layouts.begin() + i);
-
         for (size_t _ = 0; _ < config.offset; _++) // I use _ because we don't need it 
             config.layouts.at(i).insert(0, " ");
     }
