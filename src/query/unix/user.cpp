@@ -52,6 +52,9 @@ static std::string _get_wm_name() {
     }
     
     debug("wm_name = {}", wm_name);
+    if (wm_name.empty())
+        return MAGIC_LINE;
+
     return wm_name;
 }
 
