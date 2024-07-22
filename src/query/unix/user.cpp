@@ -211,7 +211,7 @@ std::string User::de_name(const std::string_view term_name) {
     // they waste times
     if (m_bDont_query_dewm                        ||
         hasStart(m_users_infos.term_name, "/dev") || 
-        m_users_infos.de_name == MAGIC_LINE)
+        (m_users_infos.de_name != MAGIC_LINE && m_users_infos.de_name == m_users_infos.wm_name))
         return MAGIC_LINE;
 
     static bool done = false;
