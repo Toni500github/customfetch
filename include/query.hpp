@@ -92,8 +92,8 @@ public:
     std::string shell_name() noexcept;
     std::string shell_path() noexcept;
     std::string shell_version(const std::string_view shell_name) noexcept;
-    std::string wm_name(const std::string_view term_name);
-    std::string de_name(const std::string_view term_name);
+    std::string wm_name(bool dont_query_dewm, const std::string_view term_name);
+    std::string de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name);
     std::string de_version(const std::string_view de_name);
 
     std::string term_name();
@@ -101,6 +101,7 @@ public:
    
     static bool m_bDont_query_dewm;
 private:
+    static bool m_bCut_de;
     static bool m_bInit;
     static User_t m_users_infos;
     static struct passwd *m_pPwd;

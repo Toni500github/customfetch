@@ -15,6 +15,7 @@ Query::CPU::CPU_t Query::CPU::m_cpu_infos;
 std::string Query::Disk::m_typefs;
 Query::User::User_t Query::User::m_users_infos;
 bool Query::User::m_bDont_query_dewm = false;
+bool Query::User::m_bCut_de = false;
 Query::RAM::RAM_t Query::RAM::m_memory_infos;
 Query::GPU::GPU_t Query::GPU::m_gpu_infos;
 
@@ -140,7 +141,7 @@ static std::string getInfoFromName( const systemInfo_t& systemInfo, const std::s
         }
     }
 
-    return "(unknown/invalid component)";;
+    return "(unknown/invalid component)";
 
 }
 
@@ -475,22 +476,24 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     SYSINFO_INSERT(query_user.shell_version(query_user.shell_name())); break;
 
                 case "de_name"_fnv1a32:
-                    SYSINFO_INSERT(query_user.de_name(query_user.term_name())); break;
+                    SYSINFO_INSERT(query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
+                                                      query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()))); break;
 
                 case "de_version"_fnv1a32:
-                    SYSINFO_INSERT(query_user.de_version(query_user.de_name(query_user.term_name()))); break;
+                    SYSINFO_INSERT(query_user.de_version(query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
+                                                                            query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name())))); break;
 
                 case "wm_name"_fnv1a32:
-                    SYSINFO_INSERT(query_user.wm_name(query_user.term_name())); break;
+                    SYSINFO_INSERT(query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name())); break;
 
                 case "term"_fnv1a32:
-                    SYSINFO_INSERT(query_user.term_name() + ' ' + query_user.term_version(query_user.term_name()));
+                    SYSINFO_INSERT(query_user.term_name() + ' ' + query_user.term_version(query_user.term_name())); break;
 
                 case "term_name"_fnv1a32:
-                    SYSINFO_INSERT(query_user.term_name());
+                    SYSINFO_INSERT(query_user.term_name()); break;
 
                 case "term_version"_fnv1a32:
-                    SYSINFO_INSERT(query_user.term_version(query_user.term_name()));
+                    SYSINFO_INSERT(query_user.term_version(query_user.term_name())); break;
             }
         }
 

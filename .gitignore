@@ -38,3 +38,4 @@ output/
 *.exe
 *.out
 *.app
+.cache

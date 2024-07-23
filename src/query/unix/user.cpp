@@ -24,7 +24,9 @@
 using namespace Query;
 
 static std::string _get_de_name() {
-    return parse_de_env();
+    const std::string& ret = parse_de_env();
+    debug("get_de_name = {}", ret);
+    return ret;
 }
 
 static std::string _get_wm_name() {
@@ -32,7 +34,7 @@ static std::string _get_wm_name() {
     uid_t uid = getuid();
 
     for (auto const& dir_entry : std::filesystem::directory_iterator{"/proc/"}) {
-        if (!std::isdigit((dir_entry.path().string().at(6))))
+        if (!std::isdigit((dir_entry.path().string().at(6)))) // /proc/50
             continue;
 
         path = dir_entry.path().string() + "/loginuid";
@@ -97,8 +99,6 @@ static std::string _get_wm_wayland_name() {
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
     LOAD_LIBRARY("libwayland-client.so", return MAGIC_LINE;)
 
-    // clear any existing error
-    dlerror();
     LOAD_LIB_SYMBOL(wl_display *, wl_display_connect, const char *name)
     LOAD_LIB_SYMBOL(void, wl_display_disconnect, wl_display *display)
     LOAD_LIB_SYMBOL(int, wl_display_get_fd, wl_display *display)
@@ -266,13 +266,13 @@ std::string User::shell_version(const std::string_view shell_name) noexcept{
     return m_users_infos.shell_version;
 }
 
-std::string User::wm_name(const std::string_view term_name) {
-    if (m_bDont_query_dewm ||
-        hasStart(term_name, "/dev") || 
-        (!m_users_infos.de_name.empty() && m_users_infos.de_name != MAGIC_LINE && m_users_infos.de_name == m_users_infos.wm_name))
-        return MAGIC_LINE;
+std::string User::wm_name(bool dont_query_dewm, const std::string_view term_name) {
+    if (dont_query_dewm || hasStart(term_name, "/dev")) 
+    { return MAGIC_LINE; }
 
     static bool done = false;
+    debug("CALLING {} || done = {} && de_name = {} && wm_name = {}", __func__, done, m_users_infos.de_name, m_users_infos.wm_name);
+
     if (!done)
     {
         const char *env = std::getenv("WAYLAND_DISPLAY");
@@ -282,7 +282,7 @@ std::string User::wm_name(const std::string_view term_name) {
             m_users_infos.wm_name = _get_wm_name();
         
         if (m_users_infos.de_name == m_users_infos.wm_name)
-            m_users_infos.de_name = MAGIC_LINE;
+        { m_users_infos.de_name = MAGIC_LINE; m_bCut_de = true; }
 
         done = true;
     }
@@ -290,22 +290,30 @@ std::string User::wm_name(const std::string_view term_name) {
     return m_users_infos.wm_name;
 }
 
-std::string User::de_name(const std::string_view term_name) {
+std::string User::de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name) {
     // first let's see if we are not in a tty or if the user doesn't want to
     // if so don't even try to get the DE or WM names
     // they waste times
-    if (m_bDont_query_dewm          ||
-        hasStart(term_name, "/dev") || 
-        (!m_users_infos.wm_name.empty() && m_users_infos.de_name != MAGIC_LINE && m_users_infos.de_name == m_users_infos.wm_name))
-        return MAGIC_LINE;
-
+    if (dont_query_dewm || hasStart(term_name, "/dev") || m_bCut_de)
+    { return MAGIC_LINE; }
+    
     static bool done = false;
+    debug("CALLING {} || done = {} && de_name = {} && wm_name = {}", __func__, done, m_users_infos.de_name, m_users_infos.wm_name);
+
     if (!done)
     {
+        if (m_users_infos.de_name != MAGIC_LINE && wm_name != MAGIC_LINE &&
+            m_users_infos.de_name == wm_name) {
+            m_users_infos.de_name = MAGIC_LINE;
+            // cry about it
+            goto ret;
+        }
+
         m_users_infos.de_name = _get_de_name();
         if (m_users_infos.de_name == m_users_infos.wm_name)
-            m_users_infos.de_name = MAGIC_LINE;
+        { m_users_infos.de_name = MAGIC_LINE; m_bCut_de = true; }
 
+ret:
         done = true;
     }
 

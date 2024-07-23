@@ -9,19 +9,18 @@
 #include <dlfcn.h>
 #include <sys/types.h>
 
-#define BOLD_TEXT(x)    (fmt::emphasis::bold | fmt::fg(x))
 #define NOCOLOR         "\033[0m"
 #define UNKNOWN         "(unknown)"
 
 // magic line to be sure that I don't cut the wrong line 
 #define MAGIC_LINE      "(cut this shit NOW!! RAHHH)"
 
-// x = library to load
-// y = code to execute if anything goes wrong
-#define LOAD_LIBRARY(x,y) \
-void *handle = dlopen(x, RTLD_LAZY); \
+// lib  = library to load (string)
+// code = code to execute if anything goes wrong
+#define LOAD_LIBRARY(lib, code) \
+void *handle = dlopen(lib, RTLD_LAZY); \
 if (!handle) \
-    y
+    code
 
 // x = type of what the function returns
 // y = the function name
@@ -58,26 +57,26 @@ consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept{
 }
 
 template <typename... Args>
-void error(const std::string_view fmt, Args&&... args) {
-    fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+void error(const std::string_view fmt, Args&&... args) noexcept{
+    fmt::println(stderr, (fmt::emphasis::bold | fmt::fg(fmt::rgb(fmt::color::red))), "ERROR: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
-void die(const std::string_view fmt, Args&&... args) {
-    fmt::println(stderr, BOLD_TEXT(fmt::rgb(fmt::color::red)), "ERROR: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+void die(const std::string_view fmt, Args&&... args) noexcept{
+    fmt::println(stderr, (fmt::emphasis::bold | fmt::fg(fmt::rgb(fmt::color::red))), "ERROR: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
     std::exit(1);
 }
 
 template <typename... Args>
-void debug(const std::string_view fmt, Args&&... args) {
+void debug(const std::string_view fmt, Args&&... args) noexcept{
 #if DEBUG
-    fmt::println(BOLD_TEXT(fmt::rgb(fmt::color::hot_pink)), "[DEBUG]: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+    fmt::println((fmt::emphasis::bold | fmt::fg((fmt::rgb(fmt::color::hot_pink)))), "[DEBUG]: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 #endif
 }
 
 template <typename... Args>
-void warn(const std::string_view fmt, Args&&... args) {
-    fmt::println(BOLD_TEXT(fmt::rgb(fmt::color::yellow)), "WARNING: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+void warn(const std::string_view fmt, Args&&... args) noexcept{
+    fmt::println((fmt::emphasis::bold | fmt::fg((fmt::rgb(fmt::color::yellow)))), "WARNING: {}", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 #endif
