@@ -77,22 +77,24 @@ RAM::RAM() {
     }
 }
 
-size_t RAM::free_amount()  { 
-    return m_memory_infos.free_amount / 1024;
+size_t RAM::free_amount()  {
+    debug("RAM free = {}", m_memory_infos.free_amount);
+    return m_memory_infos.free_amount * 1024;
 }
 
 size_t RAM::used_amount()  { 
-    return m_memory_infos.used_amount / 1024; 
+    return m_memory_infos.used_amount * 1024;
 }
 
-size_t RAM::total_amount() { 
-    return m_memory_infos.total_amount / 1024; 
+size_t RAM::total_amount() {
+    debug("RAM total = {}", m_memory_infos.total_amount);
+    return m_memory_infos.total_amount * 1024;
 }
 
 size_t RAM::swap_total_amount() {
-    return m_memory_infos.swap_total_amount / 1024;
+    return m_memory_infos.swap_total_amount * 1024;
 }
 
 size_t RAM::swap_free_amount() {
-    return m_memory_infos.swap_free_amount / 1024;
+    return m_memory_infos.swap_free_amount * 1024;
 }

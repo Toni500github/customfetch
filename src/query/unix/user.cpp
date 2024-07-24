@@ -14,8 +14,6 @@
 //# include <X11/Xlib.h>
 //#endif
 
-#include <proc/readproc.h>
-
 #include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -168,30 +166,30 @@ static std::string _get_shell_name(const std::string_view shell_path) noexcept {
 }
 
 static std::string _get_term_name() noexcept {
-    std::string ret;
     // cufetch -> shell -> terminal
-    // https://ubuntuforums.org/showthread.php?t=2372923&p=13693160#post13693160
     pid_t ppid = getppid();
-    proc_t proc_info;
-    memset(&proc_info, 0, sizeof(proc_info));
-    PROCTAB *pt_ptr = openproc(PROC_FILLSTATUS | PROC_PID, &ppid);
-    if (readproc(pt_ptr, &proc_info) == NULL)
-        return MAGIC_LINE;
-    
-    std::ifstream f(fmt::format("/proc/{}/comm", proc_info.ppid), std::ios::in);
+    std::ifstream pid_f(fmt::format("/proc/{}/status", ppid), std::ios::in);
+    std::string line, term_pid;
+    while (std::getline(pid_f, line))
+    {
+        if (hasStart(line, "PPid:"))
+        {
+            term_pid = line.substr("PPid:"_len);
+            strip(term_pid);
+            break;
+        }
+    }
+    debug("term_pid = {}", term_pid);
+
+    std::ifstream f("/proc/" + term_pid + "/comm", std::ios::in);
     std::string name;
     std::getline(f, name);
 
-    closeproc(pt_ptr);
-    //freeproc(&proc_info); // "munmap_chunk(): invalid pointer"
-    
     // st (suckless terminal)
     if (name == "exe")
-        ret = "st";
-    else 
-        ret = name;
-
-    return ret;
+        name = "st";
+    
+    return name;
 }
 
 static std::string _get_term_version(std::string_view term_name) {

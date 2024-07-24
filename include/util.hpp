@@ -9,6 +9,11 @@
 #include <dlfcn.h>
 #include <sys/types.h>
 
+struct byte_units_t {
+    std::string unit;
+    float num_bytes;
+};
+
 #define NOCOLOR         "\033[0m"
 #define UNKNOWN         "(unknown)"
 
@@ -39,6 +44,7 @@ std::string binarySearchPCIArray(const std::string_view vendor_id, const std::st
 std::string binarySearchPCIArray(const std::string_view vendor_id);
 std::string shell_exec(const std::string_view cmd);
 std::vector<std::string> split(const std::string_view text, char delim);
+byte_units_t auto_devide_bytes(const size_t num);
 bool is_file_image(const unsigned char *bytes);
 std::string expandVar(const std::string_view str);
 // Replace string inplace

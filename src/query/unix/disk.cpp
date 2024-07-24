@@ -5,6 +5,7 @@
 using namespace Query;
 
 Disk::Disk(const std::string_view path) {
+    debug("Constructing {}", __func__);
     if (!m_bInit) {
         if (statvfs(path.data(), &m_statvfs) != 0) {
             error("stat() failed: ");
@@ -36,18 +37,18 @@ Disk::Disk(const std::string_view path) {
 }
 
 float Disk::total_amount() {
-    return ((static_cast<float>(m_statvfs.f_blocks * m_statvfs.f_frsize) / 1024) / 1024) / 1024;
+    return static_cast<float>(m_statvfs.f_blocks * m_statvfs.f_frsize);
 }
 
 float Disk::used_amount() {
-    return ((static_cast<float>(
+    return static_cast<float>(
         (m_statvfs.f_blocks * m_statvfs.f_frsize) - 
         (m_statvfs.f_bavail * m_statvfs.f_frsize)
-        ) / 1024) / 1024) / 1024;
+        );
 }
 
 float Disk::free_amount() {
-    return ((static_cast<float>(m_statvfs.f_bfree * m_statvfs.f_frsize) / 1024) / 1024) / 1024;
+    return static_cast<float>(m_statvfs.f_bfree * m_statvfs.f_frsize);
 }
 
 std::string Disk::typefs() {

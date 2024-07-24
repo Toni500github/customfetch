@@ -8,7 +8,7 @@
 #include <filesystem>
 
 static void version() {
-    fmt::println("customfetch v{} branch {}", VERSION, BRANCH);
+    fmt::println("customfetch {} branch {}", VERSION, BRANCH);
 
 #ifdef GUI_SUPPORT
     fmt::println("GUI support enabled");
@@ -16,7 +16,8 @@ static void version() {
     fmt::println("GUI support IS NOT enabled");
 #endif
 
-    std::exit(0);
+    // if only everyone would not return error when querying the program version :(
+    std::exit(EXIT_SUCCESS);
 }
 
 static void help(bool invalid_opt = false) {
@@ -31,7 +32,7 @@ A command-line system information tool (or neofetch like program), which its foc
     -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "arch")
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it's enabled)
     -o, --offset                Offset between the ascii art and the system infos
-    -l. --list-components	Print the list of the components and its members
+    -l. --list-modules  	Print the list of the components and its members
     -h, --help			Print this help menu
     -L, --logo-only             Print only the logo
     -V, --version		Print the version along with the git branch it was built
@@ -41,14 +42,14 @@ Read the "README.md" file for more infos about customfetch and how it works
     std::exit(invalid_opt);
 }
 
-static void components_list() {
+static void modules_list() {
     fmt::println(R"(
 Syntax:
-component
+module
   member	: description [example of what it prints, maybe another]
 
-Should be used in the config as like as $<component.member>
-NOTE: there are components such as "user.de_version" that will kinda slow down cufetch because of querying things like the DE version
+Should be used in the config as like as $<module.member>
+NOTE: there are modules such as "user.de_version" that may slow down cufetch because of querying things like the DE version
       cufetch is still fast tho :)
 
 os
@@ -159,7 +160,7 @@ static bool parseargs(int argc, char* argv[], Config& config) {
         {"version",         no_argument,       0, 'V'},
         {"help",            no_argument,       0, 'h'},
         {"no-display",      no_argument,       0, 'n'},
-        {"list-components", no_argument,       0, 'l'},
+        {"list-modules",    no_argument,       0, 'l'},
         {"logo-only",       no_argument,       0, 'L'},
         {"gui",             no_argument,       0, 'g'},
         {"offset",          required_argument, 0, 'o'},
@@ -186,7 +187,7 @@ static bool parseargs(int argc, char* argv[], Config& config) {
             case 'n':
                 config.m_disable_source = true; break;
             case 'l':
-                components_list(); break;
+                modules_list(); break;
             case 'L':
                 config.m_print_logo_only = true; break;
             case 'g':
@@ -201,7 +202,7 @@ static bool parseargs(int argc, char* argv[], Config& config) {
                 config.m_custom_distro = str_tolower(optarg); break;
             case 's':
                 config.source_path = optarg; break;
-            
+
             default:
                 return false;
         }

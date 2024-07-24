@@ -41,7 +41,7 @@ VERSION    	 = 0.1.0
 BRANCH     	 = main
 SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp))
 OBJ 	   	 = $(SRC:.cpp=.o)
-LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -lprocps
+LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -Wno-return-type -O3 -fvisibility=hidden -Iinclude -std=$(CXX_STD) $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 

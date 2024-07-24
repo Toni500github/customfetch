@@ -30,10 +30,7 @@ Currently supports Linux distros only, but windows support is incoming
 >To check if it's enabled or not, run "cufetch --version"
 
 ## Depends
-
-need to install `libprocps`
-
-with GUI support install: `gtk3 gtkmm3 libprocps`
+currently nothing, if need to install with GUI support install: `gtk3 gtkmm3`
 
 ## Installation
 ### Arch and based (unstable) (AUR)

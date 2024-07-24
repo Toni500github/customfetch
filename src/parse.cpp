@@ -562,7 +562,8 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
     if (hasStart(moduleName, "disk")) {
         if (moduleName.length() < 7)
             die(" PARSER: invalid disk component name ({}), must be disk(/path/to/fs)", moduleName);
-
+        
+        enum { USED = 0, TOTAL, FREE };
         std::string path = moduleName.data();
         path.erase(0, 5); // disk(
         path.pop_back(); // )
@@ -576,18 +577,28 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             );
 
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+            std::array<byte_units_t, 3> byte_units;
+            byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount());
+            byte_units.at(USED) = auto_devide_bytes(query_disk.used_amount());
+            byte_units.at(FREE) = auto_devide_bytes(query_disk.free_amount());
+
             switch (module_hash) {
                 case "disk"_fnv1a32:
-                    SYSINFO_INSERT(fmt::format("{:.2f} GB / {:.2f} GB - {}", query_disk.used_amount(), query_disk.total_amount(), query_disk.typefs())); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} - {}", 
+                                               byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
+                                               byte_units.at(TOTAL).num_bytes, byte_units.at(TOTAL).unit, query_disk.typefs())); break;
 
                 case "used"_fnv1a32:
-                    SYSINFO_INSERT(query_disk.used_amount()); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {}", 
+                                               byte_units.at(USED).num_bytes, byte_units.at(USED).unit)); break;
 
                 case "total"_fnv1a32:
-                    SYSINFO_INSERT(query_disk.total_amount()); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {}", 
+                                               byte_units.at(TOTAL).num_bytes, byte_units.at(TOTAL).unit)); break;
 
                 case "free"_fnv1a32:
-                    SYSINFO_INSERT(query_disk.free_amount()); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {}", 
+                                               byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit)); break;
 
                 case "fs"_fnv1a32:
                     SYSINFO_INSERT(query_disk.typefs()); break;
@@ -599,6 +610,8 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     if (moduleName == "ram") {
         Query::RAM query_ram;
+        enum { USED = 0, TOTAL, FREE, SWAP_FREE, SWAP_TOTAL };
+        std::array<byte_units_t, 5> byte_units;
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert(
@@ -606,24 +619,37 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             );
 
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end()) {
+            byte_units.at(USED) = auto_devide_bytes(query_ram.used_amount());
+            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount());
+            byte_units.at(FREE) = auto_devide_bytes(query_ram.free_amount());
+            byte_units.at(SWAP_FREE) = auto_devide_bytes(query_ram.swap_free_amount());
+            byte_units.at(SWAP_TOTAL) = auto_devide_bytes(query_ram.swap_total_amount());
+
             switch (module_hash) {
                 case "ram"_fnv1a32:
-                    SYSINFO_INSERT(fmt::format("{} MB / {} MB", query_ram.used_amount(), query_ram.total_amount())); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {}", 
+                                               byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
+                                               byte_units.at(TOTAL).num_bytes, byte_units.at(TOTAL).unit)); break;
 
                 case "used"_fnv1a32:
-                    SYSINFO_INSERT(query_ram.used_amount()); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {}", 
+                                               byte_units.at(USED).num_bytes, byte_units.at(USED).unit)); break;
 
                 case "total"_fnv1a32:
-                    SYSINFO_INSERT(query_ram.total_amount()); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {}", 
+                                               byte_units.at(TOTAL).num_bytes, byte_units.at(TOTAL).unit)); break;
 
                 case "free"_fnv1a32:
-                    SYSINFO_INSERT(query_ram.free_amount()); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {}", 
+                                               byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit)); break;
 
                 case "swap_free"_fnv1a32:
-                    SYSINFO_INSERT(query_ram.swap_free_amount()); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {}", 
+                                               byte_units.at(SWAP_FREE).num_bytes, byte_units.at(SWAP_FREE).unit)); break;
 
                 case "swap_total"_fnv1a32:
-                    SYSINFO_INSERT(query_ram.swap_total_amount()); break;
+                    SYSINFO_INSERT(fmt::format("{:.2f} {}", 
+                                               byte_units.at(SWAP_TOTAL).num_bytes, byte_units.at(SWAP_TOTAL).unit)); break;
             }
         }
 

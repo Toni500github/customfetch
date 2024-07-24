@@ -85,6 +85,29 @@ std::string read_by_syspath(const std::string_view path) {
     return ret;
 }
 
+byte_units_t auto_devide_bytes(const size_t num)
+{
+    struct byte_units_t ret;
+    if (num >= 1000000000000) {
+        ret.num_bytes = static_cast<float>(num) / 1099511627776;
+        ret.unit = "TB";
+    } else if (num >= 1000000000) {
+        ret.num_bytes = static_cast<float>(num) / 1073741824;
+        ret.unit = "GB";
+    } else if (num >= 1000000) {
+        ret.num_bytes = static_cast<float>(num) / 1048576;
+        ret.unit = "MB";
+    } else if (num >= 1000) {
+        ret.num_bytes = static_cast<float>(num) / 1024;
+        ret.unit = "kB";
+    } else [[unlikely]] {
+        ret.num_bytes = num;
+        ret.unit = "bytes";
+    }
+
+    return ret;
+}
+
 bool is_file_image(const unsigned char *bytes) {
     
     // https://stackoverflow.com/a/49683945
@@ -110,7 +133,6 @@ bool is_file_image(const unsigned char *bytes) {
         return true;
     else if (std::memcmp(bytes, bmp.data(), bmp.size()) == 0)
         return true;
-
 
 
     return false;
@@ -173,7 +195,7 @@ bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdEr
     if (pipe(pipeout) < 0)
         die("pipe() failed: {}", strerror(errno));
 
-    int pid = fork();
+    pid_t pid = fork();
 
     if (pid > 0) { // we wait for the command to finish then start executing the rest
         close(pipeout[1]);
@@ -356,7 +378,7 @@ std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view ve
 
     std::string vendor = description.substr(first, (last - first + 1));
     
-    if (vendor == "Advanced Micro Devices, Inc.")
+    if (hasStart(vendor, "Advanced Micro Devices, Inc."))
         vendor = "AMD";
     else if (vendor == "Intel Corporation")
         vendor = "Intel";
