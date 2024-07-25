@@ -9,16 +9,20 @@
 #include <dlfcn.h>
 #include <sys/types.h>
 
+consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept{
+    return ln;
+}
+
 struct byte_units_t {
     std::string unit;
     float num_bytes;
 };
 
-#define NOCOLOR         "\033[0m"
-#define UNKNOWN         "(unknown)"
+constexpr const char NOCOLOR["\033[0m"_len+1] = "\033[0m";
+constexpr const char UNKNOWN["(unknown)"_len+1] = "(unknown)";
 
 // magic line to be sure that I don't cut the wrong line 
-#define MAGIC_LINE      "(cut this shit NOW!! RAHHH)"
+constexpr const char MAGIC_LINE["(cut this shit NOW!! RAHHH)"_len+1] = "(cut this shit NOW!! RAHHH)";
 
 // lib  = library to load (string)
 // code = code to execute if anything goes wrong
@@ -57,10 +61,6 @@ std::string read_by_syspath(const std::string_view path);
 fmt::rgb hexStringToColor(const std::string_view hexstr);
 std::string getHomeConfigDir();
 std::string getConfigDir();
-
-consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept{
-    return ln;
-}
 
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept{

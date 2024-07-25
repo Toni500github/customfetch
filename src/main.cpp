@@ -1,13 +1,15 @@
-#include "display.hpp"
-#include "util.hpp"
-#include "config.hpp"
-#include "gui.hpp"
-
 #include <getopt.h>
+
 #include <cstdlib>
 #include <filesystem>
 
-static void version() {
+#include "config.hpp"
+#include "display.hpp"
+#include "gui.hpp"
+#include "util.hpp"
+
+static void version()
+{
     fmt::println("customfetch {} branch {}", VERSION, BRANCH);
 
 #ifdef GUI_SUPPORT
@@ -20,7 +22,8 @@ static void version() {
     std::exit(EXIT_SUCCESS);
 }
 
-static void help(bool invalid_opt = false) {
+static void help(bool invalid_opt = false)
+{
     fmt::println("Usage: cufetch [OPTION]...");
     fmt::println(R"(
 A command-line system information tool (or neofetch like program), which its focus point is customizability and perfomance
@@ -42,7 +45,8 @@ Read the "README.md" file for more infos about customfetch and how it works
     std::exit(invalid_opt);
 }
 
-static void modules_list() {
+static void modules_list()
+{
     fmt::println(R"(
 Syntax:
 module
@@ -115,12 +119,14 @@ system
   arch          : the architecture of the machine [x86_64, aarch64]
 
 )");
-    std::exit(0);
+    std::exit(EXIT_SUCCESS);
 }
 
+// clang-format off
 // parseargs() but only for parsing the user config path trough args
 // and so we can directly construct Config
-static std::string parse_config_path(int argc, char* argv[], const std::string& configDir) {
+static std::string parse_config_path(int argc, char* argv[], const std::string& configDir)
+{
     int opt = 0;
     int option_index = 0;
     opterr = 0;
@@ -150,7 +156,8 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
     return configDir + "/config.toml";
 }
 
-static bool parseargs(int argc, char* argv[], Config& config) {
+static bool parseargs(int argc, char* argv[], Config& config)
+{
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
@@ -254,7 +261,7 @@ int main (int argc, char *argv[]) {
 #ifdef VENDOR_TEST
     // test
     fmt::println("=== VENDOR TEST! ===");
-    
+
     fmt::println("Intel: {}", binarySearchPCIArray("8086"));
     fmt::println("AMD: {}", binarySearchPCIArray("1002"));
     fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
@@ -268,36 +275,38 @@ int main (int argc, char *argv[]) {
     fmt::println("RX 7700 XT: {}", binarySearchPCIArray("1002", "747e"));
     fmt::println("GTX 1650: {}", binarySearchPCIArray("10de", "1f0a"));
 #endif
-    
+
+    // clang-format on
     struct colors_t colors;
 
-    std::string configDir = getConfigDir();
+    std::string configDir  = getConfigDir();
     std::string configFile = parse_config_path(argc, argv, configDir);
-    
+
     Config config(configFile, configDir, colors);
 
     if (!parseargs(argc, argv, config))
         return 1;
 
-    if ( config.source_path.empty() || config.source_path == "off" )
+    if (config.source_path.empty() || config.source_path == "off")
         config.m_disable_source = true;
-    
+
     config.m_display_distro = (config.source_path == "os");
 
 #ifdef GUI_SUPPORT
-    if (config.gui) {
-        auto app = Gtk::Application::create("org.toni.customfetch");
+    if (config.gui)
+    {
+        auto        app = Gtk::Application::create("org.toni.customfetch");
         GUI::Window window(config, colors);
         return app->run(window);
     }
 #else
-    if (config.gui) 
+    if (config.gui)
         die("Can't run in GUI mode because it got disabled at compile time\n"
             "Compile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
 #endif
 
-    std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
-    std::vector<std::string> rendered_text{Display::render(config, colors, false, path)};
+    std::string              path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
+    std::vector<std::string> rendered_text{ Display::render(config, colors, false, path) };
     Display::display(rendered_text);
 
     return 0;

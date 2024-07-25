@@ -1,18 +1,20 @@
 #include "config.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <filesystem>
 
 // initialize Config, can only be ran once for each Config instance.
-Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors) {
-    
-    if (!std::filesystem::exists(configDir)) {
+Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors)
+{
+    if (!std::filesystem::exists(configDir))
+    {
         warn("customfetch config folder was not found, Creating folders at {}!", configDir);
         std::filesystem::create_directories(configDir);
     }
 
-    if (!std::filesystem::exists(configFile)) {
+    if (!std::filesystem::exists(configFile))
+    {
         warn("{} not found, generating new one", configFile);
         std::ofstream f(configFile.data(), std::ios::trunc);
         f << AUTOCONFIG;
@@ -22,41 +24,51 @@ Config::Config(const std::string_view configFile, const std::string_view configD
     this->loadConfigFile(configFile, colors);
 }
 
-void Config::loadConfigFile(const std::string_view filename, colors_t& colors) {
-    try {
+void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
+{
+    try
+    {
         this->tbl = toml::parse_file(filename);
-    } catch (const toml::parse_error& err) {
+    }
+    catch (const toml::parse_error& err)
+    {
         error("Parsing config file {} failed:", filename);
         std::cerr << err << std::endl;
         exit(-1);
     }
-    
+
     // https://stackoverflow.com/a/78266628
     // changed instead of vector<int> to vector<string>
     // just a workaround for having the layout config variable as a vector<string>
     auto layout_array = tbl.at_path("config.layout");
     if (toml::array* arr = layout_array.as_array())
-        arr->for_each([this,filename](auto&& el)
-        {
-            if (const auto* str_elem = el.as_string()) {
-                auto v = *str_elem;
-                this->layouts.push_back(v->data()); // here's the thing
-            }
-            else 
-                warn("An element of the layout variable in {} is not a string", filename);
-        });
-    
+        arr->for_each(
+            [this, filename](auto&& el)
+            {
+                if (const auto* str_elem = el.as_string())
+                {
+                    auto v = *str_elem;
+                    this->layouts.push_back(v->data());  // here's the thing
+                }
+                else
+                    warn("An element of the layout variable in {} is not a string", filename);
+            });
+
     auto pkg_managers_array = tbl.at_path("config.pkg-managers");
-    if (toml::array *arr = pkg_managers_array.as_array())
-        arr->for_each([this,filename](auto&& element)
-        {
-            if (const auto *str_element = element.as_string()) {
-                auto element_value = *str_element;
-                this->pkgs_managers.push_back(element_value->data());
-            }
-            else
-                warn("An element of the includes variable in {} is not a string", filename);
-        });
+    if (toml::array* arr = pkg_managers_array.as_array())
+        arr->for_each(
+            [this, filename](auto&& element)
+            {
+                if (const auto* str_element = element.as_string())
+                {
+                    auto element_value = *str_element;
+                    this->pkgs_managers.push_back(element_value->data());
+                }
+                else
+                    warn("An element of the includes variable in {} is not a string", filename);
+            });
+
+    // clang-format off
 
     this->source_path   = getConfigValue<std::string>("config.source-path", "os");
     this->data_dir      = getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
@@ -82,8 +94,11 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors) {
     colors.gui_yellow    = this->getThemeValue("gui.yellow",  "!#ffff00");
     colors.gui_magenta   = this->getThemeValue("gui.magenta", "!#ff11cc");
     colors.gui_white     = this->getThemeValue("gui.white",   "!#ffffff");
+
+    // clang-format on
 }
 
-std::string Config::getThemeValue(const std::string& value, const std::string& fallback) const {
+std::string Config::getThemeValue(const std::string& value, const std::string& fallback) const
+{
     return this->tbl.at_path(value).value<std::string>().value_or(fallback);
 }
