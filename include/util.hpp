@@ -18,11 +18,11 @@ struct byte_units_t {
     float num_bytes;
 };
 
-constexpr const char NOCOLOR["\033[0m"_len+1] = "\033[0m";
-constexpr const char UNKNOWN["(unknown)"_len+1] = "(unknown)";
+constexpr const char NOCOLOR[] = "\033[0m";
+constexpr const char UNKNOWN[] = "(unknown)";
 
 // magic line to be sure that I don't cut the wrong line 
-constexpr const char MAGIC_LINE["(cut this shit NOW!! RAHHH)"_len+1] = "(cut this shit NOW!! RAHHH)";
+constexpr const char MAGIC_LINE[] = "(cut this shit NOW!! RAHHH)";
 
 // lib  = library to load (string)
 // code = code to execute if anything goes wrong

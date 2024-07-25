@@ -175,9 +175,9 @@ static std::string _get_term_name() noexcept
 {
     // cufetch -> shell -> terminal
     pid_t         ppid = getppid();
-    std::ifstream pid_f(fmt::format("/proc/{}/status", ppid), std::ios::in);
+    std::ifstream ppid_f(fmt::format("/proc/{}/status", ppid), std::ios::in);
     std::string   line, term_pid;
-    while (std::getline(pid_f, line))
+    while (std::getline(ppid_f, line))
     {
         if (hasStart(line, "PPid:"))
         {
