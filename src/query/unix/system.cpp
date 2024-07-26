@@ -55,9 +55,18 @@ static System::System_t get_system_infos()
 {
     System::System_t ret;
 
-    debug("calling {}", __PRETTY_FUNCTION__);
-    std::string_view os_release_path = "/etc/os-release";
-    std::ifstream    os_release_file(os_release_path.data());
+    debug("calling in System {}", __PRETTY_FUNCTION__);
+    std::string_view os_release_path;
+    for (std::string_view path : {"/etc/os-release", "/usr/lib/os-release", "/usr/share/os-release"})
+    {
+        if (std::filesystem::exists(path))
+        {
+            os_release_path = path;
+            break;
+        }
+    }
+
+    std::ifstream os_release_file(os_release_path.data());
     if (!os_release_file.is_open())
     {
         error("Could not open {}\nFailed to get OS infos", os_release_path);
@@ -152,7 +161,17 @@ std::string System::os_initsys_name()
     static bool done = false;
     if (!done)
     {
+        // if pid 1 doesn't exists, linux is not even booted
+        // can't be bothered to check if it's open or not
+        // but imma do it anyways XD
         std::ifstream f_initsys("/proc/1/cmdline", std::ios::binary);
+        if (!f_initsys.is_open())
+        {
+            done = true;
+            m_system_infos.os_initsys_name = "linux is not booted lmao";
+            return m_system_infos.os_initsys_name;
+        }
+
         std::string   initsys;
         std::getline(f_initsys, initsys);
         size_t pos = 0;

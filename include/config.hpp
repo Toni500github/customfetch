@@ -31,7 +31,7 @@ struct colors_t
 class Config
 {
 public:
-    Config( const std::string_view configFile, const std::string_view configDir, colors_t& colors );
+    Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
 
     // config file
     std::string              source_path;

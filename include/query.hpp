@@ -98,8 +98,9 @@ public:
 
     std::string term_name();
     std::string term_version(const std::string_view term_name);
-   
+
     static bool m_bDont_query_dewm;
+
 private:
     static bool m_bCut_de;
     static bool m_bInit;
@@ -175,19 +176,20 @@ private:
 class RAM {
 public:
     struct RAM_t {
-        size_t total_amount = 0;
-        size_t free_amount = 0;
-        size_t used_amount = 0;
-        size_t swap_free_amount = 0;
-        size_t swap_total_amount = 0;
+        float total_amount = 0;
+        float free_amount = 0;
+        float used_amount = 0;
+        float swap_free_amount = 0;
+        float swap_total_amount = 0;
     };
 
     RAM();
-    size_t total_amount();
-    size_t free_amount();
-    size_t used_amount();
-    size_t swap_free_amount();
-    size_t swap_total_amount();
+    float total_amount();
+    float free_amount();
+    float used_amount();
+    float swap_free_amount();
+    float swap_total_amount();
+
 private:
     static bool m_bInit;
     static RAM_t m_memory_infos;

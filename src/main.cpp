@@ -49,6 +49,7 @@ static void modules_list()
 {
     fmt::println(R"(
 Syntax:
+# comments of the module
 module
   member	: description [example of what it prints, maybe another]
 
@@ -83,19 +84,24 @@ user
   term_name	: Terminal name [alacritty]
   term_version	: Terminal version [0.13.2]
 
+# note: these members are auto displayed in kiB, MiB, GiB and TiB.
+# they all (except ram.ram) have a -GiB and -MiB variant
+# example: if you want to show your 512MiB of used RAM in GiB
+# use the used-GiB variant (they don't print the unit tho)
 ram
-  ram		: used and total amount of RAM (in MB) [2815 MB / 15881 MB]
-  used		: used amount of RAM (in MB) [2815]
-  free		: available amount of RAM (in MB) [10456]
-  total		: total amount of RAM (in MB) [15881]
-  swap_free	: swapfile available amount of RAM (in MB) [34]
-  swap_total	: swapfile total amount of RAM (in MB) [512]
+  ram		: used and total amount of RAM (auto) [2.81 GiB / 15.88 GiB]
+  used		: used amount of RAM (auto) [2.81 GiB]
+  free		: available amount of RAM (auto) [10.46 GiB]
+  total		: total amount of RAM (auto) [15.88 GiB]
+  swap_free	: swapfile available amount of RAM (auto) [34.32 MiB]
+  swap_total	: swapfile total amount of RAM (auto) [512 MiB]
 
+# same thing as RAM (above)
 disk(/path/to/fs)
-  disk		: used and total amount of disk space (in GB) with type of filesystem [360.02 GB / 438.08 GB - ext4]
-  used          : used amount of disk space (in GB) [360.02]
-  free          : available amount of disk space (in GB) [438.08]
-  total         : total amount of disk space (in GB) [100.08]
+  disk		: used and total amount of disk space (auto) with type of filesystem [360.02 GiB / 438.08 GiB - ext4]
+  used          : used amount of disk space (auto) [360.02 GiB]
+  free          : available amount of disk space (auto) [438.08 GiB]
+  total         : total amount of disk space (auto) [100.08 GiB]
   fs            : type of filesystem [ext4]
 
 gpu

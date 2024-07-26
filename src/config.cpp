@@ -70,30 +70,30 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     // clang-format off
 
-    this->source_path   = getConfigValue<std::string>("config.source-path", "os");
-    this->data_dir      = getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
-    this->sep_reset     = getConfigValue<std::string>("config.sep-reset", ":");
-    this->offset        = getConfigValue<u_short>("config.offset", 5);
-    this->gui           = getConfigValue<bool>("gui.enable", false);
-    this->font          = getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
+    this->source_path  = getConfigValue<std::string>("config.source-path", "os");
+    this->data_dir     = getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
+    this->sep_reset    = getConfigValue<std::string>("config.sep-reset", ":");
+    this->offset       = getConfigValue<u_short>("config.offset", 5);
+    this->gui          = getConfigValue<bool>("gui.enable", false);
+    this->font         = getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
 
-    colors.black         = this->getThemeValue("config.black",   "\033[1;30m");
-    colors.red           = this->getThemeValue("config.red",     "\033[1;31m");
-    colors.green         = this->getThemeValue("config.green",   "\033[1;32m");
-    colors.yellow        = this->getThemeValue("config.yellow",  "\033[1;33m");
-    colors.blue          = this->getThemeValue("config.blue",    "\033[1;34m");
-    colors.magenta       = this->getThemeValue("config.magenta", "\033[1;35m");
-    colors.cyan          = this->getThemeValue("config.cyan",    "\033[1;36m");
-    colors.white         = this->getThemeValue("config.white",   "\033[1;37m");
+    colors.black       = this->getThemeValue("config.black",   "\033[1;30m");
+    colors.red         = this->getThemeValue("config.red",     "\033[1;31m");
+    colors.green       = this->getThemeValue("config.green",   "\033[1;32m");
+    colors.yellow      = this->getThemeValue("config.yellow",  "\033[1;33m");
+    colors.blue        = this->getThemeValue("config.blue",    "\033[1;34m");
+    colors.magenta     = this->getThemeValue("config.magenta", "\033[1;35m");
+    colors.cyan        = this->getThemeValue("config.cyan",    "\033[1;36m");
+    colors.white       = this->getThemeValue("config.white",   "\033[1;37m");
 
-    colors.gui_black     = this->getThemeValue("gui.black",   "!#000005");
-    colors.gui_red       = this->getThemeValue("gui.red",     "!#ff2000");
-    colors.gui_green     = this->getThemeValue("gui.green",   "!#00ff00");
-    colors.gui_blue      = this->getThemeValue("gui.blue",    "!#00aaff");
-    colors.gui_cyan      = this->getThemeValue("gui.cyan",    "!#00ffff");
-    colors.gui_yellow    = this->getThemeValue("gui.yellow",  "!#ffff00");
-    colors.gui_magenta   = this->getThemeValue("gui.magenta", "!#ff11cc");
-    colors.gui_white     = this->getThemeValue("gui.white",   "!#ffffff");
+    colors.gui_black   = this->getThemeValue("gui.black",   "!#000005");
+    colors.gui_red     = this->getThemeValue("gui.red",     "!#ff2000");
+    colors.gui_green   = this->getThemeValue("gui.green",   "!#00ff00");
+    colors.gui_blue    = this->getThemeValue("gui.blue",    "!#00aaff");
+    colors.gui_cyan    = this->getThemeValue("gui.cyan",    "!#00ffff");
+    colors.gui_yellow  = this->getThemeValue("gui.yellow",  "!#ffff00");
+    colors.gui_magenta = this->getThemeValue("gui.magenta", "!#ff11cc");
+    colors.gui_white   = this->getThemeValue("gui.white",   "!#ffffff");
 
     // clang-format on
 }

@@ -104,22 +104,22 @@ byte_units_t auto_devide_bytes(const size_t num)
     if (num >= 1000000000000)
     {
         ret.num_bytes = static_cast<float>(num) / 1099511627776;
-        ret.unit      = "TB";
+        ret.unit      = "TiB";
     }
     else if (num >= 1000000000)
     {
         ret.num_bytes = static_cast<float>(num) / 1073741824;
-        ret.unit      = "GB";
+        ret.unit      = "GiB";
     }
     else if (num >= 1000000)
     {
         ret.num_bytes = static_cast<float>(num) / 1048576;
-        ret.unit      = "MB";
+        ret.unit      = "MiB";
     }
     else if (num >= 1000)
     {
         ret.num_bytes = static_cast<float>(num) / 1024;
-        ret.unit      = "kB";
+        ret.unit      = "kiB";
     }
     else [[unlikely]]
     {

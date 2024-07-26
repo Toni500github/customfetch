@@ -26,11 +26,11 @@ Disk::Disk(const std::string_view path)
         while ((pDevice = getmntent(mountsFile)))
         {
             debug("pDevice->mnt_dir = {}", pDevice->mnt_dir);
-            if (path != pDevice->mnt_dir)
-                continue;
-
-            m_typefs = pDevice->mnt_type;
-            break;
+            if (path == pDevice->mnt_dir)
+            {
+                m_typefs = pDevice->mnt_type;
+                break;
+            }
         }
 
         if (mountsFile)

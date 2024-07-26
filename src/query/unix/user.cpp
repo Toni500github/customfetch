@@ -279,9 +279,7 @@ std::string User::shell_version(const std::string_view shell_name) noexcept
 std::string User::wm_name(bool dont_query_dewm, const std::string_view term_name)
 {
     if (dont_query_dewm || hasStart(term_name, "/dev"))
-    {
         return MAGIC_LINE;
-    }
 
     static bool done = false;
     debug("CALLING {} || done = {} && de_name = {} && wm_name = {}", __func__, done, m_users_infos.de_name,
@@ -313,9 +311,7 @@ std::string User::de_name(bool dont_query_dewm, const std::string_view term_name
     // if so don't even try to get the DE or WM names
     // they waste times
     if (dont_query_dewm || hasStart(term_name, "/dev") || m_bCut_de)
-    {
         return MAGIC_LINE;
-    }
 
     static bool done = false;
     debug("CALLING {} || done = {} && de_name = {} && wm_name = {}", __func__, done, m_users_infos.de_name,
