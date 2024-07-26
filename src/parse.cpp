@@ -12,13 +12,13 @@
 #include "util.hpp"
 
 Query::System::System_t Query::System::m_system_infos;
-Query::CPU::CPU_t       Query::CPU::m_cpu_infos;
-std::string             Query::Disk::m_typefs;
 Query::User::User_t     Query::User::m_users_infos;
-bool                    Query::User::m_bDont_query_dewm = false;
-bool                    Query::User::m_bCut_de          = false;
+Query::CPU::CPU_t       Query::CPU::m_cpu_infos;
 Query::RAM::RAM_t       Query::RAM::m_memory_infos;
 Query::GPU::GPU_t       Query::GPU::m_gpu_infos;
+std::string             Query::Disk::m_typefs;
+bool                    Query::User::m_bDont_query_dewm = false;
+bool                    Query::User::m_bCut_de          = false;
 
 struct statvfs Query::Disk::m_statvfs;
 struct utsname Query::System::m_uname_infos;
@@ -293,13 +293,12 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                  hasStart(str_clr,
                                           "\033"))  // "\\e" is for checking in the ascii_art, \033 in the config
                         {
-                            std::array<std::string, 3> clrs =
-                                get_ansi_color((hasStart(str_clr, "\033") ? std::string_view(str_clr.substr(2))
-                                                                          : std::string_view(str_clr.substr(3))),
-                                               colors);
-                            std::string_view color  = clrs.at(0);
-                            std::string_view weight = clrs.at(1);
-                            std::string_view type   = clrs.at(2);
+                            std::array<std::string, 3> clrs = get_ansi_color((hasStart(str_clr, "\033") ? std::string_view(str_clr.substr(2))
+                                                                                                        : std::string_view(str_clr.substr(3))),
+                                                                                                        colors);
+                            const std::string_view color  = clrs.at(0);
+                            const std::string_view weight = clrs.at(1);
+                            const std::string_view type   = clrs.at(2);
                             output                  = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                                      fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color,
                                                                                  weight, output.substr(endBracketIndex + 1)));
@@ -368,20 +367,25 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     return output;
 }
 
-static std::string get_auto_uptime(size_t hours, u_short mins, u_short secs)
+static std::string get_auto_uptime(unsigned days, u_short hours, u_short mins, u_short secs)
 {
-    // shut up pls
-    if (hours == 0 && mins == 0)
+    if (days == 0 && hours == 0 && mins == 0)
         return fmt::format("{} secs", secs);
 
-    else if (hours != 0 && mins != 0)
-        return fmt::format("{} hours, {} mins", hours, mins);
+    std::string ret;
 
-    else if (mins == 0 && hours != 0)
-        return fmt::format("{} hours", hours);
+    if (days > 0)
+        ret += fmt::format("{} days, ", days);
 
-    else if (hours == 0 && mins != 0)
-        return fmt::format("{} mins", mins);
+    if (hours > 0)
+        ret += fmt::format("{} hours, ", hours);
+
+    if (mins > 0)
+        ret += fmt::format("{} mins, ", mins);
+
+    ret.erase(ret.length() - 2); // the last ", "
+
+    return ret;
 }
 
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
@@ -397,8 +401,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         Query::System query_system;
 
         std::chrono::seconds uptime_secs(query_system.uptime());
-        auto                 uptime_mins  = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
-        auto                 uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
+        auto uptime_mins  = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
+        auto uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
+        auto uptime_days  = std::chrono::duration_cast<std::chrono::days>(uptime_secs);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -413,14 +418,16 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                     case "uptime"_fnv1a32:
                         SYSINFO_INSERT(
-                            get_auto_uptime(uptime_hours.count(), uptime_mins.count() % 60, uptime_secs.count() % 60));
+                            get_auto_uptime(uptime_days.count(), uptime_hours.count() % 24, uptime_mins.count() % 60, uptime_secs.count() % 60));
                         break;
 
-                    case "uptime_secs"_fnv1a32: SYSINFO_INSERT((size_t)uptime_secs.count() % 60); break;
+                    case "uptime_secs"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;
 
-                    case "uptime_mins"_fnv1a32: SYSINFO_INSERT((size_t)uptime_mins.count() % 60); break;
+                    case "uptime_mins"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_mins.count() % 60)); break;
 
-                    case "uptime_hours"_fnv1a32: SYSINFO_INSERT((size_t)uptime_hours.count()); break;
+                    case "uptime_hours"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_hours.count()) % 24); break;
+
+                    case "uptime_days"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_days.count())); break;
 
                     case "kernel"_fnv1a32:
                         SYSINFO_INSERT(query_system.kernel_name() + ' ' + query_system.kernel_version());

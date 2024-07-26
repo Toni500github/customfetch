@@ -15,7 +15,7 @@ Config::Config(const std::string_view configFile, const std::string_view configD
 
     if (!std::filesystem::exists(configFile))
     {
-        warn("{} not found, generating new one", configFile);
+        warn("config file {} not found, generating new one", configFile);
         std::ofstream f(configFile.data(), std::ios::trunc);
         f << AUTOCONFIG;
         f.close();

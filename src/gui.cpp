@@ -70,7 +70,7 @@ Window::Window(Config& config, colors_t& colors)
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
     if (!std::filesystem::exists(path) &&
-        !std::filesystem::exists((path = fmt::format("{}/ascii/linux.txt", config.data_dir))))
+        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
         die("'{}' doesn't exist. Can't load image/text file", path);
 
     bool useImage = false;
