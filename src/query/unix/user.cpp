@@ -196,7 +196,30 @@ static std::string _get_term_name() noexcept
 
     // st (suckless terminal)
     if (name == "exe")
-        name = "st";
+    { name = "st"; }
+
+    // let's try to get the real terminal name
+    // on NixOS, instead of returning the -wrapped name.
+    // tested on gnome-console, kitty, st and alacritty
+    // hope now NixOS users will know the terminal they got, along the version if possible
+    else if (hasEnding(name, "wrapped"))
+    {
+         // /nix/store/random_stuff-gnome-console-0.31.0/bin/.kgx-wrapped
+        char buf[PATH_MAX];
+        std::string tmp_name = realpath(("/proc/" + term_pid + "/exe").c_str(), buf);
+
+        size_t pos;
+        if ((pos = tmp_name.find('-')) != std::string::npos)
+            tmp_name.erase(0, pos+1);  // gnome-console-0.31.0/bin/.kgx-wrapped
+
+        if ((pos = tmp_name.find('/')) != std::string::npos)
+            tmp_name.erase(pos); // gnome-console-0.31.0
+
+        if ((pos = tmp_name.rfind('-')) != std::string::npos)
+            tmp_name.erase(pos); // gnome-console  EZ
+
+        name = tmp_name;
+    }
 
     return name;
 }
