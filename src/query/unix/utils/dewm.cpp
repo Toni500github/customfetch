@@ -50,19 +50,19 @@ std::string parse_de_env(void) noexcept
 
 std::string prettify_wm_name(const std::string_view name) noexcept{
 
-    if (hasStart(name, "kwin"))
+    if (name.find("kwin") != std::string::npos)
         return "Kwin";
 
-    if (hasStart(name, "gnome-shell") || 
-        hasStart(name, "Mutter")      ||
-        hasStart(name, "gnome shell"))
+    if (name.find("gnome-shell") != std::string::npos || 
+        name.find("Mutter")      != std::string::npos ||
+        name.find("gnome shell") != std::string::npos)
         return "Mutter";
 
-    if (hasStart(name, "cinnamon") ||
-        hasStart(name, "Muffin"))
+    if (name.find("cinnamon") != std::string::npos ||
+        name.find("Muffin")   != std::string::npos)
         return "Muffin";
 
-    if (hasStart(name, "Marco"))
+    if (name.find("Marco")    != std::string::npos)
         return "Marco";
 
     constexpr std::array<std::string_view, 55> wms = {"2bwm", "9wm", "awesome", "beryl", "blackbox", "bspwm", "budgie-wm", "chromeos-wm", "cinnamon", "compiz", "deepin-wm", "dminiwm", "dtwm", "dwm", "e16", "echinus", "emerald", "enlightenment", "finder", "fluxbox", "flwm", "flwm_topside", "fvwm", "herbstluftwm", "howm", "hyprland", "i3", "i3wm", "icewm", "kwin", "metacity", "monsterwm", "musca", "mwm", "notion", "openbox", "pekwm", "qtile", "ratpoison", "sawfish", "scrotwm", "spectrwm", "stumpwm", "subtle", "sway", "swm", "tinywm", "twin", "wayfire", "weston", "wmaker", "wmfs", "wmii", "xfwm4", "xmonad"};

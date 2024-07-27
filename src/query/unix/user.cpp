@@ -195,6 +195,24 @@ static std::string _get_term_name() noexcept
     // st (suckless terminal)
     if (name == "exe")
         name = "st";
+    // NixOS
+    else if (hasEnding(name, "wrapped"))
+    {
+         // /nix/store/random_stuff-kitty-0.31.0/bin/.kitty_wrapped
+        std::ifstream cmdline_f("/proc/" + term_pid + "/cmdline", std::ios::binary);
+        std::string tmp_name;
+        std::getline(cmdline_f, tmp_name);
+        
+        size_t pos;
+        if ((pos = tmp_name.rfind('-')) != std::string::npos)
+            tmp_name.erase(pos);  // /nix/store/random_stuff-kitty 
+        
+        // another one
+        if ((pos = tmp_name.rfind('-')) != std::string::npos)
+            tmp_name.erase(0,pos); // kitty  EZ
+        
+        name = tmp_name;
+    }
 
     return name;
 }
