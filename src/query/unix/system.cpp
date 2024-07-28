@@ -37,6 +37,9 @@ static void get_host_paths(System::System_t& paths)
         else
             paths.host_version = read_by_syspath(syspath + "/product_version");
     }
+    
+    if (paths.host_version.back() == '\n')
+        paths.host_version.pop_back();
 }
 
 static std::string get_var(std::string& line, u_short& iter_index)
