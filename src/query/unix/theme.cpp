@@ -46,6 +46,12 @@ static Theme::Theme_t get_config_gtk3_theme()
         }
     }
 
+    char *gtk_theme_env = getenv("GTK_THEME");
+
+    if (gtk_theme_env) {
+        ret.gtk3_theme_name = gtk_theme_env;
+    }
+
     return ret;
 }
 

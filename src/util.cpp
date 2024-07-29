@@ -361,7 +361,8 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 
         // Else the element can only be present
         // in right subarray
-        left = mid + 1;
+        if (pci_vendors_array[mid] < vendor_id)
+            left = mid + 1;
     }
 
     size_t approximate_vendors_location = pci_vendors_location_array[mid];

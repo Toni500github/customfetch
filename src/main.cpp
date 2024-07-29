@@ -285,6 +285,7 @@ int main (int argc, char *argv[]) {
     fmt::println("an Intel iGPU: {}", binarySearchPCIArray("8086", "0f31"));
     fmt::println("RX 7700 XT: {}", binarySearchPCIArray("1002", "747e"));
     fmt::println("GTX 1650: {}", binarySearchPCIArray("10de", "1f0a"));
+    fmt::println("?: {}", binarySearchPCIArray("1414", "0006"));
 #endif
 
     // clang-format on
