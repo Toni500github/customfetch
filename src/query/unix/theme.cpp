@@ -45,11 +45,13 @@ static Theme::Theme_t get_config_gtk3_theme()
             ret.gtk3_icon_theme = line.substr("gtk-icon-theme-name="_len);
         }
     }
+    
+    if (ret.gtk3_theme_name == MAGIC_LINE || ret.gtk3_theme_name.empty())
+    {
+        char *gtk_theme_env = getenv("GTK_THEME");
 
-    char *gtk_theme_env = getenv("GTK_THEME");
-
-    if (gtk_theme_env) {
-        ret.gtk3_theme_name = gtk_theme_env;
+        if (gtk_theme_env)
+            ret.gtk3_theme_name = gtk_theme_env;
     }
 
     return ret;

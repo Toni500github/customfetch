@@ -94,8 +94,10 @@ print(len(file))
 with open("pci.ids.hpp", 'w+') as f:
     f.write("""#ifndef PCI_IDS_HPP
 #define PCI_IDS_HPP
+
 #include <string>
 #include <array>
+
 inline constexpr std::array<std::string_view, %s> get_pci_vendors_array() {
     return %s;
 }
@@ -109,8 +111,8 @@ inline std::string get_pci_ids() {
 }
 
 const std::string all_ids = get_pci_ids();
-const std::array<std::string_view, %s> pci_vendors_array = get_pci_vendors_array();
-const std::array<int, %s> pci_vendors_location_array = get_pci_vendors_location_array();
+constexpr std::array<std::string_view, %s> pci_vendors_array = get_pci_vendors_array();
+constexpr std::array<int, %s> pci_vendors_location_array = get_pci_vendors_location_array();
 
 #endif  // PCI_IDS_HPP""" % (len(vendor_array), repr(vendor_array).replace("'", '"').replace('[', '{').replace(']', '}'), len(location_array), repr(location_array).replace("'", '"').replace('[', '{').replace(']', '}'), file, len(vendor_array), len(location_array)))
 
