@@ -85,6 +85,10 @@ user
   term_name	: Terminal name [alacritty]
   term_version	: Terminal version [0.13.2]
 
+theme
+  gtk3		: gtk3 theme name [Arc-Dark]
+  gtk3_icons	: gtk3 icon theme name [Qogir-Dark]
+
 # note: these members are auto displayed in kiB, MiB, GiB and TiB.
 # they all (except ram.ram) have a -GiB and -MiB variant
 # example: if you want to show your 512MiB of used RAM in GiB

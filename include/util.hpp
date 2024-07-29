@@ -24,19 +24,21 @@ constexpr const char UNKNOWN[] = "(unknown)";
 // magic line to be sure that I don't cut the wrong line 
 constexpr const char MAGIC_LINE[] = "(cut this shit NOW!! RAHHH)";
 
-// lib  = library to load (string)
-// code = code to execute if anything goes wrong
+/* lib  = library to load (string)
+ * code = code to execute if anything goes wrong 
+ */
 #define LOAD_LIBRARY(lib, code) \
 void *handle = dlopen(lib, RTLD_LAZY); \
 if (!handle) \
-    code
+    code;
 
-// x = type of what the function returns
-// y = the function name
-// ... = the arguments in a function if any
-#define LOAD_LIB_SYMBOL(x, y, ...) \
-typedef x (* y ## _t)(__VA_ARGS__); \
-y ## _t y = reinterpret_cast<y ## _t>(dlsym(handle, #y)); \
+/* ret_type = type of what the function returns
+ * func     = the function name
+ * ...      = the arguments in a function if any
+ */
+#define LOAD_LIB_SYMBOL(ret_type, func, ...) \
+typedef ret_type (* func ## _t)(__VA_ARGS__); \
+func ## _t func = reinterpret_cast<func ## _t>(dlsym(handle, #func)); \
 
 #define UNLOAD_LIBRARY() dlclose(handle);
 

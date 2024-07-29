@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <string>
 
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
 #include <sys/socket.h>
@@ -22,21 +23,21 @@
 
 using namespace Query;
 
-static std::string _get_de_name()
+static std::string get_de_name()
 {
     const std::string& ret = parse_de_env();
     debug("get_de_name = {}", ret);
     return ret;
 }
 
-static std::string _get_wm_name()
+static std::string get_wm_name()
 {
     std::string path, proc_name, wm_name;
     uid_t       uid = getuid();
 
     for (auto const& dir_entry : std::filesystem::directory_iterator{"/proc/"})
     {
-        if (!std::isdigit((dir_entry.path().string().at(6))))  // /proc/50
+        if (!std::isdigit((dir_entry.path().string().at(6))))  // /proc/5
             continue;
 
         path = dir_entry.path().string() + "/loginuid";
@@ -77,6 +78,11 @@ static std::string get_de_version(const std::string_view de_name)
     {
         case "mate"_fnv1a32:     return get_mate_version();
         case "cinnamon"_fnv1a32: return get_cinnamon_version();
+        
+        case "xfce"_fnv1a32:
+        case "xfce4"_fnv1a32:
+            return get_xfce4_version();
+
         case "gnome"_fnv1a32:
         {
             std::string ret;
@@ -84,22 +90,13 @@ static std::string get_de_version(const std::string_view de_name)
             ret.erase(0, ret.rfind(' '));
             return ret;
         }
-        case "xfce"_fnv1a32:
-        case "xfce4"_fnv1a32:
-        {
-            std::string ret;
-            read_exec({ "xfce4-session", "--version" }, ret);
-            ret.erase(0, "xfce4-session"_len + 1);
-            ret.erase(ret.find(' '));
-            return ret;
-        }
     }
 }
 
-static std::string _get_wm_wayland_name()
+static std::string get_wm_wayland_name()
 {
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
-    LOAD_LIBRARY("libwayland-client.so", return _get_wm_name();)
+    LOAD_LIBRARY("libwayland-client.so", return get_wm_name();)
 
     LOAD_LIB_SYMBOL(wl_display*, wl_display_connect, const char* name)
     LOAD_LIB_SYMBOL(void, wl_display_disconnect, wl_display* display)
@@ -122,7 +119,7 @@ static std::string _get_wm_wayland_name()
 
     return ret;
 #else
-    return _get_wm_name();
+    return get_wm_name();
 #endif
 }
 
@@ -153,7 +150,7 @@ static std::string _get_wm_wayland_name()
 #endif
 }*/
 
-static std::string _get_shell_version(const std::string_view shell_name) noexcept
+static std::string get_shell_version(const std::string_view shell_name) noexcept
 {
     std::string ret;
 
@@ -166,14 +163,14 @@ static std::string _get_shell_version(const std::string_view shell_name) noexcep
     return ret;
 }
 
-static std::string _get_shell_name(const std::string_view shell_path) noexcept
+static std::string get_shell_name(const std::string_view shell_path) noexcept
 {
     std::string ret = shell_path.substr(shell_path.rfind('/') + 1).data();
 
     return ret;
 }
 
-static std::string _get_term_name() noexcept
+static std::string get_term_name() noexcept
 {
     // cufetch -> shell -> terminal
     pid_t         ppid = getppid();
@@ -224,7 +221,7 @@ static std::string _get_term_name() noexcept
     return name;
 }
 
-static std::string _get_term_version(std::string_view term_name)
+static std::string get_term_version(std::string_view term_name)
 {
     if (term_name.empty())
         return UNKNOWN;
@@ -233,22 +230,33 @@ static std::string _get_term_version(std::string_view term_name)
     if (hasStart(term_name, "kitty"))
         term_name = "kitten";
 
-    if (hasStart(term_name, "st"))
+    if (term_name == "st")
         read_exec({ term_name.data(), "-v" }, ret, true);
-    else  // tell your terminal to NOT RETURN ERROR WHEN ASKING FOR ITS VERSION (looking at you st)
+    // tell your terminal to NOT RETURN ERROR WHEN ASKING FOR ITS VERSION (looking at you st)
+    else if (term_name == "xterm")
+        read_exec({ term_name.data(), "-v" }, ret);
+    else
         read_exec({ term_name.data(), "--version" }, ret);
 
-    debug("ret = {}", ret);
+    debug("get_term_version ret = {}", ret);
 
     if (ret.empty())
         return UNKNOWN;
+
+    // Xterm(388)
+    if (term_name == "xterm")
+    {
+        ret.erase(0, term_name.length()+1); // 388)
+        ret.pop_back(); // 388
+        return ret;
+    }
 
     size_t pos = 0;
     ret.erase(0, term_name.length() + 1);
     if ((pos = ret.find(' ')) != std::string::npos)
         ret.erase(pos);
 
-    debug("ret after = {}", ret);
+    debug("get_term_version ret after = {}", ret);
     return ret;
 }
 
@@ -267,26 +275,26 @@ User::User()
 }
 
 // clang-format off
-std::string User::name() noexcept 
+std::string User::name()
 { return m_pPwd->pw_name; }
 
-std::string User::shell_path() noexcept
+std::string User::shell_path()
 { return m_pPwd->pw_shell; }
 
 // clang-format on
-std::string User::shell_name() noexcept
+std::string User::shell_name()
 {
     static bool done = false;
     if (!done)
     {
-        m_users_infos.shell_name = _get_shell_name(this->shell_path());
+        m_users_infos.shell_name = get_shell_name(this->shell_path());
         done                     = true;
     }
 
     return m_users_infos.shell_name;
 }
 
-std::string User::shell_version(const std::string_view shell_name) noexcept
+std::string User::shell_version(const std::string_view shell_name)
 {
     if (m_users_infos.shell_name.empty())
         return UNKNOWN;
@@ -294,7 +302,7 @@ std::string User::shell_version(const std::string_view shell_name) noexcept
     static bool done = false;
     if (!done)
     {
-        m_users_infos.shell_version = _get_shell_version(shell_name);
+        m_users_infos.shell_version = get_shell_version(shell_name);
         done                        = true;
     }
 
@@ -314,15 +322,12 @@ std::string User::wm_name(bool dont_query_dewm, const std::string_view term_name
     {
         const char* env = std::getenv("WAYLAND_DISPLAY");
         if (env != nullptr && env[0] != '\0')
-            m_users_infos.wm_name = _get_wm_wayland_name();
+            m_users_infos.wm_name = get_wm_wayland_name();
         else
-            m_users_infos.wm_name = _get_wm_name();
+            m_users_infos.wm_name = get_wm_name();
 
         if (m_users_infos.de_name == m_users_infos.wm_name)
-        {
             m_users_infos.de_name = MAGIC_LINE;
-            m_bCut_de             = true;
-        }
 
         done = true;
     }
@@ -335,7 +340,7 @@ std::string User::de_name(bool dont_query_dewm, const std::string_view term_name
     // first let's see if we are not in a tty or if the user doesn't want to
     // if so don't even try to get the DE or WM names
     // they waste times
-    if (dont_query_dewm || hasStart(term_name, "/dev") || m_bCut_de)
+    if (dont_query_dewm || hasStart(term_name, "/dev"))
         return MAGIC_LINE;
 
     static bool done = false;
@@ -351,12 +356,9 @@ std::string User::de_name(bool dont_query_dewm, const std::string_view term_name
             goto ret;
         }
 
-        m_users_infos.de_name = _get_de_name();
+        m_users_infos.de_name = get_de_name();
         if (m_users_infos.de_name == m_users_infos.wm_name)
-        {
             m_users_infos.de_name = MAGIC_LINE;
-            m_bCut_de             = true;
-        }
 
     ret:
         done = true;
@@ -385,7 +387,7 @@ std::string User::term_name()
     static bool done = false;
     if (!done)
     {
-        m_users_infos.term_name = _get_term_name();
+        m_users_infos.term_name = get_term_name();
         if (hasStart(str_tolower(m_users_infos.term_name), "login") || hasStart(m_users_infos.term_name, "init") ||
             hasStart(m_users_infos.term_name, "(init)"))
         {
@@ -411,8 +413,9 @@ std::string User::term_version(const std::string_view term_name)
             return m_users_infos.term_version;
         }
 
-        m_users_infos.term_version = _get_term_version(term_name);
+        m_users_infos.term_version = get_term_version(term_name);
         done                       = true;
     }
     return m_users_infos.term_version;
 }
+

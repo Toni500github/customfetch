@@ -101,6 +101,8 @@ layout = [
     "${!#fff220}Terminal: $<user.term>",
     "${cyan}Shell: $<user.shell>",
     "${!#343488}Packages: $<os.pkgs>",
+    "${!#34affd}Theme -> $<theme.gtk3>",
+    "${!#34aaff}Icons -> $<theme.gtk3_icons>",
     "${!#fa1bba}WM: $<user.wm_name>",
     "${!#f11f2a}DE: $<user.de_name>",
     "${!#117f23}Disk(/): $<disk(/).disk>",

@@ -86,12 +86,12 @@ public:
         std::string term_name{MAGIC_LINE};
         std::string term_version{MAGIC_LINE};
     };
-
+    
     User();
-    std::string name() noexcept;
-    std::string shell_name() noexcept;
-    std::string shell_path() noexcept;
-    std::string shell_version(const std::string_view shell_name) noexcept;
+    std::string name();
+    std::string shell_name();
+    std::string shell_path();
+    std::string shell_version(const std::string_view shell_name);
     std::string wm_name(bool dont_query_dewm, const std::string_view term_name);
     std::string de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name);
     std::string de_version(const std::string_view de_name);
@@ -102,10 +102,25 @@ public:
     static bool m_bDont_query_dewm;
 
 private:
-    static bool m_bCut_de;
     static bool m_bInit;
     static User_t m_users_infos;
     static struct passwd *m_pPwd;
+};
+
+class Theme : public User {
+public:
+    struct Theme_t {
+        std::string gtk3_theme_name{MAGIC_LINE};
+        std::string gtk3_icon_theme{MAGIC_LINE};
+    };
+
+    Theme();
+    std::string gtk3_theme();
+    std::string gtk3_icon_theme();
+
+private:
+    static Theme_t m_theme_infos;
+    static bool m_bInit;
 };
 
 class CPU {

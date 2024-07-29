@@ -12,13 +12,13 @@
 #include "util.hpp"
 
 Query::System::System_t Query::System::m_system_infos;
+Query::Theme::Theme_t   Query::Theme::m_theme_infos;
 Query::User::User_t     Query::User::m_users_infos;
 Query::CPU::CPU_t       Query::CPU::m_cpu_infos;
 Query::RAM::RAM_t       Query::RAM::m_memory_infos;
 Query::GPU::GPU_t       Query::GPU::m_gpu_infos;
 std::string             Query::Disk::m_typefs;
 bool                    Query::User::m_bDont_query_dewm = false;
-bool                    Query::User::m_bCut_de          = false;
 
 struct statvfs Query::Disk::m_statvfs;
 struct utsname Query::System::m_uname_infos;
@@ -26,11 +26,13 @@ struct sysinfo Query::System::m_sysInfos;
 struct passwd* Query::User::m_pPwd;
 
 bool Query::System::m_bInit = false;
+bool Query::Theme::m_bInit  = false; 
 bool Query::RAM::m_bInit    = false;
 bool Query::CPU::m_bInit    = false;
 bool Query::GPU::m_bInit    = false;
 bool Query::Disk::m_bInit   = false;
 bool Query::User::m_bInit   = false;
+
 
 static std::array<std::string, 3> get_ansi_color(const std::string_view str, colors_t& colors)
 {
@@ -364,6 +366,16 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         }
     }
 
+    // https://github.com/dunst-project/dunst/issues/900
+    // pango markup doesn't like '<' if it's not a tag
+    // workaround: just put "\<" in the config, e.g "$<os.kernel> \<- Kernel"
+    // "But.. what if I want '<<<<<-' " just put \ on each one of < :D
+    // sorry, not my problem, but pangos
+    if (config.gui)
+        replace_str(output, "\\<", "&lt;");
+    else
+        replace_str(output, "\\<", "<");
+
     return output;
 }
 
@@ -395,8 +407,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
    // yikes, here we go.
     auto module_hash = fnv1a32::hash(moduleValueName);
 
-    // stupid way to not construct query_system twice, more faster
-    if (moduleName == "os" || moduleName == "system")
+    if (moduleName == "os")
     {
         Query::System query_system;
 
@@ -408,69 +419,70 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (moduleName == "os")
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
         {
-            if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+            switch (module_hash)
             {
-                switch (module_hash)
-                {
-                    case "name"_fnv1a32: SYSINFO_INSERT(query_system.os_pretty_name()); break;
+                case "name"_fnv1a32: SYSINFO_INSERT(query_system.os_pretty_name()); break;
 
-                    case "uptime"_fnv1a32:
-                        SYSINFO_INSERT(
-                            get_auto_uptime(uptime_days.count(), uptime_hours.count() % 24, uptime_mins.count() % 60, uptime_secs.count() % 60));
-                        break;
+                case "uptime"_fnv1a32:
+                    SYSINFO_INSERT(
+                        get_auto_uptime(uptime_days.count(), uptime_hours.count() % 24, uptime_mins.count() % 60, uptime_secs.count() % 60));
+                    break;
 
-                    case "uptime_secs"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;
+                case "uptime_secs"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;
 
-                    case "uptime_mins"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_mins.count() % 60)); break;
+                case "uptime_mins"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_mins.count() % 60)); break;
 
-                    case "uptime_hours"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_hours.count()) % 24); break;
+                case "uptime_hours"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_hours.count()) % 24); break;
 
-                    case "uptime_days"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_days.count())); break;
+                case "uptime_days"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_days.count())); break;
 
-                    case "kernel"_fnv1a32:
-                        SYSINFO_INSERT(query_system.kernel_name() + ' ' + query_system.kernel_version());
-                        break;
+                case "kernel"_fnv1a32:
+                    SYSINFO_INSERT(query_system.kernel_name() + ' ' + query_system.kernel_version());
+                    break;
 
-                    case "kernel_name"_fnv1a32: SYSINFO_INSERT(query_system.kernel_name()); break;
+                case "kernel_name"_fnv1a32: SYSINFO_INSERT(query_system.kernel_name()); break;
 
-                    case "kernel_version"_fnv1a32: SYSINFO_INSERT(query_system.kernel_version()); break;
+                case "kernel_version"_fnv1a32: SYSINFO_INSERT(query_system.kernel_version()); break;
 
-                    case "pkgs"_fnv1a32: SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
+                case "pkgs"_fnv1a32: SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
 
-                    case "initsys_name"_fnv1a32: SYSINFO_INSERT(query_system.os_initsys_name()); break;
+                case "initsys_name"_fnv1a32: SYSINFO_INSERT(query_system.os_initsys_name()); break;
 
-                    case "hostname"_fnv1a32: SYSINFO_INSERT(query_system.hostname()); break;
-                }
+                case "hostname"_fnv1a32: SYSINFO_INSERT(query_system.hostname()); break;
             }
         }
-        else
-        {
-            if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
-            {
-                switch (module_hash)
-                {
-                    case "host"_fnv1a32:
-                        SYSINFO_INSERT(fmt::format("{} {} {}", query_system.host_vendor(),
-                                                   query_system.host_modelname(), query_system.host_version()));
-                        break;
-
-                    case "host_name"_fnv1a32: SYSINFO_INSERT(query_system.host_modelname()); break;
-
-                    case "host_vendor"_fnv1a32: SYSINFO_INSERT(query_system.host_vendor()); break;
-
-                    case "host_version"_fnv1a32: SYSINFO_INSERT(query_system.host_version()); break;
-
-                    case "arch"_fnv1a32: SYSINFO_INSERT(query_system.arch()); break;
-                }
-            }
-        }
-
-        return;
     }
 
-    if (moduleName == "user")
+    else if (moduleName == "system")
+    {
+        Query::System query_system;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+        
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        {
+            switch (module_hash)
+            {
+                case "host"_fnv1a32:
+                    SYSINFO_INSERT(fmt::format("{} {} {}", query_system.host_vendor(),
+                                               query_system.host_modelname(), query_system.host_version()));
+                    break;
+
+                case "host_name"_fnv1a32: SYSINFO_INSERT(query_system.host_modelname()); break;
+
+                case "host_vendor"_fnv1a32: SYSINFO_INSERT(query_system.host_vendor()); break;
+
+                case "host_version"_fnv1a32: SYSINFO_INSERT(query_system.host_version()); break;
+
+                case "arch"_fnv1a32: SYSINFO_INSERT(query_system.arch()); break;
+            }
+        }
+    }
+
+    else if (moduleName == "user")
     {
         Query::User query_user;
 
@@ -519,10 +531,24 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             }
         }
 
-        return;
     }
 
-    if (moduleName == "cpu")
+    else if (moduleName == "theme")
+    {
+        Query::Theme query_theme;
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        {
+            if (moduleValueName == "gtk3")
+                SYSINFO_INSERT(query_theme.gtk3_theme());
+            else if (moduleValueName == "gtk3_icons")
+                SYSINFO_INSERT(query_theme.gtk3_icon_theme());
+        }
+    }
+
+    else if (moduleName == "cpu")
     {
         Query::CPU query_cpu;
 
@@ -552,10 +578,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             }
         }
 
-        return;
     }
 
-    if (hasStart(moduleName, "gpu"))
+    else if (hasStart(moduleName, "gpu"))
     {
         u_short id = static_cast<u_short>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
         Query::GPU query_gpu(id);
@@ -572,10 +597,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 SYSINFO_INSERT(query_gpu.vendor());
         }
 
-        return;
     }
 
-    if (hasStart(moduleName, "disk"))
+    else if (hasStart(moduleName, "disk"))
     {
         if (moduleName.length() < 7)
             die(" PARSER: invalid disk module name ({}), must be disk(/path/to/fs) e.g: disk(/)", moduleName);
@@ -640,10 +664,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             }
         }
 
-        return;
     }
 
-    if (moduleName == "ram")
+    else if (moduleName == "ram")
     {
         Query::RAM query_ram;
         enum
@@ -716,10 +739,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             }
         }
 
-        return;
     }
-
-    die("Invalid module name: {}", moduleName);
+    else 
+        die("Invalid module name: {}", moduleName);
 }
 
 #if 0

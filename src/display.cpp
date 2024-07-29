@@ -1,14 +1,13 @@
 /* Implementation of the system behind displaying/rendering the information */
-#include "display.hpp"
-
-#include <fmt/core.h>
-#include <fmt/ranges.h>
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 
 #include "config.hpp"
+#include "display.hpp"
+#include "fmt/core.h"
+#include "fmt/ranges.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "util.hpp"
@@ -43,15 +42,6 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
     }
 
     debug("path = {}", path);
-
-    if (!config.m_print_logo_only)
-    {
-        for (std::string& layout : config.layouts)
-        {
-            std::string _;
-            layout = parse(layout, systemInfo, _, config, colors, true);
-        }
-    }
 
     std::ifstream file;
     std::ifstream fileToAnalyze;  // Input iterators are invalidated when you advance them. both have same path
@@ -101,6 +91,12 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
 
     if (config.m_print_logo_only)
         return asciiArt;
+
+    for (std::string& layout : config.layouts)
+    {
+        std::string _;
+        layout = parse(layout, systemInfo, _, config, colors, true);
+    }
 
     // erase each element for each instance of MAGIC_LINE
     std::erase_if(config.layouts, [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; });
