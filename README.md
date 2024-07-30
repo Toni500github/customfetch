@@ -20,6 +20,14 @@ Currently supports Linux distros only, but windows support is incoming
 >So you may want to relay to shell commands for quering\
 >or maybe continue using neofetch/fastfetch if it still works great for you 
 -->
+<img align=left width=552 height=200 src="https://github.com/user-attachments/assets/9375be8d-2b5c-4ad8-9fb3-ce475ca32389" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="49%" height="16px" align="left" />
+<img align=left width=552 height=200 src="https://github.com/user-attachments/assets/bf15ab44-78e0-4bfd-b3c5-095ef7a2cb0c"/>
+<p align="center">
+    <img align=top width=440 height=416 src="https://github.com/user-attachments/assets/7411cc5b-df0d-40e9-b79c-26ae5fb2258e" />
+</p>
+<img src="https://github.com/user-attachments/assets/3a5a8082-8d04-47d8-9795-e80a7d4032bc" />
+
 ## Key Features
 
 * **GUI support (GTK3)**
@@ -55,6 +63,7 @@ make install DEBUG=0 GUI_SUPPORT=1
 # automatically generates a config and prints the infos
 cufetch
 ```
+
 ## Config (with explanation)
 
 Here's an example using my config
