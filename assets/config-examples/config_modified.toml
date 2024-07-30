@@ -1,73 +1,4 @@
-#ifndef _CONFIG_HPP
-#define _CONFIG_HPP
-
-#define TOML_HEADER_ONLY 0
-
-#include "toml++/toml.hpp"
-#include "util.hpp"
-#include <cstdint>
-
-struct colors_t
-{
-    std::string black;
-    std::string red;
-    std::string green;
-    std::string blue;
-    std::string cyan;
-    std::string yellow;
-    std::string magenta;
-    std::string white;
-
-    std::string gui_black;
-    std::string gui_red;
-    std::string gui_green;
-    std::string gui_blue;
-    std::string gui_cyan;
-    std::string gui_yellow;
-    std::string gui_magenta;
-    std::string gui_white;
-};
-
-class Config
-{
-public:
-    Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
-
-    // config file
-    std::string              source_path;
-    std::string              font;
-    std::string              data_dir;
-    std::string              sep_reset;
-    std::uint8_t             offset = 0;
-    std::uint8_t             logo_padding_top = 0;
-    bool                     gui    = false;
-    std::vector<std::string> layouts;
-    std::vector<std::string> pkgs_managers;
-
-    // inner management
-    std::string m_custom_distro;
-    bool        m_disable_source = false;
-    bool        m_display_distro = true;
-    bool        m_print_logo_only = false;
-
-    void        loadConfigFile( const std::string_view filename, colors_t& colors );
-    std::string getThemeValue( const std::string& value, const std::string& fallback ) const;
-
-    template <typename T>
-    T getConfigValue( const std::string& value, T&& fallback ) const
-    {
-        std::optional<T> ret = this->tbl.at_path( value ).value<T>();
-        if constexpr ( toml::is_string<T> )  // if we want to get a value that's a string
-            return ret ? expandVar( ret.value() ) : expandVar( fallback );
-        else
-            return ret.value_or( fallback );
-    }
-
-private:
-    toml::table tbl;
-};
-
-inline constexpr std::string_view AUTOCONFIG = R"#([config]
+[config]
 # customfetch is designed with customizability in mind
 # here is how it works:
 # the variable "layout" is used for showing the infos and/or something else
@@ -101,21 +32,22 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 layout = [
     "${red}$<user.name>${0}@${cyan}$<os.hostname>",
     "───────────────────────────",
-    "${red}OS: $<os.name> $<system.arch>",
-    "${yellow}Host: $<system.host>",
-    "${green}Kernel: $<os.kernel>",
-    "${cyan}Uptime: $<os.uptime>",
-    "${!#fff220}Terminal: $<user.term>",
-    "${cyan}Shell: $<user.shell>",
-    "${!#343488}Packages: $<os.pkgs>",
+    "${red}OS -> $<os.name> $<system.arch>",
+    "${yellow}Host -> $<system.host>",
+    "${!#33ffa1}Init -> $<os.initsys_name>",
+    "${green}Kernel -> $<os.kernel>",
+    "${cyan}Uptime -> $<os.uptime>",
+    "${!#fff220}Terminal -> $<user.term>",
+    "${cyan}Shell -> $<user.shell>",
+    "${cyan}Packages -> $<os.pkgs>",
+    "${!#448aa4}Disk (/) -> $<disk(/).disk>",
     "${!#34affd}Theme -> $<theme.gtk3>",
-    "${!#34aaff}Icons -> $<theme.gtk3_icons>",
-    "${!#fa1bba}WM: $<user.wm_name>",
-    "${!#f11f2a}DE: $<user.de_name>",
-    "${!#117f23}Disk(/): $<disk(/).disk>",
-    "${magenta}CPU: $<cpu.cpu>",
-    "${blue}GPU: $<gpu.name>",
-    "${!#03ff93}RAM: $<ram.ram>",
+    "${!#34afff}Icons -> $<theme.gtk3_icons>",
+    "${!#fff1ba}WM -> $<user.wm_name>",
+    "${!#ffff2a}DE -> $<user.de_name>",
+    "${magenta}CPU -> $<cpu.cpu>",
+    "${blue}GPU -> $<gpu.name>",
+    "${!#03ff93}RAM usage -> $<ram.ram>",
     "",
     "${\e[40m}   ${\e[41m}   ${\e[42m}   ${\e[43m}   ${\e[44m}   ${\e[45m}   ${\e[46m}   ${\e[47m}   ", # normal colors
     "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
@@ -135,20 +67,18 @@ pkg-managers = ["pacman", "flatpak"]
 # or "off" for disabling ascii-art or image displaying
 source-path = "os"
 
-# Path to where we'll take all the distros/OSs ascii arts
-# note: it MUST contain an "ascii" subdirectory
-data-dir = "/usr/share/customfetch"
-
-# A separetor (string) that when ecountered, will automatically
-# reset color, aka. automatically add ${0} (only in layout)
-# Make it empty for disabling
-sep-reset = ":"
-
-# Offset between the ascii art and the system infos
+# offset between the ascii art and the system infos
 offset = 5
 
-# Padding of the logo from the top
-logo-padding-top = 0
+# Path to where we'll take all the distros/OSs ascii arts
+# it MUST contain an "ascii" subdirectory
+#data-dir = "/usr/share/customfetch"
+data-dir = "~/stupid_projects/customfetch/assets"
+
+# A character that when ecountered, will automatically
+# reset color, aka. automatically ${0}.
+# Make it empty for disabling
+sep-reset = "->"
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
@@ -163,28 +93,22 @@ cyan = "\e[1;36m"
 white = "\e[1;37m"
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_SUPPORT=1 (check with "cufetch --version")
+# note: customfetch needs to be compiled with GUI_SUPPORT=1 (which is enabled by default)
 [gui]
 enable = false
 
-# Font to be used
+# Font to be used (Strongly reccomend family "Liberation Mono")
 # syntax must be [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]
 # e.g "Liberation Mono Normal 12"
 # check https://lazka.github.io/pgi-docs/Pango-1.0/classes/FontDescription.html#Pango.FontDescription for more infos
-font = "Liberation Mono Normal 12"
+font = "Liberation Mono Normal Light 12"
 
 # These are the colors palette you can use in the GUI mode.
 # They can overwritte with ANSI escape code colors
-# but they don't work with those, only hexcodes
-black = "!#000005"
+# in the layout variable or ascii-art
 red = "!#ff2000"
 green = "!#00ff00"
 blue = "!#00aaff"
 cyan = "!#00ffff"
 yellow = "!#ffff00"
 magenta = "!#f881ff"
-white = "!#ffffff"
-
-)#";
-
-#endif
