@@ -9,9 +9,10 @@ using namespace Query;
 
 static std::string configDir = getHomeConfigDir();
 
-static Theme::Theme_t get_config_gtk3_theme()
+static Theme::Theme_t get_config_gtk3_theme(const std::string_view de_name)
 {
     Theme::Theme_t ret;
+    debug("calling {}", __PRETTY_FUNCTION__);
 
     std::string path = configDir + "/gtk-3.0/settings.ini";
     
@@ -54,6 +55,40 @@ static Theme::Theme_t get_config_gtk3_theme()
             ret.gtk3_theme_name = gtk_theme_env;
     }
 
+    if (ret.gtk3_theme_name == MAGIC_LINE)
+    {
+        switch (fnv1a32::hash(str_tolower(de_name.data())))
+        {           
+            case "cinnamon"_fnv1a32:
+                read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "gtk-theme"}, ret.gtk3_theme_name); break;
+            case "mate"_fnv1a32:
+                read_exec({"gsettings", "get", "org.mate.interface", "gtk-theme"}, ret.gtk3_theme_name); break;
+
+            case "gnome"_fnv1a32:
+            case "budgie"_fnv1a32:
+            case "unity"_fnv1a32:
+            default:
+                read_exec({"gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"}, ret.gtk3_theme_name);
+        }
+    }
+
+    if (ret.gtk3_icon_theme == MAGIC_LINE)
+    {
+        switch (fnv1a32::hash(str_tolower(de_name.data())))
+        {           
+            case "cinnamon"_fnv1a32:
+                read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "icon-theme"}, ret.gtk3_theme_name); break;
+            case "mate"_fnv1a32:
+                read_exec({"gsettings", "get", "org.mate.interface", "icon-theme"}, ret.gtk3_theme_name); break;
+
+            case "gnome"_fnv1a32:
+            case "budgie"_fnv1a32:
+            case "unity"_fnv1a32:
+            default:
+                read_exec({"gsettings", "get", "org.gnome.desktop.interface", "icon-theme"}, ret.gtk3_theme_name);
+        }
+    }
+
     return ret;
 }
 
@@ -65,10 +100,11 @@ static Theme::Theme_t get_de_gtk_theme(const std::string_view de_name)
         case "xfce"_fnv1a32:
         case "xfce4"_fnv1a32:
             {
+                debug("calling {} and getting info on xfce4", __PRETTY_FUNCTION__);
                 const std::string& path = configDir + "/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml";
                 std::ifstream f(path, std::ios::in);
                 if (!f.is_open())
-                    return get_config_gtk3_theme();
+                    return get_config_gtk3_theme(de_name);
                 std::string buffer((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
                 buffer.push_back('\0');
 
@@ -95,27 +131,20 @@ static Theme::Theme_t get_de_gtk_theme(const std::string_view de_name)
 
                     theme_node = theme_node->next_sibling();
                 }
-            }
+            } break;
         default:
-            return get_config_gtk3_theme();
+            return get_config_gtk3_theme(de_name);
     }
 
     return ret;
 }
 
-static Theme::Theme_t get_gtk_theme(const bool dont_query_dewm, const std::string_view de_name,
-                                 const std::string_view wm_name)
+static Theme::Theme_t get_gtk_theme(const bool dont_query_dewm, const std::string_view de_name)
 {
     if (dont_query_dewm)
-        return get_config_gtk3_theme();
+        return get_config_gtk3_theme(de_name);
 
-    if (((de_name != MAGIC_LINE && wm_name != MAGIC_LINE) ||
-         (de_name != UNKNOWN && wm_name != UNKNOWN)) &&
-        de_name == wm_name)
-        return get_config_gtk3_theme();
-    else
-        return get_de_gtk_theme(str_tolower(de_name.data()));
-
+    return get_de_gtk_theme(str_tolower(de_name.data()));
 }
 
 // clang-format off
@@ -124,10 +153,20 @@ Theme::Theme()
     debug("Constructing {}", __func__);
     if (!m_bInit)
     {
-        // this is so damn shitty just for displaying WM and DE having the same name, smh
-        m_theme_infos = get_gtk_theme(m_bDont_query_dewm, 
-                                      de_name(m_bDont_query_dewm, term_name(), wm_name(m_bDont_query_dewm, term_name())),
-                                      wm_name(m_bDont_query_dewm, term_name()));
+        const std::string& _wm_name = wm_name(m_bDont_query_dewm, term_name());
+        const std::string& _de_name = de_name(m_bDont_query_dewm, term_name(), _wm_name);
+
+        if (((_de_name != MAGIC_LINE && _wm_name != MAGIC_LINE) ||
+             (_de_name != UNKNOWN && _wm_name != UNKNOWN)) &&
+             _de_name == _wm_name)
+        {
+            m_theme_infos = get_gtk_theme(m_bDont_query_dewm, _wm_name);
+        }
+        else
+        {
+            m_theme_infos = get_gtk_theme(m_bDont_query_dewm, _de_name);
+        }
+
         m_bInit = true;
     }
 }

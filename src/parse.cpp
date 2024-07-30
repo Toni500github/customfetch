@@ -26,7 +26,7 @@ struct sysinfo Query::System::m_sysInfos;
 struct passwd* Query::User::m_pPwd;
 
 bool Query::System::m_bInit = false;
-bool Query::Theme::m_bInit  = false; 
+bool Query::Theme::m_bInit  = false;
 bool Query::RAM::m_bInit    = false;
 bool Query::CPU::m_bInit    = false;
 bool Query::GPU::m_bInit    = false;
@@ -172,22 +172,19 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     pureOutput         = output;
 
     size_t dollarSignIndex = 0;
+    size_t oldDollarSignIndex = 0;
     bool   start           = false;
 
     if (!config.sep_reset.empty() && parsingLaoyut)
     {
-        size_t pos = output.find(config.sep_reset);
-        if (pos != std::string::npos)
-        {
-            replace_str(output, config.sep_reset, "${0}" + config.sep_reset);
-            replace_str(pureOutput, config.sep_reset, "${0}" + config.sep_reset);
-        }
+        replace_str(output, config.sep_reset, "${0}" + config.sep_reset);
+        replace_str(pureOutput, config.sep_reset, "${0}" + config.sep_reset);
     }
 
     while (true)
     {
-        size_t oldDollarSignIndex = dollarSignIndex;
-        dollarSignIndex           = output.find('$', dollarSignIndex);
+        oldDollarSignIndex = dollarSignIndex;
+        dollarSignIndex    = output.find('$', dollarSignIndex);
 
         if (dollarSignIndex == std::string::npos || (dollarSignIndex <= oldDollarSignIndex && start))
             break;
@@ -207,7 +204,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         size_t      endBracketIndex = -1;
 
         char type    = ' ';  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
-        char opentag = output[dollarSignIndex + 1];
+        const char opentag = output[dollarSignIndex + 1];
 
         switch (opentag)
         {
@@ -253,7 +250,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 const std::string moduleName(command.substr(0, dot_pos));
                 const std::string moduleValueName(command.substr(dot_pos + 1));
                 addValueFromModule(systemInfo, moduleName, moduleValueName, config);
-                
+
                 output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                         getInfoFromName(systemInfo, moduleName, moduleValueName));
             }
@@ -349,15 +346,15 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             unformatted_replacement_string = output.substr(endBracketIndex + 1);
                             formatted_replacement_string =
                                 fmt::format("\x1B[{}{}",
+                                            // "\\e" is for checking in the ascii_art, \033 in the config
                                             hasStart(str_clr, "\033")
-                                                ?  // "\\e" is for checking in the ascii_art, \033 in the config
-                                                str_clr.substr(2)
+                                                ? str_clr.substr(2)
                                                 : str_clr.substr(3),
                                             unformatted_replacement_string);
                         }
 
                         else
-                            die("PARSER: failed to parse line with color '{}'", str_clr);
+                            error("PARSER: failed to parse line with color '{}'", str_clr);
 
                         output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                 formatted_replacement_string);
@@ -404,7 +401,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         const Config& config)
 {
  #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
-   // yikes, here we go.
+    // yikes, here we go.
     auto module_hash = fnv1a32::hash(moduleValueName);
 
     if (moduleName == "os")
@@ -536,6 +533,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
     else if (moduleName == "theme")
     {
         Query::Theme query_theme;
+
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 

@@ -12,8 +12,9 @@ DEVICE_TEST     ?= 0
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
         BUILDDIR  = build/debug
-        CXXFLAGS := -ggdb3 -Wall -DDEBUG=1 $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+        CXXFLAGS := -ggdb3 -Wall -Wextra -Wpedantic -DDEBUG=1 $(DEBUG_CXXFLAGS) $(CXXFLAGS)
 else
+	CXXFLAGS := -O3 $(CXXFLAGS)
         BUILDDIR  = build/release
 endif
 
@@ -43,7 +44,7 @@ SRC 	   	 = $(sort $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/util
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -Wno-return-type -Wanalyzer-null-dereference -O3 -fvisibility=hidden -Iinclude -std=$(CXX_STD) $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
+CXXFLAGS        += -Wno-return-type -Wanalyzer-null-dereference -fvisibility=hidden -Iinclude -std=$(CXX_STD) $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
 all: fmt toml $(TARGET)
 
