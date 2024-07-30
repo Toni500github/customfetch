@@ -70,12 +70,13 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     // clang-format off
 
-    this->source_path  = getConfigValue<std::string>("config.source-path", "os");
-    this->data_dir     = getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
-    this->sep_reset    = getConfigValue<std::string>("config.sep-reset", ":");
-    this->offset       = getConfigValue<u_short>("config.offset", 5);
-    this->gui          = getConfigValue<bool>("gui.enable", false);
-    this->font         = getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
+    this->source_path      = getConfigValue<std::string>("config.source-path", "os");
+    this->data_dir         = getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
+    this->sep_reset        = getConfigValue<std::string>("config.sep-reset", ":");
+    this->offset           = getConfigValue<std::uint8_t>("config.offset", 5);
+    this->gui              = getConfigValue<bool>("gui.enable", false);
+    this->font             = getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
+    this->logo_padding_top = getConfigValue<std::uint8_t>("config.logo-padding-top", 0);
 
     colors.black       = this->getThemeValue("config.black",   "\033[1;30m");
     colors.red         = this->getThemeValue("config.red",     "\033[1;31m");

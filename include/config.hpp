@@ -39,6 +39,7 @@ public:
     std::string              data_dir;
     std::string              sep_reset;
     std::uint8_t             offset = 0;
+    std::uint8_t             logo_padding_top = 0;
     bool                     gui    = false;
     std::vector<std::string> layouts;
     std::vector<std::string> pkgs_managers;
@@ -139,6 +140,9 @@ sep-reset = ":"
 
 # Offset between the ascii art and the system infos
 offset = 5
+
+# Padding of the logo from the top
+logo-padding-top = 0
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"

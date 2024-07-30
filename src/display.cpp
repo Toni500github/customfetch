@@ -72,6 +72,12 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
                 path);
     }
 
+    for (int i = 0; i < config.logo_padding_top; i++)
+    {
+        pureAsciiArt.push_back(" ");
+        asciiArt.push_back(" ");
+    }
+
     while (std::getline(file, line))
     {
         std::string pureOutput;
