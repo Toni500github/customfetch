@@ -20,13 +20,14 @@ Currently supports Linux distros only, but windows support is incoming
 >So you may want to relay to shell commands for quering\
 >or maybe continue using neofetch/fastfetch if it still works great for you 
 -->
-<img align=left width=52% height=40% src="https://github.com/user-attachments/assets/9375be8d-2b5c-4ad8-9fb3-ce475ca32389" />
+
+<img align=left width=52% height=40% src="assets/screenshots/nitch_catpan-style.png" />
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="49%" height="16px" align="left" />
-<img align=left width=52% height=40% src="https://github.com/user-attachments/assets/bf15ab44-78e0-4bfd-b3c5-095ef7a2cb0c"/>
+<img align=left width=52% height=40% src="assets/screenshots/modern-simple.png"/>
 <p align="center">
-    <img align=top width=44% height=20% src="https://github.com/user-attachments/assets/7411cc5b-df0d-40e9-b79c-26ae5fb2258e" />
+    <img align=top width=44% height=20% src="assets/screenshots/cbonsai.png" />
 </p>
-<img src="https://github.com/user-attachments/assets/3a5a8082-8d04-47d8-9795-e80a7d4032bc" />
+<img src="assets/screenshots/pipeline-style.png" />
 
 ## Key Features
 
