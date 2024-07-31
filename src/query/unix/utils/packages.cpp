@@ -7,28 +7,27 @@
 #include "query.hpp"
 #include "util.hpp"
 
-std::string get_all_pkgs(System::pkg_managers_t& pkg_manager, const Config& config)
+std::string get_all_pkgs(System::pkg_managers_t& pkg_managers, const Config& config)
 {
     std::string ret;
 
-    for (std::string_view str : config.pkgs_managers)
+    for (std::string_view pkg_manager : config.pkgs_managers)
     {
-        str = str_tolower(str.data());
-        if (str == "pacman" && std::filesystem::exists("/var/lib/pacman/local"))
+        if (pkg_manager == "pacman" && std::filesystem::exists("/var/lib/pacman/local"))
         {
-            pkg_manager.pacman_pkgs = std::distance(std::filesystem::directory_iterator{"/var/lib/pacman/local"}, {});
+            pkg_managers.pacman_pkgs = std::distance(std::filesystem::directory_iterator{"/var/lib/pacman/local"}, {});
 
             // remove /var/lib/pacman/local/ALPM_DB_VERSION count
-            pkg_manager.pacman_pkgs--;
-            ret += fmt::format("{} (pacman), ", pkg_manager.pacman_pkgs);
+            pkg_managers.pacman_pkgs--;
+            ret += fmt::format("{} (pacman), ", pkg_managers.pacman_pkgs);
         }
 
-        if (str == "flatpak" && std::filesystem::exists("/var/lib/flatpak/app"))
+        if (pkg_manager == "flatpak" && std::filesystem::exists("/var/lib/flatpak/app"))
         {
-            pkg_manager.flatpak_pkgs = std::distance(std::filesystem::directory_iterator{"/var/lib/flatpak/app"}, {});
+            pkg_managers.flatpak_pkgs = std::distance(std::filesystem::directory_iterator{"/var/lib/flatpak/app"}, {});
 
-            if (pkg_manager.flatpak_pkgs > 0)
-                ret += fmt::format("{} (flatpak), ", pkg_manager.flatpak_pkgs);
+            if (pkg_managers.flatpak_pkgs > 0)
+                ret += fmt::format("{} (flatpak), ", pkg_managers.flatpak_pkgs);
         }
     }
 

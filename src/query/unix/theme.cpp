@@ -171,8 +171,8 @@ Theme::Theme()
     }
 }
 
-std::string Theme::gtk3_theme()
+std::string& Theme::gtk3_theme()
 { return m_theme_infos.gtk3_theme_name; }
 
-std::string Theme::gtk3_icon_theme()
+std::string& Theme::gtk3_icon_theme()
 { return m_theme_infos.gtk3_icon_theme; }

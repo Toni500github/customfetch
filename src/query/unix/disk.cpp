@@ -51,5 +51,5 @@ float Disk::used_amount()
 float Disk::free_amount()
 { return static_cast<float>(m_statvfs.f_bfree * m_statvfs.f_frsize); }
 
-std::string Disk::typefs()
+std::string& Disk::typefs()
 { return m_typefs; }

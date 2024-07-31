@@ -86,17 +86,17 @@ RAM::RAM()
 }
 
 // clang-format off
-float RAM::free_amount()
+float& RAM::free_amount()
 { return m_memory_infos.free_amount; }
 
-float RAM::total_amount()
+float& RAM::total_amount()
 { return m_memory_infos.total_amount; }
 
-float RAM::used_amount()
+float& RAM::used_amount()
 { return m_memory_infos.used_amount; }
 
-float RAM::swap_total_amount()
+float& RAM::swap_total_amount()
 { return m_memory_infos.swap_total_amount; }
 
-float RAM::swap_free_amount()
+float& RAM::swap_free_amount()
 { return m_memory_infos.swap_free_amount; }

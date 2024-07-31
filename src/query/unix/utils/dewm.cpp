@@ -89,11 +89,11 @@ std::string prettify_wm_name(const std::string_view name) noexcept
 
 std::string get_mate_version()
 {
-    std::string                ret;
     constexpr std::string_view path = "/usr/share/mate-about/mate-version.xml";
     std::ifstream              f(path.data(), std::ios::in);
     if (!f.is_open())
     {
+        std::string ret;
         read_exec({ "mate-session", "--version" }, ret);
         ret.erase(0, ret.rfind(' '));
         return ret;
@@ -111,12 +111,11 @@ std::string get_mate_version()
         return UNKNOWN;
     }
 
-    std::string major = root_node->first_node("platform")->value();
-    std::string minor = root_node->first_node("minor")->value();
-    std::string micro = root_node->first_node("micro")->value();
+    const std::string_view major = root_node->first_node("platform")->value();
+    const std::string_view minor = root_node->first_node("minor")->value();
+    const std::string_view micro = root_node->first_node("micro")->value();
 
-    ret = major + '.' + minor + '.' + micro;
-    return ret;
+    return fmt::format("{}.{}.{}", major, minor, micro);
 }
 
 std::string get_cinnamon_version()

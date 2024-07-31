@@ -62,7 +62,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
                 if (const auto* str_element = element.as_string())
                 {
                     auto element_value = *str_element;
-                    this->pkgs_managers.push_back(element_value->data());
+                    this->pkgs_managers.push_back(str_tolower(element_value->data()));
                 }
                 else
                     warn("An element of the includes variable in {} is not a string", filename);

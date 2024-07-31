@@ -29,7 +29,8 @@ static std::string _get_name(const std::string_view m_vendor_id_s, const std::st
     return name;
 }
 
-static std::string _get_vendor(const std::string_view m_vendor_id_s) { return binarySearchPCIArray(m_vendor_id_s); }
+static std::string _get_vendor(const std::string_view m_vendor_id_s)
+{ return binarySearchPCIArray(m_vendor_id_s); }
 
 static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s)
 {
@@ -79,8 +80,8 @@ GPU::GPU(u_short id)
 }
 
 // clang-format off
-std::string GPU::name()
+std::string& GPU::name()
 { return m_gpu_infos.name; }
 
-std::string GPU::vendor()
+std::string& GPU::vendor()
 { return m_gpu_infos.vendor; }

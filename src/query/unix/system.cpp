@@ -131,35 +131,35 @@ std::string System::hostname()
 std::string System::arch()
 { return m_uname_infos.machine; }
 
-long System::uptime()
+long& System::uptime()
 { return m_sysInfos.uptime; }
 
-std::string System::os_pretty_name()
+std::string& System::os_pretty_name()
 { return m_system_infos.os_pretty_name; }
 
-std::string System::os_name()
+std::string& System::os_name()
 { return m_system_infos.os_name; }
 
-std::string System::os_id()
+std::string& System::os_id()
 { return m_system_infos.os_id; }
 
-std::string System::os_versionid()
+std::string& System::os_versionid()
 { return m_system_infos.os_version_id; }
 
-std::string System::os_version_codename()
+std::string& System::os_version_codename()
 { return m_system_infos.os_version_codename; }
 
-std::string System::host_modelname()
+std::string& System::host_modelname()
 { return m_system_infos.host_modelname; }
 
-std::string System::host_vendor()
+std::string& System::host_vendor()
 { return m_system_infos.host_vendor; }
 
-std::string System::host_version()
+std::string& System::host_version()
 { return m_system_infos.host_version; }
 
 // clang-format on
-std::string System::os_initsys_name()
+std::string& System::os_initsys_name()
 {
     static bool done = false;
     if (!done)
@@ -193,7 +193,7 @@ std::string System::os_initsys_name()
     return m_system_infos.os_initsys_name;
 }
 
-std::string System::pkgs_installed(const Config& config)
+std::string& System::pkgs_installed(const Config& config)
 {
     static bool done = false;
     if (!done)

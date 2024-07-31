@@ -95,14 +95,14 @@ CPU::CPU()
     }
 }
 
-std::string CPU::name() { return m_cpu_infos.name; }
+std::string& CPU::name() { return m_cpu_infos.name; }
 
-std::string CPU::nproc() { return m_cpu_infos.nproc; }
+std::string& CPU::nproc() { return m_cpu_infos.nproc; }
 
-float CPU::freq_bios_limit() { return m_cpu_infos.freq_bios_limit; }
+float& CPU::freq_bios_limit() { return m_cpu_infos.freq_bios_limit; }
 
-float CPU::freq_cur() { return m_cpu_infos.freq_cur; }
+float& CPU::freq_cur() { return m_cpu_infos.freq_cur; }
 
-float CPU::freq_max() { return (m_cpu_infos.freq_max <= 0) ? m_cpu_infos.freq_max_cpuinfo : m_cpu_infos.freq_max; }
+float& CPU::freq_max() { return (m_cpu_infos.freq_max <= 0) ? m_cpu_infos.freq_max_cpuinfo : m_cpu_infos.freq_max; }
 
-float CPU::freq_min() { return m_cpu_infos.freq_min; }
+float& CPU::freq_min() { return m_cpu_infos.freq_min; }

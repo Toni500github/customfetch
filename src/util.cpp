@@ -49,9 +49,8 @@ std::vector<std::string> split(const std::string_view text, char delim)
  * @param str The string
  * @return The modified string
  */
-std::string expandVar(const std::string_view str)
+std::string expandVar(std::string ret)
 {
-    std::string ret = str.data();
     const char* env;
     if (ret[0] == '~')
     {
@@ -61,7 +60,7 @@ std::string expandVar(const std::string_view str)
 
         ret.replace(0, 1, env);  // replace ~ with the $HOME value
     }
-    else if (str[0] == '$')
+    else if (ret[0] == '$')
     {
         ret.erase(0, 1);
 
@@ -69,13 +68,13 @@ std::string expandVar(const std::string_view str)
         size_t      pos = ret.find('/');
         if (pos != std::string::npos)
         {
-            temp = str.substr(pos + 1);
+            temp = ret.substr(pos + 1);
             ret.erase(pos);
         }
 
         env = std::getenv(ret.c_str());
         if (env == nullptr)
-            die("No such enviroment variable: {}", str);
+            die("No such enviroment variable: {}", ret);
 
         ret = env;
         ret += temp;

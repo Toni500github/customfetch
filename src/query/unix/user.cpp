@@ -3,6 +3,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -150,7 +151,7 @@ static std::string get_wm_wayland_name()
 #endif
 }*/
 
-static std::string get_shell_version(const std::string_view shell_name) noexcept
+static std::string get_shell_version(const std::string_view shell_name) 
 {
     std::string ret;
 
@@ -163,14 +164,14 @@ static std::string get_shell_version(const std::string_view shell_name) noexcept
     return ret;
 }
 
-static std::string get_shell_name(const std::string_view shell_path) noexcept
+static std::string get_shell_name(const std::string_view shell_path) 
 {
     std::string ret = shell_path.substr(shell_path.rfind('/') + 1).data();
 
     return ret;
 }
 
-static std::string get_term_name() noexcept
+static std::string get_term_name()
 {
     // cufetch -> shell -> terminal
     pid_t         ppid = getppid();
@@ -268,7 +269,7 @@ User::User()
         uid_t uid = geteuid();
 
         if (m_pPwd = getpwuid(uid), !m_pPwd)
-            die("getpwent failed: {}\nCould not get user infos", errno);
+            die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
 
         m_bInit = true;
     }
@@ -282,7 +283,7 @@ std::string User::shell_path()
 { return m_pPwd->pw_shell; }
 
 // clang-format on
-std::string User::shell_name()
+std::string& User::shell_name()
 {
     static bool done = false;
     if (!done)
@@ -352,15 +353,14 @@ std::string User::de_name(bool dont_query_dewm, const std::string_view term_name
         if (m_users_infos.de_name != MAGIC_LINE && wm_name != MAGIC_LINE && m_users_infos.de_name == wm_name)
         {
             m_users_infos.de_name = MAGIC_LINE;
-            // cry about it
-            goto ret;
+            done = true;
+            return m_users_infos.de_name;
         }
 
         m_users_infos.de_name = get_de_name();
         if (m_users_infos.de_name == m_users_infos.wm_name)
             m_users_infos.de_name = MAGIC_LINE;
 
-    ret:
         done = true;
     }
 
@@ -382,7 +382,7 @@ std::string User::de_version(const std::string_view de_name)
     return m_users_infos.de_version;
 }
 
-std::string User::term_name()
+std::string& User::term_name()
 {
     static bool done = false;
     if (!done)
@@ -401,7 +401,7 @@ std::string User::term_name()
     return m_users_infos.term_name;
 }
 
-std::string User::term_version(const std::string_view term_name)
+std::string& User::term_version(const std::string_view term_name)
 {
     static bool done = false;
     if (!done)
@@ -418,4 +418,3 @@ std::string User::term_version(const std::string_view term_name)
     }
     return m_users_infos.term_version;
 }
-

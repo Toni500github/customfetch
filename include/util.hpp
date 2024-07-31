@@ -52,7 +52,7 @@ std::string shell_exec(const std::string_view cmd);
 std::vector<std::string> split(const std::string_view text, char delim);
 byte_units_t auto_devide_bytes(const size_t num);
 bool is_file_image(const unsigned char *bytes);
-std::string expandVar(const std::string_view str);
+std::string expandVar(std::string ret);
 // Replace string inplace
 void replace_str(std::string &str, const std::string& from, const std::string& to);
 bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdErr = false);

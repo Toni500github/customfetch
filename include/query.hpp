@@ -52,20 +52,20 @@ public:
     std::string kernel_version();
     std::string hostname();
     std::string arch();
-    std::string os_pretty_name();
-    std::string os_name();
-    std::string os_id();
-    std::string os_initsys_name();
-    std::string os_versionid();
-    std::string os_version_codename();
-    long        uptime();
+    std::string& os_pretty_name();
+    std::string& os_name();
+    std::string& os_id();
+    std::string& os_initsys_name();
+    std::string& os_versionid();
+    std::string& os_version_codename();
+    long&        uptime();
     
     // motherboard (host)
-    std::string host_modelname();
-    std::string host_vendor();
-    std::string host_version();
+    std::string& host_modelname();
+    std::string& host_vendor();
+    std::string& host_version();
 
-    std::string pkgs_installed(const Config& config);
+    std::string& pkgs_installed(const Config& config);
 
 private:
     static System_t m_system_infos;
@@ -89,15 +89,15 @@ public:
     
     User();
     std::string name();
-    std::string shell_name();
     std::string shell_path();
+    std::string& shell_name();
     std::string shell_version(const std::string_view shell_name);
     std::string wm_name(bool dont_query_dewm, const std::string_view term_name);
     std::string de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name);
     std::string de_version(const std::string_view de_name);
 
-    std::string term_name();
-    std::string term_version(const std::string_view term_name);
+    std::string& term_name();
+    std::string& term_version(const std::string_view term_name);
 
     static bool m_bDont_query_dewm;
 
@@ -115,8 +115,8 @@ public:
     };
 
     Theme();
-    std::string gtk3_theme();
-    std::string gtk3_icon_theme();
+    std::string& gtk3_theme();
+    std::string& gtk3_icon_theme();
 
 private:
     static Theme_t m_theme_infos;
@@ -139,13 +139,13 @@ public:
     };
 
     CPU();
-    std::string name();
-    std::string nproc();
+    std::string& name();
+    std::string& nproc();
 
-    float freq_max();
-    float freq_min();
-    float freq_cur();
-    float freq_bios_limit();
+    float& freq_max();
+    float& freq_min();
+    float& freq_cur();
+    float& freq_bios_limit();
 
 private:
     static bool m_bInit;
@@ -160,8 +160,8 @@ public:
     };
 
     GPU(u_short id = 0);
-    std::string name();
-    std::string vendor();
+    std::string& name();
+    std::string& vendor();
 
 private:
     uint16_t    m_vendor_id;
@@ -180,7 +180,7 @@ public:
     float total_amount();
     float free_amount();
     float used_amount();
-    std::string typefs();
+    std::string& typefs();
 
 private:
     static bool m_bInit;
@@ -199,11 +199,11 @@ public:
     };
 
     RAM();
-    float total_amount();
-    float free_amount();
-    float used_amount();
-    float swap_free_amount();
-    float swap_total_amount();
+    float& total_amount();
+    float& free_amount();
+    float& used_amount();
+    float& swap_free_amount();
+    float& swap_total_amount();
 
 private:
     static bool m_bInit;
