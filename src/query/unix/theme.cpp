@@ -156,8 +156,7 @@ Theme::Theme()
         const std::string& _wm_name = wm_name(m_bDont_query_dewm, term_name());
         const std::string& _de_name = de_name(m_bDont_query_dewm, term_name(), _wm_name);
 
-        if (((_de_name != MAGIC_LINE && _wm_name != MAGIC_LINE) ||
-             (_de_name != UNKNOWN && _wm_name != UNKNOWN)) &&
+        if ((_de_name != MAGIC_LINE && _wm_name != MAGIC_LINE) &&
              _de_name == _wm_name)
         {
             m_theme_infos = get_gtk_theme(m_bDont_query_dewm, _wm_name);

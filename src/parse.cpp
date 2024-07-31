@@ -129,7 +129,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, col
     }
 
     if (col[0] != '#')
-        col.erase(0, col.find("#"));
+        col.erase(0, col.find('#'));
 
     return { col, weight, type };
 }

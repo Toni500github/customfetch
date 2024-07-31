@@ -217,7 +217,7 @@ void replace_str(std::string& str, const std::string& from, const std::string& t
     }
 }
 
-bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr)
+bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr, bool noerror_print)
 {
     int pipeout[2];
 
@@ -251,7 +251,7 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
         }
         else
         {
-            if (!useStdErr)
+            if (!useStdErr || !noerror_print)
                 error("Failed to execute the command: {}", fmt::join(cmd, " "));
         }
     }
@@ -364,8 +364,8 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
             left = mid + 1;
     }
 
-    size_t approximate_vendors_location = pci_vendors_location_array[mid];
-    size_t vendors_location             = all_ids.find(vendor_id, approximate_vendors_location);
+    const size_t approximate_vendors_location = pci_vendors_location_array[mid];
+    const size_t vendors_location             = all_ids.find(vendor_id, approximate_vendors_location);
 
     if (vendors_location == std::string::npos)
         return UNKNOWN;
@@ -384,7 +384,7 @@ std::string shell_exec(const std::string_view cmd)
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
 
     if (!pipe)
-        die("popen() failed: {}", errno);
+        die("popen() failed: {}", std::strerror(errno));
 
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
         result += buffer.data();
@@ -409,22 +409,22 @@ std::string name_from_entry(size_t dev_entry_pos)
     return name;
 }
 
-std::string vendor_from_entry(size_t vendor_entry_pos, const std::string_view vendor_id)
+std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_view vendor_id)
 {
     size_t end_line_pos = all_ids.find('\n', vendor_entry_pos);
     if (end_line_pos == std::string::npos)
         end_line_pos = all_ids.length();  // If no newline is found, set to end of string
 
-    std::string line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
+    const std::string line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
 
-    size_t      after_id_pos = line.find(vendor_id) + 4;
-    std::string description  = line.substr(after_id_pos);
+    const size_t      after_id_pos = line.find(vendor_id) + 4;
+    const std::string description  = line.substr(after_id_pos);
 
-    size_t first = description.find_first_not_of(' ');
+    const size_t first = description.find_first_not_of(' ');
     if (first == std::string::npos)
         return UNKNOWN;
 
-    size_t last = description.find_last_not_of(' ');
+    const size_t last = description.find_last_not_of(' ');
 
     std::string vendor = description.substr(first, (last - first + 1));
 
@@ -463,8 +463,9 @@ std::string getHomeConfigDir()
 
 /*
  * Get the customfetch config directory
- * where we'll have both "config.toml" and "theme.toml"
- * from Config::getHomeConfigDir()
- * @return TabAUR's config directory
+ * where we'll have "config.toml"
+ * from getHomeConfigDir()
+ * @return customfetch's config directory
  */
-std::string getConfigDir() { return getHomeConfigDir() + "/customfetch"; }
+std::string getConfigDir()
+{ return getHomeConfigDir() + "/customfetch"; }
