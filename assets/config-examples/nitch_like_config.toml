@@ -38,7 +38,7 @@ layout = [
 	"│${green} 󰻀 ${0} distro │ ${green} $<os.name>",
 	"│${cyan} 󰌢  ${0}kernel │ ${cyan} $<os.kernel>",
 	"│${blue} 󰥔  ${0}uptime │ ${blue} $<os.uptime>",
-	"│${red}   ${0}shell  │ ${red} $<user.term>",
+	"│${red}   ${0}shell  │ ${red} $<user.shell>",
 	"│${!#FF5F1F} 󰏖  ${0}pkgs   │ ${!#FF5F1F} $<os.pkgs>",
 	"│${magenta} 󰍛 ${0} memory │ ${magenta} $<ram.ram>",
 	"├───────────┤",

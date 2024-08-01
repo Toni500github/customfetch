@@ -12,7 +12,8 @@ DEVICE_TEST     ?= 0
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
         BUILDDIR  = build/debug
-        CXXFLAGS := -ggdb3 -Wall -Wextra -Wpedantic -DDEBUG=1 $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+        CXXFLAGS := -ggdb3 -Wall -Wextra -Wpedantic -fsanitize=address -fsanitize=undefined -DDEBUG=1 $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+	LDFLAGS  += -fsanitize=address -fsanitize=undefined
 else
 	CXXFLAGS := -O3 $(CXXFLAGS)
         BUILDDIR  = build/release
