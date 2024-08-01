@@ -55,7 +55,8 @@ GPU::GPU(u_short id)
         const u_short max_iter = 10;
         u_short       id_iter  = id;
         std::string   sys_path;
-        for (int i = 0; i <= max_iter; i++)
+        int i = 0;
+        for (; i <= max_iter; i++)
         {
             sys_path = "/sys/class/drm/card" + fmt::to_string(id_iter);
             if (std::filesystem::exists(sys_path))
@@ -64,7 +65,7 @@ GPU::GPU(u_short id)
                 id_iter++;
         }
 
-        if (id_iter >= max_iter)
+        if (i >= max_iter)
         {
             error("Failed to parse GPU infos on the path /sys/class/drm/");
             return;

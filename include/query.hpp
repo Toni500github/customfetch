@@ -110,13 +110,13 @@ private:
 class Theme : public User {
 public:
     struct Theme_t {
-        std::string gtk3_theme_name{MAGIC_LINE};
-        std::string gtk3_icon_theme{MAGIC_LINE};
+        std::string gtk_theme_name{MAGIC_LINE};
+        std::string gtk_icon_theme{MAGIC_LINE};
     };
 
-    Theme();
-    std::string& gtk3_theme();
-    std::string& gtk3_icon_theme();
+    Theme(const std::uint8_t ver);
+    std::string& gtk_theme();
+    std::string& gtk_icon_theme();
 
 private:
     static Theme_t m_theme_infos;

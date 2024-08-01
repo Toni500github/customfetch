@@ -86,9 +86,14 @@ user
   term_name	: Terminal name [alacritty]
   term_version	: Terminal version [0.13.2]
 
-theme
-  gtk3		: gtk3 theme name [Arc-Dark]
-  gtk3_icons	: gtk3 icon theme name [Qogir-Dark]
+# the N stands for the version number to query
+# so for example if you want to query the gtk3 theme version
+# write it like "theme3.gtk"
+# note: they may be inaccurate if didn't find anything in the config files
+# 	thus because of using as last resort the `gsettings` exacutable
+themeN
+  gtk		: gtk theme name [Arc-Dark]
+  gtk_icons	: gtk icon theme name [Qogir-Dark]
 
 # note: these members are auto displayed in kiB, MiB, GiB and TiB.
 # they all (except ram.ram) have a -GiB and -MiB variant
@@ -103,6 +108,8 @@ ram
   swap_total	: swapfile total amount of RAM (auto) [512 MiB]
 
 # same thing as RAM (above)
+# note: I mean literally /path/to/fs
+	e.g disk(/)
 disk(/path/to/fs)
   disk		: used and total amount of disk space (auto) with type of filesystem [360.02 GiB / 438.08 GiB - ext4]
   used          : used amount of disk space (auto) [360.02 GiB]
@@ -110,6 +117,10 @@ disk(/path/to/fs)
   total         : total amount of disk space (auto) [100.08 GiB]
   fs            : type of filesystem [ext4]
 
+# usually people have 1 GPU in their host,
+# but if you got more than 1 and want to query it,
+# you should call gpu module with a number, e.g gpu1 (default gpu0).
+# Infos are gotten from `/sys/class/drm/` and on each cardN directory
 gpu
   name		: GPU model name [NVIDIA GeForce GTX 1650]
   vendor	: GPU vendor [NVIDIA Corporation]

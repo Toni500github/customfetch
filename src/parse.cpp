@@ -4,6 +4,7 @@
 
 #include <array>
 #include <chrono>
+#include <cstdlib>
 #include <string>
 
 #include "config.hpp"
@@ -530,19 +531,24 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     }
 
-    else if (moduleName == "theme")
+    else if (hasStart(moduleName, "theme"))
     {
-        Query::Theme query_theme;
+        std::uint8_t ver = static_cast<std::uint8_t>(moduleName.length() > 5 ? std::stoi(moduleName.substr(5,6)) : 0);
+        if (ver <= 0)
+            die("module name 'theme' doesn't have a version number to query.\n"
+                "Syntax should be like 'themeN' which N stands for the version of gtk to query");
+
+        Query::Theme query_theme(ver);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
         {
-            if (moduleValueName == "gtk3")
-                SYSINFO_INSERT(query_theme.gtk3_theme());
-            else if (moduleValueName == "gtk3_icons")
-                SYSINFO_INSERT(query_theme.gtk3_icon_theme());
+            if (moduleValueName == "gtk")
+                SYSINFO_INSERT(query_theme.gtk_theme());
+            else if (moduleValueName == "gtk_icons")
+                SYSINFO_INSERT(query_theme.gtk_icon_theme());
         }
     }
 
@@ -580,7 +586,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     else if (hasStart(moduleName, "gpu"))
     {
-        u_short id = static_cast<u_short>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
+        std::uint8_t id = static_cast<std::uint8_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
         Query::GPU query_gpu(id);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
