@@ -18,7 +18,7 @@ Query::User::User_t     Query::User::m_users_infos;
 Query::CPU::CPU_t       Query::CPU::m_cpu_infos;
 Query::RAM::RAM_t       Query::RAM::m_memory_infos;
 Query::GPU::GPU_t       Query::GPU::m_gpu_infos;
-std::string             Query::Disk::m_typefs;
+Query::Disk::Disk_t     Query::Disk::m_disk_infos;
 bool                    Query::User::m_bDont_query_dewm = false;
 
 struct statvfs Query::Disk::m_statvfs;
@@ -27,11 +27,8 @@ struct sysinfo Query::System::m_sysInfos;
 struct passwd* Query::User::m_pPwd;
 
 bool Query::System::m_bInit = false;
-bool Query::Theme::m_bInit  = false;
 bool Query::RAM::m_bInit    = false;
 bool Query::CPU::m_bInit    = false;
-bool Query::GPU::m_bInit    = false;
-bool Query::Disk::m_bInit   = false;
 bool Query::User::m_bInit   = false;
 
 
@@ -403,7 +400,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 {
  #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
     // yikes, here we go.
-    auto module_hash = fnv1a32::hash(moduleValueName);
+    auto moduleValue_hash = fnv1a32::hash(moduleValueName);
 
     if (moduleName == "os")
     {
@@ -419,7 +416,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
         {
-            switch (module_hash)
+            switch (moduleValue_hash)
             {
                 case "name"_fnv1a32: SYSINFO_INSERT(query_system.os_pretty_name()); break;
 
@@ -462,7 +459,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
         {
-            switch (module_hash)
+            switch (moduleValue_hash)
             {
                 case "host"_fnv1a32:
                     SYSINFO_INSERT(fmt::format("{} {} {}", query_system.host_vendor(),
@@ -489,7 +486,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
         {
-            switch (module_hash)
+            switch (moduleValue_hash)
             {
                 case "name"_fnv1a32: SYSINFO_INSERT(query_user.name()); break;
 
@@ -531,24 +528,28 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     }
 
-    else if (hasStart(moduleName, "theme"))
+    else if (hasStart(moduleName, "theme-gtk"))
     {
-        std::uint8_t ver = static_cast<std::uint8_t>(moduleName.length() > 5 ? std::stoi(moduleName.substr(5,6)) : 0);
+        const std::uint8_t ver = static_cast<std::uint8_t>(moduleName.length() > 9 ? std::stoi(moduleName.substr(9,10)) : 0);
         if (ver <= 0)
-            die("module name 'theme' doesn't have a version number to query.\n"
-                "Syntax should be like 'themeN' which N stands for the version of gtk to query");
+            die("module name '{}' doesn't have a version number to query.\n"
+                "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)", moduleName);
 
-        Query::Theme query_theme(ver);
+        static std::vector<std::string_view> themes;
+        Query::Theme query_theme(ver, themes, fmt::format("gtk{}", ver));
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
         {
-            if (moduleValueName == "gtk")
-                SYSINFO_INSERT(query_theme.gtk_theme());
-            else if (moduleValueName == "gtk_icons")
-                SYSINFO_INSERT(query_theme.gtk_icon_theme());
+            switch (moduleValue_hash)
+            {
+                case "name"_fnv1a32: SYSINFO_INSERT(query_theme.gtk_theme()); break;
+                case "icons"_fnv1a32: SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
+                case "font"_fnv1a32: SYSINFO_INSERT(query_theme.gtk_font()); break;
+                case "cursor"_fnv1a32: SYSINFO_INSERT(query_theme.gtk_cursor()); break;
+            }
         }
     }
 
@@ -561,7 +562,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
         {
-            switch (module_hash)
+            switch (moduleValue_hash)
             {
                 case "cpu"_fnv1a32:
                     SYSINFO_INSERT(
@@ -586,8 +587,10 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     else if (hasStart(moduleName, "gpu"))
     {
-        std::uint8_t id = static_cast<std::uint8_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
-        Query::GPU query_gpu(id);
+        std::uint16_t id = static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
+        
+        static std::vector<std::uint16_t> queried_gpus;
+        Query::GPU query_gpu(id, queried_gpus);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -619,7 +622,8 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         path.pop_back();   // )
         debug("disk path = {}", path);
 
-        Query::Disk query_disk(path);
+        static std::vector<std::string_view> queried_disks;
+        Query::Disk query_disk(path, queried_disks);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -631,7 +635,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount());
             byte_units.at(FREE)  = auto_devide_bytes(query_disk.free_amount());
 
-            switch (module_hash)
+            switch (moduleValue_hash)
             {
                 // clang-format off
                 case "disk"_fnv1a32:
@@ -694,7 +698,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             byte_units.at(SWAP_FREE)  = auto_devide_bytes(query_ram.swap_free_amount()*1024);
             byte_units.at(SWAP_TOTAL) = auto_devide_bytes(query_ram.swap_total_amount()*1024);
 
-            switch (module_hash)
+            switch (moduleValue_hash)
             {
                 case "ram"_fnv1a32:
                     // clang-format off

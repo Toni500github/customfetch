@@ -9,49 +9,54 @@ using namespace Query;
 
 std::string configDir = getHomeConfigDir();
 
-static void get_gtk_theme_config(const std::string_view path, Theme::Theme_t& theme)
+static void get_var(std::string& ret, unsigned short& iter_index, std::string& line, const size_t& size)
+{
+    ret = line.substr(size);
+    ret.erase(std::remove(ret.begin(), ret.end(), '\"'), ret.end());
+    iter_index++;
+}
+
+static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& theme)
 {
     std::ifstream f(path.data(), std::ios::in);
     if (!f.is_open())
     {
-        theme.gtk_icon_theme = UNKNOWN;
-        theme.gtk_theme_name = UNKNOWN;
-        return;
+        //theme.gtk_icon_theme.clear();
+        //theme.gtk_theme_name.clear();
+        //theme.gtk_font.clear();
+        //theme.gtk_cursor.clear();
+        return false;
     }
 
     std::string line;
     static unsigned short iter_index = 0;
-    while (std::getline(f, line) && iter_index < 2)
+    while (std::getline(f, line) && iter_index < 4)
     {
         if (hasStart(line, "gtk-theme-name="))
-        {
-            theme.gtk_theme_name = line.substr("gtk-theme-name="_len);
-            iter_index++;
-        }
+            get_var(theme.gtk_theme_name, iter_index, line, "gtk-theme-name="_len);
+
         else if (hasStart(line, "gtk-icon-theme-name="))
-        {
-            theme.gtk_icon_theme = line.substr("gtk-icon-theme-name="_len);
-            iter_index++;
-        }
+            get_var(theme.gtk_icon_theme, iter_index, line, "gtk-icon-theme-name="_len);
+
+        else if (hasStart(line, "gtk-font-name="))
+            get_var(theme.gtk_font, iter_index, line, "gtk-font-name="_len);
+
+        else if (hasStart(line, "gtk-cursor-theme-name="))
+            get_var(theme.gtk_cursor, iter_index, line, "gtk-cursor-theme-name="_len);
     }
+    
+    if (theme.gtk_cursor == MAGIC_LINE || theme.gtk_font == MAGIC_LINE ||
+        theme.gtk_theme_name == MAGIC_LINE || theme.gtk_icon_theme == MAGIC_LINE)
+        return false;
 
-    // remove double quotes (if any)
-    // man gadamn if this is verbose as hell
-    theme.gtk_theme_name.erase(std::remove(theme.gtk_theme_name.begin(), theme.gtk_theme_name.end(), '\"'), theme.gtk_theme_name.end());
-    theme.gtk_icon_theme.erase(std::remove(theme.gtk_icon_theme.begin(), theme.gtk_icon_theme.end(), '\"'), theme.gtk_icon_theme.end());
-
-}
-
-static bool things_are_set(Theme::Theme_t& theme)
-{
-    return theme.gtk_icon_theme != UNKNOWN && theme.gtk_theme_name != UNKNOWN;
+    return true;
 }
 
 static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_t& theme)
 {
     debug("calling {}", __PRETTY_FUNCTION__);
 
-    if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name == UNKNOWN)
+    if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty())
     {
         char *gtk_theme_env = getenv("GTK_THEME");
 
@@ -61,7 +66,7 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
 
     auto hash = fnv1a32::hash(str_tolower(de_name.data()));
     
-    if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name == UNKNOWN)
+    if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty())
     {
         theme.gtk_theme_name.clear();
         switch (hash)
@@ -79,7 +84,7 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
         }
     }
 
-    if (theme.gtk_icon_theme == MAGIC_LINE || theme.gtk_icon_theme == UNKNOWN)
+    if (theme.gtk_icon_theme == MAGIC_LINE || theme.gtk_icon_theme.empty())
     {
         theme.gtk_icon_theme.clear();
         switch (hash)
@@ -97,22 +102,57 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
         }
     }
 
+    if (theme.gtk_font == MAGIC_LINE || theme.gtk_font.empty())
+    {
+        theme.gtk_font.clear();
+        switch (hash)
+        {
+            case "cinnamon"_fnv1a32:
+                read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "font-name"}, theme.gtk_font); break;
+            case "mate"_fnv1a32:
+                read_exec({"gsettings", "get", "org.mate.interface", "font-name"}, theme.gtk_font); break;
+
+            case "gnome"_fnv1a32:
+            case "budgie"_fnv1a32:
+            case "unity"_fnv1a32:
+            default:
+                read_exec({"gsettings", "get", "org.gnome.desktop.interface", "font-name"}, theme.gtk_font);
+        }
+    }
+
+    if (theme.gtk_cursor == MAGIC_LINE || theme.gtk_cursor.empty())
+    {
+        theme.gtk_font.clear();
+        switch (hash)
+        {
+            case "cinnamon"_fnv1a32:
+                read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "cursor-theme"}, theme.gtk_cursor); break;
+            case "mate"_fnv1a32:
+                read_exec({"gsettings", "get", "org.mate.interface", "cursor-theme"}, theme.gtk_cursor); break;
+
+            case "gnome"_fnv1a32:
+            case "budgie"_fnv1a32:
+            case "unity"_fnv1a32:
+            default:
+                read_exec({"gsettings", "get", "org.gnome.desktop.interface", "cursor-theme"}, theme.gtk_cursor);
+        }
+    }
+
     theme.gtk_theme_name.erase(std::remove(theme.gtk_theme_name.begin(), theme.gtk_theme_name.end(), '\''), theme.gtk_theme_name.end());
     theme.gtk_icon_theme.erase(std::remove(theme.gtk_icon_theme.begin(), theme.gtk_icon_theme.end(), '\''), theme.gtk_icon_theme.end());
+    theme.gtk_font.erase(std::remove(theme.gtk_font.begin(), theme.gtk_font.end(), '\''), theme.gtk_font.end());
+    theme.gtk_cursor.erase(std::remove(theme.gtk_cursor.begin(), theme.gtk_cursor.end(), '\''), theme.gtk_cursor.end());
 }
 
 static void get_gtk_theme_from_configs(const std::uint8_t ver, const std::string_view de_name, Theme::Theme_t& theme)
 {
-    get_gtk_theme_config(fmt::format("{}/gtk-{}.0/settings.ini", configDir, ver), theme);
-    if (things_are_set(theme))
+    if (get_gtk_theme_config(fmt::format("{}/gtk-{}.0/settings.ini", configDir, ver), theme))
         return;
 
-    get_gtk_theme_config(fmt::format("{}/gtk-{}.0/gtkrc", configDir, ver), theme);
-    if (things_are_set(theme))
+    if (get_gtk_theme_config(fmt::format("{}/gtk-{}.0/gtkrc", configDir, ver), theme))
         return;
 
-    get_gtk_theme_config(fmt::format("{}/.gtkrc-{}.0", std::getenv("HOME"), ver), theme);
-    if (things_are_set(theme))
+    if (get_gtk_theme_config(fmt::format("{}/.gtkrc-{}.0", std::getenv("HOME"), ver), theme))
         return;
 
     get_gtk_theme_settings(de_name, theme);
@@ -174,25 +214,27 @@ static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, co
 }
 
 // clang-format off
-Theme::Theme(const std::uint8_t ver)
+Theme::Theme(const std::uint8_t ver, std::vector<std::string_view>& queried_themes,
+             const std::string_view theme_name_version)
+            : m_queried_themes(queried_themes)
 {
     debug("Constructing {}", __func__);
-    if (!m_bInit)
+    if (std::find(m_queried_themes.begin(), m_queried_themes.end(), theme_name_version) == m_queried_themes.end())
+        m_queried_themes.push_back(theme_name_version);
+    else
+        return;
+
+    const std::string& _wm_name = wm_name(m_bDont_query_dewm, term_name());
+    const std::string& _de_name = de_name(m_bDont_query_dewm, term_name(), _wm_name);
+
+    if (((_de_name != MAGIC_LINE && _wm_name != MAGIC_LINE) &&
+         _de_name == _wm_name) || _de_name == MAGIC_LINE)
     {
-        const std::string& _wm_name = wm_name(m_bDont_query_dewm, term_name());
-        const std::string& _de_name = de_name(m_bDont_query_dewm, term_name(), _wm_name);
-
-        if ((_de_name != MAGIC_LINE && _wm_name != MAGIC_LINE) &&
-             _de_name == _wm_name)
-        {
-            get_gtk_theme(m_bDont_query_dewm, ver, _wm_name, m_theme_infos);
-        }
-        else
-        {
-            get_gtk_theme(m_bDont_query_dewm, ver, _de_name, m_theme_infos);
-        }
-
-        m_bInit = true;
+        get_gtk_theme(m_bDont_query_dewm, ver, _wm_name, m_theme_infos);
+    }
+    else
+    {
+        get_gtk_theme(m_bDont_query_dewm, ver, _de_name, m_theme_infos);
     }
 }
 
@@ -201,3 +243,9 @@ std::string& Theme::gtk_theme()
 
 std::string& Theme::gtk_icon_theme()
 { return m_theme_infos.gtk_icon_theme; }
+
+std::string& Theme::gtk_font()
+{ return m_theme_infos.gtk_font; }
+
+std::string& Theme::gtk_cursor()
+{ return m_theme_infos.gtk_cursor; }

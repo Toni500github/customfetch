@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <variant>
 #include <string>
+#include <vector>
 
 extern "C" {
 #include <pwd.h>
@@ -91,10 +92,10 @@ public:
     std::string name();
     std::string shell_path();
     std::string& shell_name();
-    std::string shell_version(const std::string_view shell_name);
-    std::string wm_name(bool dont_query_dewm, const std::string_view term_name);
-    std::string de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name);
-    std::string de_version(const std::string_view de_name);
+    std::string& shell_version(const std::string_view shell_name);
+    std::string& wm_name(bool dont_query_dewm, const std::string_view term_name);
+    std::string& de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name);
+    std::string& de_version(const std::string_view de_name);
 
     std::string& term_name();
     std::string& term_version(const std::string_view term_name);
@@ -112,15 +113,19 @@ public:
     struct Theme_t {
         std::string gtk_theme_name{MAGIC_LINE};
         std::string gtk_icon_theme{MAGIC_LINE};
+        std::string gtk_font{MAGIC_LINE};
+        std::string gtk_cursor{MAGIC_LINE}; 
     };
 
-    Theme(const std::uint8_t ver);
+    Theme(const std::uint8_t ver, std::vector<std::string_view>& queried_themes, const std::string_view theme_name_version);
     std::string& gtk_theme();
     std::string& gtk_icon_theme();
+    std::string& gtk_font();
+    std::string& gtk_cursor();
 
 private:
     static Theme_t m_theme_infos;
-    static bool m_bInit;
+    std::vector<std::string_view>& m_queried_themes;
 };
 
 class CPU {
@@ -159,7 +164,7 @@ public:
         std::string vendor{UNKNOWN};
     };
 
-    GPU(u_short id = 0);
+    GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus);
     std::string& name();
     std::string& vendor();
 
@@ -170,22 +175,28 @@ private:
     std::string m_device_id_s;
 
     static GPU_t m_gpu_infos;
-    static bool m_bInit;
+    std::vector<std::uint16_t>& m_queried_gpus;
 };
 
 class Disk {
 public:
-    // no need for a struct because we'll use m_statvfs members
-    Disk(const std::string_view path);
-    float total_amount();
-    float free_amount();
-    float used_amount();
+    Disk(const std::string_view path, std::vector<std::string_view>& paths);
+    struct Disk_t {
+        float total_amount = 0;
+        float free_amount = 0;
+        float used_amount = 0;
+        std::string typefs;
+    };
+
+    float& total_amount();
+    float& free_amount();
+    float& used_amount();
     std::string& typefs();
 
 private:
-    static bool m_bInit;
     static struct statvfs m_statvfs;
-    static std::string m_typefs;
+    static Disk_t m_disk_infos;
+    std::vector<std::string_view>& m_paths;
 };
 
 class RAM {

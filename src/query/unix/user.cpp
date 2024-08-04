@@ -295,10 +295,13 @@ std::string& User::shell_name()
     return m_users_infos.shell_name;
 }
 
-std::string User::shell_version(const std::string_view shell_name)
+std::string& User::shell_version(const std::string_view shell_name)
 {
     if (m_users_infos.shell_name.empty())
-        return UNKNOWN;
+    {
+        m_users_infos.shell_version = UNKNOWN;
+        return m_users_infos.shell_version;
+    }
 
     static bool done = false;
     if (!done)
@@ -310,10 +313,13 @@ std::string User::shell_version(const std::string_view shell_name)
     return m_users_infos.shell_version;
 }
 
-std::string User::wm_name(bool dont_query_dewm, const std::string_view term_name)
+std::string& User::wm_name(bool dont_query_dewm, const std::string_view term_name)
 {
     if (dont_query_dewm || hasStart(term_name, "/dev"))
-        return MAGIC_LINE;
+    {
+        m_users_infos.wm_name = MAGIC_LINE;
+        return m_users_infos.wm_name;
+    }
 
     static bool done = false;
     debug("CALLING {} || done = {} && de_name = {} && wm_name = {}", __func__, done, m_users_infos.de_name,
@@ -336,13 +342,16 @@ std::string User::wm_name(bool dont_query_dewm, const std::string_view term_name
     return m_users_infos.wm_name;
 }
 
-std::string User::de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name)
+std::string& User::de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name)
 {
     // first let's see if we are not in a tty or if the user doesn't want to
     // if so don't even try to get the DE or WM names
     // they waste times
     if (dont_query_dewm || hasStart(term_name, "/dev"))
-        return MAGIC_LINE;
+    {
+        m_users_infos.de_name = MAGIC_LINE;
+        return m_users_infos.de_name;
+    }
 
     static bool done = false;
     debug("CALLING {} || done = {} && de_name = {} && wm_name = {}", __func__, done, m_users_infos.de_name,
@@ -367,10 +376,13 @@ std::string User::de_name(bool dont_query_dewm, const std::string_view term_name
     return m_users_infos.de_name;
 }
 
-std::string User::de_version(const std::string_view de_name)
+std::string& User::de_version(const std::string_view de_name)
 {
     if (m_bDont_query_dewm || de_name == UNKNOWN || de_name == MAGIC_LINE || de_name.empty())
-        return UNKNOWN;
+    {
+        m_users_infos.de_version = UNKNOWN;
+        return m_users_infos.de_version;
+    }
 
     static bool done = false;
     if (!done)

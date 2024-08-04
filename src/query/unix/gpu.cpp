@@ -1,5 +1,5 @@
-#include <sys/types.h>
-
+#include <algorithm>
+#include <cstdint>
 #include <filesystem>
 #include <string>
 
@@ -47,37 +47,37 @@ static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std:
     return ret;
 }
 
-GPU::GPU(u_short id)
+GPU::GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus) : m_queried_gpus(queried_gpus)
 {
     debug("Constructing {}", __func__);
-    if (!m_bInit)
+    if (std::find(m_queried_gpus.begin(), m_queried_gpus.end(), id) == m_queried_gpus.end())
+        m_queried_gpus.push_back(id);
+    else
+        return;
+    
+    const u_short max_iter = 10;
+    u_short       id_iter  = id;
+    std::string   sys_path;
+    int i = 0;
+    for (; i <= max_iter; i++)
     {
-        const u_short max_iter = 10;
-        u_short       id_iter  = id;
-        std::string   sys_path;
-        int i = 0;
-        for (; i <= max_iter; i++)
-        {
-            sys_path = "/sys/class/drm/card" + fmt::to_string(id_iter);
-            if (std::filesystem::exists(sys_path))
-                break;
-            else
-                id_iter++;
-        }
-
-        if (i >= max_iter)
-        {
-            error("Failed to parse GPU infos on the path /sys/class/drm/");
-            return;
-        }
-
-        m_vendor_id_s = read_by_syspath(sys_path + "/device/vendor");
-        m_device_id_s = read_by_syspath(sys_path + "/device/device");
-
-        m_gpu_infos = get_gpu_infos(m_vendor_id_s, m_device_id_s);
-
-        m_bInit = true;
+        sys_path = "/sys/class/drm/card" + fmt::to_string(id_iter);
+        if (std::filesystem::exists(sys_path))
+            break;
+        else
+            id_iter++;
     }
+
+    if (i >= max_iter)
+    {
+        error("Failed to parse GPU infos on the path /sys/class/drm/");
+        return;
+    }
+
+    m_vendor_id_s = read_by_syspath(sys_path + "/device/vendor");
+    m_device_id_s = read_by_syspath(sys_path + "/device/device");
+
+    m_gpu_infos = get_gpu_infos(m_vendor_id_s, m_device_id_s);
 }
 
 // clang-format off

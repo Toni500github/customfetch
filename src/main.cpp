@@ -86,14 +86,16 @@ user
   term_name	: Terminal name [alacritty]
   term_version	: Terminal version [0.13.2]
 
-# the N stands for the version number to query
+# the N stands for the gtk version number to query
 # so for example if you want to query the gtk3 theme version
-# write it like "theme3.gtk"
+# write it like "theme.gtk3"
 # note: they may be inaccurate if didn't find anything in the config files
 # 	thus because of using as last resort the `gsettings` exacutable
-themeN
-  gtk		: gtk theme name [Arc-Dark]
-  gtk_icons	: gtk icon theme name [Qogir-Dark]
+theme-gtkN
+  name		: gtk theme name [Arc-Dark]
+  icons		: gtk icons theme name [Qogir-Dark]
+  font		: gtk font theme name [Noto Sans 10]
+  cursor	: gtk cursor theme name [Qogir-Dark]
 
 # note: these members are auto displayed in kiB, MiB, GiB and TiB.
 # they all (except ram.ram) have a -GiB and -MiB variant
