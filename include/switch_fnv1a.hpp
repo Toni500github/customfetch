@@ -19,6 +19,17 @@ struct fnv1a_traits
     static constexpr bool Supported = false;
 };
 
+// Traits for 16-bit FNV1a (added by myself for customfetch)
+template<>
+struct fnv1a_traits<16>
+{
+    static constexpr bool Supported = true;
+    using Type = uint16_t;
+
+    static constexpr Type Prime = 0x389;
+    static constexpr Type Offset = 0x9DC5;
+};
+
 // Traits for 32-bit FNV1a
 template<>
 struct fnv1a_traits<32>
@@ -162,10 +173,15 @@ struct fnv1a
     }
 };
 
+using fnv1a16 = fnv1a<16>;
 using fnv1a32 = fnv1a<32>;
 using fnv1a64 = fnv1a<64>;
 using fnv1a128 = fnv1a<128>;
 
+consteval fnv1a16::Type operator"" _fnv1a16(const char* s, const std::size_t l)
+{
+    return fnv1a16::hash(s, l);
+}
 consteval fnv1a32::Type operator"" _fnv1a32(const char* s, const std::size_t l)
 {
     return fnv1a32::hash(s, l);

@@ -262,16 +262,16 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     std::string str_clr;
                     if (config.gui)
                     {
-                        switch (fnv1a32::hash(command))
+                        switch (fnv1a16::hash(command))
                         {
-                            case "black"_fnv1a32:   str_clr = check_gui_ansi_clr(colors.gui_black); break;
-                            case "red"_fnv1a32:     str_clr = check_gui_ansi_clr(colors.gui_red); break;
-                            case "blue"_fnv1a32:    str_clr = check_gui_ansi_clr(colors.gui_blue); break;
-                            case "green"_fnv1a32:   str_clr = check_gui_ansi_clr(colors.gui_green); break;
-                            case "cyan"_fnv1a32:    str_clr = check_gui_ansi_clr(colors.gui_cyan); break;
-                            case "yellow"_fnv1a32:  str_clr = check_gui_ansi_clr(colors.gui_yellow); break;
-                            case "magenta"_fnv1a32: str_clr = check_gui_ansi_clr(colors.gui_magenta); break;
-                            case "white"_fnv1a32:   str_clr = check_gui_ansi_clr(colors.gui_white); break;
+                            case "black"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_black); break;
+                            case "red"_fnv1a16:     str_clr = check_gui_ansi_clr(colors.gui_red); break;
+                            case "blue"_fnv1a16:    str_clr = check_gui_ansi_clr(colors.gui_blue); break;
+                            case "green"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_green); break;
+                            case "cyan"_fnv1a16:    str_clr = check_gui_ansi_clr(colors.gui_cyan); break;
+                            case "yellow"_fnv1a16:  str_clr = check_gui_ansi_clr(colors.gui_yellow); break;
+                            case "magenta"_fnv1a16: str_clr = check_gui_ansi_clr(colors.gui_magenta); break;
+                            case "white"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_white); break;
                             default:                str_clr = command; break;
                         }
 
@@ -307,16 +307,16 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                     else
                     {
-                        switch (fnv1a32::hash(command))
+                        switch (fnv1a16::hash(command))
                         {
-                            case "black"_fnv1a32:   str_clr = colors.black; break;
-                            case "red"_fnv1a32:     str_clr = colors.red; break;
-                            case "blue"_fnv1a32:    str_clr = colors.blue; break;
-                            case "green"_fnv1a32:   str_clr = colors.green; break;
-                            case "cyan"_fnv1a32:    str_clr = colors.cyan; break;
-                            case "yellow"_fnv1a32:  str_clr = colors.yellow; break;
-                            case "magenta"_fnv1a32: str_clr = colors.magenta; break;
-                            case "white"_fnv1a32:   str_clr = colors.white; break;
+                            case "black"_fnv1a16:   str_clr = colors.black; break;
+                            case "red"_fnv1a16:     str_clr = colors.red; break;
+                            case "blue"_fnv1a16:    str_clr = colors.blue; break;
+                            case "green"_fnv1a16:   str_clr = colors.green; break;
+                            case "cyan"_fnv1a16:    str_clr = colors.cyan; break;
+                            case "yellow"_fnv1a16:  str_clr = colors.yellow; break;
+                            case "magenta"_fnv1a16: str_clr = colors.magenta; break;
+                            case "white"_fnv1a16:   str_clr = colors.white; break;
                             default:                str_clr = command; break;
                         }
 
@@ -400,7 +400,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 {
  #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
     // yikes, here we go.
-    auto moduleValue_hash = fnv1a32::hash(moduleValueName);
+    auto moduleValue_hash = fnv1a16::hash(moduleValueName);
 
     if (moduleName == "os")
     {
@@ -418,34 +418,34 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
-                case "name"_fnv1a32: SYSINFO_INSERT(query_system.os_pretty_name()); break;
+                case "name"_fnv1a16: SYSINFO_INSERT(query_system.os_pretty_name()); break;
 
-                case "uptime"_fnv1a32:
+                case "uptime"_fnv1a16:
                     SYSINFO_INSERT(
                         get_auto_uptime(uptime_days.count(), uptime_hours.count() % 24, uptime_mins.count() % 60, uptime_secs.count() % 60));
                     break;
 
-                case "uptime_secs"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;
+                case "uptime_secs"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;
 
-                case "uptime_mins"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_mins.count() % 60)); break;
+                case "uptime_mins"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_mins.count() % 60)); break;
 
-                case "uptime_hours"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_hours.count()) % 24); break;
+                case "uptime_hours"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_hours.count()) % 24); break;
 
-                case "uptime_days"_fnv1a32: SYSINFO_INSERT(static_cast<size_t>(uptime_days.count())); break;
+                case "uptime_days"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_days.count())); break;
 
-                case "kernel"_fnv1a32:
+                case "kernel"_fnv1a16:
                     SYSINFO_INSERT(query_system.kernel_name() + ' ' + query_system.kernel_version());
                     break;
 
-                case "kernel_name"_fnv1a32: SYSINFO_INSERT(query_system.kernel_name()); break;
+                case "kernel_name"_fnv1a16: SYSINFO_INSERT(query_system.kernel_name()); break;
 
-                case "kernel_version"_fnv1a32: SYSINFO_INSERT(query_system.kernel_version()); break;
+                case "kernel_version"_fnv1a16: SYSINFO_INSERT(query_system.kernel_version()); break;
 
-                case "pkgs"_fnv1a32: SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
+                case "pkgs"_fnv1a16: SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
 
-                case "initsys_name"_fnv1a32: SYSINFO_INSERT(query_system.os_initsys_name()); break;
+                case "initsys_name"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_name()); break;
 
-                case "hostname"_fnv1a32: SYSINFO_INSERT(query_system.hostname()); break;
+                case "hostname"_fnv1a16: SYSINFO_INSERT(query_system.hostname()); break;
             }
         }
     }
@@ -461,18 +461,18 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
-                case "host"_fnv1a32:
+                case "host"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{} {} {}", query_system.host_vendor(),
                                                query_system.host_modelname(), query_system.host_version()));
                     break;
 
-                case "host_name"_fnv1a32: SYSINFO_INSERT(query_system.host_modelname()); break;
+                case "host_name"_fnv1a16: SYSINFO_INSERT(query_system.host_modelname()); break;
 
-                case "host_vendor"_fnv1a32: SYSINFO_INSERT(query_system.host_vendor()); break;
+                case "host_vendor"_fnv1a16: SYSINFO_INSERT(query_system.host_vendor()); break;
 
-                case "host_version"_fnv1a32: SYSINFO_INSERT(query_system.host_version()); break;
+                case "host_version"_fnv1a16: SYSINFO_INSERT(query_system.host_version()); break;
 
-                case "arch"_fnv1a32: SYSINFO_INSERT(query_system.arch()); break;
+                case "arch"_fnv1a16: SYSINFO_INSERT(query_system.arch()); break;
             }
         }
     }
@@ -488,41 +488,41 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
-                case "name"_fnv1a32: SYSINFO_INSERT(query_user.name()); break;
+                case "name"_fnv1a16: SYSINFO_INSERT(query_user.name()); break;
 
-                case "shell"_fnv1a32:
+                case "shell"_fnv1a16:
                     SYSINFO_INSERT(query_user.shell_name() + ' ' + query_user.shell_version(query_user.shell_name()));
                     break;
 
-                case "shell_name"_fnv1a32: SYSINFO_INSERT(query_user.shell_name()); break;
+                case "shell_name"_fnv1a16: SYSINFO_INSERT(query_user.shell_name()); break;
 
-                case "shell_path"_fnv1a32: SYSINFO_INSERT(query_user.shell_path()); break;
+                case "shell_path"_fnv1a16: SYSINFO_INSERT(query_user.shell_path()); break;
 
-                case "shell_version"_fnv1a32: SYSINFO_INSERT(query_user.shell_version(query_user.shell_name())); break;
+                case "shell_version"_fnv1a16: SYSINFO_INSERT(query_user.shell_version(query_user.shell_name())); break;
 
-                case "de_name"_fnv1a32:
+                case "de_name"_fnv1a16:
                     SYSINFO_INSERT(
                         query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
                                            query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name())));
                     break;
 
-                case "de_version"_fnv1a32:
+                case "de_version"_fnv1a16:
                     SYSINFO_INSERT(query_user.de_version(
                         query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
                                            query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()))));
                     break;
 
-                case "wm_name"_fnv1a32:
+                case "wm_name"_fnv1a16:
                     SYSINFO_INSERT(query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()));
                     break;
 
-                case "term"_fnv1a32:
+                case "term"_fnv1a16:
                     SYSINFO_INSERT(query_user.term_name() + ' ' + query_user.term_version(query_user.term_name()));
                     break;
 
-                case "term_name"_fnv1a32: SYSINFO_INSERT(query_user.term_name()); break;
+                case "term_name"_fnv1a16: SYSINFO_INSERT(query_user.term_name()); break;
 
-                case "term_version"_fnv1a32: SYSINFO_INSERT(query_user.term_version(query_user.term_name())); break;
+                case "term_version"_fnv1a16: SYSINFO_INSERT(query_user.term_version(query_user.term_name())); break;
             }
         }
 
@@ -545,10 +545,10 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
-                case "name"_fnv1a32: SYSINFO_INSERT(query_theme.gtk_theme()); break;
-                case "icons"_fnv1a32: SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
-                case "font"_fnv1a32: SYSINFO_INSERT(query_theme.gtk_font()); break;
-                case "cursor"_fnv1a32: SYSINFO_INSERT(query_theme.gtk_cursor()); break;
+                case "name"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_theme()); break;
+                case "icons"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
+                case "font"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_font()); break;
+                case "cursor"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_cursor()); break;
             }
         }
     }
@@ -564,22 +564,22 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
-                case "cpu"_fnv1a32:
+                case "cpu"_fnv1a16:
                     SYSINFO_INSERT(
                         fmt::format("{} ({}) @ {:.2f} GHz", query_cpu.name(), query_cpu.nproc(), query_cpu.freq_max()));
                     break;
 
-                case "name"_fnv1a32: SYSINFO_INSERT(query_cpu.name()); break;
+                case "name"_fnv1a16: SYSINFO_INSERT(query_cpu.name()); break;
 
-                case "nproc"_fnv1a32: SYSINFO_INSERT(query_cpu.nproc()); break;
+                case "nproc"_fnv1a16: SYSINFO_INSERT(query_cpu.nproc()); break;
 
-                case "freq_bios_limit"_fnv1a32: SYSINFO_INSERT(query_cpu.freq_bios_limit()); break;
+                case "freq_bios_limit"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_bios_limit()); break;
 
-                case "freq_cur"_fnv1a32: SYSINFO_INSERT(query_cpu.freq_cur()); break;
+                case "freq_cur"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_cur()); break;
 
-                case "freq_max"_fnv1a32: SYSINFO_INSERT(query_cpu.freq_max()); break;
+                case "freq_max"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_max()); break;
 
-                case "freq_min"_fnv1a32: SYSINFO_INSERT(query_cpu.freq_min()); break;
+                case "freq_min"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_min()); break;
             }
         }
 
@@ -638,7 +638,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             switch (moduleValue_hash)
             {
                 // clang-format off
-                case "disk"_fnv1a32:
+                case "disk"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} - {}", 
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                                byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
@@ -646,29 +646,29 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
                 // clang-format on
 
-                case "used"_fnv1a32:
+                case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
 
-                case "total"_fnv1a32:
+                case "total"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(TOTAL).num_bytes, byte_units.at(TOTAL).unit));
                     break;
 
-                case "free"_fnv1a32:
+                case "free"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
                     break;
 
-                case "used-GiB"_fnv1a32: SYSINFO_INSERT(query_disk.used_amount()/1073741824); break;
-                case "used-MiB"_fnv1a32: SYSINFO_INSERT(query_disk.used_amount()/1048576); break;
+                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount()/1073741824); break;
+                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount()/1048576); break;
 
-                case "total-GiB"_fnv1a32: SYSINFO_INSERT(query_disk.total_amount()/1073741824); break;
-                case "total-MiB"_fnv1a32: SYSINFO_INSERT(query_disk.total_amount()/1048576); break;
+                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount()/1073741824); break;
+                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount()/1048576); break;
 
-                case "free-GiB"_fnv1a32: SYSINFO_INSERT(query_disk.free_amount()/1073741824); break;
-                case "free-MiB"_fnv1a32: SYSINFO_INSERT(query_disk.free_amount()/1048576); break;
+                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount()/1073741824); break;
+                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount()/1048576); break;
 
 
-                case "fs"_fnv1a32: SYSINFO_INSERT(query_disk.typefs()); break;
+                case "fs"_fnv1a16: SYSINFO_INSERT(query_disk.typefs()); break;
             }
         }
 
@@ -700,7 +700,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
             switch (moduleValue_hash)
             {
-                case "ram"_fnv1a32:
+                case "ram"_fnv1a16:
                     // clang-format off
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {}", 
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit, 
@@ -708,42 +708,42 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
                     // clang-format on
 
-                case "used"_fnv1a32:
+                case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
 
-                case "total"_fnv1a32:
+                case "total"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(TOTAL).num_bytes, byte_units.at(TOTAL).unit));
                     break;
 
-                case "free"_fnv1a32:
+                case "free"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
                     break;
 
-                case "swap_free"_fnv1a32:
+                case "swap_free"_fnv1a16:
                     SYSINFO_INSERT(
                         fmt::format("{:.2f} {}", byte_units.at(SWAP_FREE).num_bytes, byte_units.at(SWAP_FREE).unit));
                     break;
 
-                case "swap_total"_fnv1a32:
+                case "swap_total"_fnv1a16:
                     SYSINFO_INSERT(
                         fmt::format("{:.2f} {}", byte_units.at(SWAP_TOTAL).num_bytes, byte_units.at(SWAP_TOTAL).unit));
                     break;
 
-                case "used-GiB"_fnv1a32: SYSINFO_INSERT(query_ram.used_amount()/1048576); break;
-                case "used-MiB"_fnv1a32: SYSINFO_INSERT(query_ram.used_amount()/1024); break;
+                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount()/1048576); break;
+                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount()/1024); break;
 
-                case "total-GiB"_fnv1a32: SYSINFO_INSERT(query_ram.total_amount()/1048576); break;
-                case "total-MiB"_fnv1a32: SYSINFO_INSERT(query_ram.total_amount()/1024); break;
+                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount()/1048576); break;
+                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount()/1024); break;
 
-                case "free-GiB"_fnv1a32: SYSINFO_INSERT(query_ram.free_amount()/1048576); break;
-                case "free-MiB"_fnv1a32: SYSINFO_INSERT(query_ram.free_amount()/1024); break;
+                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount()/1048576); break;
+                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount()/1024); break;
 
-                case "swap_free-GiB"_fnv1a32: SYSINFO_INSERT(query_ram.swap_free_amount()/1048576); break;
-                case "swap_free-MiB"_fnv1a32: SYSINFO_INSERT(query_ram.swap_free_amount()/1024); break;
+                case "swap_free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount()/1048576); break;
+                case "swap_free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount()/1024); break;
 
-                case "swap_total-GiB"_fnv1a32: SYSINFO_INSERT(query_ram.swap_total_amount()/1048576); break;
-                case "swap_total-MiB"_fnv1a32: SYSINFO_INSERT(query_ram.swap_total_amount()/1024); break;
+                case "swap_total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount()/1048576); break;
+                case "swap_total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount()/1024); break;
             }
         }
 

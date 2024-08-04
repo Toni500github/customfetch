@@ -75,16 +75,16 @@ static std::string get_wm_name()
 
 static std::string get_de_version(const std::string_view de_name)
 {
-    switch (fnv1a32::hash(de_name.data()))
+    switch (fnv1a16::hash(de_name.data()))
     {
-        case "mate"_fnv1a32:     return get_mate_version();
-        case "cinnamon"_fnv1a32: return get_cinnamon_version();
+        case "mate"_fnv1a16:     return get_mate_version();
+        case "cinnamon"_fnv1a16: return get_cinnamon_version();
         
-        case "xfce"_fnv1a32:
-        case "xfce4"_fnv1a32:
+        case "xfce"_fnv1a16:
+        case "xfce4"_fnv1a16:
             return get_xfce4_version();
 
-        case "gnome"_fnv1a32:
+        case "gnome"_fnv1a16:
         {
             std::string ret;
             read_exec({ "gnome-shell", "--version" }, ret);

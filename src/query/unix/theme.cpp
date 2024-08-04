@@ -64,21 +64,21 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
             theme.gtk_theme_name = gtk_theme_env;
     }
 
-    auto hash = fnv1a32::hash(str_tolower(de_name.data()));
+    auto hash = fnv1a16::hash(str_tolower(de_name.data()));
     
     if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty())
     {
         theme.gtk_theme_name.clear();
         switch (hash)
         {           
-            case "cinnamon"_fnv1a32:
+            case "cinnamon"_fnv1a16:
                 read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "gtk-theme"}, theme.gtk_theme_name); break;
-            case "mate"_fnv1a32:
+            case "mate"_fnv1a16:
                 read_exec({"gsettings", "get", "org.mate.interface", "gtk-theme"}, theme.gtk_theme_name); break;
 
-            case "gnome"_fnv1a32:
-            case "budgie"_fnv1a32:
-            case "unity"_fnv1a32:
+            case "gnome"_fnv1a16:
+            case "budgie"_fnv1a16:
+            case "unity"_fnv1a16:
             default:
                 read_exec({"gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"}, theme.gtk_theme_name);
         }
@@ -89,14 +89,14 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
         theme.gtk_icon_theme.clear();
         switch (hash)
         {           
-            case "cinnamon"_fnv1a32:
+            case "cinnamon"_fnv1a16:
                 read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "icon-theme"}, theme.gtk_icon_theme); break;
-            case "mate"_fnv1a32:
+            case "mate"_fnv1a16:
                 read_exec({"gsettings", "get", "org.mate.interface", "icon-theme"}, theme.gtk_icon_theme); break;
 
-            case "gnome"_fnv1a32:
-            case "budgie"_fnv1a32:
-            case "unity"_fnv1a32:
+            case "gnome"_fnv1a16:
+            case "budgie"_fnv1a16:
+            case "unity"_fnv1a16:
             default:
                 read_exec({"gsettings", "get", "org.gnome.desktop.interface", "icon-theme"}, theme.gtk_icon_theme);
         }
@@ -107,14 +107,14 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
         theme.gtk_font.clear();
         switch (hash)
         {
-            case "cinnamon"_fnv1a32:
+            case "cinnamon"_fnv1a16:
                 read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "font-name"}, theme.gtk_font); break;
-            case "mate"_fnv1a32:
+            case "mate"_fnv1a16:
                 read_exec({"gsettings", "get", "org.mate.interface", "font-name"}, theme.gtk_font); break;
 
-            case "gnome"_fnv1a32:
-            case "budgie"_fnv1a32:
-            case "unity"_fnv1a32:
+            case "gnome"_fnv1a16:
+            case "budgie"_fnv1a16:
+            case "unity"_fnv1a16:
             default:
                 read_exec({"gsettings", "get", "org.gnome.desktop.interface", "font-name"}, theme.gtk_font);
         }
@@ -125,14 +125,14 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
         theme.gtk_font.clear();
         switch (hash)
         {
-            case "cinnamon"_fnv1a32:
+            case "cinnamon"_fnv1a16:
                 read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "cursor-theme"}, theme.gtk_cursor); break;
-            case "mate"_fnv1a32:
+            case "mate"_fnv1a16:
                 read_exec({"gsettings", "get", "org.mate.interface", "cursor-theme"}, theme.gtk_cursor); break;
 
-            case "gnome"_fnv1a32:
-            case "budgie"_fnv1a32:
-            case "unity"_fnv1a32:
+            case "gnome"_fnv1a16:
+            case "budgie"_fnv1a16:
+            case "unity"_fnv1a16:
             default:
                 read_exec({"gsettings", "get", "org.gnome.desktop.interface", "cursor-theme"}, theme.gtk_cursor);
         }
@@ -160,9 +160,9 @@ static void get_gtk_theme_from_configs(const std::uint8_t ver, const std::string
 
 static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t ver, Theme::Theme_t& theme)
 {
-    switch (fnv1a32::hash(str_tolower(de_name.data()))) {
-        case "xfce"_fnv1a32:
-        case "xfce4"_fnv1a32:
+    switch (fnv1a16::hash(str_tolower(de_name.data()))) {
+        case "xfce"_fnv1a16:
+        case "xfce4"_fnv1a16:
             {
                 debug("calling {} and getting info on xfce4", __PRETTY_FUNCTION__);
                 const std::string& path = configDir + "/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml";
