@@ -3642,7 +3642,10 @@ TOML_PUSH_WARNINGS;
 
 // workaround for this: https://github.com/marzer/tomlplusplus/issues/220
 #if TOML_NVCC
-#define TOML_NVCC_WORKAROUND { return {}; }
+#define TOML_NVCC_WORKAROUND                                                                                           \
+	{                                                                                                                  \
+		return {};                                                                                                     \
+	}
 #else
 #define TOML_NVCC_WORKAROUND = 0
 #endif
@@ -3767,10 +3770,10 @@ TOML_NAMESPACE_START
 		TOML_EXPORTED_MEMBER_FUNCTION
 		virtual ~node() noexcept;
 
-		TOML_PURE_GETTER
+		TOML_NODISCARD
 		virtual bool is_homogeneous(node_type ntype, node*& first_nonmatch) noexcept = 0;
 
-		TOML_PURE_GETTER
+		TOML_NODISCARD
 		virtual bool is_homogeneous(node_type ntype, const node*& first_nonmatch) const noexcept = 0;
 
 		TOML_PURE_GETTER
@@ -4429,7 +4432,7 @@ TOML_NAMESPACE_START
 			return node_->is_homogeneous(ntype, first_nonmatch);
 		}
 
-		TOML_NODISCARD
+		TOML_PURE_GETTER
 		bool is_homogeneous(node_type ntype) const noexcept
 		{
 			return node_ ? node_->is_homogeneous(ntype) : false;
@@ -5115,7 +5118,7 @@ TOML_NAMESPACE_START
 			return ntype == node_type::none || ntype == impl::node_type_of<value_type>;
 		}
 
-		TOML_PURE_GETTER
+		TOML_NODISCARD
 		bool is_homogeneous(node_type ntype, node*& first_nonmatch) noexcept final
 		{
 			if (ntype != node_type::none && ntype != impl::node_type_of<value_type>)
@@ -5126,7 +5129,7 @@ TOML_NAMESPACE_START
 			return true;
 		}
 
-		TOML_PURE_GETTER
+		TOML_NODISCARD
 		bool is_homogeneous(node_type ntype, const node*& first_nonmatch) const noexcept final
 		{
 			if (ntype != node_type::none && ntype != impl::node_type_of<value_type>)
@@ -5640,11 +5643,11 @@ TOML_NAMESPACE_START
 					  "Retrieving values as wide-character strings with node::value_exact() is only "
 					  "supported on Windows with TOML_ENABLE_WINDOWS_COMPAT enabled.");
 
-		static_assert((is_native<T> || can_represent_native<T>)&&!is_cvref<T>,
+		static_assert((is_native<T> || can_represent_native<T>) && !is_cvref<T>,
 					  TOML_SA_VALUE_EXACT_FUNC_MESSAGE("return type of node::value_exact()"));
 
 		// prevent additional compiler error spam when the static_assert fails by gating behind if constexpr
-		if constexpr ((is_native<T> || can_represent_native<T>)&&!is_cvref<T>)
+		if constexpr ((is_native<T> || can_represent_native<T>) && !is_cvref<T>)
 		{
 			if (type() == node_type_of<T>)
 				return { this->get_value_exact<T>() };
@@ -5662,7 +5665,7 @@ TOML_NAMESPACE_START
 		static_assert(!is_wide_string<T> || TOML_ENABLE_WINDOWS_COMPAT,
 					  "Retrieving values as wide-character strings with node::value() is only "
 					  "supported on Windows with TOML_ENABLE_WINDOWS_COMPAT enabled.");
-		static_assert((is_native<T> || can_represent_native<T> || can_partially_represent_native<T>)&&!is_cvref<T>,
+		static_assert((is_native<T> || can_represent_native<T> || can_partially_represent_native<T>) && !is_cvref<T>,
 					  TOML_SA_VALUE_FUNC_MESSAGE("return type of node::value()"));
 
 		// when asking for strings, dates, times and date_times there's no 'fuzzy' conversion
@@ -6375,11 +6378,11 @@ TOML_NAMESPACE_START
 		TOML_EXPORTED_MEMBER_FUNCTION
 		bool is_homogeneous(node_type ntype) const noexcept final;
 
-		TOML_PURE_GETTER
+		TOML_NODISCARD
 		TOML_EXPORTED_MEMBER_FUNCTION
 		bool is_homogeneous(node_type ntype, node*& first_nonmatch) noexcept final;
 
-		TOML_PURE_GETTER
+		TOML_NODISCARD
 		TOML_EXPORTED_MEMBER_FUNCTION
 		bool is_homogeneous(node_type ntype, const node*& first_nonmatch) const noexcept final;
 
@@ -7064,8 +7067,8 @@ TOML_NAMESPACE_START
 		{
 			using raw_elem_type = impl::remove_cvref<ElemType>;
 			using elem_type		= std::conditional_t<std::is_void_v<raw_elem_type>, //
-												 impl::emplaced_type_of<Args&&...>,
-												 raw_elem_type>;
+													 impl::emplaced_type_of<Args&&...>,
+													 raw_elem_type>;
 
 			using type = impl::remove_cvref<impl::unwrap_node<elem_type>>;
 			static_assert(impl::is_native<type> || impl::is_one_of<type, table, array>,
@@ -7102,8 +7105,8 @@ TOML_NAMESPACE_START
 		{
 			using raw_elem_type = impl::remove_cvref<ElemType>;
 			using elem_type		= std::conditional_t<std::is_void_v<raw_elem_type>, //
-												 impl::emplaced_type_of<Args&&...>,
-												 raw_elem_type>;
+													 impl::emplaced_type_of<Args&&...>,
+													 raw_elem_type>;
 
 			static constexpr auto moving_node_ptr = std::is_same_v<elem_type, impl::node_ptr> //
 												 && sizeof...(Args) == 1u					  //
@@ -7718,11 +7721,11 @@ TOML_NAMESPACE_START
 		TOML_EXPORTED_MEMBER_FUNCTION
 		bool is_homogeneous(node_type ntype) const noexcept final;
 
-		TOML_PURE_GETTER
+		TOML_NODISCARD
 		TOML_EXPORTED_MEMBER_FUNCTION
 		bool is_homogeneous(node_type ntype, node*& first_nonmatch) noexcept final;
 
-		TOML_PURE_GETTER
+		TOML_NODISCARD
 		TOML_EXPORTED_MEMBER_FUNCTION
 		bool is_homogeneous(node_type ntype, const node*& first_nonmatch) const noexcept final;
 
@@ -11856,7 +11859,7 @@ TOML_NAMESPACE_START
 		return true;
 	}
 
-	TOML_PURE_GETTER
+	TOML_NODISCARD
 	TOML_EXTERNAL_LINKAGE
 	bool array::is_homogeneous(node_type ntype, node * &first_nonmatch) noexcept
 	{
@@ -11878,7 +11881,7 @@ TOML_NAMESPACE_START
 		return true;
 	}
 
-	TOML_PURE_GETTER
+	TOML_NODISCARD
 	TOML_EXTERNAL_LINKAGE
 	bool array::is_homogeneous(node_type ntype, const node*& first_nonmatch) const noexcept
 	{
@@ -12211,7 +12214,7 @@ TOML_NAMESPACE_START
 		return true;
 	}
 
-	TOML_PURE_GETTER
+	TOML_NODISCARD
 	TOML_EXTERNAL_LINKAGE
 	bool table::is_homogeneous(node_type ntype, node * &first_nonmatch) noexcept
 	{
@@ -12234,7 +12237,7 @@ TOML_NAMESPACE_START
 		return true;
 	}
 
-	TOML_PURE_GETTER
+	TOML_NODISCARD
 	TOML_EXTERNAL_LINKAGE
 	bool table::is_homogeneous(node_type ntype, const node*& first_nonmatch) const noexcept
 	{
@@ -14731,7 +14734,7 @@ TOML_IMPL_NAMESPACE_START
 				set_error_and_return_default("'"sv,
 											 traits::full_prefix,
 											 std::string_view{ digits, length },
-											 "' is not representable in 64 bits"sv);
+											 "' is not representable as a signed 64-bit integer"sv);
 
 			// do the thing
 			{
@@ -14755,7 +14758,7 @@ TOML_IMPL_NAMESPACE_START
 					set_error_and_return_default("'"sv,
 												 traits::full_prefix,
 												 std::string_view{ digits, length },
-												 "' is not representable in 64 bits"sv);
+												 "' is not representable as a signed 64-bit integer"sv);
 
 				if constexpr (traits::is_signed)
 				{
@@ -16248,16 +16251,10 @@ TOML_ANON_NAMESPACE_START
 	{
 #if TOML_EXCEPTIONS
 #define TOML_PARSE_FILE_ERROR(msg, path)                                                                               \
-	throw parse_error{ msg, source_position{}, std::make_shared<const std::string>(std::move(path)) }
+	throw parse_error(msg, source_position{}, std::make_shared<const std::string>(std::move(path)))
 #else
 #define TOML_PARSE_FILE_ERROR(msg, path)                                                                               \
-	return parse_result                                                                                                \
-	{                                                                                                                  \
-		parse_error                                                                                                    \
-		{                                                                                                              \
-			msg, source_position{}, std::make_shared<const std::string>(std::move(path))                               \
-		}                                                                                                              \
-	}
+	return parse_result(parse_error(msg, source_position{}, std::make_shared<const std::string>(std::move(path))))
 #endif
 
 		std::string file_path_str(file_path);

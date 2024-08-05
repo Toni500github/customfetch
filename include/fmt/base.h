@@ -23,7 +23,7 @@
 #endif
 
 // The fmt library version in the form major * 10000 + minor * 100 + patch.
-#define FMT_VERSION 110001
+#define FMT_VERSION 110002
 
 // Detect compiler versions.
 #if defined(__clang__) && !defined(__ibmxl__)
@@ -467,6 +467,7 @@ template <typename Char> FMT_CONSTEXPR auto length(const Char* s) -> size_t {
 template <typename Char>
 FMT_CONSTEXPR auto compare(const Char* s1, const Char* s2, std::size_t n)
     -> int {
+  if (!is_constant_evaluated() && sizeof(Char) == 1) return memcmp(s1, s2, n);
   for (; n != 0; ++s1, ++s2, --n) {
     if (*s1 < *s2) return -1;
     if (*s1 > *s2) return 1;
@@ -474,18 +475,27 @@ FMT_CONSTEXPR auto compare(const Char* s1, const Char* s2, std::size_t n)
   return 0;
 }
 
+namespace adl {
+using namespace std;
+
+template <typename Container>
+auto invoke_back_inserter()
+    -> decltype(back_inserter(std::declval<Container&>()));
+}  // namespace adl
+
 template <typename It, typename Enable = std::true_type>
 struct is_back_insert_iterator : std::false_type {};
+
 template <typename It>
 struct is_back_insert_iterator<
-    It,
-    bool_constant<std::is_same<
-        decltype(back_inserter(std::declval<typename It::container_type&>())),
-        It>::value>> : std::true_type {};
+    It, bool_constant<std::is_same<
+            decltype(adl::invoke_back_inserter<typename It::container_type>()),
+            It>::value>> : std::true_type {};
 
 // Extracts a reference to the container from *insert_iterator.
 template <typename OutputIt>
-inline auto get_container(OutputIt it) -> typename OutputIt::container_type& {
+inline FMT_CONSTEXPR20 auto get_container(OutputIt it) ->
+    typename OutputIt::container_type& {
   struct accessor : OutputIt {
     accessor(OutputIt base) : OutputIt(base) {}
     using OutputIt::container;
@@ -612,11 +622,12 @@ namespace detail {
 // to it, deducing Char. Explicitly convertible types such as the ones returned
 // from FMT_STRING are intentionally excluded.
 template <typename Char, FMT_ENABLE_IF(is_char<Char>::value)>
-auto to_string_view(const Char* s) -> basic_string_view<Char> {
+constexpr auto to_string_view(const Char* s) -> basic_string_view<Char> {
   return s;
 }
 template <typename T, FMT_ENABLE_IF(is_std_string_like<T>::value)>
-auto to_string_view(const T& s) -> basic_string_view<typename T::value_type> {
+constexpr auto to_string_view(const T& s)
+    -> basic_string_view<typename T::value_type> {
   return s;
 }
 template <typename Char>
@@ -891,7 +902,7 @@ template <typename T> class buffer {
   FMT_CONSTEXPR auto data() const noexcept -> const T* { return ptr_; }
 
   /// Clears this buffer.
-  void clear() { size_ = 0; }
+  FMT_CONSTEXPR void clear() { size_ = 0; }
 
   // Tries resizing the buffer to contain `count` elements. If T is a POD type
   // the new elements may not be initialized.
@@ -914,18 +925,23 @@ template <typename T> class buffer {
   }
 
   /// Appends data to the end of the buffer.
-  template <typename U> void append(const U* begin, const U* end) {
+  template <typename U>
+// Workaround for Visual Studio 2019 to fix error C2893: Failed to specialize
+// function template 'void fmt::v11::detail::buffer<T>::append(const U *,const
+// U *)'
+#if !FMT_MSC_VERSION || FMT_MSC_VERSION >= 1930
+  FMT_CONSTEXPR20
+#endif
+      void
+      append(const U* begin, const U* end) {
     while (begin != end) {
       auto count = to_unsigned(end - begin);
       try_reserve(size_ + count);
       auto free_cap = capacity_ - size_;
       if (free_cap < count) count = free_cap;
-      if (std::is_same<T, U>::value) {
-        memcpy(ptr_ + size_, begin, count * sizeof(T));
-      } else {
-        T* out = ptr_ + size_;
-        for (size_t i = 0; i < count; ++i) out[i] = begin[i];
-      }
+      // A loop is faster than memcpy on small sizes.
+      T* out = ptr_ + size_;
+      for (size_t i = 0; i < count; ++i) out[i] = begin[i];
       size_ += count;
       begin += count;
     }
@@ -1096,9 +1112,11 @@ template <typename T = char> class counting_buffer : public buffer<T> {
   }
 
  public:
-  counting_buffer() : buffer<T>(grow, data_, 0, buffer_size) {}
+  FMT_CONSTEXPR counting_buffer() : buffer<T>(grow, data_, 0, buffer_size) {}
 
-  auto count() -> size_t { return count_ + this->size(); }
+  constexpr auto count() const noexcept -> size_t {
+    return count_ + this->size();
+  }
 };
 }  // namespace detail
 
@@ -1148,7 +1166,8 @@ template <typename T> class basic_appender {
  private:
   detail::buffer<T>* buffer_;
 
-  friend auto get_container(basic_appender app) -> detail::buffer<T>& {
+  friend FMT_CONSTEXPR20 auto get_container(basic_appender app)
+      -> detail::buffer<T>& {
     return *app.buffer_;
   }
 
@@ -1158,47 +1177,31 @@ template <typename T> class basic_appender {
   using difference_type = ptrdiff_t;
   using pointer = T*;
   using reference = T&;
+  using container_type = detail::buffer<T>;
   FMT_UNCHECKED_ITERATOR(basic_appender);
 
   FMT_CONSTEXPR basic_appender(detail::buffer<T>& buf) : buffer_(&buf) {}
 
-  auto operator=(T c) -> basic_appender& {
+  FMT_CONSTEXPR20 auto operator=(T c) -> basic_appender& {
     buffer_->push_back(c);
     return *this;
   }
-  auto operator*() -> basic_appender& { return *this; }
-  auto operator++() -> basic_appender& { return *this; }
-  auto operator++(int) -> basic_appender { return *this; }
+  FMT_CONSTEXPR20 auto operator*() -> basic_appender& { return *this; }
+  FMT_CONSTEXPR20 auto operator++() -> basic_appender& { return *this; }
+  FMT_CONSTEXPR20 auto operator++(int) -> basic_appender { return *this; }
 };
 
 using appender = basic_appender<char>;
 
 namespace detail {
-
-template <typename T, typename Enable = void>
-struct locking : std::true_type {};
 template <typename T>
-struct locking<T, void_t<typename formatter<remove_cvref_t<T>>::nonlocking>>
-    : std::false_type {};
-
-template <typename T = int> FMT_CONSTEXPR inline auto is_locking() -> bool {
-  return locking<T>::value;
-}
-template <typename T1, typename T2, typename... Tail>
-FMT_CONSTEXPR inline auto is_locking() -> bool {
-  return locking<T1>::value || is_locking<T2, Tail...>();
-}
+struct is_back_insert_iterator<basic_appender<T>> : std::true_type {};
 
 // An optimized version of std::copy with the output value type (T).
-template <typename T, typename InputIt>
-auto copy(InputIt begin, InputIt end, appender out) -> appender {
-  get_container(out).append(begin, end);
-  return out;
-}
-
 template <typename T, typename InputIt, typename OutputIt,
           FMT_ENABLE_IF(is_back_insert_iterator<OutputIt>::value)>
-auto copy(InputIt begin, InputIt end, OutputIt out) -> OutputIt {
+FMT_CONSTEXPR20 auto copy(InputIt begin, InputIt end, OutputIt out)
+    -> OutputIt {
   get_container(out).append(begin, end);
   return out;
 }
@@ -1208,14 +1211,6 @@ template <typename T, typename InputIt, typename OutputIt,
 FMT_CONSTEXPR auto copy(InputIt begin, InputIt end, OutputIt out) -> OutputIt {
   while (begin != end) *out++ = static_cast<T>(*begin++);
   return out;
-}
-
-template <typename T>
-FMT_CONSTEXPR auto copy(const T* begin, const T* end, T* out) -> T* {
-  if (is_constant_evaluated()) return copy<T, const T*, T*>(begin, end, out);
-  auto size = to_unsigned(end - begin);
-  if (size > 0) memcpy(out, begin, size * sizeof(T));
-  return out + size;
 }
 
 template <typename T, typename V, typename OutputIt>
@@ -1239,12 +1234,25 @@ constexpr auto has_const_formatter() -> bool {
   return has_const_formatter_impl<Context>(static_cast<T*>(nullptr));
 }
 
+template <typename It, typename Enable = std::true_type>
+struct is_buffer_appender : std::false_type {};
+template <typename It>
+struct is_buffer_appender<
+    It, bool_constant<
+            is_back_insert_iterator<It>::value &&
+            std::is_base_of<buffer<typename It::container_type::value_type>,
+                            typename It::container_type>::value>>
+    : std::true_type {};
+
 // Maps an output iterator to a buffer.
-template <typename T, typename OutputIt>
+template <typename T, typename OutputIt,
+          FMT_ENABLE_IF(!is_buffer_appender<OutputIt>::value)>
 auto get_buffer(OutputIt out) -> iterator_buffer<OutputIt, T> {
   return iterator_buffer<OutputIt, T>(out);
 }
-template <typename T> auto get_buffer(basic_appender<T> out) -> buffer<T>& {
+template <typename T, typename OutputIt,
+          FMT_ENABLE_IF(is_buffer_appender<OutputIt>::value)>
+auto get_buffer(OutputIt out) -> buffer<T>& {
   return get_container(out);
 }
 
@@ -1476,6 +1484,12 @@ template <typename Context> struct arg_mapper {
 
   FMT_MAP_API auto map(void* val) -> const void* { return val; }
   FMT_MAP_API auto map(const void* val) -> const void* { return val; }
+  FMT_MAP_API auto map(volatile void* val) -> const void* {
+    return const_cast<const void*>(val);
+  }
+  FMT_MAP_API auto map(const volatile void* val) -> const void* {
+    return const_cast<const void*>(val);
+  }
   FMT_MAP_API auto map(std::nullptr_t val) -> const void* { return val; }
 
   // Use SFINAE instead of a const T* parameter to avoid a conflict with the
@@ -1761,7 +1775,7 @@ template <typename Context> class basic_format_arg {
    * `vis(value)` will be called with the value of type `double`.
    */
   template <typename Visitor>
-  FMT_CONSTEXPR auto visit(Visitor&& vis) const -> decltype(vis(0)) {
+  FMT_CONSTEXPR FMT_INLINE auto visit(Visitor&& vis) const -> decltype(vis(0)) {
     switch (type_) {
     case detail::type::none_type:
       break;
@@ -1854,7 +1868,7 @@ template <typename Context> class basic_format_args {
 
   FMT_CONSTEXPR auto type(int index) const -> detail::type {
     int shift = index * detail::packed_arg_bits;
-    unsigned int mask = (1 << detail::packed_arg_bits) - 1;
+    unsigned mask = (1 << detail::packed_arg_bits) - 1;
     return static_cast<detail::type>((desc_ >> shift) & mask);
   }
 
@@ -1894,8 +1908,7 @@ template <typename Context> class basic_format_args {
     }
     if (static_cast<unsigned>(id) >= detail::max_packed_args) return arg;
     arg.type_ = type(id);
-    if (arg.type_ == detail::type::none_type) return arg;
-    arg.value_ = values_[id];
+    if (arg.type_ != detail::type::none_type) arg.value_ = values_[id];
     return arg;
   }
 
@@ -2058,6 +2071,21 @@ enum type FMT_ENUM_UNDERLYING_TYPE(unsigned char){none, minus, plus, space};
 using sign_t = sign::type;
 
 namespace detail {
+
+template <typename T, typename Enable = void>
+struct locking : bool_constant<mapped_type_constant<T, format_context>::value ==
+                               type::custom_type> {};
+template <typename T>
+struct locking<T, void_t<typename formatter<remove_cvref_t<T>>::nonlocking>>
+    : std::false_type {};
+
+template <typename T = int> FMT_CONSTEXPR inline auto is_locking() -> bool {
+  return locking<T>::value;
+}
+template <typename T1, typename T2, typename... Tail>
+FMT_CONSTEXPR inline auto is_locking() -> bool {
+  return locking<T1>::value || is_locking<T2, Tail...>();
+}
 
 template <typename Char>
 using unsigned_char = typename conditional_t<std::is_integral<Char>::value,
@@ -2266,8 +2294,8 @@ template <typename Char> constexpr auto is_name_start(Char c) -> bool {
 }
 
 template <typename Char, typename Handler>
-FMT_CONSTEXPR auto do_parse_arg_id(const Char* begin, const Char* end,
-                                   Handler&& handler) -> const Char* {
+FMT_CONSTEXPR auto parse_arg_id(const Char* begin, const Char* end,
+                                Handler&& handler) -> const Char* {
   Char c = *begin;
   if (c >= '0' && c <= '9') {
     int index = 0;
@@ -2293,25 +2321,10 @@ FMT_CONSTEXPR auto do_parse_arg_id(const Char* begin, const Char* end,
   return it;
 }
 
-template <typename Char, typename Handler>
-FMT_CONSTEXPR auto parse_arg_id(const Char* begin, const Char* end,
-                                Handler&& handler) -> const Char* {
-  FMT_ASSERT(begin != end, "");
-  Char c = *begin;
-  if (c != '}' && c != ':') return do_parse_arg_id(begin, end, handler);
-  handler.on_auto();
-  return begin;
-}
-
 template <typename Char> struct dynamic_spec_id_handler {
   basic_format_parse_context<Char>& ctx;
   arg_ref<Char>& ref;
 
-  FMT_CONSTEXPR void on_auto() {
-    int id = ctx.next_arg_id();
-    ref = arg_ref<Char>(id);
-    ctx.check_dynamic_spec(id);
-  }
   FMT_CONSTEXPR void on_index(int id) {
     ref = arg_ref<Char>(id);
     ctx.check_arg_id(id);
@@ -2323,7 +2336,7 @@ template <typename Char> struct dynamic_spec_id_handler {
   }
 };
 
-// Parses [integer | "{" [arg_id] "}"].
+// Parses integer | "{" [arg_id] "}".
 template <typename Char>
 FMT_CONSTEXPR auto parse_dynamic_spec(const Char* begin, const Char* end,
                                       int& value, arg_ref<Char>& ref,
@@ -2332,15 +2345,24 @@ FMT_CONSTEXPR auto parse_dynamic_spec(const Char* begin, const Char* end,
   FMT_ASSERT(begin != end, "");
   if ('0' <= *begin && *begin <= '9') {
     int val = parse_nonnegative_int(begin, end, -1);
-    if (val != -1)
-      value = val;
-    else
-      report_error("number is too big");
-  } else if (*begin == '{') {
-    ++begin;
-    auto handler = dynamic_spec_id_handler<Char>{ctx, ref};
-    if (begin != end) begin = parse_arg_id(begin, end, handler);
-    if (begin != end && *begin == '}') return ++begin;
+    if (val == -1) report_error("number is too big");
+    value = val;
+  } else {
+    if (*begin == '{') {
+      ++begin;
+      if (begin != end) {
+        Char c = *begin;
+        if (c == '}' || c == ':') {
+          int id = ctx.next_arg_id();
+          ref = arg_ref<Char>(id);
+          ctx.check_dynamic_spec(id);
+        } else {
+          begin =
+              parse_arg_id(begin, end, dynamic_spec_id_handler<Char>{ctx, ref});
+        }
+      }
+      if (begin != end && *begin == '}') return ++begin;
+    }
     report_error("invalid format string");
   }
   return begin;
@@ -2352,11 +2374,11 @@ FMT_CONSTEXPR auto parse_precision(const Char* begin, const Char* end,
                                    basic_format_parse_context<Char>& ctx)
     -> const Char* {
   ++begin;
-  if (begin == end || *begin == '}') {
+  if (begin != end)
+    begin = parse_dynamic_spec(begin, end, value, ref, ctx);
+  else
     report_error("invalid precision");
-    return begin;
-  }
-  return parse_dynamic_spec(begin, end, value, ref, ctx);
+  return begin;
 }
 
 enum class state { start, align, sign, hash, zero, width, precision, locale };
@@ -2389,14 +2411,11 @@ FMT_CONSTEXPR auto parse_format_specs(const Char* begin, const Char* end,
   constexpr auto integral_set = sint_set | uint_set | bool_set | char_set;
   struct {
     const Char*& begin;
-    dynamic_format_specs<Char>& specs;
+    format_specs& specs;
     type arg_type;
 
     FMT_CONSTEXPR auto operator()(pres pres_type, int set) -> const Char* {
-      if (!in(arg_type, set)) {
-        if (arg_type == type::none_type) return begin;
-        report_error("invalid format specifier");
-      }
+      if (!in(arg_type, set)) report_error("invalid format specifier");
       specs.type = pres_type;
       return begin + 1;
     }
@@ -2412,35 +2431,23 @@ FMT_CONSTEXPR auto parse_format_specs(const Char* begin, const Char* end,
       ++begin;
       break;
     case '+':
-    case '-':
+      FMT_FALLTHROUGH;
     case ' ':
-      if (arg_type == type::none_type) return begin;
+      specs.sign = c == ' ' ? sign::space : sign::plus;
+      FMT_FALLTHROUGH;
+    case '-':
       enter_state(state::sign, in(arg_type, sint_set | float_set));
-      switch (c) {
-      case '+':
-        specs.sign = sign::plus;
-        break;
-      case '-':
-        specs.sign = sign::minus;
-        break;
-      case ' ':
-        specs.sign = sign::space;
-        break;
-      }
       ++begin;
       break;
     case '#':
-      if (arg_type == type::none_type) return begin;
       enter_state(state::hash, is_arithmetic_type(arg_type));
       specs.alt = true;
       ++begin;
       break;
     case '0':
       enter_state(state::zero);
-      if (!is_arithmetic_type(arg_type)) {
-        if (arg_type == type::none_type) return begin;
+      if (!is_arithmetic_type(arg_type))
         report_error("format specifier requires numeric argument");
-      }
       if (specs.align == align::none) {
         // Ignore 0 if align is specified for compatibility with std::format.
         specs.align = align::numeric;
@@ -2462,14 +2469,12 @@ FMT_CONSTEXPR auto parse_format_specs(const Char* begin, const Char* end,
       begin = parse_dynamic_spec(begin, end, specs.width, specs.width_ref, ctx);
       break;
     case '.':
-      if (arg_type == type::none_type) return begin;
       enter_state(state::precision,
                   in(arg_type, float_set | string_set | cstring_set));
       begin = parse_precision(begin, end, specs.precision, specs.precision_ref,
                               ctx);
       break;
     case 'L':
-      if (arg_type == type::none_type) return begin;
       enter_state(state::locale, is_arithmetic_type(arg_type));
       specs.localized = true;
       ++begin;
@@ -2547,39 +2552,53 @@ FMT_CONSTEXPR auto parse_format_specs(const Char* begin, const Char* end,
 }
 
 template <typename Char, typename Handler>
-FMT_CONSTEXPR auto parse_replacement_field(const Char* begin, const Char* end,
-                                           Handler&& handler) -> const Char* {
-  struct id_adapter {
-    Handler& handler;
-    int arg_id;
-
-    FMT_CONSTEXPR void on_auto() { arg_id = handler.on_arg_id(); }
-    FMT_CONSTEXPR void on_index(int id) { arg_id = handler.on_arg_id(id); }
-    FMT_CONSTEXPR void on_name(basic_string_view<Char> id) {
-      arg_id = handler.on_arg_id(id);
-    }
-  };
-
+FMT_CONSTEXPR FMT_INLINE auto parse_replacement_field(const Char* begin,
+                                                      const Char* end,
+                                                      Handler&& handler)
+    -> const Char* {
   ++begin;
-  if (begin == end) return handler.on_error("invalid format string"), end;
-  if (*begin == '}') {
+  if (begin == end) {
+    handler.on_error("invalid format string");
+    return end;
+  }
+  int arg_id = 0;
+  switch (*begin) {
+  case '}':
     handler.on_replacement_field(handler.on_arg_id(), begin);
-  } else if (*begin == '{') {
+    return begin + 1;
+  case '{':
     handler.on_text(begin, begin + 1);
-  } else {
-    auto adapter = id_adapter{handler, 0};
+    return begin + 1;
+  case ':':
+    arg_id = handler.on_arg_id();
+    break;
+  default: {
+    struct id_adapter {
+      Handler& handler;
+      int arg_id;
+
+      FMT_CONSTEXPR void on_index(int id) { arg_id = handler.on_arg_id(id); }
+      FMT_CONSTEXPR void on_name(basic_string_view<Char> id) {
+        arg_id = handler.on_arg_id(id);
+      }
+    } adapter = {handler, 0};
     begin = parse_arg_id(begin, end, adapter);
+    arg_id = adapter.arg_id;
     Char c = begin != end ? *begin : Char();
     if (c == '}') {
-      handler.on_replacement_field(adapter.arg_id, begin);
-    } else if (c == ':') {
-      begin = handler.on_format_specs(adapter.arg_id, begin + 1, end);
-      if (begin == end || *begin != '}')
-        return handler.on_error("unknown format specifier"), end;
-    } else {
-      return handler.on_error("missing '}' in format string"), end;
+      handler.on_replacement_field(arg_id, begin);
+      return begin + 1;
     }
+    if (c != ':') {
+      handler.on_error("missing '}' in format string");
+      return end;
+    }
+    break;
   }
+  }
+  begin = handler.on_format_specs(arg_id, begin + 1, end);
+  if (begin == end || *begin != '}')
+    return handler.on_error("unknown format specifier"), end;
   return begin + 1;
 }
 
