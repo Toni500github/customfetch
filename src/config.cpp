@@ -65,11 +65,10 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
                     this->pkgs_managers.push_back(str_tolower(element_value->data()));
                 }
                 else
-                    warn("An element of the includes variable in {} is not a string", filename);
+                    warn("An element of the pkg-managers variable in {} is not a string", filename);
             });
 
     // clang-format off
-
     this->source_path      = getConfigValue<std::string>("config.source-path", "os");
     this->data_dir         = getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
     this->sep_reset        = getConfigValue<std::string>("config.sep-reset", ":");

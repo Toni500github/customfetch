@@ -5,7 +5,7 @@
 -std=c++20
 -DVERSION="0.1.0"
 -DBRANCH="main"
--DGUI_SUPPORT=1
+-DGUI_MODE=1
 -I/usr/include/gtkmm-3.0
 -I/usr/lib/gtkmm-3.0/include
 -I/usr/include/gtk-3.0

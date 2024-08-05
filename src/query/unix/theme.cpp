@@ -32,16 +32,16 @@ static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& th
     static unsigned short iter_index = 0;
     while (std::getline(f, line) && iter_index < 4)
     {
-        if (hasStart(line, "gtk-theme-name="))
+        if (hasStart(line, "gtk-theme-name=") && theme.gtk_theme_name == MAGIC_LINE)
             get_var(theme.gtk_theme_name, iter_index, line, "gtk-theme-name="_len);
 
-        else if (hasStart(line, "gtk-icon-theme-name="))
+        else if (hasStart(line, "gtk-icon-theme-name=") && theme.gtk_icon_theme == MAGIC_LINE)
             get_var(theme.gtk_icon_theme, iter_index, line, "gtk-icon-theme-name="_len);
 
-        else if (hasStart(line, "gtk-font-name="))
+        else if (hasStart(line, "gtk-font-name=") && theme.gtk_font == MAGIC_LINE)
             get_var(theme.gtk_font, iter_index, line, "gtk-font-name="_len);
 
-        else if (hasStart(line, "gtk-cursor-theme-name="))
+        else if (hasStart(line, "gtk-cursor-theme-name=") && theme.gtk_cursor == MAGIC_LINE)
             get_var(theme.gtk_cursor, iter_index, line, "gtk-cursor-theme-name="_len);
     }
     
@@ -58,7 +58,7 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
 
     if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty())
     {
-        char *gtk_theme_env = getenv("GTK_THEME");
+        const char *gtk_theme_env = std::getenv("GTK_THEME");
 
         if (gtk_theme_env)
             theme.gtk_theme_name = gtk_theme_env;
@@ -70,7 +70,7 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
     {
         theme.gtk_theme_name.clear();
         switch (hash)
-        {           
+        {
             case "cinnamon"_fnv1a16:
                 read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "gtk-theme"}, theme.gtk_theme_name); break;
             case "mate"_fnv1a16:
@@ -88,7 +88,7 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
     {
         theme.gtk_icon_theme.clear();
         switch (hash)
-        {           
+        {
             case "cinnamon"_fnv1a16:
                 read_exec({"gsettings", "get", "org.cinnamon.desktop.interface", "icon-theme"}, theme.gtk_icon_theme); break;
             case "mate"_fnv1a16:
@@ -122,7 +122,7 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
 
     if (theme.gtk_cursor == MAGIC_LINE || theme.gtk_cursor.empty())
     {
-        theme.gtk_font.clear();
+        theme.gtk_cursor.clear();
         switch (hash)
         {
             case "cinnamon"_fnv1a16:
@@ -205,7 +205,7 @@ static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t 
 static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, const std::string_view de_name, Theme::Theme_t& theme)
 {
     if (dont_query_dewm)
-    { 
+    {
         get_gtk_theme_from_configs(ver, de_name, theme);
         return;
     }

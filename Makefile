@@ -1,7 +1,7 @@
 CXX       	?= g++
 PREFIX	  	?= /usr
 VARS  	  	?=
-GUI_SUPPORT     ?= 0
+GUI_MODE     	?= 0
 CXX_STD		?= c++20
 
 DEBUG 		?= 1
@@ -30,8 +30,8 @@ ifeq ($(DEVICE_TEST), 1)
 	VARS += -DDEVICE_TEST=1
 endif
 
-ifeq ($(GUI_SUPPORT), 1)
-        VARS 	 += -DGUI_SUPPORT=1
+ifeq ($(GUI_MODE), 1)
+        VARS 	 += -DGUI_MODE=1
 	LDFLAGS	 += `pkg-config --libs gtkmm-3.0`
 	CXXFLAGS += `pkg-config --cflags gtkmm-3.0`
 endif

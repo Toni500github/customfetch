@@ -1,7 +1,7 @@
 #ifndef _GUI_HPP
 #define _GUI_HPP
 
-#ifdef GUI_SUPPORT
+#ifdef GUI_MODE
 
 #include "config.hpp"
 #include "gtkmm/window.h"
@@ -25,6 +25,6 @@ private:
 
 }
 
-#endif // GUI_SUPPORT
+#endif // GUI_MODE
 
 #endif // _GUI_HPP

@@ -1,5 +1,5 @@
-#ifndef QUERY_HPP
-#define QUERY_HPP
+#ifndef _QUERY_HPP
+#define _QUERY_HPP
 
 #include "util.hpp"
 #include "config.hpp"

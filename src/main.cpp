@@ -12,10 +12,10 @@ static void version()
 {
     fmt::println("customfetch {} branch {}", VERSION, BRANCH);
 
-#ifdef GUI_SUPPORT
-    fmt::println("GUI support enabled");
+#ifdef GUI_MODE
+    fmt::println("GUI mode enabled");
 #else
-    fmt::println("GUI support IS NOT enabled");
+    fmt::println("GUI mode IS NOT enabled");
 #endif
 
     // if only everyone would not return error when querying the program version :(
@@ -321,7 +321,7 @@ int main (int argc, char *argv[]) {
 
     config.m_display_distro = (config.source_path == "os");
 
-#ifdef GUI_SUPPORT
+#ifdef GUI_MODE
     if (config.gui)
     {
         auto        app = Gtk::Application::create("org.toni.customfetch");
@@ -331,7 +331,7 @@ int main (int argc, char *argv[]) {
 #else
     if (config.gui)
         die("Can't run in GUI mode because it got disabled at compile time\n"
-            "Compile customfetch with GUI_SUPPORT=1 or contact your distro to enable it");
+            "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif
 
     std::string              path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;

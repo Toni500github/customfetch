@@ -1,4 +1,4 @@
-#ifdef GUI_SUPPORT
+#ifdef GUI_MODE
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "gui.hpp"
@@ -122,4 +122,4 @@ Window::Window(Config& config, colors_t& colors)
 
 Window::~Window() {}
 
-#endif  // GUI_SUPPORT
+#endif  // GUI_MODE

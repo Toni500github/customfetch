@@ -58,8 +58,8 @@ git clone https://github.com/Toni500github/customfetch
 cd customfetch
 
 # DEBUG=0 for release build (it's just a build without debug infos)
-# GUI_SUPPORT=1 for having GUI mode, or =0 for not
-make install DEBUG=0 GUI_SUPPORT=1
+# GUI_MODE=1 for having GUI mode, or =0 for not
+make install DEBUG=0 GUI_MODE=1
 
 # automatically generates a config and prints the infos
 cufetch
@@ -137,7 +137,7 @@ cyan = "\e[1;36m"
 white = "\e[1;37m"
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_SUPPORT=1 (check with "cufetch --version")
+# note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")
 [gui]
 enable = false
 

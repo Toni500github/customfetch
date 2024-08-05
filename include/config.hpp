@@ -163,7 +163,7 @@ cyan = "\e[1;36m"
 white = "\e[1;37m"
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_SUPPORT=1 (check with "cufetch --version")
+# note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")
 [gui]
 enable = false
 

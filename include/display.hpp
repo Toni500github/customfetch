@@ -1,5 +1,5 @@
-#ifndef DISPLAY_HPP
-#define DISPLAY_HPP
+#ifndef _DISPLAY_HPP
+#define _DISPLAY_HPP
 
 #include "config.hpp"
 

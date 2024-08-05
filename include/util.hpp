@@ -1,5 +1,5 @@
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#ifndef _UTILS_HPP
+#define _UTILS_HPP
 
 #include "fmt/color.h"
 #include "fmt/core.h"
