@@ -30,13 +30,12 @@ std::string Display::detect_distro(Config& config)
 }
 
 std::vector<std::string> Display::render(Config& config, colors_t& colors, const bool already_analyzed_file,
-                                         std::string& path)
+                                         const std::string_view path)
 {
     systemInfo_t systemInfo{};
 
     if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty())
     {
-        path = config.source_path;
         if (!config.m_custom_distro.empty())
             die("You need to specify if either using a custom distro ascii art OR a custom source path");
     }
@@ -47,8 +46,8 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
     std::ifstream fileToAnalyze;  // Input iterators are invalidated when you advance them. both have same path
     if (!config.m_disable_source)
     {
-        file.open(path, std::ios::binary);
-        fileToAnalyze.open(path, std::ios::binary);
+        file.open(path.data(), std::ios::binary);
+        fileToAnalyze.open(path.data(), std::ios::binary);
         if (!file.is_open() || !fileToAnalyze.is_open())
             die("Could not open ascii art file \"{}\"", path);
     }

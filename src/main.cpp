@@ -172,8 +172,8 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
             case 'C': 
                 if (!std::filesystem::exists(optarg))
                     die("config file '{}' doesn't exist", optarg);
-                return optarg;
 
+                return optarg;
                 break;
         }
     }
@@ -211,7 +211,7 @@ static bool parseargs(int argc, char* argv[], Config& config)
             case 0:
                 break;
             case '?':
-                help(1); break;
+                help(EXIT_FAILURE); break;
 
             case 'V':
                 version(); break;
@@ -308,8 +308,8 @@ int main (int argc, char *argv[]) {
     // clang-format on
     struct colors_t colors;
 
-    std::string configDir  = getConfigDir();
-    std::string configFile = parse_config_path(argc, argv, configDir);
+    const std::string& configDir  = getConfigDir();
+    const std::string& configFile = parse_config_path(argc, argv, configDir);
 
     Config config(configFile, configDir, colors);
 
@@ -334,7 +334,7 @@ int main (int argc, char *argv[]) {
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif
 
-    std::string              path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
+    const std::string& path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
     std::vector<std::string> rendered_text{ Display::render(config, colors, false, path) };
     Display::display(rendered_text);
 
