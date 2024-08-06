@@ -62,10 +62,17 @@ public:
     };
 
     System();
+#ifdef CF_WINDOWS
     std::string& kernel_name();
     std::string& kernel_version();
     std::string& hostname();
     std::string& arch();
+#else
+    std::string kernel_name();
+    std::string kernel_version();
+    std::string hostname();
+    std::string arch();
+#endif
     std::string& os_pretty_name();
     std::string& os_name();
     std::string& os_id();
