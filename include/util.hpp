@@ -7,8 +7,11 @@
 
 #include <vector>
 #include <string>
-#include <dlfcn.h>
-#include <sys/types.h>
+
+#ifndef CF_WINDOWS
+# include <dlfcn.h>
+# include <sys/types.h>
+#endif
 
 consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept{
     return ln;
