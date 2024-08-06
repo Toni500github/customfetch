@@ -1,0 +1,126 @@
+[config]
+# customfetch is designed with customizability in mind
+# here is how it works:
+# the variable "layout" is used for showing the infos and/or something else
+# as like as the user want, no limitation.
+# inside here there are 3 "modules": $<> $() ${}
+
+# $<> lets you access a member of a module
+# e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
+# run "cufetch -l" for a list of builti-in modules
+
+# $() let's you execute bash commands
+# e.g $(echo \"hello world\") will indeed echo out Hello world.
+# you can even use pipes
+# e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
+
+# ${} for which color to use for colorizing the text
+# e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
+# you can even put a custom hex color e.g: ${#ff6622} (for bold text put ! before # e.g ${!#ff6622} )
+# OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}
+
+# Little FAQ
+# Q: "but then if I want to make only some words/chars in a color and the rest normal?"
+# A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
+
+# Q: "a website for box drawing symbols?"
+# A: "https://symbl.cc/en/unicode/blocks/box-drawing/" is really good
+#    NOTE: unfortunately unicode characters are good when used in the layout,
+#    but when used on the logo to display, the layout can be a giant alignment caos.
+#    So for now only use those in the layout, and not the logo
+
+# Old pipelines screensavers inspired layout
+layout = [
+	"${red}$<user.name>${0}@${cyan}$<os.hostname>",
+	"───────────────────────────",
+	"${red}$<os.name> ${cyan} $<system.arch>${cyan} \\<- Arch ",
+	"${red}	    ^		      ${green} $<os.kernel> \\<━━━┓",
+	"${red}	    |						${green}┃",
+	"${red}	    OS         ${yellow}Host				${green}┃",
+	"			${yellow}↓				${green}┃",
+	"		${yellow}$<system.host>      ${green}┃",
+	"${green}Kernel ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+	"		${blue}Uptime ━━┓",
+	"	         	 ${blue}┃${cyan}  ┏━━ Shell",
+	"	       ${yellow} ┏━━━━━━━━${blue}┃${yellow}━━${cyan}┃${yellow}━━> $<user.term>",
+	"	       ${yellow} ┃  	 ${blue}┃ ${cyan} ┗━━━━> $<user.shell>",
+	"	       ${yellow} ┃${blue}        ↓",
+	"${yellow}Terminal ━━┛     ${blue}$<os.uptime>",
+	"",
+
+	#"${white}Packages -> $<os.pkgs>",
+	#"${!#fff1ba}WM -> $<user.wm_name>",
+        #"${!#ffff2a}DE -> $<user.de_name> $<user.de_version>",
+	"                             ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+	"                             ┃                                                  ┃",
+	"                             ┃    ${!#448aa4}Disk (/) -> $<disk(/).disk>    ┃",
+	"System Infos ━━━━━━━━━━━━━━━━┫    ${magenta}CPU -> $<cpu.cpu>       ┃",
+	"                             ┃    ${blue}GPU -> $<gpu.name>                ┃",
+        "                             ┃    ${!#03ff93}RAM usage -> $<ram.ram>             ┃",
+        "                             ┃                                                  ┃",
+        "                             ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+
+    	"",
+    	"${\e[40m}   ${\e[41m}   ${\e[42m}   ${\e[43m}   ${\e[44m}   ${\e[45m}   ${\e[46m}   ${\e[47m}   ", # normal colors
+    	"${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
+]
+
+# Ordered list of which packages installed count should be displayed in $<os.pkgs>
+# remember to not enter the same name twice, else the world will finish
+# Choices: pacman
+# Pro-tip: if your package manager isnt listed here, yet,
+# use the bash command module in the layout
+# e.g "Packages: $(pacman -Q | wc -l)"
+pkg-managers = ["pacman", "flatpak"]
+
+# display ascii-art or image/gif (GUI only) near layout
+# put "os" for displaying the OS ascii-art
+# or the "/path/to/file" for displaying custom files
+# or "off" for disabling ascii-art or image displaying
+source-path = "os"
+
+# offset between the ascii art and the system infos
+offset = 5
+
+# Path to where we'll take all the distros/OSs ascii arts
+# it MUST contain an "ascii" subdirectory
+#data-dir = "/usr/share/customfetch"
+data-dir = "~/stupid_projects/customfetch/assets"
+
+# A character that when ecountered, will automatically
+# reset color, aka. automatically ${0}.
+# Make it empty for disabling
+sep-reset = "->"
+
+# Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
+# OR ANSI escape code colors like "\e[1;34m"
+# remember to add ${0} where you want to reset color
+black = "\e[1;30m"
+red = "\e[1;31m"
+green = "\e[1;32m"
+yellow = "\e[1;33m"
+blue = "\e[1;34m"
+magenta = "\e[1;35m"
+cyan = "\e[1;36m"
+white = "\e[1;37m"
+
+# GUI options
+# note: customfetch needs to be compiled with GUI_MODE=1 (which is enabled by default)
+[gui]
+enable = false
+
+# Font to be used (Strongly reccomend family "Liberation Mono")
+# syntax must be [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]
+# e.g "Liberation Mono Normal 12"
+# check https://lazka.github.io/pgi-docs/Pango-1.0/classes/FontDescription.html#Pango.FontDescription for more infos
+font = "Liberation Mono Normal Light 12"
+
+# These are the colors palette you can use in the GUI mode.
+# They can overwritte with ANSI escape code colors
+# in the layout variable or ascii-art
+red = "!#ff2000"
+green = "!#00ff00"
+blue = "!#00aaff"
+cyan = "!#00ffff"
+yellow = "!#ffff00"
+magenta = "!#f881ff"

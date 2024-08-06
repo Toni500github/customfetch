@@ -6,6 +6,6 @@
 
 using namespace Query;
 
-std::string get_all_pkgs(System::pkg_managers_t& pkg_manager, const Config& config);
+std::string get_all_pkgs(System::pkg_managers_t& pkg_managers, const Config& config);
 
 #endif

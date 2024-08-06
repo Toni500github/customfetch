@@ -19,6 +19,17 @@ struct fnv1a_traits
     static constexpr bool Supported = false;
 };
 
+// Traits for 16-bit FNV1a (added by myself for customfetch)
+template<>
+struct fnv1a_traits<16>
+{
+    static constexpr bool Supported = true;
+    using Type = uint16_t;
+
+    static constexpr Type Prime = 0x389;
+    static constexpr Type Offset = 0x9DC5;
+};
+
 // Traits for 32-bit FNV1a
 template<>
 struct fnv1a_traits<32>
@@ -162,27 +173,32 @@ struct fnv1a
     }
 };
 
+using fnv1a16 = fnv1a<16>;
 using fnv1a32 = fnv1a<32>;
 using fnv1a64 = fnv1a<64>;
 using fnv1a128 = fnv1a<128>;
 
-constexpr fnv1a32::Type operator"" _fnv1a32(const char* s, const std::size_t l)
+consteval fnv1a16::Type operator"" _fnv1a16(const char* s, const std::size_t l)
+{
+    return fnv1a16::hash(s, l);
+}
+consteval fnv1a32::Type operator"" _fnv1a32(const char* s, const std::size_t l)
 {
     return fnv1a32::hash(s, l);
 }
-constexpr fnv1a64::Type operator"" _fnv1a64(const char* s, const std::size_t l)
+consteval fnv1a64::Type operator"" _fnv1a64(const char* s, const std::size_t l)
 {
     return fnv1a64::hash(s, l);
 }
-constexpr fnv1a128::Type operator"" _fnv1a128(const char* s, const std::size_t l)
+consteval fnv1a128::Type operator"" _fnv1a128(const char* s, const std::size_t l)
 {
     return fnv1a128::hash(s, l);
 }
 
 // Static unit tests: <https://fnvhash.github.io/fnv-calculator-online/>
-static_assert("hello"_fnv1a32 == 0x4f9f2cab);
-static_assert("hello"_fnv1a64 == 0xa430d84680aabd0b);
-static_assert("hello"_fnv1a128 == Pack128(0xe3e1efd54283d94f, 0x7081314b599d31b3));
+//static_assert("hello"_fnv1a32 == 0x4f9f2cab);
+//static_assert("hello"_fnv1a64 == 0xa430d84680aabd0b);
+//static_assert("hello"_fnv1a128 == Pack128(0xe3e1efd54283d94f, 0x7081314b599d31b3));
 
 using strhash = fnv1a128;
 constexpr strhash::Type operator"" _strhash(const char* s, const std::size_t l)

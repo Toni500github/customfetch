@@ -20,6 +20,15 @@ Currently supports Linux distros only, but windows support is incoming
 >So you may want to relay to shell commands for quering\
 >or maybe continue using neofetch/fastfetch if it still works great for you 
 -->
+
+<img align=left width=52% height=40% src="assets/screenshots/nitch_catpan-style.png" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="49%" height="16px" align="left" />
+<img align=left width=52% height=40% src="assets/screenshots/modern-simple.png"/>
+<p align="center">
+    <img align=top width=44% height=20% src="assets/screenshots/cbonsai.png" />
+</p>
+<img src="assets/screenshots/pipeline-style.png" />
+
 ## Key Features
 
 * **GUI support (GTK3)**
@@ -30,39 +39,32 @@ Currently supports Linux distros only, but windows support is incoming
 >To check if it's enabled or not, run "cufetch --version"
 
 ## Depends
-### Debian/Ubuntu and based
-```sh
-$ sudo apt-get install libprocps-dev libgtkmm-3.0-1v5
-```
-### Arch and based
-```sh
-$ sudo pacman -S gtkmm3 gtk3 libprocps
-```
+currently nothing, if need to install with GUI support install: `gtk3 gtkmm3`
 
 ## Installation
 ### Arch and based (unstable) (AUR)
 ```bash
-# with GUI support
 # btw checkout our other project https://github.com/BurntRanch/TabAUR ;)
 taur -S customfetch-git
 
-# WITHOUT GUI support
+# GUI support
 taur -S customfetch-gui-git
 ```
 
 ### Compile from source
 ```bash
 # clone the git dir
-git clone --depth=1 https://github.com/Toni500github/customfetch
+git clone https://github.com/Toni500github/customfetch
 cd customfetch
 
-# DEBUG=0 for release build
-# GUI_SUPPORT=1 for having GUI mode, or =0 for not
-make install DEBUG=0 GUI_SUPPORT=1
+# DEBUG=0 for release build (it's just a build without debug infos)
+# GUI_MODE=1 for having GUI mode, or =0 for not
+make install DEBUG=0 GUI_MODE=1
 
-# automatically generates a config
+# automatically generates a config and prints the infos
 cufetch
 ```
+
 ## Config (with explanation)
 
 Here's an example using my config
@@ -73,10 +75,6 @@ The config:
 
 ```toml
 [config]
-# includes directive, include the top name of each module you use.
-# e.g. if you want to use $<os.name>, then `includes = ["os"]`.
-includes = ["os", "system", "user", "cpu", "gpu", "ram", "disk(/)"]
-
 layout = [
     "${red}$<user.name>${0}@${cyan}$<os.hostname>",
     "───────────────────────────",
@@ -139,7 +137,7 @@ cyan = "\e[1;36m"
 white = "\e[1;37m"
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_SUPPORT=1 (which is enabled by default)
+# note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")
 [gui]
 enable = false
 
@@ -166,7 +164,7 @@ white = "!#ffffff"
 You may be confused and have difficulty to understand, but this is why customfetch is different from the others.\
 
 We use something we call "components", 2 inspired by bash syntax, and they starts with a '$'. **We use them on both the ascii art text file and the `layout` variable**\
-There are 3 modules:
+There are 3 componenets:
 
 * **The info module** ($<>) lets you access a sub-member of a built-in module\
   e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\

@@ -1,42 +1,40 @@
+#include "packages.hpp"
+
 #include <filesystem>
 #include <string>
 #include <string_view>
-#include <dirent.h>
+
 #include "query.hpp"
 #include "util.hpp"
-#include "packages.hpp"
 
-std::string get_all_pkgs(System::pkg_managers_t& pkg_manager, const Config& config) {
+std::string get_all_pkgs(System::pkg_managers_t& pkg_managers, const Config& config)
+{
     std::string ret;
-    DIR *dir;
-    struct dirent *entry;
 
-    for (std::string_view str : config.pkgs_managers)
+    for (std::string_view pkg_manager : config.pkgs_managers)
     {
-        str = str_tolower(str.data());
-        if (str == "pacman" && std::filesystem::exists("/var/lib/pacman/local")) {
-            dir = opendir("/var/lib/pacman/local");
-            while((entry = readdir(dir)) != NULL)
-                pkg_manager.pacman_pkgs++;
+        if (pkg_manager == "pacman" && std::filesystem::exists("/var/lib/pacman/local"))
+        {
+            pkg_managers.pacman_pkgs = std::distance(std::filesystem::directory_iterator{"/var/lib/pacman/local"}, {});
 
-            // remove /var/lib/pacman/local/ALPM_DB_VERSION count and accounting for ..
-            pkg_manager.pacman_pkgs -= 2;
-            ret += fmt::format("{} (pacman), ", pkg_manager.pacman_pkgs);
+            // remove /var/lib/pacman/local/ALPM_DB_VERSION count
+            pkg_managers.pacman_pkgs--;
+            ret += fmt::format("{} (pacman), ", pkg_managers.pacman_pkgs);
         }
 
-        if (str == "flatpak" && std::filesystem::exists("/var/lib/flatpak/app")) {
-            pkg_manager.flatpak_pkgs = std::distance(std::filesystem::directory_iterator{"/var/lib/flatpak/app"}, {});
+        if (pkg_manager == "flatpak" && std::filesystem::exists("/var/lib/flatpak/app"))
+        {
+            pkg_managers.flatpak_pkgs = std::distance(std::filesystem::directory_iterator{"/var/lib/flatpak/app"}, {});
 
-            if (pkg_manager.flatpak_pkgs > 0)
-                ret += fmt::format("{} (flatpak), ", pkg_manager.flatpak_pkgs);
+            if (pkg_managers.flatpak_pkgs > 0)
+                ret += fmt::format("{} (flatpak), ", pkg_managers.flatpak_pkgs);
         }
-
     }
 
     if (ret.empty())
         return MAGIC_LINE;
 
-    ret.erase(ret.length() - 2); // remove last ", "
+    ret.erase(ret.length() - 2);  // remove last ", "
 
     return ret;
 }

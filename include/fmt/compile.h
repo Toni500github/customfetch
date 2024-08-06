@@ -21,12 +21,6 @@ FMT_EXPORT class compiled_string {};
 
 namespace detail {
 
-template <typename T, typename InputIt>
-FMT_CONSTEXPR inline auto copy(InputIt begin, InputIt end, counting_iterator it)
-    -> counting_iterator {
-  return it + (end - begin);
-}
-
 template <typename S>
 struct is_compiled_string : std::is_base_of<compiled_string, S> {};
 
@@ -496,7 +490,9 @@ template <typename S, typename... Args,
           FMT_ENABLE_IF(detail::is_compiled_string<S>::value)>
 FMT_CONSTEXPR20 auto formatted_size(const S& fmt, const Args&... args)
     -> size_t {
-  return fmt::format_to(detail::counting_iterator(), fmt, args...).count();
+  auto buf = detail::counting_buffer<>();
+  fmt::format_to(appender(buf), fmt, args...);
+  return buf.count();
 }
 
 template <typename S, typename... Args,
