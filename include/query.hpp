@@ -36,6 +36,10 @@ namespace Query {
 class System {
 public:
     struct System_t {
+        std::string arch{UNKNOWN};
+        std::string kernel_name{UNKNOWN};
+        std::string kernel_version{UNKNOWN};
+        std::string hostname{UNKNOWN};
         std::string os_pretty_name{UNKNOWN};
         std::string os_name{UNKNOWN};
         std::string os_id{UNKNOWN};
@@ -49,6 +53,7 @@ public:
         std::string host_vendor;
 
         std::string pkgs_installed;
+        long uptime;
     };
 
     struct pkg_managers_t {
@@ -57,10 +62,10 @@ public:
     };
 
     System();
-    std::string kernel_name();
-    std::string kernel_version();
-    std::string hostname();
-    std::string arch();
+    std::string& kernel_name();
+    std::string& kernel_version();
+    std::string& hostname();
+    std::string& arch();
     std::string& os_pretty_name();
     std::string& os_name();
     std::string& os_id();

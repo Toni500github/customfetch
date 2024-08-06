@@ -60,70 +60,81 @@ System::System() {
 
 }
 
-std::string System::arch() {
-    return "x86_64";
+std::string& System::arch() {
+    m_system_infos.arch = "x86_64";
+    return m_system_infos.arch;
 }
 
-std::string System::os_id() {
+std::string& System::os_id() {
     return m_system_infos.os_id;
 }
 
-long System::uptime() {
-    return GetTickCount64() / 1000;
+long& System::uptime() {
+    m_system_infos.uptime = GetTickCount64() / 1000;
+    return m_system_infos.uptime;
 }
 
-std::string System::os_name() {
+std::string& System::os_name() {
     return m_system_infos.os_name;
 }
 
-std::string System::hostname() {
+std::string& System::hostname() {
     char hostnameBuf[MAX_COMPUTERNAME_LENGTH + 1];
     u_long hostnameCharCount = MAX_COMPUTERNAME_LENGTH + 1;
 
     if (!GetComputerNameA(hostnameBuf, &hostnameCharCount))
         die("ERROR: GetComputerName failed!");
 
-    return hostnameBuf;
+    m_system_infos.hostname = hostnameBuf;
+
+    return m_system_infos.hostname;
 }
 
-std::string System::host_vendor() {
-    return "BIOS vendor";
+std::string& System::host_vendor() {
+    m_system_infos.host_vendor = "BIOS vendor";
+    return m_system_infos.host_vendor;
 }
 
-std::string System::kernel_name() {
-    return "Windows NT";
+std::string& System::kernel_name() {
+    m_system_infos.kernel_name = "Windows NT";
+    return m_system_infos.kernel_name;
 }
 
-std::string System::host_version() {
-    return "1.0";
+std::string& System::host_version() {
+    m_system_infos.host_version = "1.0";
+    return m_system_infos.host_version;
 }
 
-std::string System::host_modelname() {
-    return UNKNOWN;
+std::string& System::host_modelname() {
+    m_system_infos.host_modelname = UNKNOWN;
+    return m_system_infos.host_modelname;
 }
 
-std::string System::os_versionid() {
+std::string& System::os_versionid() {
     return m_system_infos.os_version_id;
 }
 
-std::string System::kernel_version() {
+std::string& System::kernel_version() {
     return m_system_infos.os_version_id;
 }
 
-std::string System::os_pretty_name() {
+std::string& System::os_pretty_name() {
     return m_system_infos.os_pretty_name;
 }
 
-std::string System::os_version_codename() {
-    return UNKNOWN;
+std::string& System::os_version_codename() {
+    m_system_infos.os_version_codename = UNKNOWN;
+    return m_system_infos.os_version_codename;
 }
 
-std::string System::os_initsys_name() {
-    return MAGIC_LINE;
+std::string& System::os_initsys_name() {
+    m_system_infos.os_initsys_name = MAGIC_LINE;
+    return m_system_infos.os_initsys_name;
 }
 
-std::string System::pkgs_installed(const Config& config) {
-    return MAGIC_LINE;
+std::string& System::pkgs_installed(const Config& config) {
+    m_system_infos.pkgs_installed = MAGIC_LINE;
+    return m_system_infos.pkgs_installed;
 }
 
 #endif

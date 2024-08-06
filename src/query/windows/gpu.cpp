@@ -5,16 +5,18 @@
 
 using namespace Query;
 
-GPU::GPU(u_short id) {
+GPU::GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus) {
     debug("Constructing GPU");
+    m_gpu_infos.name = UNKNOWN;
+    m_gpu_infos.vendor = UNKNOWN;
 }
 
-std::string GPU::name() {
-    return UNKNOWN;
+std::string& GPU::name() {
+    return m_gpu_infos.name;
 }
 
-std::string GPU::vendor() {
-    return UNKNOWN;
+std::string& GPU::vendor() {
+    return m_gpu_infos.vendor;
 }
 
 #endif
