@@ -29,19 +29,19 @@ static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& th
     }
 
     std::string line;
-    static unsigned short iter_index = 0;
+    unsigned short iter_index = 0;
     while (std::getline(f, line) && iter_index < 4)
     {
-        if (hasStart(line, "gtk-theme-name=") && theme.gtk_theme_name == MAGIC_LINE)
+        if (hasStart(line, "gtk-theme-name="))
             get_var(theme.gtk_theme_name, iter_index, line, "gtk-theme-name="_len);
 
-        else if (hasStart(line, "gtk-icon-theme-name=") && theme.gtk_icon_theme == MAGIC_LINE)
+        else if (hasStart(line, "gtk-icon-theme-name="))
             get_var(theme.gtk_icon_theme, iter_index, line, "gtk-icon-theme-name="_len);
 
-        else if (hasStart(line, "gtk-font-name=") && theme.gtk_font == MAGIC_LINE)
+        else if (hasStart(line, "gtk-font-name="))
             get_var(theme.gtk_font, iter_index, line, "gtk-font-name="_len);
 
-        else if (hasStart(line, "gtk-cursor-theme-name=") && theme.gtk_cursor == MAGIC_LINE)
+        else if (hasStart(line, "gtk-cursor-theme-name="))
             get_var(theme.gtk_cursor, iter_index, line, "gtk-cursor-theme-name="_len);
     }
     
@@ -214,13 +214,13 @@ static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, co
 }
 
 // clang-format off
-Theme::Theme(const std::uint8_t ver, std::vector<std::string_view>& queried_themes,
+Theme::Theme(const std::uint8_t ver, std::vector<std::string>& queried_themes,
              const std::string_view theme_name_version)
-            : m_queried_themes(queried_themes)
 {
     debug("Constructing {}", __func__);
-    if (std::find(m_queried_themes.begin(), m_queried_themes.end(), theme_name_version) == m_queried_themes.end())
-        m_queried_themes.push_back(theme_name_version);
+
+    if (std::find(queried_themes.begin(), queried_themes.end(), theme_name_version) == queried_themes.end())
+        queried_themes.push_back(theme_name_version.data());
     else
         return;
 

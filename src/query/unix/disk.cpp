@@ -6,12 +6,12 @@
 
 using namespace Query;
 
-Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths) : m_paths(paths)
+Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths)
 {
     debug("Constructing {}", __func__);
 
-    if (std::find(m_paths.begin(), m_paths.end(), path) == m_paths.end())
-        m_paths.push_back(path);
+    if (std::find(paths.begin(), paths.end(), path) == paths.end())
+        paths.push_back(path);
     else
         return;
 
@@ -22,6 +22,10 @@ Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths) : 
         error("Failed to get disk info");
         memset(&m_statvfs, 0, sizeof(struct statvfs));
     }
+
+    m_disk_infos.total_amount = static_cast<float>(m_statvfs.f_blocks * m_statvfs.f_frsize);
+    m_disk_infos.used_amount  = static_cast<float>((m_statvfs.f_blocks * m_statvfs.f_frsize) - (m_statvfs.f_bavail * m_statvfs.f_frsize));
+    m_disk_infos.free_amount  = static_cast<float>(m_statvfs.f_bfree * m_statvfs.f_frsize);
 
     FILE* mountsFile = setmntent("/proc/mounts", "r");
     if (mountsFile == NULL)
@@ -41,9 +45,6 @@ Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths) : 
     if (mountsFile)
         fclose(mountsFile);
 
-    m_disk_infos.total_amount = static_cast<float>(m_statvfs.f_blocks * m_statvfs.f_frsize);
-    m_disk_infos.used_amount = static_cast<float>((m_statvfs.f_blocks * m_statvfs.f_frsize) - (m_statvfs.f_bavail * m_statvfs.f_frsize));
-    m_disk_infos.free_amount = static_cast<float>(m_statvfs.f_bfree * m_statvfs.f_frsize);
 }
 
 // clang-format off

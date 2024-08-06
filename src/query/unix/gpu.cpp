@@ -47,11 +47,11 @@ static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std:
     return ret;
 }
 
-GPU::GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus) : m_queried_gpus(queried_gpus)
+GPU::GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus)
 {
     debug("Constructing {}", __func__);
-    if (std::find(m_queried_gpus.begin(), m_queried_gpus.end(), id) == m_queried_gpus.end())
-        m_queried_gpus.push_back(id);
+    if (std::find(queried_gpus.begin(), queried_gpus.end(), id) == queried_gpus.end())
+        queried_gpus.push_back(id);
     else
         return;
     

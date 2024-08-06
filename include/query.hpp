@@ -78,7 +78,6 @@ private:
 class User {
 public:
     struct User_t {
-        std::string name{UNKNOWN};
         std::string shell_name{UNKNOWN};
         std::string shell_version{UNKNOWN};
         std::string wm_name{MAGIC_LINE};
@@ -117,7 +116,7 @@ public:
         std::string gtk_cursor{MAGIC_LINE}; 
     };
 
-    Theme(const std::uint8_t ver, std::vector<std::string_view>& queried_themes, const std::string_view theme_name_version);
+    Theme(const std::uint8_t ver, std::vector<std::string>& queried_themes, const std::string_view theme_name_version);
     std::string& gtk_theme();
     std::string& gtk_icon_theme();
     std::string& gtk_font();
@@ -125,7 +124,6 @@ public:
 
 private:
     static Theme_t m_theme_infos;
-    std::vector<std::string_view>& m_queried_themes;
 };
 
 class CPU {
@@ -175,7 +173,6 @@ private:
     std::string m_device_id_s;
 
     static GPU_t m_gpu_infos;
-    std::vector<std::uint16_t>& m_queried_gpus;
 };
 
 class Disk {
@@ -196,7 +193,6 @@ public:
 private:
     static struct statvfs m_statvfs;
     static Disk_t m_disk_infos;
-    std::vector<std::string_view>& m_paths;
 };
 
 class RAM {

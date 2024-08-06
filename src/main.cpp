@@ -125,7 +125,7 @@ disk(/path/to/fs)
 # Infos are gotten from `/sys/class/drm/` and on each cardN directory
 gpu
   name		: GPU model name [NVIDIA GeForce GTX 1650]
-  vendor	: GPU vendor [NVIDIA Corporation]
+  vendor	: GPU vendor (UNSTABLE IDK WHY) [NVIDIA Corporation]
 
 cpu
   cpu		: CPU model name with number of virtual proccessors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]

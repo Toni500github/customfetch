@@ -374,7 +374,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     return output;
 }
 
-static std::string get_auto_uptime(unsigned days, u_short hours, u_short mins, u_short secs)
+static std::string get_auto_uptime(unsigned days, unsigned short hours, unsigned short mins, unsigned short secs)
 {
     if (days == 0 && hours == 0 && mins == 0)
         return fmt::format("{} secs", secs);
@@ -532,10 +532,10 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
     {
         const std::uint8_t ver = static_cast<std::uint8_t>(moduleName.length() > 9 ? std::stoi(moduleName.substr(9,10)) : 0);
         if (ver <= 0)
-            die("module name '{}' doesn't have a version number to query.\n"
+            die("theme-gtk module name '{}' doesn't have a version number to query.\n"
                 "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)", moduleName);
 
-        static std::vector<std::string_view> themes;
+        static std::vector<std::string> themes;
         Query::Theme query_theme(ver, themes, fmt::format("gtk{}", ver));
 
         if (sysInfo.find(moduleName) == sysInfo.end())
