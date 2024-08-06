@@ -4,11 +4,15 @@
 # include <sys/wait.h>
 #endif
 
+#ifndef CF_WINDOWS
+# include <fcntl.h>
+#else
+# include <io.h>
+#endif
+
 #include <array>
 #include <filesystem>
-#include <fcntl.h>
 #include <fmt/ranges.h>
-#include <sys/wait.h>
 
 #include <array>
 #include <cerrno>
