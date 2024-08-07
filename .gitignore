@@ -39,3 +39,5 @@ output/
 *.out
 *.app
 .cache
+logo.txt
+cufetch_r

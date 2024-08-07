@@ -335,8 +335,7 @@ int main (int argc, char *argv[]) {
 #endif
 
     const std::string& path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
-    std::vector<std::string> rendered_text{ Display::render(config, colors, false, path) };
-    Display::display(rendered_text);
+    Display::display(Display::render(config, colors, false, path));
 
     return 0;
 }

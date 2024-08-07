@@ -12,6 +12,11 @@
 #include "query.hpp"
 #include "util.hpp"
 
+// listen, it supposed to be only in Display::render, since only there is used.
+// But at the same time, I like returning everything by reference if possible
+// :)
+std::vector<std::string> asciiArt;
+
 std::string Display::detect_distro(Config& config)
 {
     std::string file_path;
@@ -29,7 +34,7 @@ std::string Display::detect_distro(Config& config)
     return file_path;
 }
 
-std::vector<std::string> Display::render(Config& config, colors_t& colors, const bool already_analyzed_file,
+std::vector<std::string>& Display::render(Config& config, colors_t& colors, const bool already_analyzed_file,
                                          const std::string_view path)
 {
     systemInfo_t systemInfo{};
@@ -52,11 +57,9 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
             die("Could not open ascii art file \"{}\"", path);
     }
 
-    std::string              line;
-    std::vector<std::string> asciiArt;
-    std::vector<std::string> pureAsciiArt;
-    std::vector<size_t>      pureAsciiArtLens;
-    int                      maxLineLength = -1;
+    std::string          line;
+    std::vector<size_t>  pureAsciiArtLens;
+    int                  maxLineLength = -1;
 
     // first check if the file is an image
     // without even using the same library that "file" uses
@@ -73,10 +76,7 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
     }
 
     for (int i = 0; i < config.logo_padding_top; i++)
-    {
-        pureAsciiArt.push_back(" ");
-        asciiArt.push_back(" ");
-    }
+        asciiArt.push_back("");
 
     while (std::getline(file, line))
     {
@@ -94,12 +94,14 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
         size_t remainingUnicodeChars = 0;
         for (unsigned char c : pureOutput)
         {
-            if (remainingUnicodeChars > 0) {
+            if (remainingUnicodeChars > 0)
+            {
                 remainingUnicodeChars--;
                 continue;
             }
             // debug("c = {:c}", c);
-            if (c > 127) {
+            if (c > 127)
+            {
                 remainingUnicodeChars = 2;
                 pureOutputLen -= 2;
             }
@@ -108,13 +110,9 @@ std::vector<std::string> Display::render(Config& config, colors_t& colors, const
         if (static_cast<int>(pureOutputLen) > maxLineLength)
             maxLineLength = static_cast<int>(pureOutputLen);
 
-        pureAsciiArt.push_back(pureOutput);
         pureAsciiArtLens.push_back(pureOutputLen);
     }
-
-    debug("SkeletonAsciiArt = \n{}", fmt::join(pureAsciiArt, "\n"));
-    debug("asciiArt = \n{}", fmt::join(asciiArt, "\n"));
-
+    
     if (config.m_print_logo_only)
         return asciiArt;
 
