@@ -214,7 +214,7 @@ static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, co
 }
 
 // clang-format off
-Theme::Theme(const std::uint8_t ver, std::vector<std::string>& queried_themes,
+Theme::Theme(const std::uint8_t ver, const Config& config, std::vector<std::string>& queried_themes,
              const std::string_view theme_name_version)
 {
     debug("Constructing {}", __func__);
@@ -235,6 +235,16 @@ Theme::Theme(const std::uint8_t ver, std::vector<std::string>& queried_themes,
     else
     {
         get_gtk_theme(m_bDont_query_dewm, ver, _de_name, m_theme_infos);
+    }
+    
+    // append at each theme-gtk module " [GTKN]"
+    if (config.append_theme_name_ver)
+    {
+        const std::string& gtk_str = fmt::format(" [GTK{}]", ver);
+        m_theme_infos.gtk_theme_name += gtk_str;
+        m_theme_infos.gtk_icon_theme += gtk_str;
+        m_theme_infos.gtk_font       += gtk_str;
+        m_theme_infos.gtk_cursor     += gtk_str;
     }
 }
 

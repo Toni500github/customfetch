@@ -9,7 +9,8 @@
 #include <dlfcn.h>
 #include <sys/types.h>
 
-consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept{
+consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept
+{
     return ln;
 }
 

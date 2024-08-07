@@ -536,7 +536,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)", moduleName);
 
         static std::vector<std::string> themes;
-        Query::Theme query_theme(ver, themes, fmt::format("gtk{}", ver));
+        Query::Theme query_theme(ver, config, themes, fmt::format("gtk{}", ver));
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
