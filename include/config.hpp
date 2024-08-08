@@ -45,6 +45,12 @@ public:
     std::vector<std::string> pkgs_managers;
     bool                     append_theme_name_ver = true;
 
+    // modules specific config
+    std::string uptime_d_fmt;
+    std::string uptime_h_fmt;
+    std::string uptime_m_fmt;
+    std::string uptime_s_fmt;
+
     // inner management
     std::string m_custom_distro;
     bool        m_disable_source = false;
@@ -145,12 +151,6 @@ sep-reset = ":"
 # Offset between the ascii art and the system infos
 offset = 5
 
-# Append the theme's name and version
-# output example:
-# false: "Arc-Dark"
-# true:  "Arc-Dark [GTK3]"
-theme-name-ver = true
-
 # Padding of the logo from the top
 logo-padding-top = 0
 
@@ -165,6 +165,23 @@ blue = "\e[1;34m"
 magenta = "\e[1;35m"
 cyan = "\e[1;36m"
 white = "\e[1;37m"
+
+# $<theme-gtkN> config:
+[theme-gtk]
+# Append the theme's name and version
+# output example:
+# false: "Arc-Dark"
+# true:  "Arc-Dark [GTK3]"
+theme-name-ver = true
+
+# $<os.uptime> format config
+[os.uptime]
+# how to display the name of the uptime
+# e.g: hours = "h" -> "Uptime: 3h"
+days = " days"
+hours = " hours"
+mins = " mins"
+secs = " seconds"
 
 # GUI options
 # note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")

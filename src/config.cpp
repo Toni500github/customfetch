@@ -76,7 +76,13 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->gui              = this->getConfigValue<bool>("gui.enable", false);
     this->font             = this->getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->logo_padding_top = this->getConfigValue<std::uint8_t>("config.logo-padding-top", 0);
-    this->append_theme_name_ver = this->getConfigValue<bool>("config.theme-name-ver", true);
+
+    this->uptime_d_fmt     = this->getConfigValue<std::string>("os.uptime.days", " days");
+    this->uptime_h_fmt     = this->getConfigValue<std::string>("os.uptime.hours", " hours");
+    this->uptime_m_fmt     = this->getConfigValue<std::string>("os.uptime.mins", " mins");
+    this->uptime_s_fmt     = this->getConfigValue<std::string>("os.uptime.secs", " secs");
+
+    this->append_theme_name_ver = this->getConfigValue<bool>("theme-gtk.theme-name-ver", true);
 
     colors.black       = this->getThemeValue("config.black",   "\033[1;30m");
     colors.red         = this->getThemeValue("config.red",     "\033[1;31m");

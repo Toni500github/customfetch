@@ -374,21 +374,22 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     return output;
 }
 
-static std::string get_auto_uptime(unsigned days, unsigned short hours, unsigned short mins, unsigned short secs)
+static std::string get_auto_uptime(unsigned short days, unsigned short hours, unsigned short mins, unsigned short secs,
+                                   const Config& config)
 {
     if (days == 0 && hours == 0 && mins == 0)
-        return fmt::format("{} secs", secs);
+        return fmt::format("{}{}", secs, config.uptime_s_fmt);
 
     std::string ret;
 
     if (days > 0)
-        ret += fmt::format("{} days, ", days);
+        ret += fmt::format("{}{}, ", days, config.uptime_d_fmt);
 
     if (hours > 0)
-        ret += fmt::format("{} hours, ", hours);
+        ret += fmt::format("{}{}, ", hours, config.uptime_h_fmt);
 
     if (mins > 0)
-        ret += fmt::format("{} mins, ", mins);
+        ret += fmt::format("{}{}, ", mins, config.uptime_m_fmt);
 
     ret.erase(ret.length() - 2); // the last ", "
 
@@ -422,7 +423,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 case "uptime"_fnv1a16:
                     SYSINFO_INSERT(
-                        get_auto_uptime(uptime_days.count(), uptime_hours.count() % 24, uptime_mins.count() % 60, uptime_secs.count() % 60));
+                        get_auto_uptime(uptime_days.count(), uptime_hours.count() % 24, uptime_mins.count() % 60, uptime_secs.count() % 60, config));
                     break;
 
                 case "uptime_secs"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;

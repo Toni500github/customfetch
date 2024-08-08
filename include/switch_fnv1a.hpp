@@ -178,19 +178,19 @@ using fnv1a32 = fnv1a<32>;
 using fnv1a64 = fnv1a<64>;
 using fnv1a128 = fnv1a<128>;
 
-consteval fnv1a16::Type operator"" _fnv1a16(const char* s, const std::size_t l)
+constexpr fnv1a16::Type operator"" _fnv1a16(const char* s, const std::size_t l)
 {
     return fnv1a16::hash(s, l);
 }
-consteval fnv1a32::Type operator"" _fnv1a32(const char* s, const std::size_t l)
+constexpr fnv1a32::Type operator"" _fnv1a32(const char* s, const std::size_t l)
 {
     return fnv1a32::hash(s, l);
 }
-consteval fnv1a64::Type operator"" _fnv1a64(const char* s, const std::size_t l)
+constexpr fnv1a64::Type operator"" _fnv1a64(const char* s, const std::size_t l)
 {
     return fnv1a64::hash(s, l);
 }
-consteval fnv1a128::Type operator"" _fnv1a128(const char* s, const std::size_t l)
+constexpr fnv1a128::Type operator"" _fnv1a128(const char* s, const std::size_t l)
 {
     return fnv1a128::hash(s, l);
 }

@@ -9,7 +9,7 @@
 #include <dlfcn.h>
 #include <sys/types.h>
 
-consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept
+constexpr std::size_t operator""_len(const char*,std::size_t ln) noexcept
 {
     return ln;
 }
@@ -22,11 +22,11 @@ struct byte_units_t {
 constexpr const char NOCOLOR[] = "\033[0m";
 constexpr const char UNKNOWN[] = "(unknown)";
 
-// magic line to be sure that I don't cut the wrong line 
+// magic line to be sure that I don't cut the wrong line
 constexpr const char MAGIC_LINE[] = "(cut this shit NOW!! RAHHH)";
 
 /* lib  = library to load (string)
- * code = code to execute if anything goes wrong 
+ * code = code to execute if anything goes wrong
  */
 #define LOAD_LIBRARY(lib, code) \
 void *handle = dlopen(lib, RTLD_LAZY); \
