@@ -54,11 +54,11 @@ GPU::GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus)
         queried_gpus.push_back(id);
     else
         return;
-    
+
     const u_short max_iter = 10;
     u_short       id_iter  = id;
     std::string   sys_path;
-    int i = 0;
+    int           i = 0;
     for (; i <= max_iter; i++)
     {
         sys_path = "/sys/class/drm/card" + fmt::to_string(id_iter);

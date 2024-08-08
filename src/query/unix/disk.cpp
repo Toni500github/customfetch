@@ -1,5 +1,5 @@
-#include <cstdio>
 #include <algorithm>
+#include <cstdio>
 
 #include "query.hpp"
 #include "util.hpp"
@@ -24,8 +24,11 @@ Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths)
     }
 
     m_disk_infos.total_amount = static_cast<float>(m_statvfs.f_blocks * m_statvfs.f_frsize);
-    m_disk_infos.used_amount  = static_cast<float>((m_statvfs.f_blocks * m_statvfs.f_frsize) - (m_statvfs.f_bavail * m_statvfs.f_frsize));
-    m_disk_infos.free_amount  = static_cast<float>(m_statvfs.f_bfree * m_statvfs.f_frsize);
+    m_disk_infos.used_amount  =
+        static_cast<float>((m_statvfs.f_blocks * m_statvfs.f_frsize) - 
+                           (m_statvfs.f_bavail * m_statvfs.f_frsize));
+    
+    m_disk_infos.free_amount = static_cast<float>(m_statvfs.f_bfree * m_statvfs.f_frsize);
 
     FILE* mountsFile = setmntent("/proc/mounts", "r");
     if (mountsFile == NULL)
@@ -44,7 +47,6 @@ Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths)
 
     if (mountsFile)
         fclose(mountsFile);
-
 }
 
 // clang-format off

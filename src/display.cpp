@@ -1,11 +1,12 @@
 /* Implementation of the system behind displaying/rendering the information */
 
+#include "display.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <vector>
 
 #include "config.hpp"
-#include "display.hpp"
 #include "fmt/core.h"
 #include "fmt/ranges.h"
 #include "parse.hpp"
@@ -35,7 +36,7 @@ std::string Display::detect_distro(Config& config)
 }
 
 std::vector<std::string>& Display::render(Config& config, colors_t& colors, const bool already_analyzed_file,
-                                         const std::string_view path)
+                                          const std::string_view path)
 {
     systemInfo_t systemInfo{};
 
@@ -57,9 +58,9 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
             die("Could not open ascii art file \"{}\"", path);
     }
 
-    std::string          line;
-    std::vector<size_t>  pureAsciiArtLens;
-    int                  maxLineLength = -1;
+    std::string         line;
+    std::vector<size_t> pureAsciiArtLens;
+    int                 maxLineLength = -1;
 
     // first check if the file is an image
     // without even using the same library that "file" uses
@@ -112,7 +113,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
 
         pureAsciiArtLens.push_back(pureOutputLen);
     }
-    
+
     if (config.m_print_logo_only)
         return asciiArt;
 

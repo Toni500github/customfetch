@@ -68,7 +68,7 @@ std::string prettify_wm_name(const std::string_view name) noexcept
     if (name.find("Marco") != std::string::npos)
         return "Marco";
 
-    // taken and ordered (for binary searching) from this list 
+    // taken and ordered (for binary searching) from this list
     // https://github.com/KittyKatt/screenFetch/blob/master/screenfetch-dev#L93
     // added some missing.
     // ngl this looks beatiful thanks to clang-format :D
@@ -163,4 +163,3 @@ std::string get_xfce4_version()
     ret.erase(ret.find(' '));
     return ret;
 }
-
