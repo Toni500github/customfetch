@@ -7,7 +7,7 @@
 
 using namespace Query;
 
-Theme::Theme(const std::uint8_t ver, std::vector<std::string>& queried_themes,
+Theme::Theme(const std::uint8_t ver, const Config& config, std::vector<std::string>& queried_themes,
              const std::string_view theme_name_version)
 {
     debug("Constructing Theme");
