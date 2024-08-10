@@ -1,3 +1,7 @@
+#include "platform.hpp"
+
+#ifdef CF_UNIX
+
 #include "packages.hpp"
 
 #include <filesystem>
@@ -38,3 +42,4 @@ std::string get_all_pkgs(System::pkg_managers_t& pkg_managers, const Config& con
 
     return ret;
 }
+#endif

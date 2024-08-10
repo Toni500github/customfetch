@@ -13,21 +13,7 @@
 # include <sys/types.h>
 #endif
 
-consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept{
-    return ln;
-}
-
-struct byte_units_t {
-    std::string unit;
-    float num_bytes;
-};
-
-constexpr const char NOCOLOR[] = "\033[0m";
-constexpr const char UNKNOWN[] = "(unknown)";
-
-// magic line to be sure that I don't cut the wrong line 
-constexpr const char MAGIC_LINE[] = "(cut this shit NOW!! RAHHH)";
-
+#ifndef CF_WINDOWS
 /* lib  = library to load (string)
  * code = code to execute if anything goes wrong 
  */
@@ -45,6 +31,26 @@ typedef ret_type (* func ## _t)(__VA_ARGS__); \
 func ## _t func = reinterpret_cast<func ## _t>(dlsym(handle, #func)); \
 
 #define UNLOAD_LIBRARY() dlclose(handle);
+#else
+#define LOAD_LIBRARY(lib, code) do {} while(0);
+#define LOAD_LIB_SYMBOL(ret_type, func, ...) do {} while(0);
+#define UNLOAD_LIBRARY() do {} while(0);
+#endif
+
+consteval std::size_t operator""_len(const char*,std::size_t ln) noexcept{
+    return ln;
+}
+
+struct byte_units_t {
+    std::string unit;
+    float num_bytes;
+};
+
+constexpr const char NOCOLOR[] = "\033[0m";
+constexpr const char UNKNOWN[] = "(unknown)";
+
+// magic line to be sure that I don't cut the wrong line 
+constexpr const char MAGIC_LINE[] = "(cut this shit NOW!! RAHHH)";
 
 bool hasEnding(const std::string_view fullString, const std::string_view ending);
 bool hasStart(const std::string_view fullString, const std::string_view start);

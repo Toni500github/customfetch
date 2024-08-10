@@ -1,3 +1,6 @@
+#include "platform.hpp"
+
+#ifdef CF_UNIX
 #include "dewm.hpp"
 
 #include <algorithm>
@@ -163,4 +166,4 @@ std::string get_xfce4_version()
     ret.erase(ret.find(' '));
     return ret;
 }
-
+#endif

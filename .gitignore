@@ -39,3 +39,6 @@ output/
 *.out
 *.app
 .cache
+cufetch_r
+tanjiro_logo.txt
+thinkpad-arch_logo.txt
