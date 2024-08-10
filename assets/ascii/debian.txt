@@ -1,17 +1,17 @@
-${red}       _,met$$$$$gg.
-${red}    ,g$$$$$$$$$$$$$$$P.
-${red}  ,g$$P"        """Y$$.".
-${red} ,$$P'              `$$$.
-${red}',$$P       ,ggs.     `$$b:
-${red}`d$$'     ,$P"'   ${white}.${red}    $$$
-${red} $$P      d$'     ${white},${red}    $$P
-${red} $$:      $$.   ${white}-${red}    ,d$$'
-${red} $$;      Y$b._   _,d$P'
-${red} Y$$.    ${white}`.${red}`"Y$$$$P"'
-${red} `$$b      ${white}"-.__
-${red}  `Y$$
-${red}   `Y$$.
-${red}     `$$b.
-${red}       `Y$$b.
-${red}          `"Y$b._
-${red}              `"""
+${white}       _,met$$$$$gg.
+${white}    ,g$$$$$$$$$$$$$$$P.
+${white}  ,g$$P"        """Y$$.".
+${white} ,$$P'              `$$$.
+${white}',$$P       ,ggs.     `$$b:
+${white}`d$$'     ,$P"'   ${red}.${white}    $$$
+${white} $$P      d$'     ${red},${white}    $$P
+${white} $$:      $$.   ${red}-${white}    ,d$$'
+${white} $$;      Y$b._   _,d$P'
+${white} Y$$.    ${red}`.${white}`"Y$$$$P"'
+${white} `$$b      ${red}"-.__
+${white}  `Y$$
+${white}   `Y$$.
+${white}     `$$b.
+${white}       `Y$$b.
+${white}          `"Y$b._
+${white}              `"""

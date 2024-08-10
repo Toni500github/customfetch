@@ -1,0 +1,17 @@
+${red}       _,met$$$$$gg.
+${red}    ,g$$$$$$$$$$$$$$$P.
+${red}  ,g$$P"        """Y$$.".
+${red} ,$$P'              `$$$.
+${red}',$$P       ,ggs.     `$$b:
+${red}`d$$'     ,$P"'   ${white}.${red}    $$$
+${red} $$P      d$'     ${white},${red}    $$P
+${red} $$:      $$.   ${white}-${red}    ,d$$'
+${red} $$;      Y$b._   _,d$P'
+${red} Y$$.    ${white}`.${red}`"Y$$$$P"'
+${red} `$$b      ${white}"-.__
+${red}  `Y$$
+${red}   `Y$$.
+${red}     `$$b.
+${red}       `Y$$b.
+${red}          `"Y$b._
+${red}              `"""
