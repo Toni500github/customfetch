@@ -75,7 +75,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->offset           = this->getConfigValue<std::uint8_t>("config.offset", 5);
     this->gui              = this->getConfigValue<bool>("gui.enable", false);
     this->font             = this->getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
-    this->logo_padding_top = this->getConfigValue<std::uint8_t>("config.logo-padding-top", 0);
+    this->logo_padding_top = this->getConfigValue<std::uint16_t>("config.logo-padding-top", 0);
 
     this->uptime_d_fmt     = this->getConfigValue<std::string>("os.uptime.days", " days");
     this->uptime_h_fmt     = this->getConfigValue<std::string>("os.uptime.hours", " hours");

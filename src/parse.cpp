@@ -183,8 +183,15 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         oldDollarSignIndex = dollarSignIndex;
         dollarSignIndex    = output.find('$', dollarSignIndex);
 
-        if (dollarSignIndex == std::string::npos || (dollarSignIndex <= oldDollarSignIndex && start))
+    retry:
+        if (dollarSignIndex == std::string::npos)
             break;
+
+        else if (dollarSignIndex <= oldDollarSignIndex && start)
+        {
+            dollarSignIndex = output.find('$', dollarSignIndex+1);
+            goto retry;
+        }
 
         start = true;
 

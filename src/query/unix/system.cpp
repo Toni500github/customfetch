@@ -105,14 +105,13 @@ static System::System_t get_system_infos()
 System::System()
 {
     debug("Constructing {}", __func__);
-
     if (!m_bInit)
     {
         if (uname(&m_uname_infos) != 0)
             die("uname() failed: {}\nCould not get system infos", strerror(errno));
 
         if (sysinfo(&m_sysInfos) != 0)
-            die("uname() failed: {}\nCould not get system infos", strerror(errno));
+            die("sysinfo() failed: {}\nCould not get system infos", strerror(errno));
 
         m_system_infos = get_system_infos();
         get_host_paths(m_system_infos);

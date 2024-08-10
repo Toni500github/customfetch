@@ -38,8 +38,8 @@ public:
     std::string              font;
     std::string              data_dir;
     std::string              sep_reset;
-    std::uint8_t             offset = 0;
-    std::uint8_t             logo_padding_top = 0;
+    std::uint16_t            offset = 0;
+    std::uint16_t            logo_padding_top = 0;
     bool                     gui    = false;
     std::vector<std::string> layouts;
     std::vector<std::string> pkgs_managers;
@@ -61,7 +61,7 @@ public:
     std::string getThemeValue(const std::string& value, const std::string& fallback) const;
 
     template <typename T>
-    T getConfigValue(const std::string& value, T&& fallback) const
+    T getConfigValue(const std::string& value, const T&& fallback) const
     {
         std::optional<T> ret = this->tbl.at_path(value).value<T>();
         if constexpr ( toml::is_string<T> )  // if we want to get a value that's a string

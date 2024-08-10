@@ -36,11 +36,11 @@ public:
         std::string os_initsys_name{UNKNOWN};
         std::string os_initsys_version{UNKNOWN};
 
-        std::string host_modelname;
-        std::string host_version;
-        std::string host_vendor;
+        std::string host_modelname{UNKNOWN};
+        std::string host_version{UNKNOWN};
+        std::string host_vendor{UNKNOWN};
 
-        std::string pkgs_installed;
+        std::string pkgs_installed{UNKNOWN};
     };
 
     struct pkg_managers_t {
