@@ -15,7 +15,7 @@
 
 #ifndef CF_WINDOWS
 /* lib  = library to load (string)
- * code = code to execute if anything goes wrong 
+ * code = code to execute if anything goes wrong
  */
 #define LOAD_LIBRARY(lib, code) \
 void *handle = dlopen(lib, RTLD_LAZY); \

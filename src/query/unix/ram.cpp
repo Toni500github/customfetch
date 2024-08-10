@@ -70,8 +70,9 @@ static RAM::RAM_t get_amount()
     }
 
     // https://github.com/dylanaraps/neofetch/wiki/Frequently-Asked-Questions#linux-is-neofetchs-memory-output-correct
-    memory_infos.used_amount = memory_infos.total_amount -
-                               memory_infos.free_amount;  // + extra_mem_info.at(SHMEM) - extra_mem_info.at(FREE) - extra_mem_info.at(BUFFER) -
+    memory_infos.used_amount =
+        memory_infos.total_amount -
+        memory_infos.free_amount;  // + extra_mem_info.at(SHMEM) - extra_mem_info.at(FREE) - extra_mem_info.at(BUFFER) -
                                    // extra_mem_info.at(CACHED) - extra_mem_info.at(SRECLAIMABLE);
 
     return memory_infos;

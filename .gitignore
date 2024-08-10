@@ -5,6 +5,9 @@ cufetch
 test.txt
 pci.ids
 output/
+cufetch_r
+thinkpad-arch_logo.txt
+tanjiro_logo.txt
 
 # Prerequisites
 *.d

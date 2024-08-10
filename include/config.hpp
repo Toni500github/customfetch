@@ -45,6 +45,13 @@ public:
     bool                     gui    = false;
     std::vector<std::string> layouts;
     std::vector<std::string> pkgs_managers;
+    bool                     append_theme_name_ver = true;
+
+    // modules specific config
+    std::string uptime_d_fmt;
+    std::string uptime_h_fmt;
+    std::string uptime_m_fmt;
+    std::string uptime_s_fmt;
 
     // inner management
     std::string m_custom_distro;
@@ -52,17 +59,17 @@ public:
     bool        m_display_distro = true;
     bool        m_print_logo_only = false;
 
-    void        loadConfigFile( const std::string_view filename, colors_t& colors );
-    std::string getThemeValue( const std::string& value, const std::string& fallback ) const;
+    void        loadConfigFile(const std::string_view filename, colors_t& colors);
+    std::string getThemeValue(const std::string& value, const std::string& fallback) const;
 
     template <typename T>
-    T getConfigValue( const std::string& value, T&& fallback ) const
+    T getConfigValue(const std::string& value, T&& fallback) const
     {
-        std::optional<T> ret = this->tbl.at_path( value ).value<T>();
+        std::optional<T> ret = this->tbl.at_path(value).value<T>();
         if constexpr ( toml::is_string<T> )  // if we want to get a value that's a string
-            return ret ? expandVar( ret.value() ) : expandVar( fallback );
+            return ret ? expandVar(ret.value()) : expandVar(fallback);
         else
-            return ret.value_or( fallback );
+            return ret.value_or(fallback);
     }
 
 private:
@@ -96,9 +103,6 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 
 # Q: "a website for box drawing symbols?"
 # A: "https://symbl.cc/en/unicode/blocks/box-drawing/" is really good
-#    NOTE: unfortunately unicode characters are good when used in the layout,
-#    but when used on the logo to display, the layout can be a giant alignment caos.
-#    So for now only use those in the layout, and not the logo
 
 layout = [
     "${red}$<user.name>${0}@${cyan}$<os.hostname>",
@@ -163,6 +167,23 @@ blue = "\e[1;34m"
 magenta = "\e[1;35m"
 cyan = "\e[1;36m"
 white = "\e[1;37m"
+
+# $<theme-gtkN> config:
+[theme-gtk]
+# Append the theme's name and version
+# output example:
+# false: "Arc-Dark"
+# true:  "Arc-Dark [GTK3]"
+theme-name-ver = true
+
+# $<os.uptime> format config
+[os.uptime]
+# how to display the name of the uptime
+# e.g: hours = "h" -> "Uptime: 3h"
+days = " days"
+hours = " hours"
+mins = " mins"
+secs = " seconds"
 
 # GUI options
 # note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")

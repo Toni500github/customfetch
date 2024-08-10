@@ -4,6 +4,7 @@
 
 #include <unistd.h>
 
+#include <array>
 #include <cerrno>
 #include <cstring>
 #include <filesystem>
@@ -40,13 +41,13 @@ static void get_host_paths(System::System_t& paths)
         if (hasStart(paths.host_modelname, "Standard PC"))
         {
             // everyone does it like "KVM/QEMU Standard PC (...) (host_version)" so why not
-            paths.host_vendor = "KVM/QEMU";
+            paths.host_vendor  = "KVM/QEMU";
             paths.host_version = fmt::format("({})", read_by_syspath(syspath + "/product_version"));
         }
         else
             paths.host_version = read_by_syspath(syspath + "/product_version");
     }
-    
+
     if (paths.host_version.back() == '\n')
         paths.host_version.pop_back();
 }
@@ -56,7 +57,7 @@ static std::string get_var(std::string& line, u_short& iter_index)
     std::string ret = line.substr(line.find('=') + 1);
     if (ret.front() == '\"' && ret.back() == '\"')
     {
-        ret.erase(0,1);
+        ret.erase(0, 1);
         ret.pop_back();
     }
     ++iter_index;
@@ -69,7 +70,8 @@ static System::System_t get_system_infos()
 
     debug("calling in System {}", __PRETTY_FUNCTION__);
     std::string_view os_release_path;
-    for (std::string_view path : {"/etc/os-release", "/usr/lib/os-release", "/usr/share/os-release"})
+    constexpr std::array<std::string_view, 3> os_paths = { "/etc/os-release", "/usr/lib/os-release", "/usr/share/os-release" };
+    for (std::string_view path : os_paths)
     {
         if (std::filesystem::exists(path))
         {
@@ -184,7 +186,7 @@ std::string& System::os_initsys_name()
             return m_system_infos.os_initsys_name;
         }
 
-        std::string   initsys;
+        std::string initsys;
         std::getline(f_initsys, initsys);
         size_t pos = 0;
 
@@ -195,7 +197,7 @@ std::string& System::os_initsys_name()
             initsys.erase(0, pos + 1);
 
         m_system_infos.os_initsys_name = initsys;
-        
+
         done = true;
     }
 
@@ -209,7 +211,7 @@ std::string& System::pkgs_installed(const Config& config)
     {
         static System::pkg_managers_t pkgs_managers;
         m_system_infos.pkgs_installed = get_all_pkgs(pkgs_managers, config);
-        
+
         done = true;
     }
     return m_system_infos.pkgs_installed;

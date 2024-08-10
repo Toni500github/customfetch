@@ -33,7 +33,6 @@ bool Query::RAM::m_bInit    = false;
 bool Query::CPU::m_bInit    = false;
 bool Query::User::m_bInit   = false;
 
-
 static std::array<std::string, 3> get_ansi_color(const std::string_view str, colors_t& colors)
 {
     size_t first_m = str.find("m");
@@ -376,23 +375,24 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     return output;
 }
 
-static std::string get_auto_uptime(unsigned days, unsigned short hours, unsigned short mins, unsigned short secs)
+static std::string get_auto_uptime(unsigned short days, unsigned short hours, unsigned short mins, unsigned short secs,
+                                   const Config& config)
 {
     if (days == 0 && hours == 0 && mins == 0)
-        return fmt::format("{} secs", secs);
+        return fmt::format("{}{}", secs, config.uptime_s_fmt);
 
     std::string ret;
 
     if (days > 0)
-        ret += fmt::format("{} days, ", days);
+        ret += fmt::format("{}{}, ", days, config.uptime_d_fmt);
 
     if (hours > 0)
-        ret += fmt::format("{} hours, ", hours);
+        ret += fmt::format("{}{}, ", hours, config.uptime_h_fmt);
 
     if (mins > 0)
-        ret += fmt::format("{} mins, ", mins);
+        ret += fmt::format("{}{}, ", mins, config.uptime_m_fmt);
 
-    ret.erase(ret.length() - 2); // the last ", "
+    ret.erase(ret.length() - 2);  // the last ", "
 
     return ret;
 }
@@ -400,7 +400,7 @@ static std::string get_auto_uptime(unsigned days, unsigned short hours, unsigned
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
                         const Config& config)
 {
- #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
+#define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
     // yikes, here we go.
     auto moduleValue_hash = fnv1a16::hash(moduleValueName);
 
@@ -423,8 +423,8 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "name"_fnv1a16: SYSINFO_INSERT(query_system.os_pretty_name()); break;
 
                 case "uptime"_fnv1a16:
-                    SYSINFO_INSERT(
-                        get_auto_uptime(uptime_days.count(), uptime_hours.count() % 24, uptime_mins.count() % 60, uptime_secs.count() % 60));
+                    SYSINFO_INSERT(get_auto_uptime(uptime_days.count(), uptime_hours.count() % 24,
+                                                   uptime_mins.count() % 60, uptime_secs.count() % 60, config));
                     break;
 
                 case "uptime_secs"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;
@@ -458,14 +458,14 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
-        
+
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
         {
             switch (moduleValue_hash)
             {
                 case "host"_fnv1a16:
-                    SYSINFO_INSERT(fmt::format("{} {} {}", query_system.host_vendor(),
-                                               query_system.host_modelname(), query_system.host_version()));
+                    SYSINFO_INSERT(fmt::format("{} {} {}", query_system.host_vendor(), query_system.host_modelname(),
+                                               query_system.host_version()));
                     break;
 
                 case "host_name"_fnv1a16: SYSINFO_INSERT(query_system.host_modelname()); break;
@@ -527,18 +527,20 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "term_version"_fnv1a16: SYSINFO_INSERT(query_user.term_version(query_user.term_name())); break;
             }
         }
-
     }
 
     else if (hasStart(moduleName, "theme-gtk"))
     {
-        const std::uint8_t ver = static_cast<std::uint8_t>(moduleName.length() > 9 ? std::stoi(moduleName.substr(9,10)) : 0);
+        const std::uint8_t ver =
+            static_cast<std::uint8_t>(moduleName.length() > 9 ? std::stoi(moduleName.substr(9, 10)) : 0);
+
         if (ver <= 0)
             die("theme-gtk module name '{}' doesn't have a version number to query.\n"
-                "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)", moduleName);
+                "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)",
+                moduleName);
 
         static std::vector<std::string> themes;
-        Query::Theme query_theme(ver, themes, fmt::format("gtk{}", ver));
+        Query::Theme query_theme(ver, config, themes, fmt::format("gtk{}", ver));
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -547,9 +549,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
-                case "name"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_theme()); break;
-                case "icons"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
-                case "font"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_font()); break;
+                case "name"_fnv1a16:   SYSINFO_INSERT(query_theme.gtk_theme()); break;
+                case "icons"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
+                case "font"_fnv1a16:   SYSINFO_INSERT(query_theme.gtk_font()); break;
                 case "cursor"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_cursor()); break;
             }
         }
@@ -584,13 +586,13 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "freq_min"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_min()); break;
             }
         }
-
     }
 
     else if (hasStart(moduleName, "gpu"))
     {
-        std::uint16_t id = static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
-        
+        std::uint16_t id =
+            static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
+
         static std::vector<std::uint16_t> queried_gpus;
         Query::GPU query_gpu(id, queried_gpus);
 
@@ -605,7 +607,6 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             else if (moduleValueName == "vendor")
                 SYSINFO_INSERT(query_gpu.vendor());
         }
-
     }
 
     else if (hasStart(moduleName, "disk"))
@@ -639,14 +640,14 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
             switch (moduleValue_hash)
             {
-                // clang-format off
+                    // clang-format off
                 case "disk"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} - {}", 
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                                byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
                                                query_disk.typefs()));
                     break;
-                // clang-format on
+                    // clang-format on
 
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
@@ -660,20 +661,18 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
                     break;
 
-                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount()/1073741824); break;
-                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount()/1048576); break;
+                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1073741824); break;
+                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1048576); break;
 
-                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount()/1073741824); break;
-                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount()/1048576); break;
+                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount() / 1073741824); break;
+                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount() / 1048576); break;
 
-                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount()/1073741824); break;
-                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount()/1048576); break;
-
+                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount() / 1073741824); break;
+                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount() / 1048576); break;
 
                 case "fs"_fnv1a16: SYSINFO_INSERT(query_disk.typefs()); break;
             }
         }
-
     }
 
     else if (moduleName == "ram")
@@ -694,11 +693,11 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
         if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
         {
-            byte_units.at(USED)       = auto_devide_bytes(query_ram.used_amount()*1024);
-            byte_units.at(TOTAL)      = auto_devide_bytes(query_ram.total_amount()*1024);
-            byte_units.at(FREE)       = auto_devide_bytes(query_ram.free_amount()*1024);
-            byte_units.at(SWAP_FREE)  = auto_devide_bytes(query_ram.swap_free_amount()*1024);
-            byte_units.at(SWAP_TOTAL) = auto_devide_bytes(query_ram.swap_total_amount()*1024);
+            byte_units.at(USED)       = auto_devide_bytes(query_ram.used_amount() * 1024);
+            byte_units.at(TOTAL)      = auto_devide_bytes(query_ram.total_amount() * 1024);
+            byte_units.at(FREE)       = auto_devide_bytes(query_ram.free_amount() * 1024);
+            byte_units.at(SWAP_FREE)  = auto_devide_bytes(query_ram.swap_free_amount() * 1024);
+            byte_units.at(SWAP_TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * 1024);
 
             switch (moduleValue_hash)
             {
@@ -732,25 +731,24 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         fmt::format("{:.2f} {}", byte_units.at(SWAP_TOTAL).num_bytes, byte_units.at(SWAP_TOTAL).unit));
                     break;
 
-                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount()/1048576); break;
-                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount()/1024); break;
+                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount() / 1048576); break;
+                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount() / 1024); break;
 
-                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount()/1048576); break;
-                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount()/1024); break;
+                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount() / 1048576); break;
+                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount() / 1024); break;
 
-                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount()/1048576); break;
-                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount()/1024); break;
+                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount() / 1048576); break;
+                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount() / 1024); break;
 
-                case "swap_free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount()/1048576); break;
-                case "swap_free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount()/1024); break;
+                case "swap_free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1048576); break;
+                case "swap_free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1024); break;
 
-                case "swap_total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount()/1048576); break;
-                case "swap_total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount()/1024); break;
+                case "swap_total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1048576); break;
+                case "swap_total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1024); break;
             }
         }
-
     }
-    else 
+    else
         die("Invalid module name: {}", moduleName);
 }
 

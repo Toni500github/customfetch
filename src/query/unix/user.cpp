@@ -39,7 +39,7 @@ static std::string get_wm_name()
     std::string path, proc_name, wm_name;
     uid_t       uid = getuid();
 
-    for (auto const& dir_entry : std::filesystem::directory_iterator{"/proc/"})
+    for (auto const& dir_entry : std::filesystem::directory_iterator{ "/proc/" })
     {
         if (!std::isdigit((dir_entry.path().string().at(6))))  // /proc/5
             continue;
@@ -82,10 +82,9 @@ static std::string get_de_version(const std::string_view de_name)
     {
         case "mate"_fnv1a16:     return get_mate_version();
         case "cinnamon"_fnv1a16: return get_cinnamon_version();
-        
+
         case "xfce"_fnv1a16:
-        case "xfce4"_fnv1a16:
-            return get_xfce4_version();
+        case "xfce4"_fnv1a16: return get_xfce4_version();
 
         case "gnome"_fnv1a16:
         {
@@ -154,7 +153,7 @@ static std::string get_wm_wayland_name()
 #endif
 }*/
 
-static std::string get_shell_version(const std::string_view shell_name) 
+static std::string get_shell_version(const std::string_view shell_name)
 {
     std::string ret;
 
@@ -167,7 +166,7 @@ static std::string get_shell_version(const std::string_view shell_name)
     return ret;
 }
 
-static std::string get_shell_name(const std::string_view shell_path) 
+static std::string get_shell_name(const std::string_view shell_path)
 {
     std::string ret = shell_path.substr(shell_path.rfind('/') + 1).data();
 
@@ -192,37 +191,37 @@ static std::string get_term_name()
     debug("term_pid = {}", term_pid);
 
     std::ifstream f("/proc/" + term_pid + "/comm", std::ios::in);
-    std::string   name;
-    std::getline(f, name);
+    std::string   term_name;
+    std::getline(f, term_name);
 
     // st (suckless terminal)
-    if (name == "exe")
-    { name = "st"; }
+    if (term_name == "exe")
+        term_name = "st";
 
     // let's try to get the real terminal name
     // on NixOS, instead of returning the -wrapped name.
     // tested on gnome-console, kitty, st and alacritty
     // hope now NixOS users will know the terminal they got, along the version if possible
-    else if (hasEnding(name, "wrapped"))
+    else if (hasEnding(term_name, "wrapped"))
     {
-         // /nix/store/random_stuff-gnome-console-0.31.0/bin/.kgx-wrapped
-        char buf[PATH_MAX];
+        // /nix/store/random_stuff-gnome-console-0.31.0/bin/.kgx-wrapped
+        char        buf[PATH_MAX];
         std::string tmp_name = realpath(("/proc/" + term_pid + "/exe").c_str(), buf);
 
         size_t pos;
         if ((pos = tmp_name.find('-')) != std::string::npos)
-            tmp_name.erase(0, pos+1);  // gnome-console-0.31.0/bin/.kgx-wrapped
+            tmp_name.erase(0, pos + 1);  // gnome-console-0.31.0/bin/.kgx-wrapped
 
         if ((pos = tmp_name.find('/')) != std::string::npos)
-            tmp_name.erase(pos); // gnome-console-0.31.0
+            tmp_name.erase(pos);  // gnome-console-0.31.0
 
         if ((pos = tmp_name.rfind('-')) != std::string::npos)
-            tmp_name.erase(pos); // gnome-console  EZ
+            tmp_name.erase(pos);  // gnome-console  EZ
 
-        name = tmp_name;
+        term_name = tmp_name;
     }
 
-    return name;
+    return term_name;
 }
 
 static std::string get_term_version(std::string_view term_name)
@@ -250,8 +249,8 @@ static std::string get_term_version(std::string_view term_name)
     // Xterm(388)
     if (term_name == "xterm")
     {
-        ret.erase(0, term_name.length()+1); // 388)
-        ret.pop_back(); // 388
+        ret.erase(0, term_name.length() + 1);  // 388)
+        ret.pop_back();                        // 388
         return ret;
     }
 

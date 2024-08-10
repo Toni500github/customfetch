@@ -162,8 +162,10 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
         {0,0,0,0}
     };
     
-    while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1) {
-        switch (opt) {
+    while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1)
+    {
+        switch (opt)
+        {
             // skip errors or anything else
             case 0:
             case '?':
@@ -206,8 +208,10 @@ static bool parseargs(int argc, char* argv[], Config& config)
 
     /* parse operation */
     optind = 0;
-    while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1) {
-        switch (opt) {
+    while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1)
+    {
+        switch (opt)
+        {
             case 0:
                 break;
             case '?':
@@ -335,8 +339,7 @@ int main (int argc, char *argv[]) {
 #endif
 
     const std::string& path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
-    std::vector<std::string> rendered_text{ Display::render(config, colors, false, path) };
-    Display::display(rendered_text);
+    Display::display(Display::render(config, colors, false, path));
 
     return 0;
 }
