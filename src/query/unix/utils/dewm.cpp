@@ -16,6 +16,9 @@ std::string parse_de_env(void) noexcept
         std::getenv("KDE_SESSION_VERSION") != NULL)
         return "KDE";
 
+    if (std::getenv("CINNAMON_VERSION") != NULL)
+        return "Cinnamon";
+
     if (std::getenv("GNOME_DESKTOP_SESSION_ID") != NULL || std::getenv("GNOME_SETUP_DISPLAY") != NULL)
         return "GNOME";
 

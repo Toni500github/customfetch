@@ -8,9 +8,9 @@
 
 using namespace Query;
 
-std::string configDir = getHomeConfigDir();
+const std::string& configDir = getHomeConfigDir();
 
-static void get_var(std::string& ret, unsigned short& iter_index, std::string& line, const size_t& size)
+static void get_var(std::string& ret, unsigned short& iter_index, const std::string& line, const size_t& size)
 {
     ret = line.substr(size);
     ret.erase(std::remove(ret.begin(), ret.end(), '\"'), ret.end());
@@ -30,7 +30,7 @@ static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& th
     }
 
     std::string    line;
-    unsigned short iter_index = 0;
+    std::uint16_t  iter_index = 0;
     while (std::getline(f, line) && iter_index < 4)
     {
         if (hasStart(line, "gtk-theme-name="))
@@ -194,7 +194,7 @@ static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t 
 
             rapidxml::xml_node<>* theme_node = net_node->first_node("property");
             unsigned short        iter_index = 0;
-            while (theme_node && iter_index < 2)
+            for (; theme_node && iter_index < 2; theme_node = theme_node->next_sibling())
             {
                 if (std::string(theme_node->first_attribute("name")->value()) == "ThemeName")
                 {
@@ -206,8 +206,6 @@ static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t 
                     theme.gtk_icon_theme = theme_node->first_attribute("value")->value();
                     iter_index++;
                 }
-
-                theme_node = theme_node->next_sibling();
             }
         }
         break;
@@ -229,13 +227,13 @@ static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, co
 }
 
 // clang-format off
-Theme::Theme(const std::uint8_t ver, const Config& config, std::vector<std::string>& queried_themes,
+Theme::Theme(const std::uint8_t ver, std::vector<std::string_view>& queried_themes,
              const std::string_view theme_name_version)
 {
     debug("Constructing {}", __func__);
 
     if (std::find(queried_themes.begin(), queried_themes.end(), theme_name_version) == queried_themes.end())
-        queried_themes.push_back(theme_name_version.data());
+    { debug("THEME: adding {} to the queried themes", theme_name_version); queried_themes.push_back(theme_name_version.data()); }
     else
         return;
 
@@ -253,14 +251,25 @@ Theme::Theme(const std::uint8_t ver, const Config& config, std::vector<std::stri
     }
     
     // append at each theme-gtk module " [GTKN]"
-    if (config.append_theme_name_ver)
+    /*if (config.append_theme_name_ver)
     {
         const std::string& gtk_str = fmt::format(" [GTK{}]", ver);
         m_theme_infos.gtk_theme_name += gtk_str;
         m_theme_infos.gtk_icon_theme += gtk_str;
         m_theme_infos.gtk_font       += gtk_str;
         m_theme_infos.gtk_cursor     += gtk_str;
-    }
+    }*/
+    if (m_theme_infos.gtk_theme_name.empty())
+        m_theme_infos.gtk_theme_name = MAGIC_LINE;
+
+    if (m_theme_infos.gtk_cursor.empty())
+        m_theme_infos.gtk_cursor = MAGIC_LINE;
+
+    if (m_theme_infos.gtk_font.empty())
+        m_theme_infos.gtk_font = MAGIC_LINE;
+
+    if (m_theme_infos.gtk_icon_theme.empty())
+        m_theme_infos.gtk_icon_theme = MAGIC_LINE;
 }
 
 std::string& Theme::gtk_theme()

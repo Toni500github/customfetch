@@ -116,7 +116,7 @@ public:
         std::string gtk_cursor{MAGIC_LINE}; 
     };
 
-    Theme(const std::uint8_t ver, const Config& config, std::vector<std::string>& queried_themes, const std::string_view theme_name_version);
+    Theme(const std::uint8_t ver, std::vector<std::string_view>& queried_themes, const std::string_view theme_name_version);
     std::string& gtk_theme();
     std::string& gtk_icon_theme();
     std::string& gtk_font();
@@ -217,7 +217,7 @@ private:
     static RAM_t m_memory_infos;
 };
 
-};
+}
 
 //inline Query::System query_system;
 //inline Query::CPU query_cpu;

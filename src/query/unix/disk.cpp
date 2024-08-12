@@ -11,7 +11,7 @@ Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths)
     debug("Constructing {}", __func__);
 
     if (std::find(paths.begin(), paths.end(), path) == paths.end())
-        paths.push_back(path);
+    { debug("DISK: adding {} to disk paths", path); paths.push_back(path); }
     else
         return;
 

@@ -402,12 +402,55 @@ static std::string get_auto_uptime(unsigned short days, unsigned short hours, un
     return ret;
 }
 
+static std::string get_auto_gtk_format(const std::string_view gtk2, const std::string_view gtk3, const std::string_view gtk4)
+{
+    std::string str;
+    // if you see too many function calls, don't worry, they return only a reference each time
+    if ((gtk2 != MAGIC_LINE && gtk3 != MAGIC_LINE && gtk4 != MAGIC_LINE))
+    {
+        if (gtk2 == gtk3 && gtk2 == gtk4)
+            str = fmt::format("{} [GTK2/3/4]", gtk4);
+        else if (gtk2 == gtk3)
+            str = fmt::format("{} [GTK2/3], {} [GTK4]", gtk2, gtk4);
+        else if (gtk4 == gtk3)
+            str = fmt::format("{} [GTK2], {} [GTK3/4]", gtk2, gtk4);
+        else
+            str = fmt::format("{} [GTK2], {} [GTK3], {} [GTK4]", gtk2, gtk3, gtk4);
+    }
+    else if (gtk3 != MAGIC_LINE && gtk4 != MAGIC_LINE)
+    {
+        if (gtk3 == gtk4)
+            str = fmt::format("{} [GTK3/4]", gtk4);
+        else
+            str = fmt::format("{} [GTK3], {} [GTK4]", gtk3, gtk4);
+    }
+    else if (gtk2 != MAGIC_LINE && gtk3 != MAGIC_LINE)
+    {
+        if (gtk2 == gtk3)
+            str = fmt::format("{} [GTK2/3]", gtk3);
+        else
+            str = fmt::format("{} [GTK2], {} [GTK3]", gtk2, gtk3);
+    }
+
+    else if (gtk4 != MAGIC_LINE)
+        str = fmt::format("{} [GTK4]", gtk4);
+    else if (gtk3 != MAGIC_LINE)
+        str = fmt::format("{} [GTK3]", gtk3);
+    else if (gtk2 != MAGIC_LINE)
+        str = fmt::format("{} [GTK2]", gtk2);
+
+    return str;
+}
+
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
                         const Config& config)
 {
 #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
     // yikes, here we go.
     auto moduleValue_hash = fnv1a16::hash(moduleValueName);
+    static std::vector<std::uint16_t> queried_gpus;
+    static std::vector<std::string_view> queried_disks;
+    static std::vector<std::string_view> queried_themes;
 
     if (moduleName == "os")
     {
@@ -534,6 +577,27 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         }
     }
 
+    else if (moduleName == "theme-gtk-all")
+    {
+        Query::Theme gtk2(2, queried_themes, "gtk2");
+        Query::Theme gtk3(3, queried_themes, "gtk3");
+        Query::Theme gtk4(4, queried_themes, "gtk4");
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        {
+            switch (moduleValue_hash)
+            {
+                case "name"_fnv1a16:   SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_theme(),      gtk3.gtk_theme(),      gtk4.gtk_theme())); break;
+                case "icons"_fnv1a16:  SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_icon_theme(), gtk3.gtk_icon_theme(), gtk4.gtk_icon_theme())); break;
+                case "font"_fnv1a16:   SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_font(),       gtk3.gtk_font(),       gtk4.gtk_font())); break;
+                case "cursor"_fnv1a16: SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_cursor(),     gtk3.gtk_cursor(),     gtk4.gtk_cursor())); break;
+            }
+        }
+    }
+
     else if (hasStart(moduleName, "theme-gtk"))
     {
         const std::uint8_t ver =
@@ -544,8 +608,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)",
                 moduleName);
 
-        static std::vector<std::string> themes;
-        Query::Theme query_theme(ver, config, themes, fmt::format("gtk{}", ver));
+        Query::Theme query_theme(ver, queried_themes, fmt::format("gtk{}", ver));
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -598,7 +661,6 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         std::uint16_t id =
             static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
 
-        static std::vector<std::uint16_t> queried_gpus;
         Query::GPU query_gpu(id, queried_gpus);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
@@ -630,7 +692,6 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         path.pop_back();   // )
         debug("disk path = {}", path);
 
-        static std::vector<std::string_view> queried_disks;
         Query::Disk query_disk(path, queried_disks);
 
         if (sysInfo.find(moduleName) == sysInfo.end())

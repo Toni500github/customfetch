@@ -1,8 +1,8 @@
 #include "util.hpp"
 
 #include <fcntl.h>
-#include <fmt/ranges.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include <array>
 #include <cerrno>
@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "fmt/color.h"
+#include "fmt/ranges.h"
 #include "pci.ids.hpp"
 
 // https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160

@@ -195,6 +195,17 @@ static std::string get_term_name()
     if (term_name == "exe")
         term_name = "st";
 
+    // either gnome-console or "gnome-terminal-"
+    // I hope this is not super stupid
+    else if (hasStart(term_name, "gnome"))
+    {
+        size_t pos = term_name.rfind('l');
+        if (pos != std::string::npos)
+            term_name.erase(pos+1);
+        else if ((pos = term_name.rfind('e')) != std::string::npos)
+            term_name.erase(pos+1);
+    }
+    
     // let's try to get the real terminal name
     // on NixOS, instead of returning the -wrapped name.
     // tested on gnome-console, kitty, st and alacritty
@@ -204,7 +215,7 @@ static std::string get_term_name()
         // /nix/store/random_stuff-gnome-console-0.31.0/bin/.kgx-wrapped
         char        buf[PATH_MAX];
         std::string tmp_name = realpath(("/proc/" + term_pid + "/exe").c_str(), buf);
-
+        
         size_t pos;
         if ((pos = tmp_name.find('-')) != std::string::npos)
             tmp_name.erase(0, pos + 1);  // gnome-console-0.31.0/bin/.kgx-wrapped
@@ -243,8 +254,15 @@ static std::string get_term_version(std::string_view term_name)
     if (ret.empty())
         return UNKNOWN;
 
+    bool remove_term_name = true;
+    if (hasStart(ret, "# GNOME"))
+    {
+        ret.erase(0, "# GNOME Terminal "_len);
+        debug("gnome ret = {}", ret);
+        remove_term_name = false;
+    }
     // Xterm(388)
-    if (term_name == "xterm")
+    else if (term_name == "xterm")
     {
         ret.erase(0, term_name.length() + 1);  // 388)
         ret.pop_back();                        // 388
@@ -252,7 +270,9 @@ static std::string get_term_version(std::string_view term_name)
     }
 
     size_t pos = 0;
-    ret.erase(0, term_name.length() + 1);
+    if (remove_term_name)
+        ret.erase(0, term_name.length() + 1);
+
     if ((pos = ret.find(' ')) != std::string::npos)
         ret.erase(pos);
 
