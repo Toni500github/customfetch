@@ -150,7 +150,7 @@ static std::string get_xfce4_version_lib()
 {
     LOAD_LIBRARY("libxfce4util.so", return UNKNOWN)
     LOAD_LIB_SYMBOL(const char *, xfce_version_string, void)
-    std::string ret = xfce_version_string();
+    const std::string& ret = xfce_version_string();
     UNLOAD_LIBRARY()
     return ret;
 }

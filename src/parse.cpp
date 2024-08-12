@@ -139,27 +139,28 @@ static const std::string& check_gui_ansi_clr(const std::string& str)
     return str;
 }
 
-static std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
+std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
                                    const std::string_view moduleValueName)
 {
-    if (const auto it1 = systemInfo.find(moduleName.data()); it1 != systemInfo.end())
+    if (const auto& it1 = systemInfo.find(moduleName.data()); it1 != systemInfo.end())
     {
-        if (const auto it2 = it1->second.find(moduleValueName.data()); it2 != it1->second.end())
+        if (const auto& it2 = it1->second.find(moduleValueName.data()); it2 != it1->second.end())
         {
             const variant& result = it2->second;
 
-            if (std::holds_alternative<size_t>(result))
-                return fmt::to_string(std::get<size_t>(result));
+            if (std::holds_alternative<std::string>(result))
+                return std::get<std::string>(result);
 
             else if (std::holds_alternative<float>(result))
                 return fmt::format("{:.2f}", (std::get<float>(result)));
 
             else
-                return std::get<std::string>(result);
+                return fmt::to_string(std::get<size_t>(result));
+
         }
     }
 
-    return "(unknown/invalid component)";
+    return "(unknown/invalid module)";
 }
 
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
@@ -449,8 +450,8 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
     // yikes, here we go.
     auto moduleValue_hash = fnv1a16::hash(moduleValueName);
     static std::vector<std::uint16_t> queried_gpus;
-    static std::vector<std::string_view> queried_disks;
-    static std::vector<std::string_view> queried_themes;
+    static std::vector<std::string_view> queried_disks, queried_themes_names;
+    static systemInfo_t queried_themes;
 
     if (moduleName == "os")
     {
@@ -579,9 +580,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     else if (moduleName == "theme-gtk-all")
     {
-        Query::Theme gtk2(2, queried_themes, "gtk2");
-        Query::Theme gtk3(3, queried_themes, "gtk3");
-        Query::Theme gtk4(4, queried_themes, "gtk4");
+        Query::Theme gtk2(2, queried_themes, queried_themes_names, "gtk2");
+        Query::Theme gtk3(3, queried_themes, queried_themes_names, "gtk3");
+        Query::Theme gtk4(4, queried_themes, queried_themes_names, "gtk4");
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -608,7 +609,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)",
                 moduleName);
 
-        Query::Theme query_theme(ver, queried_themes, fmt::format("gtk{}", ver));
+        Query::Theme query_theme(ver, queried_themes, queried_themes_names, fmt::format("gtk{}", ver));
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });

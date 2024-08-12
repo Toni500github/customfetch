@@ -99,6 +99,15 @@ theme-gtkN
   font		: gtk font theme name [Noto Sans 10]
   cursor	: gtk cursor theme name [Qogir-Dark]
 
+# basically as like as the "theme-gtkN" module above
+# but with gtk{2,3,4} and auto format gkt version
+# note: may be slow because of calling "gsettings" if couldn't read from configs
+theme-gtk-all
+  name          : gtk theme name [Decay-Green [GTK2], Arc-Dark [GTK3/4]]
+  icons         : gtk icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]
+  font          : gtk font theme name [Cantarell 10 [GTK2], Noto Sans,  10 [GTK3], Noto Sans 10 [GTK4]]
+  cursor        : gtk cursor theme name [Bibata-Modern-Ice [GTK2], Qogir-dark [GTK3], Qogir [GTK4]]
+
 # note: these members are auto displayed in kiB, MiB, GiB and TiB.
 # they all (except ram.ram) have a -GiB and -MiB variant
 # example: if you want to show your 512MiB of used RAM in GiB
