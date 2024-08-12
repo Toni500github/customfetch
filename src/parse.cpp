@@ -450,7 +450,8 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
     // yikes, here we go.
     auto moduleValue_hash = fnv1a16::hash(moduleValueName);
     static std::vector<std::uint16_t> queried_gpus;
-    static std::vector<std::string_view> queried_disks, queried_themes_names;
+    static std::vector<std::string_view> queried_disks;
+    static std::vector<std::string> queried_themes_names;
     static systemInfo_t queried_themes;
 
     if (moduleName == "os")
@@ -605,7 +606,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             static_cast<std::uint8_t>(moduleName.length() > 9 ? std::stoi(moduleName.substr(9, 10)) : 0);
 
         if (ver <= 0)
-            die("theme-gtk module name '{}' doesn't have a version number to query.\n"
+            die("seems theme-gtk module name '{}' doesn't have a version number to query.\n"
                 "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)",
                 moduleName);
 

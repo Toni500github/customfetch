@@ -100,7 +100,7 @@ theme-gtkN
   cursor	: gtk cursor theme name [Qogir-Dark]
 
 # basically as like as the "theme-gtkN" module above
-# but with gtk{2,3,4} and auto format gkt version
+# but with gtk{{2,3,4}} and auto format gkt version
 # note: may be slow because of calling "gsettings" if couldn't read from configs
 theme-gtk-all
   name          : gtk theme name [Decay-Green [GTK2], Arc-Dark [GTK3/4]]

@@ -228,14 +228,14 @@ static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, co
 }
 
 // clang-format off
-Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string_view>& queried_themes_names,
-             const std::string_view theme_name_version)
+Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
+             const std::string& theme_name_version)
             : m_queried_themes(queried_themes),
               m_theme_name_version(theme_name_version)
 {
     debug("Constructing {}", __func__);
 
-    if (std::find(queried_themes_names.begin(), queried_themes_names.end(), theme_name_version) 
+    if (std::find(queried_themes_names.begin(), queried_themes_names.end(), m_theme_name_version) 
         == queried_themes_names.end())
         queried_themes_names.push_back(m_theme_name_version);
     else
@@ -276,7 +276,7 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
         m_theme_infos.gtk_icon_theme = MAGIC_LINE;
 
     m_queried_themes.insert(
-        {m_theme_name_version.data(), {
+        {m_theme_name_version, {
             {"theme-name",      variant(m_theme_infos.gtk_theme_name)},
             {"icon-theme-name", variant(m_theme_infos.gtk_icon_theme)},
             {"font-name",       variant(m_theme_infos.gtk_font)},

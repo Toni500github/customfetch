@@ -43,7 +43,6 @@ public:
     bool                     gui    = false;
     std::vector<std::string> layouts;
     std::vector<std::string> pkgs_managers;
-    bool                     append_theme_name_ver = true;
 
     // modules specific config
     std::string uptime_d_fmt;
@@ -112,8 +111,8 @@ layout = [
     "${!#fff220}Terminal: $<user.term>",
     "${cyan}Shell: $<user.shell>",
     "${!#343488}Packages: $<os.pkgs>",
-    "${!#34affd}Theme: $<theme-gtk3.name>",
-    "${!#34aaff}Icons: $<theme-gtk3.icons>",
+    "${!#34affd}Theme: $<theme-gtk-all.name>",
+    "${!#34aaff}Icons: $<theme-gtk-all.icons>",
     "${!#fa1bba}WM: $<user.wm_name>",
     "${!#f11f2a}DE: $<user.de_name>",
     "${!#117f23}Disk(/): $<disk(/).disk>",
@@ -165,14 +164,6 @@ blue = "\e[1;34m"
 magenta = "\e[1;35m"
 cyan = "\e[1;36m"
 white = "\e[1;37m"
-
-# $<theme-gtkN> config:
-[theme-gtk]
-# Append the theme's name and version
-# output example:
-# false: "Arc-Dark"
-# true:  "Arc-Dark [GTK3]"
-theme-name-ver = true
 
 # $<os.uptime> format config
 [os.uptime]

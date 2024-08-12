@@ -82,8 +82,6 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->uptime_m_fmt     = this->getConfigValue<std::string>("os.uptime.mins", " mins");
     this->uptime_s_fmt     = this->getConfigValue<std::string>("os.uptime.secs", " secs");
 
-    this->append_theme_name_ver = this->getConfigValue<bool>("theme-gtk.theme-name-ver", true);
-
     colors.black       = this->getThemeValue("config.black",   "\033[1;30m");
     colors.red         = this->getThemeValue("config.red",     "\033[1;31m");
     colors.green       = this->getThemeValue("config.green",   "\033[1;32m");
