@@ -58,6 +58,7 @@ public:
 
     void        loadConfigFile(const std::string_view filename, colors_t& colors);
     std::string getThemeValue(const std::string& value, const std::string& fallback) const;
+    void        generateConfig(const std::string_view filename);
 
     template <typename T>
     T getConfigValue(const std::string& value, const T&& fallback) const

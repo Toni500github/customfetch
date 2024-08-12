@@ -24,6 +24,36 @@ Config::Config(const std::string_view configFile, const std::string_view configD
     this->loadConfigFile(configFile, colors);
 }
 
+void Config::generateConfig(const std::string_view filename)
+{
+    if (std::filesystem::exists(filename))
+    {
+        std::string result;
+        warn("config file {} already exists. Do you want to overwrite it? [y/N]: ", filename);
+        while (std::getline(std::cin, result) && (result.length() > 1))
+            error("Please answear y or n");
+
+        if (std::cin.eof())
+            die("Exiting due to CTRL-D or EOF");
+
+        if (result.empty() || std::tolower(result[0]) == 'n')
+            exit(1);
+
+        if (std::tolower(result[0]) != 'n')
+        {
+            std::ofstream f(filename.data(), std::ios::trunc);
+            f << AUTOCONFIG;
+            f.close();
+        }
+    }
+    else
+    {
+        std::ofstream f(filename.data(), std::ios::trunc);
+        f << AUTOCONFIG;
+        f.close();
+    }
+}
+
 void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 {
     try
