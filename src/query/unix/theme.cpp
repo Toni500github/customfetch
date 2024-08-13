@@ -11,13 +11,6 @@ using namespace Query;
 
 const std::string& configDir = getHomeConfigDir();
 
-static void get_var(std::string& ret, unsigned short& iter_index, const std::string& line, const size_t& size)
-{
-    ret = line.substr(size);
-    ret.erase(std::remove(ret.begin(), ret.end(), '\"'), ret.end());
-    iter_index++;
-}
-
 static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& theme)
 {
     std::ifstream f(path.data(), std::ios::in);
@@ -35,16 +28,16 @@ static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& th
     while (std::getline(f, line) && iter_index < 4)
     {
         if (hasStart(line, "gtk-theme-name="))
-            get_var(theme.gtk_theme_name, iter_index, line, "gtk-theme-name="_len);
+            getFileValue(iter_index, line, theme.gtk_theme_name, "gtk-theme-name="_len);
 
         else if (hasStart(line, "gtk-icon-theme-name="))
-            get_var(theme.gtk_icon_theme, iter_index, line, "gtk-icon-theme-name="_len);
+            getFileValue(iter_index, line, theme.gtk_icon_theme, "gtk-icon-theme-name="_len);
 
         else if (hasStart(line, "gtk-font-name="))
-            get_var(theme.gtk_font, iter_index, line, "gtk-font-name="_len);
+            getFileValue(iter_index, line, theme.gtk_font, "gtk-font-name="_len);
 
         else if (hasStart(line, "gtk-cursor-theme-name="))
-            get_var(theme.gtk_cursor, iter_index, line, "gtk-cursor-theme-name="_len);
+            getFileValue(iter_index, line, theme.gtk_cursor, "gtk-cursor-theme-name="_len);
     }
 
     if (theme.gtk_cursor == MAGIC_LINE || theme.gtk_font == MAGIC_LINE || theme.gtk_theme_name == MAGIC_LINE ||

@@ -43,18 +43,6 @@ static void get_host_paths(System::System_t& paths)
         paths.host_version.pop_back();
 }
 
-static std::string get_var(std::string& line, u_short& iter_index)
-{
-    std::string ret = line.substr(line.find('=') + 1);
-    if (ret.front() == '\"' && ret.back() == '\"')
-    {
-        ret.erase(0, 1);
-        ret.pop_back();
-    }
-    ++iter_index;
-    return ret;
-}
-
 static System::System_t get_system_infos()
 {
     System::System_t ret;
@@ -62,7 +50,7 @@ static System::System_t get_system_infos()
     debug("calling in System {}", __PRETTY_FUNCTION__);
     std::string_view os_release_path;
     constexpr std::array<std::string_view, 3> os_paths = { "/etc/os-release", "/usr/lib/os-release", "/usr/share/os-release" };
-    for (std::string_view path : os_paths)
+    for (const std::string_view path : os_paths)
     {
         if (std::filesystem::exists(path))
         {
@@ -84,19 +72,19 @@ static System::System_t get_system_infos()
     while (std::getline(os_release_file, line) && iter_index < 5)
     {
         if (hasStart(line, "PRETTY_NAME="))
-            ret.os_pretty_name = get_var(line, iter_index);
+            getFileValue(iter_index, line, ret.os_pretty_name, "PRETTY_NAME="_len);
 
         if (hasStart(line, "NAME="))
-            ret.os_name = get_var(line, iter_index);
+            getFileValue(iter_index, line, ret.os_name, "NAME="_len);
 
         if (hasStart(line, "ID="))
-            ret.os_id = get_var(line, iter_index);
+            getFileValue(iter_index, line, ret.os_id, "ID="_len);
 
         if (hasStart(line, "VERSION_ID="))
-            ret.os_version_id = get_var(line, iter_index);
+            getFileValue(iter_index, line, ret.os_version_id, "VERSION_ID="_len);
 
         if (hasStart(line, "VERSION_CODENAME="))
-            ret.os_version_codename = get_var(line, iter_index);
+            getFileValue(iter_index, line, ret.os_version_codename, "VERSION_CODENAME="_len);
     }
 
     return ret;

@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include "util.hpp"
 
 // initialize Config, can only be ran once for each Config instance.
 Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors)
@@ -16,9 +17,7 @@ Config::Config(const std::string_view configFile, const std::string_view configD
     if (!std::filesystem::exists(configFile))
     {
         warn("config file {} not found, generating new one", configFile);
-        std::ofstream f(configFile.data(), std::ios::trunc);
-        f << AUTOCONFIG;
-        f.close();
+        this->generateConfig(configFile);
     }
 
     this->loadConfigFile(configFile, colors);
@@ -29,29 +28,23 @@ void Config::generateConfig(const std::string_view filename)
     if (std::filesystem::exists(filename))
     {
         std::string result;
-        warn("config file {} already exists. Do you want to overwrite it? [y/N]: ", filename);
+        // warn() new lines
+        fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))), "WARNING: config file {} already exists. Do you want to overwrite it? [y/N]: ", filename);
         while (std::getline(std::cin, result) && (result.length() > 1))
-            error("Please answear y or n");
-
-        if (std::cin.eof())
-            die("Exiting due to CTRL-D or EOF");
-
-        if (result.empty() || std::tolower(result[0]) == 'n')
-            exit(1);
-
-        if (std::tolower(result[0]) != 'n')
         {
-            std::ofstream f(filename.data(), std::ios::trunc);
-            f << AUTOCONFIG;
-            f.close();
+            error("Please answear y or n");
+            fmt::print(BOLD_COLOR(fmt::rgb(fmt::color::yellow)), "[y/N]: ");
         }
+
+        ctrl_d_handler(std::cin);
+
+        if (result.empty() || std::tolower(result[0]) != 'y')
+            exit(1);
     }
-    else
-    {
-        std::ofstream f(filename.data(), std::ios::trunc);
-        f << AUTOCONFIG;
-        f.close();
-    }
+
+    std::ofstream f(filename.data(), std::ios::trunc);
+    f << AUTOCONFIG;
+    f.close();
 }
 
 void Config::loadConfigFile(const std::string_view filename, colors_t& colors)

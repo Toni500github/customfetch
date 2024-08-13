@@ -5,8 +5,10 @@
 #include <unistd.h>
 
 #include <array>
+#include <algorithm>
 #include <cerrno>
 #include <cstring>
+#include <iostream>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -44,6 +46,12 @@ std::vector<std::string> split(const std::string_view text, char delim)
         vec.push_back(line);
     }
     return vec;
+}
+
+void ctrl_d_handler(const std::istream& cin)
+{
+    if (cin.eof())
+        die("Exiting due to CTRL-D or EOF");
 }
 
 /** Replace special symbols such as ~ and $ in std::strings
@@ -192,6 +200,20 @@ void strip(std::string& input)
     input.erase(0, input.find_first_not_of(ws));
 }
 
+/* Get file value from a file and trim quotes and double-quotes
+ * @param iterIndex The iteration index used for getting the necessary value only tot times
+ * @param line The string used in std::getline
+ * @param str The string to assign the trimmed value, inline
+ * @param amount The amount to be used in the line.substr() (should be used with something like "foobar"_len)
+ */
+void getFileValue(u_short& iterIndex, const std::string& line, std::string& str, const size_t& amount)
+{
+    str = line.substr(amount);
+    str.erase(std::remove(str.begin(), str.end(), '\"'), str.end());
+    str.erase(std::remove(str.begin(), str.end(), '\''), str.end());
+    iterIndex++;
+}
+
 fmt::rgb hexStringToColor(const std::string_view hexstr)
 {
     // convert the hexadecimal string to individual components
@@ -281,17 +303,17 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     return false;
 }
 
-std::string str_tolower(std::string str)
+std::string str_tolower(const std::string& str)
 {
-    for (char& x : str)
+    for (char x : str)
         x = std::tolower(x);
 
     return str;
 }
 
-std::string str_toupper(std::string str)
+std::string str_toupper(const std::string& str)
 {
-    for (char& x : str)
+    for (char x : str)
         x = std::toupper(x);
 
     return str;
