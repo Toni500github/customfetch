@@ -1,15 +1,15 @@
-${c1}                `oyyy/${c2}-yyyyyy+
-${c1}               -syyyy/${c2}-yyyyyy+
-${c1}              .syyyyy/${c2}-yyyyyy+
-${c1}              :yyyyyy/${c2}-yyyyyy+
-${c1}           `/ :yyyyyy/${c2}-yyyyyy+
-${c1}          .+s :yyyyyy/${c2}-yyyyyy+
-${c1}         .oys :yyyyyy/${c2}-yyyyyy+
-${c1}        -oyys :yyyyyy/${c2}-yyyyyy+
-${c1}       :syyys :yyyyyy/${c2}-yyyyyy+
-${c1}      /syyyys :yyyyyy/${c2}-yyyyyy+
-${c1}     +yyyyyys :yyyyyy/${c2}-yyyyyy+
-${c1}   .oyyyyyyo. :yyyyyy/${c2}-yyyyyy+ ---------
-${c1}  .syyyyyy+`  :yyyyyy/${c2}-yyyyy+-+syyyyyyyy
-${c1} -syyyyyy/    :yyyyyy/${c2}-yyys:.syyyyyyyyyy
-${c1}:syyyyyy/     :yyyyyy/${c2}-yyo.:syyyyyyyyyyy
+${green}                `oyyy/${red}-yyyyyy+
+${green}               -syyyy/${red}-yyyyyy+
+${green}              .syyyyy/${red}-yyyyyy+
+${green}              :yyyyyy/${red}-yyyyyy+
+${green}           `/ :yyyyyy/${red}-yyyyyy+
+${green}          .+s :yyyyyy/${red}-yyyyyy+
+${green}         .oys :yyyyyy/${red}-yyyyyy+
+${green}        -oyys :yyyyyy/${red}-yyyyyy+
+${green}       :syyys :yyyyyy/${red}-yyyyyy+
+${green}      /syyyys :yyyyyy/${red}-yyyyyy+
+${green}     +yyyyyys :yyyyyy/${red}-yyyyyy+
+${green}   .oyyyyyyo. :yyyyyy/${red}-yyyyyy+ ---------
+${green}  .syyyyyy+`  :yyyyyy/${red}-yyyyy+-+syyyyyyyy
+${green} -syyyyyy/    :yyyyyy/${red}-yyys:.syyyyyyyyyy
+${green}:syyyyyy/     :yyyyyy/${red}-yyo.:syyyyyyyyyyy

@@ -77,7 +77,10 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
     }
 
     for (int i = 0; i < config.logo_padding_top; i++)
+    {
+        pureAsciiArtLens.push_back(0);
         asciiArt.push_back("");
+    }
 
     while (std::getline(file, line))
     {
