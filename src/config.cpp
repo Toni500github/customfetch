@@ -23,30 +23,6 @@ Config::Config(const std::string_view configFile, const std::string_view configD
     this->loadConfigFile(configFile, colors);
 }
 
-void Config::generateConfig(const std::string_view filename)
-{
-    if (std::filesystem::exists(filename))
-    {
-        std::string result;
-        // warn() new lines
-        fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))), "WARNING: config file {} already exists. Do you want to overwrite it? [y/N]: ", filename);
-        while (std::getline(std::cin, result) && (result.length() > 1))
-        {
-            error("Please answear y or n");
-            fmt::print(BOLD_COLOR(fmt::rgb(fmt::color::yellow)), "[y/N]: ");
-        }
-
-        ctrl_d_handler(std::cin);
-
-        if (result.empty() || std::tolower(result[0]) != 'y')
-            exit(1);
-    }
-
-    std::ofstream f(filename.data(), std::ios::trunc);
-    f << AUTOCONFIG;
-    f.close();
-}
-
 void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 {
     try
@@ -98,6 +74,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->offset           = this->getConfigValue<std::uint8_t>("config.offset", 5);
     this->gui              = this->getConfigValue<bool>("gui.enable", false);
     this->font             = this->getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
+    this->gui_bg_image     = this->getConfigValue<std::string>("gui.bg-image", "disable");
     this->logo_padding_top = this->getConfigValue<std::uint16_t>("config.logo-padding-top", 0);
 
     this->uptime_d_fmt     = this->getConfigValue<std::string>("os.uptime.days", " days");
@@ -129,4 +106,28 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 std::string Config::getThemeValue(const std::string& value, const std::string& fallback) const
 {
     return this->tbl.at_path(value).value<std::string>().value_or(fallback);
+}
+
+void Config::generateConfig(const std::string_view filename)
+{
+    if (std::filesystem::exists(filename))
+    {
+        std::string result;
+        // warn() new lines
+        fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))), "WARNING: config file {} already exists. Do you want to overwrite it? [y/N]: ", filename);
+        while (std::getline(std::cin, result) && (result.length() > 1))
+        {
+            error("Please answear y or n");
+            fmt::print(BOLD_COLOR(fmt::rgb(fmt::color::yellow)), "[y/N]: ");
+        }
+
+        ctrl_d_handler(std::cin);
+
+        if (result.empty() || std::tolower(result[0]) != 'y')
+            exit(1);
+    }
+
+    std::ofstream f(filename.data(), std::ios::trunc);
+    f << AUTOCONFIG;
+    f.close();
 }

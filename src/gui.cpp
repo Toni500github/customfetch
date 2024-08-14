@@ -1,3 +1,4 @@
+#include "gtkmm/enums.h"
 #ifdef GUI_MODE
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -66,7 +67,6 @@ Window::Window(Config& config, colors_t& colors)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(1000, 800);
-    add(m_box);
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
     if (!std::filesystem::exists(path) &&
@@ -86,11 +86,13 @@ Window::Window(Config& config, colors_t& colors)
     if (useImage && !config.m_disable_source)
     {
         Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path);
-        m_img                                  = Gtk::manage(new Gtk::Image());
+        m_img                                  = Gtk::manage(new Gtk::Image(img));
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
-        m_box.pack_start(*m_img);
+        m_box.pack_start(*m_img, Gtk::PACK_SHRINK);
     }
+
+    m_box.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
 
     // https://stackoverflow.com/a/76372996
     auto                   context = m_label.get_pango_context();
@@ -104,18 +106,33 @@ Window::Window(Config& config, colors_t& colors)
     style_context->lookup_color("theme_fg_color", fg_color);
     std::string fg_color_str = rgba_to_hexstr(fg_color);*/
 
-    std::string markup_text;
     if (useImage)
     {
         if (!config.m_print_logo_only)
-            markup_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
+            m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(config, colors), "\n")));
     }
     else
-        markup_text = fmt::format("{}", fmt::join(Display::render(config, colors, true, path), "\n"));
+    {
+        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(config, colors, true, path), "\n")));
+    }
 
-    m_label.set_markup(markup_text);
-    m_label.set_alignment(Gtk::ALIGN_CENTER);
-    m_box.pack_start(m_label);
+    if (config.gui_bg_image != "disable")
+    {
+        if (!std::filesystem::exists(config.gui_bg_image))
+            die ("Background image path '{}' doesn't exist", config.gui_bg_image);
+
+        m_original_pixbuf = Gdk::Pixbuf::create_from_file(config.gui_bg_image);
+        update_background_image(get_allocation().get_width(), get_allocation().get_height());
+        m_overlay.add(m_bg_image);
+    }
+
+    m_box.pack_start(m_label, Gtk::PACK_SHRINK);
+    m_alignment.set(0.5, 0.5, 0, 0);
+    m_alignment.add(m_box);
+    m_overlay.add_overlay(m_alignment);
+    add(m_overlay);
+
+    signal_size_allocate().connect(sigc::mem_fun(*this, &Window::on_window_resized));
 
     show_all_children();
 }

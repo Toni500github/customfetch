@@ -38,6 +38,7 @@ public:
     std::string              font;
     std::string              data_dir;
     std::string              sep_reset;
+    std::string              gui_bg_image;
     std::uint16_t            offset = 0;
     std::uint16_t            logo_padding_top = 0;
     bool                     gui    = false;
@@ -197,6 +198,10 @@ cyan = "!#00ffff"
 yellow = "!#ffff00"
 magenta = "!#f881ff"
 white = "!#ffffff"
+
+# Path to image as a background.
+# put "disable" for disabling and use the theme color as background.
+bg-image = "disable"
 
 )#";
 
