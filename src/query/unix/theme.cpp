@@ -234,17 +234,17 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
     else
         return;
 
-    const std::string& _wm_name = wm_name(m_bDont_query_dewm, term_name());
-    const std::string& _de_name = de_name(m_bDont_query_dewm, term_name(), _wm_name);
+    const std::string& wm_name = query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name());
+    const std::string& de_name = query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(), wm_name);
 
-    if (((_de_name != MAGIC_LINE && _wm_name != MAGIC_LINE) &&
-         _de_name == _wm_name) || _de_name == MAGIC_LINE)
+    if (((de_name != MAGIC_LINE && wm_name != MAGIC_LINE) &&
+         de_name == wm_name) || de_name == MAGIC_LINE)
     {
-        get_gtk_theme(m_bDont_query_dewm, ver, _wm_name, m_theme_infos);
+        get_gtk_theme(query_user.m_bDont_query_dewm, ver, wm_name, m_theme_infos);
     }
     else
     {
-        get_gtk_theme(m_bDont_query_dewm, ver, _de_name, m_theme_infos);
+        get_gtk_theme(query_user.m_bDont_query_dewm, ver, de_name, m_theme_infos);
     }
     
     // append at each theme-gtk module " [GTKN]"

@@ -107,7 +107,7 @@ private:
     static struct passwd *m_pPwd;
 };
 
-class Theme : public User {
+class Theme {
 public:
     struct Theme_t {
         std::string gtk_theme_name{MAGIC_LINE};
@@ -124,6 +124,7 @@ public:
     std::string gtk_cursor();
 
 private:
+    User query_user;
     static Theme_t m_theme_infos;
     systemInfo_t& m_queried_themes;
     const std::string m_theme_name_version;

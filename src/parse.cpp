@@ -31,9 +31,12 @@ bool Query::RAM::m_bInit    = false;
 bool Query::CPU::m_bInit    = false;
 bool Query::User::m_bInit   = false;
 
-static std::array<std::string, 3> get_ansi_color(const std::string_view str, colors_t& colors)
+static std::array<std::string, 3> get_ansi_color(const std::string_view str, const colors_t& colors)
 {
-    size_t first_m = str.find("m");
+    if (hasStart(str, "38") || hasStart(str, "48"))
+        die("Can't convert \\e[38; or \\e[48; codes in GUI. Please use #hexcode colors instead.");
+
+    size_t first_m = str.find('m');
     if (first_m == std::string::npos)
         die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
 
@@ -48,81 +51,24 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, col
     debug("col = {}", col);
     int n = std::stoi(col);
 
-    // copy paste ahh code
     // unfortunatly you can't do bold and light in pango
+    if ((n >= 100 && n <= 107) || (n >= 40 && n <= 47))
+        type = "bgcolor";
+
+    // last character
+    // https://stackoverflow.com/a/5030086
+    n = col.back() - '0';
+
     switch (n)
     {
-        case 90:
-        case 30: col = colors.gui_black; break;
-
-        case 91:
-        case 31: col = colors.gui_red; break;
-
-        case 92:
-        case 32: col = colors.gui_green; break;
-
-        case 93:
-        case 33: col = colors.gui_yellow; break;
-
-        case 94:
-        case 34: col = colors.gui_blue; break;
-
-        case 95:
-        case 35: col = colors.gui_magenta; break;
-
-        case 96:
-        case 36: col = colors.gui_cyan; break;
-
-        case 97:
-        case 37: col = colors.gui_white; break;
-
-        case 100:
-        case 40:
-            col  = colors.gui_black;
-            type = "bgcolor";
-            break;
-
-        case 101:
-        case 41:
-            col  = colors.gui_red;
-            type = "bgcolor";
-            break;
-
-        case 102:
-        case 42:
-            col  = colors.gui_green;
-            type = "bgcolor";
-            break;
-
-        case 103:
-        case 43:
-            col  = colors.gui_yellow;
-            type = "bgcolor";
-            break;
-
-        case 104:
-        case 44:
-            col  = colors.gui_blue;
-            type = "bgcolor";
-            break;
-
-        case 105:
-        case 45:
-            col  = colors.gui_magenta;
-            type = "bgcolor";
-            break;
-
-        case 106:
-        case 46:
-            col  = colors.gui_cyan;
-            type = "bgcolor";
-            break;
-
-        case 107:
-        case 47:
-            col  = colors.gui_white;
-            type = "bgcolor";
-            break;
+        case 0: col = colors.gui_black;   break;
+        case 1: col = colors.gui_red;     break;
+        case 2: col = colors.gui_green;   break;
+        case 3: col = colors.gui_yellow;  break;
+        case 4: col = colors.gui_blue;    break;
+        case 5: col = colors.gui_magenta; break;
+        case 6: col = colors.gui_cyan;    break;
+        case 7: col = colors.gui_white;   break;
     }
 
     if (col[0] != '#')
