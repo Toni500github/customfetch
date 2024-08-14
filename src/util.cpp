@@ -303,17 +303,17 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     return false;
 }
 
-std::string str_tolower(const std::string& str)
+std::string str_tolower(std::string str)
 {
-    for (char x : str)
+    for (char& x : str)
         x = std::tolower(x);
 
     return str;
 }
 
-std::string str_toupper(const std::string& str)
+std::string str_toupper(std::string str)
 {
-    for (char x : str)
+    for (char& x : str)
         x = std::toupper(x);
 
     return str;
