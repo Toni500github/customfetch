@@ -66,7 +66,7 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
 Window::Window(Config& config, colors_t& colors)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
-    set_default_size(1000, 800);
+    set_default_size(1000, 600);
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
     if (!std::filesystem::exists(path) &&

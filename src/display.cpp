@@ -18,7 +18,7 @@
 // :)
 std::vector<std::string> asciiArt;
 
-std::string Display::detect_distro(Config& config)
+std::string Display::detect_distro(const Config& config)
 {
     std::string file_path;
 
@@ -157,7 +157,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
     return config.layouts;
 }
 
-void Display::display(std::vector<std::string>& renderResult)
+void Display::display(const std::vector<std::string>& renderResult)
 {
     // for loops hell nah
     fmt::println("{}", fmt::join(renderResult, "\n"));

@@ -35,13 +35,16 @@ A command-line system information tool (or neofetch like program), which its foc
     -s, --source-path <path>	Path to the ascii art file to display
     -C, --config <path>		Path to the config file to use
     -D, --data-dir <path>       Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
-    -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "arch")
+    -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
+    -f, --font <name>           The font to be used in GUI mode (syntax must be [FAMILY-LIST] [STYLE-OPTIONS] [SIZE])
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it's enabled)
     -o, --offset                Offset between the ascii art and the system infos
     -l. --list-modules  	Print the list of the components and its members
     -h, --help			Print this help menu
     -L, --logo-only             Print only the logo
     -V, --version		Print the version along with the git branch it was built
+
+    --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
     --logo-padding-top		Padding of the logo from the top
     --gen-config                Generate default config file
 
@@ -201,7 +204,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlgo:C:d:D:s:";
+    const char *optstring = "-VhnLlgf:o:C:d:D:s:";
     static const struct option opts[] =
     {
         {"version",          no_argument,       0, 'V'},
@@ -211,13 +214,14 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"logo-only",        no_argument,       0, 'L'},
         {"gui",              no_argument,       0, 'g'},
         {"offset",           required_argument, 0, 'o'},
+        {"font",             required_argument, 0, 'f'},
         {"config",           required_argument, 0, 'C'},
         {"data-dir",         required_argument, 0, 'D'},
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
 
-        // please don't mind
         {"logo-padding-top", required_argument, 0, "logo-padding-top"_fnv1a16},
+        {"bg-image",         required_argument, 0, "bg-image"_fnv1a16},
         {"gen-config",       no_argument,       0, "gen-config"_fnv1a16},
         {0,0,0,0}
     };
@@ -241,6 +245,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.m_disable_source = true; break;
             case 'l':
                 modules_list(); break;
+            case 'f':
+                config.font = optarg; break;
             case 'L':
                 config.m_print_logo_only = true; break;
             case 'g':
@@ -261,6 +267,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.logo_padding_top = std::atoi(optarg); break;
             case "gen-config"_fnv1a16:
                 config.generateConfig(configFile); exit(EXIT_SUCCESS); break;
+            case "bg-image"_fnv1a16:
+                config.gui_bg_image = optarg; break;
 
             default:
                 return false;
