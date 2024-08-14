@@ -1,4 +1,3 @@
-#include "gtkmm/enums.h"
 #ifdef GUI_MODE
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -14,6 +13,7 @@
 #include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
+#include "gtkmm/enums.h"
 #include "stb_image.h"
 #include "util.hpp"
 
