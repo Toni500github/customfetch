@@ -1,17 +1,17 @@
-${c1}   `hMMMMN+
-   -MMo-dMd`
-   oMN- oMN`
-   yMd  /NM:
-  .mMmyyhMMs
-  :NMMMhsmMh
-  +MNhNNoyMm-
-  hMd.-hMNMN:
-  mMmsssmMMMo
- .MMdyyhNMMMd
- oMN.`/dMddMN`
- yMm/hNm+./MM/
-.dMMMmo.``.NMo
-:NMMMNmmmmmMMh
-/MN/-------oNN:
-hMd.       .dMh
-sm/         /ms
+${green}   `hMMMMN+
+${green}   -MMo-dMd`
+${green}   oMN- oMN`
+${green}   yMd  /NM:
+${green}  .mMmyyhMMs
+${green}  :NMMMhsmMh
+${green}  +MNhNNoyMm-
+${green}  hMd.-hMNMN:
+${green}  mMmsssmMMMo
+${green} .MMdyyhNMMMd
+${green} oMN.`/dMddMN`
+${green} yMm/hNm+./MM/
+${green}.dMMMmo.``.NMo
+${green}:NMMMNmmmmmMMh
+${green}/MN/-------oNN:
+${green}hMd.       .dMh
+${green}sm/         /ms
