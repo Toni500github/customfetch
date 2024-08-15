@@ -52,10 +52,13 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     int n = std::stoi(col);
 
     // unfortunatly you can't do bold and light in pango
+    if ((n >= 100 && n <= 107) || (n >= 90 && n <= 97))
+        weight = "light";
+
     if ((n >= 100 && n <= 107) || (n >= 40 && n <= 47))
         type = "bgcolor";
 
-    // last character
+    // last number
     // https://stackoverflow.com/a/5030086
     n = col.back() - '0';
 
@@ -207,7 +210,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             }
             break;
             case '}':  // please pay very attention when reading this unreadable code
-                if (command == "0")
+                if (command == "1")
+                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                            config.gui ? "</span><span weight='bold'>" : fmt::format("{}\033[1m", NOCOLOR)); 
+                else if (command == "0")
                     output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                             config.gui ? "</span><span>" : NOCOLOR);
                 else
@@ -215,8 +221,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     std::string str_clr;
                     if (config.gui)
                     {
-                        // if at end there a '$', it will make the end output "$<" and so it will confuse addValueFromModule()
-                        // and so let's make it "$ <"
+                        // if at end there a '$', it will make the end output "$</span>" and so it will confuse addValueFromModule()
+                        // and so let's make it "$ </span>"
                         // this geniunenly stupid
                         if (output.back() == '$')
                                 output += " ";
@@ -261,9 +267,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             const std::string_view color  = clrs.at(0);
                             const std::string_view weight = clrs.at(1);
                             const std::string_view type   = clrs.at(2);
-                            output                  = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                                                     fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color,
-                                                                                 weight, output.substr(endBracketIndex + 1)));
+                            output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
+                                                    fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color, weight,
+                                                    output.substr(endBracketIndex + 1)));
                         }
 
                         else

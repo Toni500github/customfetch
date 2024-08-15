@@ -99,6 +99,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # Little FAQ
 # Q: "but then if I want to make only some words/chars in a color and the rest normal?"
 # A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
+     Or, if you want to reset color and make it bold, use ${1}
 
 # Q: "a website for box drawing symbols?"
 # A: "https://symbl.cc/en/unicode/blocks/box-drawing/" is really good

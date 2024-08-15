@@ -2,6 +2,7 @@
 
 #include "display.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
@@ -31,7 +32,15 @@ std::string Display::detect_distro(const Config& config)
     else
     {
         Query::System system;
-        file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
+
+        if (std::filesystem::exists(str_tolower(system.os_id())))
+            file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
+        
+        else if (std::filesystem::exists(str_tolower(system.os_name())))
+            file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()));
+        
+        else
+            file_path = fmt::format("{}/ascii/linux.txt", config.data_dir);
     }
     return file_path;
 }
@@ -85,7 +94,6 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
 
     while (std::getline(file, line))
     {
-        debug("{}", line);
         std::string pureOutput;
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
         asciiArt_s += config.gui ? "" : NOCOLOR;
@@ -117,6 +125,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
             maxLineLength = static_cast<int>(pureOutputLen);
 
         pureAsciiArtLens.push_back(pureOutputLen);
+        debug("asciiArt_s = {}", asciiArt_s);
     }
 
     if (config.m_print_logo_only)
