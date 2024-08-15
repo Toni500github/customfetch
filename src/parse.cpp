@@ -215,6 +215,12 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     std::string str_clr;
                     if (config.gui)
                     {
+                        // if at end there a '$', it will make the end output "$<" and so it will confuse addValueFromModule()
+                        // and so let's make it "$ <"
+                        // this geniunenly stupid
+                        if (output.back() == '$')
+                                output += " ";
+
                         switch (fnv1a16::hash(command))
                         {
                             case "black"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_black); break;
@@ -229,15 +235,21 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         }
 
                         if (str_clr[0] == '!' && str_clr[1] == '#')
+                        {
+                            //debug("output.substr(endBracketIndex + 1) = {}", output.substr(endBracketIndex + 1));
                             output = output.replace(
                                 dollarSignIndex, output.length() - dollarSignIndex,
-                                fmt::format("<span fgcolor='{}' weight='bold'>{}</span>", str_clr.replace(0, 1, ""),
+                                fmt::format("<span fgcolor='{}' weight='bold'>{}</span>", str_clr.substr(1),
                                             output.substr(endBracketIndex + 1)));
+                            
+                        }
 
                         else if (str_clr[0] == '#')
+                        {
                             output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                     fmt::format("<span fgcolor='{}'>{}</span>", str_clr,
                                                                 output.substr(endBracketIndex + 1)));
+                        }
 
                         else if (hasStart(str_clr, "\\e") ||
                                  hasStart(str_clr,
@@ -278,7 +290,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                         if (str_clr[0] == '!' && str_clr[1] == '#')
                         {
-                            fmt::rgb clr                   = hexStringToColor(str_clr.replace(0, 1, ""));
+                            fmt::rgb clr                   = hexStringToColor(str_clr.substr(1));
                             unformatted_replacement_string = output.substr(endBracketIndex + 1);
                             formatted_replacement_string =
                                 fmt::format(fmt::fg(clr) | fmt::emphasis::bold, "{}", unformatted_replacement_string);

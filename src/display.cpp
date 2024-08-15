@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 #include <vector>
 
 #include "config.hpp"
@@ -84,6 +85,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
 
     while (std::getline(file, line))
     {
+        debug("{}", line);
         std::string pureOutput;
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
         asciiArt_s += config.gui ? "" : NOCOLOR;
@@ -127,7 +129,9 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
     }
 
     // erase each element for each instance of MAGIC_LINE
-    std::erase_if(config.layouts, [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; });
+    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(),
+                                     [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                         config.layouts.end());
 
     size_t i;
     for (i = 0; i < config.layouts.size(); i++)

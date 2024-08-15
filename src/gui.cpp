@@ -51,7 +51,10 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
         layout = parse(layout, systemInfo, _, config, colors, true);
     }
 
-    std::erase_if(config.layouts, [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; });
+    // erase each element for each instance of MAGIC_LINE
+    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(),
+                                     [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                         config.layouts.end());
 
     for (size_t i = 0; i < config.layouts.size(); i++)
     {
