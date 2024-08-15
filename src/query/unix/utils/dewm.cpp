@@ -189,7 +189,7 @@ std::string get_cinnamon_version()
     while (std::getline(f, line))
     {
         if (hasStart(line, "X-GNOME-Bugzilla-Version="))
-            return line.substr(0, "X-GNOME-Bugzilla-Version="_len);
+            return line.substr("X-GNOME-Bugzilla-Version="_len);
     }
 }
 
