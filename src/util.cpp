@@ -262,19 +262,17 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
             debug("reading stdout");
             char c;
             while (read(pipeout[0], &c, 1) == 1)
-            {
                 output += c;
-            }
 
             close(pipeout[0]);
-            if (!output.empty() && output.at(output.length() - 1) == '\n')
+            if (!output.empty() && output.back() == '\n')
                 output.pop_back();
 
             return true;
         }
         else
         {
-            if (!useStdErr || !noerror_print)
+            if (!noerror_print)
                 error("Failed to execute the command: {}", fmt::join(cmd, " "));
         }
     }
@@ -288,7 +286,7 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
         cmd.push_back(nullptr);
         execvp(cmd[0], const_cast<char* const*>(cmd.data()));
 
-        die("An error has occurred: {}", strerror(errno));
+        die("An error has occurred with execvp: {}", strerror(errno));
     }
     else
     {
