@@ -22,27 +22,25 @@ std::vector<std::string> asciiArt;
 
 std::string Display::detect_distro(const Config& config)
 {
-    std::string file_path;
-
     debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
     if (!config.m_custom_distro.empty())
     {
-        file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, config.m_custom_distro);
+        return fmt::format("{}/ascii/{}.txt", config.data_dir, config.m_custom_distro);
     }
     else
     {
         Query::System system;
+        std::string format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
 
-        if (std::filesystem::exists(str_tolower(system.os_id())))
-            file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
+        if (std::filesystem::exists(format))
+            return format;
         
-        else if (std::filesystem::exists(str_tolower(system.os_name())))
-            file_path = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()));
-        
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()));
+        if (std::filesystem::exists(format))
+            return format;
         else
-            file_path = fmt::format("{}/ascii/linux.txt", config.data_dir);
+            return fmt::format("{}/ascii/linux.txt", config.data_dir);
     }
-    return file_path;
 }
 
 std::vector<std::string>& Display::render(Config& config, colors_t& colors, const bool already_analyzed_file,
