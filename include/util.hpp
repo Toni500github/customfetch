@@ -61,8 +61,8 @@ std::string expandVar(std::string ret);
 // Replace string inplace
 void replace_str(std::string& str, const std::string& from, const std::string& to);
 bool read_exec(std::vector<const char *> cmd, std::string& output, bool useStdErr = false, bool noerror_print = true);
-std::string str_tolower(const std::string& str);
-std::string str_toupper(const std::string& str);
+std::string str_tolower(std::string str);
+std::string str_toupper(std::string str);
 void strip(std::string& input);
 std::string read_by_syspath(const std::string_view path);
 fmt::rgb hexStringToColor(const std::string_view hexstr);
