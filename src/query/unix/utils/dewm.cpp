@@ -12,6 +12,12 @@
 // https://github.com/fastfetch-cli/fastfetch/blob/a61765c8b1387777be67d967bc2f69031c8ca399/src/detection/displayserver/linux/wmde.c#L19
 std::string parse_de_env(void) noexcept
 {
+    const char* env;
+
+    env = std::getenv("XDG_CURRENT_DESKTOP");
+    if (env != NULL && env[0] != '\0')
+        return env;
+
     // maybe let's try to get the DE envs first, then try with the others
     if (std::getenv("KDE_FULL_SESSION") != NULL || std::getenv("KDE_SESSION_UID") != NULL ||
         std::getenv("KDE_SESSION_VERSION") != NULL)
@@ -31,12 +37,6 @@ std::string parse_de_env(void) noexcept
 
     if (std::getenv("HYPRLAND_CMD") != NULL)
         return "Hyprland";
-
-    const char* env;
-
-    env = std::getenv("XDG_CURRENT_DESKTOP");
-    if (env != NULL && env[0] != '\0')
-        return env;
 
     env = std::getenv("XDG_SESSION_DESKTOP");
     if (env != NULL && env[0] != '\0')

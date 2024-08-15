@@ -26,8 +26,11 @@ using namespace Query;
 
 static std::string get_de_name()
 {
-    const std::string& ret = parse_de_env();
+    std::string ret = parse_de_env();
     debug("get_de_name = {}", ret);
+    if (hasStart(ret, "X-"))
+        ret.erase(0,2);
+
     return ret;
 }
 
@@ -75,7 +78,7 @@ static std::string get_wm_name()
 
 static std::string get_de_version(const std::string_view de_name)
 {
-    switch (fnv1a16::hash(de_name.data()))
+    switch (fnv1a16::hash(str_tolower(de_name.data())))
     {
         case "mate"_fnv1a16:     return get_mate_version();
         case "cinnamon"_fnv1a16: return get_cinnamon_version();
