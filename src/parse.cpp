@@ -201,6 +201,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             case '>':
             {
                 const size_t      dot_pos = command.find('.');
+                if (dot_pos == std::string::npos)
+                    die("module name '{}' doesn't have a dot '.' for separiting module name and submodule", command);
+
                 const std::string moduleName(command.substr(0, dot_pos));
                 const std::string moduleValueName(command.substr(dot_pos + 1));
                 addValueFromModule(systemInfo, moduleName, moduleValueName, config);
@@ -225,7 +228,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         // and so let's make it "$ </span>"
                         // this geniunenly stupid
                         if (output.back() == '$')
-                                output += " ";
+                                output += ' ';
 
                         switch (fnv1a16::hash(command))
                         {
@@ -243,18 +246,17 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         if (str_clr[0] == '!' && str_clr[1] == '#')
                         {
                             //debug("output.substr(endBracketIndex + 1) = {}", output.substr(endBracketIndex + 1));
-                            output = output.replace(
-                                dollarSignIndex, output.length() - dollarSignIndex,
-                                fmt::format("<span fgcolor='{}' weight='bold'>{}</span>", str_clr.substr(1),
-                                            output.substr(endBracketIndex + 1)));
+                            output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
+                                                    fmt::format("<span fgcolor='{}' weight='bold'>{}</span>",
+                                                                str_clr.substr(1), output.substr(endBracketIndex + 1)));
                             
                         }
 
                         else if (str_clr[0] == '#')
                         {
                             output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                                    fmt::format("<span fgcolor='{}'>{}</span>", str_clr,
-                                                                output.substr(endBracketIndex + 1)));
+                                                    fmt::format("<span fgcolor='{}'>{}</span>", 
+                                                                str_clr, output.substr(endBracketIndex + 1)));
                         }
 
                         else if (hasStart(str_clr, "\\e") ||

@@ -96,6 +96,14 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
         asciiArt_s += config.gui ? "" : NOCOLOR;
 
+        if (config.gui)
+        {
+            // check parse.cpp
+            size_t pos = asciiArt_s.rfind("$ <");
+            if (pos != std::string::npos)
+                asciiArt_s.replace(pos, 2, "$");
+        }
+
         asciiArt.push_back(asciiArt_s);
         size_t pureOutputLen = pureOutput.length();
 
