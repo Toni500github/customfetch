@@ -1,18 +1,18 @@
-${c2}           .;ldkO0000Okdl;.
-       .;d00xl:^''''''^:ok00d;.
-     .d00l'                'o00d.
-   .d0Kd'${c1}  Okxol:;,.          ${c2}:O0d.
-  .OK${c1}KKK0kOKKKKKKKKKKOxo:,      ${c2}lKO.
- ,0K${c1}KKKKKKKKKKKKKKK0P^${c2},,,${c1}^dx:${c2}    ;00,
-.OK${c1}KKKKKKKKKKKKKKKk'${c2}.oOPPb.${c1}'0k.${c2}   cKO.
-:KK${c1}KKKKKKKKKKKKKKK: ${c2}kKx..dd ${c1}lKd${c2}   'OK:
-dKK${c1}KKKKKKKKKOx0KKKd ${c2}^0KKKO' ${c1}kKKc${c2}   dKd
-dKK${c1}KKKKKKKKKK;.;oOKx,..${c2}^${c1}..;kKKK0.${c2}  dKd
-:KK${c1}KKKKKKKKKK0o;...^cdxxOK0O/^^'  ${c2}.0K:
- kKK${c1}KKKKKKKKKKKKK0x;,,......,;od  ${c2}lKk
- '0K${c1}KKKKKKKKKKKKKKKKKKKK00KKOo^  ${c2}c00'
-  'kK${c1}KKOxddxkOO00000Okxoc;''   ${c2}.dKk'
-    l0Ko.                    .c00l'
-     'l0Kk:.              .;xK0l'
-        'lkK0xl:;,,,,;:ldO0kl'
-            '^:ldxkkkkxdl:^'
+${1}           .;ldkO0000Okdl;.
+${1}       .;d00xl:^''''''^:ok00d;.
+${1}     .d00l'                'o00d.
+${1}   .d0Kd'${green}  Okxol:;,.          ${1}:O0d.
+${1}  .OK${green}KKK0kOKKKKKKKKKKOxo:,      ${1}lKO.
+${1} ,0K${green}KKKKKKKKKKKKKKK0P^${1},,,${green}^dx:${1}    ;00,
+${1}.OK${green}KKKKKKKKKKKKKKKk'${1}.oOPPb.${green}'0k.${1}   cKO.
+${1}:KK${green}KKKKKKKKKKKKKKK: ${1}kKx..dd ${green}lKd${1}   'OK:
+${1}dKK${green}KKKKKKKKKOx0KKKd ${1}^0KKKO' ${green}kKKc${1}   dKd
+${1}dKK${green}KKKKKKKKKK;.;oOKx,..${1}^${green}..;kKKK0.${1}  dKd
+${1}:KK${green}KKKKKKKKKK0o;...^cdxxOK0O/^^'  ${1}.0K:
+${1} kKK${green}KKKKKKKKKKKKK0x;,,......,;od  ${1}lKk
+${1} '0K${green}KKKKKKKKKKKKKKKKKKKK00KKOo^  ${1}c00'
+${1}  'kK${green}KKOxddxkOO00000Okxoc;''   ${1}.dKk'
+${1}    l0Ko.                    .c00l'
+${1}     'l0Kk:.              .;xK0l'
+${1}        'lkK0xl:;,,,,;:ldO0kl'
+${1}            '^:ldxkkkkxdl:^'

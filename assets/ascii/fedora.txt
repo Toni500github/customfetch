@@ -1,19 +1,19 @@
-${c1}             .',;::::;,'.
-         .';:cccccccccccc:;,.
-      .;cccccccccccccccccccccc;.
-    .:cccccccccccccccccccccccccc:.
-  .;ccccccccccccc;${c2}.:dddl:.${c1};ccccccc;.
- .:ccccccccccccc;${c2}OWMKOOXMWd${c1};ccccccc:.
-.:ccccccccccccc;${c2}KMMc${c1};cc;${c2}xMMc${c1};ccccccc:.
-,cccccccccccccc;${c2}MMM.${c1};cc;${c2};WW:${c1};cccccccc,
-:cccccccccccccc;${c2}MMM.${c1};cccccccccccccccc:
-:ccccccc;${c2}oxOOOo${c1};${c2}MMM0OOk.${c1};cccccccccccc:
-cccccc;${c2}0MMKxdd:${c1};${c2}MMMkddc.${c1};cccccccccccc;
-ccccc;${c2}XM0'${c1};cccc;${c2}MMM.${c1};cccccccccccccccc'
-ccccc;${c2}MMo${c1};ccccc;${c2}MMW.${c1};ccccccccccccccc;
-ccccc;${c2}0MNc.${c1}ccc${c2}.xMMd${c1};ccccccccccccccc;
-cccccc;${c2}dNMWXXXWM0:${c1};cccccccccccccc:,
-cccccccc;${c2}.:odl:.${c1};cccccccccccccc:,.
-:cccccccccccccccccccccccccccc:'.
-.:cccccccccccccccccccccc:;,..
-  '::cccccccccccccc::;,.
+${blue}             .',;::::;,'.
+${blue}         .';:cccccccccccc:;,.
+${blue}      .;cccccccccccccccccccccc;.
+${blue}    .:cccccccccccccccccccccccccc:.
+${blue}  .;ccccccccccccc;${1}.:dddl:.${blue};ccccccc;.
+${blue} .:ccccccccccccc;${1}OWMKOOXMWd${blue};ccccccc:.
+${blue}.:ccccccccccccc;${1}KMMc${blue};cc;${1}xMMc${blue};ccccccc:.
+${blue},cccccccccccccc;${1}MMM.${blue};cc;${1};WW:${blue};cccccccc,
+${blue}:cccccccccccccc;${1}MMM.${blue};cccccccccccccccc:
+${blue}:ccccccc;${1}oxOOOo${blue};${1}MMM0OOk.${blue};cccccccccccc:
+${blue}cccccc;${1}0MMKxdd:${blue};${1}MMMkddc.${blue};cccccccccccc;
+${blue}ccccc;${1}XM0'${blue};cccc;${1}MMM.${blue};cccccccccccccccc'
+${blue}ccccc;${1}MMo${blue};ccccc;${1}MMW.${blue};ccccccccccccccc;
+${blue}ccccc;${1}0MNc.${blue}ccc${1}.xMMd${blue};ccccccccccccccc;
+${blue}cccccc;${1}dNMWXXXWM0:${blue};cccccccccccccc:,
+${blue}cccccccc;${1}.:odl:.${blue};cccccccccccccc:,.
+${blue}:cccccccccccccccccccccccccccc:'.
+${blue}.:cccccccccccccccccccccc:;,..
+${blue}  '::cccccccccccccc::;,.

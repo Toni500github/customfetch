@@ -1,21 +1,21 @@
-${c1}..............
-            ..,;:ccc,.
-          ......''';lxO.
-.....''''..........,:ld;
-           .';;;:::;,,.x,
-      ..'''.            0Xxoc:,.  ...
-  ....                ,ONkc;,;cokOdc',.
- .                   OMo           ':${c2}dd${c1}o.
-                    dMc               :OO;
-                    0M.                 .:o.
-                    ;Wd
-                     ;XO,
-                       ,d0Odlc;,..
-                           ..',;:cdOOd::,.
-                                    .:d;.':;.
-                                       'd,  .'
-                                         ;l   ..
-                                          .o
-                                            c
-                                            .'
-                                             .
+${blue}..............
+${blue}            ..,;:ccc,.
+${blue}          ......''';lxO.
+${blue}.....''''..........,:ld;
+${blue}           .';;;:::;,,.x,
+${blue}      ..'''.            0Xxoc:,.  ...
+${blue}  ....                ,ONkc;,;cokOdc',.
+${blue} .                   OMo           ':${1}dd${blue}o.
+${blue}                    dMc               :OO;
+${blue}                    0M.                 .:o.
+${blue}                    ;Wd
+${blue}                     ;XO,
+${blue}                       ,d0Odlc;,..
+${blue}                           ..',;:cdOOd::,.
+${blue}                                    .:d;.':;.
+${blue}                                       'd,  .'
+${blue}                                         ;l   ..
+${blue}                                          .o
+${blue}                                            c
+${blue}                                            .'
+${blue}                                             .

@@ -1,16 +1,16 @@
-${c1}MMMMMMMMMMMMMMMMMMMMMMMMMmds+.
-MMm----::-://////////////oymNMd+`
-MMd      ${c2}/++                ${c1}-sNMd:
-MMNso/`  ${c2}dMM    `.::-. .-::.` ${c1}.hMN:
-ddddMMh  ${c2}dMM   :hNMNMNhNMNMNh: ${c1}`NMm
-    NMm  ${c2}dMM  .NMN/-+MMM+-/NMN` ${c1}dMM
-    NMm  ${c2}dMM  -MMm  `MMM   dMM. ${c1}dMM
-    NMm  ${c2}dMM  -MMm  `MMM   dMM. ${c1}dMM
-    NMm  ${c2}dMM  .mmd  `mmm   yMM. ${c1}dMM
-    NMm  ${c2}dMM`  ..`   ...   ydm. ${c1}dMM
-    hMM- ${c2}+MMd/-------...-:sdds  ${c1}dMM
-    -NMm- ${c2}:hNMNNNmdddddddddy/`  ${c1}dMM
-     -dMNs-${c2}``-::::-------.``    ${c1}dMM
-      `/dMNmy+/:-------------:/yMMM
-         ./ydNMMMMMMMMMMMMMMMMMMMMM
-            .MMMMMMMMMMMMMMMMMMM
+${green}MMMMMMMMMMMMMMMMMMMMMMMMMmds+.
+${green}MMm----::-://////////////oymNMd+`
+${green}MMd      ${1}/++                ${green}-sNMd:
+${green}MMNso/`  ${1}dMM    `.::-. .-::.` ${green}.hMN:
+${green}ddddMMh  ${1}dMM   :hNMNMNhNMNMNh: ${green}`NMm
+${green}    NMm  ${1}dMM  .NMN/-+MMM+-/NMN` ${green}dMM
+${green}    NMm  ${1}dMM  -MMm  `MMM   dMM. ${green}dMM
+${green}    NMm  ${1}dMM  -MMm  `MMM   dMM. ${green}dMM
+${green}    NMm  ${1}dMM  .mmd  `mmm   yMM. ${green}dMM
+${green}    NMm  ${1}dMM`  ..`   ...   ydm. ${green}dMM
+${green}    hMM- ${1}+MMd/-------...-:sdds  ${green}dMM
+${green}    -NMm- ${1}:hNMNNNmdddddddddy/`  ${green}dMM
+${green}     -dMNs-${1}``-::::-------.``    ${green}dMM
+${green}      `/dMNmy+/:-------------:/yMMM
+${green}         ./ydNMMMMMMMMMMMMMMMMMMMMM
+${green}            .MMMMMMMMMMMMMMMMMMM

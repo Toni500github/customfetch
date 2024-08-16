@@ -1,16 +1,16 @@
-${c2}                 `-++:`
-               ./oooooo/-
-            `:oooooooooooo:.
-          -+oooooooooooooooo+-`
-       ./oooooooooooooooooooooo/-
-      :oooooooooooooooooooooooooo:
-    `  `-+oooooooooooooooooooo/-   `
- `:oo/-   .:ooooooooooooooo+:`  `-+oo/.
-`/oooooo:.   -/oooooooooo/.   ./oooooo/.
-  `:+ooooo+-`  `:+oooo+-   `:oooooo+:`
-     .:oooooo/.   .::`   -+oooooo/.
-        -/oooooo:.    ./oooooo+-
-          `:+ooooo+-:+oooooo:`
-             ./oooooooooo/.
-                -/oooo+:`
-                  `:/.
+${1}                 `-++:`
+${1}               ./oooooo/-
+${1}            `:oooooooooooo:.
+${1}          -+oooooooooooooooo+-`
+${1}       ./oooooooooooooooooooooo/-
+${1}      :oooooooooooooooooooooooooo:
+${1}    `  `-+oooooooooooooooooooo/-   `
+${1} `:oo/-   .:ooooooooooooooo+:`  `-+oo/.
+${1}`/oooooo:.   -/oooooooooo/.   ./oooooo/.
+${1}  `:+ooooo+-`  `:+oooo+-   `:oooooo+:`
+${1}     .:oooooo/.   .::`   -+oooooo/.
+${1}        -/oooooo:.    ./oooooo+-
+${1}          `:+ooooo+-:+oooooo:`
+${1}             ./oooooooooo/.
+${1}                -/oooo+:`
+${1}                  `:/.

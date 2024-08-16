@@ -1,18 +1,18 @@
-${c1}                __.;=====;.__
-            _.=+==++=++=+=+===;.
-             -=+++=+===+=+=+++++=_
-        .     -=:``     `--==+=++==.
-       _vi,    `            --+=++++:
-      .uvnvi.       _._       -==+==+.
-     .vvnvnI`    .;==|==;.     :|=||=|.
-${c2}+QmQQm${c1}pvvnv; ${c2}_yYsyQQWUUQQQm #QmQ#${c1}:${c2}QQQWUV$QQm.
-${c2} -QQWQW${c1}pvvo${c2}wZ?.wQQQE${c1}==<${c2}QWWQ/QWQW.QQWW${c1}(: ${c2}jQWQE
-${c2}  -$QQQQmmU'  jQQQ@${c1}+=<${c2}QWQQ)mQQQ.mQQQC${c1}+;${c2}jWQQ@'
-${c2}   -$WQ8Y${c1}nI:   ${c2}QWQQwgQQWV${c1}`${c2}mWQQ.jQWQQgyyWW@!
-${c1}     -1vvnvv.     `~+++`        ++|+++
-      +vnvnnv,                 `-|===
-       +vnvnvns.           .      :=-
-        -Invnvvnsi..___..=sv=.     `
-          +Invnvnvnnnnnnnnvvnn;.
-            ~|Invnvnvvnvvvnnv}+`
-               -~|{*l}*|~
+${green}                __.;=====;.__
+${green}            _.=+==++=++=+=+===;.
+${green}             -=+++=+===+=+=+++++=_
+${green}        .     -=:``     `--==+=++==.
+${green}       _vi,    `            --+=++++:
+${green}      .uvnvi.       _._       -==+==+.
+${green}     .vvnvnI`    .;==|==;.     :|=||=|.
+${black}+QmQQm${green}pvvnv; ${black}_yYsyQQWUUQQQm #QmQ#${green}:${black}QQQWUV$QQm.
+${black} -QQWQW${green}pvvo${black}wZ?.wQQQE${green}==<${black}QWWQ/QWQW.QQWW${green}(: ${black}jQWQE
+${black}  -$QQQQmmU'  jQQQ@${green}+=<${black}QWQQ)mQQQ.mQQQC${green}+;${black}jWQQ@'
+${black}   -$WQ8Y${green}nI:   ${black}QWQQwgQQWV${green}`${black}mWQQ.jQWQQgyyWW@!
+${green}     -1vvnvv.     `~+++`        ++|+++
+${green}      +vnvnnv,                 `-|===
+${green}       +vnvnvns.           .      :=-
+${green}        -Invnvvnsi..___..=sv=.     `
+${green}          +Invnvnvnnnnnnnnvvnn;.
+${green}            ~|Invnvnvvnvvvnnv}+`
+${green}               -~|{*l}*|~
