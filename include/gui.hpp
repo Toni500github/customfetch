@@ -4,34 +4,37 @@
 #ifdef GUI_MODE
 
 #include "config.hpp"
-#include "gtkmm/window.h"
-#include "gtkmm/label.h"
-#include "gtkmm/overlay.h"
-#include "gtkmm/box.h"
 #include "gtkmm/alignment.h"
+#include "gtkmm/box.h"
 #include "gtkmm/container.h"
 #include "gtkmm/image.h"
+#include "gtkmm/label.h"
+#include "gtkmm/overlay.h"
+#include "gtkmm/window.h"
 
-namespace GUI {
+namespace GUI
+{
 
-class Window : public Gtk::Window {
+class Window : public Gtk::Window
+{
 public:
     Window(Config& config, colors_t& colors);
     virtual ~Window();
 
 private:
-    Gtk::Overlay m_overlay;
-    Gtk::Box m_box;
-    Gtk::Alignment m_alignment;
-    Gtk::Label m_label;
-    Gtk::Image *m_img, m_bg_image;
+    Gtk::Overlay    m_overlay;
+    Gtk::Box        m_box;
+    Gtk::Alignment  m_alignment;
+    Gtk::Label      m_label;
+    Gtk::Image     *m_img, m_bg_image;
     Glib::RefPtr<Gdk::Pixbuf> m_original_pixbuf;
 
     void update_background_image(int width, int height)
     {
         if (m_original_pixbuf)
         {
-            Glib::RefPtr<Gdk::Pixbuf> scaled_pixbuf = m_original_pixbuf->scale_simple(width, height, Gdk::INTERP_BILINEAR);
+            Glib::RefPtr<Gdk::Pixbuf> scaled_pixbuf =
+                m_original_pixbuf->scale_simple(width, height, Gdk::INTERP_BILINEAR);
             m_bg_image.set(scaled_pixbuf);
         }
     }
@@ -39,17 +42,16 @@ private:
     // Signal handler for window resize
     void on_window_resized(Gtk::Allocation& allocation)
     {
-        int new_width = allocation.get_width();
+        int new_width  = allocation.get_width();
         int new_height = allocation.get_height();
 
         // Update the background image with the new dimensions
         update_background_image(new_width, new_height);
     }
-
 };
 
-}
+}  // namespace GUI
 
-#endif // GUI_MODE
+#endif  // GUI_MODE
 
-#endif // _GUI_HPP
+#endif  // _GUI_HPP

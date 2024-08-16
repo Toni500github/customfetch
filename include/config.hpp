@@ -3,9 +3,10 @@
 
 #define TOML_HEADER_ONLY 0
 
+#include <cstdint>
+
 #include "toml++/toml.hpp"
 #include "util.hpp"
-#include <cstdint>
 
 struct colors_t
 {
@@ -39,9 +40,9 @@ public:
     std::string              data_dir;
     std::string              sep_reset;
     std::string              gui_bg_image;
-    std::uint16_t            offset = 0;
+    std::uint16_t            offset           = 0;
     std::uint16_t            logo_padding_top = 0;
-    bool                     gui    = false;
+    bool                     gui              = false;
     std::vector<std::string> layouts;
     std::vector<std::string> pkgs_managers;
 
@@ -53,8 +54,8 @@ public:
 
     // inner management
     std::string m_custom_distro;
-    bool        m_disable_source = false;
-    bool        m_display_distro = true;
+    bool        m_disable_source  = false;
+    bool        m_display_distro  = true;
     bool        m_print_logo_only = false;
 
     void        loadConfigFile(const std::string_view filename, colors_t& colors);
@@ -65,7 +66,7 @@ public:
     T getConfigValue(const std::string& value, const T&& fallback) const
     {
         std::optional<T> ret = this->tbl.at_path(value).value<T>();
-        if constexpr ( toml::is_string<T> )  // if we want to get a value that's a string
+        if constexpr (toml::is_string<T>)  // if we want to get a value that's a string
             return ret ? expandVar(ret.value()) : expandVar(fallback);
         else
             return ret.value_or(fallback);
