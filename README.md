@@ -35,11 +35,12 @@ Currently supports Linux distros only, but windows support is incoming
 * Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Lightweight
 >[!NOTE]
->enabling GUI support may slow down customfetch a bit because it needs to load the GUI libraries at runtime\
+>enabling GUI mode may slow down customfetch a bit because it needs to load the GUI libraries at runtime\
 >To check if it's enabled or not, run "cufetch --version"
 
 ## Depends
-currently nothing, if need to install with GUI support install: `gtk3 gtkmm3`
+currently there aren't any dependencies to install.
+If you want to install with GUI mode install: `gtk3` and `gtkmm3` from your package manager
 
 ## Installation
 ### Arch and based (unstable) (AUR)
@@ -47,7 +48,7 @@ currently nothing, if need to install with GUI support install: `gtk3 gtkmm3`
 # btw checkout our other project https://github.com/BurntRanch/TabAUR ;)
 taur -S customfetch-git
 
-# GUI support
+# GUI mode
 taur -S customfetch-gui-git
 ```
 
