@@ -104,9 +104,6 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
 #    Or, if you want to reset color and make it bold, use ${1}
 
-# Q: "a website for box drawing symbols?"
-# A: "https://symbl.cc/en/unicode/blocks/box-drawing/" is really good
-
 layout = [
     "${auto2}$<user.name>${0}@${auto2}$<os.hostname>",
     "───────────────────────────",

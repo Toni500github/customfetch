@@ -75,6 +75,7 @@ Here's an example using my config
 The config:
 
 ```toml
+
 [config]
 layout = [
     "${red}$<user.name>${0}@${cyan}$<os.hostname>",
@@ -125,6 +126,18 @@ data-dir = "/usr/share/customfetch"
 # Make it empty for disabling
 sep-reset = "->"
 
+# Padding of the logo from the top
+logo-padding-top = 0
+
+# $<os.uptime> format config
+[os.uptime]
+# how to display the name of the uptime
+# e.g: hours = "h" -> "Uptime: 3h"
+days = " days"
+hours = " hours"
+mins = " mins"
+secs = " seconds"
+
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
 # remember to add ${0} where you want to reset color
@@ -160,6 +173,11 @@ cyan = "!#00ffff"
 yellow = "!#ffff00"
 magenta = "!#f881ff"
 white = "!#ffffff"
+
+# Path to image as a background.
+# put "disable" for disabling and use the theme color as background.
+bg-image = "disable"
+
 ```
 
 You may be confused and have difficulty to understand, but this is why customfetch is different from the others.\
@@ -167,18 +185,23 @@ You may be confused and have difficulty to understand, but this is why customfet
 We use something we call "components", 2 inspired by bash syntax, and they starts with a '$'. **We use them on both the ascii art text file and the `layout` variable**\
 There are 3 componenets:
 
-* **The info module** ($<>) lets you access a sub-member of a built-in module\
-  e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
-  run "cufetch -l" for a list of builti-in modules
+* **The info component ($<>)** will print a member of a module
+ e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
+ run "cufetch -l" for a list of builti-in modules
 
-* **The color module** (${}) displays the text with a color\
-  e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable).\
-  you can even put a custom hex color e.g: ${#ff6622} (for bold put '!' at start) OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.\
-  To reset color use ${0}
+* **The bash command component ($())** let's you execute bash commands\
+ e.g $(echo \"hello world\") will indeed echo out Hello world.\
+ you can even use pipes\
+ e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world\
 
-* **The bash command module** ($()) let's you execute bash commands.\
-  e.g $(echo \"hello world\") will indeed echo out hello world\
-  you can even use pipes:\
-  e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
+* **The color component (${})** is used for which color to use for colorizing the text\
+ e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)\
+ you can even put a custom hex color e.g: ${#ff6622} (for bold text put ! before # e.g ${!#ff6622} )\
+ OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.\
+ For auto coloring, depending on the ascii logo colors, use ${auto}.\
+ They can be used for different colors too. So for getting the 2nd color of the ascii logo,\
+ use ${auto2}, for the 4th one use ${auto4} and so on.\
 
 Any end brackets (')', '}', '>') can be escaped with \\
+
+![meme.png](assets/screenshots/meme.png)
