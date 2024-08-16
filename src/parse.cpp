@@ -2,10 +2,12 @@
 
 #include <unistd.h>
 
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <cstdlib>
 #include <string>
+#include <vector>
 
 #include "config.hpp"
 #include "query.hpp"
@@ -121,6 +123,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     size_t dollarSignIndex = 0;
     size_t oldDollarSignIndex = 0;
     bool   start           = false;
+    static std::vector<std::string> auto_colors;
 
     if (!config.sep_reset.empty() && parsingLaoyut)
     {
@@ -140,6 +143,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         else if (dollarSignIndex <= oldDollarSignIndex && start)
         {
             dollarSignIndex = output.find('$', dollarSignIndex+1);
+            // oh nooo.. whatever
             goto retry;
         }
 
@@ -213,7 +217,20 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             }
             break;
             case '}':  // please pay very attention when reading this unreadable code
-                if (command == "1")
+                if (hasStart(command, "auto"))
+                {
+                    std::uint8_t ver = static_cast<std::uint8_t>(command.length() > 4 ? std::stoi(command.substr(4, 5)) - 1 : 0);
+                    if (ver >= auto_colors.size() || ver < 1)
+                        ver = 0;
+
+                    if (auto_colors.empty())
+                        auto_colors.push_back("\033[0m\033[1m");
+
+                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                            auto_colors.at(ver));
+                }
+
+                else if (command == "1")
                     output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                             config.gui ? "</span><span weight='bold'>" : fmt::format("{}\033[1m", NOCOLOR)); 
                 else if (command == "0")
@@ -330,6 +347,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                 formatted_replacement_string);
                     }
+
+                    if (!parsingLaoyut && std::find(auto_colors.begin(), auto_colors.end(), str_clr) == auto_colors.end())
+                        auto_colors.push_back(str_clr);
                 }
         }
     }

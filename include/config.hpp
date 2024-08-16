@@ -78,9 +78,9 @@ private:
 inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # customfetch is designed with customizability in mind
 # here is how it works:
-# the variable "layout" is used for showing the infos and/or something else
+# the variable "layout" is used for showing the infos
 # as like as the user want, no limitation.
-# inside here there are 3 "modules": $<> $() ${}
+# inside here there are 3 "components": $<> $() ${}
 
 # $<> lets you access a member of a module
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
@@ -91,10 +91,13 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # you can even use pipes
 # e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
 
-# ${} for which color to use for colorizing the text
+# ${} is used for which color to use for colorizing the text
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
 # you can even put a custom hex color e.g: ${#ff6622} (for bold text put ! before # e.g ${!#ff6622} )
-# OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}
+# OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.
+# For auto coloring, depending on the ascii logo colors, use ${auto}.
+# They can be used for different colors too. So for getting the 2nd color of the ascii logo,
+# use ${auto2}, for the 4th one use ${auto4} and so on.
 
 # Little FAQ
 # Q: "but then if I want to make only some words/chars in a color and the rest normal?"
@@ -105,23 +108,23 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # A: "https://symbl.cc/en/unicode/blocks/box-drawing/" is really good
 
 layout = [
-    "${red}$<user.name>${0}@${cyan}$<os.hostname>",
+    "${auto2}$<user.name>${0}@${auto2}$<os.hostname>",
     "───────────────────────────",
-    "${red}OS: $<os.name> $<system.arch>",
-    "${yellow}Host: $<system.host>",
-    "${green}Kernel: $<os.kernel>",
-    "${cyan}Uptime: $<os.uptime>",
-    "${!#fff220}Terminal: $<user.term>",
-    "${cyan}Shell: $<user.shell>",
-    "${!#343488}Packages: $<os.pkgs>",
-    "${!#34affd}Theme: $<theme-gtk-all.name>",
-    "${!#34aaff}Icons: $<theme-gtk-all.icons>",
-    "${!#fa1bba}WM: $<user.wm_name>",
-    "${!#f11f2a}DE: $<user.de_name>",
-    "${!#117f23}Disk(/): $<disk(/).disk>",
-    "${magenta}CPU: $<cpu.cpu>",
-    "${blue}GPU: $<gpu.name>",
-    "${!#03ff93}RAM: $<ram.ram>",
+    "${auto}OS: $<os.name> $<system.arch>",
+    "${auto}Host: $<system.host>",
+    "${auto}Kernel: $<os.kernel>",
+    "${auto}Uptime: $<os.uptime>",
+    "${auto}Terminal: $<user.term>",
+    "${auto}Shell: $<user.shell>",
+    "${auto}Packages: $<os.pkgs>",
+    "${auto}Theme: $<theme-gtk-all.name>",
+    "${auto}Icons: $<theme-gtk-all.icons>",
+    "${auto}WM: $<user.wm_name>",
+    "${auto}DE: $<user.de_name>",
+    "${auto}Disk(/): $<disk(/).disk>",
+    "${auto}CPU: $<cpu.cpu>",
+    "${auto}GPU: $<gpu.name>",
+    "${auto}RAM: $<ram.ram>",
     "",
     "${\e[40m}   ${\e[41m}   ${\e[42m}   ${\e[43m}   ${\e[44m}   ${\e[45m}   ${\e[46m}   ${\e[47m}   ", # normal colors
     "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
@@ -129,7 +132,7 @@ layout = [
 
 # Ordered list of which packages installed count should be displayed in $<os.pkgs>
 # remember to not enter the same name twice, else the world will finish
-# Choices: pacman
+# Choices: pacman, flatpak
 # Pro-tip: if your package manager isnt listed here, yet,
 # use the bash command module in the layout
 # e.g "Packages: $(pacman -Q | wc -l)"

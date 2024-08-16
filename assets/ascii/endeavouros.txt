@@ -1,4 +1,4 @@
-${red}                     ./${magenta}o${blue}.
+${magenta}${red}                     ./${magenta}o${blue}.
 ${red}                   ./${magenta}sssso${blue}-
 ${red}                 `:${magenta}osssssss+${blue}-
 ${red}               `:+${magenta}sssssssssso${blue}/.
