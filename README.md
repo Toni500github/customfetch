@@ -31,7 +31,7 @@ Currently supports Linux distros only, but windows support is incoming
 
 ## Key Features
 
-* **GUI support (GTK3)**
+* **GUI mode (GTK3)**
 * Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Lightweight
 >[!NOTE]
