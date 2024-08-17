@@ -4,9 +4,9 @@
 #include <filesystem>
 
 #include "config.hpp"
-#include "switch_fnv1a.hpp"
 #include "display.hpp"
 #include "gui.hpp"
+#include "switch_fnv1a.hpp"
 #include "util.hpp"
 
 using namespace std::string_view_literals;

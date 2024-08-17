@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+
 #include "util.hpp"
 
 // initialize Config, can only be ran once for each Config instance.
@@ -113,7 +114,8 @@ void Config::generateConfig(const std::string_view filename)
     {
         std::string result;
         // warn() new lines
-        fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))), "WARNING: config file {} already exists. Do you want to overwrite it? [y/N]: ", filename);
+        fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))),
+                   "WARNING: config file {} already exists. Do you want to overwrite it? [y/N]: ", filename);
         while (std::getline(std::cin, result) && (result.length() > 1))
         {
             error("Please answear y or n");

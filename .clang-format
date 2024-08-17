@@ -44,6 +44,8 @@ SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
 SpaceInEmptyParentheses: false
 SpacesInSquareBrackets: false
+IndentAccessModifiers: false
+AccessModifierOffset: -4
 
 # Control formatting of C++11 features
 Cpp11BracedListStyle: false

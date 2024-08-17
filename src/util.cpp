@@ -1,17 +1,17 @@
 #include "util.hpp"
 
 #include <fcntl.h>
-#include <sys/wait.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cerrno>
 #include <cstring>
-#include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -236,8 +236,8 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
     if (!f.is_open())
         return false;
 
-    std::string buffer;
-    char c;
+    std::string  buffer;
+    char         c;
     const size_t min_string_length = 4;
 
     while (f.get(c))
@@ -454,7 +454,7 @@ std::string shell_exec(const std::string_view cmd)
         result += buffer.data();
 
     // why there is a '\n' at the end??
-    if (!result.empty() && result[result.length() - 1] == '\n')
+    if (!result.empty() && result.back() == '\n')
         result.pop_back();
     return result;
 }
@@ -509,7 +509,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
  */
 std::string getHomeConfigDir()
 {
-    char* dir = std::getenv("XDG_CONFIG_HOME");
+    const char* dir = std::getenv("XDG_CONFIG_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
     {
         std::string str_dir(dir);

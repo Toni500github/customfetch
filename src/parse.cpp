@@ -431,6 +431,21 @@ static std::string get_auto_gtk_format(const std::string_view gtk2, const std::s
     return str;
 }
 
+static std::string prettify_term_name(const std::string_view term_name)
+{
+    switch (fnv1a16::hash(str_tolower(term_name.data())))
+    {
+        case "gnome-terminal"_fnv1a16:
+        case "gnome terminal"_fnv1a16:
+            return "GNOME Terminal";
+
+        case "gnome-console"_fnv1a16:
+        case "gnome console"_fnv1a16:
+            return "GNOME console";
+    }
+    return term_name.data();
+}
+
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
                         const Config& config)
 {
@@ -557,10 +572,10 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 case "term"_fnv1a16:
-                    SYSINFO_INSERT(query_user.term_name() + ' ' + query_user.term_version(query_user.term_name()));
+                    SYSINFO_INSERT(prettify_term_name(query_user.term_name()) + ' ' + query_user.term_version(query_user.term_name()));
                     break;
 
-                case "term_name"_fnv1a16: SYSINFO_INSERT(query_user.term_name()); break;
+                case "term_name"_fnv1a16: SYSINFO_INSERT(prettify_term_name(query_user.term_name())); break;
 
                 case "term_version"_fnv1a16: SYSINFO_INSERT(query_user.term_version(query_user.term_name())); break;
             }

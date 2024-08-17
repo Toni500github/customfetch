@@ -2,10 +2,10 @@
 
 #include "display.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <algorithm>
 #include <vector>
 
 #include "config.hpp"
@@ -30,11 +30,11 @@ std::string Display::detect_distro(const Config& config)
     else
     {
         Query::System system;
-        std::string format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
+        std::string   format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
 
         if (std::filesystem::exists(format))
             return format;
-        
+
         format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()));
         if (std::filesystem::exists(format))
             return format;
@@ -144,8 +144,8 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
     }
 
     // erase each element for each instance of MAGIC_LINE
-    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(),
-                                     [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), [](const std::string_view str)
+                                        { return str.find(MAGIC_LINE) != std::string::npos; }),
                          config.layouts.end());
 
     size_t i;

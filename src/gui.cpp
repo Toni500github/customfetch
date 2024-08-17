@@ -10,10 +10,10 @@
 #include "display.hpp"
 #include "fmt/ranges.h"
 #include "gdkmm/pixbufanimation.h"
+#include "gtkmm/enums.h"
 #include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
-#include "gtkmm/enums.h"
 #include "stb_image.h"
 #include "util.hpp"
 
@@ -52,8 +52,8 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
     }
 
     // erase each element for each instance of MAGIC_LINE
-    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(),
-                                     [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), [](const std::string_view str)
+                                        { return str.find(MAGIC_LINE) != std::string::npos; }),
                          config.layouts.end());
 
     for (size_t i = 0; i < config.layouts.size(); i++)
@@ -122,7 +122,7 @@ Window::Window(Config& config, colors_t& colors)
     if (config.gui_bg_image != "disable")
     {
         if (!std::filesystem::exists(config.gui_bg_image))
-            die ("Background image path '{}' doesn't exist", config.gui_bg_image);
+            die("Background image path '{}' doesn't exist", config.gui_bg_image);
 
         m_original_pixbuf = Gdk::Pixbuf::create_from_file(config.gui_bg_image);
         update_background_image(get_allocation().get_width(), get_allocation().get_height());
