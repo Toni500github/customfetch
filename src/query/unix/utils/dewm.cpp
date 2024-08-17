@@ -1,7 +1,5 @@
 #include "dewm.hpp"
 
-#include <algorithm>
-#include <array>
 #include <cstdlib>
 #include <fstream>
 
@@ -80,7 +78,7 @@ std::string prettify_wm_name(const std::string_view name) noexcept
     {
         case "2bwm"_fnv1a16:          return "2bwm";
         case "9wm"_fnv1a16:           return "9wm";
-        case "awesome"_fnv1a16:       return "awesomeWM";
+        case "awesome"_fnv1a16:       return "awesome";
         case "beryl"_fnv1a16:         return "beryl";
         case "blackbox"_fnv1a16:      return "blackbox";
         case "bspwm"_fnv1a16:         return "bspwm";
@@ -170,6 +168,29 @@ std::string get_mate_version()
     return fmt::format("{}.{}.{}", major, minor, micro);
 }
 
+static std::string get_cinnamon_version_binary()
+{
+    std::ifstream f(which("cinnamon"), std::ios::binary);
+    if (!f.is_open())
+        return UNKNOWN;
+
+    std::string line, ret;
+    while (read_binary_file(f, line))
+    {
+        // if you run `strings $(which cinnamon)`
+        // and then analyze every string, you'll see there is a string with
+        // "Cinnamon %s" and above it's version
+        // so let's do it
+        if (line == "Cinnamon %s\n")
+            return ret;
+
+        // save the above position
+        ret = line;
+    }
+
+    return UNKNOWN;
+}
+
 std::string get_cinnamon_version()
 {
     const char* env = std::getenv("CINNAMON_VERSION");
@@ -180,7 +201,11 @@ std::string get_cinnamon_version()
     std::ifstream f("/usr/share/applications/cinnamon.desktop", std::ios::in);
     if (!f.is_open())
     {
-        std::string ret;
+        std::string ret = get_cinnamon_version_binary();
+        if (ret != UNKNOWN)
+            return ret;
+
+        ret.clear();
         read_exec({ "cinnamon", "--version" }, ret);
         ret.erase(0, "Cinnamon "_len);
         return ret;

@@ -2,6 +2,7 @@
 
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include <array>
@@ -228,6 +229,46 @@ fmt::rgb hexStringToColor(const std::string_view hexstr)
     uint blue  = intValue & 0xFF;
 
     return fmt::rgb(red, green, blue);
+}
+
+bool read_binary_file(std::ifstream& f, std::string& ret)
+{
+    if (!f.is_open())
+        return false;
+
+    std::string buffer;
+    char c;
+    const size_t min_string_length = 4;
+
+    while (f.get(c))
+    {
+        if (isprint(static_cast<unsigned char>(c)))
+        {
+            buffer += c;
+        }
+        else
+        {
+            if (buffer.length() >= min_string_length)
+                ret += buffer;
+
+            return true;
+        }
+    }
+}
+
+std::string which(const std::string& command)
+{
+    const std::string& env = std::getenv("PATH");
+    struct stat sb;
+
+    for (const std::string& dir : split(env, ':'))
+    {
+        std::string fullPath = dir + "/" + command;
+        if ((stat(fullPath.c_str(), &sb) == 0) && sb.st_mode & S_IXUSR)
+            return fullPath;
+    }
+    
+    return UNKNOWN; // not found
 }
 
 void replace_str(std::string& str, const std::string& from, const std::string& to)

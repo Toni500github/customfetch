@@ -87,6 +87,7 @@ static std::string get_de_version(const std::string_view de_name)
         case "xfce4"_fnv1a16: return get_xfce4_version();
 
         case "gnome"_fnv1a16:
+        case "gnome-shell"_fnv1a16:
         {
             std::string ret;
             read_exec({ "gnome-shell", "--version" }, ret);
@@ -173,7 +174,7 @@ static std::string get_shell_name(const std::string_view shell_path)
     return ret;
 }
 
-static std::string get_term_name()
+static std::string get_term_name(std::string& term_ver)
 {
     // cufetch -> shell -> terminal
     pid_t         ppid = getppid();
@@ -227,7 +228,10 @@ static std::string get_term_name()
             tmp_name.erase(pos);  // gnome-console-0.31.0
 
         if ((pos = tmp_name.rfind('-')) != std::string::npos)
+        {
+            term_ver = tmp_name.substr(pos+1);
             tmp_name.erase(pos);  // gnome-console  EZ
+        }
 
         term_name = tmp_name;
     }
@@ -421,7 +425,7 @@ std::string& User::term_name()
     static bool done = false;
     if (!done)
     {
-        m_users_infos.term_name = get_term_name();
+        m_users_infos.term_name = get_term_name(m_users_infos.term_version);
         if (hasStart(str_tolower(m_users_infos.term_name), "login") || hasStart(m_users_infos.term_name, "init") ||
             hasStart(m_users_infos.term_name, "(init)"))
         {
@@ -432,6 +436,7 @@ std::string& User::term_name()
 
         done = true;
     }
+
     return m_users_infos.term_name;
 }
 
@@ -442,13 +447,18 @@ std::string& User::term_version(const std::string_view term_name)
     {
         if (m_users_infos.term_version == "NO VERSIONS ABOSULETY")
         {
-            done = true;
             m_users_infos.term_version.clear();
-            return m_users_infos.term_version;
+            goto done;
+        }
+        else if (m_users_infos.term_version != MAGIC_LINE)
+        {
+            goto done;
         }
 
         m_users_infos.term_version = get_term_version(term_name);
+    done:
         done                       = true;
     }
+
     return m_users_infos.term_version;
 }
