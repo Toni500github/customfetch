@@ -185,22 +185,22 @@ You may be confused and have difficulty to understand, but this is why customfet
 We use something we call "components", 2 inspired by bash syntax, and they starts with a '$'. **We use them on both the ascii art text file and the `layout` variable**\
 There are 3 componenets:
 
-* **The info component ($<>)** will print a member of a module
- e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
+* **The info component ($<>)** will print a member of a module\
+ e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
  run "cufetch -l" for a list of builti-in modules
 
 * **The bash command component ($())** let's you execute bash commands\
- e.g $(echo \"hello world\") will indeed echo out Hello world.\
+ e.g `$(echo \"hello world\")` will indeed echo out Hello world.\
  you can even use pipes\
- e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world\
+ e.g `$(echo \"hello world\" | cut -d' ' -f2)` will only print world
 
 * **The color component (${})** is used for which color to use for colorizing the text\
  e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)\
- you can even put a custom hex color e.g: ${#ff6622} (for bold text put ! before # e.g ${!#ff6622} )\
- OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.\
- For auto coloring, depending on the ascii logo colors, use ${auto}.\
+ you can even put a custom hex color e.g: `${#ff6622}` (for bold text put ! before # e.g `${!#ff6622}` )\
+ OR bash escape code colors e.g `${\e[1;32m}` or `${\e[0;34m}`.\
+ For auto coloring, depending on the ascii logo colors, use `${auto}`.\
  They can be used for different colors too. So for getting the 2nd color of the ascii logo,\
- use ${auto2}, for the 4th one use ${auto4} and so on.\
+ use `${auto2}`, for the 4th one use `${auto4}` and so on.
 
 Any end brackets (')', '}', '>') can be escaped with \\
 
