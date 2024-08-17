@@ -106,7 +106,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #    Or, if you want to reset color and make it bold, use ${1}
 
 layout = [
-    "${auto2}$<user.name>${0}@${auto2}$<os.hostname>",
+    "${auto}$<user.name>${0}@${auto2}$<os.hostname>",
     "───────────────────────────",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
@@ -120,6 +120,7 @@ layout = [
     "${auto}WM: $<user.wm_name>",
     "${auto}DE: $<user.de_name>",
     "${auto}Disk(/): $<disk(/).disk>",
+    "${auto}Swap: $<ram.swap>",
     "${auto}CPU: $<cpu.cpu>",
     "${auto}GPU: $<gpu.name>",
     "${auto}RAM: $<ram.ram>",
