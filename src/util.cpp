@@ -260,10 +260,11 @@ std::string which(const std::string& command)
 {
     const std::string& env = std::getenv("PATH");
     struct stat sb;
-
+    std::string fullPath;
+    
     for (const std::string& dir : split(env, ':'))
     {
-        std::string fullPath = dir + "/" + command;
+        fullPath = dir + "/" + command;
         if ((stat(fullPath.c_str(), &sb) == 0) && sb.st_mode & S_IXUSR)
             return fullPath;
     }
@@ -271,6 +272,7 @@ std::string which(const std::string& command)
     return UNKNOWN; // not found
 }
 
+// https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
 void replace_str(std::string& str, const std::string& from, const std::string& to)
 {
     size_t start_pos = 0;
