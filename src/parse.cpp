@@ -394,41 +394,39 @@ static std::string get_auto_gtk_format(const std::string_view gtk2, const std::s
     if (gtk2 == MAGIC_LINE && gtk3 == MAGIC_LINE && gtk4 == MAGIC_LINE)
         return MAGIC_LINE;
 
-    std::string str;
     if ((gtk2 != MAGIC_LINE && gtk3 != MAGIC_LINE && gtk4 != MAGIC_LINE))
     {
         if (gtk2 == gtk3 && gtk2 == gtk4)
-            str = fmt::format("{} [GTK2/3/4]", gtk4);
+            return fmt::format("{} [GTK2/3/4]", gtk4);
         else if (gtk2 == gtk3)
-            str = fmt::format("{} [GTK2/3], {} [GTK4]", gtk2, gtk4);
+            return fmt::format("{} [GTK2/3], {} [GTK4]", gtk2, gtk4);
         else if (gtk4 == gtk3)
-            str = fmt::format("{} [GTK2], {} [GTK3/4]", gtk2, gtk4);
+            return fmt::format("{} [GTK2], {} [GTK3/4]", gtk2, gtk4);
         else
-            str = fmt::format("{} [GTK2], {} [GTK3], {} [GTK4]", gtk2, gtk3, gtk4);
+            return fmt::format("{} [GTK2], {} [GTK3], {} [GTK4]", gtk2, gtk3, gtk4);
     }
     else if (gtk3 != MAGIC_LINE && gtk4 != MAGIC_LINE)
     {
         if (gtk3 == gtk4)
-            str = fmt::format("{} [GTK3/4]", gtk4);
+            return fmt::format("{} [GTK3/4]", gtk4);
         else
-            str = fmt::format("{} [GTK3], {} [GTK4]", gtk3, gtk4);
+            return fmt::format("{} [GTK3], {} [GTK4]", gtk3, gtk4);
     }
     else if (gtk2 != MAGIC_LINE && gtk3 != MAGIC_LINE)
     {
         if (gtk2 == gtk3)
-            str = fmt::format("{} [GTK2/3]", gtk3);
+            return fmt::format("{} [GTK2/3]", gtk3);
         else
-            str = fmt::format("{} [GTK2], {} [GTK3]", gtk2, gtk3);
+            return fmt::format("{} [GTK2], {} [GTK3]", gtk2, gtk3);
     }
 
     else if (gtk4 != MAGIC_LINE)
-        str = fmt::format("{} [GTK4]", gtk4);
+        return fmt::format("{} [GTK4]", gtk4);
     else if (gtk3 != MAGIC_LINE)
-        str = fmt::format("{} [GTK3]", gtk3);
+        return fmt::format("{} [GTK3]", gtk3);
     else if (gtk2 != MAGIC_LINE)
-        str = fmt::format("{} [GTK2]", gtk2);
+        return fmt::format("{} [GTK2]", gtk2);
 
-    return str;
 }
 
 static std::string prettify_term_name(const std::string_view term_name)
@@ -755,9 +753,10 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             TOTAL,
             FREE,
             SWAP_FREE,
+            SWAP_USED,
             SWAP_TOTAL
         };
-        std::array<byte_units_t, 5> byte_units;
+        std::array<byte_units_t, 6> byte_units;
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -768,6 +767,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             byte_units.at(TOTAL)      = auto_devide_bytes(query_ram.total_amount() * 1024);
             byte_units.at(FREE)       = auto_devide_bytes(query_ram.free_amount() * 1024);
             byte_units.at(SWAP_FREE)  = auto_devide_bytes(query_ram.swap_free_amount() * 1024);
+            byte_units.at(SWAP_USED)  = auto_devide_bytes(query_ram.swap_used_amount() * 1024);
             byte_units.at(SWAP_TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * 1024);
 
             switch (moduleValue_hash)
@@ -792,6 +792,14 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
                     break;
 
+                case "swap"_fnv1a16:
+                    // clang-format off
+                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {}", 
+                                               byte_units.at(SWAP_USED).num_bytes, byte_units.at(SWAP_USED).unit, 
+                                               byte_units.at(SWAP_TOTAL).num_bytes,byte_units.at(SWAP_TOTAL).unit));
+                    break;
+                    // clang-format on
+
                 case "swap_free"_fnv1a16:
                     SYSINFO_INSERT(
                         fmt::format("{:.2f} {}", byte_units.at(SWAP_FREE).num_bytes, byte_units.at(SWAP_FREE).unit));
@@ -800,6 +808,11 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "swap_total"_fnv1a16:
                     SYSINFO_INSERT(
                         fmt::format("{:.2f} {}", byte_units.at(SWAP_TOTAL).num_bytes, byte_units.at(SWAP_TOTAL).unit));
+                    break;
+
+                case "swap_used"_fnv1a16:
+                    SYSINFO_INSERT(
+                        fmt::format("{:.2f} {}", byte_units.at(SWAP_USED).num_bytes, byte_units.at(SWAP_USED).unit));
                     break;
 
                 case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount() / 1048576); break;
@@ -813,6 +826,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 case "swap_free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1048576); break;
                 case "swap_free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1024); break;
+
+                case "swap_used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1048576); break;
+                case "swap_used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1024); break;
 
                 case "swap_total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1048576); break;
                 case "swap_total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1024); break;

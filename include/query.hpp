@@ -228,6 +228,7 @@ public:
         float free_amount       = 0;
         float used_amount       = 0;
         float swap_free_amount  = 0;
+        float swap_used_amount  = 0;
         float swap_total_amount = 0;
     };
 
@@ -237,6 +238,7 @@ public:
     float& free_amount();
     float& used_amount();
     float& swap_free_amount();
+    float& swap_used_amount();
     float& swap_total_amount();
 
 private:

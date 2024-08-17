@@ -30,16 +30,17 @@ std::string Display::detect_distro(const Config& config)
     else
     {
         Query::System system;
-        std::string   format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
+        std::string   format;
 
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
         if (std::filesystem::exists(format))
             return format;
 
         format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()));
         if (std::filesystem::exists(format))
             return format;
-        else
-            return fmt::format("{}/ascii/linux.txt", config.data_dir);
+
+        return fmt::format("{}/ascii/linux.txt", config.data_dir);
     }
 }
 

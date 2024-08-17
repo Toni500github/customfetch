@@ -73,6 +73,10 @@ static RAM::RAM_t get_amount()
         memory_infos.free_amount;  // + extra_mem_info.at(SHMEM) - extra_mem_info.at(FREE) - extra_mem_info.at(BUFFER) -
                                    // extra_mem_info.at(CACHED) - extra_mem_info.at(SRECLAIMABLE);
 
+    memory_infos.swap_used_amount =
+        memory_infos.swap_total_amount -
+        memory_infos.swap_free_amount;
+
     return memory_infos;
 }
 
@@ -98,6 +102,9 @@ float& RAM::used_amount()
 
 float& RAM::swap_total_amount()
 { return m_memory_infos.swap_total_amount; }
+
+float& RAM::swap_used_amount()
+{ return m_memory_infos.swap_used_amount; }
 
 float& RAM::swap_free_amount()
 { return m_memory_infos.swap_free_amount; }

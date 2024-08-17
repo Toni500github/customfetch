@@ -113,7 +113,7 @@ void Config::generateConfig(const std::string_view filename)
     if (std::filesystem::exists(filename))
     {
         std::string result;
-        // warn() new lines
+        // warn() without new line
         fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))),
                    "WARNING: config file {} already exists. Do you want to overwrite it? [y/N]: ", filename);
         while (std::getline(std::cin, result) && (result.length() > 1))

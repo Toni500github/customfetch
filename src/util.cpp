@@ -443,7 +443,7 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 // http://stackoverflow.com/questions/478898/ddg#478960
 std::string shell_exec(const std::string_view cmd)
 {
-    std::array<char, 128>                    buffer;
+    std::array<char, 1024>                   buffer;
     std::string                              result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
 

@@ -114,7 +114,7 @@ theme-gtk-all
   cursor        : gtk cursor theme name [Bibata-Modern-Ice [GTK2], Qogir-dark [GTK3], Qogir [GTK4]]
 
 # note: these members are auto displayed in kiB, MiB, GiB and TiB.
-# they all (except ram.ram) have a -GiB and -MiB variant
+# they all (except ram.ram and ram.swap) have a -GiB and -MiB variant
 # example: if you want to show your 512MiB of used RAM in GiB
 # use the used-GiB variant (they don't print the unit tho)
 ram
@@ -122,12 +122,14 @@ ram
   used		: used amount of RAM (auto) [2.81 GiB]
   free		: available amount of RAM (auto) [10.46 GiB]
   total		: total amount of RAM (auto) [15.88 GiB]
+  ram           : swapfile used and total amount of RAM (auto) [477.68 MiB / 512.00 MiB]
   swap_free	: swapfile available amount of RAM (auto) [34.32 MiB]
-  swap_total	: swapfile total amount of RAM (auto) [512 MiB]
+  swap_total	: swapfile total amount of RAM (auto) [512.00 MiB]
+  swap_used	: swapfile used amount of RAM (auto) [477.68 MiB]
 
 # same thing as RAM (above)
 # note: I mean literally /path/to/fs
-	e.g disk(/)
+#	e.g disk(/)
 disk(/path/to/fs)
   disk		: used and total amount of disk space (auto) with type of filesystem [360.02 GiB / 438.08 GiB - ext4]
   used          : used amount of disk space (auto) [360.02 GiB]
