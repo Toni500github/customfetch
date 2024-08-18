@@ -248,6 +248,8 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
         read_exec({ "gsettings", "get", interface, "font-name" }, theme.gtk_font);
     }
 
+    debug("trying to remove quotes in {}", __func__);
+
     theme.gtk_theme_name.erase(std::remove(theme.gtk_theme_name.begin(), theme.gtk_theme_name.end(), '\''), theme.gtk_theme_name.end());
     theme.gtk_icon_theme.erase(std::remove(theme.gtk_icon_theme.begin(), theme.gtk_icon_theme.end(), '\''), theme.gtk_icon_theme.end());
     theme.gtk_font.erase(std::remove(theme.gtk_font.begin(), theme.gtk_font.end(), '\''), theme.gtk_font.end());
