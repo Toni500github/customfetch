@@ -177,7 +177,7 @@ std::string get_kwin_version()
     std::string ret;
 
     if (getenv("WAYLAND_DISPLAY") != NULL) {
-        read_exec({ "kwin_wayland", "--version" }, ret);
+        read_exec({"kwin_wayland", "--version"}, ret);
     } else {
         read_exec({"kwin_x11", "--version"}, ret);
     }

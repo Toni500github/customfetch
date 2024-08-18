@@ -73,7 +73,7 @@ std::string  getHomeConfigDir();
 std::string  getConfigDir();
 std::vector<std::string> split(const std::string_view text, char delim);
 
-inline constexpr void CF_ShortenVendorName(std::string &vendor) {
+inline void CF_ShortenVendorName(std::string &vendor) {
     if (vendor == "Advanced Micro Devices, Inc.")
         vendor = "AMD";
     else if (vendor == "Intel Corporation")
