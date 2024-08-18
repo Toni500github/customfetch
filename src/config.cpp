@@ -53,7 +53,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
                     warn("An element of the layout variable in {} is not a string", filename);
             });
 
-    const auto& pkg_managers_array = tbl.at_path("config.pkg-managers");
+    const auto& pkg_managers_array = tbl.at_path("os.pkgs.pkg-managers");
     if (toml::array* arr = pkg_managers_array.as_array())
         arr->for_each(
             [this, filename](auto&& element)

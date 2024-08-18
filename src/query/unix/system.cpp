@@ -187,10 +187,11 @@ std::string& System::pkgs_installed(const Config& config)
     static bool done = false;
     if (!done)
     {
-        static System::pkg_managers_t pkgs_managers;
+        System::pkg_managers_t pkgs_managers;
         m_system_infos.pkgs_installed = get_all_pkgs(pkgs_managers, config);
 
         done = true;
     }
+
     return m_system_infos.pkgs_installed;
 }
