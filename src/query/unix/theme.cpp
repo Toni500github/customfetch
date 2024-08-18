@@ -213,10 +213,11 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
     {
         const char* gtk_theme_env = std::getenv("GTK_THEME");
 
-        if (gtk_theme_env)
+        if (gtk_theme_env != NULL && gtk_theme_env[0] != '\0')
             theme.gtk_theme_name = gtk_theme_env;
     }
 
+    debug("did we got paast it?????");
     const char* interface;
     switch(fnv1a16::hash(str_tolower(de_name.data())))
     {
@@ -230,7 +231,6 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
             interface = "org.gnome.desktop.interface";
     }
 
-    debug("trying to theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty()");
     if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty())
     {
         theme.gtk_theme_name.clear();
