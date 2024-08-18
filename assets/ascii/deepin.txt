@@ -1,18 +1,18 @@
-${c1}             ............
-         .';;;;;.       .,;,.
-      .,;;;;;;;.       ';;;;;;;.
-    .;::::::::'     .,::;;,''''',.
-   ,'.::::::::    .;;'.          ';
-  ;'  'cccccc,   ,' :: '..        .:
- ,,    :ccccc.  ;: .c, '' :.       ,;
-.l.     cllll' ., .lc  :; .l'       l.
-.c       :lllc  ;cl:  .l' .ll.      :'
-.l        'looc. .   ,o:  'oo'      c,
-.o.         .:ool::coc'  .ooo'      o.
- ::            .....   .;dddo      ;c
-  l:...            .';lddddo.     ,o
-   lxxxxxdoolllodxxxxxxxxxc      :l
-    ,dxxxxxxxxxxxxxxxxxxl.     'o,
-      ,dkkkkkkkkkkkkko;.    .;o;
-        .;okkkkkdl;.    .,cl:.
-            .,:cccccccc:,.
+${cyan}             ............
+${cyan}         .';;;;;.       .,;,.
+${cyan}      .,;;;;;;;.       ';;;;;;;.
+${cyan}    .;::::::::'     .,::;;,''''',.
+${cyan}   ,'.::::::::    .;;'.          ';
+${cyan}  ;'  'cccccc,   ,' :: '..        .:
+${cyan} ,,    :ccccc.  ;: .c, '' :.       ,;
+${cyan}.l.     cllll' ., .lc  :; .l'       l.
+${cyan}.c       :lllc  ;cl:  .l' .ll.      :'
+${cyan}.l        'looc. .   ,o:  'oo'      c,
+${cyan}.o.         .:ool::coc'  .ooo'      o.
+${cyan} ::            .....   .;dddo      ;c
+${cyan}  l:...            .';lddddo.     ,o
+${cyan}   lxxxxxdoolllodxxxxxxxxxc      :l
+${cyan}    ,dxxxxxxxxxxxxxxxxxxl.     'o,
+${cyan}      ,dkkkkkkkkkkkkko;.    .;o;
+${cyan}        .;okkkkkdl;.    .,cl:.
+${cyan}            .,:cccccccc:,.

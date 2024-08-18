@@ -1,18 +1,21 @@
-#ifdef GUI_SUPPORT
+#ifdef GUI_MODE
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <magic.h>
 #include "gui.hpp"
+
+#include <filesystem>
+#include <fstream>
+
 #include "config.hpp"
 #include "display.hpp"
-#include "util.hpp"
-#include "query.hpp"
-#include "parse.hpp"
 #include "fmt/ranges.h"
-#include "stb_image.h"
-
-#include "pangomm/fontdescription.h"
 #include "gdkmm/pixbufanimation.h"
+#include "gtkmm/enums.h"
+#include "pangomm/fontdescription.h"
+#include "parse.hpp"
+#include "query.hpp"
+#include "stb_image.h"
+#include "util.hpp"
 
 using namespace GUI;
 
@@ -21,18 +24,19 @@ using namespace GUI;
     int red = color.get_red() * 255;
     int green = color.get_green() * 255;
     int blue = color.get_blue() * 255;
-    
+
     std::stringstream ss;
-    ss << "#" << std::hex << (red << 16 | green << 8 | blue);    
+    ss << "#" << std::hex << (red << 16 | green << 8 | blue);
     return ss.str();
 }*/
 
 // Display::render but only for images on GUI
-static std::vector<std::string>& render_with_image(Config& config, colors_t& colors) {
+static std::vector<std::string>& render_with_image(Config& config, colors_t& colors)
+{
     systemInfo_t systemInfo{};
 
     int image_width, image_height, channels;
-    
+
     // load the image and get its width and height
     unsigned char* img = stbi_load(config.source_path.c_str(), &image_width, &image_height, &channels, 0);
 
@@ -41,29 +45,20 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
     else
         die("Unable to load image '{}'", config.source_path);
 
-    for (std::string& include : config.includes) {
-        std::vector<std::string> include_nodes = split(include, '.');
-
-        switch (std::count(include.begin(), include.end(), '.')) 
-        {   
-            // only 1 element
-            case 0:
-                addModuleValues(systemInfo, include);
-                break;
-            case 1:
-                addValueFromModule(systemInfo, include_nodes[0], include_nodes[1]);
-                break;
-            default:
-                die("Include has too many namespaces!");
-        }
+    for (std::string& layout : config.layouts)
+    {
+        std::string _;
+        layout = parse(layout, systemInfo, _, config, colors, true);
     }
 
-    for (std::string& layout : config.layouts) {
-        layout = parse(layout, systemInfo, config, colors, true);
-    }
+    // erase each element for each instance of MAGIC_LINE
+    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), [](const std::string_view str)
+                                        { return str.find(MAGIC_LINE) != std::string::npos; }),
+                         config.layouts.end());
 
-    for (size_t i = 0; i < config.layouts.size(); i++) {
-        for (size_t _ = 0; _ < config.offset; _++) // I use _ because we don't need it 
+    for (size_t i = 0; i < config.layouts.size(); i++)
+    {
+        for (size_t _ = 0; _ < config.offset; _++)  // I use _ because we don't need it
             config.layouts.at(i).insert(0, " ");
     }
     config.offset = 0;
@@ -71,35 +66,39 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
     return config.layouts;
 }
 
-Window::Window(Config& config, colors_t& colors) {
+Window::Window(Config& config, colors_t& colors)
+{
     set_title("customfetch - Higly customizable and fast neofetch like program");
-    set_default_size(800, 600);
-    add(m_box);
+    set_default_size(1000, 600);
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
-    if (!std::filesystem::exists(path))
+    if (!std::filesystem::exists(path) &&
+        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
         die("'{}' doesn't exist. Can't load image/text file", path);
-    
-    // check if the file is an image
-    // using the same library that "file" uses
-    // No extra bloatware nice
-    magic_t myt = magic_open(MAGIC_CONTINUE|MAGIC_ERROR|MAGIC_MIME);
-    magic_load(myt, NULL);
-    std::string file_type = magic_file(myt, path.c_str());
-    bool useImage = ((file_type.find("text") == std::string::npos) && !config.m_disable_source);
-    magic_close(myt);
-    
+
+    bool useImage = false;
+
+    debug("Window::Window analyzing file");
+    std::ifstream f(path);
+    unsigned char buffer[128];
+    f.read((char*)(&buffer[0]), 128);
+    if (is_file_image(buffer))
+        useImage = true;
+
     // useImage can be either a gif or an image
-    if (useImage && !config.m_disable_source) {
+    if (useImage && !config.m_disable_source)
+    {
         Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path);
-        m_img = Gtk::manage(new Gtk::Image());
+        m_img                                  = Gtk::manage(new Gtk::Image(img));
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
-        m_box.pack_start(*m_img);
+        m_box.pack_start(*m_img, Gtk::PACK_SHRINK);
     }
 
+    m_box.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
+
     // https://stackoverflow.com/a/76372996
-    auto context = m_label.get_pango_context();
+    auto                   context = m_label.get_pango_context();
     Pango::FontDescription font(config.font);
     debug("font family = {}", font.get_family().raw());
     debug("font style = {}", fmt::underlying(font.get_style()));
@@ -109,20 +108,38 @@ Window::Window(Config& config, colors_t& colors) {
     /*Gdk::RGBA fg_color;
     style_context->lookup_color("theme_fg_color", fg_color);
     std::string fg_color_str = rgba_to_hexstr(fg_color);*/
-    
-    std::string colored_text;
-    if (useImage)
-        colored_text = fmt::format("{}", fmt::join(render_with_image(config, colors), "\n"));
-    else
-        colored_text = fmt::format("{}", fmt::join(Display::render(config, colors), "\n"));
 
-    m_label.set_markup(colored_text);
-    m_label.set_alignment(Gtk::ALIGN_CENTER);
-    m_box.pack_start(m_label);
+    if (useImage)
+    {
+        if (!config.m_print_logo_only)
+            m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(config, colors), "\n")));
+    }
+    else
+    {
+        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(config, colors, true, path), "\n")));
+    }
+
+    if (config.gui_bg_image != "disable")
+    {
+        if (!std::filesystem::exists(config.gui_bg_image))
+            die("Background image path '{}' doesn't exist", config.gui_bg_image);
+
+        m_original_pixbuf = Gdk::Pixbuf::create_from_file(config.gui_bg_image);
+        update_background_image(get_allocation().get_width(), get_allocation().get_height());
+        m_overlay.add(m_bg_image);
+    }
+
+    m_box.pack_start(m_label, Gtk::PACK_SHRINK);
+    m_alignment.set(0.5, 0.5, 0, 0);
+    m_alignment.add(m_box);
+    m_overlay.add_overlay(m_alignment);
+    add(m_overlay);
+
+    signal_size_allocate().connect(sigc::mem_fun(*this, &Window::on_window_resized));
 
     show_all_children();
 }
 
-Window::~Window() { }
+Window::~Window() {}
 
-#endif // GUI_SUPPORT
+#endif  // GUI_MODE

@@ -1,20 +1,20 @@
-${c2}             .:+syhhhhys+:.
-         .ohNMMMMMMMMMMMMMMNho.
-      `+mMMMMMMMMMMmdmNMMMMMMMMm+`
-     +NMMMMMMMMMMMM/   `./smMMMMMN+
-   .mMMMMMMMMMMMMMMo        -yMMMMMm.
-  :NMMMMMMMMMMMMMMMs          .hMMMMN:
- .NMMMMhmMMMMMMMMMMm+/-         oMMMMN.
- dMMMMs  ./ymMMMMMMMMMMNy.       sMMMMd
--MMMMN`      oMMMMMMMMMMMN:      `NMMMM-
-/MMMMh       NMMMMMMMMMMMMm       hMMMM/
-/MMMMh       NMMMMMMMMMMMMm       hMMMM/
--MMMMN`      :MMMMMMMMMMMMy.     `NMMMM-
- dMMMMs       .yNMMMMMMMMMMMNy/. sMMMMd
- .NMMMMo         -/+sMMMMMMMMMMMmMMMMN.
-  :NMMMMh.          .MMMMMMMMMMMMMMMN:
-   .mMMMMMy-         NMMMMMMMMMMMMMm.
-     +NMMMMMms/.`    mMMMMMMMMMMMN+
-      `+mMMMMMMMMNmddMMMMMMMMMMm+`
-         .ohNMMMMMMMMMMMMMMNho.
-             .:+syhhhhys+:.
+${\e[1m}             .:+syhhhhys+:.
+${\e[1m}         .ohNMMMMMMMMMMMMMMNho.
+${\e[1m}      `+mMMMMMMMMMMmdmNMMMMMMMMm+`
+${\e[1m}     +NMMMMMMMMMMMM/   `./smMMMMMN+
+${\e[1m}   .mMMMMMMMMMMMMMMo        -yMMMMMm.
+${\e[1m}  :NMMMMMMMMMMMMMMMs          .hMMMMN:
+${\e[1m} .NMMMMhmMMMMMMMMMMm+/-         oMMMMN.
+${\e[1m} dMMMMs  ./ymMMMMMMMMMMNy.       sMMMMd
+${\e[1m}-MMMMN`      oMMMMMMMMMMMN:      `NMMMM-
+${\e[1m}/MMMMh       NMMMMMMMMMMMMm       hMMMM/
+${\e[1m}/MMMMh       NMMMMMMMMMMMMm       hMMMM/
+${\e[1m}-MMMMN`      :MMMMMMMMMMMMy.     `NMMMM-
+${\e[1m} dMMMMs       .yNMMMMMMMMMMMNy/. sMMMMd
+${\e[1m} .NMMMMo         -/+sMMMMMMMMMMMmMMMMN.
+${\e[1m}  :NMMMMh.          .MMMMMMMMMMMMMMMN:
+${\e[1m}   .mMMMMMy-         NMMMMMMMMMMMMMm.
+${\e[1m}     +NMMMMMms/.`    mMMMMMMMMMMMN+
+${\e[1m}      `+mMMMMMMMMNmddMMMMMMMMMMm+`
+${\e[1m}         .ohNMMMMMMMMMMMMMMNho.
+${\e[1m}             .:+syhhhhys+:.

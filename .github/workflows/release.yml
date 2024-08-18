@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags: "*"
+    paths:
+      # trigger release workflow only if this file changed
+      - .github/workflows/release.yml
+
+jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - id: version
+        run: |
+          echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
+          echo "Tag name from github.ref_name: ${{ github.ref_name }}"
+          echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Packages
+      run: pacman -Syu git base-devel --noconfirm --needed
+
+    - name: Get submodules
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Clean
+      run: make clean
+
+    - name: Compile
+      run: make DEBUG=0 GUI_MODE=0
+
+    - name: Make Release
+      run: make dist DEBUG=0 && mv ./customfetch-*.tar.zst ./customfetch.tar.zst
+
+    - name: Upload to github artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: customfetch
+        path: customfetch.tar.zst
+
+  release:
+    name: Create GitHub Release
+    needs: [build, get-version]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      release-url: ${{ steps.create-release.outputs.upload_url }}
+    steps:
+    - name: Create Release
+      id: create-release
+      uses: ncipollo/release-action@v1.14.0
+      with:
+        tag: ${{ needs.get-version.outputs.version }}
+        name: customfetch ${{ needs.get-version.outputs.version }}
+        draft: false
+        allowUpdates: true
+        prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-binaries:
+    name: Upload binaries to Githib relase
+    runs-on: ubuntu-latest
+    needs: [release, get-version]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: customfetch
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.release-url }}
+          asset_path: ./customfetch.tar.zst
+          asset_name: customfetch-${{ needs.get-version.outputs.version }}.tar.zst
+          asset_content_type: application/tar+zstd

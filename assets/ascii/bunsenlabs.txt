@@ -1,20 +1,20 @@
-${c1}        `++
-      -yMMs
-    `yMMMMN`
-   -NMMMMMMm.
-  :MMMMMMMMMN-
- .NMMMMMMMMMMM/
- yMMMMMMMMMMMMM/
-`MMMMMMNMMMMMMMN.
--MMMMN+ /mMMMMMMy
--MMMm`   `dMMMMMM
-`MMN.     .NMMMMM.
- hMy       yMMMMM`
- -Mo       +MMMMN
-  /o       +MMMMs
-           +MMMN`
-           hMMM:
-          `NMM/
-          +MN:
-          mh.
-         -/
+${1}        `++
+${1}      -yMMs
+${1}    `yMMMMN`
+${1}   -NMMMMMMm.
+${1}  :MMMMMMMMMN-
+${1} .NMMMMMMMMMMM/
+${1} yMMMMMMMMMMMMM/
+${1}`MMMMMMNMMMMMMMN.
+${1}-MMMMN+ /mMMMMMMy
+${1}-MMMm`   `dMMMMMM
+${1}`MMN.     .NMMMMM.
+${1} hMy       yMMMMM`
+${1} -Mo       +MMMMN
+${1}  /o       +MMMMs
+${1}           +MMMN`
+${1}           hMMM:
+${1}          `NMM/
+${1}          +MN:
+${1}          mh.
+${1}         -/

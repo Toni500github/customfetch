@@ -1,17 +1,17 @@
-${c1}             d
-            ,MK:
-            xMMMX:
-           .NMMMMMX;
-           lMMMMMMMM0clodkO0KXWW:
-           KMMMMMMMMMMMMMMMMMMX'
-      .;d0NMMMMMMMMMMMMMMMMMMK.
- .;dONMMMMMMMMMMMMMMMMMMMMMMx
-'dKMMMMMMMMMMMMMMMMMMMMMMMMl
-   .:xKWMMMMMMMMMMMMMMMMMMM0.
-       .:xNMMMMMMMMMMMMMMMMMK.
-          lMMMMMMMMMMMMMMMMMMK.
-          ,MMMMMMMMWkOXWMMMMMM0
-          .NMMMMMNd.     `':ldko
-           OMMMK:
-           oWk,
-           ;:
+${magenta}             d
+${magenta}            ,MK:
+${magenta}            xMMMX:
+${magenta}           .NMMMMMX;
+${magenta}           lMMMMMMMM0clodkO0KXWW:
+${magenta}           KMMMMMMMMMMMMMMMMMMX'
+${magenta}      .;d0NMMMMMMMMMMMMMMMMMMK.
+${magenta} .;dONMMMMMMMMMMMMMMMMMMMMMMx
+${magenta}'dKMMMMMMMMMMMMMMMMMMMMMMMMl
+${magenta}   .:xKWMMMMMMMMMMMMMMMMMMM0.
+${magenta}       .:xNMMMMMMMMMMMMMMMMMK.
+${magenta}          lMMMMMMMMMMMMMMMMMMK.
+${magenta}          ,MMMMMMMMWkOXWMMMMMM0
+${magenta}          .NMMMMMNd.     `':ldko
+${magenta}           OMMMK:
+${magenta}           oWk,
+${magenta}           ;:

@@ -1,18 +1,18 @@
-${c2}                                    ./o-
-          ``...``              `:. -/:
-     `-+ymNMMMMMNmho-`      :sdNNm/
-   `+dMMMMMMMMMMMMMMMmo` sh:.:::-
-  /mMMMMMMMMMMMMMMMMMMMm/`sNd/
- oMMMMMMMMMMMMMMMMMMMMMMMs -`
-:MMMMMMMMMMMMMMMMMMMMMMMMM/
-NMMMMMMMMMMMMMMMMMMMMMMMMMd
-MMMMMMMmdmMMMMMMMMMMMMMMMMd
-MMMMMMy` .mMMMMMMMMMMMmho:`
-MMMMMMNo/sMMMMMMMNdy+-.`-/
-MMMMMMMMMMMMNdy+:.`.:ohmm:
-MMMMMMMmhs+-.`.:+ymNMMMy.
-MMMMMM/`.-/ohmNMMMMMMy-
-MMMMMMNmNNMMMMMMMMmo.
-MMMMMMMMMMMMMMMms:`
-MMMMMMMMMMNds/.
-dhhyys+/-`
+${\e[1m}                                    ./o-
+${\e[1m}          ``...``              `:. -/:
+${\e[1m}     `-+ymNMMMMMNmho-`      :sdNNm/
+${\e[1m}   `+dMMMMMMMMMMMMMMMmo` sh:.:::-
+${\e[1m}  /mMMMMMMMMMMMMMMMMMMMm/`sNd/
+${\e[1m} oMMMMMMMMMMMMMMMMMMMMMMMs -`
+${\e[1m}:MMMMMMMMMMMMMMMMMMMMMMMMM/
+${\e[1m}NMMMMMMMMMMMMMMMMMMMMMMMMMd
+${\e[1m}MMMMMMMmdmMMMMMMMMMMMMMMMMd
+${\e[1m}MMMMMMy` .mMMMMMMMMMMMmho:`
+${\e[1m}MMMMMMNo/sMMMMMMMNdy+-.`-/
+${\e[1m}MMMMMMMMMMMMNdy+:.`.:ohmm:
+${\e[1m}MMMMMMMmhs+-.`.:+ymNMMMy.
+${\e[1m}MMMMMM/`.-/ohmNMMMMMMy-
+${\e[1m}MMMMMMNmNNMMMMMMMMmo.
+${\e[1m}MMMMMMMMMMMMMMMms:`
+${\e[1m}MMMMMMMMMMNds/.
+${\e[1m}dhhyys+/-`

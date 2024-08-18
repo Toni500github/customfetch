@@ -4,10 +4,11 @@
 // SPDX-License-Identifier: MIT
 
 #ifndef TOML_IMPLEMENTATION
-#define TOML_IMPLEMENTATION
+# define TOML_IMPLEMENTATION
 #endif
+
 #ifndef TOML_HEADER_ONLY
-#define TOML_HEADER_ONLY 0
+# define TOML_HEADER_ONLY 0
 #endif
 
 #define TOML_ENABLE_UNRELEASED_FEATURES 1

@@ -32,18 +32,20 @@ BraceWrapping:
   IndentBraces: false
 
 # Control spaces around various constructs
-SpacesInParens: Custom
-SpacesInParensOptions:
-  InCStyleCasts: false
-  InEmptyParentheses: false
-  InConditionalStatements: true
-  Other: true
+#SpacesInParens: Custom
+#SpacesInParensOptions:
+#  InCStyleCasts: false
+#  InEmptyParentheses: false
+#  InConditionalStatements: true
+#  Other: false
 
 SpaceBeforeParens: ControlStatements
 SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
 SpaceInEmptyParentheses: false
 SpacesInSquareBrackets: false
+IndentAccessModifiers: false
+AccessModifierOffset: -4
 
 # Control formatting of C++11 features
 Cpp11BracedListStyle: false
@@ -59,4 +61,12 @@ AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: All
 BreakBeforeBraces: Allman
-IndentCaseLabels: false
+IndentCaseLabels: true
+
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCaseColons: false
+
+AllowShortCaseLabelsOnASingleLine: true

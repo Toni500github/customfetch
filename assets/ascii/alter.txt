@@ -1,20 +1,20 @@
-${c1}                      %,
-                    ^WWWw
-                   'wwwwww
-                  !wwwwwwww
-                 #`wwwwwwwww
-                @wwwwwwwwwwww
-               wwwwwwwwwwwwwww
-              wwwwwwwwwwwwwwwww
-             wwwwwwwwwwwwwwwwwww
-            wwwwwwwwwwwwwwwwwwww,
-           w~1i.wwwwwwwwwwwwwwwww,
-         3~:~1lli.wwwwwwwwwwwwwwww.
-        :~~:~?ttttzwwwwwwwwwwwwwwww
-       #<~:~~~~?llllltO-.wwwwwwwwwww
-      #~:~~:~:~~?ltlltlttO-.wwwwwwwww
-     @~:~~:~:~:~~(zttlltltlOda.wwwwwww
-    @~:~~: ~:~~:~:(zltlltlO    a,wwwwww
-   8~~:~~:~~~~:~~~~_1ltltu          ,www
-  5~~:~~:~~:~~:~~:~~~_1ltq             N,,
- g~:~~:~~~:~~:~~:~:~~~~1q                N,
+${cyan}                      %,
+${cyan}                    ^WWWw
+${cyan}                   'wwwwww
+${cyan}                  !wwwwwwww
+${cyan}                 #`wwwwwwwww
+${cyan}                @wwwwwwwwwwww
+${cyan}               wwwwwwwwwwwwwww
+${cyan}              wwwwwwwwwwwwwwwww
+${cyan}             wwwwwwwwwwwwwwwwwww
+${cyan}            wwwwwwwwwwwwwwwwwwww,
+${cyan}           w~1i.wwwwwwwwwwwwwwwww,
+${cyan}         3~:~1lli.wwwwwwwwwwwwwwww.
+${cyan}        :~~:~?ttttzwwwwwwwwwwwwwwww
+${cyan}       #<~:~~~~?llllltO-.wwwwwwwwwww
+${cyan}      #~:~~:~:~~?ltlltlttO-.wwwwwwwww
+${cyan}     @~:~~:~:~:~~(zttlltltlOda.wwwwwww
+${cyan}    @~:~~: ~:~~:~:(zltlltlO    a,wwwwww
+${cyan}   8~~:~~:~~~~:~~~~_1ltltu          ,www
+${cyan}  5~~:~~:~~:~~:~~:~~~_1ltq             N,,
+${cyan} g~:~~:~~~:~~:~~:~:~~~~1q                N,
