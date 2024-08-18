@@ -81,14 +81,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup SSH session
-      if: ${{ failure() }}
-      uses: mxschmitt/action-tmate@v3
-      with:
-        detached: true
-
     - name: Install the packages
-      run: pacman -Syyu git sudo base-devel fakeroot pkgconf tree neofetch fastfetch libprocps --noconfirm --needed
+      run: pacman -Syyu git sudo binutils gdb base-devel fakeroot pkgconf tree neofetch fastfetch libprocps --noconfirm --needed
     
     - name: get /etc/sudoers
       run: |
@@ -118,6 +112,9 @@ jobs:
         cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
         tree /sys/devices/system/cpu/cpu0/
         printf "/etc/os-release\n" && cat /etc/os-release
-       
+
+    - name: Setup SSH session
+      uses: mxschmitt/action-tmate@v3
+
     - name: Test customfetch
       run: ./build/debug/cufetch
