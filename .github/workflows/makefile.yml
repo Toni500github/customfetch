@@ -82,7 +82,10 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Setup SSH session
+      if: ${{ failure() }}
       uses: mxschmitt/action-tmate@v3
+      with:
+        detached: true
 
     - name: Install the packages
       run: pacman -Syyu git sudo base-devel fakeroot pkgconf tree neofetch fastfetch libprocps --noconfirm --needed
