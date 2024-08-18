@@ -209,7 +209,6 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
 {
         debug("did we got paast it?????");
 
-    debug("calling {}", __PRETTY_FUNCTION__);
 
     if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty())
     {
