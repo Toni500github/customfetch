@@ -83,10 +83,7 @@ static bool get_cursor_gsettings(const std::string_view de_name, Theme::Theme_t&
     theme.cursor_size.erase(std::remove(theme.cursor_size.begin(), theme.cursor_size.end(), '\''), theme.cursor_size.end());
 
     if (!assert_cursor(theme))
-    {
-        theme.cursor = MAGIC_LINE;
         return false;
-    }
 
     return true;
 }
@@ -415,6 +412,9 @@ Theme::Theme(systemInfo_t& queried_themes) : m_queried_themes(queried_themes)
     else if (get_cursor_from_gtk_configs(2, m_wmde_name, m_theme_infos)){}
     else if (get_cursor_xresources(m_theme_infos)){}
     else get_cursor_gsettings(m_wmde_name, m_theme_infos);
+
+    if (m_theme_infos.cursor.empty())
+        m_theme_infos.cursor = MAGIC_LINE;
 
     done = true;
 }
