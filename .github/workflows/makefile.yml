@@ -13,7 +13,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
+    - name: Setup SSH session
+      uses: mxschmitt/action-tmate@v3
+
     - name: Install Packages
       run: sudo apt-get update && sudo apt-get install build-essential cmake neofetch tree libgtk-3-dev pkg-config libgtkmm-3.0-dev libprocps-dev -y
     
