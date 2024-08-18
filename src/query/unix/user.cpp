@@ -44,14 +44,14 @@ static std::string get_wm_name()
         if (!std::isdigit((dir_entry.path().string().at(6))))  // /proc/5
             continue;
 
-        path = dir_entry.path().string() + "/loginuid";
+        path = dir_entry.path() / "loginuid";
         std::ifstream f_uid(path, std::ios::binary);
         std::string   s_uid;
         std::getline(f_uid, s_uid);
         if (std::stoul(s_uid) != uid)
             continue;
 
-        path = dir_entry.path().string() + "/cmdline";
+        path = dir_entry.path() / "cmdline";
         std::ifstream f(path, std::ios::binary);
         std::getline(f, proc_name);
         debug("proc_name = {}", proc_name);
@@ -82,6 +82,8 @@ static std::string get_de_version(const std::string_view de_name)
     {
         case "mate"_fnv1a16:     return get_mate_version();
         case "cinnamon"_fnv1a16: return get_cinnamon_version();
+
+        case "kde"_fnv1a16: return get_kwin_version();
 
         case "xfce"_fnv1a16:
         case "xfce4"_fnv1a16: return get_xfce4_version();
@@ -121,7 +123,7 @@ static std::string get_wm_wayland_name()
 
     UNLOAD_LIBRARY()
 
-    return ret;
+    return prettify_wm_name(ret);
 #else
     return get_wm_name();
 #endif

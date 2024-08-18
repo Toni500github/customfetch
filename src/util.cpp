@@ -492,12 +492,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 
     std::string vendor = description.substr(first, (last - first + 1));
 
-    if (hasStart(vendor, "Advanced Micro Devices, Inc."))
-        vendor = "AMD";
-    else if (vendor == "Intel Corporation")
-        vendor = "Intel";
-    else if (vendor == "NVIDIA Corporation")
-        vendor = "NVIDIA";
+    CF_ShortenVendorName(vendor);
 
     return vendor;
 }
