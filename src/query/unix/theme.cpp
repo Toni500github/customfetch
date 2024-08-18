@@ -230,6 +230,7 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
             interface = "org.gnome.desktop.interface";
     }
 
+    debug("trying to theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty()");
     if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty())
     {
         theme.gtk_theme_name.clear();
