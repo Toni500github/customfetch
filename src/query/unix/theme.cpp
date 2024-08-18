@@ -82,6 +82,12 @@ static bool get_cursor_gsettings(const std::string_view de_name, Theme::Theme_t&
     theme.cursor.erase(std::remove(theme.cursor.begin(), theme.cursor.end(), '\''), theme.cursor.end());
     theme.cursor_size.erase(std::remove(theme.cursor_size.begin(), theme.cursor_size.end(), '\''), theme.cursor_size.end());
 
+    if (!assert_cursor(theme))
+    {
+        theme.cursor = MAGIC_LINE;
+        return false;
+    }
+
     return true;
 }
 
@@ -119,7 +125,7 @@ static bool get_cursor_from_gtk_configs(const std::uint8_t ver, const std::strin
     if (get_gtk_cursor_config(fmt::format("{}/.gtkrc-{}.0", std::getenv("HOME"), ver), theme))
         return true;
 
-    get_cursor_gsettings(de_name, theme);
+    return get_cursor_gsettings(de_name, theme);
 }
 
 static bool get_de_cursor(const std::string_view de_name, Theme::Theme_t& theme)
