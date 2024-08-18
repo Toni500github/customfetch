@@ -119,7 +119,7 @@ static bool get_cursor_from_gtk_configs(const std::uint8_t ver, const std::strin
     if (get_gtk_cursor_config(fmt::format("{}/.gtkrc-{}.0", std::getenv("HOME"), ver), theme))
         return true;
 
-    get_cursor_gsettings(de_name, theme);
+    return get_cursor_gsettings(de_name, theme);
 }
 
 static bool get_de_cursor(const std::string_view de_name, Theme::Theme_t& theme)
