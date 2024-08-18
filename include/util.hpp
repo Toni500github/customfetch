@@ -69,18 +69,10 @@ std::string  str_toupper(std::string str);
 void         strip(std::string& input);
 std::string  read_by_syspath(const std::string_view path);
 fmt::rgb     hexStringToColor(const std::string_view hexstr);
+void         shorten_vendor_name(std::string& vendor);
 std::string  getHomeConfigDir();
 std::string  getConfigDir();
 std::vector<std::string> split(const std::string_view text, char delim);
-
-inline void CF_ShortenVendorName(std::string &vendor) {
-    if (vendor == "Advanced Micro Devices, Inc.")
-        vendor = "AMD";
-    else if (vendor == "Intel Corporation")
-        vendor = "Intel";
-    else if (vendor == "NVIDIA Corporation")
-        vendor = "NVIDIA";
-}
 
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept

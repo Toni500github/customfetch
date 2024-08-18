@@ -171,9 +171,7 @@ static std::string get_shell_version(const std::string_view shell_name)
 
 static std::string get_shell_name(const std::string_view shell_path)
 {
-    std::string ret = shell_path.substr(shell_path.rfind('/') + 1).data();
-
-    return ret;
+    return shell_path.substr(shell_path.rfind('/') + 1).data();
 }
 
 static std::string get_term_name(std::string& term_ver)

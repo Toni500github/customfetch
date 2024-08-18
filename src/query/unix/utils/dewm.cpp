@@ -176,11 +176,10 @@ std::string get_kwin_version()
 {
     std::string ret;
 
-    if (getenv("WAYLAND_DISPLAY") != NULL) {
+    if (std::getenv("WAYLAND_DISPLAY") != NULL)
         read_exec({"kwin_wayland", "--version"}, ret);
-    } else {
+    else
         read_exec({"kwin_x11", "--version"}, ret);
-    }
 
     // erase doesn't remove the nth character, only the ones before it, so we have to add 1.
     ret.erase(0, ret.rfind(' ')+1);

@@ -50,8 +50,9 @@ public:
 
     struct pkg_managers_t
     {
-        std::uint16_t pacman_pkgs  = 0;
-        std::uint16_t flatpak_pkgs = 0;
+        std::uint32_t dpkg_pkgs    = 0;
+        std::uint32_t pacman_pkgs  = 0;
+        std::uint32_t flatpak_pkgs = 0;
     };
 
     System();

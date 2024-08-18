@@ -129,14 +129,6 @@ layout = [
     "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
 ]
 
-# Ordered list of which packages installed count should be displayed in $<os.pkgs>
-# remember to not enter the same name twice, else the world will finish
-# Choices: pacman, flatpak
-# Pro-tip: if your package manager isnt listed here, yet,
-# use the bash command module in the layout
-# e.g "Packages: $(pacman -Q | wc -l)"
-pkg-managers = ["pacman", "flatpak"]
-
 # display ascii-art or image/gif (GUI only) near layout
 # put "os" for displaying the OS ascii-art
 # or the "/path/to/file" for displaying custom files
@@ -170,7 +162,7 @@ magenta = "\e[1;35m"
 cyan = "\e[1;36m"
 white = "\e[1;37m"
 
-# $<os.uptime> format config
+# $<os.uptime> config
 [os.uptime]
 # how to display the name of the uptime
 # e.g: hours = "h" -> "Uptime: 3h"
@@ -178,6 +170,17 @@ days = " days"
 hours = " hours"
 mins = " mins"
 secs = " seconds"
+
+# $<os.pkgs> config
+[os.pkgs]
+# Ordered list of which packages installed count should be displayed in $<os.pkgs>
+# remember to not enter the same name twice, else the world will finish
+# Choices: pacman, flatpak, dpkg
+#
+# Pro-tip: if your package manager isnt listed here, yet,
+# use the bash command component in the layout
+# e.g "Packages: $(pacman -Q | wc -l) (pacman)"
+pkg-managers = ["pacman", "dpkg", "flatpak"]
 
 # GUI options
 # note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")

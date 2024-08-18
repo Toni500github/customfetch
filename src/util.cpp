@@ -215,6 +215,17 @@ void getFileValue(u_short& iterIndex, const std::string& line, std::string& str,
     iterIndex++;
 }
 
+void shorten_vendor_name(std::string& vendor)
+{
+    if (vendor == "Advanced Micro Devices, Inc.")
+        vendor = "AMD";
+    else if (vendor == "Intel Corporation")
+        vendor = "Intel";
+    else if (vendor == "NVIDIA Corporation")
+        vendor = "NVIDIA";
+}
+
+
 fmt::rgb hexStringToColor(const std::string_view hexstr)
 {
     // convert the hexadecimal string to individual components
@@ -492,7 +503,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 
     std::string vendor = description.substr(first, (last - first + 1));
 
-    CF_ShortenVendorName(vendor);
+    shorten_vendor_name(vendor);
 
     return vendor;
 }

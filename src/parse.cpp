@@ -33,7 +33,7 @@ bool Query::RAM::m_bInit    = false;
 bool Query::CPU::m_bInit    = false;
 bool Query::User::m_bInit   = false;
 
-static std::array<std::string, 3> get_ansi_color(const std::string_view str, const colors_t& colors)
+static std::array<std::string, 3> get_ansi_color(const std::string& str, const colors_t& colors)
 {
     if (hasStart(str, "38") || hasStart(str, "48"))
         die("Can't convert \\e[38; or \\e[48; codes in GUI. Please use #hexcode colors instead.");
@@ -42,7 +42,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     if (first_m == std::string::npos)
         die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
 
-    std::string col = str.data();
+    std::string col = str;
     col.erase(first_m);  // 1;42
     std::string weight = hasStart(col, "1;") ? "bold" : "normal";
     std::string type   = "fgcolor";  // either fgcolor or bgcolor
@@ -219,7 +219,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             case '}':  // please pay very attention when reading this unreadable code
                 if (hasStart(command, "auto"))
                 {
-                    std::uint8_t ver = static_cast<std::uint8_t>(command.length() > 4 ? std::stoi(command.substr(4, 5)) - 1 : 0);
+                    std::uint8_t ver = static_cast<std::uint8_t>(command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0);
                     if (ver >= auto_colors.size() || ver < 1)
                         ver = 0;
 
@@ -280,8 +280,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                  hasStart(str_clr,
                                           "\033"))  // "\\e" is for checking in the ascii_art, \033 in the config
                         {
-                            std::array<std::string, 3> clrs = get_ansi_color((hasStart(str_clr, "\033") ? std::string_view(str_clr.substr(2))
-                                                                                                        : std::string_view(str_clr.substr(3))),
+                            std::array<std::string, 3> clrs = get_ansi_color((hasStart(str_clr, "\033") ? str_clr.substr(2)
+                                                                                                        : str_clr.substr(3)),
                                                                                                         colors);
                             const std::string_view color  = clrs.at(0);
                             const std::string_view weight = clrs.at(1);
@@ -604,7 +604,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
     else if (hasStart(moduleName, "theme-gtk"))
     {
         const std::uint8_t ver =
-            static_cast<std::uint8_t>(moduleName.length() > 9 ? std::stoi(moduleName.substr(9, 10)) : 0);
+            static_cast<std::uint8_t>(moduleName.length() > 9 ? std::stoi(moduleName.substr(9)) : 0);
 
         if (ver <= 0)
             die("seems theme-gtk module name '{}' doesn't have a version number to query.\n"
@@ -662,7 +662,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
     else if (hasStart(moduleName, "gpu"))
     {
         std::uint16_t id =
-            static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3, 4)) : 0);
+            static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3)) : 0);
 
         Query::GPU query_gpu(id, queried_gpus);
 
