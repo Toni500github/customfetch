@@ -208,6 +208,7 @@ static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& th
 static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_t& theme)
 {
     debug("calling {}", __PRETTY_FUNCTION__);
+    debug("did we got paast it?????");
 
     if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty())
     {
@@ -217,7 +218,6 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
             theme.gtk_theme_name = gtk_theme_env;
     }
 
-    debug("did we got paast it?????");
     const char* interface;
     switch(fnv1a16::hash(str_tolower(de_name.data())))
     {
