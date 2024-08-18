@@ -57,7 +57,6 @@ std::string parse_de_env(void) noexcept
 
 std::string prettify_wm_name(const std::string_view name) noexcept
 {
-    debug("prettify_wm_name: name = {}", name);
     if (name.find("kwin") != std::string::npos)
         return "Kwin";
 

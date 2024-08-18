@@ -125,22 +125,27 @@ public:
         std::string gtk_theme_name{ MAGIC_LINE };
         std::string gtk_icon_theme{ MAGIC_LINE };
         std::string gtk_font{ MAGIC_LINE };
-        std::string gtk_cursor{ MAGIC_LINE };
+        std::string cursor{ MAGIC_LINE };
+        std::string cursor_size { UNKNOWN };
     };
 
     Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
           const std::string& theme_name_version);
 
+    Theme(systemInfo_t& queried_themes);
+
     std::string gtk_theme();
     std::string gtk_icon_theme();
     std::string gtk_font();
-    std::string gtk_cursor();
+    std::string& cursor();
+    std::string& cursor_size();
 
 private:
     User              query_user;
     static Theme_t    m_theme_infos;
     systemInfo_t&     m_queried_themes;
     const std::string m_theme_name_version;
+    std::string       m_wmde_name;
 };
 
 class CPU

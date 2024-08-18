@@ -93,6 +93,13 @@ user
   term_name	: Terminal name [alacritty]
   term_version	: Terminal version [0.13.2]
 
+# this module is just for generic theme stuff
+# such as indeed cursor
+# because it is not GTK-Qt specific
+theme
+  cursor	: cursor name [Bibata-Modern-Ice]
+  cursor_size	: cursor size [16]
+
 # the N stands for the gtk version number to query
 # so for example if you want to query the gtk3 theme version
 # write it like "theme.gtk3"

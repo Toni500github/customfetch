@@ -580,6 +580,23 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         }
     }
 
+    else if (moduleName == "theme")
+    {
+        Query::Theme query_theme(queried_themes);
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        {
+            switch (moduleValue_hash)
+            {
+                case "cursor"_fnv1a16: SYSINFO_INSERT(query_theme.cursor()); break;
+                case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_theme.cursor_size()); break;
+            }
+        }
+    }
+
     else if (moduleName == "theme-gtk-all")
     {
         Query::Theme gtk2(2, queried_themes, queried_themes_names, "gtk2");
@@ -596,7 +613,6 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "name"_fnv1a16:   SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_theme(),      gtk3.gtk_theme(),      gtk4.gtk_theme())); break;
                 case "icons"_fnv1a16:  SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_icon_theme(), gtk3.gtk_icon_theme(), gtk4.gtk_icon_theme())); break;
                 case "font"_fnv1a16:   SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_font(),       gtk3.gtk_font(),       gtk4.gtk_font())); break;
-                case "cursor"_fnv1a16: SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_cursor(),     gtk3.gtk_cursor(),     gtk4.gtk_cursor())); break;
             }
         }
     }
@@ -623,7 +639,6 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "name"_fnv1a16:   SYSINFO_INSERT(query_theme.gtk_theme()); break;
                 case "icons"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
                 case "font"_fnv1a16:   SYSINFO_INSERT(query_theme.gtk_font()); break;
-                case "cursor"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_cursor()); break;
             }
         }
     }

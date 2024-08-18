@@ -117,6 +117,8 @@ layout = [
     "${auto}Packages: $<os.pkgs>",
     "${auto}Theme: $<theme-gtk-all.name>",
     "${auto}Icons: $<theme-gtk-all.icons>",
+    "${auto}Font: $<theme-gtk-all.font>",
+    "${auto}Cursor: $<theme.cursor> ($<theme.cursor_size>px)",
     "${auto}WM: $<user.wm_name>",
     "${auto}DE: $<user.de_name>",
     "${auto}Disk(/): $<disk(/).disk>",
