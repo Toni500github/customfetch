@@ -265,6 +265,8 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
             return true;
         }
     }
+
+    return false;
 }
 
 std::string which(const std::string& command)

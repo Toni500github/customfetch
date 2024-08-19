@@ -47,7 +47,7 @@ static bool get_cursor_xresources(Theme::Theme_t& theme)
         }
     }
 
-    assert_cursor(theme);
+    return assert_cursor(theme);
 }
 
 static bool get_cursor_gsettings(const std::string_view de_name, Theme::Theme_t& theme)
@@ -108,7 +108,7 @@ static bool get_gtk_cursor_config(const std::string_view path, Theme::Theme_t& t
     return assert_cursor(theme);
 }
 
-static bool get_cursor_from_gtk_configs(const std::uint8_t ver, const std::string_view de_name, Theme::Theme_t& theme)
+static bool get_cursor_from_gtk_configs(const std::uint8_t ver, Theme::Theme_t& theme)
 {
     if (get_gtk_cursor_config(fmt::format("{}/gtk-{}.0/settings.ini", configDir, ver), theme))
         return true;
@@ -122,7 +122,7 @@ static bool get_cursor_from_gtk_configs(const std::uint8_t ver, const std::strin
     if (get_gtk_cursor_config(fmt::format("{}/.gtkrc-{}.0", std::getenv("HOME"), ver), theme))
         return true;
 
-    return get_cursor_gsettings(de_name, theme);
+    return false;
 }
 
 static bool get_de_cursor(const std::string_view de_name, Theme::Theme_t& theme)
@@ -407,9 +407,9 @@ Theme::Theme(systemInfo_t& queried_themes) : m_queried_themes(queried_themes)
         m_wmde_name = de_name;
 
     if (get_de_cursor(m_wmde_name, m_theme_infos)){}
-    else if (get_cursor_from_gtk_configs(4, m_wmde_name, m_theme_infos)){}
-    else if ((get_cursor_from_gtk_configs(3, m_wmde_name, m_theme_infos))){}
-    else if (get_cursor_from_gtk_configs(2, m_wmde_name, m_theme_infos)){}
+    else if (get_cursor_from_gtk_configs(4, m_theme_infos)){}
+    else if ((get_cursor_from_gtk_configs(3, m_theme_infos))){}
+    else if (get_cursor_from_gtk_configs(2, m_theme_infos)){}
     else if (get_cursor_xresources(m_theme_infos)){}
     else get_cursor_gsettings(m_wmde_name, m_theme_infos);
 

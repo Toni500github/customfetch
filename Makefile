@@ -1,5 +1,6 @@
 CXX       	?= g++
 PREFIX	  	?= /usr
+MANPREFIX	?= $(PREFIX)/share/man
 VARS  	  	?=
 GUI_MODE     	?= 0
 
@@ -43,7 +44,7 @@ SRC 	   	 = $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -Wno-return-type -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
+CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
 all: fmt toml $(TARGET)
 
@@ -77,6 +78,9 @@ distclean:
 
 install: $(TARGET)
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
+	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < cufetch.1.in > $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
+	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
 	cd assets/ && find ascii/ -type f -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
 
 .PHONY: $(TARGET) dist distclean fmt toml install all

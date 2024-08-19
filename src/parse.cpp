@@ -391,9 +391,6 @@ static std::string get_auto_uptime(unsigned short days, unsigned short hours, un
 
 static std::string get_auto_gtk_format(const std::string_view gtk2, const std::string_view gtk3, const std::string_view gtk4)
 {
-    if (gtk2 == MAGIC_LINE && gtk3 == MAGIC_LINE && gtk4 == MAGIC_LINE)
-        return MAGIC_LINE;
-
     if ((gtk2 != MAGIC_LINE && gtk3 != MAGIC_LINE && gtk4 != MAGIC_LINE))
     {
         if (gtk2 == gtk3 && gtk2 == gtk4)
@@ -427,6 +424,7 @@ static std::string get_auto_gtk_format(const std::string_view gtk2, const std::s
     else if (gtk2 != MAGIC_LINE)
         return fmt::format("{} [GTK2]", gtk2);
 
+    return MAGIC_LINE;
 }
 
 static std::string prettify_term_name(const std::string_view term_name)
