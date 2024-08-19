@@ -167,7 +167,7 @@ white = "\e[1;37m"
 # $<os.uptime> config
 [os.uptime]
 # how to display the name of the uptime
-# e.g: hours = "h" -> "Uptime: 3h"
+# e.g: hours = "hrs" -> "Uptime: 3hrs"
 days = " days"
 hours = " hours"
 mins = " mins"
