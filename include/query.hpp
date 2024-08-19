@@ -48,13 +48,6 @@ public:
         std::string pkgs_installed{ UNKNOWN };
     };
 
-    struct pkg_managers_t
-    {
-        std::uint32_t dpkg_pkgs    = 0;
-        std::uint32_t pacman_pkgs  = 0;
-        std::uint32_t flatpak_pkgs = 0;
-    };
-
     System();
     
     std::string  kernel_name();
