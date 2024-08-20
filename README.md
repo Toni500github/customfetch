@@ -4,14 +4,14 @@
 
 # Customfetch
 >[!WARNING]
->customfetch is still WIP, it will be ready with a release.\
+>customfetch is still WIP and in alpha, it will be ready with a stable release.\
 >If you still wanna try, go ahead and compile it. Don't forget to open an issue/PR for any problem.\
 >Thanks!
 
 A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\
 `customfetch` is designed to provide a really customizable way to display your system informations in the way you like or want.
 
-Currently supports Linux distros only, but windows support is incoming
+Currently supports Linux distros only. Android may be coming when stable release
 <!-- Comment this because it's still in WIP for 3 weeks, no shit it won't work on some OSs
 >[!NOTE]
 >The goal is to be cross-platform, so maybe Android and MacOS support will come some day\
@@ -39,7 +39,7 @@ Currently supports Linux distros only, but windows support is incoming
 >To check if it's enabled or not, run "cufetch --version"
 
 ## Depends
-currently there aren't any dependencies to install.
+currently there aren't any dependencies to install, other than having `libdl` installed.\
 If you want to install with GUI mode install: `gtk3` and `gtkmm3` from your package manager
 
 ## Installation
@@ -48,19 +48,19 @@ If you want to install with GUI mode install: `gtk3` and `gtkmm3` from your pack
 # btw checkout our other project https://github.com/BurntRanch/TabAUR ;)
 taur -S customfetch-git
 
-# GUI mode
+# wiht GUI mode
 taur -S customfetch-gui-git
 ```
 
-### Compile from source
+### Compile from source (unstable)
 ```bash
 # clone the git dir
 git clone https://github.com/Toni500github/customfetch
 cd customfetch
 
 # DEBUG=0 for release build (it's just a build without debug infos)
-# GUI_MODE=1 for having GUI mode, or =0 for not
-make install DEBUG=0 GUI_MODE=1
+# GUI_MODE=0 for disabling GUI mode, or =1 for enable it (will slow down a bit if run in terminal)
+make install DEBUG=0 GUI_MODE=0
 
 # automatically generates a config and prints the infos
 cufetch
@@ -75,38 +75,33 @@ Here's an example using my config
 The config:
 
 ```toml
-
 [config]
+
+# The array for displaying the system infos
 layout = [
-    "${red}$<user.name>${0}@${cyan}$<os.hostname>",
+    "${auto2}$<user.name>${0}@${auto2}$<os.hostname>",
     "───────────────────────────",
-    "${red}OS ->  $<os.name> $<system.arch>",
-    "${yellow}Host -> $<system.host>",
-    "${!#33ffa1}Init -> $<os.initsys_name>",
-    "${green}Kernel -> $<os.kernel>",
-    "${cyan}Uptime -> $<os.uptime>",
-    "${cyan}Shell -> $<user.shell>",
-    "${cyan}Packages -> $<os.pkgs>",
-    "${!#448aa4}Disk(/) ->  $<disk(/).disk>",
-    "${!#f11bba}WM -> $<user.wm_name>",
-    "${!#f11f2a}DE -> $<user.de_name>",
-    "${!#fff220}Terminal -> $<user.term>",
-    "${magenta}CPU -> $<cpu.cpu>",
-    "${blue}GPU -> $<gpu.name>",
-    "${!#03ff93}RAM usage -> $<ram.ram>",
+    "${auto}OS: $<os.name> $<system.arch>",
+    "${auto}Host: $<system.host>",
+    "${auto}Kernel: $<os.kernel>",
+    "${auto}Uptime: $<os.uptime>",
+    "${auto}Terminal: $<user.term>",
+    "${auto}Shell: $<user.shell>",
+    "${auto}Packages: $<os.pkgs>",
+    "${auto}Theme: $<theme-gtk-all.name>",
+    "${auto}Icons: $<theme-gtk-all.icons>",
+    "${auto}Font: $<theme-gtk-all.font>",
+    "${auto}Cursor: $<theme.cursor> ($<theme.cursor_size>px)",
+    "${auto}WM: $<user.wm_name>",
+    "${auto}DE: $<user.de_name>",
+    "${auto}Disk(/): $<disk(/).disk>",
+    "${auto}CPU: $<cpu.cpu>",
+    "${auto}GPU: $<gpu.name>",
+    "${auto}RAM: $<ram.ram>",
     "",
     "${\e[40m}   ${\e[41m}   ${\e[42m}   ${\e[43m}   ${\e[44m}   ${\e[45m}   ${\e[46m}   ${\e[47m}   ", # normal colors
     "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
 ]
-
-# Ordered list of which packages installed count should be displayed in $<os.pkgs>
-# remember to not enter the same name twice, else the world will end
-# Curennt choices: pacman, flatpak
-#
-# Pro-tip: if your package manager isnt listed here, yet,
-# use the bash command module in the layout
-# e.g "Packages: $(pacman -Q | wc -l)"
-pkg-managers = ["pacman", "flatpak"]
 
 # display ascii-art or image/gif (GUI only) near layout
 # put "os" for displaying the OS ascii-art
@@ -114,29 +109,20 @@ pkg-managers = ["pacman", "flatpak"]
 # or "off" for disabling ascii-art or image displaying
 source-path = "os"
 
-# offset between the ascii art and the system infos
-offset = 5
-
 # Path to where we'll take all the distros/OSs ascii arts
-# it MUST contain an "ascii" subdirectory
-data-dir = "/usr/share/customfetch"
+# note: it MUST contain an "ascii" subdirectory
+data-dir = "~/stupid_projects/customfetch/assets"
 
-# A string or character that when ecountered, will automatically
-# reset color, aka. automatically append ${0}.
+# A separetor (string) that when ecountered, will automatically
+# reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
-sep-reset = "->"
+sep-reset = ":"
+
+# Offset between the ascii art and the system infos
+offset = 5
 
 # Padding of the logo from the top
 logo-padding-top = 0
-
-# $<os.uptime> format config
-[os.uptime]
-# how to display the name of the uptime
-# e.g: hours = "h" -> "Uptime: 3h"
-days = " days"
-hours = " hours"
-mins = " mins"
-secs = " seconds"
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
@@ -150,19 +136,38 @@ magenta = "\e[1;35m"
 cyan = "\e[1;36m"
 white = "\e[1;37m"
 
+# $<os.uptime>  config
+[os.uptime]
+# how to display the name of the uptime
+# e.g: hours = "h" -> "Uptime: 3h"
+days = " days"
+hours = " hours"
+mins = " mins"
+secs = " seconds"
+
+# $<os.pkgs> config
+[os.pkgs]
+# Ordered list of which packages installed count should be displayed in $<os.pkgs>
+# remember to not enter the same name twice, else the world will finish
+# Choices: pacman, flatpak, dpkg
+#
+# Pro-tip: if your package manager isnt listed here, yet,
+# use the bash command component in the layout
+# e.g "Packages: $(pacman -Q | wc -l) (pacman)"
+pkg-managers = ["pacman", "dpkg", "flatpak"]
+
 # GUI options
 # note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")
 [gui]
 enable = false
 
-# Font to be used (Strongly reccomend family "Liberation Mono")
+# Font to be used
 # syntax must be [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]
 # e.g "Liberation Mono Normal 12"
 # check https://lazka.github.io/pgi-docs/Pango-1.0/classes/FontDescription.html#Pango.FontDescription for more infos
-font = "Liberation Mono Normal Light 12"
+font = "Liberation Mono Normal 12"
 
 # These are the colors palette you can use in the GUI mode.
-# Can be used in the layout and/or ascii-art
 # They can overwritte with ANSI escape code colors
 # but they don't work with those, only hexcodes
 black = "!#000005"
@@ -176,14 +181,12 @@ white = "!#ffffff"
 
 # Path to image as a background.
 # put "disable" for disabling and use the theme color as background.
-bg-image = "disable"
+bg-image = "/tmp/idk.png"
 
 ```
 
-You may be confused and have difficulty to understand, but this is why customfetch is different from the others.\
-
-We use something we call "components", 2 inspired by bash syntax, and they starts with a '$'. **We use them on both the ascii art text file and the `layout` variable**\
-There are 3 componenets:
+We got the config.toml file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
+You have 3 components: $<module.submod>, ${color}, $(bash command). They can be used in the ascii art text file and layout, but how to use them?
 
 * **The info component ($<>)** will print a member of a module\
  e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
@@ -196,12 +199,28 @@ There are 3 componenets:
 
 * **The color component (${})** is used for which color to use for colorizing the text\
  e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)\
- you can even put a custom hex color e.g: `${#ff6622}` (for bold text put ! before # e.g `${!#ff6622}` )\
- OR bash escape code colors e.g `${\e[1;32m}` or `${\e[0;34m}`.\
+ you can even put a custom hex color e.g: `${#ff6622}` (for bold text put ! before # e.g `${!#ff6622}`)\
+ OR ANSI escape code colors e.g `${\e[1;32m}` or `"\e[38;5;160m` (NOTE: 256 colors ANSI escape codes, those that have \e[38 or \e[48, can't be used in GUI mode).\
  For auto coloring, depending on the ascii logo colors, use `${auto}`.\
  They can be used for different colors too. So for getting the 2nd color of the ascii logo,\
  use `${auto2}`, for the 4th one use `${auto4}` and so on.
 
-Any end brackets (')', '}', '>') can be escaped with \\
+Any $ or brackets can be escaped with \\
+
+# Thanks
+I wanna thanks so much:
+* my best-friend [BurntRanch](https://github.com/BurntRanch/),\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me initialize this project and motivate me for keep going\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for making my customizability idea come true with the parsing.
+
+* the Better C++ [discord server](https://discord.gg/uSzTjkXtAM), \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping improving the codebase and helping me with any issues I got,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for being patient with me XD
+
+* [fastfetch](https://github.com/fastfetch-cli/fastfetch/) and [neofetch](https://github.com/dylanaraps/neofetch),\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For inspiring this project
+
+I hope you'll like customfetch, and also checkout [TabAUR](https://github.com/BurntRanch/TabAUR/tree/dev), our other project that was made before customfetch.\
+Don't forgot [sdl_engine](https://github.com/BurntRanch/sdl_engine) too ;)
 
 ![meme.png](assets/screenshots/meme.png)
