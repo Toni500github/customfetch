@@ -153,15 +153,12 @@ std::string& System::os_initsys_name()
     static bool done = false;
     if (!done)
     {
-        // if pid 1 doesn't exists, linux is not even booted
-        // can't be bothered to check if it's open or not
-        // but imma do it anyways XD
-        std::ifstream f_initsys("/proc/1/cmdline", std::ios::binary);
+        // there's no way PID 1 doesn't exist.
+        // This will always succeed.
+        std::ifstream f_initsys("/proc/1/comm", std::ios::binary);
         if (!f_initsys.is_open())
         {
-            done = true;
-            m_system_infos.os_initsys_name = "linux is not booted lmao";
-            return m_system_infos.os_initsys_name;
+            die("/proc/1/comm doesn't exist! (what?)");
         }
 
         std::string initsys;
