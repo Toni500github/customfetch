@@ -178,7 +178,7 @@ secs = " seconds"
 [os.pkgs]
 # Ordered list of which packages installed count should be displayed in $<os.pkgs>
 # remember to not enter the same name twice, else the world will finish
-# Choices: pacman, flatpak, dpkg
+# Choices: pacman, flatpak, dpkg, apk
 #
 # Pro-tip: if your package manager isnt listed here, yet,
 # use the bash command component in the layout
