@@ -111,7 +111,7 @@ source-path = "os"
 
 # Path to where we'll take all the distros/OSs ascii arts
 # note: it MUST contain an "ascii" subdirectory
-data-dir = "~/stupid_projects/customfetch/assets"
+data-dir = "~/customfetch/assets"
 
 # A separetor (string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
@@ -186,18 +186,18 @@ bg-image = "/tmp/idk.png"
 ```
 
 We got the config.toml file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
-You have 3 components: $<module.submod>, ${color}, $(bash command). They can be used in the ascii art text file and layout, but how to use them?
+You have 3 components: `$<module.submod>`, `${color}`, `$(bash command)`. They can be used in the ascii art text file and layout, but how to use them?
 
-* **The info component ($<>)** will print a member of a module\
+* **The info component (`$<>`)** will print a member of a module\
  e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
  run "cufetch -l" for a list of builti-in modules
 
-* **The bash command component ($())** let's you execute bash commands\
+* **The bash command component (`$()`)** let's you execute bash commands\
  e.g `$(echo \"hello world\")` will indeed echo out Hello world.\
  you can even use pipes\
  e.g `$(echo \"hello world\" | cut -d' ' -f2)` will only print world
 
-* **The color component (${})** is used for which color to use for colorizing the text\
+* **The color component (`${}`)** is used for which color to use for colorizing the text\
  e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)\
  you can even put a custom hex color e.g: `${#ff6622}` (for bold text put ! before # e.g `${!#ff6622}`)\
  OR ANSI escape code colors e.g `${\e[1;32m}` or `"\e[38;5;160m` (NOTE: 256 colors ANSI escape codes, those that have \e[38 or \e[48, can't be used in GUI mode).\
