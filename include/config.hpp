@@ -57,6 +57,7 @@ public:
     bool        m_disable_source  = false;
     bool        m_display_distro  = true;
     bool        m_print_logo_only = false;
+    std::vector<std::string> m_arg_colors_name, m_arg_colors_value;
 
     void        loadConfigFile(const std::string_view filename, colors_t& colors);
     std::string getThemeValue(const std::string& value, const std::string& fallback) const;

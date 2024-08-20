@@ -208,8 +208,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (dot_pos == std::string::npos)
                     die("module name '{}' doesn't have a dot '.' for separiting module name and submodule", command);
 
-                const std::string moduleName(command.substr(0, dot_pos));
-                const std::string moduleValueName(command.substr(dot_pos + 1));
+                const std::string& moduleName(command.substr(0, dot_pos));
+                const std::string& moduleValueName(command.substr(dot_pos + 1));
                 addValueFromModule(systemInfo, moduleName, moduleValueName, config);
 
                 output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
@@ -217,6 +217,27 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             }
             break;
             case '}':  // please pay very attention when reading this unreadable code
+                if (!config.m_arg_colors_name.empty())
+                {
+                    const auto& it_name = std::find(config.m_arg_colors_name.begin(), config.m_arg_colors_name.end(), command);
+                    if (it_name != config.m_arg_colors_name.end())
+                    {
+                        const auto& it_value = std::distance(config.m_arg_colors_name.begin(), it_name);
+                        
+                        if (hasStart(command, "auto"))
+                        {
+                            // "ehhmmm why goto and double code? that's ugly and unconvienient :nerd:"
+                            // I don't care, it does the work and well
+                            if (command == *it_name)
+                                command = config.m_arg_colors_value[it_value];
+                            goto jump;
+                        }
+
+                        if (command == *it_name)
+                            command = config.m_arg_colors_value[it_value];
+                    }
+                }
+
                 if (hasStart(command, "auto"))
                 {
                     std::uint8_t ver = static_cast<std::uint8_t>(command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0);
@@ -224,13 +245,13 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         ver = 0;
 
                     if (auto_colors.empty())
-                        auto_colors.push_back("\033[0m\033[1m");
+                        auto_colors.push_back(config.gui ? "</span><span weight='bold'>" : "\033[0m\033[1m");
 
-                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                            auto_colors.at(ver));
+                    command = auto_colors.at(ver);
                 }
 
-                else if (command == "1")
+            jump:
+                if (command == "1")
                     output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                             config.gui ? "</span><span weight='bold'>" : fmt::format("{}\033[1m", NOCOLOR)); 
                 else if (command == "0")
@@ -280,7 +301,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                  hasStart(str_clr,
                                           "\033"))  // "\\e" is for checking in the ascii_art, \033 in the config
                         {
-                            std::array<std::string, 3> clrs = get_ansi_color((hasStart(str_clr, "\033") ? str_clr.substr(2)
+                            const std::array<std::string, 3> clrs = get_ansi_color((hasStart(str_clr, "\033") ? str_clr.substr(2)
                                                                                                         : str_clr.substr(3)),
                                                                                                         colors);
                             const std::string_view color  = clrs.at(0);
@@ -348,8 +369,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                                 formatted_replacement_string);
                     }
 
-                    if (!parsingLaoyut && std::find(auto_colors.begin(), auto_colors.end(), str_clr) == auto_colors.end())
-                        auto_colors.push_back(str_clr);
+                    if (!parsingLaoyut && std::find(auto_colors.begin(), auto_colors.end(), command) == auto_colors.end())
+                        auto_colors.push_back(command);
                 }
         }
     }

@@ -138,9 +138,9 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
     if (config.m_print_logo_only)
         return asciiArt;
 
+    std::string _;
     for (std::string& layout : config.layouts)
     {
-        std::string _;
         layout = parse(layout, systemInfo, _, config, colors, true);
     }
 
