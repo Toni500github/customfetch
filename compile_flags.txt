@@ -3,7 +3,7 @@
 -Wextra
 -Wpedantic
 -std=c++20
--DVERSION="0.8.5"
+-DVERSION="0.8.6"
 -DBRANCH="main"
 -DGUI_MODE=1
 -DDEBUG=1

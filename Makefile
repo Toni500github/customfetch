@@ -38,7 +38,7 @@ endif
 
 NAME		 = customfetch
 TARGET		 = cufetch
-VERSION    	 = 0.8.5
+VERSION    	 = 0.8.6
 BRANCH     	 = main
 SRC 	   	 = $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp)
 OBJ 	   	 = $(SRC:.cpp=.o)
