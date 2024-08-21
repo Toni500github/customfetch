@@ -39,7 +39,7 @@ endif
 NAME		 = customfetch
 TARGET		 = cufetch
 VERSION    	 = 0.8.6
-BRANCH     	 = main
+BRANCH     	 = $(shell git rev-parse --abbrev-ref HEAD)
 SRC 	   	 = $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp)
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
