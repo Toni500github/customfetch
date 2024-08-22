@@ -31,9 +31,11 @@ jobs:
         cat Debian/Debhelper/Buildsystem/make.pm
         sed -i "s#package Debian::Debhelper::Buildsystem::makefile#package Debian::Debhelper::Buildsystem::make#g" Debian/Debhelper/Buildsystem/make.pm
         dpkg-buildpackage -us -uc
-        
-    - name: Compile
-      run: sudo make install DEBUG=0 VENDOR_TEST=0 GUI_MODE=0
+
+    - name: Install test cufetch
+      run: |
+        sudo dpkg -i ../customfetch_0.8.6-1_amd64.deb -y
+        cufetch
   
   build_ubuntu-latest:
 
