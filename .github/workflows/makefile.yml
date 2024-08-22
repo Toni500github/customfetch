@@ -10,15 +10,15 @@ jobs:
   build-deb:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: /tmp/customfetch-0.8.6.orig
-  
     steps:
     - uses: actions/checkout@v4
     
     - name: get 
-      run: mkdir /tmp/customfetch-0.8.6.orig && mv $GITHUB_WORKSPACE /tmp/customfetch-0.8.6.orig && cd /tmp/customfetch-0.8.6.orig
+      run: |
+        mkdir /tmp/customfetch-0.8.6.orig
+        mv $GITHUB_WORKSPACE /tmp/customfetch-0.8.6.orig
+        cd /tmp/customfetch-0.8.6.orig
+        export $GITHUB_WORKSPACE=/tmp/customfetch-0.8.6.orig
 
     - name: Install Packages
       run: sudo apt-get update && sudo apt-get install libwayland-dev binutils lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
