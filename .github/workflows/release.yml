@@ -29,7 +29,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt upgrade -y
-        sudo apt-get install build-essential libarchive-tools -y
+        sudo apt-get install build-essential libwayland-dev libarchive-tools -y
 
     - name: Get submodules
       uses: actions/checkout@v4
@@ -58,7 +58,10 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install Packages
-      run: sudo apt-get update && sudo apt upgrade -y && sudo apt-get install build-essential libgtk-3-dev pkg-config libgtkmm-3.0-dev -y
+      run: |
+        sudo apt-get update
+        sudo apt upgrade -y
+        sudo apt-get install build-essential libwayland-dev libgtk-3-dev pkg-config libgtkmm-3.0-dev libarchive-tools  -y
 
     - name: Get submodules
       uses: actions/checkout@v4
