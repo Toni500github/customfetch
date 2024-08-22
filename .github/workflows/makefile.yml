@@ -8,17 +8,17 @@ on:
 
 defaults:
  run:
-  working-directory: ../customfetch-0.8.6.orig
+  working-directory: ./customfetch-0.8.6.orig
 
 jobs:
   build-deb:
-
     runs-on: ubuntu-latest
+  
     steps:
     - uses: actions/checkout@v4
     
     - name: get 
-    - run: echo $GITHUB_WORKSPACE
+      run: echo $GITHUB_WORKSPACE
 
     - name: Install Packages
       run: sudo apt-get update && sudo apt-get install libwayland-dev binutils lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
