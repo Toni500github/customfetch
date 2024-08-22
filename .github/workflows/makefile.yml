@@ -13,7 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - run: mkdir /tmp/customfetch-0.8.6.orig && mv $GITHUB_WORKSPACE /tmp/customfetch-0.8.6.orig
+    - name: move dir to /tmp
+      shell: bash
+      run: mkdir /tmp/customfetch-0.8.6.orig && mv $GITHUB_WORKSPACE /tmp/customfetch-0.8.6.orig
 
     - name: Install Packages
       run: sudo apt-get update && sudo apt-get install libwayland-dev binutils lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
@@ -129,8 +131,8 @@ jobs:
         tree /sys/devices/system/cpu/cpu0/
         printf "/etc/os-release\n" && cat /etc/os-release
 
-    - name: Setup SSH session
-      uses: mxschmitt/action-tmate@v3
+    #- name: Setup SSH session
+    #  uses: mxschmitt/action-tmate@v3
 
     - name: Test customfetch
       run: ./build/debug/cufetch
