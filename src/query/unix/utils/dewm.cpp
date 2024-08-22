@@ -146,9 +146,9 @@ std::string get_mate_version()
     {
         std::string ret;
         read_exec({ "mate-session", "--version" }, ret);
-        
+
         // erase doesn't remove the nth character, only the ones before it, so we have to add 1.
-        ret.erase(0, ret.rfind(' ')+1);
+        ret.erase(0, ret.rfind(' ') + 1);
         return ret;
     }
 
@@ -176,12 +176,12 @@ std::string get_kwin_version()
     std::string ret;
 
     if (std::getenv("WAYLAND_DISPLAY") != NULL)
-        read_exec({"kwin_wayland", "--version"}, ret);
+        read_exec({ "kwin_wayland", "--version" }, ret);
     else
-        read_exec({"kwin_x11", "--version"}, ret);
+        read_exec({ "kwin_x11", "--version" }, ret);
 
     // erase doesn't remove the nth character, only the ones before it, so we have to add 1.
-    ret.erase(0, ret.rfind(' ')+1);
+    ret.erase(0, ret.rfind(' ') + 1);
     return ret;
 }
 
@@ -240,7 +240,7 @@ std::string get_cinnamon_version()
 static std::string get_xfce4_version_lib()
 {
     LOAD_LIBRARY("libxfce4util.so", return UNKNOWN)
-    LOAD_LIB_SYMBOL(const char *, xfce_version_string, void)
+    LOAD_LIB_SYMBOL(const char*, xfce_version_string, void)
     const std::string& ret = xfce_version_string();
     UNLOAD_LIBRARY()
     return ret;

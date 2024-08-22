@@ -37,7 +37,7 @@ bool hasStart(const std::string_view fullString, const std::string_view start)
     return (fullString.substr(0, start.size()) == start);
 }
 
-std::vector<std::string> split(const std::string_view text, char delim)
+std::vector<std::string> split(const std::string_view text, const char delim)
 {
     std::string              line;
     std::vector<std::string> vec;
@@ -150,20 +150,14 @@ bool is_file_image(const unsigned char* bytes)
     constexpr std::array<unsigned char, 4> tiffI  = { 0x49, 0x49, 0x2A, 0x00 };
     constexpr std::array<unsigned char, 4> tiffM  = { 0x4D, 0x4D, 0x00, 0x2A };
 
-    if (std::memcmp(bytes, png.data(), png.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, jpeg.data(), jpeg.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, gif89a.data(), gif89a.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, gif87a.data(), gif87a.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, tiffM.data(), tiffM.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, tiffI.data(), tiffI.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, bmp.data(), bmp.size()) == 0)
-        return true;
+        if (std::memcmp(bytes, png.data(), png.size()) == 0 ||
+            std::memcmp(bytes, jpeg.data(), jpeg.size()) == 0 ||
+            std::memcmp(bytes, gif89a.data(), gif89a.size()) == 0 ||
+            std::memcmp(bytes, gif87a.data(), gif87a.size()) == 0 ||
+            std::memcmp(bytes, tiffM.data(), tiffM.size()) == 0 ||
+            std::memcmp(bytes, tiffI.data(), tiffI.size()) == 0 ||
+            std::memcmp(bytes, bmp.data(), bmp.size()) == 0)        
+            return true;
 
     return false;
 }
@@ -224,7 +218,6 @@ void shorten_vendor_name(std::string& vendor)
     else if (vendor == "NVIDIA Corporation")
         vendor = "NVIDIA";
 }
-
 
 fmt::rgb hexStringToColor(const std::string_view hexstr)
 {

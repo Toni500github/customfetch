@@ -1,8 +1,7 @@
+#include <array>
 #ifdef GUI_MODE
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "gui.hpp"
-
 #include <filesystem>
 #include <fstream>
 
@@ -11,6 +10,7 @@
 #include "fmt/ranges.h"
 #include "gdkmm/pixbufanimation.h"
 #include "gtkmm/enums.h"
+#include "gui.hpp"
 #include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
@@ -31,9 +31,10 @@ using namespace GUI;
 }*/
 
 // Display::render but only for images on GUI
-static std::vector<std::string>& render_with_image(Config& config, colors_t& colors)
+static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
-    systemInfo_t systemInfo{};
+    systemInfo_t             systemInfo{};
+    std::vector<std::string> layouts{ config.layouts };
 
     int image_width, image_height, channels;
 
@@ -44,28 +45,26 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
         stbi_image_free(img);
     else
         die("Unable to load image '{}'", config.source_path);
-    
+
     std::string _;
-    for (std::string& layout : config.layouts)
-    {
+    for (std::string& layout : layouts)
         layout = parse(layout, systemInfo, _, config, colors, true, true);
-    }
 
     // erase each element for each instance of MAGIC_LINE
-    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), [](const std::string_view str)
-                                        { return str.find(MAGIC_LINE) != std::string::npos; }),
-                         config.layouts.end());
+    layouts.erase(std::remove_if(layouts.begin(), layouts.end(),
+                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                  layouts.end());
 
-    for (size_t i = 0; i < config.layouts.size(); i++)
+    for (size_t i = 0; i < layouts.size(); i++)
     {
         for (size_t _ = 0; _ < config.offset; _++)  // I use _ because we don't need it
-            config.layouts.at(i).insert(0, " ");
+            layouts.at(i).insert(0, " ");
     }
 
-    return config.layouts;
+    return layouts;
 }
 
-Window::Window(Config& config, colors_t& colors)
+Window::Window(const Config& config, const colors_t& colors)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(1000, 600);
@@ -79,9 +78,9 @@ Window::Window(Config& config, colors_t& colors)
 
     debug("Window::Window analyzing file");
     std::ifstream f(path);
-    unsigned char buffer[128];
-    f.read((char*)(&buffer[0]), 128);
-    if (is_file_image(buffer))
+    std::array<unsigned char, 32> buffer;
+    f.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
+    if (is_file_image(buffer.data()))
         useImage = true;
 
     // useImage can be either a gif or an image

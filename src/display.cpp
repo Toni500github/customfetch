@@ -3,6 +3,7 @@
 #include "display.hpp"
 
 #include <algorithm>
+#include <array>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -14,11 +15,6 @@
 #include "parse.hpp"
 #include "query.hpp"
 #include "util.hpp"
-
-// listen, it supposed to be only in Display::render, since only there is used.
-// But at the same time, I like returning everything by reference if possible
-// :)
-std::vector<std::string> asciiArt;
 
 std::string Display::detect_distro(const Config& config)
 {
@@ -44,10 +40,11 @@ std::string Display::detect_distro(const Config& config)
     }
 }
 
-std::vector<std::string>& Display::render(Config& config, colors_t& colors, const bool already_analyzed_file,
-                                          const std::string_view path)
+std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
+                                         const std::string_view path)
 {
-    systemInfo_t systemInfo{};
+    systemInfo_t             systemInfo{};
+    std::vector<std::string> asciiArt{}, layouts{ config.layouts };
 
     if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty())
     {
@@ -58,12 +55,10 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
     debug("path = {}", path);
 
     std::ifstream file;
-    std::ifstream fileToAnalyze;  // Input iterators are invalidated when you advance them. both have same path
     if (!config.m_disable_source)
     {
         file.open(path.data(), std::ios::binary);
-        fileToAnalyze.open(path.data(), std::ios::binary);
-        if (!file.is_open() || !fileToAnalyze.is_open())
+        if (!file.is_open())
             die("Could not open ascii art file \"{}\"", path);
     }
 
@@ -77,12 +72,13 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
     if (!already_analyzed_file)
     {
         debug("Display::render() analyzing file");
-        unsigned char buffer[16];
-        fileToAnalyze.read((char*)(&buffer[0]), sizeof(buffer));
-        if (is_file_image(buffer))
+        std::array<unsigned char, 16> buffer;
+        file.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
+        if (is_file_image(buffer.data()))
             die("The source file '{}' is a binary file.\n"
                 "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
                 path);
+        file.seekg(0);
     }
 
     for (int i = 0; i < config.logo_padding_top; i++)
@@ -139,24 +135,22 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
         return asciiArt;
 
     std::string _;
-    for (std::string& layout : config.layouts)
-    {
+    for (std::string& layout : layouts)
         layout = parse(layout, systemInfo, _, config, colors, true);
-    }
 
     // erase each element for each instance of MAGIC_LINE
-    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), [](const std::string_view str)
-                                        { return str.find(MAGIC_LINE) != std::string::npos; }),
-                         config.layouts.end());
+    layouts.erase(std::remove_if(layouts.begin(), layouts.end(),
+                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                  layouts.end());
 
     size_t i;
-    for (i = 0; i < config.layouts.size(); i++)
+    for (i = 0; i < layouts.size(); i++)
     {
         size_t origin = 0;
 
         if (i < asciiArt.size())
         {
-            config.layouts.at(i).insert(0, asciiArt.at(i));
+            layouts.at(i).insert(0, asciiArt.at(i));
             origin = asciiArt.at(i).length();
         }
 
@@ -166,15 +160,15 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
         debug("spaces: {}", spaces);
 
         for (size_t j = 0; j < spaces; j++)
-            config.layouts.at(i).insert(origin, " ");
+            layouts.at(i).insert(origin, " ");
 
-        config.layouts.at(i) += config.gui ? "" : NOCOLOR;
+        layouts.at(i) += config.gui ? "" : NOCOLOR;
     }
 
     if (i < asciiArt.size())
-        config.layouts.insert(config.layouts.end(), asciiArt.begin() + i, asciiArt.end());
+        layouts.insert(layouts.end(), asciiArt.begin() + i, asciiArt.end());
 
-    return config.layouts;
+    return layouts;
 }
 
 void Display::display(const std::vector<std::string>& renderResult)

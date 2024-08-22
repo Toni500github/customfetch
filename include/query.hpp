@@ -49,7 +49,7 @@ public:
     };
 
     System();
-    
+
     std::string  kernel_name();
     std::string  kernel_version();
     std::string  hostname();
@@ -119,7 +119,7 @@ public:
         std::string gtk_icon_theme{ MAGIC_LINE };
         std::string gtk_font{ MAGIC_LINE };
         std::string cursor{ MAGIC_LINE };
-        std::string cursor_size { UNKNOWN };
+        std::string cursor_size{ UNKNOWN };
     };
 
     Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
@@ -127,9 +127,9 @@ public:
 
     Theme(systemInfo_t& queried_themes);
 
-    std::string gtk_theme();
-    std::string gtk_icon_theme();
-    std::string gtk_font();
+    std::string  gtk_theme();
+    std::string  gtk_icon_theme();
+    std::string  gtk_font();
     std::string& cursor();
     std::string& cursor_size();
 
@@ -159,7 +159,7 @@ public:
     };
 
     CPU();
-    
+
     std::string& name();
     std::string& nproc();
     float& freq_max();
@@ -182,7 +182,7 @@ public:
     };
 
     GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus);
-    
+
     std::string& name();
     std::string& vendor();
 
@@ -207,7 +207,7 @@ public:
     };
 
     Disk(const std::string_view path, std::vector<std::string_view>& paths);
-    
+
     float&       total_amount();
     float&       free_amount();
     float&       used_amount();
@@ -232,7 +232,7 @@ public:
     };
 
     RAM();
-    
+
     float& total_amount();
     float& free_amount();
     float& used_amount();

@@ -384,7 +384,7 @@ int main (int argc, char *argv[]) {
 #endif
 
     // clang-format on
-    struct colors_t colors;
+    colors_t colors;
 
     const std::string& configDir  = getConfigDir();
     const std::string& configFile = parse_config_path(argc, argv, configDir);

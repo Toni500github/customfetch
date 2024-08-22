@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -91,7 +92,7 @@ static const std::string& check_gui_ansi_clr(const std::string& str)
 }
 
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
-                                   const std::string_view moduleValueName)
+                            const std::string_view moduleValueName)
 {
     if (const auto& it1 = systemInfo.find(moduleName.data()); it1 != systemInfo.end())
     {
@@ -107,7 +108,6 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
 
             else
                 return fmt::to_string(std::get<size_t>(result));
-
         }
     }
 
@@ -142,7 +142,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
         else if (dollarSignIndex <= oldDollarSignIndex && start)
         {
-            dollarSignIndex = output.find('$', dollarSignIndex+1);
+            dollarSignIndex = output.find('$', dollarSignIndex + 1);
             // oh nooo.. whatever
             goto retry;
         }
@@ -204,7 +204,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 break;
             case '>':
             {
-                const size_t      dot_pos = command.find('.');
+                const size_t dot_pos = command.find('.');
                 if (dot_pos == std::string::npos)
                     die("module name '{}' doesn't have a dot '.' for separiting module name and submodule", command);
 
@@ -240,7 +240,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                 if (hasStart(command, "auto"))
                 {
-                    std::uint8_t ver = static_cast<std::uint8_t>(command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0);
+                    std::uint8_t ver =
+                        static_cast<std::uint8_t>(command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0);
                     if (ver >= auto_colors.size() || ver < 1)
                         ver = 0;
 
@@ -257,8 +258,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
             jump:
                 if (command == "1")
-                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                            config.gui ? "</span><span weight='bold'>" : fmt::format("{}\033[1m", NOCOLOR)); 
+                    output =
+                        output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                       config.gui ? "</span><span weight='bold'>" : fmt::format("{}\033[1m", NOCOLOR));
                 else if (command == "0")
                     output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                             config.gui ? "</span><span>" : NOCOLOR);
@@ -292,29 +294,27 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                     fmt::format("<span fgcolor='{}' weight='bold'>{}</span>",
                                                                 str_clr.substr(1), output.substr(endBracketIndex + 1)));
-                            
                         }
 
                         else if (str_clr[0] == '#')
                         {
                             output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                                    fmt::format("<span fgcolor='{}'>{}</span>", 
-                                                                str_clr, output.substr(endBracketIndex + 1)));
+                                                    fmt::format("<span fgcolor='{}'>{}</span>", str_clr,
+                                                                output.substr(endBracketIndex + 1)));
                         }
 
                         else if (hasStart(str_clr, "\\e") ||
                                  hasStart(str_clr,
                                           "\033"))  // "\\e" is for checking in the ascii_art, \033 in the config
                         {
-                            const std::array<std::string, 3> clrs = get_ansi_color((hasStart(str_clr, "\033") ? str_clr.substr(2)
-                                                                                                        : str_clr.substr(3)),
-                                                                                                        colors);
+                            const std::array<std::string, 3> clrs = get_ansi_color(
+                                (hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3)), colors);
                             const std::string_view color  = clrs.at(0);
                             const std::string_view weight = clrs.at(1);
                             const std::string_view type   = clrs.at(2);
                             output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                                    fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color, weight,
-                                                    output.substr(endBracketIndex + 1)));
+                                                    fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color,
+                                                                weight, output.substr(endBracketIndex + 1)));
                         }
 
                         else
@@ -361,9 +361,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             formatted_replacement_string =
                                 fmt::format("\x1B[{}{}",
                                             // "\\e" is for checking in the ascii_art, \033 in the config
-                                            hasStart(str_clr, "\033")
-                                                ? str_clr.substr(2)
-                                                : str_clr.substr(3),
+                                            hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3),
                                             unformatted_replacement_string);
                         }
 
@@ -374,7 +372,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                                 formatted_replacement_string);
                     }
 
-                    if (!parsingLaoyut && std::find(auto_colors.begin(), auto_colors.end(), command) == auto_colors.end())
+                    if (!parsingLaoyut &&
+                        std::find(auto_colors.begin(), auto_colors.end(), command) == auto_colors.end())
                         auto_colors.push_back(command);
                 }
         }
@@ -393,8 +392,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     return output;
 }
 
-static std::string get_auto_uptime(unsigned short days, unsigned short hours, unsigned short mins, unsigned short secs,
-                                   const Config& config)
+static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t hours, const std::uint16_t mins,
+                                   const std::uint16_t secs, const Config& config)
 {
     if (days == 0 && hours == 0 && mins == 0)
         return fmt::format("{}{}", secs, config.uptime_s_fmt);
@@ -415,7 +414,8 @@ static std::string get_auto_uptime(unsigned short days, unsigned short hours, un
     return ret;
 }
 
-static std::string get_auto_gtk_format(const std::string_view gtk2, const std::string_view gtk3, const std::string_view gtk4)
+static std::string get_auto_gtk_format(const std::string_view gtk2, const std::string_view gtk3,
+                                       const std::string_view gtk4)
 {
     if ((gtk2 != MAGIC_LINE && gtk3 != MAGIC_LINE && gtk4 != MAGIC_LINE))
     {
@@ -473,11 +473,11 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 {
 #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
     // yikes, here we go.
-    auto moduleValue_hash = fnv1a16::hash(moduleValueName);
-    static std::vector<std::uint16_t> queried_gpus;
+    auto                                 moduleValue_hash = fnv1a16::hash(moduleValueName);
+    static std::vector<std::uint16_t>    queried_gpus;
     static std::vector<std::string_view> queried_disks;
-    static std::vector<std::string> queried_themes_names;
-    static systemInfo_t queried_themes;
+    static std::vector<std::string>      queried_themes_names;
+    static systemInfo_t                  queried_themes;
 
     if (moduleName == "os")
     {
@@ -594,7 +594,8 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 case "term"_fnv1a16:
-                    SYSINFO_INSERT(prettify_term_name(query_user.term_name()) + ' ' + query_user.term_version(query_user.term_name()));
+                    SYSINFO_INSERT(prettify_term_name(query_user.term_name()) + ' ' +
+                                   query_user.term_version(query_user.term_name()));
                     break;
 
                 case "term_name"_fnv1a16: SYSINFO_INSERT(prettify_term_name(query_user.term_name())); break;
@@ -615,7 +616,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
-                case "cursor"_fnv1a16: SYSINFO_INSERT(query_theme.cursor()); break;
+                case "cursor"_fnv1a16:      SYSINFO_INSERT(query_theme.cursor()); break;
                 case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_theme.cursor_size()); break;
             }
         }
@@ -660,9 +661,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
-                case "name"_fnv1a16:   SYSINFO_INSERT(query_theme.gtk_theme()); break;
-                case "icons"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
-                case "font"_fnv1a16:   SYSINFO_INSERT(query_theme.gtk_font()); break;
+                case "name"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_theme()); break;
+                case "icons"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
+                case "font"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_font()); break;
             }
         }
     }
@@ -874,6 +875,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             }
         }
     }
+
     else
         die("Invalid module name: {}", moduleName);
 }
