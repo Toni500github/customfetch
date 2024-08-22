@@ -156,7 +156,7 @@ jobs:
         
   release:
     name: Create GitHub Release
-    needs: [build, build-gui, get-version]
+    needs: [build, build-gui, build-deb-gui, build-deb, get-version]
     runs-on: ubuntu-latest
     permissions:
       contents: write
