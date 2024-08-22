@@ -25,7 +25,7 @@ jobs:
     - name: Create deb
       run: |
         cp -r $GITHUB_WORKSPACE /tmp/customfetch-0.8.6.orig
-        cd /tmp/customfetch-0.8.6.orig/$GITHUB_WORKSPACE
+        cd /tmp/customfetch-0.8.6.orig/customfetch
         dpkg-buildpackage -us -uc
         
     - name: Compile
