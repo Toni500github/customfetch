@@ -33,7 +33,7 @@ jobs:
 
     - name: Install test cufetch
       run: |
-        find . -iname "customfetch_0.8.6-1_amd64.deb"
+        find $HOME -iname "*.deb"
   
   build_ubuntu-latest:
 
