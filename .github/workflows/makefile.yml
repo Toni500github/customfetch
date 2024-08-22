@@ -6,19 +6,19 @@ on:
   pull_request:
     branches: [ "main", "test", "windows" ]
 
-defaults:
- run:
-  working-directory: ./customfetch-0.8.6.orig
-
 jobs:
   build-deb:
+    defaults:
+      run:
+        working-directory: ./customfetch-0.8.6.orig
+  
     runs-on: ubuntu-latest
   
     steps:
     - uses: actions/checkout@v4
     
     - name: get 
-      run: echo $GITHUB_WORKSPACE
+      run: cd ./customfetch-0.8.6.orig
 
     - name: Install Packages
       run: sudo apt-get update && sudo apt-get install libwayland-dev binutils lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
