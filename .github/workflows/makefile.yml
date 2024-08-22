@@ -28,14 +28,12 @@ jobs:
         cd /tmp/customfetch-0.8.6.orig/customfetch
         mkdir -p Debian/Debhelper/Buildsystem/
         wget https://github.com/Debian/debhelper/raw/master/lib/Debian/Debhelper/Buildsystem/makefile.pm -O Debian/Debhelper/Buildsystem/make.pm
-        cat Debian/Debhelper/Buildsystem/make.pm
         sed -i "s#package Debian::Debhelper::Buildsystem::makefile#package Debian::Debhelper::Buildsystem::make#g" Debian/Debhelper/Buildsystem/make.pm
         dpkg-buildpackage -us -uc
 
     - name: Install test cufetch
       run: |
-        ls ../ .
-        sudo dpkg -i customfetch_0.8.6-1_amd64.deb -y
+        find . -iname "customfetch_0.8.6-1_amd64.deb" -exec "sudo dpkg '{}' -i  -y" \;
         cufetch
   
   build_ubuntu-latest:
