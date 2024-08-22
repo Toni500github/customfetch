@@ -65,7 +65,7 @@ $(TARGET): fmt toml $(OBJ)
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 
 dist: $(TARGET)
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE README.md -C $(BUILDDIR) $(TARGET)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE cufetch.1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
 
 clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)
@@ -81,6 +81,6 @@ install: $(TARGET)
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < cufetch.1 > $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
-	cd assets/ && find ascii/ -type f -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
+	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
 
 .PHONY: $(TARGET) dist distclean fmt toml install all
