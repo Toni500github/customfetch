@@ -21,14 +21,12 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    container:
-      image: archlinux
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Install Packages
-      run: pacman -Syu git base-devel --noconfirm --needed
+      run: sudo apt-get update && sudo apt upgarde -y && sudo apt-get install build-essential -y
 
     - name: Get submodules
       uses: actions/checkout@v4
@@ -42,17 +40,46 @@ jobs:
       run: make DEBUG=0 GUI_MODE=0
 
     - name: Make Release
-      run: make dist DEBUG=0 && mv ./customfetch-*.tar.zst ./customfetch.tar.zst
+      run: make dist DEBUG=0 && mv ./customfetch-*.tar.gz ./customfetch.tar.gz
 
     - name: Upload to github artifacts
       uses: actions/upload-artifact@v3
       with:
         name: customfetch
-        path: customfetch.tar.zst
+        path: customfetch.tar.gz
+
+  build-gui:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Packages
+      run: sudo apt-get update && sudo apt upgarde -y && sudo apt-get install build-essential libgtk-3-dev pkg-config libgtkmm-3.0-dev -y
+
+    - name: Get submodules
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Clean
+      run: make clean
+
+    - name: Compile
+      run: make DEBUG=0 GUI_MODE=1
+
+    - name: Make Release
+      run: make dist DEBUG=0 && mv ./customfetch-*.tar.gz ./customfetch-gui.tar.gz
+
+    - name: Upload to github artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: customfetch-gui
+        path: customfetch-gui.tar.gz
 
   release:
     name: Create GitHub Release
-    needs: [build, get-version]
+    needs: [build, build-gui, get-version]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -77,7 +104,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: customfetch
 
@@ -86,6 +113,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.release-url }}
-          asset_path: ./customfetch.tar.zst
-          asset_name: customfetch-${{ needs.get-version.outputs.version }}.tar.zst
-          asset_content_type: application/tar+zstd
+          asset_path: ./customfetch.tar.gz
+          asset_name: customfetch-${{ needs.get-version.outputs.version }}.tar.gz
+          asset_content_type: application/tar+gz
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.release-url }}
+          asset_path: ./customfetch-gui.tar.gz
+          asset_name: customfetch-${{ needs.get-version.outputs.version }}.tar.gz
+          asset_content_type: application/tar+gz
