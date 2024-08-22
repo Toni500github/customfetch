@@ -12,9 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        path: /tmp/customfetch-0.8.6.orig
-    #- run: mv customfetch-${{ github.run_id }}-${{ github.run_number }} /tmp/customfetch-${{ github.run_id }}-${{ github.run_number }}.orig
+
+    - run: mkdir /tmp/customfetch-0.8.6.orig && mv $GITHUB_WORKSPACE /tmp/customfetch-0.8.6.orig
 
     - name: Install Packages
       run: sudo apt-get update && sudo apt-get install libwayland-dev binutils lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
