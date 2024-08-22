@@ -26,6 +26,9 @@ jobs:
       run: |
         cp -r $GITHUB_WORKSPACE /tmp/customfetch-0.8.6.orig
         cd /tmp/customfetch-0.8.6.orig/customfetch
+        mkdir -p Debian/Debhelper/Buildsystem/
+        wget https://github.com/Debian/debhelper/raw/master/lib/Debian/Debhelper/Buildsystem/makefile.pm -O Debian/Debhelper/Buildsystem/make.pm
+        sed -i "s#package Debian::Debhelper::Buildsystem::makefile;#package Debian::Debhelper::Buildsystem::make;" Debian/Debhelper/Buildsystem/make.pm
         dpkg-buildpackage -us -uc
         
     - name: Compile
