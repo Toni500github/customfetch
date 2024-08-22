@@ -1,0 +1,13 @@
+Source: customfetch
+Section: utils
+Priority: optional
+Maintainer: toni500 <toni500minecraft@gmail.com>
+Build-Depends: libwayland-dev
+Standards-Version: 4.5.1
+Homepage: https://github.com/Toni500github/customfetch
+
+Package: customfetch
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Highly customizable and fast system information fetch program
+ Inspired by neofetch and fastfetch
