@@ -6,7 +6,6 @@
 
 #include "util.hpp"
 
-// initialize Config, can only be ran once for each Config instance.
 Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors)
 {
     if (!std::filesystem::exists(configDir))

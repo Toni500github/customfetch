@@ -62,7 +62,8 @@ GPU::GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus)
     for (; i <= max_iter; i++)
     {
         sys_path = "/sys/class/drm/card" + fmt::to_string(id_iter);
-        if (std::filesystem::exists(sys_path))
+        if (std::filesystem::exists(sys_path + "/device/device") &&
+            std::filesystem::exists(sys_path + "/device/vendor"))
             break;
         else
             id_iter++;

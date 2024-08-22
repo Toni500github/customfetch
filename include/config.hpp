@@ -57,6 +57,7 @@ public:
     bool        m_disable_source  = false;
     bool        m_display_distro  = true;
     bool        m_print_logo_only = false;
+    std::vector<std::string> m_arg_colors_name, m_arg_colors_value;
 
     void        loadConfigFile(const std::string_view filename, colors_t& colors);
     std::string getThemeValue(const std::string& value, const std::string& fallback) const;
@@ -167,7 +168,7 @@ white = "\e[1;37m"
 # $<os.uptime> config
 [os.uptime]
 # how to display the name of the uptime
-# e.g: hours = "h" -> "Uptime: 3h"
+# e.g: hours = "hrs" -> "Uptime: 3hrs"
 days = " days"
 hours = " hours"
 mins = " mins"
@@ -177,7 +178,7 @@ secs = " seconds"
 [os.pkgs]
 # Ordered list of which packages installed count should be displayed in $<os.pkgs>
 # remember to not enter the same name twice, else the world will finish
-# Choices: pacman, flatpak, dpkg
+# Choices: pacman, flatpak, dpkg, apk
 #
 # Pro-tip: if your package manager isnt listed here, yet,
 # use the bash command component in the layout

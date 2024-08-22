@@ -233,6 +233,8 @@ std::string get_cinnamon_version()
         if (hasStart(line, "X-GNOME-Bugzilla-Version="))
             return line.substr("X-GNOME-Bugzilla-Version="_len);
     }
+
+    return "";
 }
 
 static std::string get_xfce4_version_lib()

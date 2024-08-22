@@ -1,9 +1,9 @@
 [config]
 # customfetch is designed with customizability in mind
 # here is how it works:
-# the variable "layout" is used for showing the infos and/or something else
+# the variable "layout" is used for showing the infos
 # as like as the user want, no limitation.
-# inside here there are 3 "modules": $<> $() ${}
+# inside here there are 3 "components": $<> $() ${}
 
 # $<> lets you access a member of a module
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
@@ -14,20 +14,18 @@
 # you can even use pipes
 # e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
 
-# ${} for which color to use for colorizing the text
+# ${} is used for which color to use for colorizing the text
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
 # you can even put a custom hex color e.g: ${#ff6622} (for bold text put ! before # e.g ${!#ff6622} )
-# OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}
+# OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.
+# For auto coloring, depending on the ascii logo colors, use ${auto}.
+# They can be used for different colors too. So for getting the 2nd color of the ascii logo,
+# use ${auto2}, for the 4th one use ${auto4} and so on.
 
 # Little FAQ
 # Q: "but then if I want to make only some words/chars in a color and the rest normal?"
 # A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
-
-# Q: "a website for box drawing symbols?"
-# A: "https://symbl.cc/en/unicode/blocks/box-drawing/" is really good
-#    NOTE: unfortunately unicode characters are good when used in the layout,
-#    but when used on the logo to display, the layout can be a giant alignment caos.
-#    So for now only use those in the layout, and not the logo
+#    Or, if you want to reset color and make it bold, use ${1}
 
 layout = [
 #    "${red}$<user.name>${0}@${cyan}$<os.hostname>",
@@ -50,18 +48,20 @@ layout = [
 # or "off" for disabling ascii-art or image displaying
 source-path = "os"
 
-# offset between the ascii art and the system infos
+# Path to where we'll take all the distros/OSs ascii arts
+# note: it MUST contain an "ascii" subdirectory
+data-dir = "/usr/share/customfetch"
+
+# A separetor (string) that when ecountered, will automatically
+# reset color, aka. automatically add ${0} (only in layout)
+# Make it empty for disabling
+sep-reset = ":"
+
+# Offset between the ascii art and the system infos
 offset = 5
 
-# Path to where we'll take all the distros/OSs ascii arts
-# it MUST contain an "ascii" subdirectory
-#data-dir = "/usr/share/customfetch"
-data-dir = "~/stupid_projects/customfetch/assets"
-
-# A character that when ecountered, will automatically
-# reset color, aka. automatically ${0}.
-# Make it empty for disabling
-sep-reset = ""
+# Padding of the logo from the top
+logo-padding-top = 0
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
@@ -74,6 +74,26 @@ blue = "\e[1;34m"
 magenta = "\e[1;35m"
 cyan = "\e[1;36m"
 white = "\e[1;37m"
+
+# $<os.uptime> config
+[os.uptime]
+# how to display the name of the uptime
+# e.g: hours = "hrs" -> "Uptime: 3hrs"
+days = " days"
+hours = " hours"
+mins = " mins"
+secs = " seconds"
+
+# $<os.pkgs> config
+[os.pkgs]
+# Ordered list of which packages installed count should be displayed in $<os.pkgs>
+# remember to not enter the same name twice, else the world will finish
+# Choices: pacman, flatpak, dpkg, apk
+#
+# Pro-tip: if your package manager isnt listed here, yet,
+# use the bash command component in the layout
+# e.g "Packages: $(pacman -Q | wc -l) (pacman)"
+pkg-managers = ["pacman", "dpkg", "flatpak"]
 
 # GUI options
 # note: customfetch needs to be compiled with GUI_MODE=1 (which is enabled by default)
@@ -89,9 +109,15 @@ font = "Liberation Mono Normal Light 12"
 # These are the colors palette you can use in the GUI mode.
 # They can overwritte with ANSI escape code colors
 # in the layout variable or ascii-art
+black = "!#000005"
 red = "!#ff2000"
 green = "!#00ff00"
 blue = "!#00aaff"
 cyan = "!#00ffff"
 yellow = "!#ffff00"
 magenta = "!#f881ff"
+white = "!#ffffff"
+
+# Path to image as a background.
+# put "disable" for disabling and use the theme color as background.
+bg-image = "disable"

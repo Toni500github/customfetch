@@ -130,7 +130,7 @@ byte_units_t auto_devide_bytes(const size_t num)
         ret.num_bytes = static_cast<float>(num) / 1024;
         ret.unit      = "kiB";
     }
-    else [[unlikely]]
+    else
     {
         ret.num_bytes = num;
         ret.unit      = "bytes";
@@ -265,6 +265,8 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
             return true;
         }
     }
+
+    return false;
 }
 
 std::string which(const std::string& command)

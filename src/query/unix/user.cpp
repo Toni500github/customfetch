@@ -90,12 +90,19 @@ static std::string get_de_version(const std::string_view de_name)
 
         case "gnome"_fnv1a16:
         case "gnome-shell"_fnv1a16:
-        {
-            std::string ret;
-            read_exec({ "gnome-shell", "--version" }, ret);
-            ret.erase(0, ret.rfind(' '));
-            return ret;
-        }
+            {
+                std::string ret;
+                read_exec({ "gnome-shell", "--version" }, ret);
+                ret.erase(0, ret.rfind(' '));
+                return ret;
+            }
+        default:
+            {
+                std::string ret;
+                read_exec({ de_name.data(), "--version" }, ret);
+                ret.erase(0, ret.rfind(' '));
+                return ret;
+            }
     }
 }
 
