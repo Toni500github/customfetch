@@ -12,6 +12,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        GITHUB_WORKSPACE: /tmp/customfetch-0.8.6.orig
     
     - name: get 
       run: |
