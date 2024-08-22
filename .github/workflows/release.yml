@@ -111,8 +111,6 @@ jobs:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
-        with:
-          name: customfetch
 
       - uses: actions/upload-release-asset@v1
         env:
