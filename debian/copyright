@@ -1,0 +1,15 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: customfetch
+Source: https://github.com/Toni500github/customfetch
+
+Files: *
+Copyright: 2024 Toni500github
+License: GPL-3
+
+Files: include/rapidxml-1.13/*
+Copyright: 2006 - 2009, Marcin Kalicinski
+License: MIT
+
+Files: src/fmt/os.cc src/fmt/format.cc include/fmt/*
+Copyright: 2012 - present, Victor Zverovich
+License: MIT
