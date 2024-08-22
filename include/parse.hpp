@@ -8,7 +8,7 @@
 // Documentation on formatting is in the default config.toml file.
 // pureOutput is set to the string, but without the brackets.
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  colors_t& colors, bool parsingLaoyut);
+                  const colors_t& colors, const bool parsingLaoyut, const bool is_image = false);
 
 // Set module values to a systemInfo_t map.
 // If the name of said module matches any module name, it will be added

@@ -44,11 +44,11 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
         stbi_image_free(img);
     else
         die("Unable to load image '{}'", config.source_path);
-
+    
+    std::string _;
     for (std::string& layout : config.layouts)
     {
-        std::string _;
-        layout = parse(layout, systemInfo, _, config, colors, true);
+        layout = parse(layout, systemInfo, _, config, colors, true, true);
     }
 
     // erase each element for each instance of MAGIC_LINE
@@ -61,7 +61,6 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
         for (size_t _ = 0; _ < config.offset; _++)  // I use _ because we don't need it
             config.layouts.at(i).insert(0, " ");
     }
-    config.offset = 0;
 
     return config.layouts;
 }

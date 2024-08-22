@@ -64,7 +64,7 @@ $(TARGET): fmt toml $(OBJ)
 	mkdir -p $(BUILDDIR)
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 
-dist: $(TARGET)
+dist:
 	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE cufetch.1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
 
 clean:

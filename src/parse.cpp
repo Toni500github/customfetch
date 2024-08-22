@@ -115,7 +115,7 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
 }
 
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  colors_t& colors, bool parsingLaoyut)
+                  const colors_t& colors, const bool parsingLaoyut, const bool is_image)
 {
     std::string output = input.data();
     pureOutput         = output;
@@ -229,12 +229,12 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             // "ehhmmm why goto and double code? that's ugly and unconvienient :nerd:"
                             // I don't care, it does the work and well
                             if (command == *it_name)
-                                command = config.m_arg_colors_value[it_value];
+                                command = config.m_arg_colors_value.at(it_value);
                             goto jump;
                         }
 
                         if (command == *it_name)
-                            command = config.m_arg_colors_value[it_value];
+                            command = config.m_arg_colors_value.at(it_value);
                     }
                 }
 
@@ -245,7 +245,12 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         ver = 0;
 
                     if (auto_colors.empty())
-                        auto_colors.push_back(config.gui ? "</span><span weight='bold'>" : "\033[0m\033[1m");
+                    {
+                        if (is_image)
+                            auto_colors.push_back(config.gui ? "white" : "\033[0m\033[1m");
+                        else
+                            auto_colors.push_back(config.gui ? "</span><span weight='bold'>" : "\033[0m\033[1m");
+                    }
 
                     command = auto_colors.at(ver);
                 }
