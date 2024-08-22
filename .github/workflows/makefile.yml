@@ -28,7 +28,8 @@ jobs:
         cd /tmp/customfetch-0.8.6.orig/customfetch
         mkdir -p Debian/Debhelper/Buildsystem/
         wget https://github.com/Debian/debhelper/raw/master/lib/Debian/Debhelper/Buildsystem/makefile.pm -O Debian/Debhelper/Buildsystem/make.pm
-        sed -i "s|package Debian::Debhelper::Buildsystem::makefile;|package Debian::Debhelper::Buildsystem::make;" Debian/Debhelper/Buildsystem/make.pm
+        cat Debian/Debhelper/Buildsystem/make.pm
+        sed -i "s#package Debian::Debhelper::Buildsystem::makefile#package Debian::Debhelper::Buildsystem::make#g" Debian/Debhelper/Buildsystem/make.pm
         dpkg-buildpackage -us -uc
         
     - name: Compile
