@@ -75,7 +75,7 @@ jobs:
       run: make DEBUG=0 GUI_MODE=1
 
     - name: Make Release
-      run: make dist DEBUG=0 && mv ./customfetch-*.tar.gz ./customfetch-gui.tar.gz
+      run: make dist DEBUG=0 GUI_MODE=1 && mv ./customfetch-*.tar.gz ./customfetch-gui.tar.gz
 
     - name: Upload to github artifacts
       uses: actions/upload-artifact@v3
