@@ -46,6 +46,7 @@ std::string get_all_pkgs(const Config& config)
         {
             case "pacman"_fnv1a16:
                 pkgs_count.pacman = get_num_count_dir("/var/lib/pacman/local");
+                pkgs_count.pacman--; // remove ALPM_DB count
                 ADD_PKGS_COUNT(pacman);
                 break;
 

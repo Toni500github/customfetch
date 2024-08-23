@@ -1,13 +1,16 @@
+#include <linux/limits.h>
 #include <unistd.h>
 
 #include <array>
 #include <cerrno>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 
 #include "config.hpp"
 #include "query.hpp"
 #include "util.hpp"
+#include "switch_fnv1a.hpp"
 #include "utils/packages.hpp"
 
 using namespace Query;
@@ -154,12 +157,10 @@ std::string& System::os_initsys_name()
     if (!done)
     {
         // there's no way PID 1 doesn't exist.
-        // This will always succeed.
+        // This will always succeed (because we are on linux)
         std::ifstream f_initsys("/proc/1/comm", std::ios::binary);
         if (!f_initsys.is_open())
-        {
             die("/proc/1/comm doesn't exist! (what?)");
-        }
 
         std::string initsys;
         std::getline(f_initsys, initsys);
@@ -177,6 +178,56 @@ std::string& System::os_initsys_name()
     }
 
     return m_system_infos.os_initsys_name;
+}
+
+std::string& System::os_initsys_version()
+{
+    static bool done = false;
+    if (done)
+        return m_system_infos.os_initsys_version;
+    
+    std::string path;
+    char buf[PATH_MAX];
+    if (realpath(which("init").c_str(), buf))
+        path = buf;
+
+    std::ifstream f(path, std::ios::in);
+    std::string line;
+
+    const std::string& name = str_tolower(this->os_initsys_name());
+    switch (fnv1a16::hash(name))
+    {
+        case "systemd"_fnv1a16:
+        case "systemctl"_fnv1a16:
+        {
+            while (read_binary_file(f, line))
+            {
+                if (hasEnding(line, "running in %ssystem mode (%s)"))
+                {
+                    m_system_infos.os_initsys_version = line.substr("systemd "_len);
+                    m_system_infos.os_initsys_version.erase(m_system_infos.os_initsys_version.find(' '));
+                    break;
+                }
+            }
+        }
+        break;
+        case "openrc"_fnv1a16:
+        {
+            std::string tmp;
+            while(read_binary_file(f, line))
+            {
+                if (line == "RC_VERSION")
+                {
+                    m_system_infos.os_initsys_version = tmp;
+                    break;
+                }
+                tmp = line;
+            }
+        }
+        break;
+    }
+    done = true;
+    return m_system_infos.os_initsys_version;
 }
 
 std::string& System::pkgs_installed(const Config& config)

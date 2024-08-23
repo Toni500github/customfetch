@@ -95,6 +95,7 @@ os
   uptime_days	: uptime of the system in days    (should be used along with others uptime_ members) [2]
   hostname	: hostname of the OS [mymainPC]
   initsys_name	: Init system name [systemd]
+  initsys_version: Init system version [256.5-1-arch]
 
 user
   name		: name you are currently logged in (not real name) [toni69]

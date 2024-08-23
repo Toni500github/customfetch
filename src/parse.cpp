@@ -260,10 +260,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (command == "1")
                     output =
                         output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                       config.gui ? "</span><span weight='bold'>" : fmt::format("{}\033[1m", NOCOLOR));
+                                       config.gui ? "</span><span weight='bold'>" : "\033[0m\033[1m");
                 else if (command == "0")
                     output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                            config.gui ? "</span><span>" : NOCOLOR);
+                                            config.gui ? "</span><span>" : "\033[0m");
                 else
                 {
                     std::string str_clr;
@@ -521,6 +521,8 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "pkgs"_fnv1a16: SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
 
                 case "initsys_name"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_name()); break;
+                
+                case "initsys_version"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_version()); break;
 
                 case "hostname"_fnv1a16: SYSINFO_INSERT(query_system.hostname()); break;
             }

@@ -58,6 +58,7 @@ public:
     std::string& os_name();
     std::string& os_id();
     std::string& os_initsys_name();
+    std::string& os_initsys_version();
     std::string& os_versionid();
     std::string& os_version_codename();
     long&        uptime();

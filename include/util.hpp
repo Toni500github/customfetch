@@ -22,7 +22,6 @@ struct byte_units_t
     float       num_bytes;
 };
 
-constexpr const char NOCOLOR[] = "\033[0m";
 constexpr const char UNKNOWN[] = "(unknown)";
 
 // magic line to be sure that I don't cut the wrong line

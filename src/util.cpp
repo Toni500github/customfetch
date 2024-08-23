@@ -253,7 +253,7 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
         else
         {
             if (buffer.length() >= min_string_length)
-                ret += buffer;
+                ret = buffer;
 
             return true;
         }
