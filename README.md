@@ -47,13 +47,14 @@ If you want to install with GUI mode install: `gtk3` and `gtkmm3` from your pack
 ### Debian/Ubuntu and based
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
 
-### Arch and based (unstable) (AUR)
+### Arch and based (AUR) (source)
 ```bash
 # btw checkout our other project https://github.com/BurntRanch/TabAUR ;)
-taur -S customfetch-git
+# either
+taur -S customfetch
 
-# wiht GUI mode
-taur -S customfetch-gui-git
+# or wiht GUI mode
+taur -S customfetch-gui
 ```
 
 ### General Distros (Manual installation)
@@ -61,7 +62,16 @@ Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni
 It contains the binary `cufetch` and the manual `cufetch.1` with the LICENSE.\
 Togheter with the directory `assets/ascii` with the distro ascii art logos
 
-### Compile from source (unstable)
+### Arch and based (unstable) (AUR) (source)
+```bash
+# either
+taur -S customfetch-git
+
+# or wiht GUI mode
+taur -S customfetch-gui-git
+```
+
+### Compile from source (unstable) (source)
 ```bash
 # clone the git dir
 git clone https://github.com/Toni500github/customfetch
