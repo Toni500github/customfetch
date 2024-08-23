@@ -43,6 +43,10 @@ currently there aren't any dependencies to install, other than having `libdl` in
 If you want to install with GUI mode install: `gtk3` and `gtkmm3` from your package manager
 
 ## Installation
+
+### Debian/Ubuntu and based
+Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
+
 ### Arch and based (unstable) (AUR)
 ```bash
 # btw checkout our other project https://github.com/BurntRanch/TabAUR ;)
@@ -52,13 +56,18 @@ taur -S customfetch-git
 taur -S customfetch-gui-git
 ```
 
+### General Distros (Manual installation)
+Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni500github/customfetch/releases/latest) \
+It contains the binary `cufetch` and the manual `cufetch.1` with the LICENSE.\
+Togheter with the directory `assets/ascii` with the distro ascii art logos
+
 ### Compile from source (unstable)
 ```bash
 # clone the git dir
 git clone https://github.com/Toni500github/customfetch
 cd customfetch
 
-# DEBUG=0 for release build (it's just a build without debug infos)
+# DEBUG=0 for release build
 # GUI_MODE=0 for disabling GUI mode, or =1 for enable it (will slow down a bit if run in terminal)
 make install DEBUG=0 GUI_MODE=0
 
