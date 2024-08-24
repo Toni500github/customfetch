@@ -41,7 +41,9 @@ public:
     std::string              sep_reset;
     std::string              gui_bg_image;
     std::uint16_t            offset           = 0;
+    std::uint16_t            pre_logo_offset  = 0;
     std::uint16_t            logo_padding_top = 0;
+
     bool                     gui              = false;
     std::vector<std::string> layouts;
     std::vector<std::string> pkgs_managers;
@@ -149,6 +151,9 @@ sep-reset = ":"
 
 # Offset between the ascii art and the system infos
 offset = 5
+
+# Offset between the start and the ascii art
+pre-logo-offset = 5
 
 # Padding of the logo from the top
 logo-padding-top = 0

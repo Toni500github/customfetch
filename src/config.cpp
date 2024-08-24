@@ -71,7 +71,8 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->source_path      = this->getConfigValue<std::string>("config.source-path", "os");
     this->data_dir         = this->getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
     this->sep_reset        = this->getConfigValue<std::string>("config.sep-reset", ":");
-    this->offset           = this->getConfigValue<std::uint8_t>("config.offset", 5);
+    this->offset           = this->getConfigValue<std::uint16_t>("config.offset", 5);
+    this->pre_logo_offset  = this->getConfigValue<std::uint16_t>("config.pre-logo-offset", 5);
     this->font             = this->getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image     = this->getConfigValue<std::string>("gui.bg-image", "disable");
     this->logo_padding_top = this->getConfigValue<std::uint16_t>("config.logo-padding-top", 0);

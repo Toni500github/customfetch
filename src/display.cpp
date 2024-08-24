@@ -146,12 +146,17 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     size_t i;
     for (i = 0; i < layouts.size(); i++)
     {
-        size_t origin = 0;
+        size_t origin = config.pre_logo_offset;
+
+        // The user-specified offset to be put before the logo
+        for (size_t j = 0; j < config.pre_logo_offset; j++) {
+            layouts.at(i).insert(0, " ");
+        }
 
         if (i < asciiArt.size())
         {
-            layouts.at(i).insert(0, asciiArt.at(i));
-            origin = asciiArt.at(i).length();
+            layouts.at(i).insert(origin, asciiArt.at(i));
+            origin += asciiArt.at(i).length();
         }
 
         size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
@@ -165,8 +170,17 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         layouts.at(i) += config.gui ? "" : "\033[0m";
     }
 
-    if (i < asciiArt.size())
-        layouts.insert(layouts.end(), asciiArt.begin() + i, asciiArt.end());
+    for (; i < asciiArt.size(); i++) {
+        std::string line;
+
+        for (size_t j = 0; j < config.pre_logo_offset; j++) {
+            line += " ";
+        }
+
+        line += asciiArt[i];
+
+        layouts.push_back(line);
+    }
 
     return layouts;
 }

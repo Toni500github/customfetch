@@ -63,6 +63,9 @@ sep-reset = ":"
 # Offset between the ascii art and the system infos
 offset = 5
 
+# Offset between the start and the ascii art
+pre-logo-offset = 5
+
 # Padding of the logo from the top
 logo-padding-top = 0
 
