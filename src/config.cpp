@@ -68,6 +68,8 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     // clang-format off
     this->gui              = this->getConfigValue<bool>("gui.enable", false);
+    this->ascii_logo_type  = this->getConfigValue<std::string>("config.ascii-logo-type", "");
+
     this->source_path      = this->getConfigValue<std::string>("config.source-path", "os");
     this->data_dir         = this->getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
     this->sep_reset        = this->getConfigValue<std::string>("config.sep-reset", ":");

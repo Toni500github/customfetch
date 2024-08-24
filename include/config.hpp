@@ -40,6 +40,7 @@ public:
     std::string              data_dir;
     std::string              sep_reset;
     std::string              gui_bg_image;
+    std::string              ascii_logo_type;
     std::uint16_t            offset           = 0;
     std::uint16_t            pre_logo_offset  = 0;
     std::uint16_t            logo_padding_top = 0;
@@ -143,6 +144,12 @@ source-path = "os"
 # Path to where we'll take all the distros/OSs ascii arts
 # note: it MUST contain an "ascii" subdirectory
 data-dir = "/usr/share/customfetch"
+
+# The type of ASCII art to apply, ("small", "old").
+# Not guaranteed to exist, it will return the regular linux ascii art if it doesn't exist.
+# Leave empty for regular.
+# This does not apply to custom distros (-d)
+ascii-logo-type = ""
 
 # A separetor (string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)

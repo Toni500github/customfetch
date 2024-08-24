@@ -39,9 +39,11 @@ layout = [
 	"│${blue} 󰥔  ${0}uptime │ ${blue} $<os.uptime>",
 	"│${red}   ${0}shell  │ ${red} $<user.shell>",
 	"│${!#FF5F1F} 󰏖  ${0}pkgs   │ ${!#FF5F1F} $<os.pkgs>",
+	"│${yellow}  ${0} CPU    │ ${yellow} $<cpu.name>",
+	"│${green}  ${0} GPU    │ ${green} $<gpu.name>",
 	"│${magenta} 󰍛 ${0} memory │ ${magenta} $<ram.ram>",
 	"├───────────┤",
-	"│ 󰏘 colors  │  ${\e[30m}   ${\e[31m}   ${\e[32m}   ${\e[33m}  ${\e[34m}   ${\e[35m}   ${\e[36m}   ${\e[37m}   ",
+	"│ 󰏘 colors  │  ${\e[30m}   ${\e[31m}   ${\e[32m}   ${\e[33m}   ${\e[34m}   ${\e[35m}   ${\e[36m}   ${\e[37m}   ",
 	"╰───────────╯"
 ]
 
@@ -55,19 +57,25 @@ source-path = "os"
 # note: it MUST contain an "ascii" subdirectory
 data-dir = "/usr/share/customfetch"
 
+# The type of ASCII art to apply, ("small", "old").
+# Not guaranteed to exist, WILL crash if it doesn't exist.
+# Leave empty for regular.
+# This does not apply to custom distros (-d)
+ascii-logo-type = "small"
+
 # A separetor (string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
 
 # Offset between the ascii art and the system infos
-offset = 5
+offset = 3
 
 # Offset between the start and the ascii art
-pre-logo-offset = 5
+pre-logo-offset = 3
 
 # Padding of the logo from the top
-logo-padding-top = 0
+logo-padding-top = 3
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"

@@ -28,11 +28,11 @@ std::string Display::detect_distro(const Config& config)
         Query::System system;
         std::string   format;
 
-        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()) + (config.ascii_logo_type.empty() ? "" : "_" + config.ascii_logo_type));
         if (std::filesystem::exists(format))
             return format;
 
-        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()));
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()) + (config.ascii_logo_type.empty() ? "" : "_" + config.ascii_logo_type));
         if (std::filesystem::exists(format))
             return format;
 
