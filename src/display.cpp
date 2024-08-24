@@ -87,6 +87,11 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         asciiArt.push_back("");
     }
 
+    for (int i = 0; i < config.layout_padding_top; i++)
+    {
+        layouts.insert(layouts.begin(), "");
+    }
+
     while (std::getline(file, line))
     {
         std::string pureOutput;

@@ -67,22 +67,22 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
             });
 
     // clang-format off
-    this->gui              = this->getConfigValue<bool>("gui.enable", false);
-    this->ascii_logo_type  = this->getConfigValue<std::string>("config.ascii-logo-type", "");
-
-    this->source_path      = this->getConfigValue<std::string>("config.source-path", "os");
-    this->data_dir         = this->getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
-    this->sep_reset        = this->getConfigValue<std::string>("config.sep-reset", ":");
-    this->offset           = this->getConfigValue<std::uint16_t>("config.offset", 5);
+    this->gui                = this->getConfigValue<bool>("gui.enable", false);
+    this->ascii_logo_type    = this->getConfigValue<std::string>("config.ascii-logo-type", "");
+    this->source_path        = this->getConfigValue<std::string>("config.source-path", "os");
+    this->data_dir           = this->getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
+    this->sep_reset          = this->getConfigValue<std::string>("config.sep-reset", ":");
+    this->offset             = this->getConfigValue<std::uint16_t>("config.offset", 5);
     this->logo_padding_left  = this->getConfigValue<std::uint16_t>("config.logo-padding-left", 0);
-    this->font             = this->getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
-    this->gui_bg_image     = this->getConfigValue<std::string>("gui.bg-image", "disable");
-    this->logo_padding_top = this->getConfigValue<std::uint16_t>("config.logo-padding-top", 0);
+    this->layout_padding_top = this->getConfigValue<std::uint16_t>("config.layout-padding-top", 0);
+    this->font               = this->getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
+    this->gui_bg_image       = this->getConfigValue<std::string>("gui.bg-image", "disable");
+    this->logo_padding_top   = this->getConfigValue<std::uint16_t>("config.logo-padding-top", 0);
 
-    this->uptime_d_fmt     = this->getConfigValue<std::string>("os.uptime.days", " days");
-    this->uptime_h_fmt     = this->getConfigValue<std::string>("os.uptime.hours", " hours");
-    this->uptime_m_fmt     = this->getConfigValue<std::string>("os.uptime.mins", " mins");
-    this->uptime_s_fmt     = this->getConfigValue<std::string>("os.uptime.secs", " secs");
+    this->uptime_d_fmt = this->getConfigValue<std::string>("os.uptime.days", " days");
+    this->uptime_h_fmt = this->getConfigValue<std::string>("os.uptime.hours", " hours");
+    this->uptime_m_fmt = this->getConfigValue<std::string>("os.uptime.mins", " mins");
+    this->uptime_s_fmt = this->getConfigValue<std::string>("os.uptime.secs", " secs");
 
     colors.black       = this->getThemeValue("config.black",   "\033[1;30m");
     colors.red         = this->getThemeValue("config.red",     "\033[1;31m");

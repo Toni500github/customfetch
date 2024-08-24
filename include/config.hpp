@@ -41,9 +41,10 @@ public:
     std::string              sep_reset;
     std::string              gui_bg_image;
     std::string              ascii_logo_type;
-    std::uint16_t            offset             = 0;
-    std::uint16_t            logo_padding_left  = 0;
-    std::uint16_t            logo_padding_top   = 0;
+    std::uint16_t            offset               = 0;
+    std::uint16_t            logo_padding_left    = 0;
+    std::uint16_t            logo_padding_top     = 0;
+    std::uint16_t            layout_padding_top   = 0;
 
     bool                     gui = false;
     std::vector<std::string> layouts;
@@ -162,8 +163,11 @@ offset = 5
 # Padding between the start and the ascii art
 logo-padding-left = 0
 
-# Padding of the logo from the top
+# Padding of the ascii art from the top
 logo-padding-top = 0
+
+# Padding of the layout from the top
+layout-padding-top = 0
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
