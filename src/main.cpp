@@ -55,7 +55,8 @@ A command-line system information tool (or neofetch like program), which its foc
     -V, --version		Print the version along with the git branch it was built
 
     --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
-    --logo-padding-top		Padding of the logo from the top
+    --logo-padding-top	<num>	Padding of the logo from the top
+    --logo-padding-left	<num>	Padding of the logo from the left
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 
@@ -246,6 +247,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"source-path",      required_argument, 0, 's'},
 
         {"logo-padding-top", required_argument, 0, "logo-padding-top"_fnv1a16},
+        {"logo-padding-left",required_argument, 0, "logo-padding-left"_fnv1a16},
         {"bg-image",         required_argument, 0, "bg-image"_fnv1a16},
         {"color",            required_argument, 0, "color"_fnv1a16},
         {"gen-config",       optional_argument, 0, "gen-config"_fnv1a16},
@@ -291,6 +293,9 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
             case "logo-padding-top"_fnv1a16:
                 config.logo_padding_top = std::atoi(optarg); break;
+
+            case "logo-padding-left"_fnv1a16:
+                config.logo_padding_left = std::atoi(optarg); break;
 
             case "bg-image"_fnv1a16:
                 config.gui_bg_image = optarg; break;

@@ -146,12 +146,11 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     size_t i;
     for (i = 0; i < layouts.size(); i++)
     {
-        size_t origin = config.pre_logo_offset;
+        size_t origin = config.logo_padding_left;
 
         // The user-specified offset to be put before the logo
-        for (size_t j = 0; j < config.pre_logo_offset; j++) {
+        for (size_t j = 0; j < config.logo_padding_left; j++)
             layouts.at(i).insert(0, " ");
-        }
 
         if (i < asciiArt.size())
         {
@@ -170,12 +169,12 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         layouts.at(i) += config.gui ? "" : "\033[0m";
     }
 
-    for (; i < asciiArt.size(); i++) {
+    for (; i < asciiArt.size(); i++)
+    {
         std::string line;
 
-        for (size_t j = 0; j < config.pre_logo_offset; j++) {
+        for (size_t j = 0; j < config.logo_padding_left; j++)
             line += " ";
-        }
 
         line += asciiArt[i];
 
