@@ -145,10 +145,10 @@ source-path = "os"
 # note: it MUST contain an "ascii" subdirectory
 data-dir = "/usr/share/customfetch"
 
-# The type of ASCII art to apply, ("small", "old").
-# Not guaranteed to exist, it will return the regular linux ascii art if it doesn't exist.
-# Leave empty for regular.
-# This does not apply to custom distros (-d)
+# The type of ASCII art to apply ("small", "old").
+# Basically will add "_<type>" to the logo filename.
+# It will return the regular linux ascii art if it doesn't exist.
+# Leave empty it for regular.
 ascii-logo-type = ""
 
 # A separetor (string) that when ecountered, will automatically

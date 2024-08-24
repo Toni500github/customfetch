@@ -42,6 +42,12 @@ A command-line system information tool (or neofetch like program), which its foc
     -n, --no-display		Do not display the ascii art
     -s, --source-path <path>	Path to the ascii art file to display
     -C, --config <path>		Path to the config file to use
+    -a, --ascii-logo-type [<name>]
+                                The type of ASCII art to apply ("small" or "old").
+                                Basically will add "_<type>" to the logo filename.
+                                It will return the regular linux ascii art if it doesn't exist.
+                                Leave it empty for regular.
+    
     -D, --data-dir <path>       Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
     -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
     -f, --font <name>           The font to be used in GUI mode (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
@@ -230,7 +236,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlgf:o:C:d:D:s:";
+    const char *optstring = "-VhnLlga::f:o:C:d:D:s:";
     static const struct option opts[] =
     {
         {"version",          no_argument,       0, 'V'},
@@ -239,6 +245,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"list-modules",     no_argument,       0, 'l'},
         {"logo-only",        no_argument,       0, 'L'},
         {"gui",              no_argument,       0, 'g'},
+        {"ascii-logo-type",  optional_argument, 0, 'a'},
         {"offset",           required_argument, 0, 'o'},
         {"font",             required_argument, 0, 'f'},
         {"config",           required_argument, 0, 'C'},
@@ -289,7 +296,12 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.m_custom_distro = str_tolower(optarg); break;
             case 's':
                 config.source_path = optarg; break;
-
+            case 'a':
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.ascii_logo_type = optarg;
+                else
+                    config.ascii_logo_type.clear();
+                break;
 
             case "logo-padding-top"_fnv1a16:
                 config.logo_padding_top = std::atoi(optarg); break;
@@ -418,7 +430,16 @@ int main (int argc, char *argv[]) {
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif
 
-    const std::string& path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
+    std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
+    if (!config.ascii_logo_type.empty())
+    {
+        const size_t& pos = path.rfind('.');
+        if (pos != std::string::npos)
+            path.insert(pos, "_" + config.ascii_logo_type);
+        else
+            path += "_" + config.ascii_logo_type;
+    }
+
     Display::display(Display::render(config, colors, false, path));
 
     return 0;

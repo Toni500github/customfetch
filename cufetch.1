@@ -16,6 +16,15 @@ Path to the ascii art file to display
 \fB\-C\fR, \fB\-\-config\fR <path>
 Path to the config file to use
 .TP
+\fB\-a\fR, \fB\-\-ascii-logo-type\fR [<name>]
+The type of ASCII art to apply ("small" or "old").
+.br
+Basically will add "_<type>" to the logo filename.
+.br
+It will return the regular linux ascii art if it doesn't exist.
+.br
+Leave it empty for regular.
+.TP
 \fB\-D\fR, \fB\-\-data\-dir\fR <path>
 Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
 .TP
@@ -50,6 +59,9 @@ Path to image to be used in the background in GUI (put "disable" for disabling i
 .TP
 \fB\-\-logo\-padding\-top\fR
 Padding of the logo from the top
+.TP
+\fB\-\-logo\-padding\-left\fR
+Padding of the logo from the left
 .TP
 \fB\-\-gen\-config\fR [<path>]
 Generate default config file to config folder (if path, it will generate to the path)
