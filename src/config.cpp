@@ -36,53 +36,31 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
         exit(-1);
     }
 
-    // https://stackoverflow.com/a/78266628
-    // changed instead of vector<int> to vector<string>
-    const auto& layout_array = tbl.at_path("config.layout");
-    if (toml::array* arr = layout_array.as_array())
-        arr->for_each(
-            [this, filename](auto&& el)
-            {
-                if (const auto* str_elem = el.as_string())
-                {
-                    auto v = *str_elem;
-                    this->layouts.push_back(v->data());  // here's the thing
-                }
-                else
-                    warn("An element of the layout variable in {} is not a string", filename);
-            });
-
-    const auto& pkg_managers_array = tbl.at_path("os.pkgs.pkg-managers");
-    if (toml::array* arr = pkg_managers_array.as_array())
-        arr->for_each(
-            [this, filename](auto&& element)
-            {
-                if (const auto* str_element = element.as_string())
-                {
-                    auto element_value = *str_element;
-                    this->pkgs_managers.push_back(str_tolower(element_value->data()));
-                }
-                else
-                    warn("An element of the pkg-managers variable in {} is not a string", filename);
-            });
-
     // clang-format off
-    this->gui                = this->getConfigValue<bool>("gui.enable", false);
-    this->ascii_logo_type    = this->getConfigValue<std::string>("config.ascii-logo-type", "");
-    this->source_path        = this->getConfigValue<std::string>("config.source-path", "os");
-    this->data_dir           = this->getConfigValue<std::string>("config.data-dir", "/usr/share/customfetch");
-    this->sep_reset          = this->getConfigValue<std::string>("config.sep-reset", ":");
-    this->offset             = this->getConfigValue<std::uint16_t>("config.offset", 5);
-    this->logo_padding_left  = this->getConfigValue<std::uint16_t>("config.logo-padding-left", 0);
-    this->layout_padding_top = this->getConfigValue<std::uint16_t>("config.layout-padding-top", 0);
-    this->font               = this->getConfigValue<std::string>("gui.font", "Liberation Mono Normal 12");
-    this->gui_bg_image       = this->getConfigValue<std::string>("gui.bg-image", "disable");
-    this->logo_padding_top   = this->getConfigValue<std::uint16_t>("config.logo-padding-top", 0);
+    // Idk but with `this->` looks more readable
+    this->layouts            = this->getValueArrayStr("config.layout");
+    this->gui                = this->getValue<bool>("gui.enable", false);
+    this->ascii_logo_type    = this->getValue<std::string>("config.ascii-logo-type", "");
+    this->source_path        = this->getValue<std::string>("config.source-path", "os");
+    this->data_dir           = this->getValue<std::string>("config.data-dir", "/usr/share/customfetch");
+    this->sep_reset          = this->getValue<std::string>("config.sep-reset", ":");
+    this->offset             = this->getValue<std::uint16_t>("config.offset", 5);
+    this->logo_padding_left  = this->getValue<std::uint16_t>("config.logo-padding-left", 0);
+    this->layout_padding_top = this->getValue<std::uint16_t>("config.layout-padding-top", 0);
+    this->font               = this->getValue<std::string>("gui.font", "Liberation Mono Normal 12");
+    this->gui_bg_image       = this->getValue<std::string>("gui.bg-image", "disable");
+    this->logo_padding_top   = this->getValue<std::uint16_t>("config.logo-padding-top", 0);
 
-    this->uptime_d_fmt = this->getConfigValue<std::string>("os.uptime.days", " days");
-    this->uptime_h_fmt = this->getConfigValue<std::string>("os.uptime.hours", " hours");
-    this->uptime_m_fmt = this->getConfigValue<std::string>("os.uptime.mins", " mins");
-    this->uptime_s_fmt = this->getConfigValue<std::string>("os.uptime.secs", " secs");
+    this->uptime_d_fmt = this->getValue<std::string>("os.uptime.days", " days");
+    this->uptime_h_fmt = this->getValue<std::string>("os.uptime.hours", " hours");
+    this->uptime_m_fmt = this->getValue<std::string>("os.uptime.mins", " mins");
+    this->uptime_s_fmt = this->getValue<std::string>("os.uptime.secs", " secs");
+
+    this->pkgs_managers= this->getValueArrayStr("os.pkgs.pkg-managers");
+    this->pacman_dirs  = this->getValueArrayStr("os.pkgs.pacman-dirs");
+    this->dpkg_files   = this->getValueArrayStr("os.pkgs.dpkg-files");
+    this->flatpak_dirs = this->getValueArrayStr("os.pkgs.flatpak-dirs");
+    this->apk_files    = this->getValueArrayStr("os.pkgs.apk-files");
 
     colors.black       = this->getThemeValue("config.black",   "\033[1;30m");
     colors.red         = this->getThemeValue("config.red",     "\033[1;31m");
@@ -110,24 +88,37 @@ std::string Config::getThemeValue(const std::string& value, const std::string& f
     return this->tbl.at_path(value).value<std::string>().value_or(fallback);
 }
 
+std::vector<std::string> Config::getValueArrayStr(const std::string& value)
+{
+    std::vector<std::string> ret;
+
+    // https://stackoverflow.com/a/78266628
+    const auto& array = tbl.at_path(value);
+    if (toml::array* array_it = array.as_array())
+    {
+        array_it->for_each(
+            [&ret, value](auto&& el)
+            {
+                if (toml::value<std::string>* str_elem = el.as_string())
+                {
+                    toml::value<std::string> v = *str_elem;
+                    ret.push_back(v->data());
+                }
+                else
+                    warn("An element of the {} array variable is not a string", value);
+            }
+        );
+    }
+
+    return ret;
+}
+
 void Config::generateConfig(const std::string_view filename)
 {
     if (std::filesystem::exists(filename))
     {
-        std::string result;
-        // warn() without new line
-        fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))),
-                   "WARNING: config file {} already exists. Do you want to overwrite it? [y/N]: ", filename);
-        while (std::getline(std::cin, result) && (result.length() > 1))
-        {
-            error("Please answear y or n");
-            fmt::print(BOLD_COLOR(fmt::rgb(fmt::color::yellow)), "[y/N]: ");
-        }
-
-        ctrl_d_handler(std::cin);
-
-        if (result.empty() || std::tolower(result[0]) != 'y')
-            exit(1);
+        if (!askUserYorN(false, "WARNING: config file {} already exists. Do you want to overwrite it?", filename))
+            std::exit(1);
     }
 
     std::ofstream f(filename.data(), std::ios::trunc);

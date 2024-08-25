@@ -4,6 +4,7 @@
 #include <dlfcn.h>
 #include <sys/types.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -102,6 +103,34 @@ void warn(const std::string_view fmt, Args&&... args) noexcept
 {
     fmt::println(BOLD_COLOR((fmt::rgb(fmt::color::yellow))), "WARNING: {}",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+}
+
+/** Ask the user a yes or no question.
+ * @param def The default result
+ * @param fmt The format string
+ * @param args Arguments in the format
+ * @returns the result, y = true, f = false, only returns def if the result is def
+ */
+template <typename... Args>
+bool askUserYorN(bool def, const std::string_view fmt, Args&&... args)
+{
+    const std::string& inputs_str = fmt::format("[{}/{}]: ", (def ? 'Y' : 'y'), (!def ? 'N' : 'n'));
+    std::string result;
+    fmt::print(fmt::runtime(fmt), std::forward<Args>(args)...);
+    fmt::print(" {}", inputs_str);
+
+    while (std::getline(std::cin, result) && (result.length() > 1))
+        fmt::print(BOLD_COLOR(fmt::rgb(fmt::color::yellow)), "Please answear y or n, {}", inputs_str);
+
+    ctrl_d_handler(std::cin);
+
+    if (result.empty())
+        return def;
+
+    if (def ? tolower(result[0]) != 'n' : tolower(result[0]) != 'y')
+        return def;
+
+    return !def;
 }
 
 #endif

@@ -35,26 +35,30 @@ public:
     Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
 
     // config file
-    std::string              source_path;
-    std::string              font;
-    std::string              data_dir;
-    std::string              sep_reset;
-    std::string              gui_bg_image;
-    std::string              ascii_logo_type;
-    std::uint16_t            offset               = 0;
-    std::uint16_t            logo_padding_left    = 0;
-    std::uint16_t            logo_padding_top     = 0;
-    std::uint16_t            layout_padding_top   = 0;
-
-    bool                     gui = false;
     std::vector<std::string> layouts;
-    std::vector<std::string> pkgs_managers;
+    std::string   source_path;
+    std::string   font;
+    std::string   data_dir;
+    std::string   sep_reset;
+    std::string   gui_bg_image;
+    std::string   ascii_logo_type;
+    std::uint16_t offset             = 0;
+    std::uint16_t logo_padding_left  = 0;
+    std::uint16_t logo_padding_top   = 0;
+    std::uint16_t layout_padding_top = 0;
+    bool          gui                = false;
 
     // modules specific config
     std::string uptime_d_fmt;
     std::string uptime_h_fmt;
     std::string uptime_m_fmt;
     std::string uptime_s_fmt;
+
+    std::vector<std::string> pkgs_managers;
+    std::vector<std::string> pacman_dirs;
+    std::vector<std::string> flatpak_dirs;
+    std::vector<std::string> dpkg_files;
+    std::vector<std::string> apk_files;
 
     // inner management
     std::string m_custom_distro;
@@ -67,8 +71,10 @@ public:
     std::string getThemeValue(const std::string& value, const std::string& fallback) const;
     void        generateConfig(const std::string_view filename);
 
+    std::vector<std::string> getValueArrayStr(const std::string& value);
+
     template <typename T>
-    T getConfigValue(const std::string& value, const T&& fallback) const
+    T getValue(const std::string& value, const T&& fallback) const
     {
         std::optional<T> ret = this->tbl.at_path(value).value<T>();
         if constexpr (toml::is_string<T>)  // if we want to get a value that's a string
@@ -200,6 +206,16 @@ secs = " seconds"
 # use the bash command component in the layout
 # e.g "Packages: $(pacman -Q | wc -l) (pacman)"
 pkg-managers = ["pacman", "dpkg", "flatpak"]
+
+# Distros and package manager specific
+# package manager paths for getting the packages count from path.
+# They are arrayies so you can add multiple paths.
+# 
+# If you don't know what these ares, leave them by default settings
+pacman-dirs  = ["/var/lib/pacman/local/"]
+dpkg-files   = ["/var/lib/dpkg/status"]
+flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
+apk-files    = ["/var/lib/apk/db/installed"]
 
 # GUI options
 # note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")
