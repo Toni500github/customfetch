@@ -38,7 +38,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     // clang-format off
     // Idk but with `this->` looks more readable
-    this->layouts            = this->getValueArrayStr("config.layout");
+    this->layouts            = this->getValueArrayStr("config.layout", {});
     this->gui                = this->getValue<bool>("gui.enable", false);
     this->ascii_logo_type    = this->getValue<std::string>("config.ascii-logo-type", "");
     this->source_path        = this->getValue<std::string>("config.source-path", "os");
@@ -56,11 +56,11 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->uptime_m_fmt = this->getValue<std::string>("os.uptime.mins", " mins");
     this->uptime_s_fmt = this->getValue<std::string>("os.uptime.secs", " secs");
 
-    this->pkgs_managers= this->getValueArrayStr("os.pkgs.pkg-managers");
-    this->pacman_dirs  = this->getValueArrayStr("os.pkgs.pacman-dirs");
-    this->dpkg_files   = this->getValueArrayStr("os.pkgs.dpkg-files");
-    this->flatpak_dirs = this->getValueArrayStr("os.pkgs.flatpak-dirs");
-    this->apk_files    = this->getValueArrayStr("os.pkgs.apk-files");
+    this->pkgs_managers= this->getValueArrayStr("os.pkgs.pkg-managers", {});
+    this->pacman_dirs  = this->getValueArrayStr("os.pkgs.pacman-dirs",  {"/var/lib/pacman/local"});
+    this->dpkg_files   = this->getValueArrayStr("os.pkgs.dpkg-files",   {"/var/lib/dpkg/status"});
+    this->flatpak_dirs = this->getValueArrayStr("os.pkgs.flatpak-dirs", {"/var/lib/flatpak/app", "~/.local/share/flatpak/app"});
+    this->apk_files    = this->getValueArrayStr("os.pkgs.apk-files",    {"/var/lib/apk/db/installed"});
 
     colors.black       = this->getThemeValue("config.black",   "\033[1;30m");
     colors.red         = this->getThemeValue("config.red",     "\033[1;31m");
@@ -88,7 +88,7 @@ std::string Config::getThemeValue(const std::string& value, const std::string& f
     return this->tbl.at_path(value).value<std::string>().value_or(fallback);
 }
 
-std::vector<std::string> Config::getValueArrayStr(const std::string& value)
+std::vector<std::string> Config::getValueArrayStr(const std::string& value, const std::vector<std::string>& fallback)
 {
     std::vector<std::string> ret;
 
@@ -109,6 +109,8 @@ std::vector<std::string> Config::getValueArrayStr(const std::string& value)
             }
         );
     }
+    else
+        return fallback;
 
     return ret;
 }

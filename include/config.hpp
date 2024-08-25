@@ -71,7 +71,7 @@ public:
     std::string getThemeValue(const std::string& value, const std::string& fallback) const;
     void        generateConfig(const std::string_view filename);
 
-    std::vector<std::string> getValueArrayStr(const std::string& value);
+    std::vector<std::string> getValueArrayStr(const std::string& value, const std::vector<std::string>& fallback);
 
     template <typename T>
     T getValue(const std::string& value, const T&& fallback) const
