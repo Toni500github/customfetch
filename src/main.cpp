@@ -53,8 +53,8 @@ A command-line system information tool (or neofetch like program), which its foc
     -f, --font <name>           The font to be used in GUI mode (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
                                 An example: [Liberation Mono] [Normal] [12], which can be "Liberation Mono Normal 12"
 
-    -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it's enabled)
-    -o, --offset <num>          Offset between the ascii art and the system infos
+    -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it was enabled)
+    -o, --offset <num>          Offset between the ascii art and the layout
     -l. --list-modules  	Print the list of the components and its members
     -h, --help			Print this help menu
     -L, --logo-only             Print only the logo

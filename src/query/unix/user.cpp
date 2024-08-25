@@ -316,6 +316,7 @@ std::string User::shell_path()
 { return m_pPwd->pw_shell; }
 
 // clang-format on
+// Be ready to loose some brain cells from now on
 std::string& User::shell_name()
 {
     static bool done = false;

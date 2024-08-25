@@ -131,7 +131,7 @@ std::string prettify_wm_name(const std::string_view name) noexcept
         case "wmaker"_fnv1a16:          return "wmaker";
         case "wmfs"_fnv1a16:            return "wmfs";
         case "wmii"_fnv1a16:            return "wmii";
-        case "xfwm4"_fnv1a16:           return "xfwm4";
+        case "xfwm4"_fnv1a16:           return "Xfwm4";
         case "xmonad"_fnv1a16:          return "XMonad";
     }
 
@@ -198,7 +198,7 @@ static std::string get_cinnamon_version_binary()
         // and then analyze every string, you'll see there is a string with
         // "Cinnamon %s" and above it's version
         // so let's do it
-        if (line == "Cinnamon %s\n")
+        if (line == "Cinnamon %s")
             return ret;
 
         // save the above position

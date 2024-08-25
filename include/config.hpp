@@ -157,7 +157,7 @@ ascii-logo-type = ""
 # Make it empty for disabling
 sep-reset = ":"
 
-# Offset between the ascii art and the system infos
+# Offset between the ascii art and the layout
 offset = 5
 
 # Padding between the start and the ascii art
