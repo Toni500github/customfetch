@@ -89,7 +89,7 @@ jobs:
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get update
         sudo apt-get upgrade -y
-        sudo apt-get install libwayland-dev libarchive-tools x86_64-linux-gnu-g++-10
+        sudo apt-get install libwayland-dev libarchive-tools g++-10
         sudo apt-get install binutils lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
 
     - name: Clean
