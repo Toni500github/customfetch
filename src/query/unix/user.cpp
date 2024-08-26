@@ -54,7 +54,6 @@ static std::string get_wm_name()
         path = dir_entry.path() / "cmdline";
         std::ifstream f(path, std::ios::binary);
         std::getline(f, proc_name);
-        debug("WM proc_name = {}", proc_name);
 
         size_t pos = 0;
         if ((pos = proc_name.find('\0')) != std::string::npos)
@@ -63,9 +62,9 @@ static std::string get_wm_name()
         if ((pos = proc_name.rfind('/')) != std::string::npos)
             proc_name.erase(0, pos + 1);
 
-        debug("WM proc_name after = {}", proc_name);
+        debug("WM proc_name = {}", proc_name);
 
-        if ((wm_name = prettify_wm_name(proc_name)) == MAGIC_LINE)
+        if ((wm_name = prettify_wm_name(str_tolower(proc_name))) == MAGIC_LINE)
             continue;
 
         break;

@@ -57,11 +57,14 @@ std::string parse_de_env(void) noexcept
 
 std::string prettify_wm_name(const std::string_view name) noexcept
 {
+    if (hasStart(name, "kwin"))
+        return "Kwin";
+
     // taken from this list
     // https://github.com/KittyKatt/screenFetch/blob/master/screenfetch-dev#L93
     // added some missing.
     // ngl this looks beatiful thanks to clang-format :D
-    switch (fnv1a16::hash(str_tolower(name.data())))
+    switch (fnv1a16::hash(name))
     {
         case "2bwm"_fnv1a16:            return "2bwm";
         case "9wm"_fnv1a16:             return "9wm";
@@ -86,6 +89,11 @@ std::string prettify_wm_name(const std::string_view name) noexcept
         case "flwm"_fnv1a16:            return "flwm";
         case "flwm_topside"_fnv1a16:    return "flwm_topside";
         case "fvwm"_fnv1a16:            return "fvwm";
+        
+        case "gnome-shell"_fnv1a16:
+        case "gnome-session-binary"_fnv1a16:
+        case "mutter"_fnv1a16:          return "Mutter";
+
         case "herbstluftwm"_fnv1a16:    return "herbstluftwm";
         case "howm"_fnv1a16:            return "howm";
         case "hyprland"_fnv1a16:        return "Hyprland";
@@ -93,12 +101,10 @@ std::string prettify_wm_name(const std::string_view name) noexcept
         case "i3wm"_fnv1a16:            return "i3wm";
         case "icewm"_fnv1a16:           return "icewm";
         case "kwin"_fnv1a16:            return "Kwin";
-        case "kwin_wayland_wr"_fnv1a16: return "Kwin";
         case "marco"_fnv1a16:           return "Marco";
         case "metacity"_fnv1a16:        return "Metacity";
         case "monsterwm"_fnv1a16:       return "monsterwm";
         case "muffin"_fnv1a16:          return "Muffin";
-        case "mutter"_fnv1a16:          return "Mutter";
         case "musca"_fnv1a16:           return "musca";
         case "mwm"_fnv1a16:             return "mwm";
         case "notion"_fnv1a16:          return "notion";
