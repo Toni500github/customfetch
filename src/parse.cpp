@@ -216,7 +216,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                         getInfoFromName(systemInfo, moduleName, moduleValueName));
             }
             break;
-            case '}':  // please pay very attention when reading this unreadable code
+            case '}':  // please pay very attention when reading this unreadable and godawful code
                 if (!config.m_arg_colors_name.empty())
                 {
                     const auto& it_name = std::find(config.m_arg_colors_name.begin(), config.m_arg_colors_name.end(), command);
@@ -468,6 +468,37 @@ static std::string prettify_term_name(const std::string_view term_name)
     return term_name.data();
 }
 
+static std::string prettify_de_name(const std::string_view de_name)
+{
+    switch (fnv1a16::hash(str_tolower(de_name.data())))
+    {
+        case "kde"_fnv1a16:
+        case "plasma"_fnv1a16:
+        case "plasmashell"_fnv1a16:
+        case "plasmawayland"_fnv1a16:
+            return "KDE Plasma";
+
+        case "gnome"_fnv1a16:
+        case "gnome-shell"_fnv1a16:
+            return "GNOME";
+
+        case "xfce"_fnv1a16:
+        case "xfce4"_fnv1a16:
+        case "xfce4-session"_fnv1a16:
+            return "Xfce4";
+
+        case "mate"_fnv1a16:
+        case "mate-session"_fnv1a16:
+            return "Mate";
+
+        case "lxqt"_fnv1a16:
+        case "lxqt-session"_fnv1a16:
+            return "LXQt";
+    }
+
+    return de_name.data();
+}
+
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
                         const Config& config)
 {
@@ -581,14 +612,14 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 case "de_name"_fnv1a16:
                     SYSINFO_INSERT(
-                        query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
-                                           query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name())));
+                        prettify_de_name(query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
+                                           query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()))));
                     break;
 
                 case "de_version"_fnv1a16:
-                    SYSINFO_INSERT(query_user.de_version(
-                        query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
-                                           query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()))));
+                    SYSINFO_INSERT(
+                        query_user.de_version(query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
+                                                query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()))));
                     break;
 
                 case "wm_name"_fnv1a16:

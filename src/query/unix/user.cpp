@@ -63,6 +63,8 @@ static std::string get_wm_name()
         if ((pos = proc_name.rfind('/')) != std::string::npos)
             proc_name.erase(pos);
 
+        debug("proc_name after = {}", proc_name);
+
         if ((wm_name = prettify_wm_name(proc_name)) == MAGIC_LINE)
             continue;
 
