@@ -1,4 +1,6 @@
+[![customfetch-git](https://img.shields.io/aur/version/customfetch?color=1793d1&label=customfetch&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch/)
 [![customfetch-git](https://img.shields.io/aur/version/customfetch-git?color=1793d1&label=customfetch-git&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch-git/)
+[![customfetch-gui](https://img.shields.io/aur/version/customfetch-gui?color=1793d1&label=customfetch-gui&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch-gui/)
 [![customfetch-gui-git](https://img.shields.io/aur/version/customfetch-gui-git?color=1793d1&label=customfetch-gui-git&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch-gui-git/)\
 [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
 
@@ -140,8 +142,14 @@ sep-reset = ":"
 # Offset between the ascii art and the system infos
 offset = 5
 
-# Padding of the logo from the top
+# Padding between the start and the ascii art
+logo-padding-left = 0
+
+# Padding of the ascii art from the top
 logo-padding-top = 0
+
+# Padding of the layout from the top
+layout-padding-top = 0
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
@@ -227,17 +235,20 @@ You have 3 components: `$<module.submod>`, `${color}`, `$(bash command)`. They c
 Any $ or brackets can be escaped with \\
 
 # Thanks
-I wanna thanks so much:
+I would like to thanks:
 * my best-friend [BurntRanch](https://github.com/BurntRanch/),\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me initialize this project and motivate me for keep going\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for making my customizability idea come true with the parsing.
 
 * the Better C++ [discord server](https://discord.gg/uSzTjkXtAM), \
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping improving the codebase and helping me with any issues I got,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me improving the codebase and helping me with any issues I got,\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for being patient with me XD
 
 * [fastfetch](https://github.com/fastfetch-cli/fastfetch/) and [neofetch](https://github.com/dylanaraps/neofetch),\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For inspiring this project
+
+* this string switch-case [library](https://github.com/xroche/stringswitch), \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Really amazing, thanks for making this 
 
 I hope you'll like customfetch, and also checkout [TabAUR](https://github.com/BurntRanch/TabAUR/tree/dev), our other project that was made before customfetch.\
 Don't forgot [sdl_engine](https://github.com/BurntRanch/sdl_engine) too ;)
