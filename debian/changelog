@@ -1,3 +1,9 @@
+customfetch (0.8.8-1) unstable; urgency=medium
+
+  * bump version to 0.8.8-1
+
+ -- toni500 <toni500minecraft@gmail.com>  Mon, 26 Aug 2024 19:36:26 -0500
+
 customfetch (0.8.6-1) unstable; urgency=medium
 
   * Initial release
