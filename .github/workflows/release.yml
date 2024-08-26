@@ -36,7 +36,7 @@ jobs:
       run: make clean
 
     - name: Compile
-      run: make DEBUG=0 GUI_MODE=0 CXX=g++10
+      run: make DEBUG=0 GUI_MODE=0 CXX=x86_64-linux-gnu-g++-10
 
     - name: Make Release
       run: make dist DEBUG=0 && mv ./customfetch-*.tar.gz ./customfetch.tar.gz
@@ -64,7 +64,7 @@ jobs:
       run: make clean
 
     - name: Compile
-      run: make DEBUG=0 GUI_MODE=1 CXX=g++10
+      run: make DEBUG=0 GUI_MODE=1 CXX=x86_64-linux-gnu-g++-10
 
     - name: Make Release
       run: make dist DEBUG=0 GUI_MODE=1 && mv ./customfetch-*.tar.gz ./customfetch-gui.tar.gz
@@ -74,76 +74,6 @@ jobs:
       with:
         name: customfetch-gui
         path: ./customfetch-gui.tar.gz
-
-  build_arch-AUR:
-
-    runs-on: ubuntu-latest
-    container:
-      image: archlinux
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install the packages
-      run: pacman -Syyu git sudo base-devel fakeroot pkgconf tree --noconfirm --needed
-    
-    - name: get /etc/sudoers
-      run: |
-        sed -i "s#root ALL=(ALL:ALL) ALL#root ALL=(ALL:ALL) NOPASSWD: ALL\nnobody ALL=(ALL:ALL) NOPASSWD: ALL#g" /etc/sudoers
-        cat /etc/sudoers
-    - name: get /etc/makepkg.conf
-      run: |
-        sed -i "s#purge debug lto#purge !debug lto#" /etc/makepkg.conf
-        cat /etc/makepkg.conf
-
-    - name: Build and install using makepkg
-      run: |
-        git clone https://aur.archlinux.org/customfetch.git
-        chown -R nobody customfetch-git
-        cd customfetch-git
-        sudo -u nobody makepkg -s --noconfirm
-        mv customfetch*.pkg.tar.zst customfetch.pkg.tar.zst
-    
-    - name: Upload to github artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: customfetch-arch-pkg
-        path: ./customfetch.pkg.tar.zst
-
-  build_arch-AUR-gui:
-
-    runs-on: ubuntu-latest
-    container:
-      image: archlinux
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install the packages
-      run: pacman -Syyu git sudo base-devel fakeroot pkgconf gtk3 gtkmm3 tree --noconfirm --needed
-    
-    - name: get /etc/sudoers
-      run: |
-        sed -i "s#root ALL=(ALL:ALL) ALL#root ALL=(ALL:ALL) NOPASSWD: ALL\nnobody ALL=(ALL:ALL) NOPASSWD: ALL#g" /etc/sudoers
-        cat /etc/sudoers
-    - name: get /etc/makepkg.conf
-      run: |
-        sed -i "s#purge debug lto#purge !debug lto#" /etc/makepkg.conf
-        cat /etc/makepkg.conf
-
-    - name: Build and install using makepkg
-      run: |
-        git clone https://aur.archlinux.org/customfetch.git
-        chown -R nobody customfetch-git
-        cd customfetch-git
-        sudo -u nobody makepkg -s --noconfirm
-        mv customfetch*.pkg.tar.zst customfetch-gui.pkg.tar.zst
-    
-    - name: Upload to github artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: customfetch-arch-pkg-gui
-        path: ./customfetch-gui.pkg.tar.zst
 
   build-deb:
     runs-on: ubuntu-20.04
@@ -159,7 +89,7 @@ jobs:
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get update
         sudo apt-get upgrade -y
-        sudo apt-get install libwayland-dev libarchive-tools g++10
+        sudo apt-get install libwayland-dev libarchive-tools x86_64-linux-gnu-g++-10
         sudo apt-get install binutils lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
 
     - name: Clean
@@ -172,7 +102,7 @@ jobs:
         mkdir -p Debian/Debhelper/Buildsystem/
         wget https://github.com/Debian/debhelper/raw/master/lib/Debian/Debhelper/Buildsystem/makefile.pm -O Debian/Debhelper/Buildsystem/make.pm
         sed -i "s#package Debian::Debhelper::Buildsystem::makefile#package Debian::Debhelper::Buildsystem::make#g" Debian/Debhelper/Buildsystem/make.pm
-        sed -i "s#DEBUG=0#DEBUG=0 CXX=g++10#g" debian/rules
+        sed -i "s#DEBUG=0#DEBUG=0 CXX=x86_64-linux-gnu-g++-10#g" debian/rules
         dpkg-buildpackage -us -uc
         mv ../customfetch_0.8.6-1_amd64.deb ../customfetch_amd64.deb
 
@@ -209,7 +139,7 @@ jobs:
         mkdir -p Debian/Debhelper/Buildsystem/
         wget https://github.com/Debian/debhelper/raw/master/lib/Debian/Debhelper/Buildsystem/makefile.pm -O Debian/Debhelper/Buildsystem/make.pm
         sed -i "s#package Debian::Debhelper::Buildsystem::makefile#package Debian::Debhelper::Buildsystem::make#g" Debian/Debhelper/Buildsystem/make.pm
-        sed -i "s#GUI_MODE=0#GUI_MODE=1 CXX=g++10#g" debian/rules
+        sed -i "s#GUI_MODE=0#GUI_MODE=1 CXX=x86_64-linux-gnu-g++-10#g" debian/rules
         dpkg-buildpackage -us -uc
         mv ../customfetch_0.8.6-1_amd64.deb ../customfetch-gui_amd64.deb
 
@@ -221,7 +151,7 @@ jobs:
         
   release:
     name: Create GitHub Release
-    needs: [build-tar, build-gui-tar, build-deb-gui, build-deb, build_arch-AUR-gui, build_arch-AUR, get-version]
+    needs: [build-tar, build-gui-tar, build-deb-gui, build-deb, get-version]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -286,21 +216,3 @@ jobs:
           asset_path: customfetch-gui-deb-pkg/customfetch-gui_amd64.deb
           asset_name: customfetch-gui_${{ needs.get-version.outputs.version }}_amd64.deb
           asset_content_type: application/vnd.debian.binary-package
-
-      - uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.release-url }}
-          asset_path: customfetch-arch-pkg-gui/customfetch-gui.pkg.tar.zst
-          asset_name: customfetch-gui_${{ needs.get-version.outputs.version }}_arch.pkg.tar.zst
-          asset_content_type: application/x-pacman-pkg+tar
-
-      - uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.release-url }}
-          asset_path: customfetch-arch-pkg/customfetch.pkg.tar.zst
-          asset_name: customfetch_${{ needs.get-version.outputs.version }}_arch.pkg.tar.zst
-          asset_content_type: application/x-pacman-pkg+tar
