@@ -57,19 +57,6 @@ std::string parse_de_env(void) noexcept
 
 std::string prettify_wm_name(const std::string_view name) noexcept
 {
-    if (name.find("kwin") != std::string::npos)
-        return "Kwin";
-
-    if (name.find("gnome-shell") != std::string::npos || name.find("Mutter") != std::string::npos ||
-        name.find("gnome shell") != std::string::npos)
-        return "Mutter";
-
-    if (name.find("cinnamon") != std::string::npos || name.find("Muffin") != std::string::npos)
-        return "Muffin";
-
-    if (name.find("Marco") != std::string::npos)
-        return "Marco";
-
     // taken from this list
     // https://github.com/KittyKatt/screenFetch/blob/master/screenfetch-dev#L93
     // added some missing.
@@ -107,9 +94,11 @@ std::string prettify_wm_name(const std::string_view name) noexcept
         case "icewm"_fnv1a16:           return "icewm";
         case "kwin"_fnv1a16:            return "Kwin";
         case "kwin_wayland_wr"_fnv1a16: return "Kwin";
+        case "marco"_fnv1a16:           return "Marco";
         case "metacity"_fnv1a16:        return "Metacity";
         case "monsterwm"_fnv1a16:       return "monsterwm";
         case "muffin"_fnv1a16:          return "Muffin";
+        case "mutter"_fnv1a16:          return "Mutter";
         case "musca"_fnv1a16:           return "musca";
         case "mwm"_fnv1a16:             return "mwm";
         case "notion"_fnv1a16:          return "notion";
