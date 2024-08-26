@@ -19,8 +19,8 @@ jobs:
           echo "Tag name from github.ref_name: ${{ github.ref_name }}"
           echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
-  build:
-    runs-on: ubuntu-latest
+  build-tar:
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v4
@@ -51,8 +51,8 @@ jobs:
         name: customfetch
         path: ./customfetch.tar.gz
 
-  build-gui:
-    runs-on: ubuntu-latest
+  build-gui-tar:
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v4
@@ -84,7 +84,7 @@ jobs:
         path: ./customfetch-gui.tar.gz
 
   build-deb:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v4
@@ -119,7 +119,7 @@ jobs:
         path: /tmp/customfetch-0.8.6.orig/customfetch_amd64.deb
 
   build-deb-gui:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v4
@@ -156,7 +156,7 @@ jobs:
         
   release:
     name: Create GitHub Release
-    needs: [build, build-gui, build-deb-gui, build-deb, get-version]
+    needs: [build-tar, build-gui-tar, build-deb-gui, build-deb, get-version]
     runs-on: ubuntu-latest
     permissions:
       contents: write
