@@ -23,6 +23,8 @@ struct byte_units_t
     float       num_bytes;
 };
 
+constexpr const char NOCOLOR[] = "\033[0m";
+constexpr const char NOCOLOR_BOLD[] = "\033[0m\033[1m";
 constexpr const char UNKNOWN[] = "(unknown)";
 
 // magic line to be sure that I don't cut the wrong line
@@ -55,17 +57,17 @@ std::string  vendor_from_entry(size_t vendor_entry_pos, const std::string_view v
 std::string  binarySearchPCIArray(const std::string_view vendor_id, const std::string_view pci_id);
 std::string  binarySearchPCIArray(const std::string_view vendor_id);
 std::string  shell_exec(const std::string_view cmd);
-void         getFileValue(u_short& iterIndex, const std::string& line, std::string& str, const size_t& amount);
+void         getFileValue(u_short& iterIndex, const std::string_view line, std::string& str, const size_t& amount);
 byte_units_t auto_devide_bytes(const size_t num);
 bool         is_file_image(const unsigned char* bytes);
 void         ctrl_d_handler(const std::istream& cin);
 std::string  expandVar(std::string ret);
 std::string  which(const std::string& command);
 bool         read_binary_file(std::ifstream& f, std::string& ret);
-void         replace_str(std::string& str, const std::string& from, const std::string& to);
+void         replace_str(std::string& str, const std::string_view from, const std::string_view to);
 bool         read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr = false, bool noerror_print = true);
-std::string  str_tolower(std::string str);
-std::string  str_toupper(std::string str);
+std::string  str_tolower(std::string_view str);
+std::string  str_toupper(std::string_view str);
 void         strip(std::string& input);
 std::string  read_by_syspath(const std::string_view path);
 fmt::rgb     hexStringToColor(const std::string_view hexstr);

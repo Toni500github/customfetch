@@ -34,7 +34,7 @@ bool Query::RAM::m_bInit    = false;
 bool Query::CPU::m_bInit    = false;
 bool Query::User::m_bInit   = false;
 
-static std::array<std::string, 3> get_ansi_color(const std::string& str, const colors_t& colors)
+static std::array<std::string, 3> get_ansi_color(const std::string_view str, const colors_t& colors)
 {
     if (hasStart(str, "38") || hasStart(str, "48"))
         die("Can't convert \\e[38; or \\e[48; codes in GUI. Please use #hexcode colors instead.");
@@ -43,7 +43,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string& str, const c
     if (first_m == std::string::npos)
         die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
 
-    std::string col = str;
+    std::string col = str.data();
     col.erase(first_m);  // 1;42
     std::string weight = hasStart(col, "1;") ? "bold" : "normal";
     std::string type   = "fgcolor";  // either fgcolor or bgcolor
@@ -123,6 +123,12 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     size_t dollarSignIndex = 0;
     size_t oldDollarSignIndex = 0;
     bool   start           = false;
+
+    // we only use it in GUI mode,
+    // prevent issue where in the ascii art,
+    // theres at first either ${1} or ${0}
+    // and that's a problem with pango markup
+    bool   firstrun_noclr  = (parsingLaoyut ? false : true);
     static std::vector<std::string> auto_colors;
 
     if (!config.sep_reset.empty() && parsingLaoyut)
@@ -192,7 +198,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         if (static_cast<int>(endBracketIndex) == -1)
             die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
 
-        std::string strToRemove = fmt::format("${}{}{}", opentag, command, type);
+        const std::string& strToRemove = fmt::format("${}{}{}", opentag, command, type);
         size_t      start_pos   = pureOutput.find(strToRemove);
         if (start_pos != std::string::npos)
             pureOutput.erase(start_pos, strToRemove.length());
@@ -204,7 +210,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 break;
             case '>':
             {
-                const size_t dot_pos = command.find('.');
+                const size_t& dot_pos = command.find('.');
                 if (dot_pos == std::string::npos)
                     die("module name '{}' doesn't have a dot '.' for separiting module name and submodule", command);
 
@@ -217,6 +223,13 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             }
             break;
             case '}':  // please pay very attention when reading this unreadable and godawful code
+            {
+                // if at end there a '$', it will make the end output "$</span>" and so it will confuse addValueFromModule()
+                // and so let's make it "$ </span>".
+                // this geniunenly stupid
+                if (config.gui && output.back() == '$')
+                    output += ' ';
+
                 if (!config.m_arg_colors_name.empty())
                 {
                     const auto& it_name = std::find(config.m_arg_colors_name.begin(), config.m_arg_colors_name.end(), command);
@@ -232,7 +245,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                 command = config.m_arg_colors_value.at(it_value);
                             goto jump;
                         }
-
+                        
                         if (command == *it_name)
                             command = config.m_arg_colors_value.at(it_value);
                     }
@@ -248,9 +261,14 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     if (auto_colors.empty())
                     {
                         if (is_image)
-                            auto_colors.push_back(config.gui ? "white" : "\033[0m\033[1m");
+                            auto_colors.push_back(config.gui ? "white" : NOCOLOR_BOLD);
                         else
-                            auto_colors.push_back(config.gui ? "</span><span weight='bold'>" : "\033[0m\033[1m");
+                        {
+                            if (firstrun_noclr)
+                                auto_colors.push_back(config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
+                            else
+                                auto_colors.push_back(config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
+                        }
                     }
 
                     command = auto_colors.at(ver);
@@ -258,23 +276,30 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
             jump:
                 if (command == "1")
-                    output =
-                        output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                       config.gui ? "</span><span weight='bold'>" : "\033[0m\033[1m");
+                {
+                    if (firstrun_noclr && !parsingLaoyut)
+                        output =
+                            output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                       config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
+                    else
+                        output =
+                            output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                       config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
+                }
                 else if (command == "0")
-                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                            config.gui ? "</span><span>" : "\033[0m");
+                {
+                    if (firstrun_noclr && !parsingLaoyut)
+                        output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                                config.gui ? "<span>" : NOCOLOR);
+                    else
+                        output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                            config.gui ? "</span><span>" : NOCOLOR);
+                }
                 else
                 {
                     std::string str_clr;
                     if (config.gui)
                     {
-                        // if at end there a '$', it will make the end output "$</span>" and so it will confuse addValueFromModule()
-                        // and so let's make it "$ </span>"
-                        // this geniunenly stupid
-                        if (output.back() == '$')
-                                output += ' ';
-
                         switch (fnv1a16::hash(command))
                         {
                             case "black"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_black); break;
@@ -287,28 +312,28 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             case "white"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_white); break;
                             default:                str_clr = command; break;
                         }
-
+                        
                         if (str_clr[0] == '!' && str_clr[1] == '#')
                         {
-                            //debug("output.substr(endBracketIndex + 1) = {}", output.substr(endBracketIndex + 1));
                             output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                     fmt::format("<span fgcolor='{}' weight='bold'>{}</span>",
                                                                 str_clr.substr(1), output.substr(endBracketIndex + 1)));
                         }
-
+                        
                         else if (str_clr[0] == '#')
                         {
                             output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                     fmt::format("<span fgcolor='{}'>{}</span>", str_clr,
                                                                 output.substr(endBracketIndex + 1)));
                         }
-
+                        
                         else if (hasStart(str_clr, "\\e") ||
                                  hasStart(str_clr,
                                           "\033"))  // "\\e" is for checking in the ascii_art, \033 in the config
                         {
                             const std::array<std::string, 3> clrs = get_ansi_color(
                                 (hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3)), colors);
+                            
                             const std::string_view color  = clrs.at(0);
                             const std::string_view weight = clrs.at(1);
                             const std::string_view type   = clrs.at(2);
@@ -319,6 +344,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                         else
                             error("PARSER: failed to parse line with color '{}'", str_clr);
+
+                        firstrun_noclr = false;
                     }
 
                     else
@@ -376,6 +403,11 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         std::find(auto_colors.begin(), auto_colors.end(), command) == auto_colors.end())
                         auto_colors.push_back(command);
                 }
+
+                if (config.gui && firstrun_noclr && !parsingLaoyut)
+                    output += "</span>";
+            }
+            break;
         }
     }
 

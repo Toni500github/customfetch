@@ -96,7 +96,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         std::string pureOutput;
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
-        asciiArt_s += config.gui ? "" : "\033[0m";
+        asciiArt_s += config.gui ? "" : NOCOLOR;
 
         if (config.gui)
         {
@@ -171,7 +171,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         for (size_t j = 0; j < spaces; j++)
             layouts.at(i).insert(origin, " ");
 
-        layouts.at(i) += config.gui ? "" : "\033[0m";
+        layouts.at(i) += config.gui ? "" : NOCOLOR;
     }
 
     for (; i < asciiArt.size(); i++)

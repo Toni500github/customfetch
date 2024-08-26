@@ -201,7 +201,7 @@ void strip(std::string& input)
  * @param str The string to assign the trimmed value, inline
  * @param amount The amount to be used in the line.substr() (should be used with something like "foobar"_len)
  */
-void getFileValue(u_short& iterIndex, const std::string& line, std::string& str, const size_t& amount)
+void getFileValue(u_short& iterIndex, const std::string_view line, std::string& str, const size_t& amount)
 {
     str = line.substr(amount);
     str.erase(std::remove(str.begin(), str.end(), '\"'), str.end());
@@ -264,13 +264,13 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
 
 std::string which(const std::string& command)
 {
-    const std::string& env = std::getenv("PATH");
+    const std::string_view env = std::getenv("PATH");
     struct stat sb;
     std::string fullPath;
     
     for (const std::string& dir : split(env, ':'))
     {
-        fullPath = dir + "/" + command;
+        fullPath = dir + '/' + command;
         if ((stat(fullPath.c_str(), &sb) == 0) && sb.st_mode & S_IXUSR)
             return fullPath;
     }
@@ -279,7 +279,7 @@ std::string which(const std::string& command)
 }
 
 // https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
-void replace_str(std::string& str, const std::string& from, const std::string& to)
+void replace_str(std::string& str, const std::string_view from, const std::string_view to)
 {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos)
@@ -350,20 +350,20 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     return false;
 }
 
-std::string str_tolower(std::string str)
+std::string str_tolower(std::string_view str)
 {
-    for (char& x : str)
+    for (char x : str)
         x = std::tolower(x);
 
-    return str;
+    return str.data();
 }
 
-std::string str_toupper(std::string str)
+std::string str_toupper(std::string_view str)
 {
-    for (char& x : str)
+    for (char x : str)
         x = std::toupper(x);
 
-    return str;
+    return str.data();
 }
 
 // Function to perform binary search on the pci vendors array to find a device from a vendor.
