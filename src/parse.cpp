@@ -782,14 +782,16 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
             switch (moduleValue_hash)
             {
-                    // clang-format off
+                case "fs"_fnv1a16: SYSINFO_INSERT(query_disk.typefs()); break;
+
+                // clang-format off
                 case "disk"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} - {}", 
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                                byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
                                                query_disk.typefs()));
                     break;
-                    // clang-format on
+                // clang-format on
 
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
@@ -805,14 +807,15 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1073741824); break;
                 case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1048576); break;
+                case "used-KiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1024); break;
 
                 case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount() / 1073741824); break;
                 case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount() / 1048576); break;
+                case "total-KiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount() / 1024); break;
 
                 case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount() / 1073741824); break;
                 case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount() / 1048576); break;
-
-                case "fs"_fnv1a16: SYSINFO_INSERT(query_disk.typefs()); break;
+                case "free-KiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount() / 1024); break;
             }
         }
     }
@@ -890,21 +893,27 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount() / 1048576); break;
                 case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount() / 1024); break;
+                case "used-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount()); break;
 
                 case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount() / 1048576); break;
                 case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount() / 1024); break;
+                case "total-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount()); break;
 
                 case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount() / 1048576); break;
                 case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount() / 1024); break;
+                case "free-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount()); break;
 
                 case "swap_free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1048576); break;
                 case "swap_free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1024); break;
+                case "swap_free-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount()); break;
 
                 case "swap_used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1048576); break;
                 case "swap_used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1024); break;
+                case "swap_used-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount()); break;
 
                 case "swap_total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1048576); break;
                 case "swap_total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1024); break;
+                case "swap_total-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount()); break;
             }
         }
     }

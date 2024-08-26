@@ -144,8 +144,8 @@ theme-gtk-all
   font          : gtk font theme name [Cantarell 10 [GTK2], Noto Sans,  10 [GTK3], Noto Sans 10 [GTK4]]
   cursor        : gtk cursor theme name [Bibata-Modern-Ice [GTK2], Qogir-dark [GTK3], Qogir [GTK4]]
 
-# note: these members are auto displayed in kiB, MiB, GiB and TiB.
-# they all (except ram.ram and ram.swap) have a -GiB and -MiB variant
+# note: these members are auto displayed in KiB, MiB, GiB and TiB.
+# they all (except ram.ram and ram.swap) have a -KiB, -GiB and -MiB variant
 # example: if you want to show your 512MiB of used RAM in GiB
 # use the used-GiB variant (they don't print the unit tho)
 ram
