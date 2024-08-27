@@ -350,20 +350,20 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     return false;
 }
 
-std::string str_tolower(std::string_view str)
+std::string str_tolower(std::string str)
 {
-    for (char x : str)
+    for (char& x : str)
         x = std::tolower(x);
 
-    return str.data();
+    return str;
 }
 
-std::string str_toupper(std::string_view str)
+std::string str_toupper(std::string str)
 {
-    for (char x : str)
+    for (char& x : str)
         x = std::toupper(x);
 
-    return str.data();
+    return str;
 }
 
 // Function to perform binary search on the pci vendors array to find a device from a vendor.
