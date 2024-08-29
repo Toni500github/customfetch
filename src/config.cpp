@@ -51,6 +51,8 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->gui_bg_image       = this->getValue<std::string>("gui.bg-image", "disable");
     this->logo_padding_top   = this->getValue<std::uint16_t>("config.logo-padding-top", 0);
 
+    this->user_sep_title     = this->getValue<std::string>("config.sep-title", "-");
+
     this->uptime_d_fmt = this->getValue<std::string>("os.uptime.days", " days");
     this->uptime_h_fmt = this->getValue<std::string>("os.uptime.hours", " hours");
     this->uptime_m_fmt = this->getValue<std::string>("os.uptime.mins", " mins");

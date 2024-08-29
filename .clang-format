@@ -19,7 +19,9 @@ TabWidth: 4
 UseTab: Never
 
 # Bracing styles
+BreakBeforeBraces: Custom
 BraceWrapping:
+  AfterCaseLabel: true
   AfterClass: true
   AfterControlStatement: true
   AfterEnum: true
@@ -60,7 +62,6 @@ ReflowComments: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: All
-BreakBeforeBraces: Allman
 IndentCaseLabels: true
 
 AlignConsecutiveShortCaseStatements:

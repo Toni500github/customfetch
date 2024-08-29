@@ -630,6 +630,18 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
+                case "sep_title"_fnv1a16:
+                {
+                    Query::System query_system;
+                    const size_t& title_len = fmt::format("{}@{}", query_user.name(), query_system.hostname()).length();
+                    std::string str;
+                    str.reserve(config.user_sep_title.length() * title_len);
+                    for (size_t i = 0; i < title_len; i++)
+                        str += config.user_sep_title;
+
+                    SYSINFO_INSERT(str);
+                } break;
+                
                 case "name"_fnv1a16: SYSINFO_INSERT(query_user.name()); break;
 
                 case "shell"_fnv1a16:

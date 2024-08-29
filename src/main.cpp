@@ -80,7 +80,7 @@ static void modules_list()
 {
     fmt::println(R"(
 Syntax:
-# comments of the module
+# maybe comments of the module
 module
   member	: description [example of what it prints, maybe another]
 
@@ -105,7 +105,13 @@ os
   initsys_name	: Init system name [systemd]
   initsys_version: Init system version [256.5-1-arch]
 
+# you may ask, why is there a sep_title but no title???
+# well, it's kinda a "bug" or "regression" in my spaghetti code.
+# It has more to do with coloring than actually implementing it.
+# I won't rework the whole codebase for one single line,
+# and it's already written in the default config
 user
+  sep_title	: the separator between the title and the system infos (with the title lenght) [--------]
   name		: name you are currently logged in (not real name) [toni69]
   shell		: login shell name and version [zsh 5.9]
   shell_name	: login shell [zsh]

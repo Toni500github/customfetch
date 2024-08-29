@@ -40,6 +40,7 @@ public:
     std::string   font;
     std::string   data_dir;
     std::string   sep_reset;
+    std::string   user_sep_title;
     std::string   gui_bg_image;
     std::string   ascii_logo_type;
     std::uint16_t offset             = 0;
@@ -118,7 +119,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 
 layout = [
     "${auto}$<user.name>${0}@${auto2}$<os.hostname>",
-    "───────────────────────────",
+    "$<user.sep_title>",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
@@ -158,7 +159,10 @@ data-dir = "/usr/share/customfetch"
 # Leave empty it for regular.
 ascii-logo-type = ""
 
-# A separetor (string) that when ecountered, will automatically
+# A char (or string) to use in $<user.title_sep>
+sep-title = "-"
+
+# A separetor (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
