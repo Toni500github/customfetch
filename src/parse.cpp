@@ -128,7 +128,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     // prevent issue where in the ascii art,
     // theres at first either ${1} or ${0}
     // and that's a problem with pango markup
-    bool   firstrun_noclr  = (parsingLaoyut ? false : true);
+    bool   firstrun_noclr  = true;
     static std::vector<std::string> auto_colors;
 
     if (!config.sep_reset.empty() && parsingLaoyut)
@@ -277,7 +277,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             jump:
                 if (command == "1")
                 {
-                    if (firstrun_noclr && !parsingLaoyut)
+                    if (firstrun_noclr)
                         output =
                             output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                        config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
@@ -288,7 +288,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 }
                 else if (command == "0")
                 {
-                    if (firstrun_noclr && !parsingLaoyut)
+                    if (firstrun_noclr)
                         output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                                 config.gui ? "<span>" : NOCOLOR);
                     else
@@ -404,7 +404,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         auto_colors.push_back(command);
                 }
 
-                if (config.gui && firstrun_noclr && !parsingLaoyut)
+                if (config.gui && firstrun_noclr)
                     output += "</span>";
             }
             break;
