@@ -41,8 +41,11 @@ Currently supports Linux distros only. Android may be coming when stable release
 >To check if it's enabled or not, run "cufetch --version"
 
 ## Depends
-currently there aren't any dependencies to install, other than having `libdl` installed.\
-If you want to install with GUI mode install: `gtk3` and `gtkmm3` from your package manager
+* `libdl`
+
+If you want to install with GUI mode install from your package manager:
+* `gtk3`
+* `gtkmm3`
 
 ## Installation
 
@@ -132,14 +135,23 @@ source-path = "os"
 
 # Path to where we'll take all the distros/OSs ascii arts
 # note: it MUST contain an "ascii" subdirectory
-data-dir = "~/customfetch/assets"
+data-dir = "/usr/share/customfetch"
 
-# A separetor (string) that when ecountered, will automatically
+# The type of ASCII art to apply ("small", "old").
+# Basically will add "_<type>" to the logo filename.
+# It will return the regular linux ascii art if it doesn't exist.
+# Leave empty it for regular.
+ascii-logo-type = ""
+
+# A char (or string) to use in $<user.title_sep>
+sep-title = "-"
+
+# A separetor (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
 
-# Offset between the ascii art and the system infos
+# Offset between the ascii art and the layout
 offset = 5
 
 # Padding between the start and the ascii art
@@ -154,34 +166,44 @@ layout-padding-top = 0
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
 # remember to add ${0} where you want to reset color
-black = "\e[1;30m"
-red = "\e[1;31m"
-green = "\e[1;32m"
-yellow = "\e[1;33m"
-blue = "\e[1;34m"
+black   = "\e[1;30m"
+red     = "\e[1;31m"
+green   = "\e[1;32m"
+yellow  = "\e[1;33m"
+blue    = "\e[1;34m"
 magenta = "\e[1;35m"
-cyan = "\e[1;36m"
-white = "\e[1;37m"
+cyan    = "\e[1;36m"
+white   = "\e[1;37m"
 
-# $<os.uptime>  config
+# $<os.uptime> config
 [os.uptime]
 # how to display the name of the uptime
-# e.g: hours = "h" -> "Uptime: 3h"
-days = " days"
+# e.g: hours = "hrs" -> "Uptime: 3hrs"
+days  = " days"
 hours = " hours"
-mins = " mins"
-secs = " seconds"
+mins  = " mins"
+secs  = " seconds"
 
 # $<os.pkgs> config
 [os.pkgs]
 # Ordered list of which packages installed count should be displayed in $<os.pkgs>
 # remember to not enter the same name twice, else the world will finish
-# Choices: pacman, flatpak, dpkg
+# Choices: pacman, flatpak, dpkg, apk
 #
 # Pro-tip: if your package manager isnt listed here, yet,
 # use the bash command component in the layout
 # e.g "Packages: $(pacman -Q | wc -l) (pacman)"
 pkg-managers = ["pacman", "dpkg", "flatpak"]
+
+# Distros and package manager specific
+# package manager paths for getting the packages count from path.
+# They are arrayies so you can add multiple paths.
+#
+# If you don't know what these ares, leave them by default settings
+pacman-dirs  = ["/var/lib/pacman/local/"]
+dpkg-files   = ["/var/lib/dpkg/status"]
+flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
+apk-files    = ["/var/lib/apk/db/installed"]
 
 # GUI options
 # note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")
