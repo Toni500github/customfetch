@@ -74,16 +74,31 @@ source-path = "os"
 # note: it MUST contain an "ascii" subdirectory
 data-dir = "/usr/share/customfetch"
 
-# A separetor (string) that when ecountered, will automatically
+# The type of ASCII art to apply ("small", "old").
+# Basically will add "_<type>" to the logo filename.
+# It will return the regular linux ascii art if it doesn't exist.
+# Leave empty it for regular.
+ascii-logo-type = ""
+
+# A char (or string) to use in $<user.title_sep>
+sep-title = "-"
+
+# A separetor (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
 
-# Offset between the ascii art and the system infos
+# Offset between the ascii art and the layout
 offset = 5
 
-# Padding of the logo from the top
+# Padding between the start and the ascii art
+logo-padding-left = 0
+
+# Padding of the ascii art from the top
 logo-padding-top = 0
+
+# Padding of the layout from the top
+layout-padding-top = 0
 
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
@@ -110,12 +125,22 @@ secs = " seconds"
 [os.pkgs]
 # Ordered list of which packages installed count should be displayed in $<os.pkgs>
 # remember to not enter the same name twice, else the world will finish
-# Choices: pacman, flatpak, dpkg
+# Choices: pacman, flatpak, dpkg, apk
 #
 # Pro-tip: if your package manager isnt listed here, yet,
 # use the bash command component in the layout
 # e.g "Packages: $(pacman -Q | wc -l) (pacman)"
 pkg-managers = ["pacman", "dpkg", "flatpak"]
+
+# Distros and package manager specific
+# package manager paths for getting the packages count from path.
+# They are arrayies so you can add multiple paths.
+#
+# If you don't know what these ares, leave them by default settings
+pacman-dirs  = ["/var/lib/pacman/local/"]
+dpkg-files   = ["/var/lib/dpkg/status"]
+flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
+apk-files    = ["/var/lib/apk/db/installed"]
 
 # GUI options
 # note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")

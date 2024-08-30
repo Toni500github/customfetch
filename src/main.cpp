@@ -429,9 +429,6 @@ int main (int argc, char *argv[]) {
     config.m_display_distro = (config.source_path == "os");
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
-    if (!std::filesystem::exists(path) &&
-        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
-        die("'{}' doesn't exist. Can't load image/text file", path);
 
     if (!config.ascii_logo_type.empty())
     {
@@ -441,6 +438,10 @@ int main (int argc, char *argv[]) {
         else
             path += "_" + config.ascii_logo_type;
     }
+
+    if (!std::filesystem::exists(path) &&
+        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
+        die("'{}' doesn't exist. Can't load image/text file", path);
 
 #ifdef GUI_MODE
     if (config.gui)

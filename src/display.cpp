@@ -44,7 +44,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
                                          const std::string_view path)
 {
     systemInfo_t             systemInfo{};
-    std::vector<std::string> asciiArt{}, layouts{ config.layouts };
+    std::vector<std::string> asciiArt{}, layout{ config.layout };
 
     if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty())
     {
@@ -89,7 +89,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     for (int i = 0; i < config.layout_padding_top; i++)
     {
-        layouts.insert(layouts.begin(), "");
+        layout.insert(layout.begin(), "");
     }
 
     while (std::getline(file, line))
@@ -140,26 +140,26 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         return asciiArt;
 
     std::string _;
-    for (std::string& layout : layouts)
+    for (std::string& layout : layout)
         layout = parse(layout, systemInfo, _, config, colors, true);
 
     // erase each element for each instance of MAGIC_LINE
-    layouts.erase(std::remove_if(layouts.begin(), layouts.end(),
+    layout.erase(std::remove_if(layout.begin(), layout.end(),
                                  [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
-                  layouts.end());
+                  layout.end());
 
     size_t i;
-    for (i = 0; i < layouts.size(); i++)
+    for (i = 0; i < layout.size(); i++)
     {
         size_t origin = config.logo_padding_left;
 
         // The user-specified offset to be put before the logo
         for (size_t j = 0; j < config.logo_padding_left; j++)
-            layouts.at(i).insert(0, " ");
+            layout.at(i).insert(0, " ");
 
         if (i < asciiArt.size())
         {
-            layouts.at(i).insert(origin, asciiArt.at(i));
+            layout.at(i).insert(origin, asciiArt.at(i));
             origin += asciiArt.at(i).length();
         }
 
@@ -169,9 +169,9 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         debug("spaces: {}", spaces);
 
         for (size_t j = 0; j < spaces; j++)
-            layouts.at(i).insert(origin, " ");
+            layout.at(i).insert(origin, " ");
 
-        layouts.at(i) += config.gui ? "" : NOCOLOR;
+        layout.at(i) += config.gui ? "" : NOCOLOR;
     }
 
     for (; i < asciiArt.size(); i++)
@@ -183,10 +183,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         line += asciiArt[i];
 
-        layouts.push_back(line);
+        layout.push_back(line);
     }
 
-    return layouts;
+    return layout;
 }
 
 void Display::display(const std::vector<std::string>& renderResult)

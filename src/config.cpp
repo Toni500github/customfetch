@@ -38,7 +38,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     // clang-format off
     // Idk but with `this->` looks more readable
-    this->layouts            = this->getValueArrayStr("config.layout", {});
+    this->layout            = this->getValueArrayStr("config.layout", {});
     this->gui                = this->getValue<bool>("gui.enable", false);
     this->ascii_logo_type    = this->getValue<std::string>("config.ascii-logo-type", "");
     this->source_path        = this->getValue<std::string>("config.source-path", "os");

@@ -35,7 +35,7 @@ public:
     Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
 
     // config file
-    std::vector<std::string> layouts;
+    std::vector<std::string> layout;
     std::string   source_path;
     std::string   font;
     std::string   data_dir;
@@ -182,23 +182,23 @@ layout-padding-top = 0
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
 # remember to add ${0} where you want to reset color
-black = "\e[1;30m"
-red = "\e[1;31m"
-green = "\e[1;32m"
-yellow = "\e[1;33m"
-blue = "\e[1;34m"
+black   = "\e[1;30m"
+red     = "\e[1;31m"
+green   = "\e[1;32m"
+yellow  = "\e[1;33m"
+blue    = "\e[1;34m"
 magenta = "\e[1;35m"
-cyan = "\e[1;36m"
-white = "\e[1;37m"
+cyan    = "\e[1;36m"
+white   = "\e[1;37m"
 
 # $<os.uptime> config
 [os.uptime]
 # how to display the name of the uptime
 # e.g: hours = "hrs" -> "Uptime: 3hrs"
-days = " days"
+days  = " days"
 hours = " hours"
-mins = " mins"
-secs = " seconds"
+mins  = " mins"
+secs  = " seconds"
 
 # $<os.pkgs> config
 [os.pkgs]
@@ -214,7 +214,7 @@ pkg-managers = ["pacman", "dpkg", "flatpak"]
 # Distros and package manager specific
 # package manager paths for getting the packages count from path.
 # They are arrayies so you can add multiple paths.
-# 
+#
 # If you don't know what these ares, leave them by default settings
 pacman-dirs  = ["/var/lib/pacman/local/"]
 dpkg-files   = ["/var/lib/dpkg/status"]

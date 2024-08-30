@@ -34,7 +34,7 @@ using namespace GUI;
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
     systemInfo_t             systemInfo{};
-    std::vector<std::string> layouts{ config.layouts };
+    std::vector<std::string> layout{ config.layout };
 
     int image_width, image_height, channels;
 
@@ -47,21 +47,21 @@ static std::vector<std::string> render_with_image(const Config& config, const co
         die("Unable to load image '{}'", config.source_path);
 
     std::string _;
-    for (std::string& layout : layouts)
+    for (std::string& layout : layout)
         layout = parse(layout, systemInfo, _, config, colors, true, true);
 
     // erase each element for each instance of MAGIC_LINE
-    layouts.erase(std::remove_if(layouts.begin(), layouts.end(),
+    layout.erase(std::remove_if(layout.begin(), layout.end(),
                                  [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
-                  layouts.end());
+                  layout.end());
 
-    for (size_t i = 0; i < layouts.size(); i++)
+    for (size_t i = 0; i < layout.size(); i++)
     {
         for (size_t _ = 0; _ < config.offset; _++)  // I use _ because we don't need it
-            layouts.at(i).insert(0, " ");
+            layout.at(i).insert(0, " ");
     }
 
-    return layouts;
+    return layout;
 }
 
 Window::Window(const Config& config, const colors_t& colors, const std::string_view path)
