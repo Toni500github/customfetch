@@ -428,20 +428,11 @@ int main (int argc, char *argv[]) {
 
     config.m_display_distro = (config.source_path == "os");
 
-#ifdef GUI_MODE
-    if (config.gui)
-    {
-        auto        app = Gtk::Application::create("org.toni.customfetch");
-        GUI::Window window(config, colors);
-        return app->run(window);
-    }
-#else
-    if (config.gui)
-        die("Can't run in GUI mode because it got disabled at compile time\n"
-            "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
-#endif
-
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
+    if (!std::filesystem::exists(path) &&
+        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
+        die("'{}' doesn't exist. Can't load image/text file", path);
+
     if (!config.ascii_logo_type.empty())
     {
         const size_t& pos = path.rfind('.');
@@ -450,6 +441,19 @@ int main (int argc, char *argv[]) {
         else
             path += "_" + config.ascii_logo_type;
     }
+
+#ifdef GUI_MODE
+    if (config.gui)
+    {
+        const Glib::RefPtr<Gtk::Application>& app = Gtk::Application::create("org.toni.customfetch");
+        GUI::Window window(config, colors, path);
+        return app->run(window);
+    }
+#else
+    if (config.gui)
+        die("Can't run in GUI mode because it got disabled at compile time\n"
+            "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
+#endif
 
     Display::display(Display::render(config, colors, false, path));
 

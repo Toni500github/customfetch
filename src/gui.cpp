@@ -1,9 +1,9 @@
-#include <array>
 #ifdef GUI_MODE
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <filesystem>
 #include <fstream>
+#include <array>
 
 #include "config.hpp"
 #include "display.hpp"
@@ -64,20 +64,16 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     return layouts;
 }
 
-Window::Window(const Config& config, const colors_t& colors)
+Window::Window(const Config& config, const colors_t& colors, const std::string_view path)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(1000, 600);
-
-    std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
-    if (!std::filesystem::exists(path) &&
-        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
-        die("'{}' doesn't exist. Can't load image/text file", path);
+    set_position(Gtk::WIN_POS_CENTER_ALWAYS);
 
     bool useImage = false;
 
     debug("Window::Window analyzing file");
-    std::ifstream f(path);
+    std::ifstream f(path.data());
     std::array<unsigned char, 32> buffer;
     f.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
     if (is_file_image(buffer.data()))
@@ -86,7 +82,7 @@ Window::Window(const Config& config, const colors_t& colors)
     // useImage can be either a gif or an image
     if (useImage && !config.m_disable_source)
     {
-        Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path);
+        Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path.data());
         m_img                                  = Gtk::manage(new Gtk::Image(img));
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);

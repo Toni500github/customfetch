@@ -52,7 +52,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
         col.erase(0, 2);
 
     debug("col = {}", col);
-    int n = std::stoi(col);
+    const int n = std::stoi(col);
 
     // unfortunatly you can't do bold and light in pango
     if ((n >= 100 && n <= 107) || (n >= 90 && n <= 97))
@@ -63,18 +63,17 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 
     // last number
     // https://stackoverflow.com/a/5030086
-    n = col.back() - '0';
 
-    switch (n)
+    switch (col.back())
     {
-        case 0: col = colors.gui_black;   break;
-        case 1: col = colors.gui_red;     break;
-        case 2: col = colors.gui_green;   break;
-        case 3: col = colors.gui_yellow;  break;
-        case 4: col = colors.gui_blue;    break;
-        case 5: col = colors.gui_magenta; break;
-        case 6: col = colors.gui_cyan;    break;
-        case 7: col = colors.gui_white;   break;
+        case '0': col = colors.gui_black;   break;
+        case '1': col = colors.gui_red;     break;
+        case '2': col = colors.gui_green;   break;
+        case '3': col = colors.gui_yellow;  break;
+        case '4': col = colors.gui_blue;    break;
+        case '5': col = colors.gui_magenta; break;
+        case '6': col = colors.gui_cyan;    break;
+        case '7': col = colors.gui_white;   break;
     }
 
     if (col[0] != '#')
@@ -536,7 +535,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 {
 #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
     // yikes, here we go.
-    auto                                 moduleValue_hash = fnv1a16::hash(moduleValueName);
+    const  auto&                         moduleValue_hash = fnv1a16::hash(moduleValueName);
     static std::vector<std::uint16_t>    queried_gpus;
     static std::vector<std::string_view> queried_disks;
     static std::vector<std::string>      queried_themes_names;

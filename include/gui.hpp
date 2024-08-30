@@ -18,7 +18,7 @@ namespace GUI
 class Window : public Gtk::Window
 {
 public:
-    Window(const Config& config, const colors_t& colors);
+    Window(const Config& config, const colors_t& colors, const std::string_view path);
     virtual ~Window();
 
 private:
