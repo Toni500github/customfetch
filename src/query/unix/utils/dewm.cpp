@@ -64,7 +64,7 @@ std::string prettify_wm_name(const std::string_view name) noexcept
     // https://github.com/KittyKatt/screenFetch/blob/master/screenfetch-dev#L93
     // added some missing.
     // ngl this looks beatiful thanks to clang-format :D
-    switch (fnv1a16::hash(name))
+    switch (fnv1a16::hash(str_tolower(name.data())))
     {
         case "2bwm"_fnv1a16:            return "2bwm";
         case "9wm"_fnv1a16:             return "9wm";

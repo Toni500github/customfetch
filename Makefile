@@ -1,6 +1,7 @@
 CXX       	?= g++
 PREFIX	  	?= /usr
 MANPREFIX	?= $(PREFIX)/share/man
+APPPREFIX 	?= $(PREFIX)/share/applications
 VARS  	  	?=
 GUI_MODE     	?= 0
 
@@ -82,5 +83,7 @@ install: $(TARGET)
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < cufetch.1 > $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
+	mkdir -p $(DESTDIR)$(APPPREFIX)
+	cp -f cufetch.desktop $(DESTDIR)$(APPPREFIX)
 
 .PHONY: $(TARGET) dist distclean fmt toml install all

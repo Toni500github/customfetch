@@ -64,7 +64,7 @@ static std::string get_wm_name()
 
         debug("WM proc_name = {}", proc_name);
 
-        if ((wm_name = prettify_wm_name(str_tolower(proc_name))) == MAGIC_LINE)
+        if ((wm_name = prettify_wm_name(proc_name)) == MAGIC_LINE)
             continue;
 
         break;
