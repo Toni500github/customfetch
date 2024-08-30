@@ -29,7 +29,7 @@
 
 layout = [
     "${red}$<user.name>${0}@${cyan}$<os.hostname>",
-    "───────────────────────────",
+    "$<user.sep_reset>",
     "${red}OS -> $<os.name> $<system.arch>",
     "${yellow}Host -> $<system.host>",
     "${!#33ffa1}Init -> $<os.initsys_name>",

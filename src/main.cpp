@@ -64,6 +64,8 @@ A command-line system information tool (or neofetch like program), which its foc
     --logo-padding-top	<num>	Padding of the logo from the top
     --logo-padding-left	<num>	Padding of the logo from the left
     --layout-padding-top <num>  Padding of the layout from the top
+    --sep-title <string>        A char (or string) to use in $<user.title_sep>
+    --sep-reset <string>        A separetor (or string) that when ecountered, will automatically reset color
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 
@@ -260,12 +262,15 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
 
+        {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
+        {"sep-title",          required_argument, 0, "sep-title"_fnv1a16},
         {"logo-padding-top",   required_argument, 0, "logo-padding-top"_fnv1a16},
         {"logo-padding-left",  required_argument, 0, "logo-padding-left"_fnv1a16},
         {"layout-padding-top", required_argument, 0, "layout-padding-top"_fnv1a16},
         {"bg-image",           required_argument, 0, "bg-image"_fnv1a16},
         {"color",              required_argument, 0, "color"_fnv1a16},
         {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
+        
         {0,0,0,0}
     };
 
@@ -326,7 +331,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case "color"_fnv1a16:
                 {
                     const std::string& optarg_str = optarg;
-                    const size_t pos = optarg_str.find('=');
+                    const size_t& pos = optarg_str.find('=');
                     if (pos == std::string::npos)
                         die("argument color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
                             "for more check with --help", optarg_str);
@@ -344,6 +349,12 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 else
                     config.generateConfig(configFile);
                 exit(EXIT_SUCCESS);
+
+            case "sep-reset"_fnv1a16:
+                config.sep_reset = optarg; break;
+
+            case "sep-title"_fnv1a16:
+                config.user_sep_title = optarg; break;
 
             default:
                 return false;

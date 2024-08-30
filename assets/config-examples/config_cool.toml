@@ -31,7 +31,7 @@
 # This is really system depedent
 layout = [
 	"${red}$<user.name>${0}@${cyan}$<os.hostname>",
-	"───────────────────────────",
+	"$<user.sep_reset>",
 	"${red}$<os.name> ${cyan} $<system.arch>${cyan} \\<- Arch ",
 	"${red}	    ^		      ${green} $<os.kernel> \\<━━━┓",
 	"${red}	    |						${green}┃",

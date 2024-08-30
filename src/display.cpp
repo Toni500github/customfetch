@@ -163,8 +163,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             origin += asciiArt.at(i).length();
         }
 
-        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
-                        (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
+        const size_t& spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
+                                (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
 
         debug("spaces: {}", spaces);
 
