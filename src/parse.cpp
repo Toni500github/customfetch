@@ -418,7 +418,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     if (config.gui)
     {
         replace_str(output, "\\<", "&lt;");
-        replace_str(output, "&lt;span>", "\\<span>");
+        replace_str(output, "&lt;span", "\\<span");
         replace_str(output, "&lt;/span>", "\\</span>");
     }
     else
