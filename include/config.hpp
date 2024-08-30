@@ -117,8 +117,11 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
 #    Or, if you want to reset color and make it bold, use ${1}
 
+# Q: "Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?"
+# A: replace "<-" with "\\<-". It won't affect the printing in terminal
+
 layout = [
-    "${auto}$<user.name>${0}@${auto2}$<os.hostname>",
+    "${auto2}$<user.name>${0}@${auto2}$<os.hostname>",
     "$<user.sep_title>",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",

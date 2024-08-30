@@ -416,7 +416,11 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     // "But.. what if I want '<<<<<-' " just put \ on each one of < :D
     // sorry, not my problem, but pangos
     if (config.gui)
+    {
         replace_str(output, "\\<", "&lt;");
+        replace_str(output, "&lt;span>", "\\<span>");
+        replace_str(output, "&lt;/span>", "\\</span>");
+    }
     else
         replace_str(output, "\\<", "<");
 
