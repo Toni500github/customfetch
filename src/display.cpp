@@ -148,8 +148,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
-                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
-                  layout.end());
+                                [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                 layout.end());
 
     size_t i;
     for (i = 0; i < layout.size(); i++)
@@ -167,7 +167,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         }
 
         const size_t& spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
-                                (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
+                               (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
 
         debug("spaces: {}", spaces);
 

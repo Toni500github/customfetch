@@ -48,6 +48,8 @@ SpaceInEmptyParentheses: false
 SpacesInSquareBrackets: false
 IndentAccessModifiers: false
 AccessModifierOffset: -4
+IndentCaseBlocks: false
+IndentCaseLabels: true
 
 # Control formatting of C++11 features
 Cpp11BracedListStyle: false
@@ -62,7 +64,6 @@ ReflowComments: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: All
-IndentCaseLabels: true
 
 AlignConsecutiveShortCaseStatements:
   Enabled: true

@@ -11,8 +11,7 @@
 #include "config.hpp"
 #include "util.hpp"
 
-extern "C"
-{
+extern "C" {
 #include <mntent.h>
 #include <pwd.h>
 #include <sys/stat.h>
@@ -22,7 +21,8 @@ extern "C"
 #include <unistd.h>
 }
 
-using systemInfo_t = std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
+using systemInfo_t =
+    std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
 using variant = std::variant<std::string, size_t, float>;
 
 namespace Query
@@ -163,10 +163,10 @@ public:
 
     std::string& name();
     std::string& nproc();
-    float& freq_max();
-    float& freq_min();
-    float& freq_cur();
-    float& freq_bios_limit();
+    float&       freq_max();
+    float&       freq_min();
+    float&       freq_cur();
+    float&       freq_bios_limit();
 
 private:
     static bool  m_bInit;

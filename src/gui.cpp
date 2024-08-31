@@ -1,16 +1,17 @@
 #ifdef GUI_MODE
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "gui.hpp"
+
+#include <array>
 #include <filesystem>
 #include <fstream>
-#include <array>
 
 #include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
 #include "gdkmm/pixbufanimation.h"
 #include "gtkmm/enums.h"
-#include "gui.hpp"
 #include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
@@ -52,8 +53,8 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
-                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
-                  layout.end());
+                                [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                 layout.end());
 
     for (size_t i = 0; i < layout.size(); i++)
     {

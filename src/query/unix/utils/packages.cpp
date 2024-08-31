@@ -1,8 +1,8 @@
 #include "packages.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
-#include <algorithm>
 #include <string>
 
 #include "switch_fnv1a.hpp"

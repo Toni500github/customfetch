@@ -141,6 +141,7 @@ byte_units_t auto_devide_bytes(const size_t num)
 
 bool is_file_image(const unsigned char* bytes)
 {
+    // clang-format off
     // https://stackoverflow.com/a/49683945
     constexpr std::array<unsigned char, 3> jpeg   = { 0xff, 0xd8, 0xff };
     constexpr std::array<unsigned char, 8> png    = { 0x89, 0x50, 0x4e, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
@@ -150,16 +151,17 @@ bool is_file_image(const unsigned char* bytes)
     constexpr std::array<unsigned char, 4> tiffI  = { 0x49, 0x49, 0x2A, 0x00 };
     constexpr std::array<unsigned char, 4> tiffM  = { 0x4D, 0x4D, 0x00, 0x2A };
 
-        if (std::memcmp(bytes, png.data(), png.size()) == 0 ||
-            std::memcmp(bytes, jpeg.data(), jpeg.size()) == 0 ||
-            std::memcmp(bytes, gif89a.data(), gif89a.size()) == 0 ||
-            std::memcmp(bytes, gif87a.data(), gif87a.size()) == 0 ||
-            std::memcmp(bytes, tiffM.data(), tiffM.size()) == 0 ||
-            std::memcmp(bytes, tiffI.data(), tiffI.size()) == 0 ||
-            std::memcmp(bytes, bmp.data(), bmp.size()) == 0)        
-            return true;
+    if (std::memcmp(bytes, png.data(),       png.size()) == 0 ||
+        std::memcmp(bytes, jpeg.data(),     jpeg.size()) == 0 ||
+        std::memcmp(bytes, gif89a.data(), gif89a.size()) == 0 ||
+        std::memcmp(bytes, gif87a.data(), gif87a.size()) == 0 ||
+        std::memcmp(bytes, tiffM.data(),   tiffM.size()) == 0 ||
+        std::memcmp(bytes, tiffI.data(),   tiffI.size()) == 0 ||
+        std::memcmp(bytes, bmp.data(),       bmp.size()) == 0)        
+        return true;
 
     return false;
+    // clang-format on
 }
 
 /**
