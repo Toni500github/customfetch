@@ -86,4 +86,13 @@ install: $(TARGET)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
 	cp -f cufetch.desktop $(DESTDIR)$(APPPREFIX)
 
-.PHONY: $(TARGET) dist distclean fmt toml install all
+uninstall:
+	rm -f  $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	rm -f  $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
+	rm -f  $(DESTDIR)$(APPPREFIX)/cufetch.desktop
+	rm -rf $(DESTDIR)$(PREFIX)/share/customfetch/
+
+remove: uninstall
+delete: uninstall
+
+.PHONY: $(TARGET) remove uninstall delete dist distclean fmt toml install all

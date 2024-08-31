@@ -82,7 +82,6 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     colors.gui_magenta = this->getThemeValue("gui.magenta", "!#ff11cc");
     colors.gui_white   = this->getThemeValue("gui.white",   "!#ffffff");
 
-    // clang-format on
 }
 
 std::string Config::getThemeValue(const std::string& value, const std::string& fallback) const
