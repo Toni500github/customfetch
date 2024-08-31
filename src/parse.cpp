@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "config.hpp"
+#include "fmt/color.h"
 #include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -39,7 +40,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     if (hasStart(str, "38") || hasStart(str, "48"))
         die("Can't convert \\e[38; or \\e[48; codes in GUI. Please use #hexcode colors instead.");
 
-    size_t first_m = str.find('m');
+    const size_t first_m = str.find('m');
     if (first_m == std::string::npos)
         die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
 
@@ -198,7 +199,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
 
         const std::string& strToRemove = fmt::format("${}{}{}", opentag, command, type);
-        size_t      start_pos   = pureOutput.find(strToRemove);
+        const size_t       start_pos   = pureOutput.find(strToRemove);
         if (start_pos != std::string::npos)
             pureOutput.erase(start_pos, strToRemove.length());
 
@@ -222,7 +223,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             }
             break;
             case '}':  // please pay very attention when reading this unreadable and godawful code
-            {
+                
                 // if at end there a '$', it will make the end output "$</span>" and so it will confuse addValueFromModule()
                 // and so let's make it "$ </span>".
                 // this geniunenly stupid
@@ -235,7 +236,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     if (it_name != config.m_arg_colors_name.end())
                     {
                         const auto& it_value = std::distance(config.m_arg_colors_name.begin(), it_name);
-                        
+
                         if (hasStart(command, "auto"))
                         {
                             // "ehhmmm why goto and double code? that's ugly and unconvienient :nerd:"
@@ -244,7 +245,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                 command = config.m_arg_colors_value.at(it_value);
                             goto jump;
                         }
-                        
+
                         if (command == *it_name)
                             command = config.m_arg_colors_value.at(it_value);
                     }
@@ -277,22 +278,22 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (command == "1")
                 {
                     if (firstrun_noclr)
-                        output =
-                            output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                       config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
+                        output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                                config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
+
                     else
-                        output =
-                            output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                       config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
+                        output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                                config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
                 }
                 else if (command == "0")
                 {
                     if (firstrun_noclr)
                         output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                                 config.gui ? "<span>" : NOCOLOR);
+
                     else
                         output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                            config.gui ? "</span><span>" : NOCOLOR);
+                                                config.gui ? "</span><span>" : NOCOLOR);
                 }
                 else
                 {
@@ -311,28 +312,43 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             case "white"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_white); break;
                             default:                str_clr = command; break;
                         }
-                        
-                        if (str_clr[0] == '!' && str_clr[1] == '#')
+
+                        const size_t pos = str_clr.find('#');
+                        if (pos != std::string::npos)
                         {
+                            std::string tagfmt = "<span ";
+
+                            const std::string& opt_clr = str_clr.substr(0, pos);
+
+                            if (opt_clr.find('b') != std::string::npos)
+                                tagfmt += "bgcolor='" + str_clr.substr(pos) + "' ";
+                            else
+                                tagfmt += "fgcolor='" + str_clr.substr(pos) + "' ";
+
+                            if (opt_clr.find('!') != std::string::npos)
+                                tagfmt += "weight='bold' ";
+
+                            if (opt_clr.find('u') != std::string::npos)
+                                tagfmt += "underline='single' ";
+
+                            if (opt_clr.find('i') != std::string::npos)
+                                tagfmt += "style='italic' ";
+
+                            tagfmt.pop_back();
+                            tagfmt += '>';
+
                             output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                                    fmt::format("<span fgcolor='{}' weight='bold'>{}</span>",
-                                                                str_clr.substr(1), output.substr(endBracketIndex + 1)));
+                                                    fmt::format("{}{}</span>",
+                                                                tagfmt, output.substr(endBracketIndex + 1)));
                         }
-                        
-                        else if (str_clr[0] == '#')
-                        {
-                            output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                                    fmt::format("<span fgcolor='{}'>{}</span>", str_clr,
-                                                                output.substr(endBracketIndex + 1)));
-                        }
-                        
+
+                        // "\\e" is for checking in the ascii_art, \033 in the config
                         else if (hasStart(str_clr, "\\e") ||
-                                 hasStart(str_clr,
-                                          "\033"))  // "\\e" is for checking in the ascii_art, \033 in the config
+                                 hasStart(str_clr, "\033"))
                         {
-                            const std::array<std::string, 3> clrs = get_ansi_color(
+                            const std::array<std::string, 3>& clrs = get_ansi_color(
                                 (hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3)), colors);
-                            
+
                             const std::string_view color  = clrs.at(0);
                             const std::string_view weight = clrs.at(1);
                             const std::string_view type   = clrs.at(2);
@@ -363,32 +379,39 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         }
 
                         std::string formatted_replacement_string;
-                        std::string unformatted_replacement_string;
 
-                        if (str_clr[0] == '!' && str_clr[1] == '#')
+                        const size_t pos = str_clr.find('#');
+                        if (pos != std::string::npos)
                         {
-                            fmt::rgb clr                   = hexStringToColor(str_clr.substr(1));
-                            unformatted_replacement_string = output.substr(endBracketIndex + 1);
-                            formatted_replacement_string =
-                                fmt::format(fmt::fg(clr) | fmt::emphasis::bold, "{}", unformatted_replacement_string);
-                        }
+                            const std::string& opt_clr = str_clr.substr(0, pos);
 
-                        else if (str_clr[0] == '#')
-                        {
-                            fmt::rgb clr                   = hexStringToColor(str_clr);
-                            unformatted_replacement_string = output.substr(endBracketIndex + 1);
-                            formatted_replacement_string =
-                                fmt::format(fmt::fg(clr), "{}", unformatted_replacement_string);
+                            fmt::text_style style;
+
+                            if (opt_clr.find('b') != std::string::npos)
+                                append_styles(style, fmt::bg(hexStringToColor(str_clr.substr(pos))));
+                            else
+                                append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
+
+                            if (opt_clr.find('!') != std::string::npos)
+                                append_styles(style, fmt::emphasis::bold);
+
+                            if (opt_clr.find('u') != std::string::npos)
+                                append_styles(style, fmt::emphasis::underline);
+
+                            if (opt_clr.find('i') != std::string::npos)
+                                append_styles(style, fmt::emphasis::italic);
+
+                            formatted_replacement_string = 
+                                fmt::format(style, "{}", output.substr(endBracketIndex + 1));
                         }
 
                         else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
                         {
-                            unformatted_replacement_string = output.substr(endBracketIndex + 1);
                             formatted_replacement_string =
                                 fmt::format("\x1B[{}{}",
                                             // "\\e" is for checking in the ascii_art, \033 in the config
                                             hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3),
-                                            unformatted_replacement_string);
+                                            output.substr(endBracketIndex + 1));
                         }
 
                         else
@@ -404,9 +427,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 }
 
                 if (config.gui && firstrun_noclr)
-                    output += "</span>";
-            }
-            break;
+                    output += "</span>";   
         }
     }
 
@@ -510,25 +531,20 @@ static std::string prettify_de_name(const std::string_view de_name)
         case "kde"_fnv1a16:
         case "plasma"_fnv1a16:
         case "plasmashell"_fnv1a16:
-        case "plasmawayland"_fnv1a16:
-            return "KDE Plasma";
+        case "plasmawayland"_fnv1a16: return "KDE Plasma";
 
         case "gnome"_fnv1a16:
-        case "gnome-shell"_fnv1a16:
-            return "GNOME";
+        case "gnome-shell"_fnv1a16: return "GNOME";
 
         case "xfce"_fnv1a16:
         case "xfce4"_fnv1a16:
-        case "xfce4-session"_fnv1a16:
-            return "Xfce4";
+        case "xfce4-session"_fnv1a16: return "Xfce4";
 
         case "mate"_fnv1a16:
-        case "mate-session"_fnv1a16:
-            return "Mate";
+        case "mate-session"_fnv1a16: return "Mate";
 
         case "lxqt"_fnv1a16:
-        case "lxqt-session"_fnv1a16:
-            return "LXQt";
+        case "lxqt-session"_fnv1a16: return "LXQt";
     }
 
     return de_name.data();
@@ -587,7 +603,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "pkgs"_fnv1a16: SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
 
                 case "initsys_name"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_name()); break;
-                
+
                 case "initsys_version"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_version()); break;
 
                 case "hostname"_fnv1a16: SYSINFO_INSERT(query_system.hostname()); break;
@@ -637,14 +653,14 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 {
                     Query::System query_system;
                     const size_t& title_len = fmt::format("{}@{}", query_user.name(), query_system.hostname()).length();
-                    std::string str;
+                    std::string   str;
                     str.reserve(config.user_sep_title.length() * title_len);
                     for (size_t i = 0; i < title_len; i++)
                         str += config.user_sep_title;
 
                     SYSINFO_INSERT(str);
                 } break;
-                
+
                 case "name"_fnv1a16: SYSINFO_INSERT(query_user.name()); break;
 
                 case "shell"_fnv1a16:
@@ -658,15 +674,15 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "shell_version"_fnv1a16: SYSINFO_INSERT(query_user.shell_version(query_user.shell_name())); break;
 
                 case "de_name"_fnv1a16:
-                    SYSINFO_INSERT(
-                        prettify_de_name(query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
+                    SYSINFO_INSERT(prettify_de_name(
+                        query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
                                            query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()))));
                     break;
 
                 case "de_version"_fnv1a16:
-                    SYSINFO_INSERT(
-                        query_user.de_version(query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
-                                                query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()))));
+                    SYSINFO_INSERT(query_user.de_version(
+                        query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(),
+                                           query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()))));
                     break;
 
                 case "wm_name"_fnv1a16:

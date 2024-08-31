@@ -19,20 +19,23 @@
 std::string Display::detect_distro(const Config& config)
 {
     debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
+
     if (!config.m_custom_distro.empty())
     {
         return fmt::format("{}/ascii/{}.txt", config.data_dir, config.m_custom_distro);
     }
     else
     {
+        const std::string& ascii_logo_type = (config.ascii_logo_type.empty() ? "" : "_" + config.ascii_logo_type);
+
         Query::System system;
         std::string   format;
 
-        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()) + (config.ascii_logo_type.empty() ? "" : "_" + config.ascii_logo_type));
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()) + ascii_logo_type);
         if (std::filesystem::exists(format))
             return format;
 
-        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()) + (config.ascii_logo_type.empty() ? "" : "_" + config.ascii_logo_type));
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()) + ascii_logo_type);
         if (std::filesystem::exists(format))
             return format;
 

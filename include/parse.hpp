@@ -18,4 +18,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
                             const std::string_view moduleValueName);
+
+// Function to combine multiple fmt::text_style arguments
+template <typename... Styles>
+void append_styles(fmt::text_style& current_style, Styles&&... styles)
+{
+    current_style = current_style | (styles | ...);
+}
+
 #endif

@@ -38,7 +38,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     // clang-format off
     // Idk but with `this->` looks more readable
-    this->layout            = this->getValueArrayStr("config.layout", {});
+    this->layout             = this->getValueArrayStr("config.layout", {});
     this->gui                = this->getValue<bool>("gui.enable", false);
     this->ascii_logo_type    = this->getValue<std::string>("config.ascii-logo-type", "");
     this->source_path        = this->getValue<std::string>("config.source-path", "os");
@@ -90,20 +90,21 @@ std::string Config::getThemeValue(const std::string& value, const std::string& f
     return this->tbl.at_path(value).value<std::string>().value_or(fallback);
 }
 
-std::vector<std::string> Config::getValueArrayStr(const std::string& value, const std::vector<std::string>& fallback)
+std::vector<std::string> Config::getValueArrayStr(const std::string_view          value,
+                                                  const std::vector<std::string>& fallback)
 {
     std::vector<std::string> ret;
 
     // https://stackoverflow.com/a/78266628
     const auto& array = tbl.at_path(value);
-    if (toml::array* array_it = array.as_array())
+    if (const toml::array* array_it = array.as_array())
     {
         array_it->for_each(
-            [&ret, value](auto&& el)
+            [&](auto&& el)
             {
-                if (toml::value<std::string>* str_elem = el.as_string())
+                if (const toml::value<std::string>* str_elem = el.as_string())
                 {
-                    toml::value<std::string> v = *str_elem;
+                    const toml::value<std::string>& v = *str_elem;
                     ret.push_back(v->data());
                 }
                 else

@@ -72,7 +72,7 @@ public:
     std::string getThemeValue(const std::string& value, const std::string& fallback) const;
     void        generateConfig(const std::string_view filename);
 
-    std::vector<std::string> getValueArrayStr(const std::string& value, const std::vector<std::string>& fallback);
+    std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
 
     template <typename T>
     T getValue(const std::string& value, const T&& fallback) const
@@ -106,7 +106,14 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 
 # ${} is used for which color to use for colorizing the text
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
-# you can even put a custom hex color e.g: ${#ff6622} (for bold text put ! before # e.g ${!#ff6622} )
+# you can even put a custom hex color e.g: ${#ff6622}
+#
+# It's possible to enable multiple options, put these symbols before '#':
+# * b, for making the color in the background
+# * u, for underline the text
+# * !, for making the text bold
+# * i, for making the text italic
+#
 # OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.
 # For auto coloring, depending on the ascii logo colors, use ${auto}.
 # They can be used for different colors too. So for getting the 2nd color of the ascii logo,
