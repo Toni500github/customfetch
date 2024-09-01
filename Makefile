@@ -39,7 +39,8 @@ endif
 
 NAME		 = customfetch
 TARGET		 = cufetch
-VERSION    	 = 0.8.8
+OLDVERSION	 = 0.8.8
+VERSION    	 = 0.9.0
 BRANCH     	 = $(shell git rev-parse --abbrev-ref HEAD)
 SRC 	   	 = $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp)
 OBJ 	   	 = $(SRC:.cpp=.o)
@@ -95,4 +96,7 @@ uninstall:
 remove: uninstall
 delete: uninstall
 
-.PHONY: $(TARGET) remove uninstall delete dist distclean fmt toml install all
+updatever:
+	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
+
+.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all

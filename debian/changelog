@@ -1,3 +1,9 @@
+customfetch (0.9.0-1) unstable; urgency=medium
+
+  * bump version to 0.9.0-1
+
+ -- toni500 <toni500minecraft@gmail.com>  Sun, 1 Sep 2024 17:05:08 -0500
+
 customfetch (0.8.8-1) unstable; urgency=medium
 
   * bump version to 0.8.8-1

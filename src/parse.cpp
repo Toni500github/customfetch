@@ -288,7 +288,6 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     if (firstrun_noclr)
                         output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                                 config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
-
                     else
                         output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                                 config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
@@ -298,7 +297,6 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     if (firstrun_noclr)
                         output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                                 config.gui ? "<span>" : NOCOLOR);
-
                     else
                         output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                                 config.gui ? "</span><span>" : NOCOLOR);
