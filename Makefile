@@ -84,8 +84,10 @@ install: $(TARGET)
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < cufetch.1 > $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
+ifeq ($(GUI_MODE), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
 	cp -f cufetch.desktop $(DESTDIR)$(APPPREFIX)
+endif
 
 uninstall:
 	rm -f  $(DESTDIR)$(PREFIX)/bin/$(TARGET)
