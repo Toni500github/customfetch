@@ -198,16 +198,20 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         if (static_cast<int>(endBracketIndex) == -1)
             die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
 
-        const std::string& strToRemove = fmt::format("${}{}{}", opentag, command, type);
-        const size_t       start_pos   = pureOutput.find(strToRemove);
-        if (start_pos != std::string::npos)
-            pureOutput.erase(start_pos, strToRemove.length());
+        const std::string& strToReplace = fmt::format("${}{}{}", opentag, command, type);
+        const size_t       start_pos    = pureOutput.find(strToReplace);
 
         switch (type)
         {
             case ')':
-                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_exec(command));
-                break;
+            {
+                const std::string& shell_cmd = shell_exec(command);
+                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_cmd);
+
+                if (!parsingLaoyut && start_pos != std::string::npos)
+                    pureOutput.replace(start_pos, command.length() + 3, shell_cmd);
+
+            } break;
             case '>':
             {
                 const size_t& dot_pos = command.find('.');
@@ -219,6 +223,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 addValueFromModule(systemInfo, moduleName, moduleValueName, config);
 
                 output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                        getInfoFromName(systemInfo, moduleName, moduleValueName));
+
+                if (!parsingLaoyut && start_pos != std::string::npos)
+                    pureOutput.replace(start_pos, command.length() + 3,
                                         getInfoFromName(systemInfo, moduleName, moduleValueName));
             }
             break;
@@ -427,7 +435,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 }
 
                 if (config.gui && firstrun_noclr)
-                    output += "</span>";   
+                    output += "</span>";
+
+                if (!parsingLaoyut && start_pos != std::string::npos)
+                    pureOutput.erase(start_pos, strToReplace.length());
         }
     }
 
