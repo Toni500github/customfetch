@@ -247,14 +247,21 @@ You have 3 components: `$<module.submod>`, `${color}`, `$(bash command)`. They c
  e.g `$(echo \"hello world\" | cut -d' ' -f2)` will only print world
 
 * **The color component (`${}`)** is used for which color to use for colorizing the text\
- e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)\
- you can even put a custom hex color e.g: `${#ff6622}` (for bold text put ! before # e.g `${!#ff6622}`)\
- OR ANSI escape code colors e.g `${\e[1;32m}` or `"\e[38;5;160m` (NOTE: 256 colors ANSI escape codes, those that have \e[38 or \e[48, can't be used in GUI mode).\
+ e.g `${red}hello world` will indeed print "hello world" in red (or the color you set in the variable).\
+ The colors can be: <ins>black</ins>, <ins>red</ins>, <ins>green</ins>, <ins>blue</ins>, <ins>cyan</ins>, <ins>yellow</ins>, <ins>magenta</ins>, <ins>white</ins> and they can be configured in the config file.\
+ You can put a custom hex color e.g: `${#ff6622}`.\
+ It's possible to enable multiple options, put these symbols before `#`:\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`b` - for making the color in the background\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`u` - for underline the text\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`!` - for making the text bold\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`i` - for making the text italic\
+ OR You can put ANSI escape code colors e.g `${\e[1;32m}` or `${\e[38;5;160m}`\
+ (NOTE: 256 colors ANSI escape codes, those that have `\e[38` or `\e[48`, can't be used in GUI mode).\
  For auto coloring, depending on the ascii logo colors, use `${auto}`.\
  They can be used for different colors too. So for getting the 2nd color of the ascii logo,\
  use `${auto2}`, for the 4th one use `${auto4}` and so on.
 
-Any $ or brackets can be escaped with \\
+Any `$` or brackets can be escaped with \\
 
 # Thanks
 I would like to thanks:
@@ -268,6 +275,9 @@ I would like to thanks:
 
 * [fastfetch](https://github.com/fastfetch-cli/fastfetch/) and [neofetch](https://github.com/dylanaraps/neofetch),\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For inspiring this project
+
+* [{fmt}](https://github.com/fmtlib/fmt) and [toml++](https://github.com/marzer/tomlplusplus) libraries\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Our favorite libraries that me and BurntRanch uses
 
 * this string switch-case [library](https://github.com/xroche/stringswitch), \
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Really amazing, thanks for making this 
