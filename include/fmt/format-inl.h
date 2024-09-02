@@ -14,10 +14,6 @@
 #  include <climits>
 #  include <cmath>
 #  include <exception>
-
-#  if !defined(FMT_STATIC_THOUSANDS_SEPARATOR)
-#    include <locale>
-#  endif
 #endif
 
 #if defined(_WIN32) && !defined(FMT_USE_WRITE_CONSOLE)
@@ -25,6 +21,12 @@
 #endif
 
 #include "format.h"
+
+#if FMT_USE_LOCALE
+#  include <locale>
+#elif !defined(FMT_STATIC_THOUSANDS_SEPARATOR)
+#  define FMT_STATIC_THOUSANDS_SEPARATOR ','
+#endif
 
 FMT_BEGIN_NAMESPACE
 namespace detail {
@@ -65,67 +67,69 @@ FMT_FUNC void report_error(format_func func, int error_code,
                            const char* message) noexcept {
   memory_buffer full_message;
   func(full_message, error_code, message);
-  // Don't use fwrite_fully because the latter may throw.
+  // Don't use fwrite_all because the latter may throw.
   if (std::fwrite(full_message.data(), full_message.size(), 1, stderr) > 0)
     std::fputc('\n', stderr);
 }
 
 // A wrapper around fwrite that throws on error.
-inline void fwrite_fully(const void* ptr, size_t count, FILE* stream) {
+inline void fwrite_all(const void* ptr, size_t count, FILE* stream) {
   size_t written = std::fwrite(ptr, 1, count, stream);
   if (written < count)
     FMT_THROW(system_error(errno, FMT_STRING("cannot write to file")));
 }
 
-#ifndef FMT_STATIC_THOUSANDS_SEPARATOR
+#if FMT_USE_LOCALE
+using std::locale;
+using std::numpunct;
+using std::use_facet;
+
 template <typename Locale>
 locale_ref::locale_ref(const Locale& loc) : locale_(&loc) {
-  static_assert(std::is_same<Locale, std::locale>::value, "");
+  static_assert(std::is_same<Locale, locale>::value, "");
 }
+#else
+struct locale {};
+template <typename Char> struct numpunct {
+  auto grouping() const -> std::string { return "\03"; }
+  auto thousands_sep() const -> Char { return FMT_STATIC_THOUSANDS_SEPARATOR; }
+  auto decimal_point() const -> Char { return '.'; }
+};
+template <typename Facet> Facet use_facet(locale) { return {}; }
+#endif  // FMT_USE_LOCALE
 
 template <typename Locale> auto locale_ref::get() const -> Locale {
-  static_assert(std::is_same<Locale, std::locale>::value, "");
-  return locale_ ? *static_cast<const std::locale*>(locale_) : std::locale();
+  static_assert(std::is_same<Locale, locale>::value, "");
+#if FMT_USE_LOCALE
+  if (locale_) return *static_cast<const locale*>(locale_);
+#endif
+  return locale();
 }
 
 template <typename Char>
 FMT_FUNC auto thousands_sep_impl(locale_ref loc) -> thousands_sep_result<Char> {
-  auto& facet = std::use_facet<std::numpunct<Char>>(loc.get<std::locale>());
+  auto&& facet = use_facet<numpunct<Char>>(loc.get<locale>());
   auto grouping = facet.grouping();
   auto thousands_sep = grouping.empty() ? Char() : facet.thousands_sep();
   return {std::move(grouping), thousands_sep};
 }
 template <typename Char>
 FMT_FUNC auto decimal_point_impl(locale_ref loc) -> Char {
-  return std::use_facet<std::numpunct<Char>>(loc.get<std::locale>())
-      .decimal_point();
+  return use_facet<numpunct<Char>>(loc.get<locale>()).decimal_point();
 }
-#else
-template <typename Char>
-FMT_FUNC auto thousands_sep_impl(locale_ref) -> thousands_sep_result<Char> {
-  return {"\03", FMT_STATIC_THOUSANDS_SEPARATOR};
-}
-template <typename Char> FMT_FUNC Char decimal_point_impl(locale_ref) {
-  return '.';
-}
-#endif
 
+#if FMT_USE_LOCALE
 FMT_FUNC auto write_loc(appender out, loc_value value,
                         const format_specs& specs, locale_ref loc) -> bool {
-#ifdef FMT_STATIC_THOUSANDS_SEPARATOR
-  value.visit(loc_writer<>{
-      out, specs, std::string(1, FMT_STATIC_THOUSANDS_SEPARATOR), "\3", "."});
-  return true;
-#else
   auto locale = loc.get<std::locale>();
   // We cannot use the num_put<char> facet because it may produce output in
   // a wrong encoding.
   using facet = format_facet<std::locale>;
   if (std::has_facet<facet>(locale))
-    return std::use_facet<facet>(locale).put(out, value, specs);
+    return use_facet<facet>(locale).put(out, value, specs);
   return facet(locale).put(out, value, specs);
-#endif
 }
+#endif
 }  // namespace detail
 
 FMT_FUNC void report_error(const char* message) {
@@ -134,13 +138,13 @@ FMT_FUNC void report_error(const char* message) {
 
 template <typename Locale> typename Locale::id format_facet<Locale>::id;
 
-#ifndef FMT_STATIC_THOUSANDS_SEPARATOR
 template <typename Locale> format_facet<Locale>::format_facet(Locale& loc) {
-  auto& numpunct = std::use_facet<std::numpunct<char>>(loc);
-  grouping_ = numpunct.grouping();
-  if (!grouping_.empty()) separator_ = std::string(1, numpunct.thousands_sep());
+  auto& np = detail::use_facet<detail::numpunct<char>>(loc);
+  grouping_ = np.grouping();
+  if (!grouping_.empty()) separator_ = std::string(1, np.thousands_sep());
 }
 
+#if FMT_USE_LOCALE
 template <>
 FMT_API FMT_FUNC auto format_facet<std::locale>::do_put(
     appender out, loc_value val, const format_specs& specs) const -> bool {
@@ -1692,7 +1696,7 @@ FMT_FUNC void vprint_mojibake(std::FILE* f, string_view fmt, format_args args,
   auto buffer = memory_buffer();
   detail::vformat_to(buffer, fmt, args);
   if (newline) buffer.push_back('\n');
-  fwrite_fully(buffer.data(), buffer.size(), f);
+  fwrite_all(buffer.data(), buffer.size(), f);
 }
 #endif
 
@@ -1704,7 +1708,7 @@ FMT_FUNC void print(std::FILE* f, string_view text) {
     if (write_console(fd, text)) return;
   }
 #endif
-  fwrite_fully(text.data(), text.size(), f);
+  fwrite_all(text.data(), text.size(), f);
 }
 }  // namespace detail
 

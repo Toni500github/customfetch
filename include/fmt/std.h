@@ -122,7 +122,7 @@ template <typename Char> struct formatter<std::filesystem::path, Char> {
  public:
   FMT_CONSTEXPR void set_debug_format(bool set = true) { debug_ = set; }
 
-  template <typename ParseContext> FMT_CONSTEXPR auto parse(ParseContext& ctx) {
+  FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) {
     auto it = ctx.begin(), end = ctx.end();
     if (it == end) return it;
 
@@ -131,7 +131,7 @@ template <typename Char> struct formatter<std::filesystem::path, Char> {
 
     Char c = *it;
     if ((c >= '0' && c <= '9') || c == '{')
-      it = detail::parse_dynamic_spec(it, end, specs_.width, width_ref_, ctx);
+      it = detail::parse_width(it, end, specs_, width_ref_, ctx);
     if (it != end && *it == '?') {
       debug_ = true;
       ++it;
@@ -147,7 +147,8 @@ template <typename Char> struct formatter<std::filesystem::path, Char> {
         !path_type_ ? p.native()
                     : p.generic_string<std::filesystem::path::value_type>();
 
-    detail::handle_dynamic_spec(specs.width, width_ref_, ctx);
+    detail::handle_dynamic_spec(specs.dynamic_width(), specs.width, width_ref_,
+                                ctx);
     if (!debug_) {
       auto s = detail::get_path_string<Char>(p, path_string);
       return detail::write(ctx.out(), basic_string_view<Char>(s), specs);
@@ -234,7 +235,7 @@ struct formatter<std::optional<T>, Char,
   FMT_CONSTEXPR static void maybe_set_debug_format(U&, ...) {}
 
  public:
-  template <typename ParseContext> FMT_CONSTEXPR auto parse(ParseContext& ctx) {
+  FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) {
     maybe_set_debug_format(underlying_, true);
     return underlying_.parse(ctx);
   }
@@ -280,8 +281,7 @@ template <typename T, typename E, typename Char>
 struct formatter<std::expected<T, E>, Char,
                  std::enable_if_t<is_formattable<T, Char>::value &&
                                   is_formattable<E, Char>::value>> {
-  template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
+  FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) -> const Char* {
     return ctx.begin();
   }
 
@@ -308,9 +308,7 @@ FMT_END_NAMESPACE
 FMT_BEGIN_NAMESPACE
 FMT_EXPORT
 template <> struct formatter<std::source_location> {
-  template <typename ParseContext> FMT_CONSTEXPR auto parse(ParseContext& ctx) {
-    return ctx.begin();
-  }
+  FMT_CONSTEXPR auto parse(parse_context<>& ctx) { return ctx.begin(); }
 
   template <typename FormatContext>
   auto format(const std::source_location& loc, FormatContext& ctx) const
@@ -366,8 +364,7 @@ template <typename T, typename C> struct is_variant_formattable {
 
 FMT_EXPORT
 template <typename Char> struct formatter<std::monostate, Char> {
-  template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
+  FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) -> const Char* {
     return ctx.begin();
   }
 
@@ -384,8 +381,7 @@ struct formatter<
     Variant, Char,
     std::enable_if_t<std::conjunction_v<
         is_variant_like<Variant>, is_variant_formattable<Variant, Char>>>> {
-  template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
+  FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) -> const Char* {
     return ctx.begin();
   }
 
@@ -415,8 +411,7 @@ FMT_END_NAMESPACE
 FMT_BEGIN_NAMESPACE
 FMT_EXPORT
 template <typename Char> struct formatter<std::error_code, Char> {
-  template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
+  FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) -> const Char* {
     return ctx.begin();
   }
 
@@ -507,8 +502,7 @@ template <typename Char>
 struct formatter<std::type_info, Char  // DEPRECATED! Mixing code unit types.
                  > {
  public:
-  FMT_CONSTEXPR auto parse(basic_format_parse_context<Char>& ctx)
-      -> decltype(ctx.begin()) {
+  FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) -> const Char* {
     return ctx.begin();
   }
 
@@ -529,8 +523,7 @@ struct formatter<
   bool with_typename_ = false;
 
  public:
-  FMT_CONSTEXPR auto parse(basic_format_parse_context<Char>& ctx)
-      -> decltype(ctx.begin()) {
+  FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) -> const Char* {
     auto it = ctx.begin();
     auto end = ctx.end();
     if (it == end || *it == '}') return it;
@@ -644,7 +637,7 @@ template <typename T, typename Char> struct formatter<std::complex<T>, Char> {
     if (c.real() != 0) {
       *out++ = Char('(');
       out = detail::write<Char>(out, c.real(), specs, ctx.locale());
-      specs.sign = sign::plus;
+      specs.set_sign(sign::plus);
       out = detail::write<Char>(out, c.imag(), specs, ctx.locale());
       if (!detail::isfinite(c.imag())) *out++ = Char(' ');
       *out++ = Char('i');
@@ -658,8 +651,7 @@ template <typename T, typename Char> struct formatter<std::complex<T>, Char> {
   }
 
  public:
-  FMT_CONSTEXPR auto parse(basic_format_parse_context<Char>& ctx)
-      -> decltype(ctx.begin()) {
+  FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) -> const Char* {
     if (ctx.begin() == ctx.end() || *ctx.begin() == '}') return ctx.begin();
     return parse_format_specs(ctx.begin(), ctx.end(), specs_, ctx,
                               detail::type_constant<T, Char>::value);
@@ -669,10 +661,11 @@ template <typename T, typename Char> struct formatter<std::complex<T>, Char> {
   auto format(const std::complex<T>& c, FormatContext& ctx) const
       -> decltype(ctx.out()) {
     auto specs = specs_;
-    if (specs.width_ref.kind != detail::arg_id_kind::none ||
-        specs.precision_ref.kind != detail::arg_id_kind::none) {
-      detail::handle_dynamic_spec(specs.width, specs.width_ref, ctx);
-      detail::handle_dynamic_spec(specs.precision, specs.precision_ref, ctx);
+    if (specs.dynamic()) {
+      detail::handle_dynamic_spec(specs.dynamic_width(), specs.width,
+                                  specs.width_ref, ctx);
+      detail::handle_dynamic_spec(specs.dynamic_precision(), specs.precision,
+                                  specs.precision_ref, ctx);
     }
 
     if (specs.width == 0) return do_format(c, specs, ctx, ctx.out());
@@ -680,12 +673,14 @@ template <typename T, typename Char> struct formatter<std::complex<T>, Char> {
 
     auto outer_specs = format_specs();
     outer_specs.width = specs.width;
-    outer_specs.fill = specs.fill;
-    outer_specs.align = specs.align;
+    auto fill = specs.template fill<Char>();
+    if (fill)
+      outer_specs.set_fill(basic_string_view<Char>(fill, specs.fill_size()));
+    outer_specs.set_align(specs.align());
 
     specs.width = 0;
-    specs.fill = {};
-    specs.align = align::none;
+    specs.set_fill({});
+    specs.set_align(align::none);
 
     do_format(c, specs, ctx, basic_appender<Char>(buf));
     return detail::write<Char>(ctx.out(),
