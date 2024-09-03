@@ -40,6 +40,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     // Idk but with `this->` looks more readable
     this->layout             = this->getValueArrayStr("config.layout", {});
     this->gui                = this->getValue<bool>("gui.enable", false);
+    this->sep_reset_after    = this->getValue<bool>("config.sep-reset-after", false);
     this->ascii_logo_type    = this->getValue<std::string>("config.ascii-logo-type", "");
     this->source_path        = this->getValue<std::string>("config.source-path", "os");
     this->data_dir           = this->getValue<std::string>("config.data-dir", "/usr/share/customfetch");

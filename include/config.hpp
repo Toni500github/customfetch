@@ -48,6 +48,7 @@ public:
     std::uint16_t logo_padding_top   = 0;
     std::uint16_t layout_padding_top = 0;
     bool          gui                = false;
+    bool          sep_reset_after    = false;
 
     // modules specific config
     std::string uptime_d_fmt;
@@ -182,6 +183,11 @@ sep-title = "-"
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
+
+# Should we reset color after or before the separetor?
+# true  = after  ("test:${0} ")
+# false = before ("test${0}: ")
+sep-reset-after = false
 
 # Offset between the ascii art and the layout
 offset = 5

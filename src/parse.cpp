@@ -129,12 +129,22 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     // theres at first either ${1} or ${0}
     // and that's a problem with pango markup
     bool   firstrun_noclr  = true;
+
+
     static std::vector<std::string> auto_colors;
 
     if (!config.sep_reset.empty() && parsingLaoyut)
     {
-        replace_str(output, config.sep_reset, "${0}" + config.sep_reset);
-        replace_str(pureOutput, config.sep_reset, "${0}" + config.sep_reset);
+        if (config.sep_reset_after)
+        {
+            replace_str(output, config.sep_reset, config.sep_reset + "${0}");
+            replace_str(pureOutput, config.sep_reset, config.sep_reset + "${0}");
+        }
+        else
+        {
+            replace_str(output, config.sep_reset, "${0}" + config.sep_reset);
+            replace_str(pureOutput, config.sep_reset, "${0}" + config.sep_reset);
+        }
     }
 
     while (true)
@@ -183,6 +193,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         if (type == ' ')
             continue;
 
+        // let's get what's inside the brackets
         for (size_t i = dollarSignIndex + 2; i < output.size(); i++)
         {
             if (output.at(i) == type && output[i - 1] != '\\')
@@ -221,8 +232,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (dot_pos == std::string::npos)
                     die("module name '{}' doesn't have a dot '.' for separiting module name and submodule", command);
 
-                const std::string& moduleName(command.substr(0, dot_pos));
-                const std::string& moduleValueName(command.substr(dot_pos + 1));
+                const std::string& moduleName      = command.substr(0, dot_pos);
+                const std::string& moduleValueName = command.substr(dot_pos + 1);
                 addValueFromModule(systemInfo, moduleName, moduleValueName, config);
 
                 output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
@@ -235,15 +246,15 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             
             case ']':
             {
-                const size_t condition_comma = command.find(',');
+                const size_t& condition_comma = command.find(',');
                 if (condition_comma == command.npos)
                     die("condition component {} doesn't have a comma for separiting the condition", command);
 
-                const size_t equalto_comma = command.find(',', condition_comma + 1);
+                const size_t& equalto_comma = command.find(',', condition_comma + 1);
                 if (equalto_comma == command.npos)
                     die("condition component {} doesn't have a comma for separiting the equalto", command);
 
-                const size_t true_comma = command.find(',', equalto_comma + 1);
+                const size_t& true_comma = command.find(',', equalto_comma + 1);
                 if (true_comma == command.npos)
                     die("condition component {} doesn't have a comma for separiting the true statment", command);
 
