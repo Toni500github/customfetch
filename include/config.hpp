@@ -93,7 +93,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # here is how it works:
 # the variable "layout" is used for showing the infos
 # as like as the user want, no limitation.
-# inside here there are 3 "components": $<> $() ${}
+# inside here there are 4 "components": $<> $() ${} $[]
 
 # $<> lets you access a member of a module
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
@@ -103,6 +103,12 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # e.g $(echo \"hello world\") will indeed echo out Hello world.
 # you can even use pipes
 # e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
+
+# $[] is used for equal conditional check
+# syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse] with no spaces between commas ','
+# Each part can have a component or anything else.
+# e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
+# This is useful when on some terminal or WM the detection can be different than others
 
 # ${} is used for which color to use for colorizing the text
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)

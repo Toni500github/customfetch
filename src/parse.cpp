@@ -174,6 +174,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         {
             case '(': type = ')'; break;
             case '<': type = '>'; break;
+            case '[': type = ']'; break;
             case '{': type = '}'; break;
             default:  // neither of them
                 break;
@@ -206,12 +207,14 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             case ')':
             {
                 const std::string& shell_cmd = shell_exec(command);
-                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex, shell_cmd);
+                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                        shell_cmd);
 
                 if (!parsingLaoyut && start_pos != std::string::npos)
                     pureOutput.replace(start_pos, command.length() + 3, shell_cmd);
 
             } break;
+            
             case '>':
             {
                 const size_t& dot_pos = command.find('.');
@@ -228,8 +231,46 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (!parsingLaoyut && start_pos != std::string::npos)
                     pureOutput.replace(start_pos, command.length() + 3,
                                         getInfoFromName(systemInfo, moduleName, moduleValueName));
-            }
-            break;
+            } break;
+            
+            case ']':
+            {
+                const size_t condition_comma = command.find(',');
+                if (condition_comma == command.npos)
+                    die("condition component {} doesn't have a comma for separiting the condition", command);
+
+                const size_t equalto_comma = command.find(',', condition_comma + 1);
+                if (equalto_comma == command.npos)
+                    die("condition component {} doesn't have a comma for separiting the equalto", command);
+
+                const size_t true_comma = command.find(',', equalto_comma + 1);
+                if (true_comma == command.npos)
+                    die("condition component {} doesn't have a comma for separiting the true statment", command);
+
+                std::string _;
+                const std::string& condition     = command.substr(0, condition_comma);
+                const std::string& equalto       = command.substr(condition_comma + 1, equalto_comma - condition_comma - 1);
+                const std::string& true_statment = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
+                const std::string& false_statment= command.substr(true_comma + 1);
+
+                const std::string& parsed_condition = parse(condition, systemInfo, _, config, colors, true);
+                const std::string& parsed_equalto   = parse(equalto, systemInfo, _, config, colors, true);
+
+                if (parsed_condition == parsed_equalto)
+                {
+                    const std::string& parsed_true_stam = parse(true_statment, systemInfo, _, config, colors, true);
+                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                            parsed_true_stam);
+                }
+                else
+                {
+                    const std::string& parsed_false_stam = parse(false_statment, systemInfo, _, config, colors, true);
+                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                                            parsed_false_stam);
+                }
+
+            } break;
+
             case '}':  // please pay very attention when reading this unreadable and godawful code
                 
                 // if at end there a '$', it will make the end output "$</span>" and so it will confuse addValueFromModule()

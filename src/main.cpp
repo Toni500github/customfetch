@@ -55,7 +55,7 @@ A command-line system information tool (or neofetch like program), which its foc
 
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it was enabled)
     -o, --offset <num>          Offset between the ascii art and the layout
-    -l. --list-modules  	Print the list of the components and its members
+    -l. --list-modules  	Print the list of the modules and its members
     -h, --help			Print this help menu
     -L, --logo-only             Print only the logo
     -V, --version		Print the version along with the git branch it was built
@@ -141,7 +141,6 @@ theme-gtkN
   name		: gtk theme name [Arc-Dark]
   icons		: gtk icons theme name [Qogir-Dark]
   font		: gtk font theme name [Noto Sans 10]
-  cursor	: gtk cursor theme name [Qogir-Dark]
 
 # basically as like as the "theme-gtkN" module above
 # but with gtk{{2,3,4}} and auto format gkt version
@@ -150,7 +149,6 @@ theme-gtk-all
   name          : gtk theme name [Decay-Green [GTK2], Arc-Dark [GTK3/4]]
   icons         : gtk icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]
   font          : gtk font theme name [Cantarell 10 [GTK2], Noto Sans,  10 [GTK3], Noto Sans 10 [GTK4]]
-  cursor        : gtk cursor theme name [Bibata-Modern-Ice [GTK2], Qogir-dark [GTK3], Qogir [GTK4]]
 
 # note: these members are auto displayed in KiB, MiB, GiB and TiB.
 # they all (except ram.ram and ram.swap) have a -KiB, -GiB and -MiB variant

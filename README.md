@@ -235,7 +235,7 @@ bg-image = "/tmp/idk.png"
 ```
 
 We got the config.toml file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
-You have 3 components: `$<module.submod>`, `${color}`, `$(bash command)`. They can be used in the ascii art text file and layout, but how to use them?
+You have 4 components: `$<module.submod>`, `${color}`, `$(bash command)`, `$[something,equalToSomethingElse,iftrue,ifalse]`. They can be used in the ascii art text file and layout, but how to use them?
 
 * **The info component (`$<>`)** will print a member of a module\
  e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
@@ -245,6 +245,12 @@ You have 3 components: `$<module.submod>`, `${color}`, `$(bash command)`. They c
  e.g `$(echo \"hello world\")` will indeed echo out Hello world.\
  you can even use pipes\
  e.g `$(echo \"hello world\" | cut -d' ' -f2)` will only print world
+
+* **The conditional component (`$[]`)** is used for equal conditional check.\
+  Syntax MUST be `$[something,equalToSomethingElse,iftrue,ifalse]` with no spaces between commas ','\
+  Each part can have a component or anything else.\
+  e.g `$[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]`\
+  This is useful when on some terminal or WM the detection can be different than others\
 
 * **The color component (`${}`)** is used for which color to use for colorizing the text\
  e.g `${red}hello world` will indeed print "hello world" in red (or the color you set in the variable).\

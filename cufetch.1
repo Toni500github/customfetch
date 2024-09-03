@@ -12,7 +12,7 @@ How does it work?
 .PP
 We got the config.toml file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
 .br
-You have 3 components: $<module.submod>, ${color}, $(bash command). They can be used in the ascii art text file and layout, but how to use them?
+You have 4 components: $<module.submod>, ${color}, $(bash command), $[something,equalToSomething,ifTrue,ifFalse]. They can be used in the ascii art text file and layout, but how to use them?
 .PP
 Here's a simple bare-minimal example:
 .br
@@ -47,10 +47,20 @@ It's possible to enable multiple options, put these symbols before '#':
 OR They can have ANSI escape codes, e.g "\\e[1;31m" and "\\e[38;5;160m" (\fBNOTE\fR: 256 colors ANSI escape codes, those that have \\e[38 or \\e[48, can't be used in GUI)
 .br
 You can also use them inside the component, like ${!#343345} or ${\\e[1;31m}.
-.PP
+.br
 To reset colors use ${0} or ${1} for reset and bold text.
 .br
 To instead use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
+.PP
+The \fBConditional component $[]\fR is used for equal conditional check.
+.br
+syntax \fBMUST\fR be $[something,equalToSomethingElse,ifTrue,ifFalse] with no spaces between commas ','
+.br
+Each part can have a component or anything else.
+.br
+e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
+.br
+This is useful when on some terminal or WM the detection can be different than others
 .PP
 The \fBBash command component $()\fR speaks for itself. It can execute normal bash commands.
 .PP
