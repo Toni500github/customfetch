@@ -15,7 +15,12 @@ ifeq ($(DEBUG), 1)
         BUILDDIR  = build/debug
         CXXFLAGS := -ggdb3 -Wall -Wextra -Wpedantic -DDEBUG=1 $(DEBUG_CXXFLAGS) $(CXXFLAGS)
 else
-	CXXFLAGS := -O3 $(CXXFLAGS)
+	# Check if an optimization flag is not already set
+	ifneq ($(filter -O%,$(CXXFLAGS)),)
+    		$(info Keeping the existing optimization flag in CXXFLAGS)
+	else
+    		CXXFLAGS := -O3 $(CXXFLAGS)
+	endif
         BUILDDIR  = build/release
 endif
 
