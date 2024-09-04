@@ -115,7 +115,7 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
 }
 
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  const colors_t& colors, const bool parsingLaoyut, const bool is_image)
+                  const colors_t& colors, const bool parsingLayout, const bool is_image)
 {
     std::string output = input.data();
     pureOutput         = output;
@@ -133,7 +133,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
     static std::vector<std::string> auto_colors;
 
-    if (!config.sep_reset.empty() && parsingLaoyut)
+    if (!config.sep_reset.empty() && parsingLayout)
     {
         if (config.sep_reset_after)
         {
@@ -221,7 +221,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                         shell_cmd);
 
-                if (!parsingLaoyut && start_pos != std::string::npos)
+                if (!parsingLayout && start_pos != std::string::npos)
                     pureOutput.replace(start_pos, command.length() + 3, shell_cmd);
 
             } break;
@@ -239,7 +239,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                         getInfoFromName(systemInfo, moduleName, moduleValueName));
 
-                if (!parsingLaoyut && start_pos != std::string::npos)
+                if (!parsingLayout && start_pos != std::string::npos)
                     pureOutput.replace(start_pos, command.length() + 3,
                                         getInfoFromName(systemInfo, moduleName, moduleValueName));
             } break;
@@ -258,12 +258,12 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (true_comma == command.npos)
                     die("condition component {} doesn't have a comma for separiting the true statment", command);
 
+                const std::string& condition        = command.substr(0, condition_comma);
+                const std::string& equalto          = command.substr(condition_comma + 1, equalto_comma - condition_comma - 1);
+                const std::string& true_statment    = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
+                const std::string& false_statment   = command.substr(true_comma + 1);
+                
                 std::string _;
-                const std::string& condition     = command.substr(0, condition_comma);
-                const std::string& equalto       = command.substr(condition_comma + 1, equalto_comma - condition_comma - 1);
-                const std::string& true_statment = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
-                const std::string& false_statment= command.substr(true_comma + 1);
-
                 const std::string& parsed_condition = parse(condition, systemInfo, _, config, colors, true);
                 const std::string& parsed_equalto   = parse(equalto, systemInfo, _, config, colors, true);
 
@@ -479,7 +479,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                                 formatted_replacement_string);
                     }
 
-                    if (!parsingLaoyut &&
+                    if (!parsingLayout &&
                         std::find(auto_colors.begin(), auto_colors.end(), command) == auto_colors.end())
                         auto_colors.push_back(command);
                 }
@@ -487,7 +487,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (config.gui && firstrun_noclr)
                     output += "</span>";
 
-                if (!parsingLaoyut && start_pos != std::string::npos)
+                if (!parsingLayout && start_pos != std::string::npos)
                     pureOutput.erase(start_pos, strToReplace.length());
         }
     }
