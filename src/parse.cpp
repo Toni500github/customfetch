@@ -717,6 +717,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     Query::User query_user;
                     Query::System query_system;
                     const size_t& title_len = fmt::format("{}@{}", query_user.name(), query_system.hostname()).length();
+                    
                     std::string   str;
                     str.reserve(config.builtin_title_sep.length() * title_len);
                     for (size_t i = 0; i < title_len; i++)
@@ -724,6 +725,49 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                     SYSINFO_INSERT(str);
                 } break;
+
+                case "colors_bg"_fnv1a16:
+                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ", sysInfo, _, config, colors, true));
+                    break;
+
+                case "colors_light_bg"_fnv1a16:
+                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ", sysInfo, _, config, colors, true));
+                    break;
+
+                default:
+                    if (hasStart(moduleValueName, "colors_symbol"))
+                    {
+                        debug("moduleValueName.lenght() = {} && 'colors_symbol'_len = {}", moduleValueName.length(), "colors_symbol()"_len);
+                        if (moduleValueName.length() <= "colors_symbol()"_len)
+                            die("color palette submodule '{}' in invalid.\n"
+                                "Must be like 'colors_symbol(`symbol for printing the color palette`)'.\n"
+                                "e.g 'colors_symbol(@)' or 'colors_symbol(string)'", moduleValueName);
+
+                        std::string symbol = moduleValueName.data();
+                        symbol.erase(0, "colors_symbol("_len);
+                        symbol.pop_back();
+                        debug("symbol = {}", symbol);
+
+                        SYSINFO_INSERT(
+                            parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ",
+                                              symbol), sysInfo, _, config, colors, true));
+                    }
+                    else if (hasStart(moduleValueName, "colors_light_symbol"))
+                    {
+                        if (moduleValueName.length() <= "colors_light_symbol()"_len)
+                            die("color palette submodule '{}' in invalid.\n"
+                                "Must be like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
+                                "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'", moduleValueName);
+
+                        std::string symbol = moduleValueName.data();
+                        symbol.erase(0, "colors_light_symbol("_len);
+                        symbol.pop_back();
+                        debug("symbol = {}", symbol);
+
+                        SYSINFO_INSERT(
+                            parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ",
+                                              symbol), sysInfo, _, config, colors, true));
+                    }
             }
         }
     }
