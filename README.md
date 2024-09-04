@@ -20,7 +20,7 @@ Currently supports Linux distros only. Android may be coming when stable release
 >but if you're using a UNIX OS, such as FreeBSD or MINIX, or those "obscure" OSs\
 >then some, if not most, query infos won't probably work.\
 >So you may want to relay to shell commands for quering\
->or maybe continue using neofetch/fastfetch if it still works great for you 
+>or maybe continue using neofetch/fastfetch if it still works great for you
 -->
 
 <img align=left width=52% height=40% src="assets/screenshots/nitch_catpan-style.png" />
@@ -143,8 +143,8 @@ data-dir = "/usr/share/customfetch"
 # Leave empty it for regular.
 ascii-logo-type = ""
 
-# A char (or string) to use in $<user.title_sep>
-sep-title = "-"
+# A char (or string) to use in $<builtin.title_sep>
+title-sep = "-"
 
 # A separetor (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)

@@ -47,7 +47,7 @@ A command-line system information tool (or neofetch like program), which its foc
                                 Basically will add "_<type>" to the logo filename.
                                 It will return the regular linux ascii art if it doesn't exist.
                                 Leave it empty for regular.
-    
+
     -D, --data-dir <path>       Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
     -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
     -f, --font <name>           The font to be used in GUI mode (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
@@ -64,7 +64,7 @@ A command-line system information tool (or neofetch like program), which its foc
     --logo-padding-top	<num>	Padding of the logo from the top
     --logo-padding-left	<num>	Padding of the logo from the left
     --layout-padding-top <num>  Padding of the layout from the top
-    --sep-title <string>        A char (or string) to use in $<user.title_sep>
+    --title-sep <string>        A char (or string) to use in $<builtin.title_sep>
     --sep-reset <string>        A separetor (or string) that when ecountered, will automatically reset color
     --sep-reset-after [<num>]     Reset color either before of after 'sep-reset' (1 = after && 0 = before)
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
@@ -108,13 +108,7 @@ os
   initsys_name	: Init system name [systemd]
   initsys_version: Init system version [256.5-1-arch]
 
-# you may ask, why is there a sep_title but no title???
-# well, it's kinda a "bug" or "regression" in my spaghetti code.
-# It has more to do with coloring than actually implementing it.
-# I won't rework the whole codebase for one single line,
-# and it's already written in the default config
 user
-  sep_title	: the separator between the title and the system infos (with the title lenght) [--------]
   name		: name you are currently logged in (not real name) [toni69]
   shell		: login shell name and version [zsh 5.9]
   shell_name	: login shell [zsh]
@@ -125,6 +119,10 @@ user
   term		: Terminal name and version [alacritty 0.13.2]
   term_name	: Terminal name [alacritty]
   term_version	: Terminal version [0.13.2]
+
+builtin
+  title     	: user and hostname colored with ${{auto2}} [toni@arch2]
+  title_sep     : separator between the title and the system infos (with the title lenght) [--------]
 
 # this module is just for generic theme stuff
 # such as indeed cursor
@@ -262,7 +260,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"source-path",      required_argument, 0, 's'},
 
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
-        {"sep-title",          required_argument, 0, "sep-title"_fnv1a16},
+        {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
         {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
         {"logo-padding-top",   required_argument, 0, "logo-padding-top"_fnv1a16},
         {"logo-padding-left",  required_argument, 0, "logo-padding-left"_fnv1a16},
@@ -353,8 +351,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case "sep-reset"_fnv1a16:
                 config.sep_reset = optarg; break;
 
-            case "sep-title"_fnv1a16:
-                config.user_sep_title = optarg; break;
+            case "title-sep"_fnv1a16:
+                config.builtin_title_sep = optarg; break;
 
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)

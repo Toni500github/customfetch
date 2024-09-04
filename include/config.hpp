@@ -40,7 +40,7 @@ public:
     std::string   font;
     std::string   data_dir;
     std::string   sep_reset;
-    std::string   user_sep_title;
+    std::string   builtin_title_sep;
     std::string   gui_bg_image;
     std::string   ascii_logo_type;
     std::uint16_t offset             = 0;
@@ -135,8 +135,8 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # A: replace "<-" with "\\<-". It won't affect the printing in terminal
 
 layout = [
-    "${auto2}$<user.name>${0}@${auto2}$<os.hostname>",
-    "$<user.sep_title>",
+    "$<builtin.title>",
+    "$<builtin.title_sep>",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
@@ -176,8 +176,8 @@ data-dir = "/usr/share/customfetch"
 # Leave empty it for regular.
 ascii-logo-type = ""
 
-# A char (or string) to use in $<user.title_sep>
-sep-title = "-"
+# A char (or string) to use in $<builtin.title_sep>
+title-sep = "-"
 
 # A separetor (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)

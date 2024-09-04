@@ -234,7 +234,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                 const std::string& moduleName      = command.substr(0, dot_pos);
                 const std::string& moduleValueName = command.substr(dot_pos + 1);
-                addValueFromModule(systemInfo, moduleName, moduleValueName, config);
+                addValueFromModule(systemInfo, moduleName, moduleValueName, config, colors);
 
                 output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
                                         getInfoFromName(systemInfo, moduleName, moduleValueName));
@@ -612,7 +612,7 @@ static std::string prettify_de_name(const std::string_view de_name)
 }
 
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
-                        const Config& config)
+                        const Config& config, const colors_t& colors)
 {
 #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
     // yikes, here we go.
@@ -699,6 +699,35 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         }
     }
 
+    else if (moduleName == "builtin")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        {
+            std::string _;
+            switch(moduleValue_hash)
+            {
+                case "title"_fnv1a16:
+                    SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", sysInfo, _, config, colors, true)); break;
+
+                case "title_sep"_fnv1a16:
+                {
+                    Query::User query_user;
+                    Query::System query_system;
+                    const size_t& title_len = fmt::format("{}@{}", query_user.name(), query_system.hostname()).length();
+                    std::string   str;
+                    str.reserve(config.builtin_title_sep.length() * title_len);
+                    for (size_t i = 0; i < title_len; i++)
+                        str += config.builtin_title_sep;
+
+                    SYSINFO_INSERT(str);
+                } break;
+            }
+        }
+    }
+
     else if (moduleName == "user")
     {
         Query::User query_user;
@@ -710,18 +739,6 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleValue_hash)
             {
-                case "sep_title"_fnv1a16:
-                {
-                    Query::System query_system;
-                    const size_t& title_len = fmt::format("{}@{}", query_user.name(), query_system.hostname()).length();
-                    std::string   str;
-                    str.reserve(config.user_sep_title.length() * title_len);
-                    for (size_t i = 0; i < title_len; i++)
-                        str += config.user_sep_title;
-
-                    SYSINFO_INSERT(str);
-                } break;
-
                 case "name"_fnv1a16: SYSINFO_INSERT(query_user.name()); break;
 
                 case "shell"_fnv1a16:

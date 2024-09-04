@@ -14,7 +14,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 // If the name of said module matches any module name, it will be added
 // else, error out.
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
-                        const Config& config);
+                        const Config& config, const colors_t& colors);
 
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
                             const std::string_view moduleValueName);
