@@ -65,8 +65,8 @@ A command-line system information tool (or neofetch like program), which its foc
     --logo-padding-left	<num>	Padding of the logo from the left
     --layout-padding-top <num>  Padding of the layout from the top
     --title-sep <string>        A char (or string) to use in $<builtin.title_sep>
-    --sep-reset <string>        A separetor (or string) that when ecountered, will automatically reset color
-    --sep-reset-after [<num>]     Reset color either before of after 'sep-reset' (1 = after && 0 = before)
+    --sep-reset <string>        A separator (or string) that when ecountered, will automatically reset color
+    --sep-reset-after [<num>]   Reset color either before of after 'sep-reset' (1 = after && 0 = before)
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 

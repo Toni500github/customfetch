@@ -179,12 +179,12 @@ ascii-logo-type = ""
 # A char (or string) to use in $<builtin.title_sep>
 title-sep = "-"
 
-# A separetor (or string) that when ecountered, will automatically
+# A separator (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
 
-# Should we reset color after or before the separetor?
+# Should we reset color after or before the separator?
 # true  = after  ("test ->${0} ")
 # false = before ("test ${0}-> ")
 sep-reset-after = false
@@ -257,14 +257,14 @@ font = "Liberation Mono Normal 12"
 # These are the colors palette you can use in the GUI mode.
 # They can overwritte with ANSI escape code colors
 # but they don't work with those, only hexcodes
-black = "!#000005"
-red = "!#ff2000"
-green = "!#00ff00"
-blue = "!#00aaff"
-cyan = "!#00ffff"
-yellow = "!#ffff00"
+black   = "!#000005"
+red     = "!#ff2000"
+green   = "!#00ff00"
+blue    = "!#00aaff"
+cyan    = "!#00ffff"
+yellow  = "!#ffff00"
 magenta = "!#f881ff"
-white = "!#ffffff"
+white   = "!#ffffff"
 
 # Path to image as a background.
 # put "disable" for disabling and use the theme color as background.

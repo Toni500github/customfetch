@@ -3,7 +3,7 @@
 # here is how it works:
 # the variable "layout" is used for showing the infos
 # as like as the user want, no limitation.
-# inside here there are 3 "components": $<> $() ${}
+# inside here there are 4 "components": $<> $() ${} $[]
 
 # $<> lets you access a member of a module
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
@@ -14,9 +14,22 @@
 # you can even use pipes
 # e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
 
+# $[] is used for equal conditional check
+# syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse] with no spaces between commas ','
+# Each part can have a component or anything else.
+# e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
+# This is useful when on some terminal or WM the detection can be different than others
+
 # ${} is used for which color to use for colorizing the text
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
-# you can even put a custom hex color e.g: ${#ff6622} (for bold text put ! before # e.g ${!#ff6622} )
+# you can even put a custom hex color e.g: ${#ff6622}
+#
+# It's possible to enable multiple options, put these symbols before '#':
+# * b, for making the color in the background
+# * u, for underline the text
+# * !, for making the text bold
+# * i, for making the text italic
+#
 # OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.
 # For auto coloring, depending on the ascii logo colors, use ${auto}.
 # They can be used for different colors too. So for getting the 2nd color of the ascii logo,
@@ -27,6 +40,8 @@
 # A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
 #    Or, if you want to reset color and make it bold, use ${1}
 
+# Q: "Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?"
+# A: replace "<-" with "\\<-". It won't affect the printing in terminal
 
 # Inspired by nitch default config
 # and this reddit post https://www.reddit.com/r/unixporn/comments/1eedqnm/gnome_clean_daily_driver/
@@ -57,25 +72,33 @@ source-path = "os"
 # note: it MUST contain an "ascii" subdirectory
 data-dir = "/usr/share/customfetch"
 
-# The type of ASCII art to apply, ("small", "old").
-# Not guaranteed to exist, it will return the regular linux ascii art if it doesn't exist.
-# Leave empty for regular.
-# This does not apply to custom distros (-d)
+# The type of ASCII art to apply ("small", "old").
+# Basically will add "_<type>" to the logo filename.
+# It will return the regular linux ascii art if it doesn't exist.
+# Leave empty it for regular.
 ascii-logo-type = "small"
 
-# A separetor (string) that when ecountered, will automatically
+# A char (or string) to use in $<builtin.title_sep>
+title-sep = "-"
+
+# A separator (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
 
-# Offset between the ascii art and the system infos
-offset = 3
+# Should we reset color after or before the separator?
+# true  = after  ("test ->${0} ")
+# false = before ("test ${0}-> ")
+sep-reset-after = false
+
+# Offset between the ascii art and the layout
+offset = 5
 
 # Padding between the start and the ascii art
-logo-padding-left = 3
+logo-padding-left = 0
 
 # Padding of the ascii art from the top
-logo-padding-top = 3
+logo-padding-top = 0
 
 # Padding of the layout from the top
 layout-padding-top = 0
@@ -83,23 +106,23 @@ layout-padding-top = 0
 # Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
 # OR ANSI escape code colors like "\e[1;34m"
 # remember to add ${0} where you want to reset color
-black = "\e[1;30m"
-red = "\e[1;31m"
-green = "\e[1;32m"
-yellow = "\e[1;33m"
-blue = "\e[1;34m"
+black   = "\e[1;30m"
+red     = "\e[1;31m"
+green   = "\e[1;32m"
+yellow  = "\e[1;33m"
+blue    = "\e[1;34m"
 magenta = "\e[1;35m"
-cyan = "\e[1;36m"
-white = "\e[1;37m"
+cyan    = "\e[1;36m"
+white   = "\e[1;37m"
 
 # $<os.uptime> config
 [os.uptime]
 # how to display the name of the uptime
 # e.g: hours = "hrs" -> "Uptime: 3hrs"
-days = " days"
+days  = " days"
 hours = " hours"
-mins = " mins"
-secs = " seconds"
+mins  = " mins"
+secs  = " seconds"
 
 # $<os.pkgs> config
 [os.pkgs]
@@ -136,14 +159,14 @@ font = "Liberation Mono Normal 12"
 # These are the colors palette you can use in the GUI mode.
 # They can overwritte with ANSI escape code colors
 # but they don't work with those, only hexcodes
-black = "!#000005"
-red = "!#ff2000"
-green = "!#00ff00"
-blue = "!#00aaff"
-cyan = "!#00ffff"
-yellow = "!#ffff00"
+black 	= "!#000005"
+red 	= "!#ff2000"
+green 	= "!#00ff00"
+blue 	= "!#00aaff"
+cyan 	= "!#00ffff"
+yellow 	= "!#ffff00"
 magenta = "!#f881ff"
-white = "!#ffffff"
+white  	= "!#ffffff"
 
 # Path to image as a background.
 # put "disable" for disabling and use the theme color as background.

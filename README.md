@@ -146,7 +146,7 @@ ascii-logo-type = ""
 # A char (or string) to use in $<builtin.title_sep>
 title-sep = "-"
 
-# A separetor (or string) that when ecountered, will automatically
+# A separator (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
