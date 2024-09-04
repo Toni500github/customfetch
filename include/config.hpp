@@ -185,8 +185,8 @@ sep-title = "-"
 sep-reset = ":"
 
 # Should we reset color after or before the separetor?
-# true  = after  ("test:${0} ")
-# false = before ("test${0}: ")
+# true  = after  ("test ->${0} ")
+# false = before ("test ${0}-> ")
 sep-reset-after = false
 
 # Offset between the ascii art and the layout

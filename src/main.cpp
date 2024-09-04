@@ -66,6 +66,7 @@ A command-line system information tool (or neofetch like program), which its foc
     --layout-padding-top <num>  Padding of the layout from the top
     --sep-title <string>        A char (or string) to use in $<user.title_sep>
     --sep-reset <string>        A separetor (or string) that when ecountered, will automatically reset color
+    --sep-reset-after [<num>]     Reset color either before of after 'sep-reset' (1 = after && 0 = before)
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 
@@ -262,6 +263,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
         {"sep-title",          required_argument, 0, "sep-title"_fnv1a16},
+        {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
         {"logo-padding-top",   required_argument, 0, "logo-padding-top"_fnv1a16},
         {"logo-padding-left",  required_argument, 0, "logo-padding-left"_fnv1a16},
         {"layout-padding-top", required_argument, 0, "layout-padding-top"_fnv1a16},
@@ -327,19 +329,19 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.gui_bg_image = optarg; break;
 
             case "color"_fnv1a16:
-                {
-                    const std::string& optarg_str = optarg;
-                    const size_t& pos = optarg_str.find('=');
-                    if (pos == std::string::npos)
-                        die("argument color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
-                            "for more check with --help", optarg_str);
+            {
+                const std::string& optarg_str = optarg;
+                const size_t& pos = optarg_str.find('=');
+                if (pos == std::string::npos)
+                    die("argument color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
+                        "for more check with --help", optarg_str);
 
-                    const std::string& name = optarg_str.substr(0, pos);
-                    const std::string& value = optarg_str.substr(pos + 1);
-                    config.m_arg_colors_name.push_back(name);
-                    config.m_arg_colors_value.push_back(value);
-                }
-                break;
+                const std::string& name = optarg_str.substr(0, pos);
+                const std::string& value = optarg_str.substr(pos + 1);
+                config.m_arg_colors_name.push_back(name);
+                config.m_arg_colors_value.push_back(value);
+            }
+            break;
 
             case "gen-config"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
@@ -353,6 +355,13 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
             case "sep-title"_fnv1a16:
                 config.user_sep_title = optarg; break;
+
+            case "sep-reset-after"_fnv1a16:
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.sep_reset_after = std::stoi(optarg);
+                else
+                    config.sep_reset_after = true;
+                break;
 
             default:
                 return false;

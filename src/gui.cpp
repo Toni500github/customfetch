@@ -84,7 +84,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     if (useImage && !config.m_disable_source)
     {
         Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path.data());
-        m_img                                  = Gtk::manage(new Gtk::Image(img));
+        m_img = Gtk::manage(new Gtk::Image(img));
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
         m_box.pack_start(*m_img, Gtk::PACK_SHRINK);
