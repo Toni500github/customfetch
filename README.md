@@ -41,7 +41,9 @@ Currently supports Linux distros only. Android may be coming when stable release
 >To check if it's enabled or not, run "cufetch --version"
 
 ## Depends
-* `libdl`
+currently requires **C++20**, but it's possible to compile with C++17 too (not officially supported)
+
+* `libdl` (should come already installed in almost every distro)
 
 If you want to install with GUI mode install from your package manager:
 * `gtk3`
@@ -52,20 +54,30 @@ If you want to install with GUI mode install from your package manager:
 ### Debian/Ubuntu and based
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
 
-### Arch and based (AUR) (source)
+### Arch and based (AUR)
 ```bash
 # btw checkout our other project https://github.com/BurntRanch/TabAUR ;)
+# either
+taur -S customfetch-bin
+
+# or wiht GUI mode
+taur -S customfetch-gui-bin
+```
+
+### General Distros (Manual installation)
+Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni500github/customfetch/releases/latest) \
+It contains the binary `cufetch` and the manual `cufetch.1` with the `LICENSE`.\
+Togheter with the directory `assets/ascii` with the distro ascii art logos.\
+If installing the GUI mode version, there's `cufetch.desktop`
+
+### Arch and based (AUR) (source)
+```bash
 # either
 taur -S customfetch
 
 # or wiht GUI mode
 taur -S customfetch-gui
 ```
-
-### General Distros (Manual installation)
-Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni500github/customfetch/releases/latest) \
-It contains the binary `cufetch` and the manual `cufetch.1` with the LICENSE.\
-Togheter with the directory `assets/ascii` with the distro ascii art logos
 
 ### Arch and based (unstable) (AUR) (source)
 ```bash
@@ -76,7 +88,7 @@ taur -S customfetch-git
 taur -S customfetch-gui-git
 ```
 
-### Compile from source (unstable) (source)
+### Compile from (source) (unstable)
 ```bash
 # clone the git dir
 git clone https://github.com/Toni500github/customfetch
@@ -103,8 +115,8 @@ The config:
 
 # The array for displaying the system infos
 layout = [
-    "${auto2}$<user.name>${0}@${auto2}$<os.hostname>",
-    "───────────────────────────",
+    "$<builtin.title>",
+    "$<builtin.title_sep>",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
@@ -150,6 +162,11 @@ title-sep = "-"
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
+
+# Should we reset color after or before the separator?
+# true  = after  ("test ->${0} ")
+# false = before ("test ${0}-> ")
+sep-reset-after = false
 
 # Offset between the ascii art and the layout
 offset = 5
@@ -219,14 +236,14 @@ font = "Liberation Mono Normal 12"
 # These are the colors palette you can use in the GUI mode.
 # They can overwritte with ANSI escape code colors
 # but they don't work with those, only hexcodes
-black = "!#000005"
-red = "!#ff2000"
-green = "!#00ff00"
-blue = "!#00aaff"
-cyan = "!#00ffff"
-yellow = "!#ffff00"
+black   = "!#000005"
+red     = "!#ff2000"
+green   = "!#00ff00"
+blue    = "!#00aaff"
+cyan    = "!#00ffff"
+yellow  = "!#ffff00"
 magenta = "!#f881ff"
-white = "!#ffffff"
+white   = "!#ffffff"
 
 # Path to image as a background.
 # put "disable" for disabling and use the theme color as background.
