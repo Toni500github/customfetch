@@ -284,7 +284,8 @@ They can be used in the ascii art text file and layout, but how to use them?
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`u` - for underline the text\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`!` - for making the text bold\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`i` - for making the text italic\
- OR You can put ANSI escape code colors e.g `${\e[1;32m}` or `${\e[38;5;160m}`\
+ \
+ Alternatively, ANSI escape codes can be used, e.g `\\e[1;31m` and `\\e[38;5;160m`\
  (NOTE: 256 colors ANSI escape codes, those that have `\e[38` or `\e[48`, can't be used in GUI mode).\
  For auto coloring, depending on the ascii logo colors, use `${auto}`.\
  They can be used for different colors too. So for getting the 2nd color of the ascii logo,\
