@@ -4,18 +4,34 @@
 #include "config.hpp"
 #include "query.hpp"
 
-// Parse input, in-place, with data from systemInfo.
-// Documentation on formatting is in the default config.toml file.
-// pureOutput is set to the string, but without the brackets.
+/* Parse input, in-place, with data from systemInfo.
+ * Documentation on formatting is in the default config.toml file or the cufetch.1 manual.
+ * @param input The string to parse
+ * @param systemInfo The system infos
+ * @param pureOutput The output of the string but without tags
+ * @param config The config
+ * @param colors The colors
+ * @param parsingLayout If we are parsing layout or not
+ * @param is_image If the source path is an image (used for GUI mode only)
+ */ 
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
                   const colors_t& colors, const bool parsingLayout, const bool is_image = false);
 
-// Set module values to a systemInfo_t map.
-// If the name of said module matches any module name, it will be added
-// else, error out.
+/* Set module members values to a systemInfo_t map.
+ * If the name of said module matches any module name, it will be added
+ * else, error out.
+ * @param sysInfo The systemInfo_t map
+ * @param moduleName The module name
+ * @param moduleValueName The module member value name
+ * @param config The config
+ * @param colors The colors
+ */
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
                         const Config& config, const colors_t& colors);
 
+/*
+ * Return a module member value
+ */
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
                             const std::string_view moduleValueName);
 

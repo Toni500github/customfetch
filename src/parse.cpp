@@ -230,7 +230,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             {
                 const size_t& dot_pos = command.find('.');
                 if (dot_pos == std::string::npos)
-                    die("module name '{}' doesn't have a dot '.' for separiting module name and submodule", command);
+                    die("module name '{}' doesn't have a dot '.' for separiting module name and value", command);
 
                 const std::string& moduleName      = command.substr(0, dot_pos);
                 const std::string& moduleValueName = command.substr(dot_pos + 1);
@@ -248,15 +248,15 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             {
                 const size_t& condition_comma = command.find(',');
                 if (condition_comma == command.npos)
-                    die("condition component {} doesn't have a comma for separiting the condition", command);
+                    die("condition tag {} doesn't have a comma for separiting the condition", command);
 
                 const size_t& equalto_comma = command.find(',', condition_comma + 1);
                 if (equalto_comma == command.npos)
-                    die("condition component {} doesn't have a comma for separiting the equalto", command);
+                    die("condition tag {} doesn't have a comma for separiting the equalto", command);
 
                 const size_t& true_comma = command.find(',', equalto_comma + 1);
                 if (true_comma == command.npos)
-                    die("condition component {} doesn't have a comma for separiting the true statment", command);
+                    die("condition tag {} doesn't have a comma for separiting the true statment", command);
 
                 const std::string& condition        = command.substr(0, condition_comma);
                 const std::string& equalto          = command.substr(condition_comma + 1, equalto_comma - condition_comma - 1);
@@ -739,7 +739,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     {
                         debug("moduleValueName.lenght() = {} && 'colors_symbol'_len = {}", moduleValueName.length(), "colors_symbol()"_len);
                         if (moduleValueName.length() <= "colors_symbol()"_len)
-                            die("color palette submodule '{}' in invalid.\n"
+                            die("color palette module member '{}' in invalid.\n"
                                 "Must be like 'colors_symbol(`symbol for printing the color palette`)'.\n"
                                 "e.g 'colors_symbol(@)' or 'colors_symbol(string)'", moduleValueName);
 
@@ -755,7 +755,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     else if (hasStart(moduleValueName, "colors_light_symbol"))
                     {
                         if (moduleValueName.length() <= "colors_light_symbol()"_len)
-                            die("color palette submodule '{}' in invalid.\n"
+                            die("color palette module member '{}' in invalid.\n"
                                 "Must be like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
                                 "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'", moduleValueName);
 

@@ -12,7 +12,7 @@ How does it work?
 .PP
 We got the config.toml file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
 .br
-You have 4 components: $<module.submod>, ${color}, $(bash command), $[something,equalToSomething,ifTrue,ifFalse]. They can be used in the ascii art text file and layout, but how to use them?
+You have 4 tags: $<module.member>, ${color}, $(bash command), $[something,equalToSomething,ifTrue,ifFalse]. They can be used in the ascii art text file and layout, but how to use them?
 .PP
 Here's a simple bare-minimal example:
 .br
@@ -26,9 +26,9 @@ layout = [
 .br
 ]
 .PP
-The \fBInfo component $<>\fR let's you print a part of a module. All the modules and their parts are listed in the `--list-modules` argument
+The \fBInfo tag $<>\fR let's you print a part of a module. All the modules and their parts are listed in the `--list-modules` argument
 .PP
-The \fBColor component ${}\fR is used for printing the text of a certain color.
+The \fBColor tag ${}\fR is used for printing the text of a certain color.
 .br
 The colors can be: \fIblack\fR, \fIred\fR, \fIgreen\fR, \fIblue\fR, \fIcyan\fR, \fIyellow\fR, \fImagenta\fR, \fIwhite\fR and they can be configured in the config file.
 .br
@@ -46,23 +46,23 @@ It's possible to enable multiple options, put these symbols before '#':
 
 OR They can have ANSI escape codes, e.g "\\e[1;31m" and "\\e[38;5;160m" (\fBNOTE\fR: 256 colors ANSI escape codes, those that have \\e[38 or \\e[48, can't be used in GUI)
 .br
-You can also use them inside the component, like ${!#343345} or ${\\e[1;31m}.
+You can also use them inside the tag, like ${!#343345} or ${\\e[1;31m}.
 .br
 To reset colors use ${0} or ${1} for reset and bold text.
 .br
 To instead use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
 .PP
-The \fBConditional component $[]\fR is used for equal conditional check.
+The \fBConditional tag $[]\fR is used for equal conditional check.
 .br
 syntax \fBMUST\fR be $[something,equalToSomethingElse,ifTrue,ifFalse] with no spaces between commas ','
 .br
-Each part can have a component or anything else.
+Each part can have a tag or anything else.
 .br
 e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
 .br
 This is useful when on some terminal or WM the detection can be different than others
 .PP
-The \fBBash command component $()\fR speaks for itself. It can execute normal bash commands.
+The \fBBash command tag $()\fR speaks for itself. It can execute normal bash commands.
 .PP
 To escape any $ or bracket, just use \\
 .SH OPTIONS
@@ -103,7 +103,7 @@ Use GUI mode instead of priting in the terminal (use \fB\-V\fR to check if it's 
 Offset between the ascii art and the system infos
 .TP
 \fB\-l\fR. \fB\-\-list\-modules\fR
-Print the list of the components and its members
+Print the list of the tags and its members
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 Print this help menu

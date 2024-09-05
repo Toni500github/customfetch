@@ -208,7 +208,7 @@ secs  = " seconds"
 # Choices: pacman, flatpak, dpkg, apk
 #
 # Pro-tip: if your package manager isnt listed here, yet,
-# use the bash command component in the layout
+# use the bash command tag in the layout
 # e.g "Packages: $(pacman -Q | wc -l) (pacman)"
 pkg-managers = ["pacman", "dpkg", "flatpak"]
 
@@ -252,24 +252,24 @@ bg-image = "/tmp/idk.png"
 ```
 
 We got the config.toml file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
-You have 4 components: `$<module.submod>`, `${color}`, `$(bash command)`, `$[something,equalToSomethingElse,iftrue,ifalse]`. They can be used in the ascii art text file and layout, but how to use them?
+You have 4 tags: `$<module.member>`, `${color}`, `$(bash command)`, `$[something,equalToSomethingElse,iftrue,ifalse]`. They can be used in the ascii art text file and layout, but how to use them?
 
-* **The info component (`$<>`)** will print a member of a module\
+* **The info tag (`$<>`)** will print a value of a module\
  e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
  run "cufetch -l" for a list of builti-in modules
 
-* **The bash command component (`$()`)** let's you execute bash commands\
+* **The bash command tag (`$()`)** let's you execute bash commands\
  e.g `$(echo \"hello world\")` will indeed echo out Hello world.\
  you can even use pipes\
  e.g `$(echo \"hello world\" | cut -d' ' -f2)` will only print world
 
-* **The conditional component (`$[]`)** is used for equal conditional check.\
+* **The conditional tag (`$[]`)** is used for equal conditional check.\
   Syntax MUST be `$[something,equalToSomethingElse,iftrue,ifalse]` with no spaces between commas ','\
-  Each part can have a component or anything else.\
+  Each part can have a tag or anything else.\
   e.g `$[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]`\
   This is useful when on some terminal or WM the detection can be different than others\
 
-* **The color component (`${}`)** is used for which color to use for colorizing the text\
+* **The color tag (`${}`)** is used for which color to use for colorizing the text\
  e.g `${red}hello world` will indeed print "hello world" in red (or the color you set in the variable).\
  The colors can be: <ins>black</ins>, <ins>red</ins>, <ins>green</ins>, <ins>blue</ins>, <ins>cyan</ins>, <ins>yellow</ins>, <ins>magenta</ins>, <ins>white</ins> and they can be configured in the config file.\
  You can put a custom hex color e.g: `${#ff6622}`.\

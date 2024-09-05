@@ -94,9 +94,9 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # here is how it works:
 # the variable "layout" is used for showing the infos
 # as like as the user want, no limitation.
-# inside here there are 4 "components": $<> $() ${} $[]
+# inside here there are 4 "tags": $<> $() ${} $[]
 
-# $<> lets you access a member of a module
+# $<> lets you print the value of a member of a module
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
 # run "cufetch -l" for a list of builti-in modules
 
@@ -107,7 +107,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 
 # $[] is used for equal conditional check
 # syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse] with no spaces between commas ','
-# Each part can have a component or anything else.
+# Each part can have a tag or anything else.
 # e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
 # This is useful when on some terminal or WM the detection can be different than others
 
@@ -156,8 +156,8 @@ layout = [
     "${auto}GPU: $<gpu.name>",
     "${auto}RAM: $<ram.ram>",
     "",
-    "${\e[40m}   ${\e[41m}   ${\e[42m}   ${\e[43m}   ${\e[44m}   ${\e[45m}   ${\e[46m}   ${\e[47m}   ", # normal colors
-    "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
+    "$<builtin.colors_bg>", # normal colors
+    "$<builtin.colors_light_bg>" # light colors
 ]
 
 # display ascii-art or image/gif (GUI only) near layout
@@ -229,7 +229,7 @@ secs  = " seconds"
 # Choices: pacman, flatpak, dpkg, apk
 #
 # Pro-tip: if your package manager isnt listed here, yet,
-# use the bash command component in the layout
+# use the bash command tag in the layout
 # e.g "Packages: $(pacman -Q | wc -l) (pacman)"
 pkg-managers = ["pacman", "dpkg", "flatpak"]
 

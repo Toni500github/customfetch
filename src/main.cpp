@@ -162,7 +162,7 @@ ram
   used		: used amount of RAM (auto) [2.81 GiB]
   free		: available amount of RAM (auto) [10.46 GiB]
   total		: total amount of RAM (auto) [15.88 GiB]
-  ram           : swapfile used and total amount of RAM (auto) [477.68 MiB / 512.00 MiB]
+  swap          : swapfile used and total amount of RAM (auto) [477.68 MiB / 512.00 MiB]
   swap_free	: swapfile available amount of RAM (auto) [34.32 MiB]
   swap_total	: swapfile total amount of RAM (auto) [512.00 MiB]
   swap_used	: swapfile used amount of RAM (auto) [477.68 MiB]

@@ -35,6 +35,7 @@ private:
         {
             Glib::RefPtr<Gdk::Pixbuf> scaled_pixbuf =
                 m_original_pixbuf->scale_simple(width, height, Gdk::INTERP_BILINEAR);
+            
             m_bg_image.set(scaled_pixbuf);
         }
     }
