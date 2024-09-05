@@ -10,10 +10,20 @@ customfetch focus point is to be customizable and fast at the same time.
 .PP
 How does it work?
 .PP
-We got the config.toml file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
-.br
-You have 4 tags: $<module.member>, ${color}, $(bash command), $[something,equalToSomething,ifTrue,ifFalse]. They can be used in the ascii art text file and layout, but how to use them?
+We use the \fBconfig.toml\fR file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
 .PP
+You have 4 tags:
+.br
+* \fB$<module.member>\fR - Used for printing the value of a member of a module.
+.br
+* \fB${color}\fR - Used for displaying text in a specific color.
+.br
+* \fB$(bash command)\fR - Used to execute bash commands and print the output.
+.br
+* \fB$[something,equalToSomething,ifTrue,ifFalse]\fR - Conditional tag to display different outputs based on the comparison.
+.PP
+They can be used in the ascii art text file and layout, but how to use them?
+.br
 Here's a simple bare-minimal example:
 .br
 layout = [
@@ -26,39 +36,41 @@ layout = [
 .br
 ]
 .PP
-The \fBInfo tag $<>\fR let's you print a part of a module. All the modules and their parts are listed in the `--list-modules` argument
+The \fBInfo tag $<>\fR will prints a member of a module. All the modules and their members are listed in the `--list-modules` argument
 .PP
 The \fBColor tag ${}\fR is used for printing the text of a certain color.
 .br
-The colors can be: \fIblack\fR, \fIred\fR, \fIgreen\fR, \fIblue\fR, \fIcyan\fR, \fIyellow\fR, \fImagenta\fR, \fIwhite\fR and they can be configured in the config file.
+The colors can be predefined such as: \fIblack\fR, \fIred\fR, \fIgreen\fR, \fIblue\fR, \fIcyan\fR, \fIyellow\fR, \fImagenta\fR, \fIwhite\fR and they can be configured in the config file.
 .br
-They can have hexcodes colors, e.g "#5522dd".
+They can have hexcodes colors (e.g "#5522dd").
 .br
-It's possible to enable multiple options, put these symbols before '#':
+You can apply special effects to colors by using the following symbols before the '#' in hex codes:
 .br
-* \fBb\fR for making the color in the background
+* \fBb\fR for background color.
 .br
-* \fBu\fR for underline the text
+* \fBu\fR for underlining the text.
 .br
-* \fB!\fR for making the text bold
+* \fB!\fR for bold text.
 .br
-* \fBi\fR for making the text italic
-
-OR They can have ANSI escape codes, e.g "\\e[1;31m" and "\\e[38;5;160m" (\fBNOTE\fR: 256 colors ANSI escape codes, those that have \\e[38 or \\e[48, can't be used in GUI)
-.br
-You can also use them inside the tag, like ${!#343345} or ${\\e[1;31m}.
-.br
-To reset colors use ${0} or ${1} for reset and bold text.
-.br
-To instead use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
+* \fBi\fR for italic text.
 .PP
-The \fBConditional tag $[]\fR is used for equal conditional check.
+Alternatively, ANSI escape codes can be used, e.g "\\e[1;31m" and "\\e[38;5;160m", but \fBnote\fR that 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
 .br
-syntax \fBMUST\fR be $[something,equalToSomethingElse,ifTrue,ifFalse] with no spaces between commas ','
+You can also use them inside the tag, like \fB${!#343345}\fR or \fB${\\e[1;31m}\fR.
+.br
+To reset colors, use \fB${0}\fR for a full reset or \fB${1}\fR for a bold reset.
+.br
+To use the colors that the ascii art logo uses, use \fB${auto}\fR for getting the 1st color, \fB${auto4}\fR for the 4th one and so on.
+.br
+If you're using GUI mode, all the \fB${auto}\fR colors are going to be ${white}
+.PP
+The \fBConditional tag $[]\fR is used to display different outputs based on the comparison.
+.br
+The syntax \fBMUST\fR be: $[something,equalToSomethingElse,ifTrue,ifFalse] with no spaces between commas
 .br
 Each part can have a tag or anything else.
-.br
-e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
+.PP
+For example: $[$<user.name>,$(echo $USER),correct,NOT correct]
 .br
 This is useful when on some terminal or WM the detection can be different than others
 .PP
@@ -127,7 +139,7 @@ Padding of the logo from the left
 A char (or string) to use in $<builtin.title_sep>
 .TP
 \fB\-\-sep\-reset\fR <string>
-A separator (or string) that when ecountered, will automatically reset color
+A separator (or string) that when encountered, will automatically reset color
 .TP
 \fB\-\-sep\-reset\-after\fR [<num>]
 Reset color either before of after 'sep-reset' (1 = after && 0 = before)
@@ -140,9 +152,9 @@ Will ask for confirmation if file exists already
 \fB\-\-color\fR <string>
 Replace instances of a color with another value.
 .br
-Syntax MUST be "name=value" with no space beetween "=", example: --color "foo=#444333".
+Syntax MUST be "name=value" with no space between "=", example: --color "foo=#444333".
 .br
-Thus replaces any instance of foo with #444333. Can be done with multiple colors separetly.
+Thus replaces any instance of foo with #444333. Can be done with multiple colors separately.
 .br
 Matter of fact, you can: --color "#hexcode=#anotherhexcode"
 .SH BUGS

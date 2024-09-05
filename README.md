@@ -251,20 +251,26 @@ bg-image = "/tmp/idk.png"
 
 ```
 
-We got the `config.toml` file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
-You have 4 tags: `$<module.member>`, `${color}`, `$(bash command)`, `$[something,equalToSomethingElse,iftrue,ifalse]`. They can be used in the ascii art text file and layout, but how to use them?
+We use the `config.toml` file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
+You have 4 tags: 
+* `$<module.member>` - Used for printing the value of a member of a module.
+* `${color}` - Used for displaying text in a specific color.
+* `$(bash command)` - Used to execute bash commands and print the output.
+* `$[something,equalToSomethingElse,iftrue,ifalse]` - Conditional tag to display different outputs based on the comparison.
+
+They can be used in the ascii art text file and layout, but how to use them?
 
 * **The info tag (`$<>`)** will print a value of a member of a module\
  e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
- run `cufetch -l` for a list of builti-in modules
+ All the modules and their members are listed in the `--list-modules` argument
 
-* **The bash command tag (`$()`)** let's you execute bash commands\
+* **The bash command tag (`$()`)** let's you execute bash commands and print the output\
  e.g `$(echo \"hello world\")` will indeed echo out Hello world.\
  you can even use pipes\
  e.g `$(echo \"hello world\" | cut -d' ' -f2)` will only print world
 
-* **The conditional tag (`$[]`)** is used for equal conditional check.\
-  Syntax MUST be `$[something,equalToSomethingElse,iftrue,ifalse]` with no spaces between commas ','\
+* **The conditional tag (`$[]`)** is used for displaying different outputs based on the comparison.\
+  Syntax MUST be `$[something,equalToSomethingElse,iftrue,ifalse]` with no spaces between commas.\
   Each part can have a tag or anything else.\
   e.g `$[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]`\
   This is useful when on some terminal or WM the detection can be different than others\
@@ -283,8 +289,9 @@ You have 4 tags: `$<module.member>`, `${color}`, `$(bash command)`, `$[something
  For auto coloring, depending on the ascii logo colors, use `${auto}`.\
  They can be used for different colors too. So for getting the 2nd color of the ascii logo,\
  use `${auto2}`, for the 4th one use `${auto4}` and so on.
+ If you're in GUI mode and the source path is an image, all the auto colors will be white
 
-Any `$` or brackets can be escaped with \\
+Any `$` or brackets can be escaped with a backslash `\`
 
 # Thanks
 I would like to thanks:

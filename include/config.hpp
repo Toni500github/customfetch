@@ -96,41 +96,42 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # as like as the user want, no limitation.
 # inside here there are 4 "tags": $<> $() ${} $[]
 
-# The Info tag $<> lets you print the value of a member of a module
+# The Info tag $<> lets you print the value of a member of a module.
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
-# run "cufetch -l" for a list of builti-in modules
+# All the modules and their members are listed in the `--list-modules` argument
 
-# The Bash command tag $() let's you execute bash commands
+# The Bash command tag $() let's you execute bash commands.
 # e.g $(echo \"hello world\") will indeed echo out Hello world.
 # you can even use pipes
 # e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
 
-# The Conditional tag $[] is used for equal conditional check
+# The Conditional tag $[] is used to display different outputs based on the comparison.
 # syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse] with no spaces between commas ','
 # Each part can have a tag or anything else.
 # e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
 # This is useful when on some terminal or WM the detection can be different than others
 
-# The Color tag ${} is used for which color to use for colorizing the text
+# The Color tag ${} is used for printing the text of a certain color.
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
 # you can even put a custom hex color e.g: ${#ff6622}
-#
 # It's possible to enable multiple options, put these symbols before '#':
 # * b, for making the color in the background
 # * u, for underline the text
 # * !, for making the text bold
 # * i, for making the text italic
 #
-# OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.
+# Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[0;34m}.
+# NOTE: 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
+#
+# To reset colors, use ${0} for a full reset or ${1} for a bold reset.
+#
 # For auto coloring, depending on the ascii logo colors, use ${auto}.
 # They can be used for different colors too. So for getting the 2nd color of the ascii logo,
 # use ${auto2}, for the 4th one use ${auto4} and so on.
+#
+# If you're using GUI mode, all the \fB${auto}\fR colors are going to be ${white}
 
 # Little FAQ
-# Q: "but then if I want to make only some words/chars in a color and the rest normal?"
-# A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
-#    Or, if you want to reset color and make it bold, use ${1}
-
 # Q: "Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?"
 # A: replace "<-" with "\\<-". It won't affect the printing in terminal
 
