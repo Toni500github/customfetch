@@ -96,22 +96,22 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # as like as the user want, no limitation.
 # inside here there are 4 "tags": $<> $() ${} $[]
 
-# $<> lets you print the value of a member of a module
+# The Info tag $<> lets you print the value of a member of a module
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
 # run "cufetch -l" for a list of builti-in modules
 
-# $() let's you execute bash commands
+# The Bash command tag $() let's you execute bash commands
 # e.g $(echo \"hello world\") will indeed echo out Hello world.
 # you can even use pipes
 # e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
 
-# $[] is used for equal conditional check
+# The Conditional tag $[] is used for equal conditional check
 # syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse] with no spaces between commas ','
 # Each part can have a tag or anything else.
 # e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
 # This is useful when on some terminal or WM the detection can be different than others
 
-# ${} is used for which color to use for colorizing the text
+# The Color tag ${} is used for which color to use for colorizing the text
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
 # you can even put a custom hex color e.g: ${#ff6622}
 #

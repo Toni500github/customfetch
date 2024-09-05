@@ -246,28 +246,28 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             
             case ']':
             {
-                const size_t& condition_comma = command.find(',');
-                if (condition_comma == command.npos)
-                    die("condition tag {} doesn't have a comma for separiting the condition", command);
+                const size_t& conditional_comma = command.find(',');
+                if (conditional_comma == command.npos)
+                    die("conditional tag {} doesn't have a comma for separiting the conditional", command);
 
-                const size_t& equalto_comma = command.find(',', condition_comma + 1);
+                const size_t& equalto_comma = command.find(',', conditional_comma + 1);
                 if (equalto_comma == command.npos)
-                    die("condition tag {} doesn't have a comma for separiting the equalto", command);
+                    die("conditional tag {} doesn't have a comma for separiting the equalto", command);
 
                 const size_t& true_comma = command.find(',', equalto_comma + 1);
                 if (true_comma == command.npos)
-                    die("condition tag {} doesn't have a comma for separiting the true statment", command);
+                    die("conditional tag {} doesn't have a comma for separiting the true statment", command);
 
-                const std::string& condition        = command.substr(0, condition_comma);
-                const std::string& equalto          = command.substr(condition_comma + 1, equalto_comma - condition_comma - 1);
+                const std::string& conditional        = command.substr(0, conditional_comma);
+                const std::string& equalto          = command.substr(conditional_comma + 1, equalto_comma - conditional_comma - 1);
                 const std::string& true_statment    = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
                 const std::string& false_statment   = command.substr(true_comma + 1);
                 
                 std::string _;
-                const std::string& parsed_condition = parse(condition, systemInfo, _, config, colors, true);
+                const std::string& parsed_conditional = parse(conditional, systemInfo, _, config, colors, true);
                 const std::string& parsed_equalto   = parse(equalto, systemInfo, _, config, colors, true);
 
-                if (parsed_condition == parsed_equalto)
+                if (parsed_conditional == parsed_equalto)
                 {
                     const std::string& parsed_true_stam = parse(true_statment, systemInfo, _, config, colors, true);
                     output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,

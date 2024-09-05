@@ -135,8 +135,8 @@ layout = [
     "${auto}GPU: $<gpu.name>",
     "${auto}RAM: $<ram.ram>",
     "",
-    "${\e[40m}   ${\e[41m}   ${\e[42m}   ${\e[43m}   ${\e[44m}   ${\e[45m}   ${\e[46m}   ${\e[47m}   ", # normal colors
-    "${\e[100m}   ${\e[101m}   ${\e[102m}   ${\e[103m}   ${\e[104m}   ${\e[105m}   ${\e[106m}   ${\e[107m}   " # light colors
+    "$<builtin.colors_bg>", # normal colors palette
+    "$<builtin.colors_light_bg>" # light colors palette
 ]
 
 # display ascii-art or image/gif (GUI only) near layout
@@ -251,12 +251,12 @@ bg-image = "/tmp/idk.png"
 
 ```
 
-We got the config.toml file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
+We got the `config.toml` file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
 You have 4 tags: `$<module.member>`, `${color}`, `$(bash command)`, `$[something,equalToSomethingElse,iftrue,ifalse]`. They can be used in the ascii art text file and layout, but how to use them?
 
-* **The info tag (`$<>`)** will print a value of a module\
+* **The info tag (`$<>`)** will print a value of a member of a module\
  e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
- run "cufetch -l" for a list of builti-in modules
+ run `cufetch -l` for a list of builti-in modules
 
 * **The bash command tag (`$()`)** let's you execute bash commands\
  e.g `$(echo \"hello world\")` will indeed echo out Hello world.\
