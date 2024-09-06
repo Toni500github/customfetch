@@ -70,7 +70,7 @@ static System::System_t get_system_infos()
     }
 
     // get OS /etc/os-release infos
-    static u_short iter_index = 0;
+    u_short iter_index = 0;
     std::string    line;
     while (std::getline(os_release_file, line) && iter_index < 5)
     {
@@ -95,7 +95,6 @@ static System::System_t get_system_infos()
 
 System::System()
 {
-    debug("Constructing {}", __func__);
     if (!m_bInit)
     {
         if (uname(&m_uname_infos) != 0)

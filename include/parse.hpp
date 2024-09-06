@@ -22,18 +22,19 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
  * else, error out.
  * @param sysInfo The systemInfo_t map
  * @param moduleName The module name
- * @param moduleValueName The module member value name
+ * @param moduleMemberName The module member name
  * @param config The config
  * @param colors The colors
+ * @param parsingLayout If we are parsing the layout or not (default true)
  */
-void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
-                        const Config& config, const colors_t& colors);
+void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleMemberName,
+                        const Config& config, const colors_t& colors, bool parsingLayout = true);
 
 /*
  * Return a module member value
  */
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
-                            const std::string_view moduleValueName);
+                            const std::string_view moduleMemberName);
 
 // Function to combine multiple fmt::text_style arguments
 template <typename... Styles>

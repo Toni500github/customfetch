@@ -353,8 +353,6 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
             : m_queried_themes(queried_themes),
               m_theme_name_version(theme_name_version)
 {
-    debug("Constructing {}", __func__);
-
     if (std::find(queried_themes_names.begin(), queried_themes_names.end(), m_theme_name_version) 
         == queried_themes_names.end())
         queried_themes_names.push_back(m_theme_name_version);

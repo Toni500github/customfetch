@@ -21,6 +21,7 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 #include "utils/dewm.hpp"
+#include "utils/term.hpp"
 
 using namespace Query;
 
@@ -252,12 +253,23 @@ static std::string get_term_version(std::string_view term_name)
     if (term_name.empty())
         return UNKNOWN;
 
+    bool remove_term_name = true;
     std::string ret;
+
     if (hasStart(term_name, "kitty"))
         term_name = "kitten";
 
     if (term_name == "st")
-        read_exec({ term_name.data(), "-v" }, ret, true);
+    {
+        ret = detect_st_ver();
+        if (ret == UNKNOWN)
+        {
+            ret.clear();
+            read_exec({ term_name.data(), "-v" }, ret, true);
+        }
+        else
+            remove_term_name = false;
+    }
     // tell your terminal to NOT RETURN ERROR WHEN ASKING FOR ITS VERSION (looking at you st)
     else if (term_name == "xterm")
         read_exec({ term_name.data(), "-v" }, ret);
@@ -269,7 +281,6 @@ static std::string get_term_version(std::string_view term_name)
     if (ret.empty())
         return UNKNOWN;
 
-    bool remove_term_name = true;
     if (hasStart(ret, "# GNOME"))
     {
         ret.erase(0, "# GNOME Terminal "_len);
@@ -284,11 +295,11 @@ static std::string get_term_version(std::string_view term_name)
         return ret;
     }
 
-    size_t pos = 0;
     if (remove_term_name)
         ret.erase(0, term_name.length() + 1);
-
-    if ((pos = ret.find(' ')) != std::string::npos)
+    
+    const size_t pos = ret.find(' ');
+    if (pos != std::string::npos)
         ret.erase(pos);
 
     debug("get_term_version ret after = {}", ret);
@@ -297,7 +308,6 @@ static std::string get_term_version(std::string_view term_name)
 
 User::User()
 {
-    debug("Constructing {}", __func__);
     if (!m_bInit)
     {
         uid_t uid = geteuid();

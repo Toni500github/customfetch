@@ -50,8 +50,8 @@ static CPU::CPU_t get_cpu_infos()
     // sometimes /proc/cpuinfo at model name
     // the name will contain the min freq
     // happens on intel cpus especially
-    size_t pos = 0;
-    if ((pos = ret.name.find('@')) != std::string::npos)
+    const size_t& pos = ret.name.rfind('@');
+    if (pos != std::string::npos)
         ret.name.erase(pos - 1);
 
     cpu_mhz /= 1000;
@@ -86,8 +86,6 @@ static CPU::CPU_t get_cpu_infos()
 
 CPU::CPU()
 {
-    debug("Constructing {}", __func__);
-
     if (!m_bInit)
     {
         m_cpu_infos = get_cpu_infos();

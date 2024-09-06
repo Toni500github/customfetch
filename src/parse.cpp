@@ -92,11 +92,11 @@ static const std::string& check_gui_ansi_clr(const std::string& str)
 }
 
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
-                            const std::string_view moduleValueName)
+                            const std::string_view moduleMemberName)
 {
     if (const auto& it1 = systemInfo.find(moduleName.data()); it1 != systemInfo.end())
     {
-        if (const auto& it2 = it1->second.find(moduleValueName.data()); it2 != it1->second.end())
+        if (const auto& it2 = it1->second.find(moduleMemberName.data()); it2 != it1->second.end())
         {
             const variant& result = it2->second;
 
@@ -212,17 +212,17 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
         const std::string& strToReplace = fmt::format("${}{}{}", opentag, command, type);
         const size_t       start_pos    = pureOutput.find(strToReplace);
+        const size_t       taglen       = (endBracketIndex + 1) - dollarSignIndex;
 
         switch (type)
         {
             case ')':
             {
                 const std::string& shell_cmd = shell_exec(command);
-                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                        shell_cmd);
+                output = output.replace(dollarSignIndex, taglen, shell_cmd);
 
                 if (!parsingLayout && start_pos != std::string::npos)
-                    pureOutput.replace(start_pos, command.length() + 3, shell_cmd);
+                    pureOutput.replace(start_pos, taglen, shell_cmd);
 
             } break;
             
@@ -233,15 +233,15 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     die("module name '{}' doesn't have a dot '.' for separiting module name and value", command);
 
                 const std::string& moduleName      = command.substr(0, dot_pos);
-                const std::string& moduleValueName = command.substr(dot_pos + 1);
-                addValueFromModule(systemInfo, moduleName, moduleValueName, config, colors);
+                const std::string& moduleMemberName = command.substr(dot_pos + 1);
+                addValueFromModule(systemInfo, moduleName, moduleMemberName, config, colors, parsingLayout);
 
-                output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                        getInfoFromName(systemInfo, moduleName, moduleValueName));
+                output = output.replace(dollarSignIndex, taglen,
+                                        getInfoFromName(systemInfo, moduleName, moduleMemberName));
 
                 if (!parsingLayout && start_pos != std::string::npos)
-                    pureOutput.replace(start_pos, command.length() + 3,
-                                        getInfoFromName(systemInfo, moduleName, moduleValueName));
+                    pureOutput.replace(start_pos, taglen,
+                                        getInfoFromName(systemInfo, moduleName, moduleMemberName));
             } break;
             
             case ']':
@@ -259,25 +259,23 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     die("conditional tag {} doesn't have a comma for separiting the true statment", command);
 
                 const std::string& conditional        = command.substr(0, conditional_comma);
-                const std::string& equalto          = command.substr(conditional_comma + 1, equalto_comma - conditional_comma - 1);
-                const std::string& true_statment    = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
-                const std::string& false_statment   = command.substr(true_comma + 1);
+                const std::string& equalto            = command.substr(conditional_comma + 1, equalto_comma - conditional_comma - 1);
+                const std::string& true_statment      = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
+                const std::string& false_statment     = command.substr(true_comma + 1);
                 
                 std::string _;
-                const std::string& parsed_conditional = parse(conditional, systemInfo, _, config, colors, true);
-                const std::string& parsed_equalto   = parse(equalto, systemInfo, _, config, colors, true);
+                const std::string& parsed_conditional = parse(conditional, systemInfo, _, config, colors, parsingLayout);
+                const std::string& parsed_equalto     = parse(equalto, systemInfo, _, config, colors, parsingLayout);
 
                 if (parsed_conditional == parsed_equalto)
                 {
-                    const std::string& parsed_true_stam = parse(true_statment, systemInfo, _, config, colors, true);
-                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                            parsed_true_stam);
+                    const std::string& parsed_true_stam = parse(true_statment, systemInfo, _, config, colors, parsingLayout);
+                    output = output.replace(dollarSignIndex, taglen, parsed_true_stam);
                 }
                 else
                 {
-                    const std::string& parsed_false_stam = parse(false_statment, systemInfo, _, config, colors, true);
-                    output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
-                                            parsed_false_stam);
+                    const std::string& parsed_false_stam = parse(false_statment, systemInfo, _, config, colors, parsingLayout);
+                    output = output.replace(dollarSignIndex, taglen, parsed_false_stam);
                 }
 
             } break;
@@ -338,19 +336,19 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (command == "1")
                 {
                     if (firstrun_noclr)
-                        output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                        output = output.replace(dollarSignIndex, taglen,
                                                 config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
                     else
-                        output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                        output = output.replace(dollarSignIndex, taglen,
                                                 config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
                 }
                 else if (command == "0")
                 {
                     if (firstrun_noclr)
-                        output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                        output = output.replace(dollarSignIndex, taglen,
                                                 config.gui ? "<span>" : NOCOLOR);
                     else
-                        output = output.replace(dollarSignIndex, (endBracketIndex + 1) - dollarSignIndex,
+                        output = output.replace(dollarSignIndex, taglen,
                                                 config.gui ? "</span><span>" : NOCOLOR);
                 }
                 else
@@ -611,12 +609,12 @@ static std::string prettify_de_name(const std::string_view de_name)
     return de_name.data();
 }
 
-void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleValueName,
-                        const Config& config, const colors_t& colors)
+void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleMemberName,
+                        const Config& config, const colors_t& colors, bool parsingLayout)
 {
-#define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleValueName, variant(x) })
+#define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleMemberName, variant(x) })
     // yikes, here we go.
-    const  auto&                         moduleValue_hash = fnv1a16::hash(moduleValueName);
+    const  auto&                         moduleMember_hash = fnv1a16::hash(moduleMemberName);
     static std::vector<std::uint16_t>    queried_gpus;
     static std::vector<std::string_view> queried_disks;
     static std::vector<std::string>      queried_themes_names;
@@ -634,9 +632,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            switch (moduleValue_hash)
+            switch (moduleMember_hash)
             {
                 case "name"_fnv1a16: SYSINFO_INSERT(query_system.os_pretty_name()); break;
 
@@ -679,9 +677,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            switch (moduleValue_hash)
+            switch (moduleMember_hash)
             {
                 case "host"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{} {} {}", query_system.host_vendor(), query_system.host_modelname(),
@@ -704,13 +702,13 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
             std::string _;
-            switch(moduleValue_hash)
+            switch(moduleMember_hash)
             {
                 case "title"_fnv1a16:
-                    SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", sysInfo, _, config, colors, true)); break;
+                    SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", sysInfo, _, config, colors, parsingLayout)); break;
 
                 case "title_sep"_fnv1a16:
                 {
@@ -727,46 +725,71 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 } break;
 
                 case "colors_bg"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ", sysInfo, _, config, colors, true));
+                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ", sysInfo, _, config, colors, parsingLayout));
                     break;
 
                 case "colors_light_bg"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ", sysInfo, _, config, colors, true));
+                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ", sysInfo, _, config, colors, parsingLayout));
                     break;
 
                 default:
-                    if (hasStart(moduleValueName, "colors_symbol"))
+                    /*if (hasStart(moduleMemberName, "perc"))
                     {
-                        debug("moduleValueName.lenght() = {} && 'colors_symbol'_len = {}", moduleValueName.length(), "colors_symbol()"_len);
-                        if (moduleValueName.length() <= "colors_symbol()"_len)
-                            die("color palette module member '{}' in invalid.\n"
-                                "Must be like 'colors_symbol(`symbol for printing the color palette`)'.\n"
-                                "e.g 'colors_symbol(@)' or 'colors_symbol(string)'", moduleValueName);
+                        if (moduleMemberName.length() <= "perc( , )"_len)
+                            die("perc module member '{}' is invalid\n"
+                                "Must be used like 'perc(n,n2)'\n"
+                                "e.g 'perc(10,2)' or 'perc($<disk.free-GiB>,$<disk.total-GiB>)'",
+                                moduleMemberName);
 
-                        std::string symbol = moduleValueName.data();
+                        std::string perc_values = moduleMemberName.substr("perc("_len);
+                        perc_values.pop_back();
+
+                        const size_t comma_pos = perc_values.find(',');
+                        if (comma_pos == std::string::npos)
+                            die("perc module member '{}' doesn't have a comma for separating the 2 numbers", moduleMemberName);
+
+                        const float n1 = std::stof(parse(perc_values.substr(0, comma_pos),  sysInfo, _, config, colors, parsingLayout));
+                        const float n2 = std::stof(parse(perc_values.substr(comma_pos + 1), sysInfo, _, config, colors, parsingLayout));
+
+                        const float result = static_cast<float>(n1 / n2 * static_cast<float>(100));
+
+                        SYSINFO_INSERT(fmt::to_string(result) + '%');
+                    }*/
+
+                    // I really dislike how repetitive this code is
+                    if (hasStart(moduleMemberName, "colors_symbol"))
+                    {
+                        if (moduleMemberName.length() <= "colors_symbol()"_len)
+                            die("color palette module member '{}' in invalid.\n"
+                                "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
+                                "e.g 'colors_symbol(@)' or 'colors_symbol(string)'",
+                                moduleMemberName);
+
+                        std::string symbol = moduleMemberName;
                         symbol.erase(0, "colors_symbol("_len);
                         symbol.pop_back();
                         debug("symbol = {}", symbol);
 
                         SYSINFO_INSERT(
                             parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ",
-                                              symbol), sysInfo, _, config, colors, true));
+                                              symbol), sysInfo, _, config, colors, parsingLayout));
                     }
-                    else if (hasStart(moduleValueName, "colors_light_symbol"))
+                    else if (hasStart(moduleMemberName, "colors_light_symbol"))
                     {
-                        if (moduleValueName.length() <= "colors_light_symbol()"_len)
-                            die("color palette module member '{}' in invalid.\n"
-                                "Must be like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
-                                "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'", moduleValueName);
+                        if (moduleMemberName.length() <= "colors_light_symbol()"_len)
+                            die("light color palette module member '{}' in invalid.\n"
+                                "Must be used like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
+                                "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'",
+                                moduleMemberName);
 
-                        std::string symbol = moduleValueName.data();
+                        std::string symbol = moduleMemberName;
                         symbol.erase(0, "colors_light_symbol("_len);
                         symbol.pop_back();
                         debug("symbol = {}", symbol);
 
                         SYSINFO_INSERT(
                             parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ",
-                                              symbol), sysInfo, _, config, colors, true));
+                                              symbol), sysInfo, _, config, colors, parsingLayout));
                     }
             }
         }
@@ -779,9 +802,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            switch (moduleValue_hash)
+            switch (moduleMember_hash)
             {
                 case "name"_fnv1a16: SYSINFO_INSERT(query_user.name()); break;
 
@@ -830,9 +853,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            switch (moduleValue_hash)
+            switch (moduleMember_hash)
             {
                 case "cursor"_fnv1a16:      SYSINFO_INSERT(query_theme.cursor()); break;
                 case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_theme.cursor_size()); break;
@@ -849,9 +872,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            switch (moduleValue_hash)
+            switch (moduleMember_hash)
             {
                 case "name"_fnv1a16:   SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_theme(),      gtk3.gtk_theme(),      gtk4.gtk_theme())); break;
                 case "icons"_fnv1a16:  SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_icon_theme(), gtk3.gtk_icon_theme(), gtk4.gtk_icon_theme())); break;
@@ -875,9 +898,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            switch (moduleValue_hash)
+            switch (moduleMember_hash)
             {
                 case "name"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_theme()); break;
                 case "icons"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
@@ -893,9 +916,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            switch (moduleValue_hash)
+            switch (moduleMember_hash)
             {
                 case "cpu"_fnv1a16:
                     SYSINFO_INSERT(
@@ -927,12 +950,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            if (moduleValueName == "name")
+            if (moduleMemberName == "name")
                 SYSINFO_INSERT(query_gpu.name());
 
-            else if (moduleValueName == "vendor")
+            else if (moduleMemberName == "vendor")
                 SYSINFO_INSERT(query_gpu.vendor());
         }
     }
@@ -940,7 +963,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
     else if (hasStart(moduleName, "disk"))
     {
         if (moduleName.length() < 7)
-            die(" PARSER: invalid disk module name ({}), must be disk(/path/to/fs) e.g: disk(/)", moduleName);
+            die("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)", moduleName);
 
         enum
         {
@@ -958,14 +981,14 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
             std::array<byte_units_t, 3> byte_units;
             byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount());
             byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount());
             byte_units.at(FREE)  = auto_devide_bytes(query_disk.free_amount());
 
-            switch (moduleValue_hash)
+            switch (moduleMember_hash)
             {
                 case "fs"_fnv1a16: SYSINFO_INSERT(query_disk.typefs()); break;
 
@@ -1022,7 +1045,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleValueName) == sysInfo[moduleName].end())
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
             byte_units.at(USED)       = auto_devide_bytes(query_ram.used_amount() * 1024);
             byte_units.at(TOTAL)      = auto_devide_bytes(query_ram.total_amount() * 1024);
@@ -1031,7 +1054,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             byte_units.at(SWAP_USED)  = auto_devide_bytes(query_ram.swap_used_amount() * 1024);
             byte_units.at(SWAP_TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * 1024);
 
-            switch (moduleValue_hash)
+            switch (moduleMember_hash)
             {
                 case "ram"_fnv1a16:
                     // clang-format off

@@ -82,7 +82,6 @@ static RAM::RAM_t get_amount()
 
 RAM::RAM()
 {
-    debug("Constructing {}", __func__);
     if (!m_bInit)
     {
         m_memory_infos = get_amount();
