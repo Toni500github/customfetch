@@ -292,6 +292,10 @@ They can be used in the ascii art text file and layout, but how to use them?
  use `${auto2}`, for the 4th one use `${auto4}` and so on.
  If you're in GUI mode and the source path is an image, all the auto colors will be white
 
+* **The Percentage tag (`$%%`)** is used for displaying the percentage between 2 numbers.\
+  It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
+  For example: $%10,5%
+
 Any `$` or brackets can be escaped with a backslash `\`
 
 # Thanks

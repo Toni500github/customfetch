@@ -131,6 +131,10 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #
 # If you're using GUI mode, all the \fB${auto}\fR colors are going to be ${white}
 
+# The Percentage tag $%% is used for displaying the percentage between 2 numbers.\
+# It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
+# For example: $%10,5%
+
 # Little FAQ
 # Q: "Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?"
 # A: replace "<-" with "\\<-". It won't affect the printing in terminal

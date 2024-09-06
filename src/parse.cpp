@@ -83,6 +83,42 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     return { col, weight, type };
 }
 
+static std::string get_and_color_percentage(const std::string_view str, systemInfo_t& systemInfo, const Config& config, const colors_t& colors,
+                                            const bool parsingLayout, bool invert = false)
+{
+    const size_t& comma_pos = str.find(',');
+    if (comma_pos == std::string::npos)
+        die("percentage tag '{}' doesn't have a comma for separating the 2 numbers", str);
+
+    std::string _;
+    const float& n1 = std::stof(parse(str.substr(0, comma_pos),  systemInfo, _, config, colors, parsingLayout));
+    const float& n2 = std::stof(parse(str.substr(comma_pos + 1), systemInfo, _, config, colors, parsingLayout));
+
+    const float result = static_cast<float>(n1 / n2 * static_cast<float>(100));
+
+    std::string color;
+    if (!invert)
+    {
+        if (result <= 35)
+            color = "${green}";
+        else if (result <= 50)
+            color = "${yellow}";
+        else
+            color = "${red}";
+    }
+    else
+    {
+        if (result <= 35)
+            color = "${red}";
+        else if (result <= 50)
+            color = "${yellow}";
+        else
+            color = "${green}";
+    }
+    
+    return parse(fmt::format("{}{:.2f}%${{0}}", color, result), systemInfo, _, config, colors, parsingLayout);
+}
+
 static const std::string& check_gui_ansi_clr(const std::string& str)
 {
     if (hasStart(str, "\033") || hasStart(str, "\\e"))
@@ -184,6 +220,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         {
             case '(': type = ')'; break;
             case '<': type = '>'; break;
+            case '%': type = '%'; break;
             case '[': type = ']'; break;
             case '{': type = '}'; break;
             default:  // neither of them
@@ -219,7 +256,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             case ')':
             {
                 const std::string& shell_cmd = shell_exec(command);
-                output = output.replace(dollarSignIndex, taglen, shell_cmd);
+                output.replace(dollarSignIndex, taglen, shell_cmd);
 
                 if (!parsingLayout && start_pos != std::string::npos)
                     pureOutput.replace(start_pos, taglen, shell_cmd);
@@ -236,14 +273,18 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 const std::string& moduleMemberName = command.substr(dot_pos + 1);
                 addValueFromModule(systemInfo, moduleName, moduleMemberName, config, colors, parsingLayout);
 
-                output = output.replace(dollarSignIndex, taglen,
+                output.replace(dollarSignIndex, taglen,
                                         getInfoFromName(systemInfo, moduleName, moduleMemberName));
 
                 if (!parsingLayout && start_pos != std::string::npos)
                     pureOutput.replace(start_pos, taglen,
                                         getInfoFromName(systemInfo, moduleName, moduleMemberName));
             } break;
-            
+
+            case '%':
+                output.replace(dollarSignIndex, taglen, get_and_color_percentage(command, systemInfo, config, colors, parsingLayout));
+                break;
+
             case ']':
             {
                 const size_t& conditional_comma = command.find(',');
@@ -270,12 +311,12 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (parsed_conditional == parsed_equalto)
                 {
                     const std::string& parsed_true_stam = parse(true_statment, systemInfo, _, config, colors, parsingLayout);
-                    output = output.replace(dollarSignIndex, taglen, parsed_true_stam);
+                    output.replace(dollarSignIndex, taglen, parsed_true_stam);
                 }
                 else
                 {
                     const std::string& parsed_false_stam = parse(false_statment, systemInfo, _, config, colors, parsingLayout);
-                    output = output.replace(dollarSignIndex, taglen, parsed_false_stam);
+                    output.replace(dollarSignIndex, taglen, parsed_false_stam);
                 }
 
             } break;
@@ -336,19 +377,19 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (command == "1")
                 {
                     if (firstrun_noclr)
-                        output = output.replace(dollarSignIndex, taglen,
+                        output.replace(dollarSignIndex, taglen,
                                                 config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
                     else
-                        output = output.replace(dollarSignIndex, taglen,
+                        output.replace(dollarSignIndex, taglen,
                                                 config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
                 }
                 else if (command == "0")
                 {
                     if (firstrun_noclr)
-                        output = output.replace(dollarSignIndex, taglen,
+                        output.replace(dollarSignIndex, taglen,
                                                 config.gui ? "<span>" : NOCOLOR);
                     else
-                        output = output.replace(dollarSignIndex, taglen,
+                        output.replace(dollarSignIndex, taglen,
                                                 config.gui ? "</span><span>" : NOCOLOR);
                 }
                 else
@@ -393,7 +434,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             tagfmt.pop_back();
                             tagfmt += '>';
 
-                            output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
+                            output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                     fmt::format("{}{}</span>",
                                                                 tagfmt, output.substr(endBracketIndex + 1)));
                         }
@@ -408,9 +449,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             const std::string_view color  = clrs.at(0);
                             const std::string_view weight = clrs.at(1);
                             const std::string_view type   = clrs.at(2);
-                            output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                                    fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color,
-                                                                weight, output.substr(endBracketIndex + 1)));
+                            output.replace(dollarSignIndex, output.length() - dollarSignIndex,
+                                                    fmt::format("<span {}='{}' weight='{}'>{}</span>",
+                                                                type, color, weight, output.substr(endBracketIndex + 1)));
                         }
 
                         else
@@ -473,7 +514,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         else
                             error("PARSER: failed to parse line with color '{}'", str_clr);
 
-                        output = output.replace(dollarSignIndex, output.length() - dollarSignIndex,
+                        output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                 formatted_replacement_string);
                     }
 
@@ -733,29 +774,6 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 default:
-                    /*if (hasStart(moduleMemberName, "perc"))
-                    {
-                        if (moduleMemberName.length() <= "perc( , )"_len)
-                            die("perc module member '{}' is invalid\n"
-                                "Must be used like 'perc(n,n2)'\n"
-                                "e.g 'perc(10,2)' or 'perc($<disk.free-GiB>,$<disk.total-GiB>)'",
-                                moduleMemberName);
-
-                        std::string perc_values = moduleMemberName.substr("perc("_len);
-                        perc_values.pop_back();
-
-                        const size_t comma_pos = perc_values.find(',');
-                        if (comma_pos == std::string::npos)
-                            die("perc module member '{}' doesn't have a comma for separating the 2 numbers", moduleMemberName);
-
-                        const float n1 = std::stof(parse(perc_values.substr(0, comma_pos),  sysInfo, _, config, colors, parsingLayout));
-                        const float n2 = std::stof(parse(perc_values.substr(comma_pos + 1), sysInfo, _, config, colors, parsingLayout));
-
-                        const float result = static_cast<float>(n1 / n2 * static_cast<float>(100));
-
-                        SYSINFO_INSERT(fmt::to_string(result) + '%');
-                    }*/
-
                     // I really dislike how repetitive this code is
                     if (hasStart(moduleMemberName, "colors_symbol"))
                     {
@@ -994,11 +1012,15 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 // clang-format off
                 case "disk"_fnv1a16:
-                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} - {}", 
+                {
+                    const std::string& perc = get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                                                                        sysInfo, config, colors, parsingLayout);
+
+                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} ({}) - {}", 
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                                byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
-                                               query_disk.typefs()));
-                    break;
+                                               perc, query_disk.typefs()));
+                } break;
                 // clang-format on
 
                 case "used"_fnv1a16:
@@ -1011,6 +1033,16 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 case "free"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
+                    break;
+
+                case "free_perc"_fnv1a16:
+                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                                                            sysInfo, config, colors, parsingLayout, true));
+                    break;
+
+                case "used_perc"_fnv1a16:
+                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                                                            sysInfo, config, colors, parsingLayout));
                     break;
 
                 case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1073741824); break;
@@ -1028,6 +1060,85 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         }
     }
 
+    else if (moduleName == "swap")
+    {
+        Query::RAM query_ram;
+        enum
+        {
+            USED = 0,
+            TOTAL,
+            FREE,
+        };
+        std::array<byte_units_t, 3> byte_units;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        {
+            byte_units.at(FREE)  = auto_devide_bytes(query_ram.swap_free_amount() * 1024);
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.swap_used_amount() * 1024);
+            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * 1024);
+
+            switch (moduleMember_hash)
+            {
+                case "swap"_fnv1a16:
+                    // clang-format off
+                    if (byte_units.at(TOTAL).num_bytes < 1)
+                        SYSINFO_INSERT("Disabled");
+                    else
+                    {
+                        const std::string& perc = get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                                                                           sysInfo, config, colors, parsingLayout);
+
+                        SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} ({})", 
+                                                    byte_units.at(USED).num_bytes, byte_units.at(USED).unit, 
+                                                    byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
+                                                    perc));
+                    }
+                    break;
+                    // clang-format on
+
+                case "free"_fnv1a16:
+                    SYSINFO_INSERT(
+                        fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
+                    break;
+
+                case "total"_fnv1a16:
+                    SYSINFO_INSERT(
+                        fmt::format("{:.2f} {}", byte_units.at(TOTAL).num_bytes, byte_units.at(TOTAL).unit));
+                    break;
+
+                case "used"_fnv1a16:
+                    SYSINFO_INSERT(
+                        fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
+                    break;
+
+                case "free_perc"_fnv1a16:
+                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                                                            sysInfo, config, colors, parsingLayout, true));
+                    break;
+
+                case "used_perc"_fnv1a16:
+                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                                                            sysInfo, config, colors, parsingLayout));
+                    break;
+
+                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1048576); break;
+                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1024); break;
+                case "free-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount()); break;
+
+                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1048576); break;
+                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1024); break;
+                case "used-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount()); break;
+
+                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1048576); break;
+                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1024); break;
+                case "total-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount()); break;
+            }
+        }
+    }
+
     else if (moduleName == "ram")
     {
         Query::RAM query_ram;
@@ -1036,34 +1147,33 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             USED = 0,
             TOTAL,
             FREE,
-            SWAP_FREE,
-            SWAP_USED,
-            SWAP_TOTAL
         };
-        std::array<byte_units_t, 6> byte_units;
+        std::array<byte_units_t, 3> byte_units;
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
         if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            byte_units.at(USED)       = auto_devide_bytes(query_ram.used_amount() * 1024);
-            byte_units.at(TOTAL)      = auto_devide_bytes(query_ram.total_amount() * 1024);
-            byte_units.at(FREE)       = auto_devide_bytes(query_ram.free_amount() * 1024);
-            byte_units.at(SWAP_FREE)  = auto_devide_bytes(query_ram.swap_free_amount() * 1024);
-            byte_units.at(SWAP_USED)  = auto_devide_bytes(query_ram.swap_used_amount() * 1024);
-            byte_units.at(SWAP_TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * 1024);
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * 1024);
+            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * 1024);
+            byte_units.at(FREE)  = auto_devide_bytes(query_ram.free_amount() * 1024);
 
             switch (moduleMember_hash)
             {
                 case "ram"_fnv1a16:
+                {
+                    const std::string& perc = get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                                                                        sysInfo, config, colors, parsingLayout);
+
                     // clang-format off
-                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {}", 
+                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} ({})", 
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit, 
-                                               byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit));
+                                               byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
+                                               perc));
                     break;
                     // clang-format on
-
+                }
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
@@ -1076,27 +1186,14 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
                     break;
 
-                case "swap"_fnv1a16:
-                    // clang-format off
-                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {}", 
-                                               byte_units.at(SWAP_USED).num_bytes, byte_units.at(SWAP_USED).unit, 
-                                               byte_units.at(SWAP_TOTAL).num_bytes,byte_units.at(SWAP_TOTAL).unit));
-                    break;
-                    // clang-format on
-
-                case "swap_free"_fnv1a16:
-                    SYSINFO_INSERT(
-                        fmt::format("{:.2f} {}", byte_units.at(SWAP_FREE).num_bytes, byte_units.at(SWAP_FREE).unit));
+                case "free_perc"_fnv1a16:
+                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                                                            sysInfo, config, colors, parsingLayout, true));
                     break;
 
-                case "swap_total"_fnv1a16:
-                    SYSINFO_INSERT(
-                        fmt::format("{:.2f} {}", byte_units.at(SWAP_TOTAL).num_bytes, byte_units.at(SWAP_TOTAL).unit));
-                    break;
-
-                case "swap_used"_fnv1a16:
-                    SYSINFO_INSERT(
-                        fmt::format("{:.2f} {}", byte_units.at(SWAP_USED).num_bytes, byte_units.at(SWAP_USED).unit));
+                case "used_perc"_fnv1a16:
+                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                                                            sysInfo, config, colors, parsingLayout));
                     break;
 
                 case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount() / 1048576); break;
@@ -1110,18 +1207,6 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount() / 1048576); break;
                 case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount() / 1024); break;
                 case "free-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount()); break;
-
-                case "swap_free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1048576); break;
-                case "swap_free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1024); break;
-                case "swap_free-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount()); break;
-
-                case "swap_used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1048576); break;
-                case "swap_used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1024); break;
-                case "swap_used-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount()); break;
-
-                case "swap_total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1048576); break;
-                case "swap_total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1024); break;
-                case "swap_total-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount()); break;
             }
         }
     }

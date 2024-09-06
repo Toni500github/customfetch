@@ -124,8 +124,8 @@ builtin
   title     	: user and hostname colored with ${{auto2}} [toni@arch2]
   title_sep     : separator between the title and the system infos (with the title lenght) [--------]
   colors_bg	: color palette with background spaces
-  colors_light_bg: 		light color palette with background spaces
   colors_symbol(symb): 		color palette with specific symbol
+  colors_light_bg:              light color palette with background spaces
   colors_light_symbol(symb): 	light color palette with specific symbol
 
 # this module is just for generic theme stuff
@@ -154,20 +154,28 @@ theme-gtk-all
   font          : gtk font theme name [Cantarell 10 [GTK2], Noto Sans,  10 [GTK3], Noto Sans 10 [GTK4]]
 
 # note: these members are auto displayed in KiB, MiB, GiB and TiB.
-# they all (except ram.ram and ram.swap) have a -KiB, -GiB and -MiB variant
+# they all (except those who has the same name as the module or that ends with "_perc")
+# have a -KiB, -GiB and -MiB variant.
 # example: if you want to show your 512MiB of used RAM in GiB
-# use the used-GiB variant (they don't print the unit tho)
+# use the `used-GiB` variant (they don't print the unit tho)
 ram
   ram		: used and total amount of RAM (auto) [2.81 GiB / 15.88 GiB]
   used		: used amount of RAM (auto) [2.81 GiB]
   free		: available amount of RAM (auto) [10.46 GiB]
   total		: total amount of RAM (auto) [15.88 GiB]
-  swap          : swapfile used and total amount of RAM (auto) [477.68 MiB / 512.00 MiB]
-  swap_free	: swapfile available amount of RAM (auto) [34.32 MiB]
-  swap_total	: swapfile total amount of RAM (auto) [512.00 MiB]
-  swap_used	: swapfile used amount of RAM (auto) [477.68 MiB]
+  used_perc	: percentage of used amount of RAM in total [17.69%]
+  free_perc	: percentage of available amount of RAM in total [82.31%]
 
-# same thing as RAM (above)
+# same comments as RAM (above)
+swap
+  swap          : used and total amount of the swapfile (auto) [477.68 MiB / 512.00 MiB]
+  free		: available amount of the swapfile (auto) [34.32 MiB]
+  total		: total amount of the swapfile (auto) [512.00 MiB]
+  used		: used amount of the swapfile (auto) [477.68 MiB]
+  used_perc     : percentage of used amount of the swapfile in total [93.29%]
+  free_perc     : percentage of available amount of the swapfile in total [6.71%]
+
+# same comments as RAM (above)
 # note: I mean literally /path/to/fs
 #	e.g disk(/)
 disk(/path/to/fs)
@@ -175,6 +183,8 @@ disk(/path/to/fs)
   used          : used amount of disk space (auto) [360.02 GiB]
   free          : available amount of disk space (auto) [438.08 GiB]
   total         : total amount of disk space (auto) [100.08 GiB]
+  used_perc     : percentage of used amount of the disk in total [82.18%]
+  free_perc     : percentage of available amount of the disk in total [17.82%]
   fs            : type of filesystem [ext4]
 
 # usually people have 1 GPU in their host,
