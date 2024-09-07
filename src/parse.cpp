@@ -83,20 +83,13 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     return { col, weight, type };
 }
 
-static std::string get_and_color_percentage(const std::string_view str, systemInfo_t& systemInfo, const Config& config, const colors_t& colors,
+static std::string get_and_color_percentage(const float& n1, const float& n2, systemInfo_t& systemInfo, const Config& config, const colors_t& colors,
                                             const bool parsingLayout, bool invert = false)
 {
-    const size_t& comma_pos = str.find(',');
-    if (comma_pos == std::string::npos)
-        die("percentage tag '{}' doesn't have a comma for separating the 2 numbers", str);
-
-    std::string _;
-    const float& n1 = std::stof(parse(str.substr(0, comma_pos),  systemInfo, _, config, colors, parsingLayout));
-    const float& n2 = std::stof(parse(str.substr(comma_pos + 1), systemInfo, _, config, colors, parsingLayout));
 
     const float result = static_cast<float>(n1 / n2 * static_cast<float>(100));
 
-    std::string color;
+    std::string_view color;
     if (!invert)
     {
         if (result <= 35)
@@ -116,6 +109,7 @@ static std::string get_and_color_percentage(const std::string_view str, systemIn
             color = "${green}";
     }
     
+    std::string _;
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), systemInfo, _, config, colors, parsingLayout);
 }
 
@@ -282,8 +276,18 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             } break;
 
             case '%':
-                output.replace(dollarSignIndex, taglen, get_and_color_percentage(command, systemInfo, config, colors, parsingLayout));
+            {
+                const size_t& comma_pos = command.find(',');
+                if (comma_pos == std::string::npos)
+                    die("percentage tag '{}' doesn't have a comma for separating the 2 numbers", command);
+
+                std::string _;
+                const float& n1 = std::stof(parse(command.substr(0, comma_pos),  systemInfo, _, config, colors, parsingLayout));
+                const float& n2 = std::stof(parse(command.substr(comma_pos + 1), systemInfo, _, config, colors, parsingLayout));
+                
+                output.replace(dollarSignIndex, taglen, get_and_color_percentage(n1, n2, systemInfo, config, colors, parsingLayout));
                 break;
+            }
 
             case ']':
             {
@@ -1015,7 +1019,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 // clang-format off
                 case "disk"_fnv1a16:
                 {
-                    const std::string& perc = get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                    const std::string& perc = get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
                                                                         sysInfo, config, colors, parsingLayout);
 
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} ({}) - {}", 
@@ -1038,12 +1042,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 case "free_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes, 
                                                             sysInfo, config, colors, parsingLayout, true));
                     break;
 
                 case "used_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
                                                             sysInfo, config, colors, parsingLayout));
                     break;
 
@@ -1090,7 +1094,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         SYSINFO_INSERT("Disabled");
                     else
                     {
-                        const std::string& perc = get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                        const std::string& perc = get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
                                                                            sysInfo, config, colors, parsingLayout);
 
                         SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} ({})", 
@@ -1117,12 +1121,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 case "free_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes, 
                                                             sysInfo, config, colors, parsingLayout, true));
                     break;
 
                 case "used_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
                                                             sysInfo, config, colors, parsingLayout));
                     break;
 
@@ -1165,7 +1169,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             {
                 case "ram"_fnv1a16:
                 {
-                    const std::string& perc = get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                    const std::string& perc = get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
                                                                         sysInfo, config, colors, parsingLayout);
 
                     // clang-format off
@@ -1189,12 +1193,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 case "free_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes, 
                                                             sysInfo, config, colors, parsingLayout, true));
                     break;
 
                 case "used_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(fmt::format("{},{}", byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes), 
+                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
                                                             sysInfo, config, colors, parsingLayout));
                     break;
 
