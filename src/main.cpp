@@ -176,8 +176,9 @@ swap
   free_perc     : percentage of available amount of the swapfile in total [6.71%]
 
 # same comments as RAM (above)
-# note: I mean literally /path/to/fs
-#	e.g disk(/)
+# note: the module can have either a device path
+#	or a filesystem path
+#	e.g disk(/) or disk(/dev/sda5)
 disk(/path/to/fs)
   disk		: used and total amount of disk space (auto) with type of filesystem [360.02 GiB / 438.08 GiB - ext4]
   used          : used amount of disk space (auto) [360.02 GiB]
@@ -186,6 +187,8 @@ disk(/path/to/fs)
   used_perc     : percentage of used amount of the disk in total [82.18%]
   free_perc     : percentage of available amount of the disk in total [17.82%]
   fs            : type of filesystem [ext4]
+  device	: path to device [/dev/sda5]
+  mountdir	: path to the device mount point [/]
 
 # usually people have 1 GPU in their host,
 # but if you got more than 1 and want to query it,

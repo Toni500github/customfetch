@@ -1008,7 +1008,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
             switch (moduleMember_hash)
             {
-                case "fs"_fnv1a16: SYSINFO_INSERT(query_disk.typefs()); break;
+                case "fs"_fnv1a16:         SYSINFO_INSERT(query_disk.typefs()); break;
+                case "device"_fnv1a16:     SYSINFO_INSERT(query_disk.device()); break;
+                case "mountdir"_fnv1a16: SYSINFO_INSERT(query_disk.mountponit()); break;
 
                 // clang-format off
                 case "disk"_fnv1a16:

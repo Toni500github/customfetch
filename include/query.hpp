@@ -205,6 +205,8 @@ public:
         float       free_amount  = 0;
         float       used_amount  = 0;
         std::string typefs;
+        std::string device;
+        std::string mountponit;
     };
 
     Disk(const std::string_view path, std::vector<std::string_view>& paths);
@@ -213,6 +215,8 @@ public:
     float&       free_amount();
     float&       used_amount();
     std::string& typefs();
+    std::string& device();
+    std::string& mountponit();
 
 private:
     static struct statvfs m_statvfs;
