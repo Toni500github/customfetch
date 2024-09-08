@@ -1019,7 +1019,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 // clang-format off
                 case "disk"_fnv1a16:
                 {
-                    const std::string& perc = get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
+                    const std::string& perc = get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), 
                                                                         sysInfo, config, colors, parsingLayout);
 
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} ({}) - {}", 
@@ -1042,12 +1042,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 case "free_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes, 
+                    SYSINFO_INSERT(get_and_color_percentage(query_disk.free_amount(), query_disk.total_amount(), 
                                                             sysInfo, config, colors, parsingLayout, true));
                     break;
 
                 case "used_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
+                    SYSINFO_INSERT(get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), 
                                                             sysInfo, config, colors, parsingLayout));
                     break;
 
@@ -1094,7 +1094,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         SYSINFO_INSERT("Disabled");
                     else
                     {
-                        const std::string& perc = get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
+                        const std::string& perc = get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(), 
                                                                            sysInfo, config, colors, parsingLayout);
 
                         SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} ({})", 
@@ -1121,12 +1121,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 case "free_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes, 
+                    SYSINFO_INSERT(get_and_color_percentage(query_ram.swap_free_amount(), query_ram.swap_total_amount(), 
                                                             sysInfo, config, colors, parsingLayout, true));
                     break;
 
                 case "used_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
+                    SYSINFO_INSERT(get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(), 
                                                             sysInfo, config, colors, parsingLayout));
                     break;
 
@@ -1169,7 +1169,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             {
                 case "ram"_fnv1a16:
                 {
-                    const std::string& perc = get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
+                    const std::string& perc = get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), 
                                                                         sysInfo, config, colors, parsingLayout);
 
                     // clang-format off
@@ -1193,12 +1193,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 case "free_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(FREE).num_bytes, byte_units.at(TOTAL).num_bytes, 
+                    SYSINFO_INSERT(get_and_color_percentage(query_ram.free_amount(), query_ram.total_amount(), 
                                                             sysInfo, config, colors, parsingLayout, true));
                     break;
 
                 case "used_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(byte_units.at(USED).num_bytes, byte_units.at(TOTAL).num_bytes, 
+                    SYSINFO_INSERT(get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), 
                                                             sysInfo, config, colors, parsingLayout));
                     break;
 
