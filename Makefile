@@ -6,7 +6,6 @@ VARS  	  	?=
 GUI_MODE     	?= 0
 
 DEBUG 		?= 1
-PARSER_TEST 	?= 0
 VENDOR_TEST 	?= 0
 DEVICE_TEST     ?= 0
 # https://stackoverflow.com/a/1079861
@@ -22,10 +21,6 @@ else
     		CXXFLAGS := -O3 $(CXXFLAGS)
 	endif
         BUILDDIR  = build/release
-endif
-
-ifeq ($(PARSER_TEST), 1)
-	VARS += -DPARSER_TEST=1
 endif
 
 ifeq ($(VENDOR_TEST), 1)

@@ -999,22 +999,22 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         debug("disk path = {}", path);
 
         Query::Disk query_disk(path, queried_disks);
+        std::array<byte_units_t, 3> byte_units;
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
         if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            std::array<byte_units_t, 3> byte_units;
             byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount());
             byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount());
             byte_units.at(FREE)  = auto_devide_bytes(query_disk.free_amount());
 
             switch (moduleMember_hash)
             {
-                case "fs"_fnv1a16:         SYSINFO_INSERT(query_disk.typefs()); break;
-                case "device"_fnv1a16:     SYSINFO_INSERT(query_disk.device()); break;
-                case "mountdir"_fnv1a16: SYSINFO_INSERT(query_disk.mountponit()); break;
+                case "fs"_fnv1a16:       SYSINFO_INSERT(query_disk.typefs()); break;
+                case "device"_fnv1a16:   SYSINFO_INSERT(query_disk.device()); break;
+                case "mountdir"_fnv1a16: SYSINFO_INSERT(query_disk.mountdir()); break;
 
                 // clang-format off
                 case "disk"_fnv1a16:

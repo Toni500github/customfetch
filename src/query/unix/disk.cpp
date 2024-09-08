@@ -21,7 +21,7 @@ Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths)
         // then let's just "try" to remove it
         m_disk_infos.typefs = MAGIC_LINE;
         m_disk_infos.device = MAGIC_LINE;
-        m_disk_infos.mountponit = MAGIC_LINE;
+        m_disk_infos.mountdir = MAGIC_LINE;
         return;
     }
 
@@ -39,13 +39,12 @@ Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths)
         debug("pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
         if (path == pDevice->mnt_dir || path == pDevice->mnt_fsname)
         {
-            m_disk_infos.typefs = pDevice->mnt_type;
+            m_disk_infos.typefs   = pDevice->mnt_type;
+            m_disk_infos.device   = pDevice->mnt_fsname;
+            m_disk_infos.mountdir = pDevice->mnt_dir;
             break;
         }
     }
-    
-    m_disk_infos.device     = pDevice->mnt_fsname;
-    m_disk_infos.mountponit = pDevice->mnt_dir;
 
     const std::string_view statpath = (hasStart(path, "/dev") ? pDevice->mnt_dir : path);
 
@@ -77,8 +76,8 @@ float& Disk::free_amount()
 std::string& Disk::typefs()
 { return m_disk_infos.typefs; }
 
-std::string& Disk::mountponit()
-{ return m_disk_infos.mountponit; }
+std::string& Disk::mountdir()
+{ return m_disk_infos.mountdir; }
 
 std::string& Disk::device()
 { return m_disk_infos.device; }

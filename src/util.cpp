@@ -74,11 +74,11 @@ std::string expandVar(std::string ret)
     {
         ret.erase(0, 1);
 
-        std::string temp;
-        size_t      pos = ret.find('/');
+        std::string   temp;
+        const size_t& pos = ret.find('/');
         if (pos != std::string::npos)
         {
-            temp = ret.substr(pos + 1);
+            temp = ret.substr(pos);
             ret.erase(pos);
         }
 
@@ -230,9 +230,9 @@ fmt::rgb hexStringToColor(const std::string_view hexstr)
     uint intValue;
     ss >> intValue;
 
-    uint red   = (intValue >> 16) & 0xFF;
-    uint green = (intValue >> 8) & 0xFF;
-    uint blue  = intValue & 0xFF;
+    const uint red   = (intValue >> 16) & 0xFF;
+    const uint green = (intValue >> 8) & 0xFF;
+    const uint blue  = intValue & 0xFF;
 
     return fmt::rgb(red, green, blue);
 }
@@ -269,12 +269,18 @@ std::string which(const std::string& command)
     const std::string_view env = std::getenv("PATH");
     struct stat sb;
     std::string fullPath;
-    
+    fullPath.reserve(1024);
+
     for (const std::string& dir : split(env, ':'))
     {
-        fullPath = dir + '/' + command;
-        if ((stat(fullPath.c_str(), &sb) == 0) && sb.st_mode & S_IXUSR)
-            return fullPath;
+        // -300ns for not creating a string. stonks
+        fullPath += dir;
+        fullPath += '/';
+        fullPath += command;
+        if ((stat(fullPath.data(), &sb) == 0) && sb.st_mode & S_IXUSR)
+            return fullPath.data();
+
+        fullPath.clear();
     }
     
     return UNKNOWN; // not found
@@ -451,8 +457,8 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 // http://stackoverflow.com/questions/478898/ddg#478960
 std::string shell_exec(const std::string_view cmd)
 {
-    std::array<char, 1024>                   buffer;
-    std::string                              result;
+    std::array<char, 1024> buffer;
+    std::string            result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
 
     if (!pipe)
@@ -487,10 +493,10 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
     if (end_line_pos == std::string::npos)
         end_line_pos = all_ids.length();  // If no newline is found, set to end of string
 
-    const std::string line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
+    const std::string& line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
 
-    const size_t      after_id_pos = line.find(vendor_id) + 4;
-    const std::string description  = line.substr(after_id_pos);
+    const size_t       after_id_pos = line.find(vendor_id) + 4;
+    const std::string& description  = line.substr(after_id_pos);
 
     const size_t first = description.find_first_not_of(' ');
     if (first == std::string::npos)
@@ -505,6 +511,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
     return vendor;
 }
 
+// clang-format off
 /*
  * Get the user config directory
  * either from $XDG_CONFIG_HOME or from $HOME/.config/
