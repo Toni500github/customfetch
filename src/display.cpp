@@ -11,7 +11,6 @@
 
 #include "config.hpp"
 #include "fmt/core.h"
-#include "fmt/ranges.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "util.hpp"
@@ -194,6 +193,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
 void Display::display(const std::vector<std::string>& renderResult)
 {
-    // for loops hell nah
-    fmt::println("{}", fmt::join(renderResult, "\n"));
+    for (const std::string_view str : renderResult)
+        fmt::println("{}", str);
 }

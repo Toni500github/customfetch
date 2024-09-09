@@ -94,7 +94,7 @@ static std::string get_and_color_percentage(const float& n1, const float& n2, sy
     {
         if (result <= 35)
             color = "${green}";
-        else if (result <= 50)
+        else if (result <= 80)
             color = "${yellow}";
         else
             color = "${red}";
@@ -103,7 +103,7 @@ static std::string get_and_color_percentage(const float& n1, const float& n2, sy
     {
         if (result <= 35)
             color = "${red}";
-        else if (result <= 50)
+        else if (result <= 80)
             color = "${yellow}";
         else
             color = "${green}";
@@ -227,7 +227,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         // let's get what's inside the brackets
         for (size_t i = dollarSignIndex + 2; i < output.size(); i++)
         {
-            if (output.at(i) == type && output[i - 1] != '\\')
+            if (output[i] == type && output[i - 1] != '\\')
             {
                 endBracketIndex = i;
                 break;
@@ -284,8 +284,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 std::string _;
                 const float& n1 = std::stof(parse(command.substr(0, comma_pos),  systemInfo, _, config, colors, parsingLayout));
                 const float& n2 = std::stof(parse(command.substr(comma_pos + 1), systemInfo, _, config, colors, parsingLayout));
-                
-                output.replace(dollarSignIndex, taglen, get_and_color_percentage(n1, n2, systemInfo, config, colors, parsingLayout));
+
+                output.replace(dollarSignIndex, taglen, get_and_color_percentage(n1, n2, systemInfo, config, colors, parsingLayout, (command.back() == '!')));
                 break;
             }
 

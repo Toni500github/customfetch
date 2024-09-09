@@ -37,13 +37,13 @@ ifeq ($(GUI_MODE), 1)
 	CXXFLAGS += `pkg-config --cflags gtkmm-3.0`
 endif
 
-NAME		 = customfetch
-TARGET		 = cufetch
-OLDVERSION	 = 0.8.8
-VERSION    	 = 0.9.0
-BRANCH     	 = $(shell git rev-parse --abbrev-ref HEAD)
-SRC 	   	 = $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp)
-OBJ 	   	 = $(SRC:.cpp=.o)
+NAME		= customfetch
+TARGET		= cufetch
+OLDVERSION	= 0.8.8
+VERSION    	= 0.9.0
+BRANCH     	= $(shell git rev-parse --abbrev-ref HEAD)
+SRC 	   	= $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp)
+OBJ 	   	= $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"

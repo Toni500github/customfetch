@@ -94,7 +94,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # here is how it works:
 # the variable "layout" is used for showing the infos
 # as like as the user want, no limitation.
-# inside here there are 4 "tags": $<> $() ${} $[]
+# inside here there are 5 "tags": $<> $() ${} $[] $%%
 
 # The Info tag $<> lets you print the value of a member of a module.
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
@@ -134,6 +134,8 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # The Percentage tag $%% is used for displaying the percentage between 2 numbers.\
 # It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
 # For example: $%10,5%
+# For inverting colors of bad and great (red and green), before the last '%' a put '!'
+# without quotes
 
 # Little FAQ
 # Q: "Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?"

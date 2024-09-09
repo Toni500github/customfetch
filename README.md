@@ -295,6 +295,7 @@ They can be used in the ascii art text file and layout, but how to use them?
 * **The Percentage tag (`$%%`)** is used for displaying the percentage between 2 numbers.\
   It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
   For example: $%10,5%
+  For inverting colors of bad and great (red and green), before the last '%' a put '!' without quotes
 
 Any `$` or brackets can be escaped with a backslash `\`
 
