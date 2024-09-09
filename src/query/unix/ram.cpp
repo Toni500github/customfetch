@@ -21,7 +21,7 @@ static size_t get_from_text(std::string& line, u_short& iter_index)
     return std::stoi(amount);
 }
 
-static RAM::RAM_t get_amount()
+static RAM::RAM_t get_amount() noexcept
 {
     debug("calling in RAM {}", __PRETTY_FUNCTION__);
     constexpr std::string_view meminfo_path = "/proc/meminfo";
@@ -80,7 +80,7 @@ static RAM::RAM_t get_amount()
     return memory_infos;
 }
 
-RAM::RAM()
+RAM::RAM() noexcept
 {
     if (!m_bInit)
     {
@@ -90,20 +90,20 @@ RAM::RAM()
 }
 
 // clang-format off
-float& RAM::free_amount()
+float& RAM::free_amount() noexcept
 { return m_memory_infos.free_amount; }
 
-float& RAM::total_amount()
+float& RAM::total_amount() noexcept
 { return m_memory_infos.total_amount; }
 
-float& RAM::used_amount()
+float& RAM::used_amount() noexcept
 { return m_memory_infos.used_amount; }
 
-float& RAM::swap_total_amount()
+float& RAM::swap_total_amount() noexcept
 { return m_memory_infos.swap_total_amount; }
 
-float& RAM::swap_used_amount()
+float& RAM::swap_used_amount() noexcept
 { return m_memory_infos.swap_used_amount; }
 
-float& RAM::swap_free_amount()
+float& RAM::swap_free_amount() noexcept
 { return m_memory_infos.swap_free_amount; }

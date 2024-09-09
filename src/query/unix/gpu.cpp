@@ -81,8 +81,8 @@ GPU::GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus)
 }
 
 // clang-format off
-std::string& GPU::name()
+std::string& GPU::name() noexcept
 { return m_gpu_infos.name; }
 
-std::string& GPU::vendor()
+std::string& GPU::vendor() noexcept
 { return m_gpu_infos.vendor; }

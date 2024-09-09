@@ -64,20 +64,20 @@ Disk::Disk(const std::string_view path, std::vector<std::string_view>& paths)
 }
 
 // clang-format off
-float& Disk::total_amount()
+float& Disk::total_amount() noexcept
 { return m_disk_infos.total_amount; }
 
-float& Disk::used_amount()
+float& Disk::used_amount() noexcept 
 { return m_disk_infos.used_amount; }
 
-float& Disk::free_amount()
+float& Disk::free_amount() noexcept
 { return m_disk_infos.free_amount; }
 
-std::string& Disk::typefs()
+std::string& Disk::typefs() noexcept
 { return m_disk_infos.typefs; }
 
-std::string& Disk::mountdir()
+std::string& Disk::mountdir() noexcept
 { return m_disk_infos.mountdir; }
 
-std::string& Disk::device()
+std::string& Disk::device() noexcept
 { return m_disk_infos.device; }

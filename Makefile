@@ -50,6 +50,8 @@ CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"
 
 all: fmt toml $(TARGET)
 
+recompile: clean all
+
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
 	mkdir -p $(BUILDDIR)/fmt

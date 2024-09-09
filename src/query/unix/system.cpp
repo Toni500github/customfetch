@@ -110,43 +110,43 @@ System::System()
 }
 
 // clang-format off
-std::string System::kernel_name()
+std::string System::kernel_name() noexcept
 { return m_uname_infos.sysname; }
 
-std::string System::kernel_version()
+std::string System::kernel_version() noexcept
 { return m_uname_infos.release; }
 
-std::string System::hostname()
+std::string System::hostname() noexcept
 { return m_uname_infos.nodename; }
 
-std::string System::arch()
+std::string System::arch() noexcept
 { return m_uname_infos.machine; }
 
-long& System::uptime()
+long& System::uptime() noexcept
 { return m_sysInfos.uptime; }
 
-std::string& System::os_pretty_name()
+std::string& System::os_pretty_name() noexcept
 { return m_system_infos.os_pretty_name; }
 
-std::string& System::os_name()
+std::string& System::os_name() noexcept
 { return m_system_infos.os_name; }
 
-std::string& System::os_id()
+std::string& System::os_id() noexcept
 { return m_system_infos.os_id; }
 
-std::string& System::os_versionid()
+std::string& System::os_versionid() noexcept
 { return m_system_infos.os_version_id; }
 
-std::string& System::os_version_codename()
+std::string& System::os_version_codename() noexcept
 { return m_system_infos.os_version_codename; }
 
-std::string& System::host_modelname()
+std::string& System::host_modelname() noexcept
 { return m_system_infos.host_modelname; }
 
-std::string& System::host_vendor()
+std::string& System::host_vendor() noexcept
 { return m_system_infos.host_vendor; }
 
-std::string& System::host_version()
+std::string& System::host_version() noexcept
 { return m_system_infos.host_version; }
 
 // clang-format on

@@ -417,17 +417,17 @@ Theme::Theme(systemInfo_t& queried_themes) : m_queried_themes(queried_themes)
     done = true;
 }
 
-std::string Theme::gtk_theme()
+std::string Theme::gtk_theme() noexcept
 { return getInfoFromName(m_queried_themes, m_theme_name_version, "theme-name"); }
 
-std::string Theme::gtk_icon_theme()
+std::string Theme::gtk_icon_theme() noexcept
 { return getInfoFromName(m_queried_themes, m_theme_name_version, "icon-theme-name"); }
 
-std::string Theme::gtk_font()
+std::string Theme::gtk_font() noexcept
 { return getInfoFromName(m_queried_themes, m_theme_name_version, "font-name"); }
 
-std::string& Theme::cursor()
+std::string& Theme::cursor() noexcept
 { return m_theme_infos.cursor; }
 
-std::string& Theme::cursor_size()
+std::string& Theme::cursor_size() noexcept
 { return m_theme_infos.cursor_size; }

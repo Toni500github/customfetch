@@ -306,11 +306,11 @@ static std::string get_term_version(std::string_view term_name)
     return ret;
 }
 
-User::User()
+User::User() noexcept
 {
     if (!m_bInit)
     {
-        uid_t uid = geteuid();
+        uid_t uid = getuid();
 
         if (m_pPwd = getpwuid(uid), !m_pPwd)
             die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
@@ -320,15 +320,15 @@ User::User()
 }
 
 // clang-format off
-std::string User::name()
+std::string User::name() noexcept
 { return m_pPwd->pw_name; }
 
-std::string User::shell_path()
+std::string User::shell_path() noexcept
 { return m_pPwd->pw_shell; }
 
 // clang-format on
 // Be ready to loose some brain cells from now on
-std::string& User::shell_name()
+std::string& User::shell_name() noexcept
 {
     static bool done = false;
     if (!done)
