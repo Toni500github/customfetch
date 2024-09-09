@@ -145,7 +145,7 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
 }
 
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  const colors_t& colors, const bool parsingLayout, const bool is_image)
+                  const colors_t& colors, const bool parsingLayout)
 {
     std::string output = input.data();
     pureOutput         = output;
@@ -356,22 +356,17 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                 if (hasStart(command, "auto"))
                 {
-                    std::uint8_t ver =
-                        static_cast<std::uint8_t>(command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0);
+                    std::uint16_t ver =
+                        static_cast<std::uint16_t>(command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0);
                     if (ver >= auto_colors.size() || ver < 1)
                         ver = 0;
 
                     if (auto_colors.empty())
                     {
-                        if (is_image)
-                            auto_colors.push_back(config.gui ? "white" : NOCOLOR_BOLD);
+                        if (firstrun_noclr)
+                            auto_colors.push_back(config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
                         else
-                        {
-                            if (firstrun_noclr)
-                                auto_colors.push_back(config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
-                            else
-                                auto_colors.push_back(config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
-                        }
+                            auto_colors.push_back(config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
                     }
 
                     command = auto_colors.at(ver);

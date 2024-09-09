@@ -15,7 +15,7 @@
  * @param is_image If the source path is an image (used for GUI mode only)
  */ 
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  const colors_t& colors, const bool parsingLayout, const bool is_image = false);
+                  const colors_t& colors, const bool parsingLayout);
 
 /* Set module members values to a systemInfo_t map.
  * If the name of said module matches any module name, it will be added

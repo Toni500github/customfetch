@@ -34,6 +34,7 @@ using namespace GUI;
 // Display::render but only for images on GUI
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
+    const std::string&       path = Display::detect_distro(config);
     systemInfo_t             systemInfo{};
     std::vector<std::string> layout{ config.layout };
 
@@ -46,10 +47,19 @@ static std::vector<std::string> render_with_image(const Config& config, const co
         stbi_image_free(img);
     else
         die("Unable to load image '{}'", config.source_path);
+    
+    // this is just for parse() to auto add the distro colors
+    std::ifstream file(path, std::ios::binary);
+    std::string line;
+    while (std::getline(file, line))
+    {
+        std::string _;
+        parse(line, systemInfo, _, config, colors, false);
+    }
 
     std::string _;
     for (std::string& layout : layout)
-        layout = parse(layout, systemInfo, _, config, colors, true, true);
+        layout = parse(layout, systemInfo, _, config, colors, true);
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),

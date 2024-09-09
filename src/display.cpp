@@ -19,14 +19,14 @@ std::string Display::detect_distro(const Config& config)
 {
     debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
 
+    const std::string& ascii_logo_type = (config.ascii_logo_type.empty() ? "" : "_" + config.ascii_logo_type);
+
     if (!config.m_custom_distro.empty())
     {
-        return fmt::format("{}/ascii/{}.txt", config.data_dir, config.m_custom_distro);
+        return fmt::format("{}/ascii/{}{}.txt", config.data_dir, config.m_custom_distro, ascii_logo_type);
     }
     else
     {
-        const std::string& ascii_logo_type = (config.ascii_logo_type.empty() ? "" : "_" + config.ascii_logo_type);
-
         Query::System system;
         std::string   format;
 
@@ -50,7 +50,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty())
     {
-        if (!config.m_custom_distro.empty())
+        if (!config.m_custom_distro.empty() && !config.gui)
             die("You need to specify if either using a custom distro ascii art OR a custom source path");
     }
 
