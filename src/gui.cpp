@@ -34,7 +34,7 @@ using namespace GUI;
 // Display::render but only for images on GUI
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
-    const std::string&       path = Display::detect_distro(config);
+    std::string              path{Display::detect_distro(config)};
     systemInfo_t             systemInfo{};
     std::vector<std::string> layout{ config.layout };
 
@@ -48,6 +48,16 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     else
         die("Unable to load image '{}'", config.source_path);
     
+    if (!config.ascii_logo_type.empty())
+    {
+        const size_t& pos = path.rfind('.');
+        
+        if (pos != std::string::npos)
+            path.insert(pos, "_" + config.ascii_logo_type);
+        else
+            path += "_" + config.ascii_logo_type;
+    }
+
     // this is just for parse() to auto add the distro colors
     std::ifstream file(path, std::ios::binary);
     std::string line, _;
