@@ -50,14 +50,11 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     
     // this is just for parse() to auto add the distro colors
     std::ifstream file(path, std::ios::binary);
-    std::string line;
+    std::string line, _;
+    
     while (std::getline(file, line))
-    {
-        std::string _;
         parse(line, systemInfo, _, config, colors, false);
-    }
 
-    std::string _;
     for (std::string& layout : layout)
         layout = parse(layout, systemInfo, _, config, colors, true);
 
@@ -106,7 +103,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     auto                   context = m_label.get_pango_context();
     Pango::FontDescription font(config.font);
     debug("font family = {}", font.get_family().raw());
-    debug("font style = {}", fmt::underlying(font.get_style()));
+    debug("font style = {}",  fmt::underlying(font.get_style()));
     debug("font weight = {}", fmt::underlying(font.get_weight()));
     context->set_font_description(font);
 

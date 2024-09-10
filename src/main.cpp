@@ -426,9 +426,10 @@ int main (int argc, char *argv[])
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
 
-    if (!config.ascii_logo_type.empty())
+    if (!config.ascii_logo_type.empty() && !config.gui)
     {
         const size_t& pos = path.rfind('.');
+        
         if (pos != std::string::npos)
             path.insert(pos, "_" + config.ascii_logo_type);
         else
