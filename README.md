@@ -1,13 +1,13 @@
-[![customfetch-git](https://img.shields.io/aur/version/customfetch?color=1793d1&label=customfetch&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch/)
-[![customfetch-git](https://img.shields.io/aur/version/customfetch-git?color=1793d1&label=customfetch-git&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch-git/)
-[![customfetch-gui](https://img.shields.io/aur/version/customfetch-gui?color=1793d1&label=customfetch-gui&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch-gui/)
-[![customfetch-gui-git](https://img.shields.io/aur/version/customfetch-gui-git?color=1793d1&label=customfetch-gui-git&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/customfetch-gui-git/)\
+[![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/m/Toni500github/customfetch)](https://github.com/Toni500github/customfetch/commits)
+[![GitHub top language](https://img.shields.io/github/languages/top/Toni500github/customfetch?logo=cplusplusbuilder&label=)](https://github.com/Toni500github/customfetch/blob/main/src)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/Toni500github/customfetch/makefile.yml)](https://github.com/Toni500github/customfetch/actions)\
 [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
 
 # Customfetch
 >[!WARNING]
->customfetch is still WIP and in alpha, it will be ready with a stable release.\
->If you still wanna try, go ahead and compile it. Don't forget to open an issue/PR for any problem.\
+>customfetch is in alpha, it will be 100% ready with a stable release.\
+>It is pretty stable right now though, so give it a try, why not\
+>Don't forget to open any issue/PR for any problem.\
 >Thanks!
 
 A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\
@@ -23,11 +23,11 @@ Currently supports Linux distros only. Android may be coming when stable release
 >or maybe continue using neofetch/fastfetch if it still works great for you
 -->
 
-<img align=left width=52% height=40% src="assets/screenshots/nitch_catpan-style.png" />
-<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="49%" height="16px" align="left" />
-<img align=left width=52% height=40% src="assets/screenshots/modern-simple.png"/>
-<p align="center">
-    <img align=top width=44% height=20% src="assets/screenshots/cbonsai.png" />
+<img align=left width=80% height=40% src="assets/screenshots/nitch_catpan-style.png" />
+<!-- <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="49%" height="16px" align="left" /> -->
+<img align=left width=80% height=40% src="assets/screenshots/modern-simple.png"/>
+<p align="right">
+    <img align="top" width=80% height=20% src="assets/screenshots/cbonsai.png" />
 </p>
 <img src="assets/screenshots/pipeline-style.png" />
 
