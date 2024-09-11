@@ -14,7 +14,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: create tmp directory
-      run: mkdir /tmp/customfetch-0.9.0.orig
+      run: mkdir /tmp/customfetch-0.9.2.orig
 
     - name: Install Packages
       run: sudo apt-get update && sudo apt-get install libwayland-dev binutils lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
@@ -24,8 +24,8 @@ jobs:
 
     - name: Create deb
       run: |
-        cp -r $GITHUB_WORKSPACE /tmp/customfetch-0.9.0.orig
-        cd /tmp/customfetch-0.9.0.orig/customfetch
+        cp -r $GITHUB_WORKSPACE /tmp/customfetch-0.9.2.orig
+        cd /tmp/customfetch-0.9.2.orig/customfetch
         mkdir -p Debian/Debhelper/Buildsystem/
         wget https://github.com/Debian/debhelper/raw/master/lib/Debian/Debhelper/Buildsystem/makefile.pm -O Debian/Debhelper/Buildsystem/make.pm
         sed -i "s#package Debian::Debhelper::Buildsystem::makefile#package Debian::Debhelper::Buildsystem::make#g" Debian/Debhelper/Buildsystem/make.pm
@@ -33,8 +33,8 @@ jobs:
 
     - name: Install test cufetch
       run: |
-        cd /tmp/customfetch-0.9.0.orig
-        sudo dpkg -i customfetch_0.9.0-1_amd64.deb
+        cd /tmp/customfetch-0.9.2.orig
+        sudo dpkg -i customfetch_0.9.2-1_amd64.deb
         cufetch
   
   build_ubuntu-latest:
