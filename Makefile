@@ -3,9 +3,9 @@ PREFIX	  	?= /usr
 MANPREFIX	?= $(PREFIX)/share/man
 APPPREFIX 	?= $(PREFIX)/share/applications
 VARS  	  	?=
-GUI_MODE     	?= 0
 
-DEBUG 		?= 1
+DEBUG 		?= 0
+GUI_MODE        ?= 0
 VENDOR_TEST 	?= 0
 DEVICE_TEST     ?= 0
 # https://stackoverflow.com/a/1079861

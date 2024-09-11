@@ -3,43 +3,52 @@
 # here is how it works:
 # the variable "layout" is used for showing the infos
 # as like as the user want, no limitation.
-# inside here there are 4 "tags": $<> $() ${} $[]
+# inside here there are 5 "tags": $<> $() ${} $[] $%%
 
-# $<> lets you access a member of a module
+# The Info tag $<> lets you print the value of a member of a module.
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
-# run "cufetch -l" for a list of builti-in modules
+# All the modules and their members are listed in the `--list-modules` argument
 
-# $() let's you execute bash commands
-# e.g $(echo \"hello world\") will indeed echo out Hello world.
+# The Bash command tag $() will execute bash commands and print the output.
+# e.g $(echo \"hello world\") will indeed echo out hello world.
 # you can even use pipes
 # e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
 
-# $[] is used for equal conditional check
-# syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse] with no spaces between commas ','
+# The Conditional tag $[] is used to display different outputs based on the comparison.
+# syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse]
+# note: putting spaces between commas, could change the expected result
+#
 # Each part can have a tag or anything else.
 # e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
 # This is useful when on some terminal or WM the detection can be different than others
 
-# ${} is used for which color to use for colorizing the text
+# The Color tag ${} is used for printing the text of a certain color.
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
-# you can even put a custom hex color e.g: ${#ff6622}
+# The colors can be predefined such as: black, red, green, blue, cyan, yellow, magenta, white.
+# They can be configured in the config file.
 #
-# It's possible to enable multiple options, put these symbols before '#':
-# * b, for making the color in the background
-# * u, for underline the text
-# * !, for making the text bold
-# * i, for making the text italic
+# They can have hexcodes colors (e.g "#5522dd").
+# You can apply special effects to colors by using the following symbols before the '#' in hex codes:
+# * b  for background color.
+# * u  for underline the text
+# * !  for bold text
+# * i  for italic text
 #
-# OR bash escape code colors e.g ${\e[1;32m} or ${\e[0;34m}.
-# For auto coloring, depending on the ascii logo colors, use ${auto}.
-# They can be used for different colors too. So for getting the 2nd color of the ascii logo,
-# use ${auto2}, for the 4th one use ${auto4} and so on.
+# Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[0;34m}.
+# NOTE: 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
+#
+# To reset colors, use ${0} for a full reset or ${1} for a bold reset.
+#
+# To use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
+# If you're using GUI mode and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
+
+# The Percentage tag $%% is used for displaying the percentage between 2 numbers.\
+# It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
+# For example: $%50,100%
+# For inverting colors of bad and great (red and green), before the last '%' put '!'
+# without quotes ofc
 
 # Little FAQ
-# Q: "but then if I want to make only some words/chars in a color and the rest normal?"
-# A: there is ${0}. e.g "${red}hello ${0}world, yet again" will only print "hello" in red, and then "world, yet again" normal
-#    Or, if you want to reset color and make it bold, use ${1}
-
 # Q: "Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?"
 # A: replace "<-" with "\\<-". It won't affect the printing in terminal
 
@@ -58,7 +67,7 @@ layout = [
 	"│${green}  ${0} GPU    │ ${green} $<gpu.name>",
 	"│${magenta} 󰍛 ${0} memory │ ${magenta} $<ram.ram>",
 	"├───────────┤",
-	"│ 󰏘 colors  │  ${\e[30m}   ${\e[31m}   ${\e[32m}   ${\e[33m}   ${\e[34m}   ${\e[35m}   ${\e[36m}   ${\e[37m}   ",
+	"│ 󰏘 colors  │  $<builtin.colors_symbol( )>",
 	"╰───────────╯"
 ]
 
@@ -84,7 +93,7 @@ title-sep = "-"
 # A separator (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
-sep-reset = ":"
+sep-reset = ""
 
 # Should we reset color after or before the separator?
 # true  = after  ("test ->${0} ")
@@ -103,9 +112,7 @@ logo-padding-top = 0
 # Padding of the layout from the top
 layout-padding-top = 0
 
-# Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
-# OR ANSI escape code colors like "\e[1;34m"
-# remember to add ${0} where you want to reset color
+# Colors
 black   = "\e[1;30m"
 red     = "\e[1;31m"
 green   = "\e[1;32m"
@@ -156,17 +163,17 @@ enable = false
 # check https://lazka.github.io/pgi-docs/Pango-1.0/classes/FontDescription.html#Pango.FontDescription for more infos
 font = "Liberation Mono Normal 12"
 
-# These are the colors palette you can use in the GUI mode.
-# They can overwritte with ANSI escape code colors
-# but they don't work with those, only hexcodes
-black 	= "!#000005"
-red 	= "!#ff2000"
-green 	= "!#00ff00"
-blue 	= "!#00aaff"
-cyan 	= "!#00ffff"
-yellow 	= "!#ffff00"
+# These are the colors you can use in the GUI mode.
+# They overwrite the normal colors from above,
+# but they can only have hexcodes colors
+black	= "!#000005"
+red	= "!#ff2000"
+green	= "!#00ff00"
+blue	= "!#00aaff"
+cyan	= "!#00ffff"
+yellow	= "!#ffff00"
 magenta = "!#f881ff"
-white  	= "!#ffffff"
+white	= "!#ffffff"
 
 # Path to image as a background.
 # put "disable" for disabling and use the theme color as background.

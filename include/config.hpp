@@ -100,42 +100,44 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
 # All the modules and their members are listed in the `--list-modules` argument
 
-# The Bash command tag $() let's you execute bash commands.
-# e.g $(echo \"hello world\") will indeed echo out Hello world.
+# The Bash command tag $() will execute bash commands and print the output.
+# e.g $(echo \"hello world\") will indeed echo out hello world.
 # you can even use pipes
 # e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
 
 # The Conditional tag $[] is used to display different outputs based on the comparison.
-# syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse] with no spaces between commas ','
+# syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse]
+# note: putting spaces between commas, could change the expected result
+#
 # Each part can have a tag or anything else.
 # e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
 # This is useful when on some terminal or WM the detection can be different than others
 
 # The Color tag ${} is used for printing the text of a certain color.
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
-# you can even put a custom hex color e.g: ${#ff6622}
-# It's possible to enable multiple options, put these symbols before '#':
-# * b, for making the color in the background
-# * u, for underline the text
-# * !, for making the text bold
-# * i, for making the text italic
+# The colors can be predefined such as: black, red, green, blue, cyan, yellow, magenta, white.
+# They can be configured in the config file.
+#
+# They can have hexcodes colors (e.g "#5522dd").
+# You can apply special effects to colors by using the following symbols before the '#' in hex codes:
+# * b  for background color.
+# * u  for underline the text
+# * !  for bold text
+# * i  for italic text
 #
 # Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[0;34m}.
 # NOTE: 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
 #
 # To reset colors, use ${0} for a full reset or ${1} for a bold reset.
 #
-# For auto coloring, depending on the ascii logo colors, use ${auto}.
-# They can be used for different colors too. So for getting the 2nd color of the ascii logo,
-# use ${auto2}, for the 4th one use ${auto4} and so on.
-#
-# If you're using GUI mode, all the \fB${auto}\fR colors are going to be ${white}
+# To use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
+# If you're using GUI mode and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
 
 # The Percentage tag $%% is used for displaying the percentage between 2 numbers.\
 # It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
-# For example: $%10,5%
-# For inverting colors of bad and great (red and green), before the last '%' a put '!'
-# without quotes
+# For example: $%50,100%
+# For inverting colors of bad and great (red and green), before the last '%' put '!'
+# without quotes ofc
 
 # Little FAQ
 # Q: "Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?"
@@ -208,9 +210,7 @@ logo-padding-top = 0
 # Padding of the layout from the top
 layout-padding-top = 0
 
-# Colors can be with: hexcodes (#55ff88) and for bold put '!' (!#55ff88)
-# OR ANSI escape code colors like "\e[1;34m"
-# remember to add ${0} where you want to reset color
+# Colors
 black   = "\e[1;30m"
 red     = "\e[1;31m"
 green   = "\e[1;32m"
@@ -261,9 +261,9 @@ enable = false
 # check https://lazka.github.io/pgi-docs/Pango-1.0/classes/FontDescription.html#Pango.FontDescription for more infos
 font = "Liberation Mono Normal 12"
 
-# These are the colors palette you can use in the GUI mode.
-# They can overwritte with ANSI escape code colors
-# but they don't work with those, only hexcodes
+# These are the colors you can use in the GUI mode.
+# They overwrite the normal colors from above,
+# but they can only have hexcodes colors
 black   = "!#000005"
 red     = "!#ff2000"
 green   = "!#00ff00"

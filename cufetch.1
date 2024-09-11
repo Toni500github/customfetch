@@ -12,7 +12,7 @@ How does it work?
 .PP
 We use the \fBconfig.toml\fR file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
 .PP
-You have 4 tags:
+You have 5 tags:
 .br
 * \fB$<module.member>\fR - Used for printing the value of a member of a module.
 .br
@@ -21,6 +21,8 @@ You have 4 tags:
 * \fB$(bash command)\fR - Used to execute bash commands and print the output.
 .br
 * \fB$[something,equalToSomething,ifTrue,ifFalse]\fR - Conditional tag to display different outputs based on the comparison.
+.br
+* \fB$%n1,n2%\fR - Used to print the percentage and print with colors
 .PP
 They can be used in the ascii art text file and layout, but how to use them?
 .br
@@ -28,61 +30,69 @@ Here's a simple bare-minimal example:
 .br
 layout = [
 .br
-        "My OS is $<os.name>, and username is $<user.name>",
+	"My OS is $<os.name>, and username is $<user.name>",
 .br
-        "The color of the following text will be ${red}red",
+	"The color of the following text will be ${red}red",
 .br
-        "And this is a $(echo \\"bash command\\")"
+	"This is a $(echo \\"bash command\\")",
+.br
+	"Check if \\\\$<user.name> is correct: $[$<user.name>,toni,indeed,it's not toni but $(echo $USER)]",
+.br
+	"The discount between 50$ and 100$ is $%50,100%"
 .br
 ]
 .PP
-The \fBInfo tag $<>\fR will prints a member of a module. All the modules and their members are listed in the `--list-modules` argument
+* The \fBInfo tag $<>\fR will prints the value of a member of a module.
+.br
+  All the modules and their members are listed in the `--list-modules` argument
 .PP
-The \fBColor tag ${}\fR is used for printing the text of a certain color.
+* The \fBColor tag ${}\fR is used for printing the text of a certain color.
 .br
-The colors can be predefined such as: \fIblack\fR, \fIred\fR, \fIgreen\fR, \fIblue\fR, \fIcyan\fR, \fIyellow\fR, \fImagenta\fR, \fIwhite\fR and they can be configured in the config file.
+  The colors can be predefined such as: \fIblack\fR, \fIred\fR, \fIgreen\fR, \fIblue\fR, \fIcyan\fR, \fIyellow\fR, \fImagenta\fR, \fIwhite\fR and they can be configured in the config file.
 .br
-They can have hexcodes colors (e.g "#5522dd").
+  They can have hexcodes colors (e.g "#5522dd").
 .br
-You can apply special effects to colors by using the following symbols before the '#' in hex codes:
+  You can apply special effects to colors by using the following symbols before the '#' in hex codes:
 .br
-* \fBb\fR for background color.
+  * \fBb\fR for background color.
 .br
-* \fBu\fR for underlining the text.
+  * \fBu\fR for underlining the text.
 .br
-* \fB!\fR for bold text.
+  * \fB!\fR for bold text.
 .br
-* \fBi\fR for italic text.
+  * \fBi\fR for italic text.
 .PP
-Alternatively, ANSI escape codes can be used, e.g "\\e[1;31m" and "\\e[38;5;160m", but \fBnote\fR that 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
-.br
-You can also use them inside the tag, like \fB${!#343345}\fR or \fB${\\e[1;31m}\fR.
-.br
-To reset colors, use \fB${0}\fR for a full reset or \fB${1}\fR for a bold reset.
-.br
-To use the colors that the ascii art logo uses, use \fB${auto}\fR for getting the 1st color, \fB${auto4}\fR for the 4th one and so on.
-.br
-If you're using GUI mode, all the \fB${auto}\fR colors are going to be ${white}
+  Alternatively, ANSI escape codes can be used, e.g "\\e[1;31m" and "\\e[38;5;160m", but \fBnote\fR that 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
 .PP
-The \fBConditional tag $[]\fR is used to display different outputs based on the comparison.
-.br
-The syntax \fBMUST\fR be: $[something,equalToSomethingElse,ifTrue,ifFalse] with no spaces between commas
-.br
-Each part can have a tag or anything else.
+  You can also use them inside the tag, like \fB${!#343345}\fR or \fB${\\e[1;31m}\fR.
 .PP
-For example: $[$<user.name>,$(echo $USER),correct,NOT correct]
-.br
-This is useful when on some terminal or WM the detection can be different than others
+  To reset colors, use \fB${0}\fR for a normal reset or \fB${1}\fR for a bold reset.
 .PP
-The \fBBash command tag $()\fR speaks for itself. It can execute normal bash commands.
+  To use the colors that the ascii art logo uses, use \fB${auto}\fR for getting the 1st color, \fB${auto4}\fR for the 4th one and so on.
+.br
+  If you're using GUI mode and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
 .PP
-The \fBPercentage tag $%%\fR is used for displaying the percentage between 2 numbers.
+* The \fBConditional tag $[]\fR is used to display different outputs based on the comparison.
 .br
-It \fBMust\fR contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.
+  The syntax \fBMUST\fR be: $[something,equalToSomethingElse,ifTrue,ifFalse] \fBnote:\fR putting spaces could change the expected result
 .br
-For example: $%10,5%
+  Each part can have a tag or anything else.
+.PP
+  For example: $[$<user.name>,$(echo $USER),correct,NOT correct]
 .br
-For inverting colors of bad and great (red and green), before the last '%' a put '!' without quotes
+  This is useful when on some terminal or WM the detection can be different than others
+.PP
+* The \fBBash command tag $()\fR speaks for itself.
+.br
+  It can execute normal bash commands and print the output of it.
+.PP
+* The \fBPercentage tag $%%\fR is used for displaying the percentage between 2 numbers.
+.br
+  It \fBMust\fR contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.
+.br
+  For example: $%50,100%
+.br
+  For inverting colors of bad and great (red and green), before the last '%' put '!' (without quotes ofc)
 .PP
 To escape any $ or bracket, just use \\
 .SH OPTIONS
