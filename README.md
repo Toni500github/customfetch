@@ -23,11 +23,11 @@ Currently supports Linux distros only. Android may be coming when stable release
 >or maybe continue using neofetch/fastfetch if it still works great for you
 -->
 
-<img align=left width=80% height=40% src="assets/screenshots/nitch_catpan-style.png" />
+<img align=left width=52% height=40% src="assets/screenshots/nitch_catpan-style.png" />
 <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="49%" height="16px" align="left" /> -->
-<img align=left width=80% height=40% src="assets/screenshots/modern-simple.png"/>
-<p align="right">
-    <img align="top" width=80% height=20% src="assets/screenshots/cbonsai.png" />
+<img align=left width=52% height=40% src="assets/screenshots/modern-simple.png"/>
+<p align="center">
+    <img align="top" width=52% height=20% src="assets/screenshots/cbonsai.png" />
 </p>
 <img src="assets/screenshots/pipeline-style.png" />
 
