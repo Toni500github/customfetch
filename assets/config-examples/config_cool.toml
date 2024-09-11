@@ -53,10 +53,11 @@
 # A: replace "<-" with "\\<-". It won't affect the printing in terminal
 
 # Old pipelines screensavers inspired layout
-# This is really system depedent
+# This is really system depedent and really meassy
+# but proves how customizable you can be
 layout = [
 	"$<builtin.title>",
-	"$<builtin.tile_sep>",
+	"$<builtin.title_sep>",
 	"${red}$<os.name> ${cyan} $<system.arch>${cyan} \\<- Arch ",
 	"${red}	    ^		      ${green} $<os.kernel> \\<━━━┓",
 	"${red}	    |						${green}┃",
@@ -75,14 +76,14 @@ layout = [
 	#"${white}Packages -> $<os.pkgs>",
 	#"${!#fff1ba}WM -> $<user.wm_name>",
         #"${!#ffff2a}DE -> $<user.de_name> $<user.de_version>",
-	"                             ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
-	"                             ┃                                                  ┃",
-	"                             ┃    ${!#448aa4}Disk (/) -> $<disk(/).disk>    ┃",
-	"System Infos ━━━━━━━━━━━━━━━━┫    ${magenta}CPU -> $<cpu.cpu>       ┃",
-	"                             ┃    ${blue}GPU -> $<gpu.name>                ┃",
-        "                             ┃    ${!#03ff93}RAM usage -> $<ram.ram>             ┃",
-        "                             ┃                                                  ┃",
-        "                             ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+	"                             ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+	"                             ┃                                                         ┃",
+	"                             ┃    ${!#448aa4}Disk (/) -> $<disk(/).disk>  ┃",
+	"System Infos ━━━━━━━━━━━━━━━━┫    ${magenta}CPU -> $<cpu.cpu>              ┃",
+	"                             ┃    ${blue}GPU -> $<gpu.name>                       ┃",
+        "                             ┃    ${!#03ff93}RAM usage -> $<ram.ram>            ┃",
+        "                             ┃                                                         ┃",
+        "                             ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
 	"",
 	"$<builtin.colors_bg>", # normal colors
 	"$<builtin.colors_light_bg>" # light colors
@@ -110,7 +111,7 @@ title-sep = "-"
 # A separator (or string) that when ecountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
-sep-reset = ":"
+sep-reset = "->"
 
 # Should we reset color after or before the separator?
 # true  = after  ("test ->${0} ")
