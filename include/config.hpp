@@ -140,8 +140,11 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # without quotes ofc
 
 # Little FAQ
-# Q: "Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?"
-# A: replace "<-" with "\\<-". It won't affect the printing in terminal
+# Q: Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?
+# A: replace "<-" with "\\<-" in the config, or "\<-" in the ascii art. It won't affect the printing in terminal
+
+# Q: It happens with '&' too, like "Yin & yang"
+# A: do the same as above explained, "\\&" in the config, or "\&" in the ascii art.
 
 layout = [
     "$<builtin.title>",

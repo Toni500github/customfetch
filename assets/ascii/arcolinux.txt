@@ -13,8 +13,8 @@ ${blue}        :ooooooooo.    :ooooooooo
 ${blue}       :ooooooooo.      :ooooooooo
 ${blue}      :oooarcooo         .oooarcooo
 ${blue}     :ooooooooy           .ooooooooo
-${blue}    :ooooooooo   ${\e[1m}/ooooooooooooooooooo${blue}
-${blue}   :ooooooooo      ${\e[1m}.-ooooooooooooooooo.${blue}
-${blue}  ooooooooo-             ${\e[1m}-ooooooooooooo.${blue}
-${blue} ooooooooo-                 ${\e[1m}.-oooooooooo.${blue}
-${blue}ooooooooo.                     ${\e[1m}-ooooooooo${blue}
+${blue}    :ooooooooo   ${1}/ooooooooooooooooooo${blue}
+${blue}   :ooooooooo      ${1}.-ooooooooooooooooo.${blue}
+${blue}  ooooooooo-             ${1}-ooooooooooooo.${blue}
+${blue} ooooooooo-                 ${1}.-oooooooooo.${blue}
+${blue}ooooooooo.                     ${1}-ooooooooo${blue}

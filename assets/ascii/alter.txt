@@ -11,7 +11,7 @@ ${cyan}            wwwwwwwwwwwwwwwwwwww,
 ${cyan}           w~1i.wwwwwwwwwwwwwwwww,
 ${cyan}         3~:~1lli.wwwwwwwwwwwwwwww.
 ${cyan}        :~~:~?ttttzwwwwwwwwwwwwwwww
-${cyan}       #<~:~~~~?llllltO-.wwwwwwwwwww
+${cyan}       #\<~:~~~~?llllltO-.wwwwwwwwwww
 ${cyan}      #~:~~:~:~~?ltlltlttO-.wwwwwwwww
 ${cyan}     @~:~~:~:~:~~(zttlltltlOda.wwwwwww
 ${cyan}    @~:~~: ~:~~:~:(zltlltlO    a,wwwwww

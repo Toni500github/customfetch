@@ -362,12 +362,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         ver = 0;
 
                     if (auto_colors.empty())
-                    {
-                        if (firstrun_noclr)
-                            auto_colors.push_back(config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
-                        else
-                            auto_colors.push_back(config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
-                    }
+                        auto_colors.push_back(NOCOLOR_BOLD);
 
                     command = auto_colors.at(ver);
                 }
@@ -532,17 +527,24 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
     // https://github.com/dunst-project/dunst/issues/900
     // pango markup doesn't like '<' if it's not a tag
-    // workaround: just put "\<" in the config, e.g "$<os.kernel> \<- Kernel"
-    // "But.. what if I want '<<<<<-' " just put \ on each one of < :D
-    // sorry, not my problem, but pangos
+    // and doesn't like '&' too
+    // workaround: just put "\<" or "\&" in the config, e.g "$<os.kernel> \<- Kernel"
     if (config.gui)
     {
         replace_str(output, "\\<", "&lt;");
+        replace_str(output, "\\&", "&amp;");
+        replace_str(output, "&amp;lt;", "&lt;");
         replace_str(output, "&lt;span", "\\<span");
         replace_str(output, "&lt;/span>", "\\</span>");
     }
     else
+    {
         replace_str(output, "\\<", "<");
+        replace_str(output, "\\&", "&");
+    }
+
+    replace_str(pureOutput, "\\<", "<");
+    replace_str(pureOutput, "\\&", "&");
 
     return output;
 }
