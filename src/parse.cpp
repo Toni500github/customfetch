@@ -303,10 +303,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (true_comma == command.npos)
                     die("conditional tag {} doesn't have a comma for separiting the true statment", command);
 
-                const std::string& conditional        = command.substr(0, conditional_comma);
-                const std::string& equalto            = command.substr(conditional_comma + 1, equalto_comma - conditional_comma - 1);
-                const std::string& true_statment      = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
-                const std::string& false_statment     = command.substr(true_comma + 1);
+                const std::string& conditional    = command.substr(0, conditional_comma);
+                const std::string& equalto        = command.substr(conditional_comma + 1, equalto_comma - conditional_comma - 1);
+                const std::string& true_statment  = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
+                const std::string& false_statment = command.substr(true_comma + 1);
 
                 std::string _;
                 const std::string& parsed_conditional = parse(conditional, systemInfo, _, config, colors, parsingLayout);

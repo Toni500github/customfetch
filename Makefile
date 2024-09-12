@@ -4,7 +4,7 @@ MANPREFIX	?= $(PREFIX)/share/man
 APPPREFIX 	?= $(PREFIX)/share/applications
 VARS  	  	?=
 
-DEBUG 		?= 0
+DEBUG 		?= 1
 GUI_MODE        ?= 0
 VENDOR_TEST 	?= 0
 DEVICE_TEST     ?= 0

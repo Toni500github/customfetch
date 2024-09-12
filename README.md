@@ -1,4 +1,3 @@
-[![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/m/Toni500github/customfetch)](https://github.com/Toni500github/customfetch/commits)
 [![GitHub top language](https://img.shields.io/github/languages/top/Toni500github/customfetch?logo=cplusplusbuilder&label=)](https://github.com/Toni500github/customfetch/blob/main/src)
 [![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/Toni500github/customfetch/makefile.yml)](https://github.com/Toni500github/customfetch/actions)\
 [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
@@ -252,11 +251,12 @@ bg-image = "/tmp/idk.png"
 ```
 
 We use the `config.toml` file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
-You have 4 tags: 
+You have 5 tags: 
 * `$<module.member>` - Used for printing the value of a member of a module.
 * `${color}` - Used for displaying text in a specific color.
 * `$(bash command)` - Used to execute bash commands and print the output.
 * `$[something,equalToSomethingElse,iftrue,ifalse]` - Conditional tag to display different outputs based on the comparison.
+* `$%n1,n2%` - Used to print the percentage and print with colors
 
 They can be used in the ascii art text file and layout, but how to use them?
 
