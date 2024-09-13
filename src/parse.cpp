@@ -241,8 +241,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         if (static_cast<int>(endBracketIndex) == -1)
             die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
 
-        const std::string& strToReplace = fmt::format("${}{}{}", opentag, command, type);
-        const size_t       start_pos    = pureOutput.find(strToReplace);
+        const std::string& tagToReplace = fmt::format("${}{}{}", opentag, command, type);
+        const size_t       tagpos       = pureOutput.find(tagToReplace);
         const size_t       taglen       = (endBracketIndex + 1) - dollarSignIndex;
 
         switch (type)
@@ -252,8 +252,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 const std::string& shell_cmd = shell_exec(command);
                 output.replace(dollarSignIndex, taglen, shell_cmd);
 
-                if (!parsingLayout && start_pos != std::string::npos)
-                    pureOutput.replace(start_pos, taglen, shell_cmd);
+                if (!parsingLayout && tagpos != std::string::npos)
+                    pureOutput.replace(tagpos, taglen, shell_cmd);
 
             } break;
 
@@ -270,8 +270,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 output.replace(dollarSignIndex, taglen,
                                         getInfoFromName(systemInfo, moduleName, moduleMemberName));
 
-                if (!parsingLayout && start_pos != std::string::npos)
-                    pureOutput.replace(start_pos, taglen,
+                if (!parsingLayout && tagpos != std::string::npos)
+                    pureOutput.replace(tagpos, taglen,
                                         getInfoFromName(systemInfo, moduleName, moduleMemberName));
             } break;
 
@@ -407,7 +407,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         const size_t pos = str_clr.find('#');
                         if (pos != std::string::npos)
                         {
-                            std::string tagfmt = "<span ";
+                            std::string tagfmt = "span ";
 
                             const std::string& opt_clr = str_clr.substr(0, pos);
 
@@ -426,10 +426,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                 tagfmt += "style='italic' ";
 
                             tagfmt.pop_back();
-                            tagfmt += '>';
 
                             output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                                    fmt::format("{}{}</span>",
+                                                    fmt::format("<{}>{}</span>",
                                                                 tagfmt, output.substr(endBracketIndex + 1)));
                         }
 
@@ -520,8 +519,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (config.gui && firstrun_noclr)
                     output += "</span>";
 
-                if (!parsingLayout && start_pos != std::string::npos)
-                    pureOutput.erase(start_pos, strToReplace.length());
+                if (!parsingLayout && tagpos != std::string::npos)
+                    pureOutput.erase(tagpos, tagToReplace.length());
         }
     }
 
@@ -549,8 +548,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     return output;
 }
 
-static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t hours, const std::uint16_t mins,
-                                   const std::uint16_t secs, const Config& config)
+static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t hours, const std::uint16_t mins, const std::uint16_t secs,
+                                   const Config& config)
 {
     if (days == 0 && hours == 0 && mins == 0)
         return fmt::format("{}{}", secs, config.uptime_s_fmt);
@@ -667,9 +666,11 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         Query::System query_system;
 
         std::chrono::seconds uptime_secs(query_system.uptime());
-        auto uptime_mins  = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
-        auto uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
-        auto uptime_days  = std::chrono::duration_cast<std::chrono::days>(uptime_secs);
+        const auto& uptime_mins  = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
+        const auto& uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
+        
+        // let's support a little of C++17 without any `#if __cpluscplus` stuff
+        const std::uint16_t uptime_days  = uptime_secs.count() / (60 * 60 * 24);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -681,7 +682,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "name"_fnv1a16: SYSINFO_INSERT(query_system.os_pretty_name()); break;
 
                 case "uptime"_fnv1a16:
-                    SYSINFO_INSERT(get_auto_uptime(uptime_days.count(), uptime_hours.count() % 24,
+                    SYSINFO_INSERT(get_auto_uptime(uptime_days, uptime_hours.count() % 24,
                                                    uptime_mins.count() % 60, uptime_secs.count() % 60, config));
                     break;
 
@@ -691,7 +692,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 case "uptime_hours"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_hours.count()) % 24); break;
 
-                case "uptime_days"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_days.count())); break;
+                case "uptime_days"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_days)); break;
 
                 case "kernel"_fnv1a16:
                     SYSINFO_INSERT(query_system.kernel_name() + ' ' + query_system.kernel_version());
