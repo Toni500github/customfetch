@@ -877,7 +877,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     else if (moduleName == "theme")
     {
-        Query::Theme query_theme(queried_themes);
+        Query::Theme query_theme(queried_themes, config);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -894,9 +894,9 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     else if (moduleName == "theme-gtk-all")
     {
-        Query::Theme gtk2(2, queried_themes, queried_themes_names, "gtk2");
-        Query::Theme gtk3(3, queried_themes, queried_themes_names, "gtk3");
-        Query::Theme gtk4(4, queried_themes, queried_themes_names, "gtk4");
+        Query::Theme gtk2(2, queried_themes, queried_themes_names, "gtk2", config);
+        Query::Theme gtk3(3, queried_themes, queried_themes_names, "gtk3", config);
+        Query::Theme gtk4(4, queried_themes, queried_themes_names, "gtk4", config);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -922,7 +922,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)",
                 moduleName);
 
-        Query::Theme query_theme(ver, queried_themes, queried_themes_names, fmt::format("gtk{}", ver));
+        Query::Theme query_theme(ver, queried_themes, queried_themes_names, fmt::format("gtk{}", ver), config);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });

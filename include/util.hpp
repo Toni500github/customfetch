@@ -107,6 +107,13 @@ void warn(const std::string_view fmt, Args&&... args) noexcept
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
+template <typename... Args>
+void info(const std::string_view fmt, Args&&... args) noexcept
+{
+    fmt::println(BOLD_COLOR((fmt::rgb(fmt::color::cyan))), "INFO: {}",
+                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+}
+
 /** Ask the user a yes or no question.
  * @param def The default result
  * @param fmt The format string

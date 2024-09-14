@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstdint>
 
+#include "config.hpp"
 #include "parse.hpp"
 #include "query.hpp"
 #include "rapidxml-1.13/rapidxml.hpp"
@@ -122,6 +123,12 @@ static bool get_cursor_from_gtk_configs(const std::uint8_t ver, Theme::Theme_t& 
     if (get_gtk_cursor_config(fmt::format("{}/.gtkrc-{}.0", std::getenv("HOME"), ver), theme))
         return true;
 
+    if (get_gtk_cursor_config(fmt::format("{}/.gtkrc-{}.0-kde", std::getenv("HOME"), ver), theme))
+        return true;
+
+    if (get_gtk_cursor_config(fmt::format("{}/.gtkrc-{}.0-kde4", std::getenv("HOME"), ver), theme))
+        return true;
+
     return false;
 }
 
@@ -208,7 +215,7 @@ static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& th
     return true;
 }
 
-static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_t& theme)
+static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_t& theme, const Config &config)
 {
     debug("calling {}", __PRETTY_FUNCTION__);
 
@@ -218,6 +225,12 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
 
         if (gtk_theme_env)
             theme.gtk_theme_name = gtk_theme_env;
+    }
+
+    if (config.slow_query_warnings) {
+        warn("cufetch could not detect a gtk configuration file. cufetch will use the much-slower gsettings.");
+        warn("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub.");
+        info("You can disable this warning by disabling slow-query-warnings in your config.toml file.");
     }
 
     const char* interface;
@@ -256,7 +269,7 @@ static void get_gtk_theme_settings(const std::string_view de_name, Theme::Theme_
     theme.gtk_font.erase(std::remove(theme.gtk_font.begin(), theme.gtk_font.end(), '\''), theme.gtk_font.end());
 }
 
-static void get_gtk_theme_from_configs(const std::uint8_t ver, const std::string_view de_name, Theme::Theme_t& theme)
+static void get_gtk_theme_from_configs(const std::uint8_t ver, const std::string_view de_name, Theme::Theme_t& theme, const Config &config)
 {
     if (get_gtk_theme_config(fmt::format("{}/gtk-{}.0/settings.ini", configDir, ver), theme))
         return;
@@ -270,10 +283,16 @@ static void get_gtk_theme_from_configs(const std::uint8_t ver, const std::string
     if (get_gtk_theme_config(fmt::format("{}/.gtkrc-{}.0", std::getenv("HOME"), ver), theme))
         return;
 
-    get_gtk_theme_settings(de_name, theme);
+    if (get_gtk_theme_config(fmt::format("{}/.gtkrc-{}.0-kde", std::getenv("HOME"), ver), theme))
+        return;
+
+    if (get_gtk_theme_config(fmt::format("{}/.gtkrc-{}.0-kde4", std::getenv("HOME"), ver), theme))
+        return;
+
+    get_gtk_theme_settings(de_name, theme, config);
 }
 
-static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t ver, Theme::Theme_t& theme)
+static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t ver, Theme::Theme_t& theme, const Config &config)
 {
     switch (fnv1a16::hash(str_tolower(de_name.data())))
     {
@@ -285,7 +304,7 @@ static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t 
                 std::ifstream      f(path, std::ios::in);
                 if (!f.is_open())
                 {
-                    get_gtk_theme_from_configs(ver, de_name, theme);
+                    get_gtk_theme_from_configs(ver, de_name, theme, config);
                     return;
                 }
 
@@ -331,27 +350,28 @@ static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t 
             }
         break;
         default:
-            get_gtk_theme_from_configs(ver, de_name, theme);
+            get_gtk_theme_from_configs(ver, de_name, theme, config);
     }
 }
 
 static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, const std::string_view de_name,
-                          Theme::Theme_t& theme)
+                          Theme::Theme_t& theme, const Config &config)
 {
     if (dont_query_dewm)
     {
-        get_gtk_theme_from_configs(ver, de_name, theme);
+        get_gtk_theme_from_configs(ver, de_name, theme, config);
         return;
     }
 
-    get_de_gtk_theme(de_name, ver, theme);
+    get_de_gtk_theme(de_name, ver, theme, config);
 }
 
 // clang-format off
 Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
-             const std::string& theme_name_version)
+             const std::string& theme_name_version, const Config &config)
             : m_queried_themes(queried_themes),
-              m_theme_name_version(theme_name_version)
+              m_theme_name_version(theme_name_version),
+              m_Config(config)
 {
     if (std::find(queried_themes_names.begin(), queried_themes_names.end(), m_theme_name_version) 
         == queried_themes_names.end())
@@ -368,7 +388,7 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
     else
         m_wmde_name = de_name;
 
-    get_gtk_theme(query_user.m_bDont_query_dewm, ver, m_wmde_name, m_theme_infos);
+    get_gtk_theme(query_user.m_bDont_query_dewm, ver, m_wmde_name, m_theme_infos, config);
 
     if (m_theme_infos.gtk_theme_name.empty())
         m_theme_infos.gtk_theme_name = MAGIC_LINE;
@@ -389,7 +409,7 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
 }
 
 // only use it for cursor
-Theme::Theme(systemInfo_t& queried_themes) : m_queried_themes(queried_themes)
+Theme::Theme(systemInfo_t& queried_themes, const Config &config) : m_queried_themes(queried_themes), m_Config(config)
 {
     static bool done = false;
     if (hasStart(query_user.term_name(), "/dev") || done)

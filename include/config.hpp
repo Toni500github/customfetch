@@ -35,6 +35,7 @@ public:
     Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
 
     // config file
+    bool slow_query_warnings        = true;
     std::vector<std::string> layout;
     std::string   source_path;
     std::string   font;
@@ -150,6 +151,12 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #    Use `--offset` (`-o`) for aligning and put it under the bonsai.
 #
 #    Read the manual cufetch.1 for more infos with $() tag
+
+# cufetch behavioural settings
+
+# Warn against tradeoffs between slower queries for availability
+# e.g. falling back to gsettings when we can't find the config file for GTK
+slow-query-warnings = true
 
 layout = [
     "$<builtin.title>",
