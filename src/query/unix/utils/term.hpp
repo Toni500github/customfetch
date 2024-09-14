@@ -4,5 +4,6 @@
 #include <string>
 
 std::string detect_st_ver();
+std::string detect_konsole_ver();
 
 #endif // _TERM_HPP

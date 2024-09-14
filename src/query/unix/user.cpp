@@ -248,6 +248,12 @@ static std::string get_term_name(std::string& term_ver)
     return term_name;
 }
 
+static void get_term_version_exec(std::string& term, short v = false)
+{
+    term.clear();
+    read_exec({ term.data(), v ? "-v" : "--version" }, term, true);
+}
+
 static std::string get_term_version(std::string_view term_name)
 {
     if (term_name.empty())
@@ -259,22 +265,33 @@ static std::string get_term_version(std::string_view term_name)
     if (hasStart(term_name, "kitty"))
         term_name = "kitten";
 
-    if (term_name == "st")
+    switch (fnv1a16::hash(str_tolower(term_name.data())))
     {
-        ret = detect_st_ver();
-        if (ret == UNKNOWN)
+        case "st"_fnv1a16:
         {
-            ret.clear();
-            read_exec({ term_name.data(), "-v" }, ret, true);
-        }
-        else
-            remove_term_name = false;
+            ret = detect_st_ver();
+            if (ret == UNKNOWN)
+                get_term_version_exec(ret, true);
+            else
+                remove_term_name = false;
+        } break;
+        
+        case "konsole"_fnv1a16:
+        {
+            ret = detect_konsole_ver();
+            if (ret == UNKNOWN)
+                get_term_version_exec(ret);
+            else
+                remove_term_name = false;
+        } break;
+        
+        case "xterm"_fnv1a16:
+            get_term_version_exec(ret, true); break;
+
+        default:
+            get_term_version_exec(ret);
     }
-    // tell your terminal to NOT RETURN ERROR WHEN ASKING FOR ITS VERSION (looking at you st)
-    else if (term_name == "xterm")
-        read_exec({ term_name.data(), "-v" }, ret);
-    else
-        read_exec({ term_name.data(), "--version" }, ret);
+
 
     debug("get_term_version ret = {}", ret);
 

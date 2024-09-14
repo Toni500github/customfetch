@@ -714,6 +714,10 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "initsys_version"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_version()); break;
 
                 case "hostname"_fnv1a16: SYSINFO_INSERT(query_system.hostname()); break;
+
+                case "version_codename"_fnv1a16: SYSINFO_INSERT(query_system.os_version_codename()); break;
+
+                case "version_id"_fnv1a16: SYSINFO_INSERT(query_system.os_versionid()); break;
             }
         }
     }
