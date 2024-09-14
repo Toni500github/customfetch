@@ -6,7 +6,7 @@ ${green}       _vi,    `            --+=++++:
 ${green}      .uvnvi.       _._       -==+==+.
 ${green}     .vvnvnI`    .;==|==;.     :|=||=|.
 ${black}+QmQQm${green}pvvnv; ${black}_yYsyQQWUUQQQm #QmQ#${green}:${black}QQQWUV$QQm.
-${black} -QQWQW${green}pvvo${black}wZ?.wQQQE${green}==<${black}QWWQ/QWQW.QQWW${green}(: ${black}jQWQE
+${black} -QQWQW${green}pvvo${black}wZ?.wQQQE${green}==\<${black}QWWQ/QWQW.QQWW${green}(: ${black}jQWQE
 ${black}  -$QQQQmmU'  jQQQ@${green}+=<${black}QWQQ)mQQQ.mQQQC${green}+;${black}jWQQ@'
 ${black}   -$WQ8Y${green}nI:   ${black}QWQQwgQQWV${green}`${black}mWQQ.jQWQQgyyWW@!
 ${green}     -1vvnvv.     `~+++`        ++|+++

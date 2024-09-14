@@ -299,6 +299,11 @@ They can be used in the ascii art text file and layout, but how to use them?
 
 Any `$` or brackets can be escaped with a backslash `\`
 
+# TODOs
+* Color all ASCII arts (101/262) will take long ahh time
+* Support images on terminal as logo (currently only available in GUI mode)
+* idk
+
 # Thanks
 I would like to thanks:
 * my best-friend [BurntRanch](https://github.com/BurntRanch/),\

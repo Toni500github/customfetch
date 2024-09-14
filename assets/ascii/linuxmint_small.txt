@@ -1,7 +1,7 @@
 ${green} ___________
-${green}|_          \\
+${green}|_          \
 ${green}  | ${1}| _____ ${green}|
 ${green}  | ${1}| | | | ${green}|
 ${green}  | ${1}| | | | ${green}|
-${green}  | ${1}\\__${1}___/ ${green}|
-${green}  \\_________/
+${green}  | ${1}\__${1}___/ ${green}|
+${green}  \_________/
