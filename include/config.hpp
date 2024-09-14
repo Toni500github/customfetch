@@ -140,11 +140,16 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # without quotes ofc
 
 # Little FAQ
-# Q: Why when I use something like "$<os.kernel> <- Kernel" it won't work on GUI mode?
-# A: replace "<-" with "\\<-" in the config, or "\<-" in the ascii art. It won't affect the printing in terminal
+# Q: Why when I use & or < in the config or ASCII art, it won't work on GUI mode?
+# A: replace "<" with "\\<" in the config, or "\<" in the ascii art. Same goes for &
+#    It won't affect the printing in terminal
 
-# Q: It happens with '&' too, like "Yin & yang"
-# A: do the same as above explained, "\\&" in the config, or "\&" in the ascii art.
+# Q: I want to use `cbonsai` as ASCII art, how do I use it?
+# A: First off, create a text file and there put only `$(!cbonsai -p)`
+#    Save the file and use `-s "/path/to/text/file"`.
+#    Use `--offset` (`-o`) for aligning and put it under the bonsai.
+#
+#    Read the manual cufetch.1 for more infos with $() tag
 
 layout = [
     "$<builtin.title>",

@@ -55,10 +55,12 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     debug("path = {}", path);
 
     std::ifstream file;
+    std::ifstream fileToAnalyze;  // both have same path
     if (!config.m_disable_source)
     {
         file.open(path.data(), std::ios::binary);
-        if (!file.is_open())
+        fileToAnalyze.open(path.data(), std::ios::binary);
+        if (!file.is_open() || !fileToAnalyze.is_open())
             die("Could not open ascii art file \"{}\"", path);
     }
 
@@ -73,12 +75,11 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         debug("Display::render() analyzing file");
         std::array<unsigned char, 16> buffer;
-        file.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
+        fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
         if (is_file_image(buffer.data()))
             die("The source file '{}' is a binary file.\n"
                 "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
                 path);
-        file.seekg(0);
     }
 
     for (int i = 0; i < config.logo_padding_top; i++)

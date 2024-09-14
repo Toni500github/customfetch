@@ -265,11 +265,20 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         {
             case ')':
             {
+                const bool removetag = (command.front() == '!');
+                if (removetag)
+                    command.erase(0,1);
+
                 const std::string& shell_cmd = shell_exec(command);
                 output.replace(dollarSignIndex, taglen, shell_cmd);
 
                 if (!parsingLayout && tagpos != std::string::npos)
-                    pureOutput.replace(tagpos, taglen, shell_cmd);
+                {
+                    if (!removetag)
+                        pureOutput.replace(tagpos, taglen, shell_cmd);
+                    else
+                        pureOutput.erase(tagpos, taglen);
+                }
 
             } break;
 
