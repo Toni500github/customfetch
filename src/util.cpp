@@ -299,6 +299,7 @@ void replace_str(std::string& str, const std::string_view from, const std::strin
 
 bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr, bool noerror_print)
 {
+    debug("{} cmd = {}", __func__, cmd);
     int pipeout[2];
 
     if (pipe(pipeout) < 0)

@@ -3,23 +3,34 @@
 #include "util.hpp"
 #include <fstream>
 
-std::string detect_st_ver()
+void get_term_version_exec(const std::string_view term, std::string& ret, bool _short, bool _stderr)
 {
-    std::string ret, line;
+    ret.clear();
+    read_exec({ term.data(), _short ? "-v" : "--version" }, ret, _stderr);
+}
+
+bool detect_st_ver(std::string& ret)
+{
+    std::string line;
     std::ifstream f(which("st"), std::ios::binary);
 
     while (read_binary_file(f, line))
     {
         if (line == "WINDOWID" && hasStart(ret, "%s "))
-            return ret.substr(3);
+        {
+            ret.erase(0, 3);
+            return true;
+        }
 
         ret = line;
     }
     debug("failed to fast detect st version");
-    return UNKNOWN;
+    
+    get_term_version_exec("st", ret, true, true);
+    return false;
 }
 
-std::string detect_konsole_ver()
+bool detect_konsole_ver(std::string& ret)
 {
     const char* env = std::getenv("KONSOLE_VERSION");
     if (env)
@@ -31,9 +42,13 @@ std::string detect_konsole_ver()
             major /= 100;
             long minor = major % 100;
             major /= 100;
-            return fmt::format("{}.{}.{}", major, minor, patch);
+            ret = fmt::format("{}.{}.{}", major, minor, patch);
+            return true;
         }
-    }
+    } 
+    
     debug("failed to fast detect konsole version");
-    return UNKNOWN;
+    get_term_version_exec("konsole", ret);
+
+    return false;
 }

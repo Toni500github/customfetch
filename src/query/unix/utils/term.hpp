@@ -3,7 +3,9 @@
 
 #include <string>
 
-std::string detect_st_ver();
-std::string detect_konsole_ver();
+void get_term_version_exec(const std::string_view term, std::string& ret, bool _short = false, bool _stderr = false);
+
+bool detect_konsole_ver(std::string& ret);
+bool detect_st_ver(std::string& ret);
 
 #endif // _TERM_HPP

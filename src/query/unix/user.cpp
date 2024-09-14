@@ -248,12 +248,6 @@ static std::string get_term_name(std::string& term_ver)
     return term_name;
 }
 
-static void get_term_version_exec(std::string& term, short v = false)
-{
-    term.clear();
-    read_exec({ term.data(), v ? "-v" : "--version" }, term, true);
-}
-
 static std::string get_term_version(std::string_view term_name)
 {
     if (term_name.empty())
@@ -268,28 +262,20 @@ static std::string get_term_version(std::string_view term_name)
     switch (fnv1a16::hash(str_tolower(term_name.data())))
     {
         case "st"_fnv1a16:
-        {
-            ret = detect_st_ver();
-            if (ret == UNKNOWN)
-                get_term_version_exec(ret, true);
-            else
+            if (detect_st_ver(ret))
                 remove_term_name = false;
-        } break;
+            break;
         
         case "konsole"_fnv1a16:
-        {
-            ret = detect_konsole_ver();
-            if (ret == UNKNOWN)
-                get_term_version_exec(ret);
-            else
+            if (detect_konsole_ver(ret))
                 remove_term_name = false;
-        } break;
+            break;
         
         case "xterm"_fnv1a16:
-            get_term_version_exec(ret, true); break;
+            get_term_version_exec(term_name, ret, true); break;
 
         default:
-            get_term_version_exec(ret);
+            get_term_version_exec(term_name, ret);
     }
 
 
