@@ -101,7 +101,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         if (config.gui)
         {
             // check parse.cpp
-            size_t pos = asciiArt_s.rfind("$ <");
+            const size_t pos = asciiArt_s.rfind("$ </");
             if (pos != std::string::npos)
                 asciiArt_s.replace(pos, 2, "$");
         }

@@ -150,9 +150,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     std::string output = input.data();
     pureOutput         = output;
 
-    size_t dollarSignIndex = 0;
+    size_t dollarSignIndex    = 0;
     size_t oldDollarSignIndex = 0;
-    bool   start           = false;
+    bool   start              = false;
 
     // we only use it in GUI mode,
     // prevent issue where in the ascii art,
@@ -160,22 +160,38 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     // and that's a problem with pango markup
     bool   firstrun_noclr  = true;
 
-
     static std::vector<std::string> auto_colors;
 
     if (!config.sep_reset.empty() && parsingLayout)
     {
         if (config.sep_reset_after)
         {
-            replace_str(output, config.sep_reset, config.sep_reset + "${0}");
+            replace_str(output,     config.sep_reset, config.sep_reset + "${0}");
             replace_str(pureOutput, config.sep_reset, config.sep_reset + "${0}");
         }
         else
         {
-            replace_str(output, config.sep_reset, "${0}" + config.sep_reset);
+            replace_str(output,     config.sep_reset, "${0}" + config.sep_reset);
             replace_str(pureOutput, config.sep_reset, "${0}" + config.sep_reset);
         }
     }
+
+    // escape pango markup
+    // https://gitlab.gnome.org/GNOME/glib/-/blob/main/glib/gmarkup.c#L2150
+    // workaround: just put "\<" or "\&" in the config, e.g "$<os.kernel> \<- Kernel"
+    if (config.gui)
+    {
+        replace_str(output, "\\<", "&lt;");
+        replace_str(output, "\\&", "&amp;");
+    }
+    else
+    {
+        replace_str(output, "\\<", "<");
+        replace_str(output, "\\&", "&");
+    }
+
+    replace_str(pureOutput, "\\<", "<");
+    replace_str(pureOutput, "\\&", "&");
 
     while (true)
     {
@@ -356,8 +372,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                 if (hasStart(command, "auto"))
                 {
-                    std::uint16_t ver =
-                        static_cast<std::uint16_t>(command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0);
+                    std::uint16_t ver = static_cast<std::uint16_t>(command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0);
                     if (ver >= auto_colors.size() || ver < 1)
                         ver = 0;
 
@@ -442,9 +457,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             const std::string_view color  = clrs.at(0);
                             const std::string_view weight = clrs.at(1);
                             const std::string_view type   = clrs.at(2);
-                            output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                                    fmt::format("<span {}='{}' weight='{}'>{}</span>",
-                                                                type, color, weight, output.substr(endBracketIndex + 1)));
+                            output.replace( dollarSignIndex, output.length() - dollarSignIndex,
+                                            fmt::format("<span {}='{}' weight='{}'>{}</span>",
+                                                        type, color, weight, output.substr(endBracketIndex + 1)));
                         }
 
                         else
@@ -524,27 +539,6 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         }
     }
 
-    // https://github.com/dunst-project/dunst/issues/900
-    // pango markup doesn't like '<' if it's not a tag
-    // and doesn't like '&' too
-    // workaround: just put "\<" or "\&" in the config, e.g "$<os.kernel> \<- Kernel"
-    if (config.gui)
-    {
-        replace_str(output, "\\<", "&lt;");
-        replace_str(output, "\\&", "&amp;");
-        replace_str(output, "&amp;lt;", "&lt;");
-        replace_str(output, "&lt;span", "\\<span");
-        replace_str(output, "&lt;/span>", "\\</span>");
-    }
-    else
-    {
-        replace_str(output, "\\<", "<");
-        replace_str(output, "\\&", "&");
-    }
-
-    replace_str(pureOutput, "\\<", "<");
-    replace_str(pureOutput, "\\&", "&");
-
     return output;
 }
 
@@ -584,6 +578,7 @@ static std::string get_auto_gtk_format(const std::string_view gtk2, const std::s
         else
             return fmt::format("{} [GTK2], {} [GTK3], {} [GTK4]", gtk2, gtk3, gtk4);
     }
+
     else if (gtk3 != MAGIC_LINE && gtk4 != MAGIC_LINE)
     {
         if (gtk3 == gtk4)
@@ -591,6 +586,7 @@ static std::string get_auto_gtk_format(const std::string_view gtk2, const std::s
         else
             return fmt::format("{} [GTK3], {} [GTK4]", gtk3, gtk4);
     }
+
     else if (gtk2 != MAGIC_LINE && gtk3 != MAGIC_LINE)
     {
         if (gtk2 == gtk3)
@@ -654,7 +650,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         const Config& config, const colors_t& colors, bool parsingLayout)
 {
 #define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleMemberName, variant(x) })
-    // yikes, here we go.
+
     const  auto&                         moduleMember_hash = fnv1a16::hash(moduleMemberName);
     static std::vector<std::uint16_t>    queried_gpus;
     static std::vector<std::string_view> queried_disks;

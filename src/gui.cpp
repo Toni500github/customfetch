@@ -10,13 +10,14 @@
 #include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
-#include "gdkmm/pixbufanimation.h"
-#include "gtkmm/enums.h"
-#include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "stb_image.h"
 #include "util.hpp"
+
+#include "gdkmm/pixbufanimation.h"
+#include "gtkmm/enums.h"
+#include "pangomm/fontdescription.h"
 
 using namespace GUI;
 
