@@ -8,8 +8,8 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-#if USE_GLIB
-#  include <dconf/client/dconf-client.h>
+#if USE_DCONF
+#  include <client/dconf-client.h>
 #  include <glib/gvariant.h>
 #endif
 
@@ -97,7 +97,7 @@ static bool get_cursor_xresources(Theme::Theme_t& theme)
 
 static bool get_cursor_dconf(const std::string_view de_name, Theme::Theme_t& theme)
 {
-#if USE_GLIB
+#if USE_DCONF
 
     LOAD_LIBRARY("libdconf.so", return false);
     LOAD_LIB_SYMBOL(DConfClient *, dconf_client_new, void);
@@ -281,7 +281,7 @@ static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& th
 
 static bool get_gtk_theme_dconf(const std::string_view de_name, Theme::Theme_t& theme)
 {
-#if USE_GLIB
+#if USE_DCONF
 
     LOAD_LIBRARY("libdconf.so", return false);
     LOAD_LIB_SYMBOL(DConfClient *, dconf_client_new, void);

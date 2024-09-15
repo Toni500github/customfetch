@@ -9,7 +9,7 @@ GUI_MODE        ?= 0
 VENDOR_TEST 	?= 0
 DEVICE_TEST     ?= 0
 
-USE_GLIB	?= 1
+USE_DCONF	?= 1
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
@@ -39,6 +39,14 @@ ifeq ($(GUI_MODE), 1)
 	CXXFLAGS += `pkg-config --cflags gtkmm-3.0`
 endif
 
+ifeq ($(USE_DCONF), 1)
+        ifeq ($(shell pkg-config --exists glib-2.0 dconf && echo 1), 1)
+                CXXFLAGS += -DUSE_DCONF=1 `pkg-config --cflags glib-2.0 dconf`
+        else
+                CXXFLAGS += -DUSE_DCONF=0
+        endif
+endif
+
 NAME		= customfetch
 TARGET		= cufetch
 OLDVERSION	= 0.9.2
@@ -49,14 +57,6 @@ OBJ 	   	= $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
-
-ifeq ($(USE_GLIB), 1)
-	ifeq ($(shell pkg-config --exists glib-2.0 && echo 1 || echo 0), 1)
-		CXXFLAGS += -DUSE_GLIB=1 `pkg-config --cflags glib-2.0`
-	else
-		CXXFLAGS += -DUSE_GLIB=0
-	endif
-endif
 
 all: fmt toml $(TARGET)
 

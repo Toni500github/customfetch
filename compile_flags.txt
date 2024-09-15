@@ -6,7 +6,7 @@
 -DVERSION="0.9.3"
 -DBRANCH="main"
 -DGUI_MODE=1
--DUSE_GLIB=1
+-DUSE_DCONF=1
 -DDEBUG=1
 -I/usr/include/gtkmm-3.0
 -I/usr/lib/gtkmm-3.0/include
@@ -47,3 +47,9 @@
 -I/usr/lib/dbus-1.0/include
 -I/usr/include/fribidi
 -I/usr/include/gio-unix-2.0
+-I/usr/include/dconf
+-I/usr/include/glib-2.0
+-I/usr/lib/glib-2.0/include
+-I/usr/include/libmount
+-I/usr/include/blkid
+-I/usr/include/sysprof-6
