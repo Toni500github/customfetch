@@ -95,9 +95,63 @@ static bool get_cursor_xresources(Theme::Theme_t& theme)
     return assert_cursor(theme);
 }
 
-static bool get_cursor_gsettings(const std::string_view de_name, Theme::Theme_t& theme)
+static bool get_cursor_dconf(const std::string_view de_name, Theme::Theme_t& theme)
+{
+#if USE_GLIB
+
+    LOAD_LIBRARY("libdconf.so", return false);
+    LOAD_LIB_SYMBOL(DConfClient *, dconf_client_new, void);
+    LOAD_LIB_SYMBOL(GVariant *, dconf_client_read, DConfClient *client, const char *);
+    LOAD_LIB_SYMBOL(const gchar *, g_variant_get_string, GVariant *value, gsize *lenght);
+
+    debug("calling {}", __PRETTY_FUNCTION__);
+    DConfClient *client = dconf_client_new();
+    GVariant *variant;
+
+    std::string interface;
+    switch(fnv1a16::hash(str_tolower(de_name.data())))
+    {
+        case "cinnamon"_fnv1a16: interface = "/org/cinnamon/desktop/interface/"; break;
+        case "mate"_fnv1a16: interface = "/org/mate/interface/"; break;
+
+        case "gnome"_fnv1a16:
+        case "budgie"_fnv1a16:
+        case "unity"_fnv1a16:
+        default:
+            interface = "/org/gnome/desktop/interface/";
+    }
+
+    if (theme.cursor == MAGIC_LINE || theme.cursor.empty())
+    {
+        variant = dconf_client_read(client, (interface + "cursor-theme").c_str());
+        theme.cursor = g_variant_get_string(variant, NULL);
+    }
+
+    if (theme.cursor_size == UNKNOWN || theme.cursor_size.empty())
+    {
+        variant = dconf_client_read(client, (interface + "cursor-size").c_str());
+        theme.cursor = g_variant_get_string(variant, NULL);
+    }
+
+    return assert_cursor(theme);
+
+#else
+    return false;
+#endif
+}
+
+static bool get_cursor_gsettings(const std::string_view de_name, Theme::Theme_t& theme, const Config& config)
 {
     debug("calling {}", __PRETTY_FUNCTION__);
+    if (get_cursor_dconf(de_name, theme))
+        return true;
+
+    if (config.slow_query_warnings)
+    {
+        warn("cufetch could not detect a gtk configuration file. cufetch will use the much-slower gsettings.");
+        warn("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub.");
+        info("You can disable this warning by disabling slow-query-warnings in your config.toml file.");
+    }
 
     const char* interface;
     switch(fnv1a16::hash(str_tolower(de_name.data())))
@@ -116,21 +170,17 @@ static bool get_cursor_gsettings(const std::string_view de_name, Theme::Theme_t&
     {
         theme.cursor.clear();
         read_exec({ "gsettings", "get", interface, "cursor-theme" }, theme.cursor);
+        theme.cursor.erase(std::remove(theme.cursor.begin(), theme.cursor.end(), '\''), theme.cursor.end());
     }
 
     if (theme.cursor_size == UNKNOWN || theme.cursor_size.empty())
     {
         theme.cursor_size.clear();
         read_exec({ "gsettings", "get", interface, "cursor-size" }, theme.cursor_size);
+        theme.cursor_size.erase(std::remove(theme.cursor_size.begin(), theme.cursor_size.end(), '\''), theme.cursor_size.end());
     }
 
-    theme.cursor.erase(std::remove(theme.cursor.begin(), theme.cursor.end(), '\''), theme.cursor.end());
-    theme.cursor_size.erase(std::remove(theme.cursor_size.begin(), theme.cursor_size.end(), '\''), theme.cursor_size.end());
-
-    if (!assert_cursor(theme))
-        return false;
-
-    return true;
+    return assert_cursor(theme);
 }
 
 static bool get_gtk_cursor_config(const std::string_view path, Theme::Theme_t& theme)
@@ -187,22 +237,25 @@ static bool get_de_cursor(const std::string_view de_name, Theme::Theme_t& theme)
             get_xsettings_xfce4("Gtk", "CursorThemeName", theme.cursor);
             get_xsettings_xfce4("Gtk", "CursorThemeSize", theme.cursor_size);
 
-            if (!assert_cursor(theme))
-                return false;
-        } break;
+            return assert_cursor(theme);
 
-        default:
-            return false;
+        } break;
     }
     
-    return true;
-
+    return false;
 }
 
 //
 //
 // 2. GTK theme
 //
+static bool assert_gtk_theme(Theme::Theme_t& theme)
+{
+    return
+    (theme.gtk_font != MAGIC_LINE && theme.gtk_icon_theme != MAGIC_LINE && theme.gtk_theme_name != MAGIC_LINE) || 
+    (!theme.gtk_font.empty() && !theme.gtk_theme_name.empty() && !theme.gtk_icon_theme.empty());
+}
+
 static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& theme)
 {
     std::ifstream f(path.data(), std::ios::in);
@@ -211,7 +264,7 @@ static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& th
 
     std::string    line;
     std::uint16_t  iter_index = 0;
-    while (std::getline(f, line) && iter_index < 5)
+    while (std::getline(f, line) && iter_index < 3)
     {
         if (hasStart(line, "gtk-theme-name="))
             getFileValue(iter_index, line, theme.gtk_theme_name, "gtk-theme-name="_len);
@@ -223,11 +276,7 @@ static bool get_gtk_theme_config(const std::string_view path, Theme::Theme_t& th
             getFileValue(iter_index, line, theme.gtk_font, "gtk-font-name="_len);
     }
 
-    if (theme.gtk_font == MAGIC_LINE || theme.gtk_theme_name == MAGIC_LINE ||
-        theme.gtk_icon_theme == MAGIC_LINE)
-        return false;
-
-    return true;
+    return assert_gtk_theme(theme);
 }
 
 static bool get_gtk_theme_dconf(const std::string_view de_name, Theme::Theme_t& theme)
@@ -274,9 +323,7 @@ static bool get_gtk_theme_dconf(const std::string_view de_name, Theme::Theme_t& 
         theme.gtk_font = g_variant_get_string(variant, NULL);
     }
 
-    return theme.gtk_font != MAGIC_LINE &&
-           theme.gtk_icon_theme != MAGIC_LINE &&
-           theme.gtk_theme_name != MAGIC_LINE;
+    return assert_gtk_theme(theme);
 
 #else
     return false;
@@ -375,10 +422,8 @@ static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t 
             get_xsettings_xfce4("Net", "ThemeName", theme.gtk_theme_name);
             get_xsettings_xfce4("Net", "IconThemeName", theme.gtk_icon_theme);
             get_xsettings_xfce4("Gtk", "FontName",   theme.gtk_font);
-            
-            if (theme.gtk_font == MAGIC_LINE       ||
-                theme.gtk_icon_theme == MAGIC_LINE ||
-                theme.gtk_theme_name == MAGIC_LINE)
+
+            if (!assert_gtk_theme(theme))
                 get_gtk_theme_from_configs(ver, de_name, theme, config);
 
         } break;
@@ -460,10 +505,10 @@ Theme::Theme(systemInfo_t& queried_themes, const Config& config) : m_queried_the
 
     if (get_de_cursor(m_wmde_name, m_theme_infos)){}
     else if (get_cursor_from_gtk_configs(4, m_theme_infos)){}
-    else if ((get_cursor_from_gtk_configs(3, m_theme_infos))){}
+    else if (get_cursor_from_gtk_configs(3, m_theme_infos)){}
     else if (get_cursor_from_gtk_configs(2, m_theme_infos)){}
     else if (get_cursor_xresources(m_theme_infos)){}
-    else get_cursor_gsettings(m_wmde_name, m_theme_infos);
+    else get_cursor_gsettings(m_wmde_name, m_theme_infos, m_Config);
 
     if (m_theme_infos.cursor.empty())
         m_theme_infos.cursor = MAGIC_LINE;

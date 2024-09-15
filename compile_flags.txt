@@ -6,6 +6,7 @@
 -DVERSION="0.9.3"
 -DBRANCH="main"
 -DGUI_MODE=1
+-DUSE_GLIB=1
 -DDEBUG=1
 -I/usr/include/gtkmm-3.0
 -I/usr/lib/gtkmm-3.0/include
