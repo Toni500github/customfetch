@@ -2,6 +2,9 @@
 
 #include "display.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <algorithm>
 #include <array>
 #include <filesystem>
@@ -40,6 +43,56 @@ std::string Display::detect_distro(const Config& config)
     }
 }
 
+static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
+{
+    std::string              path{ Display::detect_distro(config) };
+    systemInfo_t             systemInfo{};
+    std::vector<std::string> layout{ config.layout };
+
+    int image_width, image_height, channels;
+
+    // load the image and get its width and height
+    unsigned char* img = stbi_load(config.source_path.c_str(), &image_width, &image_height, &channels, 0);
+
+    if (img)
+        stbi_image_free(img);
+    else
+        die("Unable to load image '{}'", config.source_path);
+    
+    if (!config.ascii_logo_type.empty())
+    {
+        const size_t& pos = path.rfind('.');
+        
+        if (pos != std::string::npos)
+            path.insert(pos, "_" + config.ascii_logo_type);
+        else
+            path += "_" + config.ascii_logo_type;
+    }
+
+    // this is just for parse() to auto add the distro colors
+    std::ifstream file(path, std::ios::binary);
+    std::string line, _;
+    
+    while (std::getline(file, line))
+        parse(line, systemInfo, _, config, colors, false);
+
+    for (std::string& layout : layout)
+        layout = parse(layout, systemInfo, _, config, colors, true);
+
+    // erase each element for each instance of MAGIC_LINE
+    layout.erase(std::remove_if(layout.begin(), layout.end(),
+                                [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                 layout.end());
+
+    for (size_t i = 0; i < layout.size(); i++)
+    {
+        for (size_t _ = 0; _ < config.offset; _++)  // I use _ because we don't need it
+            layout.at(i).insert(0, " ");
+    }
+
+    return layout;
+}
+
 std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
                                          const std::string_view path)
 {
@@ -52,7 +105,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             die("You need to specify if either using a custom distro ascii art OR a custom source path");
     }
 
-    debug("path = {}", path);
+    debug("Display::render path = {}", path);
 
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
@@ -67,6 +120,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     std::string         line;
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
+    std::string         image_backend_cmd;
+
 
     // first check if the file is an image
     // without even using the same library that "file" uses
@@ -74,12 +129,20 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     if (!already_analyzed_file)
     {
         debug("Display::render() analyzing file");
-        std::array<unsigned char, 16> buffer;
+        std::array<unsigned char, 32> buffer;
         fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
         if (is_file_image(buffer.data()))
-            die("The source file '{}' is a binary file.\n"
+        {
+            if (config.m_image_backend == "kitty")
+            {
+                image_backend_cmd = fmt::format("kitty +kitten icat --align left {}", path);
+            }
+            shell_exec(image_backend_cmd);
+            return render_with_image(config, colors);
+        }
+        /*    die("The source file '{}' is a binary file.\n"
                 "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
-                path);
+                path);*/
     }
 
     for (int i = 0; i < config.logo_padding_top; i++)
@@ -188,6 +251,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     }
 
     return layout;
+
 }
 
 void Display::display(const std::vector<std::string>& renderResult)

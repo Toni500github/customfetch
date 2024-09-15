@@ -260,9 +260,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlga::f:o:C:d:D:s:";
-    static const struct option opts[] =
-    {
+    const char *optstring = "-VhnLlga::f:o:C:i:d:D:s:";
+    static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
         {"no-display",       no_argument,       0, 'n'},
@@ -276,6 +275,9 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"data-dir",         required_argument, 0, 'D'},
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
+
+        {"image-backend",      required_argument, 0, 'i'},
+        {"kitty",              no_argument, 0, "kitty"_fnv1a16},
 
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
         {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
@@ -325,6 +327,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.m_custom_distro = str_tolower(optarg); break;
             case 's':
                 config.source_path = optarg; break;
+            case 'i':
+                config.m_image_backend = optarg; break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
                     config.ascii_logo_type = optarg;
@@ -378,6 +382,9 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 else
                     config.sep_reset_after = true;
                 break;
+
+            case "kitty"_fnv1a16:
+                config.m_image_backend = "kitty"; break;
 
             default:
                 return false;
