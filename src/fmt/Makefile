@@ -3,7 +3,7 @@
 # cmd: cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
 
 CXX		?= g++
-#CXX_DEFINES 	= -DFMT_LIB_EXPORT -Dfmt_EXPORTS
+# CXX_DEFINES 	= -DFMT_LIB_EXPORT -Dfmt_EXPORTS
 CXX_INCLUDES 	= -I../../include
 CXX_FLAGS 	= -O3 -DNDEBUG -fvisibility=hidden -fvisibility-inlines-hidden
 
@@ -15,7 +15,7 @@ fmt: format.cc os.cc
 	ar qc libfmt.a os.cc.o format.cc.o
 	ranlib libfmt.a
 	mv -f libfmt.a ../../$(BUILDDIR)/libfmt.a
-	#$(CXX) -fPIC -O3 -DNDEBUG -shared -Wl,-soname,libfmt.so.10 -o libfmt.so format.cc.o os.cc.o
+	# $(CXX) -fPIC -O3 -DNDEBUG -shared -Wl,-soname,libfmt.so.10 -o libfmt.so format.cc.o os.cc.o
 
 clean:
 	rm -f *.o *.so *.a ../../$(BUILDDIR)/fmt/.*a

@@ -512,6 +512,16 @@ Theme::Theme(systemInfo_t& queried_themes, const Config& config) : m_queried_the
 
     if (m_theme_infos.cursor.empty())
         m_theme_infos.cursor = MAGIC_LINE;
+    else
+    {
+        size_t pos = 0;
+        if ((pos = m_theme_infos.cursor.rfind("cursor")) != std::string::npos)
+            m_theme_infos.cursor.erase(pos);
+
+        if ((pos = m_theme_infos.cursor.rfind('_')) != std::string::npos)
+            m_theme_infos.cursor.erase(pos);
+
+    }
 
     done = true;
 }

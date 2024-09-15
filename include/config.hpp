@@ -35,7 +35,6 @@ public:
     Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
 
     // config file
-    bool slow_query_warnings        = true;
     std::vector<std::string> layout;
     std::string   source_path;
     std::string   font;
@@ -50,6 +49,7 @@ public:
     std::uint16_t layout_padding_top = 0;
     bool          gui                = false;
     bool          sep_reset_after    = false;
+    bool          slow_query_warnings= false;
 
     // modules specific config
     std::string uptime_d_fmt;
@@ -209,7 +209,7 @@ sep-reset-after = false
 
 # Warn against tradeoffs between slower queries for availability
 # e.g. falling back to gsettings when we can't find the config file for GTK
-slow-query-warnings = true
+slow-query-warnings = false
 
 # Offset between the ascii art and the layout
 offset = 5
