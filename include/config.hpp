@@ -171,7 +171,7 @@ layout = [
     "${auto}Disk (/): $<disk(/).disk>",
     "${auto}Swap: $<swap.swap>",
     "${auto}CPU: $<cpu.cpu>",
-    "${auto}GPU: $<gpu.name>",
+    "${auto}GPU: $<gpu.vendor> $<gpu.name>",
     "${auto}RAM: $<ram.ram>",
     "",
     "$<builtin.colors_bg>", # normal colors

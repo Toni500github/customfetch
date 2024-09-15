@@ -183,7 +183,7 @@ public:
         std::string vendor{ UNKNOWN };
     };
 
-    GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus);
+    GPU(const std::uint16_t id, std::vector<std::uint16_t>& queried_gpus);
 
     std::string& name() noexcept;
     std::string& vendor() noexcept;

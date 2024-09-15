@@ -190,13 +190,14 @@ disk(/path/to/fs)
   device	: path to device [/dev/sda5]
   mountdir	: path to the device mount point [/]
 
-# usually people have 1 GPU in their host,
+# usually people have 1 GPU in their PC,
 # but if you got more than 1 and want to query it,
 # you should call gpu module with a number, e.g gpu1 (default gpu0).
 # Infos are gotten from `/sys/class/drm/` and on each cardN directory
 gpu
-  name		: GPU model name [NVIDIA GeForce GTX 1650]
-  vendor	: GPU vendor [NVIDIA Corporation]
+  name		: GPU model name [GeForce GTX 1650]
+  vendor	: GPU short vendor name [NVIDIA]
+  vendor_long   : GPU vendor name [NVIDIA Corporation]
 
 cpu
   cpu		: CPU model name with number of virtual proccessors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]

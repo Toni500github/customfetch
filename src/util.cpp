@@ -211,14 +211,21 @@ void getFileValue(u_short& iterIndex, const std::string_view line, std::string& 
     iterIndex++;
 }
 
-void shorten_vendor_name(std::string& vendor)
+void shorten_vendor_name_inplace(std::string& vendor)
 {
-    if (vendor == "Advanced Micro Devices, Inc.")
+    if (vendor.find("AMD")            != vendor.npos ||
+        vendor.find("Advanced Micro") != vendor.npos)
         vendor = "AMD";
-    else if (vendor == "Intel Corporation")
-        vendor = "Intel";
-    else if (vendor == "NVIDIA Corporation")
-        vendor = "NVIDIA";
+
+    size_t pos = 0;
+    if ((pos = vendor.rfind("Corporation")) != vendor.npos)
+        vendor.erase(pos - 1);
+}
+
+std::string shorten_vendor_name(std::string vendor)
+{
+    shorten_vendor_name_inplace(vendor);
+    return vendor;
 }
 
 fmt::rgb hexStringToColor(const std::string_view hexstr)
@@ -413,7 +420,7 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::
     // Here we use find from vendors_location because as it turns out, lower_bound doesn't return WHERE it is, but where
     // "val" can be placed without affecting the order of the string (binary search stuff) so we have to find from the
     // point onwards to find the actual line, it is still a shortcut, better than searching from 0.
-    return vendor_from_entry(vendor_location, vendor_id) + " " + name_from_entry(device_location);
+    return name_from_entry(device_location);
 }
 
 // Function to perform binary search on the pci vendors array to find a vendor.
@@ -465,6 +472,7 @@ std::string shell_exec(const std::string_view cmd)
     if (!pipe)
         die("popen() failed: {}", std::strerror(errno));
 
+    result.reserve(buffer.size());
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
         result += buffer.data();
 
@@ -480,8 +488,8 @@ std::string name_from_entry(size_t dev_entry_pos)
 
     std::string name = all_ids.substr(dev_entry_pos, all_ids.find('\n', dev_entry_pos) - dev_entry_pos);
 
-    size_t bracket_open_pos  = name.find('[');
-    size_t bracket_close_pos = name.find(']');
+    const size_t bracket_open_pos  = name.find('[');
+    const size_t bracket_close_pos = name.find(']');
     if (bracket_open_pos != std::string::npos && bracket_close_pos != std::string::npos)
         name = name.substr(bracket_open_pos + 1, bracket_close_pos - bracket_open_pos - 1);
 
@@ -505,11 +513,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 
     const size_t last = description.find_last_not_of(' ');
 
-    std::string vendor = description.substr(first, (last - first + 1));
-
-    shorten_vendor_name(vendor);
-
-    return vendor;
+    return description.substr(first, (last - first + 1));
 }
 
 // clang-format off

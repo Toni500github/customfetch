@@ -971,7 +971,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
     else if (hasStart(moduleName, "gpu"))
     {
-        std::uint16_t id =
+        const std::uint16_t id =
             static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3)) : 0);
 
         Query::GPU query_gpu(id, queried_gpus);
@@ -981,11 +981,17 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
         if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
         {
-            if (moduleMemberName == "name")
-                SYSINFO_INSERT(query_gpu.name());
+            switch (moduleMember_hash)
+            {
+                case "name"_fnv1a16:
+                    SYSINFO_INSERT(query_gpu.name()); break;
 
-            else if (moduleMemberName == "vendor")
-                SYSINFO_INSERT(query_gpu.vendor());
+                case "vendor"_fnv1a16:
+                    SYSINFO_INSERT(shorten_vendor_name(query_gpu.vendor())); break;
+
+                case "vendor_long"_fnv1a16:
+                    SYSINFO_INSERT(query_gpu.vendor()); break;
+            }
         }
     }
 
