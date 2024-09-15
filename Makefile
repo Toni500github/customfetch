@@ -8,6 +8,8 @@ DEBUG 		?= 1
 GUI_MODE        ?= 0
 VENDOR_TEST 	?= 0
 DEVICE_TEST     ?= 0
+
+USE_GLIB	?= 1
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
@@ -47,6 +49,14 @@ OBJ 	   	= $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
+
+ifeq ($(USE_GLIB), 1)
+	ifeq ($(shell pkg-config --exists glib-2.0 && echo 1 || echo 0), 1)
+		CXXFLAGS += -DUSE_GLIB=1 `pkg-config --cflags glib-2.0`
+	else
+		CXXFLAGS += -DUSE_GLIB=0
+	endif
+endif
 
 all: fmt toml $(TARGET)
 

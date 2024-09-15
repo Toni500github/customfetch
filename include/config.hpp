@@ -152,12 +152,6 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #
 #    Read the manual cufetch.1 for more infos with $() tag
 
-# cufetch behavioural settings
-
-# Warn against tradeoffs between slower queries for availability
-# e.g. falling back to gsettings when we can't find the config file for GTK
-slow-query-warnings = true
-
 layout = [
     "$<builtin.title>",
     "$<builtin.title_sep>",
@@ -212,6 +206,10 @@ sep-reset = ":"
 # true  = after  ("test ->${0} ")
 # false = before ("test ${0}-> ")
 sep-reset-after = false
+
+# Warn against tradeoffs between slower queries for availability
+# e.g. falling back to gsettings when we can't find the config file for GTK
+slow-query-warnings = true
 
 # Offset between the ascii art and the layout
 offset = 5
