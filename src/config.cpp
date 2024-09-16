@@ -49,9 +49,9 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->offset             = this->getValue<std::uint16_t>("config.offset", 5);
     this->logo_padding_left  = this->getValue<std::uint16_t>("config.logo-padding-left", 0);
     this->layout_padding_top = this->getValue<std::uint16_t>("config.layout-padding-top", 0);
+    this->logo_padding_top   = this->getValue<std::uint16_t>("config.logo-padding-top", 0);
     this->font               = this->getValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image       = this->getValue<std::string>("gui.bg-image", "disable");
-    this->logo_padding_top   = this->getValue<std::uint16_t>("config.logo-padding-top", 0);
 
     this->builtin_title_sep  = this->getValue<std::string>("config.title-sep", "-");
 

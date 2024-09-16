@@ -366,6 +366,49 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     return false;
 }
 
+/** Executes commands with execvp() and keep the program running without existing
+ * @param cmd_str The command to execute
+ * @param exitOnFailure Whether to call exit(1) on command failure.
+ * @return true if the command successed, else false
+ */
+bool taur_exec(const std::vector<std::string> cmd_str, const bool noerror_print)
+{
+    std::vector<const char*> cmd;
+    for (const std::string_view str : cmd_str)
+        cmd.push_back(str.data());
+
+    int pid = fork();
+
+    if (pid < 0)
+    {
+        die("fork() failed: {}", strerror(errno));
+    }
+
+    if (pid == 0)
+    {
+        debug("running {}", cmd);
+        cmd.push_back(nullptr);
+        execvp(cmd[0], const_cast<char* const*>(cmd.data()));
+
+        // execvp() returns instead of exiting when failed
+        die("An error has occurred: {}: {}", cmd[0], strerror(errno));
+    }
+    else if (pid > 0)
+    {  // we wait for the command to finish then start executing the rest
+        int status;
+        waitpid(pid, &status, 0);  // Wait for the child to finish
+
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+            return true;
+        else
+        {
+            if (!noerror_print)
+                error("Failed to execute the command: {}", fmt::join(cmd, " "));
+        }
+    }
+
+    return false;
+}
 std::string str_tolower(std::string str)
 {
     for (char& x : str)
