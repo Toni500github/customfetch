@@ -1,25 +1,28 @@
 CXX       	?= g++
 PREFIX	  	?= /usr
 MANPREFIX	?= $(PREFIX)/share/man
+APPPREFIX 	?= $(PREFIX)/share/applications
 VARS  	  	?=
-GUI_MODE     	?= 0
 
 DEBUG 		?= 1
-PARSER_TEST 	?= 0
+GUI_MODE        ?= 0
 VENDOR_TEST 	?= 0
 DEVICE_TEST     ?= 0
+
+USE_DCONF	?= 1
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
         BUILDDIR  = build/debug
         CXXFLAGS := -ggdb3 -Wall -Wextra -Wpedantic -DDEBUG=1 $(DEBUG_CXXFLAGS) $(CXXFLAGS)
 else
-	CXXFLAGS := -O3 $(CXXFLAGS)
+	# Check if an optimization flag is not already set
+	ifneq ($(filter -O%,$(CXXFLAGS)),)
+    		$(info Keeping the existing optimization flag in CXXFLAGS)
+	else
+    		CXXFLAGS := -O3 $(CXXFLAGS)
+	endif
         BUILDDIR  = build/release
-endif
-
-ifeq ($(PARSER_TEST), 1)
-	VARS += -DPARSER_TEST=1
 endif
 
 ifeq ($(VENDOR_TEST), 1)
@@ -36,12 +39,21 @@ ifeq ($(GUI_MODE), 1)
 	CXXFLAGS += `pkg-config --cflags gtkmm-3.0`
 endif
 
-NAME		 = customfetch
-TARGET		 = cufetch
-VERSION    	 = 0.8.6
-BRANCH     	 = $(shell git rev-parse --abbrev-ref HEAD)
-SRC 	   	 = $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp)
-OBJ 	   	 = $(SRC:.cpp=.o)
+ifeq ($(USE_DCONF), 1)
+        ifeq ($(shell pkg-config --exists glib-2.0 dconf && echo 1), 1)
+                CXXFLAGS += -DUSE_DCONF=1 `pkg-config --cflags glib-2.0 dconf`
+        else
+                CXXFLAGS += -DUSE_DCONF=0
+        endif
+endif
+
+NAME		= customfetch
+TARGET		= cufetch
+OLDVERSION	= 0.9.2
+VERSION    	= 0.9.3
+BRANCH     	= $(shell git rev-parse --abbrev-ref HEAD)
+SRC 	   	= $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp)
+OBJ 	   	= $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
@@ -64,7 +76,7 @@ $(TARGET): fmt toml $(OBJ)
 	mkdir -p $(BUILDDIR)
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 
-dist: $(TARGET)
+dist:
 	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE cufetch.1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
 
 clean:
@@ -82,5 +94,21 @@ install: $(TARGET)
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < cufetch.1 > $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
+ifeq ($(GUI_MODE), 1)
+	mkdir -p $(DESTDIR)$(APPPREFIX)
+	cp -f cufetch.desktop $(DESTDIR)$(APPPREFIX)
+endif
 
-.PHONY: $(TARGET) dist distclean fmt toml install all
+uninstall:
+	rm -f  $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	rm -f  $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
+	rm -f  $(DESTDIR)$(APPPREFIX)/cufetch.desktop
+	rm -rf $(DESTDIR)$(PREFIX)/share/customfetch/
+
+remove: uninstall
+delete: uninstall
+
+updatever:
+	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
+
+.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all

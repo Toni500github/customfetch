@@ -1,13 +1,16 @@
+#include <linux/limits.h>
 #include <unistd.h>
 
 #include <array>
 #include <cerrno>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 
 #include "config.hpp"
 #include "query.hpp"
 #include "util.hpp"
+#include "switch_fnv1a.hpp"
 #include "utils/packages.hpp"
 
 using namespace Query;
@@ -43,12 +46,53 @@ static void get_host_paths(System::System_t& paths)
         paths.host_version.pop_back();
 }
 
-static System::System_t get_system_infos()
+static System::System_t get_system_infos_lsb_releases()
 {
     System::System_t ret;
 
     debug("calling in System {}", __PRETTY_FUNCTION__);
-    std::string_view os_release_path;
+    std::string lsb_release_path;
+    constexpr std::array<std::string_view, 3> lsb_paths = { "/etc/lsb-release", "/usr/lib/lsb-release" };
+    for (const std::string_view path : lsb_paths)
+    {
+        if (std::filesystem::exists(path))
+        {
+            lsb_release_path = path;
+            break;
+        }
+    }
+
+    std::ifstream os_release_file(lsb_release_path, std::ios::in);
+    if (!os_release_file.is_open())
+    {
+        error("Failed to get OS infos", lsb_release_path);
+        return ret;
+    }
+
+    // get OS /etc/lsb-release infos
+    u_short iter_index = 0;
+    std::string    line;
+    while (std::getline(os_release_file, line) && iter_index < 3)
+    {
+        if (hasStart(line, "DISTRIB_DESCRIPTION="))
+            getFileValue(iter_index, line, ret.os_pretty_name, "DISTRIB_DESCRIPTION="_len);
+
+        else if (hasStart(line, "DISTRIB_ID="))
+            getFileValue(iter_index, line, ret.os_id, "DISTRIB_ID="_len);
+
+        else if (hasStart(line, "DISTRIB_CODENAME="))
+            getFileValue(iter_index, line, ret.os_version_codename, "DISTRIB_CODENAME="_len);
+    }
+
+    return ret;
+}
+
+static System::System_t get_system_infos_os_releases()
+{
+    System::System_t ret;
+
+    debug("calling in System {}", __PRETTY_FUNCTION__);
+    std::string os_release_path;
     constexpr std::array<std::string_view, 3> os_paths = { "/etc/os-release", "/usr/lib/os-release", "/usr/share/os-release" };
     for (const std::string_view path : os_paths)
     {
@@ -59,31 +103,31 @@ static System::System_t get_system_infos()
         }
     }
 
-    std::ifstream os_release_file(os_release_path.data());
+    std::ifstream os_release_file(os_release_path, std::ios::in);
     if (!os_release_file.is_open())
     {
-        error("Could not open {}\nFailed to get OS infos", os_release_path);
+        //error("Could not open '{}'\nFailed to get OS infos", os_release_path);
         return ret;
     }
 
     // get OS /etc/os-release infos
-    static u_short iter_index = 0;
+    u_short iter_index = 0;
     std::string    line;
     while (std::getline(os_release_file, line) && iter_index < 5)
     {
         if (hasStart(line, "PRETTY_NAME="))
             getFileValue(iter_index, line, ret.os_pretty_name, "PRETTY_NAME="_len);
 
-        if (hasStart(line, "NAME="))
+        else if (hasStart(line, "NAME="))
             getFileValue(iter_index, line, ret.os_name, "NAME="_len);
 
-        if (hasStart(line, "ID="))
+        else if (hasStart(line, "ID="))
             getFileValue(iter_index, line, ret.os_id, "ID="_len);
 
-        if (hasStart(line, "VERSION_ID="))
+        else if (hasStart(line, "VERSION_ID="))
             getFileValue(iter_index, line, ret.os_version_id, "VERSION_ID="_len);
 
-        if (hasStart(line, "VERSION_CODENAME="))
+        else if (hasStart(line, "VERSION_CODENAME="))
             getFileValue(iter_index, line, ret.os_version_codename, "VERSION_CODENAME="_len);
     }
 
@@ -92,7 +136,6 @@ static System::System_t get_system_infos()
 
 System::System()
 {
-    debug("Constructing {}", __func__);
     if (!m_bInit)
     {
         if (uname(&m_uname_infos) != 0)
@@ -101,50 +144,53 @@ System::System()
         if (sysinfo(&m_sysInfos) != 0)
             die("sysinfo() failed: {}\nCould not get system infos", strerror(errno));
 
-        m_system_infos = get_system_infos();
+        m_system_infos = get_system_infos_os_releases();
+        if (m_system_infos.os_name == UNKNOWN || m_system_infos.os_pretty_name == UNKNOWN)
+            m_system_infos = get_system_infos_lsb_releases();
+
         get_host_paths(m_system_infos);
         m_bInit = true;
     }
 }
 
 // clang-format off
-std::string System::kernel_name()
+std::string System::kernel_name() noexcept
 { return m_uname_infos.sysname; }
 
-std::string System::kernel_version()
+std::string System::kernel_version() noexcept
 { return m_uname_infos.release; }
 
-std::string System::hostname()
+std::string System::hostname() noexcept
 { return m_uname_infos.nodename; }
 
-std::string System::arch()
+std::string System::arch() noexcept
 { return m_uname_infos.machine; }
 
-long& System::uptime()
+long& System::uptime() noexcept
 { return m_sysInfos.uptime; }
 
-std::string& System::os_pretty_name()
+std::string& System::os_pretty_name() noexcept
 { return m_system_infos.os_pretty_name; }
 
-std::string& System::os_name()
+std::string& System::os_name() noexcept
 { return m_system_infos.os_name; }
 
-std::string& System::os_id()
+std::string& System::os_id() noexcept
 { return m_system_infos.os_id; }
 
-std::string& System::os_versionid()
+std::string& System::os_versionid() noexcept
 { return m_system_infos.os_version_id; }
 
-std::string& System::os_version_codename()
+std::string& System::os_version_codename() noexcept
 { return m_system_infos.os_version_codename; }
 
-std::string& System::host_modelname()
+std::string& System::host_modelname() noexcept
 { return m_system_infos.host_modelname; }
 
-std::string& System::host_vendor()
+std::string& System::host_vendor() noexcept
 { return m_system_infos.host_vendor; }
 
-std::string& System::host_version()
+std::string& System::host_version() noexcept
 { return m_system_infos.host_version; }
 
 // clang-format on
@@ -154,12 +200,10 @@ std::string& System::os_initsys_name()
     if (!done)
     {
         // there's no way PID 1 doesn't exist.
-        // This will always succeed.
+        // This will always succeed (because we are on linux)
         std::ifstream f_initsys("/proc/1/comm", std::ios::binary);
         if (!f_initsys.is_open())
-        {
             die("/proc/1/comm doesn't exist! (what?)");
-        }
 
         std::string initsys;
         std::getline(f_initsys, initsys);
@@ -177,6 +221,56 @@ std::string& System::os_initsys_name()
     }
 
     return m_system_infos.os_initsys_name;
+}
+
+std::string& System::os_initsys_version()
+{
+    static bool done = false;
+    if (done)
+        return m_system_infos.os_initsys_version;
+    
+    std::string path;
+    char buf[PATH_MAX];
+    if (realpath(which("init").c_str(), buf))
+        path = buf;
+
+    std::ifstream f(path, std::ios::in);
+    std::string line;
+
+    const std::string& name = str_tolower(this->os_initsys_name());
+    switch (fnv1a16::hash(name))
+    {
+        case "systemd"_fnv1a16:
+        case "systemctl"_fnv1a16:
+        {
+            while (read_binary_file(f, line))
+            {
+                if (hasEnding(line, "running in %ssystem mode (%s)"))
+                {
+                    m_system_infos.os_initsys_version = line.substr("systemd "_len);
+                    m_system_infos.os_initsys_version.erase(m_system_infos.os_initsys_version.find(' '));
+                    break;
+                }
+            }
+        }
+        break;
+        case "openrc"_fnv1a16:
+        {
+            std::string tmp;
+            while(read_binary_file(f, line))
+            {
+                if (line == "RC_VERSION")
+                {
+                    m_system_infos.os_initsys_version = tmp;
+                    break;
+                }
+                tmp = line;
+            }
+        }
+        break;
+    }
+    done = true;
+    return m_system_infos.os_initsys_version;
 }
 
 std::string& System::pkgs_installed(const Config& config)

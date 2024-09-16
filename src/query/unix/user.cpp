@@ -21,6 +21,7 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 #include "utils/dewm.hpp"
+#include "utils/term.hpp"
 
 using namespace Query;
 
@@ -54,14 +55,15 @@ static std::string get_wm_name()
         path = dir_entry.path() / "cmdline";
         std::ifstream f(path, std::ios::binary);
         std::getline(f, proc_name);
-        debug("proc_name = {}", proc_name);
 
         size_t pos = 0;
         if ((pos = proc_name.find('\0')) != std::string::npos)
             proc_name.erase(pos);
 
         if ((pos = proc_name.rfind('/')) != std::string::npos)
-            proc_name.erase(pos);
+            proc_name.erase(0, pos + 1);
+
+        debug("WM proc_name = {}", proc_name);
 
         if ((wm_name = prettify_wm_name(proc_name)) == MAGIC_LINE)
             continue;
@@ -251,24 +253,37 @@ static std::string get_term_version(std::string_view term_name)
     if (term_name.empty())
         return UNKNOWN;
 
+    bool remove_term_name = true;
     std::string ret;
+
     if (hasStart(term_name, "kitty"))
         term_name = "kitten";
 
-    if (term_name == "st")
-        read_exec({ term_name.data(), "-v" }, ret, true);
-    // tell your terminal to NOT RETURN ERROR WHEN ASKING FOR ITS VERSION (looking at you st)
-    else if (term_name == "xterm")
-        read_exec({ term_name.data(), "-v" }, ret);
-    else
-        read_exec({ term_name.data(), "--version" }, ret);
+    switch (fnv1a16::hash(str_tolower(term_name.data())))
+    {
+        case "st"_fnv1a16:
+            if (detect_st_ver(ret))
+                remove_term_name = false;
+            break;
+        
+        case "konsole"_fnv1a16:
+            if (detect_konsole_ver(ret))
+                remove_term_name = false;
+            break;
+        
+        case "xterm"_fnv1a16:
+            get_term_version_exec(term_name, ret, true); break;
+
+        default:
+            get_term_version_exec(term_name, ret);
+    }
+
 
     debug("get_term_version ret = {}", ret);
 
     if (ret.empty())
         return UNKNOWN;
 
-    bool remove_term_name = true;
     if (hasStart(ret, "# GNOME"))
     {
         ret.erase(0, "# GNOME Terminal "_len);
@@ -283,23 +298,22 @@ static std::string get_term_version(std::string_view term_name)
         return ret;
     }
 
-    size_t pos = 0;
     if (remove_term_name)
         ret.erase(0, term_name.length() + 1);
-
-    if ((pos = ret.find(' ')) != std::string::npos)
+    
+    const size_t pos = ret.find(' ');
+    if (pos != std::string::npos)
         ret.erase(pos);
 
     debug("get_term_version ret after = {}", ret);
     return ret;
 }
 
-User::User()
+User::User() noexcept
 {
-    debug("Constructing {}", __func__);
     if (!m_bInit)
     {
-        uid_t uid = geteuid();
+        uid_t uid = getuid();
 
         if (m_pPwd = getpwuid(uid), !m_pPwd)
             die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
@@ -309,14 +323,15 @@ User::User()
 }
 
 // clang-format off
-std::string User::name()
+std::string User::name() noexcept
 { return m_pPwd->pw_name; }
 
-std::string User::shell_path()
+std::string User::shell_path() noexcept
 { return m_pPwd->pw_shell; }
 
 // clang-format on
-std::string& User::shell_name()
+// Be ready to loose some brain cells from now on
+std::string& User::shell_name() noexcept
 {
     static bool done = false;
     if (!done)

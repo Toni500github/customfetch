@@ -42,20 +42,31 @@ A command-line system information tool (or neofetch like program), which its foc
     -n, --no-display		Do not display the ascii art
     -s, --source-path <path>	Path to the ascii art file to display
     -C, --config <path>		Path to the config file to use
+    -a, --ascii-logo-type [<name>]
+                                The type of ASCII art to apply ("small" or "old").
+                                Basically will add "_<type>" to the logo filename.
+                                It will return the regular linux ascii art if it doesn't exist.
+                                Leave it empty for regular.
+
     -D, --data-dir <path>       Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
     -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
     -f, --font <name>           The font to be used in GUI mode (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
                                 An example: [Liberation Mono] [Normal] [12], which can be "Liberation Mono Normal 12"
 
-    -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it's enabled)
-    -o, --offset <num>          Offset between the ascii art and the system infos
-    -l. --list-modules  	Print the list of the components and its members
+    -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it was enabled)
+    -o, --offset <num>          Offset between the ascii art and the layout
+    -l. --list-modules  	Print the list of the modules and its members
     -h, --help			Print this help menu
     -L, --logo-only             Print only the logo
     -V, --version		Print the version along with the git branch it was built
 
     --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
-    --logo-padding-top		Padding of the logo from the top
+    --logo-padding-top	<num>	Padding of the logo from the top
+    --logo-padding-left	<num>	Padding of the logo from the left
+    --layout-padding-top <num>  Padding of the layout from the top
+    --title-sep <string>        A char (or string) to use in $<builtin.title_sep>
+    --sep-reset <string>        A separator (or string) that when ecountered, will automatically reset color
+    --sep-reset-after [<num>]   Reset color either before of after 'sep-reset' (1 = after && 0 = before)
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 
@@ -72,7 +83,7 @@ static void modules_list()
 {
     fmt::println(R"(
 Syntax:
-# comments of the module
+# maybe comments of the module
 module
   member	: description [example of what it prints, maybe another]
 
@@ -95,6 +106,7 @@ os
   uptime_days	: uptime of the system in days    (should be used along with others uptime_ members) [2]
   hostname	: hostname of the OS [mymainPC]
   initsys_name	: Init system name [systemd]
+  initsys_version: Init system version [256.5-1-arch]
 
 user
   name		: name you are currently logged in (not real name) [toni69]
@@ -107,6 +119,14 @@ user
   term		: Terminal name and version [alacritty 0.13.2]
   term_name	: Terminal name [alacritty]
   term_version	: Terminal version [0.13.2]
+
+builtin
+  title     	: user and hostname colored with ${{auto2}} [toni@arch2]
+  title_sep     : separator between the title and the system infos (with the title lenght) [--------]
+  colors_bg	: color palette with background spaces
+  colors_symbol(symb): 		color palette with specific symbol
+  colors_light_bg:              light color palette with background spaces
+  colors_light_symbol(symb): 	light color palette with specific symbol
 
 # this module is just for generic theme stuff
 # such as indeed cursor
@@ -124,7 +144,6 @@ theme-gtkN
   name		: gtk theme name [Arc-Dark]
   icons		: gtk icons theme name [Qogir-Dark]
   font		: gtk font theme name [Noto Sans 10]
-  cursor	: gtk cursor theme name [Qogir-Dark]
 
 # basically as like as the "theme-gtkN" module above
 # but with gtk{{2,3,4}} and auto format gkt version
@@ -133,39 +152,52 @@ theme-gtk-all
   name          : gtk theme name [Decay-Green [GTK2], Arc-Dark [GTK3/4]]
   icons         : gtk icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]
   font          : gtk font theme name [Cantarell 10 [GTK2], Noto Sans,  10 [GTK3], Noto Sans 10 [GTK4]]
-  cursor        : gtk cursor theme name [Bibata-Modern-Ice [GTK2], Qogir-dark [GTK3], Qogir [GTK4]]
 
-# note: these members are auto displayed in kiB, MiB, GiB and TiB.
-# they all (except ram.ram and ram.swap) have a -GiB and -MiB variant
+# note: these members are auto displayed in KiB, MiB, GiB and TiB.
+# they all (except those who has the same name as the module or that ends with "_perc")
+# have a -KiB, -GiB and -MiB variant.
 # example: if you want to show your 512MiB of used RAM in GiB
-# use the used-GiB variant (they don't print the unit tho)
+# use the `used-GiB` variant (they don't print the unit tho)
 ram
   ram		: used and total amount of RAM (auto) [2.81 GiB / 15.88 GiB]
   used		: used amount of RAM (auto) [2.81 GiB]
   free		: available amount of RAM (auto) [10.46 GiB]
   total		: total amount of RAM (auto) [15.88 GiB]
-  ram           : swapfile used and total amount of RAM (auto) [477.68 MiB / 512.00 MiB]
-  swap_free	: swapfile available amount of RAM (auto) [34.32 MiB]
-  swap_total	: swapfile total amount of RAM (auto) [512.00 MiB]
-  swap_used	: swapfile used amount of RAM (auto) [477.68 MiB]
+  used_perc	: percentage of used amount of RAM in total [17.69%]
+  free_perc	: percentage of available amount of RAM in total [82.31%]
 
-# same thing as RAM (above)
-# note: I mean literally /path/to/fs
-#	e.g disk(/)
+# same comments as RAM (above)
+swap
+  swap          : used and total amount of the swapfile (auto) [477.68 MiB / 512.00 MiB]
+  free		: available amount of the swapfile (auto) [34.32 MiB]
+  total		: total amount of the swapfile (auto) [512.00 MiB]
+  used		: used amount of the swapfile (auto) [477.68 MiB]
+  used_perc     : percentage of used amount of the swapfile in total [93.29%]
+  free_perc     : percentage of available amount of the swapfile in total [6.71%]
+
+# same comments as RAM (above)
+# note: the module can have either a device path
+#	or a filesystem path
+#	e.g disk(/) or disk(/dev/sda5)
 disk(/path/to/fs)
   disk		: used and total amount of disk space (auto) with type of filesystem [360.02 GiB / 438.08 GiB - ext4]
   used          : used amount of disk space (auto) [360.02 GiB]
   free          : available amount of disk space (auto) [438.08 GiB]
   total         : total amount of disk space (auto) [100.08 GiB]
+  used_perc     : percentage of used amount of the disk in total [82.18%]
+  free_perc     : percentage of available amount of the disk in total [17.82%]
   fs            : type of filesystem [ext4]
+  device	: path to device [/dev/sda5]
+  mountdir	: path to the device mount point [/]
 
-# usually people have 1 GPU in their host,
+# usually people have 1 GPU in their PC,
 # but if you got more than 1 and want to query it,
 # you should call gpu module with a number, e.g gpu1 (default gpu0).
 # Infos are gotten from `/sys/class/drm/` and on each cardN directory
 gpu
-  name		: GPU model name [NVIDIA GeForce GTX 1650]
-  vendor	: GPU vendor (UNSTABLE IDK WHY) [NVIDIA Corporation]
+  name		: GPU model name [GeForce GTX 1650]
+  vendor	: GPU short vendor name [NVIDIA]
+  vendor_long   : GPU vendor name [NVIDIA Corporation]
 
 cpu
   cpu		: CPU model name with number of virtual proccessors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]
@@ -228,15 +260,15 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlgf:o:C:d:D:s:";
-    static const struct option opts[] =
-    {
+    const char *optstring = "-VhnLlga::f:o:C:i:d:D:s:";
+    static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
         {"no-display",       no_argument,       0, 'n'},
         {"list-modules",     no_argument,       0, 'l'},
         {"logo-only",        no_argument,       0, 'L'},
         {"gui",              no_argument,       0, 'g'},
+        {"ascii-logo-type",  optional_argument, 0, 'a'},
         {"offset",           required_argument, 0, 'o'},
         {"font",             required_argument, 0, 'f'},
         {"config",           required_argument, 0, 'C'},
@@ -244,10 +276,19 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
 
-        {"logo-padding-top", required_argument, 0, "logo-padding-top"_fnv1a16},
-        {"bg-image",         required_argument, 0, "bg-image"_fnv1a16},
-        {"color",            required_argument, 0, "color"_fnv1a16},
-        {"gen-config",       optional_argument, 0, "gen-config"_fnv1a16},
+        {"image-backend",      required_argument, 0, 'i'},
+        {"kitty",              no_argument, 0, "kitty"_fnv1a16},
+
+        {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
+        {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
+        {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
+        {"logo-padding-top",   required_argument, 0, "logo-padding-top"_fnv1a16},
+        {"logo-padding-left",  required_argument, 0, "logo-padding-left"_fnv1a16},
+        {"layout-padding-top", required_argument, 0, "layout-padding-top"_fnv1a16},
+        {"bg-image",           required_argument, 0, "bg-image"_fnv1a16},
+        {"color",              required_argument, 0, "color"_fnv1a16},
+        {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
+        
         {0,0,0,0}
     };
 
@@ -286,28 +327,41 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.m_custom_distro = str_tolower(optarg); break;
             case 's':
                 config.source_path = optarg; break;
-
+            case 'i':
+                config.m_image_backend = optarg; break;
+            case 'a':
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.ascii_logo_type = optarg;
+                else
+                    config.ascii_logo_type.clear();
+                break;
 
             case "logo-padding-top"_fnv1a16:
                 config.logo_padding_top = std::atoi(optarg); break;
+
+            case "logo-padding-left"_fnv1a16:
+                config.logo_padding_left = std::atoi(optarg); break;
+
+            case "layout-padding-top"_fnv1a16:
+                config.layout_padding_top = std::atoi(optarg); break;
 
             case "bg-image"_fnv1a16:
                 config.gui_bg_image = optarg; break;
 
             case "color"_fnv1a16:
-                {
-                    const std::string& optarg_str = optarg;
-                    const size_t pos = optarg_str.find('=');
-                    if (pos == std::string::npos)
-                        die("argument color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
-                            "for more check with --help", optarg_str);
+            {
+                const std::string& optarg_str = optarg;
+                const size_t& pos = optarg_str.find('=');
+                if (pos == std::string::npos)
+                    die("argument color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
+                        "for more check with --help", optarg_str);
 
-                    const std::string& name = optarg_str.substr(0, pos);
-                    const std::string& value = optarg_str.substr(pos + 1);
-                    config.m_arg_colors_name.push_back(name);
-                    config.m_arg_colors_value.push_back(value);
-                }
-                break;
+                const std::string& name = optarg_str.substr(0, pos);
+                const std::string& value = optarg_str.substr(pos + 1);
+                config.m_arg_colors_name.push_back(name);
+                config.m_arg_colors_value.push_back(value);
+            }
+            break;
 
             case "gen-config"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
@@ -315,6 +369,22 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 else
                     config.generateConfig(configFile);
                 exit(EXIT_SUCCESS);
+
+            case "sep-reset"_fnv1a16:
+                config.sep_reset = optarg; break;
+
+            case "title-sep"_fnv1a16:
+                config.builtin_title_sep = optarg; break;
+
+            case "sep-reset-after"_fnv1a16:
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.sep_reset_after = std::stoi(optarg);
+                else
+                    config.sep_reset_after = true;
+                break;
+
+            case "kitty"_fnv1a16:
+                config.m_image_backend = "kitty"; break;
 
             default:
                 return false;
@@ -324,45 +394,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     return true;
 }
 
-int main (int argc, char *argv[]) {
-#ifdef PARSER_TEST
-    // test
-    fmt::println("=== PARSER TEST! ===");
-
-    std::string test_1 = "Hello, World!";
-    std::string test_2 = "Hello, $(echo \"World\")!";
-    std::string test_3 = "Hello, \\$(echo \"World\")!";
-    std::string test_4 = "Hello, $\\(echo \"World\")!";
-    std::string test_5 = "Hello, \\\\$(echo \"World\")!";
-    std::string test_6 = "$(echo \"World\")!";
-    systemInfo_t systemInfo;
-    std::unique_ptr<std::string> pureOutput = std::make_unique<std::string>();
-    std::string clr = "#d3dae3";
-
-    fmt::print("Useless string (input: {}): ", test_1);
-    parse(test_1, systemInfo, pureOutput, clr);
-    fmt::println("\t{}", test_1);
-    
-    fmt::print("Exec string (input: {}): ", test_2);
-    parse(test_2, systemInfo, pureOutput, clr);
-    fmt::println("\t{}", test_2);
-    
-    fmt::print("Bypassed exec string #1 (input: {}): ", test_3);
-    parse(test_3, systemInfo, pureOutput, clr);
-    fmt::println("\t{}", test_3);
-    
-    fmt::print("Bypassed exec string #2 (input: {}): ", test_4);
-    parse(test_4, systemInfo, pureOutput, clr);
-    fmt::println("\t{}", test_4);
-    
-    fmt::print("Escaped backslash before exec string (input: {}): ", test_5);
-    parse(test_5, systemInfo, pureOutput, clr);
-    fmt::println("\t{}", test_5);
-    
-    fmt::print("Exec string at start of the string (input: {}): ", test_6);
-    parse(test_6, systemInfo, pureOutput, clr);
-    fmt::println("\t{}", test_6);
-#endif
+int main (int argc, char *argv[])
+{
 
 #ifdef VENDOR_TEST
     // test
@@ -384,7 +417,7 @@ int main (int argc, char *argv[]) {
 #endif
 
     // clang-format on
-    struct colors_t colors;
+    colors_t colors;
 
     const std::string& configDir  = getConfigDir();
     const std::string& configFile = parse_config_path(argc, argv, configDir);
@@ -399,11 +432,29 @@ int main (int argc, char *argv[]) {
 
     config.m_display_distro = (config.source_path == "os");
 
+    std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
+
+    if (!config.ascii_logo_type.empty())
+    {
+        const size_t& pos = path.rfind('.');
+        
+        if (pos != std::string::npos)
+            path.insert(pos, "_" + config.ascii_logo_type);
+        else
+            path += "_" + config.ascii_logo_type;
+    }
+
+    if (!std::filesystem::exists(path) &&
+        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
+        die("'{}' doesn't exist. Can't load image/text file", path);
+
+    debug("{} path = {}", __PRETTY_FUNCTION__, path);
+
 #ifdef GUI_MODE
     if (config.gui)
     {
-        auto        app = Gtk::Application::create("org.toni.customfetch");
-        GUI::Window window(config, colors);
+        const Glib::RefPtr<Gtk::Application>& app = Gtk::Application::create("org.toni.customfetch");
+        GUI::Window window(config, colors, path);
         return app->run(window);
     }
 #else
@@ -412,7 +463,6 @@ int main (int argc, char *argv[]) {
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif
 
-    const std::string& path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
     Display::display(Display::render(config, colors, false, path));
 
     return 0;

@@ -50,8 +50,8 @@ static CPU::CPU_t get_cpu_infos()
     // sometimes /proc/cpuinfo at model name
     // the name will contain the min freq
     // happens on intel cpus especially
-    size_t pos = 0;
-    if ((pos = ret.name.find('@')) != std::string::npos)
+    const size_t& pos = ret.name.rfind('@');
+    if (pos != std::string::npos)
         ret.name.erase(pos - 1);
 
     cpu_mhz /= 1000;
@@ -84,10 +84,8 @@ static CPU::CPU_t get_cpu_infos()
     return ret;
 }
 
-CPU::CPU()
+CPU::CPU() noexcept
 {
-    debug("Constructing {}", __func__);
-
     if (!m_bInit)
     {
         m_cpu_infos = get_cpu_infos();
@@ -95,14 +93,20 @@ CPU::CPU()
     }
 }
 
-std::string& CPU::name() { return m_cpu_infos.name; }
+std::string& CPU::name() noexcept
+{ return m_cpu_infos.name; }
 
-std::string& CPU::nproc() { return m_cpu_infos.nproc; }
+std::string& CPU::nproc() noexcept
+{ return m_cpu_infos.nproc; }
 
-float& CPU::freq_bios_limit() { return m_cpu_infos.freq_bios_limit; }
+float& CPU::freq_bios_limit() noexcept
+{ return m_cpu_infos.freq_bios_limit; }
 
-float& CPU::freq_cur() { return m_cpu_infos.freq_cur; }
+float& CPU::freq_cur() noexcept
+{ return m_cpu_infos.freq_cur; }
 
-float& CPU::freq_max() { return (m_cpu_infos.freq_max <= 0) ? m_cpu_infos.freq_max_cpuinfo : m_cpu_infos.freq_max; }
+float& CPU::freq_max() noexcept
+{ return (m_cpu_infos.freq_max <= 0) ? m_cpu_infos.freq_max_cpuinfo : m_cpu_infos.freq_max; }
 
-float& CPU::freq_min() { return m_cpu_infos.freq_min; }
+float& CPU::freq_min() noexcept
+{ return m_cpu_infos.freq_min; }

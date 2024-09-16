@@ -1,20 +1,24 @@
 #include "packages.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <string>
 
 #include "switch_fnv1a.hpp"
 
-size_t get_num_count_dir(const std::string_view path)
+static size_t get_num_count_dir(const std::string_view path)
 {
     if (!std::filesystem::exists(path))
         return 0;
 
-    return std::distance(std::filesystem::directory_iterator{path}, {});
+    const auto& dirIter = std::filesystem::directory_iterator{path};
+
+    return std::count_if(begin(dirIter), end(dirIter),
+                        [](const auto& entry) { return entry.is_directory(); });
 }
 
-size_t get_num_string_file(const std::string_view path, const std::string_view str)
+static size_t get_num_string_file(const std::string_view path, const std::string_view str)
 {
     size_t ret = 0;
     std::ifstream f(path.data());
@@ -36,32 +40,35 @@ std::string get_all_pkgs(const Config& config)
     std::string ret;
     pkgs_managers_count_t pkgs_count;
 
-#define ADD_PKGS_COUNT(count) \
-    if (pkgs_count.count > 0) \
-        ret += fmt::format("{} ({}), ", pkgs_count.count, #count);
+#define ADD_PKGS_COUNT(pkgman) \
+    if (pkgs_count.pkgman > 0) \
+        ret += fmt::format("{} ({}), ", pkgs_count.pkgman, #pkgman);
 
     for (const std::string& name : config.pkgs_managers)
     {
         switch (fnv1a16::hash(name))
         {
             case "pacman"_fnv1a16:
-                pkgs_count.pacman = get_num_count_dir("/var/lib/pacman/local");
+                for (const std::string& str : config.pacman_dirs)
+                    pkgs_count.pacman += get_num_count_dir(expandVar(str));
                 ADD_PKGS_COUNT(pacman);
                 break;
 
             case "flatpak"_fnv1a16:
-                pkgs_count.flatpak += get_num_count_dir("/var/lib/flatpak/app");
-                pkgs_count.flatpak += get_num_count_dir(expandVar("~/.local/share/flatpak/app"));
+                for (const std::string& str : config.flatpak_dirs)
+                    pkgs_count.flatpak += get_num_count_dir(expandVar(str));
                 ADD_PKGS_COUNT(flatpak);
                 break;
 
             case "dpkg"_fnv1a16:
-                pkgs_count.dpkg = get_num_string_file("/var/lib/dpkg/status", "Status: install ok installed");
+                for (const std::string& str : config.dpkg_files)
+                    pkgs_count.dpkg += get_num_string_file(expandVar(str), "Status: install ok installed");
                 ADD_PKGS_COUNT(dpkg);
                 break;
 
             case "apk"_fnv1a16:
-                pkgs_count.apk = get_num_string_file("/var/lib/apk/db/installed", "C:Q");
+                for (const std::string& str : config.apk_files)
+                    pkgs_count.apk += get_num_string_file(expandVar(str), "C:Q");
                 ADD_PKGS_COUNT(apk);
                 break;
         }

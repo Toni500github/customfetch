@@ -1,20 +1,20 @@
-${c2}            -```````````
-          `-+/------------.`
-       .---:mNo---------------.
-     .-----yMMMy:---------------.
-   `------oMMMMMm/----------------`
-  .------/MMMMMMMN+----------------.
- .------/NMMMMMMMMm-+/--------------.
-`------/NMMMMMMMMMN-:mh/-------------`
-.-----/NMMMMMMMMMMM:-+MMd//oso/:-----.
------/NMMMMMMMMMMMM+--mMMMh::smMmyo:--
-----+NMMMMMMMMMMMMMo--yMMMMNo-:yMMMMd/.
-.--oMMMMMMMMMMMMMMMy--yMMMMMMh:-yMMMy-`
-`-sMMMMMMMMMMMMMMMMh--dMMMMMMMd:/Ny+y.
-`-/+osyhhdmmNNMMMMMm-/MMMMMMMmh+/ohm+
-  .------------:://+-/++++++${c1}oshddys:
-   -hhhhyyyyyyyyyyyhhhhddddhysssso-
-    `:ossssssyysssssssssssssssso:`
-      `:+ssssssssssssssssssss+-
-         `-/+ssssssssssso+/-`
-              `.-----..`
+${1}            -```````````
+${1}          `-+/------------.`
+${1}       .---:mNo---------------.
+${1}     .-----yMMMy:---------------.
+${1}   `------oMMMMMm/----------------`
+${1}  .------/MMMMMMMN+----------------.
+${1} .------/NMMMMMMMMm-+/--------------.
+${1}`------/NMMMMMMMMMN-:mh/-------------`
+${1}.-----/NMMMMMMMMMMM:-+MMd//oso/:-----.
+${1}-----/NMMMMMMMMMMMM+--mMMMh::smMmyo:--
+${1}----+NMMMMMMMMMMMMMo--yMMMMNo-:yMMMMd/.
+${1}.--oMMMMMMMMMMMMMMMy--yMMMMMMh:-yMMMy-`
+${1}`-sMMMMMMMMMMMMMMMMh--dMMMMMMMd:/Ny+y.
+${1}`-/+osyhhdmmNNMMMMMm-/MMMMMMMmh+/ohm+
+${1}  .------------:://+-/++++++${blue}oshddys:
+${blue}   -hhhhyyyyyyyyyyyhhhhddddhysssso-
+${blue}    `:ossssssyysssssssssssssssso:`
+${blue}      `:+ssssssssssssssssssss+-
+${blue}         `-/+ssssssssssso+/-`
+${blue}              `.-----..`

@@ -2,7 +2,11 @@
 
 #include "display.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <algorithm>
+#include <array>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -10,19 +14,14 @@
 
 #include "config.hpp"
 #include "fmt/core.h"
-#include "fmt/ranges.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "util.hpp"
 
-// listen, it supposed to be only in Display::render, since only there is used.
-// But at the same time, I like returning everything by reference if possible
-// :)
-std::vector<std::string> asciiArt;
-
 std::string Display::detect_distro(const Config& config)
 {
     debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
+
     if (!config.m_custom_distro.empty())
     {
         return fmt::format("{}/ascii/{}.txt", config.data_dir, config.m_custom_distro);
@@ -44,21 +43,72 @@ std::string Display::detect_distro(const Config& config)
     }
 }
 
-std::vector<std::string>& Display::render(Config& config, colors_t& colors, const bool already_analyzed_file,
-                                          const std::string_view path)
+static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
-    systemInfo_t systemInfo{};
+    std::string              path{ Display::detect_distro(config) };
+    systemInfo_t             systemInfo{};
+    std::vector<std::string> layout{ config.layout };
+
+    int image_width, image_height, channels;
+
+    // load the image and get its width and height
+    unsigned char* img = stbi_load(config.source_path.c_str(), &image_width, &image_height, &channels, 0);
+
+    if (img)
+        stbi_image_free(img);
+    else
+        die("Unable to load image '{}'", config.source_path);
+    
+    if (!config.ascii_logo_type.empty())
+    {
+        const size_t& pos = path.rfind('.');
+        
+        if (pos != std::string::npos)
+            path.insert(pos, "_" + config.ascii_logo_type);
+        else
+            path += "_" + config.ascii_logo_type;
+    }
+
+    // this is just for parse() to auto add the distro colors
+    std::ifstream file(path, std::ios::binary);
+    std::string line, _;
+    
+    while (std::getline(file, line))
+        parse(line, systemInfo, _, config, colors, false);
+
+    for (std::string& layout : layout)
+        layout = parse(layout, systemInfo, _, config, colors, true);
+
+    // erase each element for each instance of MAGIC_LINE
+    layout.erase(std::remove_if(layout.begin(), layout.end(),
+                                [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                 layout.end());
+
+    for (size_t i = 0; i < layout.size(); i++)
+    {
+        for (size_t _ = 0; _ < config.offset; _++)  // I use _ because we don't need it
+            layout.at(i).insert(0, " ");
+    }
+
+    return layout;
+}
+
+std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
+                                         const std::string_view path)
+{
+    systemInfo_t             systemInfo{};
+    std::vector<std::string> asciiArt{}, layout{ config.layout };
 
     if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty())
     {
-        if (!config.m_custom_distro.empty())
+        if (!config.m_custom_distro.empty() && !config.gui)
             die("You need to specify if either using a custom distro ascii art OR a custom source path");
     }
 
-    debug("path = {}", path);
+    debug("Display::render path = {}", path);
 
     std::ifstream file;
-    std::ifstream fileToAnalyze;  // Input iterators are invalidated when you advance them. both have same path
+    std::ifstream fileToAnalyze;  // both have same path
     if (!config.m_disable_source)
     {
         file.open(path.data(), std::ios::binary);
@@ -70,6 +120,8 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
     std::string         line;
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
+    std::string         image_backend_cmd;
+
 
     // first check if the file is an image
     // without even using the same library that "file" uses
@@ -77,18 +129,31 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
     if (!already_analyzed_file)
     {
         debug("Display::render() analyzing file");
-        unsigned char buffer[16];
-        fileToAnalyze.read((char*)(&buffer[0]), sizeof(buffer));
-        if (is_file_image(buffer))
-            die("The source file '{}' is a binary file.\n"
+        std::array<unsigned char, 32> buffer;
+        fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
+        if (is_file_image(buffer.data()))
+        {
+            if (config.m_image_backend == "kitty")
+            {
+                image_backend_cmd = fmt::format("kitty +kitten icat --align left {}", path);
+            }
+            shell_exec(image_backend_cmd);
+            return render_with_image(config, colors);
+        }
+        /*    die("The source file '{}' is a binary file.\n"
                 "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
-                path);
+                path);*/
     }
 
     for (int i = 0; i < config.logo_padding_top; i++)
     {
         pureAsciiArtLens.push_back(0);
         asciiArt.push_back("");
+    }
+
+    for (int i = 0; i < config.layout_padding_top; i++)
+    {
+        layout.insert(layout.begin(), "");
     }
 
     while (std::getline(file, line))
@@ -100,7 +165,7 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
         if (config.gui)
         {
             // check parse.cpp
-            size_t pos = asciiArt_s.rfind("$ <");
+            const size_t pos = asciiArt_s.rfind("$ </");
             if (pos != std::string::npos)
                 asciiArt_s.replace(pos, 2, "$");
         }
@@ -139,46 +204,58 @@ std::vector<std::string>& Display::render(Config& config, colors_t& colors, cons
         return asciiArt;
 
     std::string _;
-    for (std::string& layout : config.layouts)
-    {
+    for (std::string& layout : layout)
         layout = parse(layout, systemInfo, _, config, colors, true);
-    }
 
     // erase each element for each instance of MAGIC_LINE
-    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), [](const std::string_view str)
-                                        { return str.find(MAGIC_LINE) != std::string::npos; }),
-                         config.layouts.end());
+    layout.erase(std::remove_if(layout.begin(), layout.end(),
+                                [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                 layout.end());
 
     size_t i;
-    for (i = 0; i < config.layouts.size(); i++)
+    for (i = 0; i < layout.size(); i++)
     {
-        size_t origin = 0;
+        size_t origin = config.logo_padding_left;
+
+        // The user-specified offset to be put before the logo
+        for (size_t j = 0; j < config.logo_padding_left; j++)
+            layout.at(i).insert(0, " ");
 
         if (i < asciiArt.size())
         {
-            config.layouts.at(i).insert(0, asciiArt.at(i));
-            origin = asciiArt.at(i).length();
+            layout.at(i).insert(origin, asciiArt.at(i));
+            origin += asciiArt.at(i).length();
         }
 
-        size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
-                        (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
+        const size_t& spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
+                               (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
 
         debug("spaces: {}", spaces);
 
         for (size_t j = 0; j < spaces; j++)
-            config.layouts.at(i).insert(origin, " ");
+            layout.at(i).insert(origin, " ");
 
-        config.layouts.at(i) += config.gui ? "" : NOCOLOR;
+        layout.at(i) += config.gui ? "" : NOCOLOR;
     }
 
-    if (i < asciiArt.size())
-        config.layouts.insert(config.layouts.end(), asciiArt.begin() + i, asciiArt.end());
+    for (; i < asciiArt.size(); i++)
+    {
+        std::string line;
 
-    return config.layouts;
+        for (size_t j = 0; j < config.logo_padding_left; j++)
+            line += " ";
+
+        line += asciiArt[i];
+
+        layout.push_back(line);
+    }
+
+    return layout;
+
 }
 
 void Display::display(const std::vector<std::string>& renderResult)
 {
-    // for loops hell nah
-    fmt::println("{}", fmt::join(renderResult, "\n"));
+    for (const std::string_view str : renderResult)
+        fmt::println("{}", str);
 }

@@ -11,8 +11,7 @@
 #include "config.hpp"
 #include "util.hpp"
 
-extern "C"
-{
+extern "C" {
 #include <mntent.h>
 #include <pwd.h>
 #include <sys/stat.h>
@@ -22,7 +21,8 @@ extern "C"
 #include <unistd.h>
 }
 
-using systemInfo_t = std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
+using systemInfo_t =
+    std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
 using variant = std::variant<std::string, size_t, float>;
 
 namespace Query
@@ -49,23 +49,24 @@ public:
     };
 
     System();
-    
-    std::string  kernel_name();
-    std::string  kernel_version();
-    std::string  hostname();
-    std::string  arch();
-    std::string& os_pretty_name();
-    std::string& os_name();
-    std::string& os_id();
+
+    std::string  kernel_name() noexcept;
+    std::string  kernel_version() noexcept;
+    std::string  hostname() noexcept;
+    std::string  arch() noexcept;
+    std::string& os_pretty_name() noexcept;
+    std::string& os_name() noexcept;
+    std::string& os_id() noexcept;
     std::string& os_initsys_name();
-    std::string& os_versionid();
-    std::string& os_version_codename();
-    long&        uptime();
+    std::string& os_initsys_version();
+    std::string& os_versionid() noexcept;
+    std::string& os_version_codename() noexcept;
+    long&        uptime() noexcept;
 
     // motherboard (host)
-    std::string& host_modelname();
-    std::string& host_vendor();
-    std::string& host_version();
+    std::string& host_modelname() noexcept;
+    std::string& host_vendor() noexcept;
+    std::string& host_version() noexcept;
 
     std::string& pkgs_installed(const Config& config);
 
@@ -90,11 +91,11 @@ public:
         std::string term_version{ MAGIC_LINE };
     };
 
-    User();
+    User() noexcept;
 
-    std::string  name();
-    std::string  shell_path();
-    std::string& shell_name();
+    std::string  name() noexcept;
+    std::string  shell_path() noexcept;
+    std::string& shell_name() noexcept;
     std::string& shell_version(const std::string_view shell_name);
     std::string& wm_name(bool dont_query_dewm, const std::string_view term_name);
     std::string& de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name);
@@ -119,19 +120,19 @@ public:
         std::string gtk_icon_theme{ MAGIC_LINE };
         std::string gtk_font{ MAGIC_LINE };
         std::string cursor{ MAGIC_LINE };
-        std::string cursor_size { UNKNOWN };
+        std::string cursor_size{ UNKNOWN };
     };
 
     Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
-          const std::string& theme_name_version);
+          const std::string& theme_name_version, const Config &config);
 
-    Theme(systemInfo_t& queried_themes);
+    Theme(systemInfo_t& queried_themes, const Config &config);
 
-    std::string gtk_theme();
-    std::string gtk_icon_theme();
-    std::string gtk_font();
-    std::string& cursor();
-    std::string& cursor_size();
+    std::string  gtk_theme() noexcept;
+    std::string  gtk_icon_theme() noexcept;
+    std::string  gtk_font() noexcept;
+    std::string& cursor() noexcept;
+    std::string& cursor_size() noexcept;
 
 private:
     User              query_user;
@@ -139,6 +140,7 @@ private:
     systemInfo_t&     m_queried_themes;
     const std::string m_theme_name_version;
     std::string       m_wmde_name;
+    const Config&     m_Config;
 };
 
 class CPU
@@ -158,14 +160,14 @@ public:
         float freq_max_cpuinfo = 0;
     };
 
-    CPU();
-    
-    std::string& name();
-    std::string& nproc();
-    float& freq_max();
-    float& freq_min();
-    float& freq_cur();
-    float& freq_bios_limit();
+    CPU() noexcept;
+
+    std::string& name() noexcept;
+    std::string& nproc() noexcept;
+    float&       freq_max() noexcept;
+    float&       freq_min() noexcept;
+    float&       freq_cur() noexcept;
+    float&       freq_bios_limit() noexcept;
 
 private:
     static bool  m_bInit;
@@ -181,10 +183,10 @@ public:
         std::string vendor{ UNKNOWN };
     };
 
-    GPU(std::uint16_t& id, std::vector<std::uint16_t>& queried_gpus);
-    
-    std::string& name();
-    std::string& vendor();
+    GPU(const std::uint16_t id, std::vector<std::uint16_t>& queried_gpus);
+
+    std::string& name() noexcept;
+    std::string& vendor() noexcept;
 
 private:
     uint16_t    m_vendor_id;
@@ -204,14 +206,18 @@ public:
         float       free_amount  = 0;
         float       used_amount  = 0;
         std::string typefs;
+        std::string device;
+        std::string mountdir;
     };
 
     Disk(const std::string_view path, std::vector<std::string_view>& paths);
-    
-    float&       total_amount();
-    float&       free_amount();
-    float&       used_amount();
-    std::string& typefs();
+
+    float&       total_amount() noexcept;
+    float&       free_amount() noexcept;
+    float&       used_amount() noexcept;
+    std::string& typefs() noexcept;
+    std::string& device() noexcept;
+    std::string& mountdir() noexcept;
 
 private:
     static struct statvfs m_statvfs;
@@ -231,14 +237,14 @@ public:
         float swap_total_amount = 0;
     };
 
-    RAM();
-    
-    float& total_amount();
-    float& free_amount();
-    float& used_amount();
-    float& swap_free_amount();
-    float& swap_used_amount();
-    float& swap_total_amount();
+    RAM() noexcept;
+
+    float& total_amount() noexcept;
+    float& free_amount() noexcept;
+    float& used_amount() noexcept;
+    float& swap_free_amount() noexcept;
+    float& swap_used_amount() noexcept;
+    float& swap_total_amount() noexcept;
 
 private:
     static bool  m_bInit;

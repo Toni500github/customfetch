@@ -18,7 +18,7 @@ namespace GUI
 class Window : public Gtk::Window
 {
 public:
-    Window(Config& config, colors_t& colors);
+    Window(const Config& config, const colors_t& colors, const std::string_view path);
     virtual ~Window();
 
 private:
@@ -35,6 +35,7 @@ private:
         {
             Glib::RefPtr<Gdk::Pixbuf> scaled_pixbuf =
                 m_original_pixbuf->scale_simple(width, height, Gdk::INTERP_BILINEAR);
+            
             m_bg_image.set(scaled_pixbuf);
         }
     }

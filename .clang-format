@@ -19,7 +19,9 @@ TabWidth: 4
 UseTab: Never
 
 # Bracing styles
+BreakBeforeBraces: Custom
 BraceWrapping:
+  AfterCaseLabel: true
   AfterClass: true
   AfterControlStatement: true
   AfterEnum: true
@@ -46,6 +48,8 @@ SpaceInEmptyParentheses: false
 SpacesInSquareBrackets: false
 IndentAccessModifiers: false
 AccessModifierOffset: -4
+IndentCaseBlocks: false
+IndentCaseLabels: true
 
 # Control formatting of C++11 features
 Cpp11BracedListStyle: false
@@ -60,8 +64,6 @@ ReflowComments: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: All
-BreakBeforeBraces: Allman
-IndentCaseLabels: true
 
 AlignConsecutiveShortCaseStatements:
   Enabled: true

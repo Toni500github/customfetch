@@ -57,18 +57,8 @@ std::string parse_de_env(void) noexcept
 
 std::string prettify_wm_name(const std::string_view name) noexcept
 {
-    if (name.find("kwin") != std::string::npos)
+    if (hasStart(name, "kwin"))
         return "Kwin";
-
-    if (name.find("gnome-shell") != std::string::npos || name.find("Mutter") != std::string::npos ||
-        name.find("gnome shell") != std::string::npos)
-        return "Mutter";
-
-    if (name.find("cinnamon") != std::string::npos || name.find("Muffin") != std::string::npos)
-        return "Muffin";
-
-    if (name.find("Marco") != std::string::npos)
-        return "Marco";
 
     // taken from this list
     // https://github.com/KittyKatt/screenFetch/blob/master/screenfetch-dev#L93
@@ -76,63 +66,68 @@ std::string prettify_wm_name(const std::string_view name) noexcept
     // ngl this looks beatiful thanks to clang-format :D
     switch (fnv1a16::hash(str_tolower(name.data())))
     {
-        case "2bwm"_fnv1a16:            return "2bwm";
-        case "9wm"_fnv1a16:             return "9wm";
-        case "awesome"_fnv1a16:         return "awesome";
-        case "beryl"_fnv1a16:           return "beryl";
-        case "blackbox"_fnv1a16:        return "blackbox";
-        case "bspwm"_fnv1a16:           return "bspwm";
-        case "budgie-wm"_fnv1a16:       return "budgie-wm";
-        case "chromeos-wm"_fnv1a16:     return "chromeos-wm";
-        case "cinnamon"_fnv1a16:        return "Muffin";
-        case "compiz"_fnv1a16:          return "compiz";
-        case "deepin-wm"_fnv1a16:       return "deepin-wm";
-        case "dminiwm"_fnv1a16:         return "dminiwm";
-        case "dtwm"_fnv1a16:            return "dtwm";
-        case "dwm"_fnv1a16:             return "dwm";
-        case "e16"_fnv1a16:             return "e16";
-        case "echinus"_fnv1a16:         return "echinus";
-        case "emerald"_fnv1a16:         return "emerald";
-        case "enlightenment"_fnv1a16:   return "enlightenment";
-        case "finder"_fnv1a16:          return "finder";
-        case "fluxbox"_fnv1a16:         return "fluxbox";
-        case "flwm"_fnv1a16:            return "flwm";
-        case "flwm_topside"_fnv1a16:    return "flwm_topside";
-        case "fvwm"_fnv1a16:            return "fvwm";
-        case "herbstluftwm"_fnv1a16:    return "herbstluftwm";
-        case "howm"_fnv1a16:            return "howm";
-        case "hyprland"_fnv1a16:        return "Hyprland";
-        case "i3"_fnv1a16:              return "i3";
-        case "i3wm"_fnv1a16:            return "i3wm";
-        case "icewm"_fnv1a16:           return "icewm";
-        case "kwin"_fnv1a16:            return "Kwin";
-        case "kwin_wayland_wr"_fnv1a16: return "Kwin";
-        case "metacity"_fnv1a16:        return "Metacity";
-        case "monsterwm"_fnv1a16:       return "monsterwm";
-        case "muffin"_fnv1a16:          return "Muffin";
-        case "musca"_fnv1a16:           return "musca";
-        case "mwm"_fnv1a16:             return "mwm";
-        case "notion"_fnv1a16:          return "notion";
-        case "openbox"_fnv1a16:         return "Openbox";
-        case "pekwm"_fnv1a16:           return "pekwm";
-        case "qtile"_fnv1a16:           return "Qtile";
-        case "ratpoison"_fnv1a16:       return "ratpoison";
-        case "sawfish"_fnv1a16:         return "sawfish";
-        case "scrotwm"_fnv1a16:         return "scrotwm";
-        case "spectrwm"_fnv1a16:        return "spectrwm";
-        case "stumpwm"_fnv1a16:         return "stumpwm";
-        case "subtle"_fnv1a16:          return "subtle";
-        case "sway"_fnv1a16:            return "sway";
-        case "swm"_fnv1a16:             return "swm";
-        case "tinywm"_fnv1a16:          return "tinywm";
-        case "twin"_fnv1a16:            return "twin";
-        case "wayfire"_fnv1a16:         return "wayfire";
-        case "weston"_fnv1a16:          return "weston";
-        case "wmaker"_fnv1a16:          return "wmaker";
-        case "wmfs"_fnv1a16:            return "wmfs";
-        case "wmii"_fnv1a16:            return "wmii";
-        case "xfwm4"_fnv1a16:           return "xfwm4";
-        case "xmonad"_fnv1a16:          return "XMonad";
+        case "2bwm"_fnv1a16:          return "2bwm";
+        case "9wm"_fnv1a16:           return "9wm";
+        case "awesome"_fnv1a16:       return "awesome";
+        case "beryl"_fnv1a16:         return "beryl";
+        case "blackbox"_fnv1a16:      return "blackbox";
+        case "bspwm"_fnv1a16:         return "bspwm";
+        case "budgie-wm"_fnv1a16:     return "budgie-wm";
+        case "chromeos-wm"_fnv1a16:   return "chromeos-wm";
+        case "cinnamon"_fnv1a16:      return "Muffin";
+        case "compiz"_fnv1a16:        return "compiz";
+        case "deepin-wm"_fnv1a16:     return "deepin-wm";
+        case "dminiwm"_fnv1a16:       return "dminiwm";
+        case "dtwm"_fnv1a16:          return "dtwm";
+        case "dwm"_fnv1a16:           return "dwm";
+        case "e16"_fnv1a16:           return "e16";
+        case "echinus"_fnv1a16:       return "echinus";
+        case "emerald"_fnv1a16:       return "emerald";
+        case "enlightenment"_fnv1a16: return "enlightenment";
+        case "finder"_fnv1a16:        return "finder";
+        case "fluxbox"_fnv1a16:       return "fluxbox";
+        case "flwm"_fnv1a16:          return "flwm";
+        case "flwm_topside"_fnv1a16:  return "flwm_topside";
+        case "fvwm"_fnv1a16:          return "fvwm";
+
+        case "gnome-shell"_fnv1a16:
+        case "gnome-session-binary"_fnv1a16:
+        case "mutter"_fnv1a16:               return "Mutter";
+
+        case "herbstluftwm"_fnv1a16: return "herbstluftwm";
+        case "howm"_fnv1a16:         return "howm";
+        case "hyprland"_fnv1a16:     return "Hyprland";
+        case "i3"_fnv1a16:           return "i3";
+        case "i3wm"_fnv1a16:         return "i3wm";
+        case "icewm"_fnv1a16:        return "icewm";
+        case "kwin"_fnv1a16:         return "Kwin";
+        case "marco"_fnv1a16:        return "Marco";
+        case "metacity"_fnv1a16:     return "Metacity";
+        case "monsterwm"_fnv1a16:    return "monsterwm";
+        case "muffin"_fnv1a16:       return "Muffin";
+        case "musca"_fnv1a16:        return "musca";
+        case "mwm"_fnv1a16:          return "mwm";
+        case "notion"_fnv1a16:       return "notion";
+        case "openbox"_fnv1a16:      return "Openbox";
+        case "pekwm"_fnv1a16:        return "pekwm";
+        case "qtile"_fnv1a16:        return "Qtile";
+        case "ratpoison"_fnv1a16:    return "ratpoison";
+        case "sawfish"_fnv1a16:      return "sawfish";
+        case "scrotwm"_fnv1a16:      return "scrotwm";
+        case "spectrwm"_fnv1a16:     return "spectrwm";
+        case "stumpwm"_fnv1a16:      return "stumpwm";
+        case "subtle"_fnv1a16:       return "subtle";
+        case "sway"_fnv1a16:         return "sway";
+        case "swm"_fnv1a16:          return "swm";
+        case "tinywm"_fnv1a16:       return "tinywm";
+        case "twin"_fnv1a16:         return "twin";
+        case "wayfire"_fnv1a16:      return "wayfire";
+        case "weston"_fnv1a16:       return "weston";
+        case "wmaker"_fnv1a16:       return "wmaker";
+        case "wmfs"_fnv1a16:         return "wmfs";
+        case "wmii"_fnv1a16:         return "wmii";
+        case "xfwm4"_fnv1a16:        return "Xfwm4";
+        case "xmonad"_fnv1a16:       return "XMonad";
     }
 
     return MAGIC_LINE;
@@ -146,9 +141,9 @@ std::string get_mate_version()
     {
         std::string ret;
         read_exec({ "mate-session", "--version" }, ret);
-        
+
         // erase doesn't remove the nth character, only the ones before it, so we have to add 1.
-        ret.erase(0, ret.rfind(' ')+1);
+        ret.erase(0, ret.rfind(' ') + 1);
         return ret;
     }
 
@@ -176,12 +171,12 @@ std::string get_kwin_version()
     std::string ret;
 
     if (std::getenv("WAYLAND_DISPLAY") != NULL)
-        read_exec({"kwin_wayland", "--version"}, ret);
+        read_exec({ "kwin_wayland", "--version" }, ret);
     else
-        read_exec({"kwin_x11", "--version"}, ret);
+        read_exec({ "kwin_x11", "--version" }, ret);
 
     // erase doesn't remove the nth character, only the ones before it, so we have to add 1.
-    ret.erase(0, ret.rfind(' ')+1);
+    ret.erase(0, ret.rfind(' ') + 1);
     return ret;
 }
 
@@ -198,7 +193,7 @@ static std::string get_cinnamon_version_binary()
         // and then analyze every string, you'll see there is a string with
         // "Cinnamon %s" and above it's version
         // so let's do it
-        if (line == "Cinnamon %s\n")
+        if (line == "Cinnamon %s")
             return ret;
 
         // save the above position
@@ -240,7 +235,7 @@ std::string get_cinnamon_version()
 static std::string get_xfce4_version_lib()
 {
     LOAD_LIBRARY("libxfce4util.so", return UNKNOWN)
-    LOAD_LIB_SYMBOL(const char *, xfce_version_string, void)
+    LOAD_LIB_SYMBOL(const char*, xfce_version_string, void)
     const std::string& ret = xfce_version_string();
     UNLOAD_LIBRARY()
     return ret;

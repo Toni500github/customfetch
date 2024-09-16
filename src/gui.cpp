@@ -3,19 +3,21 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "gui.hpp"
 
+#include <array>
 #include <filesystem>
 #include <fstream>
 
 #include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
-#include "gdkmm/pixbufanimation.h"
-#include "gtkmm/enums.h"
-#include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "stb_image.h"
 #include "util.hpp"
+
+#include "gdkmm/pixbufanimation.h"
+#include "gtkmm/enums.h"
+#include "pangomm/fontdescription.h"
 
 using namespace GUI;
 
@@ -31,9 +33,11 @@ using namespace GUI;
 }*/
 
 // Display::render but only for images on GUI
-static std::vector<std::string>& render_with_image(Config& config, colors_t& colors)
+static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
-    systemInfo_t systemInfo{};
+    std::string              path{Display::detect_distro(config)};
+    systemInfo_t             systemInfo{};
+    std::vector<std::string> layout{ config.layout };
 
     int image_width, image_height, channels;
 
@@ -44,52 +48,61 @@ static std::vector<std::string>& render_with_image(Config& config, colors_t& col
         stbi_image_free(img);
     else
         die("Unable to load image '{}'", config.source_path);
-
-    for (std::string& layout : config.layouts)
+    
+    if (!config.ascii_logo_type.empty())
     {
-        std::string _;
-        layout = parse(layout, systemInfo, _, config, colors, true);
+        const size_t& pos = path.rfind('.');
+        
+        if (pos != std::string::npos)
+            path.insert(pos, "_" + config.ascii_logo_type);
+        else
+            path += "_" + config.ascii_logo_type;
     }
+
+    // this is just for parse() to auto add the distro colors
+    std::ifstream file(path, std::ios::binary);
+    std::string line, _;
+    
+    while (std::getline(file, line))
+        parse(line, systemInfo, _, config, colors, false);
+
+    for (std::string& layout : layout)
+        layout = parse(layout, systemInfo, _, config, colors, true);
 
     // erase each element for each instance of MAGIC_LINE
-    config.layouts.erase(std::remove_if(config.layouts.begin(), config.layouts.end(), [](const std::string_view str)
-                                        { return str.find(MAGIC_LINE) != std::string::npos; }),
-                         config.layouts.end());
+    layout.erase(std::remove_if(layout.begin(), layout.end(),
+                                [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                 layout.end());
 
-    for (size_t i = 0; i < config.layouts.size(); i++)
+    for (size_t i = 0; i < layout.size(); i++)
     {
         for (size_t _ = 0; _ < config.offset; _++)  // I use _ because we don't need it
-            config.layouts.at(i).insert(0, " ");
+            layout.at(i).insert(0, " ");
     }
-    config.offset = 0;
 
-    return config.layouts;
+    return layout;
 }
 
-Window::Window(Config& config, colors_t& colors)
+Window::Window(const Config& config, const colors_t& colors, const std::string_view path)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(1000, 600);
-
-    std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
-    if (!std::filesystem::exists(path) &&
-        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
-        die("'{}' doesn't exist. Can't load image/text file", path);
+    set_position(Gtk::WIN_POS_CENTER_ALWAYS);
 
     bool useImage = false;
 
     debug("Window::Window analyzing file");
-    std::ifstream f(path);
-    unsigned char buffer[128];
-    f.read((char*)(&buffer[0]), 128);
-    if (is_file_image(buffer))
+    std::ifstream f(path.data());
+    std::array<unsigned char, 32> buffer;
+    f.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
+    if (is_file_image(buffer.data()))
         useImage = true;
 
     // useImage can be either a gif or an image
     if (useImage && !config.m_disable_source)
     {
-        Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path);
-        m_img                                  = Gtk::manage(new Gtk::Image(img));
+        Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path.data());
+        m_img = Gtk::manage(new Gtk::Image(img));
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
         m_box.pack_start(*m_img, Gtk::PACK_SHRINK);
@@ -101,7 +114,7 @@ Window::Window(Config& config, colors_t& colors)
     auto                   context = m_label.get_pango_context();
     Pango::FontDescription font(config.font);
     debug("font family = {}", font.get_family().raw());
-    debug("font style = {}", fmt::underlying(font.get_style()));
+    debug("font style = {}",  fmt::underlying(font.get_style()));
     debug("font weight = {}", fmt::underlying(font.get_weight()));
     context->set_font_description(font);
 

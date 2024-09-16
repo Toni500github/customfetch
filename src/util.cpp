@@ -37,7 +37,7 @@ bool hasStart(const std::string_view fullString, const std::string_view start)
     return (fullString.substr(0, start.size()) == start);
 }
 
-std::vector<std::string> split(const std::string_view text, char delim)
+std::vector<std::string> split(const std::string_view text, const char delim)
 {
     std::string              line;
     std::vector<std::string> vec;
@@ -74,11 +74,11 @@ std::string expandVar(std::string ret)
     {
         ret.erase(0, 1);
 
-        std::string temp;
-        size_t      pos = ret.find('/');
+        std::string   temp;
+        const size_t& pos = ret.find('/');
         if (pos != std::string::npos)
         {
-            temp = ret.substr(pos + 1);
+            temp = ret.substr(pos);
             ret.erase(pos);
         }
 
@@ -141,6 +141,7 @@ byte_units_t auto_devide_bytes(const size_t num)
 
 bool is_file_image(const unsigned char* bytes)
 {
+    // clang-format off
     // https://stackoverflow.com/a/49683945
     constexpr std::array<unsigned char, 3> jpeg   = { 0xff, 0xd8, 0xff };
     constexpr std::array<unsigned char, 8> png    = { 0x89, 0x50, 0x4e, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
@@ -150,22 +151,17 @@ bool is_file_image(const unsigned char* bytes)
     constexpr std::array<unsigned char, 4> tiffI  = { 0x49, 0x49, 0x2A, 0x00 };
     constexpr std::array<unsigned char, 4> tiffM  = { 0x4D, 0x4D, 0x00, 0x2A };
 
-    if (std::memcmp(bytes, png.data(), png.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, jpeg.data(), jpeg.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, gif89a.data(), gif89a.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, gif87a.data(), gif87a.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, tiffM.data(), tiffM.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, tiffI.data(), tiffI.size()) == 0)
-        return true;
-    else if (std::memcmp(bytes, bmp.data(), bmp.size()) == 0)
+    if (std::memcmp(bytes, png.data(),       png.size()) == 0 ||
+        std::memcmp(bytes, jpeg.data(),     jpeg.size()) == 0 ||
+        std::memcmp(bytes, gif89a.data(), gif89a.size()) == 0 ||
+        std::memcmp(bytes, gif87a.data(), gif87a.size()) == 0 ||
+        std::memcmp(bytes, tiffM.data(),   tiffM.size()) == 0 ||
+        std::memcmp(bytes, tiffI.data(),   tiffI.size()) == 0 ||
+        std::memcmp(bytes, bmp.data(),       bmp.size()) == 0)        
         return true;
 
     return false;
+    // clang-format on
 }
 
 /**
@@ -207,7 +203,7 @@ void strip(std::string& input)
  * @param str The string to assign the trimmed value, inline
  * @param amount The amount to be used in the line.substr() (should be used with something like "foobar"_len)
  */
-void getFileValue(u_short& iterIndex, const std::string& line, std::string& str, const size_t& amount)
+void getFileValue(u_short& iterIndex, const std::string_view line, std::string& str, const size_t& amount)
 {
     str = line.substr(amount);
     str.erase(std::remove(str.begin(), str.end(), '\"'), str.end());
@@ -215,16 +211,22 @@ void getFileValue(u_short& iterIndex, const std::string& line, std::string& str,
     iterIndex++;
 }
 
-void shorten_vendor_name(std::string& vendor)
+void shorten_vendor_name_inplace(std::string& vendor)
 {
-    if (vendor == "Advanced Micro Devices, Inc.")
+    if (vendor.find("AMD")            != vendor.npos ||
+        vendor.find("Advanced Micro") != vendor.npos)
         vendor = "AMD";
-    else if (vendor == "Intel Corporation")
-        vendor = "Intel";
-    else if (vendor == "NVIDIA Corporation")
-        vendor = "NVIDIA";
+
+    size_t pos = 0;
+    if ((pos = vendor.rfind("Corporation")) != vendor.npos)
+        vendor.erase(pos - 1);
 }
 
+std::string shorten_vendor_name(std::string vendor)
+{
+    shorten_vendor_name_inplace(vendor);
+    return vendor;
+}
 
 fmt::rgb hexStringToColor(const std::string_view hexstr)
 {
@@ -235,9 +237,9 @@ fmt::rgb hexStringToColor(const std::string_view hexstr)
     uint intValue;
     ss >> intValue;
 
-    uint red   = (intValue >> 16) & 0xFF;
-    uint green = (intValue >> 8) & 0xFF;
-    uint blue  = intValue & 0xFF;
+    const uint red   = (intValue >> 16) & 0xFF;
+    const uint green = (intValue >> 8) & 0xFF;
+    const uint blue  = intValue & 0xFF;
 
     return fmt::rgb(red, green, blue);
 }
@@ -260,7 +262,7 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
         else
         {
             if (buffer.length() >= min_string_length)
-                ret += buffer;
+                ret = buffer;
 
             return true;
         }
@@ -271,22 +273,28 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
 
 std::string which(const std::string& command)
 {
-    const std::string& env = std::getenv("PATH");
+    const std::string_view env = std::getenv("PATH");
     struct stat sb;
     std::string fullPath;
-    
+    fullPath.reserve(1024);
+
     for (const std::string& dir : split(env, ':'))
     {
-        fullPath = dir + "/" + command;
-        if ((stat(fullPath.c_str(), &sb) == 0) && sb.st_mode & S_IXUSR)
-            return fullPath;
+        // -300ns for not creating a string. stonks
+        fullPath += dir;
+        fullPath += '/';
+        fullPath += command;
+        if ((stat(fullPath.data(), &sb) == 0) && sb.st_mode & S_IXUSR)
+            return fullPath.data();
+
+        fullPath.clear();
     }
     
     return UNKNOWN; // not found
 }
 
 // https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
-void replace_str(std::string& str, const std::string& from, const std::string& to)
+void replace_str(std::string& str, const std::string_view from, const std::string_view to)
 {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos)
@@ -298,6 +306,7 @@ void replace_str(std::string& str, const std::string& from, const std::string& t
 
 bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr, bool noerror_print)
 {
+    debug("{} cmd = {}", __func__, cmd);
     int pipeout[2];
 
     if (pipe(pipeout) < 0)
@@ -411,7 +420,7 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::
     // Here we use find from vendors_location because as it turns out, lower_bound doesn't return WHERE it is, but where
     // "val" can be placed without affecting the order of the string (binary search stuff) so we have to find from the
     // point onwards to find the actual line, it is still a shortcut, better than searching from 0.
-    return vendor_from_entry(vendor_location, vendor_id) + " " + name_from_entry(device_location);
+    return name_from_entry(device_location);
 }
 
 // Function to perform binary search on the pci vendors array to find a vendor.
@@ -456,13 +465,14 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 // http://stackoverflow.com/questions/478898/ddg#478960
 std::string shell_exec(const std::string_view cmd)
 {
-    std::array<char, 1024>                   buffer;
-    std::string                              result;
+    std::array<char, 1024> buffer;
+    std::string            result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
 
     if (!pipe)
         die("popen() failed: {}", std::strerror(errno));
 
+    result.reserve(buffer.size());
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
         result += buffer.data();
 
@@ -478,8 +488,8 @@ std::string name_from_entry(size_t dev_entry_pos)
 
     std::string name = all_ids.substr(dev_entry_pos, all_ids.find('\n', dev_entry_pos) - dev_entry_pos);
 
-    size_t bracket_open_pos  = name.find('[');
-    size_t bracket_close_pos = name.find(']');
+    const size_t bracket_open_pos  = name.find('[');
+    const size_t bracket_close_pos = name.find(']');
     if (bracket_open_pos != std::string::npos && bracket_close_pos != std::string::npos)
         name = name.substr(bracket_open_pos + 1, bracket_close_pos - bracket_open_pos - 1);
 
@@ -492,10 +502,10 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
     if (end_line_pos == std::string::npos)
         end_line_pos = all_ids.length();  // If no newline is found, set to end of string
 
-    const std::string line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
+    const std::string& line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
 
-    const size_t      after_id_pos = line.find(vendor_id) + 4;
-    const std::string description  = line.substr(after_id_pos);
+    const size_t       after_id_pos = line.find(vendor_id) + 4;
+    const std::string& description  = line.substr(after_id_pos);
 
     const size_t first = description.find_first_not_of(' ');
     if (first == std::string::npos)
@@ -503,13 +513,10 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 
     const size_t last = description.find_last_not_of(' ');
 
-    std::string vendor = description.substr(first, (last - first + 1));
-
-    shorten_vendor_name(vendor);
-
-    return vendor;
+    return description.substr(first, (last - first + 1));
 }
 
+// clang-format off
 /*
  * Get the user config directory
  * either from $XDG_CONFIG_HOME or from $HOME/.config/

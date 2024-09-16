@@ -1,6 +1,6 @@
 ${green}  ;,           ,;
 ${green}   ';,.-----.,;'
 ${green}  ,'           ',
-${green} /    O     O    \\
+${green} /    O     O    \
 ${green}|                 |
 ${green}'-----------------'
