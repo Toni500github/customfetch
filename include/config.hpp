@@ -72,13 +72,13 @@ public:
     std::vector<std::string> m_arg_colors_name, m_arg_colors_value;
 
     void        loadConfigFile(const std::string_view filename, colors_t& colors);
-    std::string getThemeValue(const std::string& value, const std::string& fallback) const;
+    std::string getThemeValue(const std::string_view value, const std::string_view fallback) const;
     void        generateConfig(const std::string_view filename);
 
     std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
 
     template <typename T>
-    T getValue(const std::string& value, const T&& fallback) const
+    T getValue(const std::string_view value, const T&& fallback) const
     {
         std::optional<T> ret = this->tbl.at_path(value).value<T>();
         if constexpr (toml::is_string<T>)  // if we want to get a value that's a string

@@ -54,7 +54,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     int image_width, image_height, channels;
 
     // load the image and get its width and height
-    unsigned char* img = stbi_load(config.source_path.c_str(), &image_width, &image_height, &channels, 0);
+    unsigned char* img = stbi_load(path.data(), &image_width, &image_height, &channels, 0);
 
     if (img)
         stbi_image_free(img);
@@ -63,7 +63,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 
     if (!config.ascii_logo_type.empty())
     {
-        const size_t& pos = path.rfind('.');
+        const size_t& pos = distro_path.rfind('.');
 
         if (pos != std::string::npos)
             distro_path.insert(pos, "_" + config.ascii_logo_type);
@@ -93,9 +93,11 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     return layout;
 }
 
+// https://stackoverflow.com/a/50888457
+// with a little C++ modernizing
 bool get_pos(std::uint32_t& y, std::uint32_t& x)
 {
-    char buf[30] = { 0 };
+    std::array<char, 32> buf;
     int  ret, i, pow;
     char ch;
 

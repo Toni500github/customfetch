@@ -86,9 +86,9 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
 }
 
-std::string Config::getThemeValue(const std::string& value, const std::string& fallback) const
+std::string Config::getThemeValue(const std::string_view value, const std::string_view fallback) const
 {
-    return this->tbl.at_path(value).value<std::string>().value_or(fallback);
+    return this->tbl.at_path(value).value<std::string>().value_or(fallback.data());
 }
 
 std::vector<std::string> Config::getValueArrayStr(const std::string_view          value,
