@@ -8,6 +8,9 @@ output/
 cufetch_r
 thinkpad-arch_logo.txt
 tanjiro_logo.txt
+scripts/ascii_parser.py
+scripts/dict_to_files.py
+scripts/test*
 
 *.tar.*
 

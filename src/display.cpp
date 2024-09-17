@@ -4,6 +4,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <termios.h>
+#include <pty.h>
 
 #include <algorithm>
 #include <array>
@@ -45,7 +46,7 @@ std::string Display::detect_distro(const Config& config)
 }
 
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors,
-                                                  const std::string_view path)
+                                                  const std::string_view path, const int x, const int y)
 {
     std::string              distro_path{ Display::detect_distro(config) };
     systemInfo_t             systemInfo{};
@@ -87,7 +88,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                  layout.end());
 
     for (size_t i = 0; i < layout.size(); i++)
-        for (size_t _ = 0; _ < config.offset + 40; _++)  // I use _ because we don't need it
+        for (size_t _ = 0; _ < config.offset + x; _++)  // I use _ because we don't need it
             layout.at(i).insert(0, " ");
 
     return layout;
@@ -95,7 +96,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 
 // https://stackoverflow.com/a/50888457
 // with a little C++ modernizing
-bool get_pos(std::uint32_t& y, std::uint32_t& x)
+bool get_pos(int& y, int& x)
 {
     std::array<char, 32> buf;
     int  ret, i, pow;
@@ -119,11 +120,9 @@ bool get_pos(std::uint32_t& y, std::uint32_t& x)
         if (!ret)
         {
             tcsetattr(0, TCSANOW, &restore);
-            fprintf(stderr, "getpos: error reading response!\n");
-            return false;
+            die("getpos: error reading response!");
         }
         buf[i] = ch;
-        debug("buf[{}]: \t{} \t{}", i, ch, ch);
     }
 
     if (i < 2)
@@ -166,7 +165,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             die("Could not open ascii art file \"{}\"", path);
     }
 
-    std::string         line;
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
 
@@ -180,17 +178,23 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
         if (is_file_image(buffer.data()))
         {
-            std::uint32_t x = 0, y = 0;
-            get_pos(x, y);
-            fmt::print("\033[{};{}H", x, y);
+            struct winsize win;
+            ioctl (STDOUT_FILENO, TIOCGWINSZ, (char *) &win);
+
+            // why... why reverse the cardinal coordinates..
+            int y = 0, x = 0;
+            get_pos(y, x);
+            fmt::print("\033[{};{}H", y, x);
+
             if (config.m_image_backend == "kitty")
                 taur_exec({ "kitty", "+kitten", "icat", "--align", "left", path.data() });
+            else
+                die("The source file '{}' is a binary file.\n"
+                    "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
+                    path);
 
-            return render_with_image(config, colors, path);
+            return render_with_image(config, colors, path, (x * win.ws_row) - config.offset, y);
         }
-        /*    die("The source file '{}' is a binary file.\n"
-                "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
-                path);*/
     }
 
     for (int i = 0; i < config.logo_padding_top; i++)
@@ -203,7 +207,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         layout.insert(layout.begin(), "");
     }
-
+    
+    std::string line;
     while (std::getline(file, line))
     {
         std::string pureOutput;

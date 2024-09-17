@@ -777,11 +777,11 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 } break;
 
                 case "colors_bg"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ", sysInfo, _, config, colors, parsingLayout));
+                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   \033[0m", sysInfo, _, config, colors, parsingLayout));
                     break;
 
                 case "colors_light_bg"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ", sysInfo, _, config, colors, parsingLayout));
+                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   \033[0m", sysInfo, _, config, colors, parsingLayout));
                     break;
 
                 default:
@@ -800,7 +800,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         debug("symbol = {}", symbol);
 
                         SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ",
+                            parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} \033[0m",
                                               symbol), sysInfo, _, config, colors, parsingLayout));
                     }
                     else if (hasStart(moduleMemberName, "colors_light_symbol"))
@@ -817,7 +817,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         debug("symbol = {}", symbol);
 
                         SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ",
+                            parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} \033[0m",
                                               symbol), sysInfo, _, config, colors, parsingLayout));
                     }
             }
