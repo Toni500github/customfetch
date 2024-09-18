@@ -251,7 +251,7 @@ bg-image = "/tmp/idk.png"
 ```
 
 We use the `config.toml` file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
-You have 5 tags: 
+You have 5 tags:
 * `$<module.member>` - Used for printing the value of a member of a module.
 * `${color}` - Used for displaying text in a specific color.
 * `$(bash command)` - Used to execute bash commands and print the output.
@@ -301,7 +301,7 @@ Any `$` or brackets can be escaped with a backslash `\`
 
 # TODOs
 * Color all ASCII arts (101/262) will take long ahh time
-* Support images on terminal as logo (currently only available in GUI mode)
+* Support images on terminal as logo (currently only in kitty)
 * idk
 
 # Thanks

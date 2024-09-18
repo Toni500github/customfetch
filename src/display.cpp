@@ -76,7 +76,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     // this is just for parse() to auto add the distro colors
     std::ifstream file(distro_path, std::ios::binary);
     std::string line, _;
-    
+
     while (std::getline(file, line))
         parse(line, systemInfo, _, config, colors, false);
 
@@ -191,9 +191,9 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             if (config.m_image_backend == "kitty")
                 taur_exec({ "kitty", "+kitten", "icat", "--align", "left", path.data() });
             else
-                die("The source file '{}' is a binary file.\n"
+                die("The image backend '{}' isn't supported, only kitty.\n"
                     "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
-                    path);
+                    config.m_image_backend);
 
             const std::uint16_t font_width = win.ws_xpixel / win.ws_col;
 
@@ -211,7 +211,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         layout.insert(layout.begin(), "");
     }
-    
+
     std::string line;
     while (std::getline(file, line))
     {
