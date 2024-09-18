@@ -1,6 +1,7 @@
 /* Implementation of the system behind displaying/rendering the information */
 
 #include "display.hpp"
+#include <unistd.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <termios.h>
@@ -46,7 +47,7 @@ std::string Display::detect_distro(const Config& config)
 }
 
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors,
-                                                  const std::string_view path, const int x, const int y)
+                                                  const std::string_view path, const std::uint16_t x)
 {
     std::string              distro_path{ Display::detect_distro(config) };
     systemInfo_t             systemInfo{};
@@ -88,7 +89,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                  layout.end());
 
     for (size_t i = 0; i < layout.size(); i++)
-        for (size_t _ = 0; _ < config.offset + x; _++)  // I use _ because we don't need it
+        for (size_t _ = 0; _ < config.offset + x + static_cast<size_t>(image_width / x); _++)  // I use _ because we don't need it
             layout.at(i).insert(0, " ");
 
     return layout;
@@ -96,7 +97,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 
 // https://stackoverflow.com/a/50888457
 // with a little C++ modernizing
-bool get_pos(int& y, int& x)
+static bool get_pos(int& y, int& x)
 {
     std::array<char, 32> buf;
     int  ret, i, pow;
@@ -193,7 +194,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
                     "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
                     path);
 
-            return render_with_image(config, colors, path, (x * win.ws_row) - config.offset, y);
+            return render_with_image(config, colors, path, x * (win.ws_xpixel / win.ws_row));
         }
     }
 
