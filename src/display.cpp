@@ -47,7 +47,7 @@ std::string Display::detect_distro(const Config& config)
 }
 
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors,
-                                                  const std::string_view path, const std::uint16_t x)
+                                                  const std::string_view path, const std::uint16_t font_width)
 {
     std::string              distro_path{ Display::detect_distro(config) };
     systemInfo_t             systemInfo{};
@@ -89,7 +89,8 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                  layout.end());
 
     for (size_t i = 0; i < layout.size(); i++)
-        for (size_t _ = 0; _ < config.offset + x + static_cast<size_t>(image_width / x); _++)  // I use _ because we don't need it
+        // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
+        for (size_t _ = 0; _ < static_cast<size_t>(image_width / font_width) + config.offset; _++)
             layout.at(i).insert(0, " ");
 
     return layout;
@@ -194,7 +195,9 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
                     "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
                     path);
 
-            return render_with_image(config, colors, path, x * (win.ws_xpixel / win.ws_row));
+            const std::uint16_t font_width = win.ws_xpixel / win.ws_col;
+
+            return render_with_image(config, colors, path, font_width);
         }
     }
 
