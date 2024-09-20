@@ -243,15 +243,15 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         // let's get what's inside the brackets
         for (size_t i = dollarSignIndex + 2; i < output.size(); i++)
         {
-            if (output[i] == type && output[i - 1] != '\\')
+            if (output.at(i) == type && output.at(i - 1) != '\\')
             {
                 endBracketIndex = i;
                 break;
             }
-            else if (output.at(i) == type)
+            else if (output[i] == type)
                 command.pop_back();
 
-            command += output.at(i);
+            command += output[i];
         }
 
         if (static_cast<int>(endBracketIndex) == -1)
@@ -288,7 +288,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (dot_pos == std::string::npos)
                     die("module name '{}' doesn't have a dot '.' for separiting module name and value", command);
 
-                const std::string& moduleName      = command.substr(0, dot_pos);
+                const std::string& moduleName       = command.substr(0, dot_pos);
                 const std::string& moduleMemberName = command.substr(dot_pos + 1);
                 addValueFromModule(systemInfo, moduleName, moduleMemberName, config, colors, parsingLayout);
 
@@ -310,7 +310,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 const float& n1 = std::stof(parse(command.substr(0, comma_pos),  systemInfo, _, config, colors, parsingLayout));
                 const float& n2 = std::stof(parse(command.substr(comma_pos + 1), systemInfo, _, config, colors, parsingLayout));
 
-                output.replace(dollarSignIndex, taglen, get_and_color_percentage(n1, n2, systemInfo, config, colors, parsingLayout, (command.back() == '!')));
+                output.replace(dollarSignIndex, taglen, get_and_color_percentage(n1, n2, systemInfo, config, colors, parsingLayout, (command.front() == '!')));
                 break;
             }
 
@@ -776,11 +776,11 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     SYSINFO_INSERT(str);
                 } break;
 
-                case "colors_bg"_fnv1a16:
+                case "colors"_fnv1a16:
                     SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   \033[0m", sysInfo, _, config, colors, parsingLayout));
                     break;
 
-                case "colors_light_bg"_fnv1a16:
+                case "colors_light"_fnv1a16:
                     SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   \033[0m", sysInfo, _, config, colors, parsingLayout));
                     break;
 

@@ -134,8 +134,8 @@ layout = [
     "${auto}GPU: $<gpu.name>",
     "${auto}RAM: $<ram.ram>",
     "",
-    "$<builtin.colors_bg>", # normal colors palette
-    "$<builtin.colors_light_bg>" # light colors palette
+    "$<builtin.colors>", # normal colors palette
+    "$<builtin.colors_light>" # light colors palette
 ]
 
 # display ascii-art or image/gif (GUI only) near layout
@@ -295,7 +295,7 @@ They can be used in the ascii art text file and layout, but how to use them?
 * **The Percentage tag (`$%%`)** is used for displaying the percentage between 2 numbers.\
   It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
   For example: $%10,5%
-  For inverting colors of bad and great (red and green), before the last '%' a put '!' without quotes
+  For inverting colors of bad and great (red and green), before the first `%` a put `!`
 
 Any `$` or brackets can be escaped with a backslash `\`
 
@@ -321,7 +321,7 @@ I would like to thanks:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Our favorite libraries that me and BurntRanch uses
 
 * this string switch-case [library](https://github.com/xroche/stringswitch), \
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Really amazing, thanks for making this 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Really amazing, thanks for making this
 
 I hope you'll like customfetch, and also checkout [TabAUR](https://github.com/BurntRanch/TabAUR/tree/dev), our other project that was made before customfetch.\
 Don't forgot [sdl_engine](https://github.com/BurntRanch/sdl_engine) too ;)

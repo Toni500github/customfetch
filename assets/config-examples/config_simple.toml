@@ -45,7 +45,7 @@
 # The Percentage tag $%% is used for displaying the percentage between 2 numbers.\
 # It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
 # For example: $%50,100%
-# For inverting colors of bad and great (red and green), before the last '%' put '!'
+# For inverting colors of bad and great (red and green), before the first '%' put '!'
 # without quotes ofc
 
 # Little FAQ

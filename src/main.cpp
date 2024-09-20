@@ -127,10 +127,10 @@ user
 builtin
   title     	: user and hostname colored with ${{auto2}} [toni@arch2]
   title_sep     : separator between the title and the system infos (with the title lenght) [--------]
-  colors_bg	: color palette with background spaces
-  colors_symbol(symb): 		color palette with specific symbol
-  colors_light_bg:              light color palette with background spaces
-  colors_light_symbol(symb): 	light color palette with specific symbol
+  colors	: color palette with background spaces
+  colors_light  : light color palette with background spaces
+  colors_symbol(symb)	   : color palette with specific symbol
+  colors_light_symbol(symb): light color palette with specific symbol
 
 # this module is just for generic theme stuff
 # such as indeed cursor
