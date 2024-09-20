@@ -39,6 +39,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     // clang-format off
     // Idk but with `this->` looks more readable
     this->layout             = this->getValueArrayStr("config.layout", {});
+    this->percentage_colors  = this->getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
     this->gui                = this->getValue<bool>("gui.enable", false);
     this->slow_query_warnings= this->getValue<bool>("config.slow-query-warnings", false);
     this->sep_reset_after    = this->getValue<bool>("config.sep-reset-after", false);
@@ -84,6 +85,12 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     colors.gui_magenta = this->getThemeValue("gui.magenta", "!#ff11cc");
     colors.gui_white   = this->getThemeValue("gui.white",   "!#ffffff");
 
+    if (this->percentage_colors.size() < 3)
+    {
+        warn("the config array percentage-colors doesn't have 3 colors for being used in percentage tag and modules\n"
+             "backing up to green, yellow and red");
+        this->percentage_colors = {"green", "yellow", "red"};
+    }
 }
 
 std::string Config::getThemeValue(const std::string_view value, const std::string_view fallback) const

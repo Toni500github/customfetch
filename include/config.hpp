@@ -36,6 +36,7 @@ public:
 
     // config file
     std::vector<std::string> layout;
+    std::vector<std::string> percentage_colors;
     std::string   source_path;
     std::string   font;
     std::string   data_dir;
@@ -233,6 +234,14 @@ blue    = "\e[1;34m"
 magenta = "\e[1;35m"
 cyan    = "\e[1;36m"
 white   = "\e[1;37m"
+
+# Colors to be used in percentage tag and modules members.
+# They are used as if you're using the color tag.
+# It's an array just for "convinience"
+# 1st color for good
+# 2nd color for normal
+# 3rd color for bad
+percentage-colors = ["green", "yellow", "red"]
 
 # $<os.uptime> config
 [os.uptime]
