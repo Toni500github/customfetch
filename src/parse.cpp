@@ -89,7 +89,7 @@ static std::string get_and_color_percentage(const float& n1, const float& n2, sy
 
     const float result = static_cast<float>(n1 / n2 * static_cast<float>(100));
 
-    std::string_view color;
+    std::string color;
     if (!invert)
     {
         if (result <= 45)

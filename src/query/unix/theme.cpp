@@ -124,13 +124,15 @@ static bool get_cursor_dconf(const std::string_view de_name, Theme::Theme_t& the
     if (theme.cursor == MAGIC_LINE || theme.cursor.empty())
     {
         variant = dconf_client_read(client, (interface + "cursor-theme").c_str());
-        theme.cursor = g_variant_get_string(variant, NULL);
+        if (variant)
+            theme.cursor = g_variant_get_string(variant, NULL);
     }
 
     if (theme.cursor_size == UNKNOWN || theme.cursor_size.empty())
     {
         variant = dconf_client_read(client, (interface + "cursor-size").c_str());
-        theme.cursor = g_variant_get_string(variant, NULL);
+        if (variant)
+            theme.cursor = g_variant_get_string(variant, NULL);
     }
 
     return assert_cursor(theme);
