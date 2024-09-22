@@ -308,19 +308,22 @@ static bool get_gtk_theme_dconf(const std::string_view de_name, Theme::Theme_t& 
     if (theme.gtk_theme_name == MAGIC_LINE || theme.gtk_theme_name.empty())
     {
         variant = dconf_client_read(client, (interface + "gtk-theme").c_str());
-        theme.gtk_theme_name = g_variant_get_string(variant, NULL);
+        if (variant)
+            theme.gtk_theme_name = g_variant_get_string(variant, NULL);
     }
 
     if (theme.gtk_icon_theme == MAGIC_LINE || theme.gtk_icon_theme.empty())
     {
         variant = dconf_client_read(client, (interface + "icon-theme").c_str());
-        theme.gtk_icon_theme = g_variant_get_string(variant, NULL);
+        if (variant)
+            theme.gtk_icon_theme = g_variant_get_string(variant, NULL);
     }
 
     if (theme.gtk_font == MAGIC_LINE || theme.gtk_font.empty())
     {
         variant = dconf_client_read(client, (interface + "font-name").c_str());
-        theme.gtk_font = g_variant_get_string(variant, NULL);
+        if (variant)
+            theme.gtk_font = g_variant_get_string(variant, NULL);
     }
 
     return assert_gtk_theme(theme);
