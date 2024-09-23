@@ -3,11 +3,6 @@
 [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
 
 # Customfetch
->[!WARNING]
->customfetch is in alpha, it will be 100% ready with a stable release.\
->It is pretty stable right now though, so give it a try, why not\
->Don't forget to open any issue/PR for any problem.\
->Thanks!
 
 A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\
 `customfetch` is designed to provide a really customizable way to display your system informations in the way you like or want.
@@ -35,9 +30,6 @@ Currently supports Linux distros only. Android may be coming when stable release
 * **GUI mode (GTK3)**
 * Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Lightweight
->[!NOTE]
->enabling GUI mode may slow down customfetch a bit because it needs to load the GUI libraries at runtime\
->To check if it's enabled or not, run "cufetch --version"
 
 ## Depends
 currently requires **C++20**, but it's possible to compile with C++17 too (not officially supported)
@@ -49,6 +41,10 @@ If you want to install with GUI mode install from your package manager:
 * `gtkmm3`
 
 ## Installation
+
+>[!NOTE]
+>installing with GUI mode may slow down customfetch a bit because it needs to load the GUI libraries at runtime.\
+>To check if it's enabled or not, run "cufetch --version"
 
 ### Debian/Ubuntu and based
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
