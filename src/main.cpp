@@ -279,10 +279,9 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"data-dir",         required_argument, 0, 'D'},
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
+        {"image-backend",    required_argument, 0, 'i'},
 
-        {"image-backend",      required_argument, 0, 'i'},
-        {"kitty",              no_argument, 0, "kitty"_fnv1a16},
-
+        {"kitty",              no_argument,       0, "kitty"_fnv1a16},
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
         {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
         {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},

@@ -149,10 +149,16 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     systemInfo_t             systemInfo{};
     std::vector<std::string> asciiArt{}, layout{ config.layout };
 
-    if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty())
+    // 1. if we shouldn't display the autodetected distro
+    // 2. if we don't have --no-display enabled
+    // 3. if the source path for the logo is not empty
+    // 4. if we don't want to display a custom distro
+    // 5. if we aren't in GUI mode (I don't remember why to check that)
+    // damn I forgot even why I made this
+    if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty() &&
+       (!config.m_custom_distro.empty() && !config.gui))
     {
-        if (!config.m_custom_distro.empty() && !config.gui)
-            die("You need to specify if either using a custom distro ascii art OR a custom source path");
+        die("You need to specify if either using a custom distro ascii art OR a custom source path");
     }
 
     debug("Display::render path = {}", path);
@@ -181,7 +187,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         if (is_file_image(buffer.data()))
         {
             struct winsize win;
-            ioctl (STDOUT_FILENO, TIOCGWINSZ, (char *) &win);
+            ioctl (STDOUT_FILENO, TIOCGWINSZ, &win);
 
             // why... why reverse the cardinal coordinates..
             int y = 0, x = 0;

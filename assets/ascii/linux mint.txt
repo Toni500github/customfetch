@@ -1,19 +1,19 @@
-${green}             ...-:::::-...
-${green}          .-MMMMMMMMMMMMMMM-.
-${green}      .-MMMM${1}`..-:::::::-..`${green}MMMM-.
-${green}    .:MMMM${1}.:MMMMMMMMMMMMMMM:.${green}MMMM:.
-${green}   -MMM${1}-M---MMMMMMMMMMMMMMMMMMM.${green}MMM-
-${green} `:MMM${1}:MM`  :MMMM:....::-...-MMMM:${green}MMM:`
-${green} :MMM${1}:MMM`  :MM:`  ``    ``  `:MMM:${green}MMM:
-${green}.MMM${1}.MMMM`  :MM.  -MM.  .MM-  `MMMM.${green}MMM.
-${green}:MMM${1}:MMMM`  :MM.  -MM-  .MM:  `MMMM-${green}MMM:
-${green}:MMM${1}:MMMM`  :MM.  -MM-  .MM:  `MMMM:${green}MMM:
-${green}:MMM${1}:MMMM`  :MM.  -MM-  .MM:  `MMMM-${green}MMM:
-${green}.MMM${1}.MMMM`  :MM:--:MM:--:MM:  `MMMM.${green}MMM.
-${green} :MMM${1}:MMM-  `-MMMMMMMMMMMM-`  -MMM-${green}MMM:
-${green}  :MMM${1}:MMM:`                `:MMM:${green}MMM:
-${green}   .MMM${1}.MMMM:--------------:MMMM.${green}MMM.
-${green}     '-MMMM${1}.-MMMMMMMMMMMMMMM-.${green}MMMM-'
-${green}       '.-MMMM${1}``--:::::--``${green}MMMM-.'
-${green}            '-MMMMMMMMMMMMM-'
-${green}               ``-:::::-``
+${1}             ...-:::::-...
+${1}          .-MMMMMMMMMMMMMMM-.
+${1}      .-MMMM${green}`..-:::::::-..`${1}MMMM-.
+${1}    .:MMMM${green}.:MMMMMMMMMMMMMMM:.${1}MMMM:.
+${1}   -MMM${green}-M---MMMMMMMMMMMMMMMMMMM.${1}MMM-
+${1} `:MMM${green}:MM`  :MMMM:....::-...-MMMM:${1}MMM:`
+${1} :MMM${green}:MMM`  :MM:`  ``    ``  `:MMM:${1}MMM:
+${1}.MMM${green}.MMMM`  :MM.  -MM.  .MM-  `MMMM.${1}MMM.
+${1}:MMM${green}:MMMM`  :MM.  -MM-  .MM:  `MMMM-${1}MMM:
+${1}:MMM${green}:MMMM`  :MM.  -MM-  .MM:  `MMMM:${1}MMM:
+${1}:MMM${green}:MMMM`  :MM.  -MM-  .MM:  `MMMM-${1}MMM:
+${1}.MMM${green}.MMMM`  :MM:--:MM:--:MM:  `MMMM.${1}MMM.
+${1} :MMM${green}:MMM-  `-MMMMMMMMMMMM-`  -MMM-${1}MMM:
+${1}  :MMM${green}:MMM:`                `:MMM:${1}MMM:
+${1}   .MMM${green}.MMMM:--------------:MMMM.${1}MMM.
+${1}     '-MMMM${green}.-MMMMMMMMMMMMMMM-.${1}MMMM-'
+${1}       '.-MMMM${green}``--:::::--``${1}MMMM-.'
+${1}            '-MMMMMMMMMMMMM-'
+${1}               ``-:::::-``
