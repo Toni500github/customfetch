@@ -1,19 +1,19 @@
-${c1}                 ..
-               .PLTJ.
-              <><><><>
-     ${c2}KKSSV' 4KKK ${c1}LJ${c4} KKKL.'VSSKK
-     ${c2}KKV' 4KKKKK ${c1}LJ${c4} KKKKAL 'VKK
-     ${c2}V' ' 'VKKKK ${c1}LJ${c4} KKKKV' ' 'V
-     ${c2}.4MA.' 'VKK ${c1}LJ${c4} KKV' '.4Mb.
-${c4}   . ${c2}KKKKKA.' 'V ${c1}LJ${c4} V' '.4KKKKK ${c3}.
-${c4} .4D ${c2}KKKKKKKA.'' ${c1}LJ${c4} ''.4KKKKKKK ${c3}FA.
-${c4}<QDD ++++++++++++  ${c3}++++++++++++ GFD>
-${c4} 'VD ${c3}KKKKKKKK'.. ${c2}LJ ${c1}..'KKKKKKKK ${c3}FV
-${c4}   ' ${c3}VKKKKK'. .4 ${c2}LJ ${c1}K. .'KKKKKV ${c3}'
-     ${c3} 'VK'. .4KK ${c2}LJ ${c1}KKA. .'KV'
-     ${c3}A. . .4KKKK ${c2}LJ ${c1}KKKKA. . .4
-     ${c3}KKA. 'KKKKK ${c2}LJ ${c1}KKKKK' .4KK
-     ${c3}KKSSA. VKKK ${c2}LJ ${c1}KKKV .4SSKK
-${c2}              <><><><>
-               'MKKM'
-                 ''
+${yellow}                 ..
+${yellow}               .PLTJ.
+${yellow}              <><><><>
+     ${green}KKSSV' 4KKK ${yellow}LJ${magenta} KKKL.'VSSKK
+     ${green}KKV' 4KKKKK ${yellow}LJ${magenta} KKKKAL 'VKK
+     ${green}V' ' 'VKKKK ${yellow}LJ${magenta} KKKKV' ' 'V
+     ${green}.4MA.' 'VKK ${yellow}LJ${magenta} KKV' '.4Mb.
+${magenta}   . ${green}KKKKKA.' 'V ${yellow}LJ${magenta} V' '.4KKKKK ${blue}.
+${magenta} .4D ${green}KKKKKKKA.'' ${yellow}LJ${magenta} ''.4KKKKKKK ${blue}FA.
+${magenta}<QDD ++++++++++++  ${blue}++++++++++++ GFD>
+${magenta} 'VD ${blue}KKKKKKKK'.. ${green}LJ ${yellow}..'KKKKKKKK ${blue}FV
+${magenta}   ' ${blue}VKKKKK'. .4 ${green}LJ ${yellow}K. .'KKKKKV ${blue}'
+     ${blue} 'VK'. .4KK ${green}LJ ${yellow}KKA. .'KV'
+     ${blue}A. . .4KKKK ${green}LJ ${yellow}KKKKA. . .4
+     ${blue}KKA. 'KKKKK ${green}LJ ${yellow}KKKKK' .4KK
+     ${blue}KKSSA. VKKK ${green}LJ ${yellow}KKKV .4SSKK
+${green}              <><><><>
+${green}               'MKKM'
+${green}                 ''

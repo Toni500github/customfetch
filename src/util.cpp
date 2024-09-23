@@ -211,7 +211,7 @@ void getFileValue(u_short& iterIndex, const std::string_view line, std::string& 
     iterIndex++;
 }
 
-void shorten_vendor_name_inplace(std::string& vendor)
+std::string shorten_vendor_name(std::string vendor)
 {
     if (vendor.find("AMD")            != vendor.npos ||
         vendor.find("Advanced Micro") != vendor.npos)
@@ -220,11 +220,7 @@ void shorten_vendor_name_inplace(std::string& vendor)
     size_t pos = 0;
     if ((pos = vendor.rfind("Corporation")) != vendor.npos)
         vendor.erase(pos - 1);
-}
 
-std::string shorten_vendor_name(std::string vendor)
-{
-    shorten_vendor_name_inplace(vendor);
     return vendor;
 }
 
@@ -506,7 +502,7 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 }
 
 // http://stackoverflow.com/questions/478898/ddg#478960
-std::string shell_exec(const std::string_view cmd)
+std::string read_shell_exec(const std::string_view cmd)
 {
     std::array<char, 1024> buffer;
     std::string            result;
@@ -522,6 +518,7 @@ std::string shell_exec(const std::string_view cmd)
     // why there is a '\n' at the end??
     if (!result.empty() && result.back() == '\n')
         result.pop_back();
+    
     return result;
 }
 

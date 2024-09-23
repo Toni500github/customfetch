@@ -153,6 +153,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     size_t dollarSignIndex    = 0;
     size_t oldDollarSignIndex = 0;
     bool   start              = false;
+    bool   skip_bypass        = false;
 
     // we only use it in GUI mode,
     // prevent issue where in the ascii art,
@@ -216,9 +217,28 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         // btw the second part checks if it has a \ before it and NOT a \ before the backslash, (check for escaped
         // backslash) example: \$ is bypassed, \\$ is NOT bypassed. this will not make an effort to check multiple
         // backslashes, thats your fault atp.
-        if (dollarSignIndex > 0 and
-            (output[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\')))
-            continue;
+        if (skip_bypass)
+        {
+            if (dollarSignIndex > 0 and
+               (output[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\')))
+            {
+                skip_bypass = false;
+                continue;
+            }
+        }
+
+        // maybe let's remove the bypass '\\$'
+        if (output[dollarSignIndex - 1] == '\\' and output[dollarSignIndex - 2] == '\\')
+        {
+            skip_bypass = true;
+            output.erase(dollarSignIndex - 1, 1);
+
+            const size_t pos = pureOutput.find("\\\\$");
+            if (pos != pureOutput.npos)
+                pureOutput.erase(pos, 1);
+
+            dollarSignIndex--;
+        }
 
         std::string command;
         size_t      endBracketIndex = -1;
@@ -269,13 +289,13 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (removetag)
                     command.erase(0,1);
 
-                const std::string& shell_cmd = shell_exec(command);
-                output.replace(dollarSignIndex, taglen, shell_cmd);
+                const std::string& cmd_output = read_shell_exec(command);
+                output.replace(dollarSignIndex, taglen, cmd_output);
 
                 if (!parsingLayout && tagpos != std::string::npos)
                 {
                     if (!removetag)
-                        pureOutput.replace(tagpos, taglen, shell_cmd);
+                        pureOutput.replace(tagpos, taglen, cmd_output);
                     else
                         pureOutput.erase(tagpos, taglen);
                 }

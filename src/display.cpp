@@ -23,7 +23,7 @@
 
 std::string Display::detect_distro(const Config& config)
 {
-    debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
+    debug("/etc/os-release = \n{}", read_shell_exec("cat /etc/os-release"));
 
     if (!config.m_custom_distro.empty())
     {
