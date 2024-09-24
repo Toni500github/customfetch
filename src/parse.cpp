@@ -228,7 +228,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         }
 
         // maybe let's remove the bypass '\\$'
-        if (output[dollarSignIndex - 1] == '\\' and output[dollarSignIndex - 2] == '\\')
+        if (dollarSignIndex > 0 and
+            output[dollarSignIndex - 1] == '\\' and output[dollarSignIndex - 2] == '\\')
         {
             skip_bypass = true;
             output.erase(dollarSignIndex - 1, 1);
