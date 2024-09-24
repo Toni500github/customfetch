@@ -86,7 +86,7 @@ jobs:
         cat /etc/sudoers
     - name: get /etc/makepkg.conf
       run: |
-        sed -i "s#purge debug lto#purge !debug lto#" /etc/makepkg.conf
+        sed -i "s#purge debug lto#purge debug lto#" /etc/makepkg.conf
         cat /etc/makepkg.conf
 
     - name: Build and install using makepkg
@@ -95,6 +95,9 @@ jobs:
         chown -R nobody customfetch-git
         cd customfetch-git
         sudo -u nobody makepkg -si --noconfirm
+
+    - name: Setup SSH session
+      uses: mxschmitt/action-tmate@v3
 
     - name: Test neofetch
       run: neofetch
@@ -142,9 +145,6 @@ jobs:
         cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
         tree /sys/devices/system/cpu/cpu0/
         printf "/etc/os-release\n" && cat /etc/os-release
-
-    #- name: Setup SSH session
-    #  uses: mxschmitt/action-tmate@v3
 
     - name: Test customfetch
       run: ./build/debug/cufetch
