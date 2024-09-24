@@ -75,10 +75,8 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                  layout.end());
 
     for (size_t i = 0; i < layout.size(); i++)
-    {
         for (size_t _ = 0; _ < config.offset; _++)  // I use _ because we don't need it
             layout.at(i).insert(0, " ");
-    }
 
     return layout;
 }

@@ -89,24 +89,24 @@ static std::string get_and_color_percentage(const float& n1, const float& n2, sy
 
     const float result = static_cast<float>(n1 / n2 * static_cast<float>(100));
 
-    std::string_view color;
+    std::string color;
     if (!invert)
     {
-        if (result <= 35)
-            color = "${green}";
+        if (result <= 45)
+            color = "${" + config.percentage_colors.at(0) + "}";
         else if (result <= 80)
-            color = "${yellow}";
+            color = "${" + config.percentage_colors.at(1) + "}";
         else
-            color = "${red}";
+            color = "${" + config.percentage_colors.at(2) + "}";
     }
     else
     {
-        if (result <= 35)
-            color = "${red}";
+        if (result <= 45)
+            color = "${" + config.percentage_colors.at(2) + "}";
         else if (result <= 80)
-            color = "${yellow}";
+            color = "${" + config.percentage_colors.at(1) + "}";
         else
-            color = "${green}";
+            color = "${" + config.percentage_colors.at(0) + "}";
     }
 
     std::string _;
@@ -153,6 +153,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     size_t dollarSignIndex    = 0;
     size_t oldDollarSignIndex = 0;
     bool   start              = false;
+    bool   skip_bypass        = false;
 
     // we only use it in GUI mode,
     // prevent issue where in the ascii art,
@@ -216,9 +217,28 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         // btw the second part checks if it has a \ before it and NOT a \ before the backslash, (check for escaped
         // backslash) example: \$ is bypassed, \\$ is NOT bypassed. this will not make an effort to check multiple
         // backslashes, thats your fault atp.
-        if (dollarSignIndex > 0 and
-            (output[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\')))
-            continue;
+        if (skip_bypass)
+        {
+            if (dollarSignIndex > 0 and
+               (output[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\')))
+            {
+                skip_bypass = false;
+                continue;
+            }
+        }
+
+        // maybe let's remove the bypass '\\$'
+        if (output[dollarSignIndex - 1] == '\\' and output[dollarSignIndex - 2] == '\\')
+        {
+            skip_bypass = true;
+            output.erase(dollarSignIndex - 1, 1);
+
+            const size_t pos = pureOutput.find("\\\\$");
+            if (pos != pureOutput.npos)
+                pureOutput.erase(pos, 1);
+
+            dollarSignIndex--;
+        }
 
         std::string command;
         size_t      endBracketIndex = -1;
@@ -243,15 +263,15 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         // let's get what's inside the brackets
         for (size_t i = dollarSignIndex + 2; i < output.size(); i++)
         {
-            if (output[i] == type && output[i - 1] != '\\')
+            if (output.at(i) == type && output.at(i - 1) != '\\')
             {
                 endBracketIndex = i;
                 break;
             }
-            else if (output.at(i) == type)
+            else if (output[i] == type)
                 command.pop_back();
 
-            command += output.at(i);
+            command += output[i];
         }
 
         if (static_cast<int>(endBracketIndex) == -1)
@@ -269,13 +289,13 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (removetag)
                     command.erase(0,1);
 
-                const std::string& shell_cmd = shell_exec(command);
-                output.replace(dollarSignIndex, taglen, shell_cmd);
+                const std::string& cmd_output = read_shell_exec(command);
+                output.replace(dollarSignIndex, taglen, cmd_output);
 
                 if (!parsingLayout && tagpos != std::string::npos)
                 {
                     if (!removetag)
-                        pureOutput.replace(tagpos, taglen, shell_cmd);
+                        pureOutput.replace(tagpos, taglen, cmd_output);
                     else
                         pureOutput.erase(tagpos, taglen);
                 }
@@ -288,7 +308,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (dot_pos == std::string::npos)
                     die("module name '{}' doesn't have a dot '.' for separiting module name and value", command);
 
-                const std::string& moduleName      = command.substr(0, dot_pos);
+                const std::string& moduleName       = command.substr(0, dot_pos);
                 const std::string& moduleMemberName = command.substr(dot_pos + 1);
                 addValueFromModule(systemInfo, moduleName, moduleMemberName, config, colors, parsingLayout);
 
@@ -306,11 +326,13 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (comma_pos == std::string::npos)
                     die("percentage tag '{}' doesn't have a comma for separating the 2 numbers", command);
 
+                const bool invert = (command.front() == '!');
+
                 std::string _;
-                const float& n1 = std::stof(parse(command.substr(0, comma_pos),  systemInfo, _, config, colors, parsingLayout));
+                const float& n1 = std::stof(parse(command.substr(invert ? 1 : 0, comma_pos),  systemInfo, _, config, colors, parsingLayout));
                 const float& n2 = std::stof(parse(command.substr(comma_pos + 1), systemInfo, _, config, colors, parsingLayout));
 
-                output.replace(dollarSignIndex, taglen, get_and_color_percentage(n1, n2, systemInfo, config, colors, parsingLayout, (command.back() == '!')));
+                output.replace(dollarSignIndex, taglen, get_and_color_percentage(n1, n2, systemInfo, config, colors, parsingLayout, invert));
                 break;
             }
 
@@ -776,12 +798,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     SYSINFO_INSERT(str);
                 } break;
 
-                case "colors_bg"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ", sysInfo, _, config, colors, parsingLayout));
+                case "colors"_fnv1a16:
+                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   \033[0m", sysInfo, _, config, colors, parsingLayout));
                     break;
 
-                case "colors_light_bg"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ", sysInfo, _, config, colors, parsingLayout));
+                case "colors_light"_fnv1a16:
+                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   \033[0m", sysInfo, _, config, colors, parsingLayout));
                     break;
 
                 default:
@@ -800,7 +822,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         debug("symbol = {}", symbol);
 
                         SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ",
+                            parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} \033[0m",
                                               symbol), sysInfo, _, config, colors, parsingLayout));
                     }
                     else if (hasStart(moduleMemberName, "colors_light_symbol"))
@@ -817,7 +839,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         debug("symbol = {}", symbol);
 
                         SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ",
+                            parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} \033[0m",
                                               symbol), sysInfo, _, config, colors, parsingLayout));
                     }
             }

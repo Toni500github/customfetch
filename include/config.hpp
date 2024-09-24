@@ -36,6 +36,7 @@ public:
 
     // config file
     std::vector<std::string> layout;
+    std::vector<std::string> percentage_colors;
     std::string   source_path;
     std::string   font;
     std::string   data_dir;
@@ -72,13 +73,13 @@ public:
     std::vector<std::string> m_arg_colors_name, m_arg_colors_value;
 
     void        loadConfigFile(const std::string_view filename, colors_t& colors);
-    std::string getThemeValue(const std::string& value, const std::string& fallback) const;
+    std::string getThemeValue(const std::string_view value, const std::string_view fallback) const;
     void        generateConfig(const std::string_view filename);
 
     std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
 
     template <typename T>
-    T getValue(const std::string& value, const T&& fallback) const
+    T getValue(const std::string_view value, const T&& fallback) const
     {
         std::optional<T> ret = this->tbl.at_path(value).value<T>();
         if constexpr (toml::is_string<T>)  // if we want to get a value that's a string
@@ -130,7 +131,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[0;34m}.
 # NOTE: 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
 #
-# To reset colors, use ${0} for a full reset or ${1} for a bold reset.
+# To reset colors, use ${0} for a normal reset or ${1} for a bold reset.
 #
 # To use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
 # If you're using GUI mode and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
@@ -138,7 +139,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # The Percentage tag $%% is used for displaying the percentage between 2 numbers.\
 # It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
 # For example: $%50,100%
-# For inverting colors of bad and great (red and green), before the last '%' put '!'
+# For inverting colors of bad and great (red and green), before the first '%' put '!'
 # without quotes ofc
 
 # Little FAQ
@@ -175,8 +176,8 @@ layout = [
     "${auto}GPU: $<gpu.vendor> $<gpu.name>",
     "${auto}RAM: $<ram.ram>",
     "",
-    "$<builtin.colors_bg>", # normal colors
-    "$<builtin.colors_light_bg>" # light colors
+    "$<builtin.colors>", # normal colors
+    "$<builtin.colors_light>" # light colors
 ]
 
 # display ascii-art or image/gif (GUI only) near layout
@@ -233,6 +234,14 @@ blue    = "\e[1;34m"
 magenta = "\e[1;35m"
 cyan    = "\e[1;36m"
 white   = "\e[1;37m"
+
+# Colors to be used in percentage tag and modules members.
+# They are used as if you're using the color tag.
+# It's an array just for "convinience"
+# 1st color for good
+# 2nd color for normal
+# 3rd color for bad
+percentage-colors = ["green", "yellow", "red"]
 
 # $<os.uptime> config
 [os.uptime]

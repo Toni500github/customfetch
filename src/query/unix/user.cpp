@@ -170,9 +170,9 @@ static std::string get_shell_version(const std::string_view shell_name)
     std::string ret;
 
     if (shell_name == "nu")
-        ret = shell_exec("nu -c \"version | get version\"");
+        ret = read_shell_exec("nu -c \"version | get version\"");
     else
-        ret = shell_exec(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())));
+        ret = read_shell_exec(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())));
 
     strip(ret);
     return ret;

@@ -1,9 +1,11 @@
 /* Implementation of the system behind displaying/rendering the information */
 
 #include "display.hpp"
+#include <unistd.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <termios.h>
+#include <pty.h>
 
 #include <algorithm>
 #include <array>
@@ -21,7 +23,7 @@
 
 std::string Display::detect_distro(const Config& config)
 {
-    debug("/etc/os-release = \n{}", shell_exec("cat /etc/os-release"));
+    debug("/etc/os-release = \n{}", read_shell_exec("cat /etc/os-release"));
 
     if (!config.m_custom_distro.empty())
     {
@@ -45,7 +47,7 @@ std::string Display::detect_distro(const Config& config)
 }
 
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors,
-                                                  const std::string_view path)
+                                                  const std::string_view path, const std::uint16_t font_width)
 {
     std::string              distro_path{ Display::detect_distro(config) };
     systemInfo_t             systemInfo{};
@@ -54,7 +56,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     int image_width, image_height, channels;
 
     // load the image and get its width and height
-    unsigned char* img = stbi_load(config.source_path.c_str(), &image_width, &image_height, &channels, 0);
+    unsigned char* img = stbi_load(path.data(), &image_width, &image_height, &channels, 0);
 
     if (img)
         stbi_image_free(img);
@@ -63,7 +65,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 
     if (!config.ascii_logo_type.empty())
     {
-        const size_t& pos = path.rfind('.');
+        const size_t& pos = distro_path.rfind('.');
 
         if (pos != std::string::npos)
             distro_path.insert(pos, "_" + config.ascii_logo_type);
@@ -74,7 +76,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     // this is just for parse() to auto add the distro colors
     std::ifstream file(distro_path, std::ios::binary);
     std::string line, _;
-    
+
     while (std::getline(file, line))
         parse(line, systemInfo, _, config, colors, false);
 
@@ -87,15 +89,18 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                  layout.end());
 
     for (size_t i = 0; i < layout.size(); i++)
-        for (size_t _ = 0; _ < config.offset + 40; _++)  // I use _ because we don't need it
+        // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
+        for (size_t _ = 0; _ < static_cast<size_t>(image_width / font_width) + config.offset; _++)
             layout.at(i).insert(0, " ");
 
     return layout;
 }
 
-bool get_pos(std::uint32_t& y, std::uint32_t& x)
+// https://stackoverflow.com/a/50888457
+// with a little C++ modernizing
+static bool get_pos(int& y, int& x)
 {
-    char buf[30] = { 0 };
+    std::array<char, 32> buf;
     int  ret, i, pow;
     char ch;
 
@@ -117,11 +122,9 @@ bool get_pos(std::uint32_t& y, std::uint32_t& x)
         if (!ret)
         {
             tcsetattr(0, TCSANOW, &restore);
-            fprintf(stderr, "getpos: error reading response!\n");
-            return false;
+            die("getpos: error reading response!");
         }
         buf[i] = ch;
-        debug("buf[{}]: \t{} \t{}", i, ch, ch);
     }
 
     if (i < 2)
@@ -146,10 +149,16 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     systemInfo_t             systemInfo{};
     std::vector<std::string> asciiArt{}, layout{ config.layout };
 
-    if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty())
+    // 1. if we shouldn't display the autodetected distro
+    // 2. if we don't have --no-display enabled
+    // 3. if the source path for the logo is not empty
+    // 4. if we don't want to display a custom distro
+    // 5. if we aren't in GUI mode (I don't remember why to check that)
+    // damn I forgot even why I made this
+    if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty() &&
+       (!config.m_custom_distro.empty() && !config.gui))
     {
-        if (!config.m_custom_distro.empty() && !config.gui)
-            die("You need to specify if either using a custom distro ascii art OR a custom source path");
+        die("You need to specify if either using a custom distro ascii art OR a custom source path");
     }
 
     debug("Display::render path = {}", path);
@@ -164,7 +173,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             die("Could not open ascii art file \"{}\"", path);
     }
 
-    std::string         line;
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
 
@@ -178,17 +186,25 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
         if (is_file_image(buffer.data()))
         {
-            std::uint32_t x = 0, y = 0;
-            get_pos(x, y);
-            fmt::print("\033[{};{}H", x, y);
+            struct winsize win;
+            ioctl (STDOUT_FILENO, TIOCGWINSZ, &win);
+
+            // why... why reverse the cardinal coordinates..
+            int y = 0, x = 0;
+            get_pos(y, x);
+            fmt::print("\033[{};{}H", y, x);
+
             if (config.m_image_backend == "kitty")
                 taur_exec({ "kitty", "+kitten", "icat", "--align", "left", path.data() });
+            else
+                die("The image backend '{}' isn't supported, only kitty.\n"
+                    "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
+                    config.m_image_backend);
 
-            return render_with_image(config, colors, path);
+            const std::uint16_t font_width = win.ws_xpixel / win.ws_col;
+
+            return render_with_image(config, colors, path, font_width);
         }
-        /*    die("The source file '{}' is a binary file.\n"
-                "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
-                path);*/
     }
 
     for (int i = 0; i < config.logo_padding_top; i++)
@@ -202,6 +218,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         layout.insert(layout.begin(), "");
     }
 
+    std::string line;
     while (std::getline(file, line))
     {
         std::string pureOutput;

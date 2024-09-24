@@ -3,11 +3,6 @@
 [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
 
 # Customfetch
->[!WARNING]
->customfetch is in alpha, it will be 100% ready with a stable release.\
->It is pretty stable right now though, so give it a try, why not\
->Don't forget to open any issue/PR for any problem.\
->Thanks!
 
 A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\
 `customfetch` is designed to provide a really customizable way to display your system informations in the way you like or want.
@@ -35,9 +30,6 @@ Currently supports Linux distros only. Android may be coming when stable release
 * **GUI mode (GTK3)**
 * Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Lightweight
->[!NOTE]
->enabling GUI mode may slow down customfetch a bit because it needs to load the GUI libraries at runtime\
->To check if it's enabled or not, run "cufetch --version"
 
 ## Depends
 currently requires **C++20**, but it's possible to compile with C++17 too (not officially supported)
@@ -49,6 +41,10 @@ If you want to install with GUI mode install from your package manager:
 * `gtkmm3`
 
 ## Installation
+
+>[!NOTE]
+>installing with GUI mode may slow down customfetch a bit because it needs to load the GUI libraries at runtime.\
+>To check if it's enabled or not, run "cufetch --version"
 
 ### Debian/Ubuntu and based
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
@@ -134,8 +130,8 @@ layout = [
     "${auto}GPU: $<gpu.name>",
     "${auto}RAM: $<ram.ram>",
     "",
-    "$<builtin.colors_bg>", # normal colors palette
-    "$<builtin.colors_light_bg>" # light colors palette
+    "$<builtin.colors>", # normal colors palette
+    "$<builtin.colors_light>" # light colors palette
 ]
 
 # display ascii-art or image/gif (GUI only) near layout
@@ -251,7 +247,7 @@ bg-image = "/tmp/idk.png"
 ```
 
 We use the `config.toml` file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
-You have 5 tags: 
+You have 5 tags:
 * `$<module.member>` - Used for printing the value of a member of a module.
 * `${color}` - Used for displaying text in a specific color.
 * `$(bash command)` - Used to execute bash commands and print the output.
@@ -295,13 +291,13 @@ They can be used in the ascii art text file and layout, but how to use them?
 * **The Percentage tag (`$%%`)** is used for displaying the percentage between 2 numbers.\
   It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
   For example: $%10,5%
-  For inverting colors of bad and great (red and green), before the last '%' a put '!' without quotes
+  For inverting colors of bad and great (red and green), before the first `%` a put `!`
 
 Any `$` or brackets can be escaped with a backslash `\`
 
 # TODOs
 * Color all ASCII arts (101/262) will take long ahh time
-* Support images on terminal as logo (currently only available in GUI mode)
+* Support images on terminal as logo (currently only in kitty)
 * idk
 
 # Thanks
@@ -321,7 +317,7 @@ I would like to thanks:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Our favorite libraries that me and BurntRanch uses
 
 * this string switch-case [library](https://github.com/xroche/stringswitch), \
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Really amazing, thanks for making this 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Really amazing, thanks for making this
 
 I hope you'll like customfetch, and also checkout [TabAUR](https://github.com/BurntRanch/TabAUR/tree/dev), our other project that was made before customfetch.\
 Don't forgot [sdl_engine](https://github.com/BurntRanch/sdl_engine) too ;)

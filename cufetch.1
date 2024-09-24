@@ -96,7 +96,7 @@ layout = [
 .br
   For example: $%50,100%
 .br
-  For inverting colors of bad and great (red and green), before the last '%' put '!' (without quotes ofc)
+  For inverting colors of bad and great (red and green), before the first '%' put '!' (without quotes ofc)
 .PP
 To escape any $ or bracket, just use \\
 .SH OPTIONS
@@ -129,6 +129,11 @@ Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "
 The font to be used in GUI mode (syntax must be "[FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]" without the square brackets [])
 .br
 An example: "[Liberation Mono] [Normal] [12]", which can be "Liberation Mono Normal 12"
+.TP
+\fB\-i\fR, \fB\-\-image\-backend\fR <name>
+\fB\fI(EXPERIMENTAL)\fR Image backend tool for displaying images in terminal. Right now only kitty is supported
+.br
+It's recommended to use GUI mode for the moment if something doesn't work
 .TP
 \fB\-g\fR, \fB\-\-gui\fR
 Use GUI mode instead of priting in the terminal (use \fB\-V\fR to check if it's enabled)
@@ -170,6 +175,9 @@ Reset color either before of after 'sep-reset' (1 = after && 0 = before)
 Generate default config file to config folder (if path, it will generate to the path)
 .br
 Will ask for confirmation if file exists already
+.TP
+\fB\-\-kitty\fR
+Alias to "--image-backend=kitty"
 .TP
 \fB\-\-color\fR <string>
 Replace instances of a color with another value.
