@@ -53,7 +53,7 @@ A command-line system information tool (or neofetch like program), which its foc
     -f, --font <name>           The font to be used in GUI mode (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
                                 An example: [Liberation Mono] [Normal] [12], which can be "Liberation Mono Normal 12"
 
-    -i, --image-backend	<name>	(EXPERIMENTAL) Image backend tool for displaying images in terminal. Right now only kitty is supported
+    -i, --image-backend	<name>	(EXPERIMENTAL) Image backend tool for displaying images in terminal. Right now only 'kitty' and 'viu' are supported
 				It's recommended to use GUI mode for the moment if something doesn't work
 
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it was enabled)
@@ -73,6 +73,7 @@ A command-line system information tool (or neofetch like program), which its foc
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
     --kitty			Alias to "--image-backend=kitty"
+    --viu                       Alias to "--image-backend=viu"
 
     --color <string>            Replace instances of a color with another value.
                                 Syntax MUST be "name=value" with no space beetween "=", example: --color "foo=#444333".
@@ -282,6 +283,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"image-backend",    required_argument, 0, 'i'},
 
         {"kitty",              no_argument,       0, "kitty"_fnv1a16},
+        {"viu",                no_argument,       0, "viu"_fnv1a16},
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
         {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
         {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
@@ -388,6 +390,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
             case "kitty"_fnv1a16:
                 config.m_image_backend = "kitty"; break;
+            case "viu"_fnv1a16:
+                config.m_image_backend = "viu"; break;
 
             default:
                 return false;

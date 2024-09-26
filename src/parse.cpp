@@ -77,7 +77,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
         case '7': col = colors.gui_white;   break;
     }
 
-    if (col[0] != '#')
+    if (col.at(0) != '#')
         col.erase(0, col.find('#'));
 
     return { col, weight, type };
@@ -229,7 +229,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
         // maybe let's remove the bypass '\\$'
         if (dollarSignIndex > 0 and
-            output[dollarSignIndex - 1] == '\\' and output[dollarSignIndex - 2] == '\\')
+            output.at(dollarSignIndex - 1) == '\\' and output.at(dollarSignIndex - 2) == '\\')
         {
             skip_bypass = true;
             output.erase(dollarSignIndex - 1, 1);
@@ -269,10 +269,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 endBracketIndex = i;
                 break;
             }
-            else if (output[i] == type)
+            else if (output.at(i) == type)
                 command.pop_back();
 
-            command += output[i];
+            command += output.at(i);
         }
 
         if (static_cast<int>(endBracketIndex) == -1)
@@ -681,7 +681,7 @@ static std::string prettify_de_name(const std::string_view de_name)
 void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleMemberName,
                         const Config& config, const colors_t& colors, bool parsingLayout)
 {
-#define SYSINFO_INSERT(x) sysInfo[moduleName].insert({ moduleMemberName, variant(x) })
+#define SYSINFO_INSERT(x) sysInfo.at(moduleName).insert({ moduleMemberName, variant(x) })
 
     const  auto&                         moduleMember_hash = fnv1a16::hash(moduleMemberName);
     static std::vector<std::uint16_t>    queried_gpus;
@@ -703,7 +703,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             switch (moduleMember_hash)
             {
@@ -752,7 +752,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             switch (moduleMember_hash)
             {
@@ -777,7 +777,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             std::string _;
             switch(moduleMember_hash)
@@ -854,7 +854,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             switch (moduleMember_hash)
             {
@@ -905,7 +905,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             switch (moduleMember_hash)
             {
@@ -924,7 +924,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             switch (moduleMember_hash)
             {
@@ -950,7 +950,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             switch (moduleMember_hash)
             {
@@ -968,7 +968,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             switch (moduleMember_hash)
             {
@@ -1002,7 +1002,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             switch (moduleMember_hash)
             {
@@ -1040,7 +1040,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount());
             byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount());
@@ -1118,7 +1118,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             byte_units.at(FREE)  = auto_devide_bytes(query_ram.swap_free_amount() * 1024);
             byte_units.at(USED)  = auto_devide_bytes(query_ram.swap_used_amount() * 1024);
@@ -1198,7 +1198,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
-        if (sysInfo[moduleName].find(moduleMemberName) == sysInfo[moduleName].end())
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * 1024);
             byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * 1024);

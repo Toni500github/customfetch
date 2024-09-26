@@ -38,7 +38,7 @@ static std::string get_de_name()
 static std::string get_wm_name()
 {
     std::string path, proc_name, wm_name;
-    uid_t       uid = getuid();
+    const uid_t uid = getuid();
 
     for (auto const& dir_entry : std::filesystem::directory_iterator{ "/proc/" })
     {

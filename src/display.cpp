@@ -2,6 +2,7 @@
 
 #include "display.hpp"
 #include <unistd.h>
+#include "fmt/format.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <termios.h>
@@ -46,8 +47,8 @@ std::string Display::detect_distro(const Config& config)
     }
 }
 
-static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors,
-                                                  const std::string_view path, const std::uint16_t font_width)
+static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors, const std::string_view path,
+                                                  const std::uint16_t font_width, const std::uint16_t font_height)
 {
     std::string              distro_path{ Display::detect_distro(config) };
     systemInfo_t             systemInfo{};
@@ -61,7 +62,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     if (img)
         stbi_image_free(img);
     else
-        die("Unable to load image '{}'", config.source_path);
+        die("Unable to load image '{}'", path);
 
     if (!config.ascii_logo_type.empty())
     {
@@ -88,9 +89,21 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
+    const size_t width  = image_width  / font_width;
+    const size_t height = image_height / font_height;
+
+    if (config.m_image_backend == "kitty")
+        taur_exec({ "kitty", "+kitten", "icat", "--align", "left", "--place", fmt::format("{}x{}@0x0", width, height), path });
+    else if (config.m_image_backend == "viu")
+        taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
+    else
+        die("The image backend '{}' isn't supported, only kitty and viu.\n"
+            "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
+            config.m_image_backend);
+
     for (size_t i = 0; i < layout.size(); i++)
         // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
-        for (size_t _ = 0; _ < static_cast<size_t>(image_width / font_width) + config.offset; _++)
+        for (size_t _ = 0; _ < width + config.offset; _++)
             layout.at(i).insert(0, " ");
 
     return layout;
@@ -124,7 +137,7 @@ static bool get_pos(int& y, int& x)
             tcsetattr(0, TCSANOW, &restore);
             die("getpos: error reading response!");
         }
-        buf[i] = ch;
+        buf.at(i) = ch;
     }
 
     if (i < 2)
@@ -133,11 +146,11 @@ static bool get_pos(int& y, int& x)
         return false;
     }
 
-    for (i -= 2, pow = 1; buf[i] != ';'; i--, pow *= 10)
-        x = x + (buf[i] - '0') * pow;
+    for (i -= 2, pow = 1; buf.at(i) != ';'; i--, pow *= 10)
+        x = x + (buf.at(i) - '0') * pow;
 
-    for (i--, pow = 1; buf[i] != '['; i--, pow *= 10)
-        y = y + (buf[i] - '0') * pow;
+    for (i--, pow = 1; buf.at(i) != '['; i--, pow *= 10)
+        y = y + (buf.at(i) - '0') * pow;
 
     tcsetattr(0, TCSANOW, &restore);
     return true;
@@ -186,24 +199,23 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
         if (is_file_image(buffer.data()))
         {
+            // clear screen
+            write(1, "\33[H\33[2J", 7);
+            
             struct winsize win;
             ioctl (STDOUT_FILENO, TIOCGWINSZ, &win);
+
+            const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
+            const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
+
+            const auto& ret = render_with_image(config, colors, path, font_width, font_height);
 
             // why... why reverse the cardinal coordinates..
             int y = 0, x = 0;
             get_pos(y, x);
             fmt::print("\033[{};{}H", y, x);
 
-            if (config.m_image_backend == "kitty")
-                taur_exec({ "kitty", "+kitten", "icat", "--align", "left", path.data() });
-            else
-                die("The image backend '{}' isn't supported, only kitty.\n"
-                    "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
-                    config.m_image_backend);
-
-            const std::uint16_t font_width = win.ws_xpixel / win.ws_col;
-
-            return render_with_image(config, colors, path, font_width);
+            return ret;
         }
     }
 
@@ -308,7 +320,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         for (size_t j = 0; j < config.logo_padding_left; j++)
             line += " ";
 
-        line += asciiArt[i];
+        line += asciiArt.at(i);
 
         layout.push_back(line);
     }
