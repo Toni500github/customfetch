@@ -63,7 +63,7 @@ void ctrl_d_handler(const std::istream& cin)
 std::string expandVar(std::string ret)
 {
     const char* env;
-    if (ret.at(0) == '~')
+    if (ret.front() == '~')
     {
         env = std::getenv("HOME");
         if (env == nullptr)
@@ -71,7 +71,7 @@ std::string expandVar(std::string ret)
 
         ret.replace(0, 1, env);  // replace ~ with the $HOME value
     }
-    else if (ret.at(0) == '$')
+    else if (ret.front() == '$')
     {
         ret.erase(0, 1);
 
