@@ -62,6 +62,9 @@ void ctrl_d_handler(const std::istream& cin)
  */
 std::string expandVar(std::string ret)
 {
+    if (ret.empty())
+        return ret;
+
     const char* env;
     if (ret.front() == '~')
     {
