@@ -96,8 +96,8 @@ jobs:
         cd customfetch-git
         sudo -u nobody makepkg -si --noconfirm
 
-    - name: Setup SSH session
-      uses: mxschmitt/action-tmate@v3
+    #- name: Setup SSH session
+    #  uses: mxschmitt/action-tmate@v3
 
     - name: Test neofetch
       run: neofetch
