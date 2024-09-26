@@ -16,6 +16,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 #include "fmt/color.h"
@@ -62,7 +63,7 @@ void ctrl_d_handler(const std::istream& cin)
 std::string expandVar(std::string ret)
 {
     const char* env;
-    if (ret[0] == '~')
+    if (ret.at(0) == '~')
     {
         env = std::getenv("HOME");
         if (env == nullptr)
@@ -70,7 +71,7 @@ std::string expandVar(std::string ret)
 
         ret.replace(0, 1, env);  // replace ~ with the $HOME value
     }
-    else if (ret[0] == '$')
+    else if (ret.at(0) == '$')
     {
         ret.erase(0, 1);
 
@@ -180,7 +181,7 @@ void strip(std::string& input)
     // optimization for input size == 1
     if (input.size() == 1)
     {
-        if (input[0] == ' ' || input[0] == '\t' || input[0] == '\n')
+        if (input.at(0) == ' ' || input.at(0) == '\t' || input.at(0) == '\n')
         {
             input = "";
             return;
@@ -303,16 +304,16 @@ void replace_str(std::string& str, const std::string_view from, const std::strin
 bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr, bool noerror_print)
 {
     debug("{} cmd = {}", __func__, cmd);
-    int pipeout[2];
+    std::array<int, 2> pipeout;
 
-    if (pipe(pipeout) < 0)
+    if (pipe(pipeout.data()) < 0)
         die("pipe() failed: {}", strerror(errno));
 
     pid_t pid = fork();
 
     if (pid > 0)
     {  // we wait for the command to finish then start executing the rest
-        close(pipeout[1]);
+        close(pipeout.at(1));
 
         int status;
         waitpid(pid, &status, 0);  // Wait for the child to finish
@@ -322,10 +323,10 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
             // read stdout
             debug("reading stdout");
             char c;
-            while (read(pipeout[0], &c, 1) == 1)
+            while (read(pipeout.at(0), &c, 1) == 1)
                 output += c;
 
-            close(pipeout[0]);
+            close(pipeout.at(0));
             if (!output.empty() && output.back() == '\n')
                 output.pop_back();
 
@@ -340,24 +341,24 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     else if (pid == 0)
     {
         int nullFile = open("/dev/null", O_WRONLY | O_CLOEXEC);
-        dup2(pipeout[1], useStdErr ? STDERR_FILENO : STDOUT_FILENO);
+        dup2(pipeout.at(1), useStdErr ? STDERR_FILENO : STDOUT_FILENO);
         dup2(nullFile, useStdErr ? STDOUT_FILENO : STDERR_FILENO);
 
         setenv("LANG", "C", 1);
         cmd.push_back(nullptr);
-        execvp(cmd[0], const_cast<char* const*>(cmd.data()));
+        execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
 
         die("An error has occurred with execvp: {}", strerror(errno));
     }
     else
     {
-        close(pipeout[0]);
-        close(pipeout[1]);
+        close(pipeout.at(0));
+        close(pipeout.at(1));
         die("fork() failed: {}", strerror(errno));
     }
 
-    close(pipeout[0]);
-    close(pipeout[1]);
+    close(pipeout.at(0));
+    close(pipeout.at(1));
 
     return false;
 }
@@ -367,7 +368,7 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
  * @param exitOnFailure Whether to call exit(1) on command failure.
  * @return true if the command successed, else false
  */
-bool taur_exec(const std::vector<std::string> cmd_str, const bool noerror_print)
+bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_print)
 {
     std::vector<const char*> cmd;
     for (const std::string_view str : cmd_str)
@@ -384,10 +385,10 @@ bool taur_exec(const std::vector<std::string> cmd_str, const bool noerror_print)
     {
         debug("running {}", cmd);
         cmd.push_back(nullptr);
-        execvp(cmd[0], const_cast<char* const*>(cmd.data()));
+        execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
 
         // execvp() returns instead of exiting when failed
-        die("An error has occurred: {}: {}", cmd[0], strerror(errno));
+        die("An error has occurred: {}: {}", cmd.at(0), strerror(errno));
     }
     else if (pid > 0)
     {  // we wait for the command to finish then start executing the rest
@@ -435,21 +436,21 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::
 
         // If the element is present at the middle
         // itself
-        if (pci_vendors_array[mid] == vendor_id)
+        if (pci_vendors_array.at(mid) == vendor_id)
             break;
 
         // If element is smaller than mid, then
         // it can only be present in left subarray
-        if (pci_vendors_array[mid] > vendor_id)
+        if (pci_vendors_array.at(mid) > vendor_id)
             right = mid - 1;
 
         // Else the element can only be present
         // in right subarray
-        if (pci_vendors_array[mid] < vendor_id)
+        if (pci_vendors_array.at(mid) < vendor_id)
             left = mid + 1;
     }
 
-    size_t approx_vendors_location = pci_vendors_location_array[mid];
+    size_t approx_vendors_location = pci_vendors_location_array.at(mid);
     size_t vendor_location         = all_ids.find(vendor_id, approx_vendors_location);
     size_t device_location         = all_ids.find(pci_id, vendor_location);
 
@@ -475,21 +476,21 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 
         // If the element is present at the middle
         // itself
-        if (pci_vendors_array[mid] == vendor_id)
+        if (pci_vendors_array.at(mid) == vendor_id)
             break;
 
         // If element is smaller than mid, then
         // it can only be present in left subarray
-        if (pci_vendors_array[mid] > vendor_id)
+        if (pci_vendors_array.at(mid) > vendor_id)
             right = mid - 1;
 
         // Else the element can only be present
         // in right subarray
-        if (pci_vendors_array[mid] < vendor_id)
+        if (pci_vendors_array.at(mid) < vendor_id)
             left = mid + 1;
     }
 
-    const size_t approximate_vendors_location = pci_vendors_location_array[mid];
+    const size_t approximate_vendors_location = pci_vendors_location_array.at(mid);
     const size_t vendors_location             = all_ids.find(vendor_id, approximate_vendors_location);
 
     if (vendors_location == std::string::npos)
@@ -506,7 +507,13 @@ std::string read_shell_exec(const std::string_view cmd)
 {
     std::array<char, 1024> buffer;
     std::string            result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.data(), "r"), pclose);
+    std::unique_ptr<FILE, void(*)(FILE*)> pipe(popen(cmd.data(), "r"),
+    [](FILE *f) -> void
+    {
+        // wrapper to ignore the return value from pclose().
+        // Is needed with newer versions of gnu g++
+        std::ignore = pclose(f);
+    });
 
     if (!pipe)
         die("popen() failed: {}", std::strerror(errno));
@@ -568,11 +575,11 @@ std::string getHomeConfigDir()
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
     {
         std::string str_dir(dir);
-        return hasEnding(str_dir, "/") ? str_dir.substr(0, str_dir.rfind('/')) : str_dir;
+        return str_dir.back() == '/' ? str_dir.substr(0, str_dir.rfind('/')) : str_dir;
     }
     else
     {
-        char* home = std::getenv("HOME");
+        const char* home = std::getenv("HOME");
         if (home == nullptr)
             die("Failed to find $HOME, set it to your home directory!");
 

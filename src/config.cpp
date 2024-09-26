@@ -108,7 +108,7 @@ std::vector<std::string> Config::getValueArrayStr(const std::string_view        
     if (const toml::array* array_it = array.as_array())
     {
         array_it->for_each(
-            [&](auto&& el)
+            [&ret, value](auto&& el)
             {
                 if (const toml::value<std::string>* str_elem = el.as_string())
                 {

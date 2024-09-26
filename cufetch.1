@@ -131,7 +131,7 @@ The font to be used in GUI mode (syntax must be "[FAMILY\-LIST] [STYLE\-OPTIONS]
 An example: "[Liberation Mono] [Normal] [12]", which can be "Liberation Mono Normal 12"
 .TP
 \fB\-i\fR, \fB\-\-image\-backend\fR <name>
-\fB\fI(EXPERIMENTAL)\fR Image backend tool for displaying images in terminal. Right now only kitty is supported
+\fB\fI(EXPERIMENTAL)\fR Image backend tool for displaying images in terminal. Right now only kitty and viu are supported
 .br
 It's recommended to use GUI mode for the moment if something doesn't work
 .TP
@@ -178,6 +178,9 @@ Will ask for confirmation if file exists already
 .TP
 \fB\-\-kitty\fR
 Alias to "--image-backend=kitty"
+.TP
+\fB\-\-viu\fR
+Alias to "--image-backend=viu"
 .TP
 \fB\-\-color\fR <string>
 Replace instances of a color with another value.
