@@ -217,8 +217,7 @@ void getFileValue(u_short& iterIndex, const std::string_view line, std::string& 
 
 std::string shorten_vendor_name(std::string vendor)
 {
-    if (vendor.find("AMD")            != vendor.npos ||
-        vendor.find("Advanced Micro") != vendor.npos)
+    if (vendor.find("AMD") != vendor.npos || vendor.find("Advanced Micro") != vendor.npos)
         vendor = "AMD";
 
     size_t pos = 0;
@@ -289,8 +288,8 @@ std::string which(const std::string& command)
 
         fullPath.clear();
     }
-    
-    return UNKNOWN; // not found
+
+    return UNKNOWN;  // not found
 }
 
 // https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
@@ -528,7 +527,7 @@ std::string read_shell_exec(const std::string_view cmd)
     // why there is a '\n' at the end??
     if (!result.empty() && result.back() == '\n')
         result.pop_back();
-    
+
     return result;
 }
 

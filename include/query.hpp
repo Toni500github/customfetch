@@ -124,9 +124,9 @@ public:
     };
 
     Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
-          const std::string& theme_name_version, const Config &config);
+          const std::string& theme_name_version, const Config& config);
 
-    Theme(systemInfo_t& queried_themes, const Config &config);
+    Theme(systemInfo_t& queried_themes, const Config& config);
 
     std::string  gtk_theme() noexcept;
     std::string  gtk_icon_theme() noexcept;

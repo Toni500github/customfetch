@@ -10,14 +10,13 @@
 #include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
+#include "gdkmm/pixbufanimation.h"
+#include "gtkmm/enums.h"
+#include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "stb_image.h"
 #include "util.hpp"
-
-#include "gdkmm/pixbufanimation.h"
-#include "gtkmm/enums.h"
-#include "pangomm/fontdescription.h"
 
 using namespace GUI;
 
@@ -35,7 +34,7 @@ using namespace GUI;
 // Display::render but only for images on GUI
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
-    std::string              path{Display::detect_distro(config)};
+    std::string              path{ Display::detect_distro(config) };
     systemInfo_t             systemInfo{};
     std::vector<std::string> layout{ config.layout };
 
@@ -48,11 +47,11 @@ static std::vector<std::string> render_with_image(const Config& config, const co
         stbi_image_free(img);
     else
         die("Unable to load image '{}'", config.source_path);
-    
+
     if (!config.ascii_logo_type.empty())
     {
         const size_t& pos = path.rfind('.');
-        
+
         if (pos != std::string::npos)
             path.insert(pos, "_" + config.ascii_logo_type);
         else
@@ -61,8 +60,8 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 
     // this is just for parse() to auto add the distro colors
     std::ifstream file(path, std::ios::binary);
-    std::string line, _;
-    
+    std::string   line, _;
+
     while (std::getline(file, line))
         parse(line, systemInfo, _, config, colors, false);
 
@@ -90,7 +89,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     bool useImage = false;
 
     debug("Window::Window analyzing file");
-    std::ifstream f(path.data());
+    std::ifstream                 f(path.data());
     std::array<unsigned char, 32> buffer;
     f.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
     if (is_file_image(buffer.data()))

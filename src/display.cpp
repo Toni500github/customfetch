@@ -1,12 +1,11 @@
 /* Implementation of the system behind displaying/rendering the information */
 
 #include "display.hpp"
-#include <unistd.h>
-#include "fmt/format.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <termios.h>
 #include <pty.h>
+#include <termios.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <array>
@@ -17,6 +16,7 @@
 
 #include "config.hpp"
 #include "fmt/core.h"
+#include "fmt/format.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "stb_image.h"
@@ -47,8 +47,9 @@ std::string Display::detect_distro(const Config& config)
     }
 }
 
-static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors, const std::string_view path,
-                                                  const std::uint16_t font_width, const std::uint16_t font_height)
+static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors,
+                                                  const std::string_view path, const std::uint16_t font_width,
+                                                  const std::uint16_t font_height)
 {
     std::string              distro_path{ Display::detect_distro(config) };
     systemInfo_t             systemInfo{};
@@ -76,7 +77,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 
     // this is just for parse() to auto add the distro colors
     std::ifstream file(distro_path, std::ios::binary);
-    std::string line, _;
+    std::string   line, _;
 
     while (std::getline(file, line))
         parse(line, systemInfo, _, config, colors, false);
@@ -89,11 +90,12 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    const size_t width  = image_width  / font_width;
+    const size_t width  = image_width / font_width;
     const size_t height = image_height / font_height;
 
     if (config.m_image_backend == "kitty")
-        taur_exec({ "kitty", "+kitten", "icat", "--align", "left", "--place", fmt::format("{}x{}@0x0", width, height), path });
+        taur_exec({ "kitty", "+kitten", "icat", "--align", "left", "--place", fmt::format("{}x{}@0x0", width, height),
+                    path });
     else if (config.m_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
     else
@@ -169,7 +171,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     // 5. if we aren't in GUI mode (I don't remember why to check that)
     // damn I forgot even why I made this
     if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty() &&
-       (!config.m_custom_distro.empty() && !config.gui))
+        (!config.m_custom_distro.empty() && !config.gui))
     {
         die("You need to specify if either using a custom distro ascii art OR a custom source path");
     }
@@ -201,19 +203,19 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         {
             // clear screen
             write(1, "\33[H\33[2J", 7);
-            
+
             struct winsize win;
-            ioctl (STDOUT_FILENO, TIOCGWINSZ, &win);
+            ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
 
             const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
             const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
-
-            const auto& ret = render_with_image(config, colors, path, font_width, font_height);
 
             // why... why reverse the cardinal coordinates..
             int y = 0, x = 0;
             get_pos(y, x);
             fmt::print("\033[{};{}H", y, x);
+
+            const auto& ret = render_with_image(config, colors, path, font_width, font_height);
 
             return ret;
         }

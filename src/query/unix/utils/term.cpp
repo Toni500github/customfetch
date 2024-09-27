@@ -1,7 +1,9 @@
 #include "term.hpp"
+
+#include <fstream>
+
 #include "fmt/format.h"
 #include "util.hpp"
-#include <fstream>
 
 void get_term_version_exec(const std::string_view term, std::string& ret, bool _short, bool _stderr)
 {
@@ -11,7 +13,7 @@ void get_term_version_exec(const std::string_view term, std::string& ret, bool _
 
 bool detect_st_ver(std::string& ret)
 {
-    std::string line;
+    std::string   line;
     std::ifstream f(which("st"), std::ios::binary);
 
     while (read_binary_file(f, line))
@@ -25,7 +27,7 @@ bool detect_st_ver(std::string& ret)
         ret = line;
     }
     debug("failed to fast detect st version");
-    
+
     get_term_version_exec("st", ret, true, true);
     return false;
 }
@@ -45,8 +47,8 @@ bool detect_konsole_ver(std::string& ret)
             ret = fmt::format("{}.{}.{}", major, minor, patch);
             return true;
         }
-    } 
-    
+    }
+
     debug("failed to fast detect konsole version");
     get_term_version_exec("konsole", ret);
 
