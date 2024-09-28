@@ -250,9 +250,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
             case 'C': 
                 if (!std::filesystem::exists(optarg))
                     die("config file '{}' doesn't exist", optarg);
-
                 return optarg;
-                break;
         }
     }
 
@@ -351,19 +349,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.gui_bg_image = optarg; break;
 
             case "color"_fnv1a16:
-            {
-                const std::string& optarg_str = optarg;
-                const size_t& pos = optarg_str.find('=');
-                if (pos == std::string::npos)
-                    die("argument color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
-                        "for more check with --help", optarg_str);
-
-                const std::string& name = optarg_str.substr(0, pos);
-                const std::string& value = optarg_str.substr(pos + 1);
-                config.m_arg_colors_name.push_back(name);
-                config.m_arg_colors_value.push_back(value);
-            }
-            break;
+                config.addAliasColors(optarg); break;
 
             case "gen-config"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)

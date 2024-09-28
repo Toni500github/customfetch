@@ -296,10 +296,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                 if (!parsingLayout && tagpos != std::string::npos)
                 {
-                    if (!removetag)
-                        pureOutput.replace(tagpos, taglen, cmd_output);
-                    else
+                    if (removetag)
                         pureOutput.erase(tagpos, taglen);
+                    else
+                        pureOutput.replace(tagpos, taglen, cmd_output);
                 }
             }
             break;
@@ -335,8 +335,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                 output.replace(dollarSignIndex, taglen,
                                get_and_color_percentage(n1, n2, systemInfo, config, colors, parsingLayout, invert));
-                break;
             }
+            break;
 
             case ']':
             {
@@ -377,37 +377,35 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             case '}':  // please pay very attention when reading this unreadable and godawful code
 
                 // if at end there a '$', it will make the end output "$</span>" and so it will confuse
-                // addValueFromModule() and so let's make it "$ </span>". this geniunenly stupid
+                // addValueFromModule() and so let's make it "$ </span>". this is geniunenly stupid
                 if (config.gui && output.back() == '$')
                     output += ' ';
 
-                if (!config.m_arg_colors_name.empty())
+                if (!config.colors_name.empty())
                 {
-                    const auto& it_name =
-                        std::find(config.m_arg_colors_name.begin(), config.m_arg_colors_name.end(), command);
-                    if (it_name != config.m_arg_colors_name.end())
+                    const auto& it_name = std::find(config.colors_name.begin(), config.colors_name.end(), command);
+                    if (it_name != config.colors_name.end())
                     {
-                        const auto& it_value = std::distance(config.m_arg_colors_name.begin(), it_name);
+                        const auto& it_value = std::distance(config.colors_name.begin(), it_name);
 
                         if (hasStart(command, "auto"))
                         {
                             // "ehhmmm why goto and double code? that's ugly and unconvienient :nerd:"
                             // I don't care, it does the work and well
                             if (command == *it_name)
-                                command = config.m_arg_colors_value.at(it_value);
+                                command = config.colors_value.at(it_value);
                             goto jump;
                         }
 
                         if (command == *it_name)
-                            command = config.m_arg_colors_value.at(it_value);
+                            command = config.colors_value.at(it_value);
                     }
                 }
 
                 if (hasStart(command, "auto"))
                 {
-                    std::uint16_t ver =
-                        static_cast<std::uint16_t>(command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0);
-                    if (ver >= auto_colors.size() || ver < 1)
+                    int ver = command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0;
+                    if (ver < 1 || static_cast<size_t>(ver) >= auto_colors.size())
                         ver = 0;
 
                     if (auto_colors.empty())
@@ -493,7 +491,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         }
 
                         else
+                        {
                             error("PARSER: failed to parse line with color '{}'", str_clr);
+                            break;
+                        }
 
                         firstrun_noclr = false;
                     }
@@ -549,8 +550,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         }
 
                         else
+                        {
                             error("PARSER: failed to parse line with color '{}'", str_clr);
-
+                            break;
+                        }
                         output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                        formatted_replacement_string);
                     }

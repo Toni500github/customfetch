@@ -37,6 +37,7 @@ public:
     // config file
     std::vector<std::string> layout;
     std::vector<std::string> percentage_colors;
+    std::vector<std::string> colors_name, colors_value;
     std::string   source_path;
     std::string   font;
     std::string   data_dir;
@@ -70,12 +71,11 @@ public:
     bool        m_disable_source  = false;
     bool        m_display_distro  = true;
     bool        m_print_logo_only = false;
-    std::vector<std::string> m_arg_colors_name, m_arg_colors_value;
 
     void        loadConfigFile(const std::string_view filename, colors_t& colors);
     std::string getThemeValue(const std::string_view value, const std::string_view fallback) const;
     void        generateConfig(const std::string_view filename);
-
+    void        addAliasColors(const std::string_view value);
     std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
 
     template <typename T>
@@ -234,6 +234,12 @@ blue    = "\e[1;34m"
 magenta = "\e[1;35m"
 cyan    = "\e[1;36m"
 white   = "\e[1;37m"
+
+# Alias colors.
+# They can be used as like as the color tag.
+# This is as like as using the --color argument
+# Syntax must be "name=value", e.g "purple=magenta" or "orange=!#F08000"
+alias-colors = ["purple=magenta"]
 
 # Colors to be used in percentage tag and modules members.
 # They are used as if you're using the color tag.

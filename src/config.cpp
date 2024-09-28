@@ -91,6 +91,9 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
              "backing up to green, yellow and red");
         this->percentage_colors = {"green", "yellow", "red"};
     }
+
+    for (const std::string_view str : this->getValueArrayStr("config.alias-colors", {}))
+        this->addAliasColors(str);
 }
 
 std::string Config::getThemeValue(const std::string_view value, const std::string_view fallback) const
@@ -124,6 +127,17 @@ std::vector<std::string> Config::getValueArrayStr(const std::string_view        
         return fallback;
 
     return ret;
+}
+
+void Config::addAliasColors(const std::string_view value)
+{
+    const size_t pos = value.find('=');
+    if (pos == std::string::npos)
+        die("alias color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
+            "for more check with --help", value);
+
+    this->colors_name.push_back(value.substr(0, pos).data());
+    this->colors_value.push_back(value.substr(pos + 1).data());
 }
 
 void Config::generateConfig(const std::string_view filename)
