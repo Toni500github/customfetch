@@ -64,7 +64,7 @@ public:
     std::vector<std::string> dpkg_files;
     std::vector<std::string> apk_files;
 
-    // inner management
+    // inner management / argument configs
     std::string m_custom_distro;
     std::string m_image_backend;
     bool        m_disable_source  = false;

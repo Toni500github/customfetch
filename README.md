@@ -297,8 +297,6 @@ Any `$` or brackets can be escaped with a backslash `\`
 
 # TODOs
 * Color all ASCII arts (101/262) will take long ahh time
-* Support images on terminal as logo (currently only in kitty)
-* idk
 
 # Thanks
 I would like to thanks:
