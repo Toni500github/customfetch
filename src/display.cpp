@@ -2,6 +2,10 @@
 
 #include "display.hpp"
 
+#ifndef GUI_MODE
+# define STB_IMAGE_IMPLEMENTATION
+#endif
+
 #include <pty.h>
 #include <termios.h>
 #include <unistd.h>
