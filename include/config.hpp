@@ -123,10 +123,14 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #
 # They can have hexcodes colors (e.g "#5522dd").
 # You can apply special effects to colors by using the following symbols before the '#' in hex codes:
-# * b  for background color.
-# * u  for underline the text
-# * !  for bold text
-# * i  for italic text
+#     Terminal and GUI                   GUI Only
+# * b  for background color.     * o        for overline
+# * u  to  underline the text    * a(value) for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
+# * !  for bold text             * L(value) to  underline the text with a style (`none`, `single`, `double`, `low`, `error`)
+# * i  for italic text           * U(value) for choosing the underline color (hexcode without #)
+#                                * B(value) for bg color text (hexcode without #)
+#     Terminal Only
+# * l for blinking text
 #
 # Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[0;34m}.
 # NOTE: 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.

@@ -2,7 +2,6 @@
 
 #include "display.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <pty.h>
 #include <termios.h>
 #include <unistd.h>

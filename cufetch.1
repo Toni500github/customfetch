@@ -13,54 +13,45 @@ How does it work?
 We use the \fBconfig.toml\fR file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
 .PP
 You have 5 tags:
-.br
+.nf
 * \fB$<module.member>\fR - Used for printing the value of a member of a module.
-.br
 * \fB${color}\fR - Used for displaying text in a specific color.
-.br
 * \fB$(bash command)\fR - Used to execute bash commands and print the output.
-.br
 * \fB$[something,equalToSomething,ifTrue,ifFalse]\fR - Conditional tag to display different outputs based on the comparison.
-.br
+.fi
 * \fB$%n1,n2%\fR - Used to print the percentage and print with colors
 .PP
 They can be used in the ascii art text file and layout, but how to use them?
 .br
 Here's a simple bare-minimal example:
-.br
+.nf
 layout = [
-.br
 	"My OS is $<os.name>, and username is $<user.name>",
-.br
 	"The color of the following text will be ${red}red",
-.br
 	"This is a $(echo \\"bash command\\")",
-.br
 	"Check if \\\\$<user.name> is correct: $[$<user.name>,toni,indeed,it's not toni but $(echo $USER)]",
-.br
 	"The discount between 50$ and 100$ is $%50,100%"
-.br
 ]
+.fi
 .PP
 * The \fBInfo tag $<>\fR will prints the value of a member of a module.
 .br
   All the modules and their members are listed in the `--list-modules` argument
 .PP
 * The \fBColor tag ${}\fR is used for printing the text of a certain color.
-.br
+.nf
   The colors can be predefined such as: \fIblack\fR, \fIred\fR, \fIgreen\fR, \fIblue\fR, \fIcyan\fR, \fIyellow\fR, \fImagenta\fR, \fIwhite\fR and they can be configured in the config file.
-.br
   They can have hexcodes colors (e.g "#5522dd").
-.br
   You can apply special effects to colors by using the following symbols before the '#' in hex codes:
-.br
-  * \fBb\fR for background color.
-.br
-  * \fBu\fR for underlining the text.
-.br
-  * \fB!\fR for bold text.
-.br
-  * \fBi\fR for italic text.
+      \fBTerminal and GUI\fR                   \fBGUI Only\fR
+  * \fBb\fR  for background color.     * \fBo\fR        for overline
+  * \fBu\fR  to  underline the text    * \fBa(value)\fR for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
+  * \fB!\fR  for bold text             * \fBL(value)\fR to  underline with a style (`none`, `single`, `double`, `low`, `error`)
+  * \fBi\fR  for italic text           * \fBU(value)\fR for choosing the underline color (hexcode without #)
+                                 * \fBB(value)\fR for bg color text (hexcode without #)
+      \fBTerminal Only\fR
+ *  \fBl\fR  for blinking text
+.fi
 .PP
   Alternatively, ANSI escape codes can be used, e.g "\\e[1;31m" and "\\e[38;5;160m", but \fBnote\fR that 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
 .PP

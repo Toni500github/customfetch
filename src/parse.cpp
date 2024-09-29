@@ -242,7 +242,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             dollarSignIndex--;
         }
 
-        std::string command;
+        std::string command; // what's inside the tag
         size_t      endBracketIndex = -1;
 
         char type    = ' ';  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
@@ -470,8 +470,35 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             if (opt_clr.find('i') != std::string::npos)
                                 tagfmt += "style='italic' ";
 
-                            tagfmt.pop_back();
+                            if (opt_clr.find('o') != std::string::npos)
+                                tagfmt += "overline='single' ";
 
+                            size_t argmode_pos = 0;
+                            const auto& append_argmode = [&](const std::string_view fmt, const std::string_view error)
+                            {
+                                if (argmode_pos != std::string::npos && opt_clr.at(argmode_pos + 1) == '(')
+                                {
+                                    const size_t closebrak = opt_clr.find(')', argmode_pos);
+                                    if (closebrak == std::string::npos)
+                                        die("{} mode in color {} doesn't have close bracket", error, str_clr);
+
+                                    tagfmt += fmt.data() + opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2) + "' ";
+                                }
+                            };
+
+                            argmode_pos = opt_clr.find('a');
+                            append_argmode("fgalpha='", "fgalpha");
+
+                            argmode_pos = opt_clr.find('L');
+                            append_argmode("underline='", "underline option");
+
+                            argmode_pos = opt_clr.find('U');
+                            append_argmode("underline_color='#", "colored underline");
+
+                            argmode_pos = opt_clr.find('B');
+                            append_argmode("bgcolor='#", "bgcolor");
+
+                            tagfmt.pop_back();
                             output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                            fmt::format("<{}>{}</span>", tagfmt, output.substr(endBracketIndex + 1)));
                         }
@@ -536,6 +563,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                             if (opt_clr.find('i') != std::string::npos)
                                 append_styles(style, fmt::emphasis::italic);
+
+                            if (opt_clr.find('l') != std::string::npos)
+                                append_styles(style, fmt::emphasis::blink);
 
                             formatted_replacement_string = fmt::format(style, "{}", output.substr(endBracketIndex + 1));
                         }
@@ -809,11 +839,11 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 // clang-format off
                 case "colors"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   \033[0m", sysInfo, _, config, colors, parsingLayout));
+                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", sysInfo, _, config, colors, parsingLayout));
                     break;
 
                 case "colors_light"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   \033[0m", sysInfo, _, config, colors, parsingLayout));
+                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", sysInfo, _, config, colors, parsingLayout));
                     break;
 
                 default:
@@ -832,7 +862,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         debug("symbol = {}", symbol);
 
                         SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} \033[0m",
+                            parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
                                               symbol), sysInfo, _, config, colors, parsingLayout));
                     }
                     else if (hasStart(moduleMemberName, "colors_light_symbol"))
@@ -849,7 +879,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                         debug("symbol = {}", symbol);
 
                         SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} \033[0m",
+                            parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
                                               symbol), sysInfo, _, config, colors, parsingLayout));
                     }
             }
