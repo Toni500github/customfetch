@@ -464,50 +464,67 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         if (pos != std::string::npos)
                         {
                             std::string tagfmt = "span ";
-
                             const std::string& opt_clr = str_clr.substr(0, pos);
 
-                            if (opt_clr.find('b') != std::string::npos)
-                                tagfmt += "bgcolor='" + str_clr.substr(pos) + "' ";
-                            else
-                                tagfmt += "fgcolor='" + str_clr.substr(pos) + "' ";
-
-                            if (opt_clr.find('!') != std::string::npos)
-                                tagfmt += "weight='bold' ";
-
-                            if (opt_clr.find('u') != std::string::npos)
-                                tagfmt += "underline='single' ";
-
-                            if (opt_clr.find('i') != std::string::npos)
-                                tagfmt += "style='italic' ";
-
-                            if (opt_clr.find('o') != std::string::npos)
-                                tagfmt += "overline='single' ";
-
                             size_t argmode_pos = 0;
-                            const auto& append_argmode = [&](const std::string_view fmt, const std::string_view error)
+                            const auto& append_argmode = [&](const std::string_view fmt, const std::string_view error) -> size_t
                             {
-                                if (argmode_pos != std::string::npos && opt_clr.at(argmode_pos + 1) == '(')
+                                if (opt_clr.at(argmode_pos + 1) == '(')
                                 {
                                     const size_t closebrak = opt_clr.find(')', argmode_pos);
                                     if (closebrak == std::string::npos)
                                         die("{} mode in color {} doesn't have close bracket", error, str_clr);
 
-                                    tagfmt += fmt.data() + opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2) + "' ";
+                                    const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
+                                    tagfmt += fmt.data() + value + "' ";
+
+                                    return closebrak;
                                 }
+                                return 0;
                             };
 
-                            argmode_pos = opt_clr.find('a');
-                            append_argmode("fgalpha='", "fgalpha");
+                            bool bgcolor = false;
+                            for (uint i = 0; i < opt_clr.length(); ++i)
+                            {
+                                switch (opt_clr.at(i))
+                                {
+                                    case 'b':
+                                        bgcolor = true;
+                                        tagfmt += "bgcolor='" + str_clr.substr(pos) + "' ";
+                                        break;
+                                    case '!':
+                                        tagfmt += "weight='bold' "; break;
+                                    case 'u':
+                                        tagfmt += "underline='single' "; break;
+                                    case 'i':
+                                        tagfmt += "style='italic' "; break;
+                                    case 'o':
+                                        tagfmt += "overline='single' "; break;
+                                    
+                                    case 'a':
+                                        argmode_pos = i;
+                                        i += append_argmode("fgalpha='", "fgalpha");
+                                        break;
 
-                            argmode_pos = opt_clr.find('L');
-                            append_argmode("underline='", "underline option");
+                                    case 'L':
+                                        argmode_pos = i;
+                                        i += append_argmode("underline='", "underline option");
+                                        break;
 
-                            argmode_pos = opt_clr.find('U');
-                            append_argmode("underline_color='#", "colored underline");
+                                    case 'U':
+                                        argmode_pos = i;
+                                        i += append_argmode("underline_color='#", "colored underline");
+                                        break;
 
-                            argmode_pos = opt_clr.find('B');
-                            append_argmode("bgcolor='#", "bgcolor");
+                                    case 'B':
+                                        argmode_pos = i;
+                                        i += append_argmode("bgcolor='#", "bgcolor");
+                                        break;
+                                }
+                            }
+
+                            if (!bgcolor)
+                                tagfmt += "fgcolor='" + str_clr.substr(pos) + "' ";
 
                             tagfmt.pop_back();
                             output.replace(dollarSignIndex, output.length() - dollarSignIndex,
@@ -572,22 +589,47 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                             fmt::text_style style;
 
-                            if (opt_clr.find('b') != std::string::npos)
-                                append_styles(style, fmt::bg(hexStringToColor(str_clr.substr(pos))));
-                            else
+                            const auto& skip_gui_argmode = [&](size_t index) -> size_t
+                            {
+                                if (opt_clr.at(index + 1) == '(')
+                                {
+                                    const size_t closebrak = opt_clr.find(')', index);
+                                    if (closebrak == std::string::npos)
+                                        return 0;
+
+                                    return closebrak;
+                                }
+                                return 0;
+                            };
+
+                            bool bgcolor = false;
+                            for (uint i = 0; i < opt_clr.length(); ++i)
+                            {
+                                switch (opt_clr.at(i))
+                                {
+                                    case 'b':
+                                        bgcolor = true;
+                                        append_styles(style, fmt::bg(hexStringToColor(str_clr.substr(pos))));
+                                        break;
+                                    case '!':
+                                        append_styles(style, fmt::emphasis::bold); break;
+                                    case 'u':
+                                        append_styles(style, fmt::emphasis::underline); break;
+                                    case 'i':
+                                        append_styles(style, fmt::emphasis::italic); break;
+                                    case 'l':
+                                        append_styles(style, fmt::emphasis::blink); break;
+
+                                    case 'a':
+                                    case 'B':
+                                    case 'L':
+                                    case 'U':
+                                        i += skip_gui_argmode(i); 
+                                }
+                            }
+
+                            if (!bgcolor)
                                 append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
-
-                            if (opt_clr.find('!') != std::string::npos)
-                                append_styles(style, fmt::emphasis::bold);
-
-                            if (opt_clr.find('u') != std::string::npos)
-                                append_styles(style, fmt::emphasis::underline);
-
-                            if (opt_clr.find('i') != std::string::npos)
-                                append_styles(style, fmt::emphasis::italic);
-
-                            if (opt_clr.find('l') != std::string::npos)
-                                append_styles(style, fmt::emphasis::blink);
 
                             formatted_replacement_string = fmt::format(style, "{}", output.substr(endBracketIndex + 1));
                         }
