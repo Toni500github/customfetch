@@ -99,6 +99,9 @@ cufetch
 
 ## Config (with explanation)
 
+Read the manual `cufetch.1` or the comments in the default generated config for knowing more about the configuration in customfetch.\
+This is only a brief explaination and preview.
+
 Here's an example using my config
 
 ![image](screenshot.png)
