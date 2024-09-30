@@ -92,19 +92,19 @@ static std::string get_de_version(const std::string_view de_name)
 
         case "gnome"_fnv1a16:
         case "gnome-shell"_fnv1a16:
-            {
-                std::string ret;
-                read_exec({ "gnome-shell", "--version" }, ret);
-                ret.erase(0, ret.rfind(' '));
-                return ret;
-            }
+        {
+            std::string ret;
+            read_exec({ "gnome-shell", "--version" }, ret);
+            ret.erase(0, ret.rfind(' '));
+            return ret;
+        }
         default:
-            {
-                std::string ret;
-                read_exec({ de_name.data(), "--version" }, ret);
-                ret.erase(0, ret.rfind(' '));
-                return ret;
-            }
+        {
+            std::string ret;
+            read_exec({ de_name.data(), "--version" }, ret);
+            ret.erase(0, ret.rfind(' '));
+            return ret;
+        }
     }
 }
 
@@ -138,33 +138,6 @@ static std::string get_wm_wayland_name()
 #endif
 }
 
-/*static std::string get_wm_x11_name() {
-#if __has_include(<sys/socket.h>) && __has_include(<X11/Xlib.h>)
-    LOAD_LIBRARY("libX11.so", return MAGIC_LINE;)
-    dlerror();
-    LOAD_LIB_SYMBOL(Display *, XOpenDisplay, char*)
-    LOAD_LIB_SYMBOL(int, XCloseDisplay, Display *)
-
-    Display *display = XOpenDisplay(NULL);
-    if (display == NULL)
-        return MAGIC_LINE;
-
-    debug("Connection x11 = {}", ConnectionNumber(display));
-    std::string ret = MAGIC_LINE;
-
-    struct ucred ucred;
-    socklen_t len = sizeof(struct ucred);
-    if (getsockopt(ConnectionNumber(display), SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1)
-        return UNKNOWN;
-
-    std::ifstream f(fmt::format("/proc/{}/comm", ucred.pid), std::ios::in);
-    f >> ret;
-    XCloseDisplay(display);
-
-    return ret;
-#endif
-}*/
-
 static std::string get_shell_version(const std::string_view shell_name)
 {
     std::string ret;
@@ -186,7 +159,7 @@ static std::string get_shell_name(const std::string_view shell_path)
 static std::string get_term_name(std::string& term_ver)
 {
     // cufetch -> shell -> terminal
-    pid_t         ppid = getppid();
+    const pid_t   ppid = getppid();
     std::ifstream ppid_f(fmt::format("/proc/{}/status", ppid), std::ios::in);
     std::string   line, term_pid;
     while (std::getline(ppid_f, line))
@@ -212,11 +185,10 @@ static std::string get_term_name(std::string& term_ver)
     // I hope this is not super stupid
     else if (hasStart(term_name, "gnome"))
     {
-        size_t pos = term_name.rfind('l');
-        if (pos != std::string::npos)
-            term_name.erase(pos+1);
-        else if ((pos = term_name.rfind('e')) != std::string::npos)
-            term_name.erase(pos+1);
+        if (hasStart(term_name, "gnome-console"))
+            term_name.erase("gnome-console"_len + 1);
+        else if (hasStart(term_name, "gnome-terminal"))
+            term_name.erase("gnome-terminal"_len + 1);
     }
     
     // let's try to get the real terminal name
@@ -225,7 +197,7 @@ static std::string get_term_name(std::string& term_ver)
     // hope now NixOS users will know the terminal they got, along the version if possible
     else if (hasEnding(term_name, "wrapped"))
     {
-        // /nix/store/random_stuff-gnome-console-0.31.0/bin/.kgx-wrapped
+        // /nix/store/sha256string-gnome-console-0.31.0/bin/.kgx-wrapped
         char        buf[PATH_MAX];
         std::string tmp_name = realpath(("/proc/" + term_pid + "/exe").c_str(), buf);
         
@@ -262,12 +234,12 @@ static std::string get_term_version(std::string_view term_name)
     switch (fnv1a16::hash(str_tolower(term_name.data())))
     {
         case "st"_fnv1a16:
-            if (detect_st_ver(ret))
+            if (fast_detect_st_ver(ret))
                 remove_term_name = false;
             break;
         
         case "konsole"_fnv1a16:
-            if (detect_konsole_ver(ret))
+            if (fast_detect_konsole_ver(ret))
                 remove_term_name = false;
             break;
         
@@ -286,7 +258,10 @@ static std::string get_term_version(std::string_view term_name)
 
     if (hasStart(ret, "# GNOME"))
     {
-        ret.erase(0, "# GNOME Terminal "_len);
+        if (hasStart(ret, "# GNOME Console "))
+            ret.erase(0, "# GNOME Console"_len);
+        else if (hasStart(ret, "# GNOME Terminal "))
+            ret.erase(0, "# GNOME Terminal "_len);
         debug("gnome ret = {}", ret);
         remove_term_name = false;
     }
@@ -313,7 +288,7 @@ User::User() noexcept
 {
     if (!m_bInit)
     {
-        uid_t uid = getuid();
+        const uid_t uid = getuid();
 
         if (m_pPwd = getpwuid(uid), !m_pPwd)
             die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
@@ -473,9 +448,7 @@ std::string& User::term_version(const std::string_view term_name)
             goto done;
         }
         else if (m_users_infos.term_version != MAGIC_LINE)
-        {
             goto done;
-        }
 
         m_users_infos.term_version = get_term_version(term_name);
     done:

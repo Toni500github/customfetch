@@ -11,7 +11,7 @@ void get_term_version_exec(const std::string_view term, std::string& ret, bool _
     read_exec({ term.data(), _short ? "-v" : "--version" }, ret, _stderr);
 }
 
-bool detect_st_ver(std::string& ret)
+bool fast_detect_st_ver(std::string& ret)
 {
     std::string   line;
     std::ifstream f(which("st"), std::ios::binary);
@@ -32,7 +32,8 @@ bool detect_st_ver(std::string& ret)
     return false;
 }
 
-bool detect_konsole_ver(std::string& ret)
+// https://github.com/fastfetch-cli/fastfetch/blob/dev/src/detection/terminalshell/terminalshell.c#L345
+bool fast_detect_konsole_ver(std::string& ret)
 {
     const char* env = std::getenv("KONSOLE_VERSION");
     if (env)
