@@ -84,9 +84,27 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     // clang-format on
 }
 
+static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
+{
+    if (std::count(noesc_str.begin(), noesc_str.end(), ';') < 4)
+        die("ANSI escape code color '\\e[{}' should have an rgb type value\n"
+            "e.g \\e[38;2;r;g;b", noesc_str);
+
+    const std::vector<std::string>& rgb_str = split(noesc_str.substr(5), ';');
+
+    const uint r = std::stoul(rgb_str.at(0));
+    const uint g = std::stoul(rgb_str.at(1));
+    const uint b = std::stoul(rgb_str.at(2));
+
+    const uint result = (r<<16) | (g<<8)| (b);
+    std::stringstream ss;
+    ss << std::hex << result;
+    return ss.str();
+}
+
 static std::string get_and_color_percentage(const float& n1, const float& n2, systemInfo_t& systemInfo,
                                             const Config& config, const colors_t& colors, const bool parsingLayout,
-                                            bool invert = false)
+                                            const bool invert = false)
 {
     const float result = static_cast<float>(n1 / n2 * static_cast<float>(100));
 
@@ -112,14 +130,6 @@ static std::string get_and_color_percentage(const float& n1, const float& n2, sy
 
     std::string _;
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), systemInfo, _, config, colors, parsingLayout);
-}
-
-static const std::string& check_gui_ansi_clr(const std::string& str)
-{
-    if (hasStart(str, "\033") || hasStart(str, "\\e"))
-        die("GUI colors can't be in ANSI escape sequence");
-
-    return str;
 }
 
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
@@ -148,7 +158,7 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
                   const colors_t& colors, const bool parsingLayout)
 {
-    std::string output = input.data();
+    std::string output{input.data()};
     pureOutput         = output;
 
     size_t dollarSignIndex    = 0;
@@ -374,7 +384,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             }
             break;
 
-            case '}':  // please pay very attention when reading this unreadable and godawful code
+            case '}':  // please pay very attention when reading this really long code
 
                 // if at end there a '$', it will make the end output "$</span>" and so it will confuse
                 // addValueFromModule() and so let's make it "$ </span>". this is geniunenly stupid
@@ -438,14 +448,14 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     {
                         switch (fnv1a16::hash(command))
                         {
-                            case "black"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_black); break;
-                            case "red"_fnv1a16:     str_clr = check_gui_ansi_clr(colors.gui_red); break;
-                            case "blue"_fnv1a16:    str_clr = check_gui_ansi_clr(colors.gui_blue); break;
-                            case "green"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_green); break;
-                            case "cyan"_fnv1a16:    str_clr = check_gui_ansi_clr(colors.gui_cyan); break;
-                            case "yellow"_fnv1a16:  str_clr = check_gui_ansi_clr(colors.gui_yellow); break;
-                            case "magenta"_fnv1a16: str_clr = check_gui_ansi_clr(colors.gui_magenta); break;
-                            case "white"_fnv1a16:   str_clr = check_gui_ansi_clr(colors.gui_white); break;
+                            case "black"_fnv1a16:   str_clr = colors.gui_black; break;
+                            case "red"_fnv1a16:     str_clr = colors.gui_red; break;
+                            case "blue"_fnv1a16:    str_clr = colors.gui_blue; break;
+                            case "green"_fnv1a16:   str_clr = colors.gui_green; break;
+                            case "cyan"_fnv1a16:    str_clr = colors.gui_cyan; break;
+                            case "yellow"_fnv1a16:  str_clr = colors.gui_yellow; break;
+                            case "magenta"_fnv1a16: str_clr = colors.gui_magenta; break;
+                            case "white"_fnv1a16:   str_clr = colors.gui_white; break;
                             default:                str_clr = command; break;
                         }
 
@@ -506,15 +516,26 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         // "\\e" is for checking in the ascii_art, \033 in the config
                         else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
                         {
-                            const std::array<std::string, 3>& clrs = get_ansi_color(
-                                (hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3)), colors);
+                            const std::string& noesc_str = hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
+                            debug("noesc_str = {}", noesc_str);
 
-                            const std::string_view color  = clrs.at(0);
-                            const std::string_view weight = clrs.at(1);
-                            const std::string_view type   = clrs.at(2);
-                            output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                           fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color, weight,
-                                                       output.substr(endBracketIndex + 1)));
+                            if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
+                            {
+                                const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
+                                output.replace(dollarSignIndex, output.length() - dollarSignIndex,
+                                               fmt::format("<span {}gcolor='#{}'>{}</span>", hasStart(noesc_str, "38") ? 'f' : 'b', hexclr,
+                                                            output.substr(endBracketIndex + 1)));
+                            }
+                            else
+                            {
+                                const std::array<std::string, 3>& clrs = get_ansi_color(noesc_str, colors);
+                                const std::string_view color           = clrs.at(0);
+                                const std::string_view weight          = clrs.at(1);
+                                const std::string_view type            = clrs.at(2);
+                                output.replace(dollarSignIndex, output.length() - dollarSignIndex,
+                                               fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color, weight,
+                                                           output.substr(endBracketIndex + 1)));
+                            }
                         }
 
                         else

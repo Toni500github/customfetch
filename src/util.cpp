@@ -229,18 +229,13 @@ std::string shorten_vendor_name(std::string vendor)
 
 fmt::rgb hexStringToColor(const std::string_view hexstr)
 {
-    // convert the hexadecimal string to individual components
     std::stringstream ss;
     ss << std::hex << hexstr.substr(1).data();
 
-    uint intValue;
-    ss >> intValue;
+    uint value;
+    ss >> value;
 
-    const uint red   = (intValue >> 16) & 0xFF;
-    const uint green = (intValue >> 8) & 0xFF;
-    const uint blue  = intValue & 0xFF;
-
-    return fmt::rgb(red, green, blue);
+    return fmt::rgb(value);
 }
 
 bool read_binary_file(std::ifstream& f, std::string& ret)
@@ -270,7 +265,7 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
     return false;
 }
 
-std::string which(const std::string& command)
+std::string which(const std::string_view command)
 {
     const std::string_view env = std::getenv("PATH");
     struct stat sb;
@@ -282,7 +277,7 @@ std::string which(const std::string& command)
         // -300ns for not creating a string. stonks
         fullPath += dir;
         fullPath += '/';
-        fullPath += command;
+        fullPath += command.data();
         if ((stat(fullPath.data(), &sb) == 0) && sb.st_mode & S_IXUSR)
             return fullPath.data();
 

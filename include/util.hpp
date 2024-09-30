@@ -63,7 +63,7 @@ bool         is_file_image(const unsigned char* bytes);
 void         ctrl_d_handler(const std::istream& cin);
 std::string  expandVar(std::string ret);
 bool         taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_print = true);
-std::string  which(const std::string& command);
+std::string  which(const std::string_view command);
 bool         read_binary_file(std::ifstream& f, std::string& ret);
 void         replace_str(std::string& str, const std::string_view from, const std::string_view to);
 bool         read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr = false, bool noerror_print = true);
