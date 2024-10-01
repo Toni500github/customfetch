@@ -173,16 +173,21 @@ They can be used in the ascii art text file and layout, but how to use them?
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`u` - to  underline the text\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`!` - for making the text bold\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`i` - for making the text italic\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`s` - for strikethrough text\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**GUI Only**\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`o` - for overline\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`a(value)` - for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`L(value)` - to  underline the text with a style (`none`, `single`, `double`, `low`, `error`)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`U(value)` - for choosing the underline color (hexcode without #)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`B(value)` - for bg color text (hexcode without #)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`S(value)` - for choosing strikethrough color (same value as above)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`O(value)` - for choosing overline color (same value as above)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`A(value)` - for bg alpha (same value as for fg alpha a(value))\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`w(value)` - for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Terminal Only**\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`l` - for blinking text\
  \
- Alternatively, ANSI escape codes can be used, e.g `\\e[1;31m` and `\\e[38;5;160m`.\
+ Alternatively, ANSI escape codes can be used, e.g `\\e[1;31m` and `\\e[38;2;160;223;11m`.\
  For auto coloring, depending on the ascii logo colors, use `${auto}`.\
  They can be used for different colors too. So for getting the 2nd color of the ascii logo,\
  use `${auto2}`, for the 4th one use `${auto4}` and so on.
