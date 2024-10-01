@@ -103,6 +103,14 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
     return ss.str();
 }
 
+/*
+static std::string convert_hex_ansi_escape(const std::string_view hexstr, const bool bg = false)
+{
+    fmt::rgb rgb(hexStringToColor(hexstr));
+    fmt::detail::ansi_color_escape<char> ansi(rgb, bg ? "\x1b[48;2;" : "\x1b[38;2;");
+    return ansi.begin();
+}
+*/
 static std::string get_and_color_percentage(const float& n1, const float& n2, systemInfo_t& systemInfo,
                                             const Config& config, const colors_t& colors, const bool parsingLayout,
                                             const bool invert = false)
@@ -385,7 +393,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             }
             break;
 
-            case '}':  // please pay very attention when reading this really long code
+            case '}':  // please pay close attention when reading this really long code
 
                 // if at end there a '$', it will make the end output "$</span>" and so it will confuse
                 // addValueFromModule() and so let's make it "$ </span>". this is geniunenly stupid
@@ -500,10 +508,17 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                         tagfmt += "style='italic' "; break;
                                     case 'o':
                                         tagfmt += "overline='single' "; break;
-                                    
+                                    case 's':
+                                        tagfmt += "strikethrough='true' "; break;
+
                                     case 'a':
                                         argmode_pos = i;
                                         i += append_argmode("fgalpha='", "fgalpha");
+                                        break;
+
+                                    case 'A':
+                                        argmode_pos = i;
+                                        i += append_argmode("bgalpha='", "bgalpha");
                                         break;
 
                                     case 'L':
@@ -519,6 +534,21 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                     case 'B':
                                         argmode_pos = i;
                                         i += append_argmode("bgcolor='#", "bgcolor");
+                                        break;
+
+                                    case 'w':
+                                        argmode_pos = i;
+                                        i += append_argmode("weight='", "font weight style");
+                                        break;
+
+                                    case 'O':
+                                        argmode_pos = i;
+                                        i += append_argmode("overline_color='#", "overline color");
+                                        break;
+
+                                    case 'S':
+                                        argmode_pos = i;
+                                        i += append_argmode("strikethrough_color='#", "color of strikethrough line");
                                         break;
                                 }
                             }
@@ -564,7 +594,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                         firstrun_noclr = false;
                     }
-
+                    // if (!config.gui)
                     else
                     {
                         switch (fnv1a16::hash(command))
@@ -589,7 +619,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                             fmt::text_style style;
 
-                            const auto& skip_gui_argmode = [&](size_t index) -> size_t
+                            const auto& skip_gui_argmode = [&opt_clr](const size_t index) -> size_t
                             {
                                 if (opt_clr.at(index + 1) == '(')
                                 {
@@ -619,12 +649,18 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                         append_styles(style, fmt::emphasis::italic); break;
                                     case 'l':
                                         append_styles(style, fmt::emphasis::blink); break;
+                                    case 's':
+                                        append_styles(style, fmt::emphasis::strikethrough); break;
 
-                                    case 'a':
-                                    case 'B':
-                                    case 'L':
                                     case 'U':
-                                        i += skip_gui_argmode(i); 
+                                    case 'B':
+                                    case 'S':
+                                    case 'a':
+                                    case 'w':
+                                    case 'O':
+                                    case 'A':
+                                    case 'L':
+                                        i += skip_gui_argmode(i); break;
                                 }
                             }
 

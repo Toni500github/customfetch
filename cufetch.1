@@ -43,14 +43,17 @@ layout = [
   The colors can be predefined such as: \fIblack\fR, \fIred\fR, \fIgreen\fR, \fIblue\fR, \fIcyan\fR, \fIyellow\fR, \fImagenta\fR, \fIwhite\fR and they can be configured in the config file.
   They can have hexcodes colors (e.g "#5522dd").
   You can apply special effects to colors by using the following symbols before the '#' in hex codes:
-      \fBTerminal and GUI\fR                   \fBGUI Only\fR
-  * \fBb\fR  for background color.     * \fBo\fR        for overline
-  * \fBu\fR  to  underline the text    * \fBa(value)\fR for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
-  * \fB!\fR  for bold text             * \fBL(value)\fR to  underline with a style (`none`, `single`, `double`, `low`, `error`)
-  * \fBi\fR  for italic text           * \fBU(value)\fR for choosing the underline color (hexcode without #)
-                                 * \fBB(value)\fR for bg color text (hexcode without #)
-      \fBTerminal Only\fR
- *  \fBl\fR  for blinking text
+
+      \fBTerminal and GUI\fR                    \fBGUI Only\fR
+  * \fBb\fR  for background color.     	* \fBo\fR        for overline
+  * \fBu\fR  to  underline the text    	* \fBa(value)\fR for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
+  * \fB!\fR  for bold text             	* \fBL(value)\fR to  underline with a style (`none`, `single`, `double`, `low`, `error`)
+  * \fBi\fR  for italic text           	* \fBU(value)\fR for choosing the underline color (hexcode without #)
+                                     * \fBB(value)\fR for bg color text (hexcode without #)
+       \fBTerminal Only\fR                 * \fBS(value)\fR for strikethrough color (same value as above)
+  * \fBl\fR  for blinking text             * \fBO(value)\fR for overline color (same value as above)
+                                     * \fBA(value)\fR for bg alpha (same value as a(value))
+                                     * \fBw(value)\fR for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
 .fi
 .PP
   Alternatively, ANSI escape codes can be used, e.g "\\e[1;31m" and "\\e[38;5;160m".
