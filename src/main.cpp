@@ -5,6 +5,7 @@
 
 #include "config.hpp"
 #include "display.hpp"
+#include "fmt/compile.h"
 #include "gui.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -18,10 +19,14 @@
      : (optarg != NULL))
 
 using namespace std::string_view_literals;
+using namespace fmt::literals;
 
 static void version()
 {
-    fmt::println("customfetch {} branch {}", VERSION, BRANCH);
+    // {fmt} lib doesn't like fmt::println()
+    // why? I know that "just put the newline \n and shut up" (nobody said it)
+    // but would be nice :)
+    fmt::print("customfetch {} branch {}\n"_cf, VERSION, BRANCH);
 
 #ifdef GUI_MODE
     fmt::println("GUI mode enabled");
@@ -120,9 +125,9 @@ user
   shell_version : login shell version (may be not correct) [5.9]
   de_name	: Desktop Enviroment current session name [Plasma]
   wm_name	: Windows manager current session name [dwm, xfwm4]
-  term		: Terminal name and version [alacritty 0.13.2]
-  term_name	: Terminal name [alacritty]
-  term_version	: Terminal version [0.13.2]
+  terminal	: Terminal name and version [alacritty 0.13.2]
+  terminal_name	: Terminal name [alacritty]
+  terminal_version: Terminal version [0.13.2]
 
 builtin
   title     	: user and hostname colored with ${{auto2}} [toni@arch2]
@@ -136,7 +141,7 @@ builtin
 # such as indeed cursor
 # because it is not GTK-Qt specific
 theme
-  cursor	: cursor name [Bibata-Modern-Ice]
+  cursor_name	: cursor name [Bibata-Modern-Ice]
   cursor_size	: cursor size [16]
 
 # the N stands for the gtk version number to query
@@ -232,8 +237,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
     int option_index = 0;
     opterr = 0;
     const char *optstring = "-C:";
-    static const struct option opts[] =
-    {
+    static const struct option opts[] = {
         {"config", required_argument, 0, 'C'},
         {0,0,0,0}
     };

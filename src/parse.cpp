@@ -1026,14 +1026,14 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     SYSINFO_INSERT(query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()));
                     break;
 
-                case "term"_fnv1a16:
+                case "terminal"_fnv1a16:
                     SYSINFO_INSERT(prettify_term_name(query_user.term_name()) + ' ' +
                                    query_user.term_version(query_user.term_name()));
                     break;
 
-                case "term_name"_fnv1a16: SYSINFO_INSERT(prettify_term_name(query_user.term_name())); break;
+                case "terminal_name"_fnv1a16: SYSINFO_INSERT(prettify_term_name(query_user.term_name())); break;
 
-                case "term_version"_fnv1a16: SYSINFO_INSERT(query_user.term_version(query_user.term_name())); break;
+                case "terminal_version"_fnv1a16: SYSINFO_INSERT(query_user.term_version(query_user.term_name())); break;
             }
         }
     }
@@ -1049,7 +1049,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
         {
             switch (moduleMember_hash)
             {
-                case "cursor"_fnv1a16:      SYSINFO_INSERT(query_theme.cursor()); break;
+                case "cursor_name"_fnv1a16:      SYSINFO_INSERT(query_theme.cursor()); break;
                 case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_theme.cursor_size()); break;
             }
         }
