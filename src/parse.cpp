@@ -36,6 +36,10 @@ bool Query::CPU::m_bInit             = false;
 bool Query::User::m_bInit            = false;
 bool Query::User::m_bDont_query_dewm = false;
 
+// useless useful tmp string for parse() without using the original
+// pureOutput
+std::string _;
+
 static std::array<std::string, 3> get_ansi_color(const std::string_view str, const colors_t& colors)
 {
     if (hasStart(str, "38") || hasStart(str, "48"))
@@ -121,11 +125,6 @@ static std::string parse(const std::string_view input, std::string& _, parse_arg
     return parse(input, parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
 }
 
-static std::string parse(const std::string_view input, parse_args_t& parse_args)
-{
-    return parse(input, parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout);
-}
-
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
                                             const bool invert = false)
 {
@@ -152,8 +151,7 @@ static std::string get_and_color_percentage(const float& n1, const float& n2, pa
             color = "${" + config.percentage_colors.at(0) + "}";
     }
 
-    std::string _;
-    return parse(fmt::format("{}{:.2f}%${{0}}", color, result), parse_args);
+    return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
@@ -364,7 +362,6 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
                 const bool invert = (command.front() == '!');
 
-                std::string  _;
                 const float n1 = std::stof(parse(command.substr(invert ? 1 : 0, comma_pos), _, parse_args));
                 const float n2 = std::stof(parse(command.substr(comma_pos + 1), _, parse_args));
 
@@ -392,7 +389,6 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 const std::string& true_statment  = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
                 const std::string& false_statment = command.substr(true_comma + 1);
 
-                std::string _;
                 const std::string& parsed_conditional = parse(conditional, _, parse_args);
                 const std::string& parsed_equalto     = parse(equalto, _, parse_args);
 
@@ -911,8 +907,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
             switch (moduleMember_hash)
             {
                 case "host"_fnv1a16:
-                    SYSINFO_INSERT(fmt::format("{} {} {}", query_system.host_vendor(), query_system.host_modelname(),
-                                               query_system.host_version()));
+                    SYSINFO_INSERT(std::string_view(query_system.host_vendor() + ' ' + query_system.host_modelname() + ' ' +
+                                               query_system.host_version()).data());
                     break;
 
                 case "host_name"_fnv1a16: SYSINFO_INSERT(query_system.host_modelname()); break;
@@ -933,7 +929,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            std::string _;
             switch (moduleMember_hash)
             {
                 case "title"_fnv1a16:
@@ -945,7 +940,7 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     // no need to parse anything
                     Query::User   query_user;
                     Query::System query_system;
-                    const size_t& title_len = std::string_view(query_user.name() + ' ' + query_system.hostname()).length();
+                    const size_t& title_len = std::string_view(query_user.name() + '@' + query_system.hostname()).length();
 
                     std::string str;
                     str.reserve(config.builtin_title_sep.length() * title_len);
@@ -1068,7 +1063,7 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
         {
             switch (moduleMember_hash)
             {
-                case "cursor_name"_fnv1a16:      SYSINFO_INSERT(query_theme.cursor()); break;
+                case "cursor_name"_fnv1a16: SYSINFO_INSERT(query_theme.cursor()); break;
                 case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_theme.cursor_size()); break;
             }
         }
@@ -1214,12 +1209,11 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     const std::string& perc = get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), 
                                                                         parse_args);
 
-                    std::string _;
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {} - {}", 
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                                byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
                                                parse("${0}(" + perc + ")", _, parse_args),
-						query_disk.typefs()));
+				                query_disk.typefs()));
                 } break;
                     // clang-format on
 
@@ -1291,7 +1285,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                         const std::string& perc = get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(), 
                                                                            parse_args);
                         
-                        std::string _;
                         SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
                                                     byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                                     byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
@@ -1364,7 +1357,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     const std::string& perc = get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(),
                                                                         parse_args);
                     
-                    std::string _;
                     // clang-format off
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
