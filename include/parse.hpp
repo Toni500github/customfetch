@@ -4,6 +4,19 @@
 #include "config.hpp"
 #include "query.hpp"
 
+/* the additional args that parse() needs for getting the necessary infos/configs.
+ * only used for making the argument passing more clear.
+ * Always pass it non-const and by reference
+ */
+struct parse_args_t
+{
+    systemInfo_t&   systemInfo;
+    std::string&    pureOutput;
+    const Config&   config;
+    const colors_t& colors;
+    const bool&     parsingLayout;
+};
+
 /* Parse input, in-place, with data from systemInfo.
  * Documentation on formatting is in the default config.toml file or the cufetch.1 manual.
  * @param input The string to parse
@@ -27,8 +40,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
  * @param colors The colors
  * @param parsingLayout If we are parsing the layout or not (default true)
  */
-void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleMemberName,
-                        const Config& config, const colors_t& colors, bool parsingLayout = true);
+void addValueFromModule(const std::string& moduleName, const std::string& moduleMemberName,
+                        parse_args_t& parse_args);
 
 /*
  * Return a module member value
@@ -42,5 +55,6 @@ void append_styles(fmt::text_style& current_style, Styles&&... styles)
 {
     current_style = current_style | (styles | ...);
 }
+
 
 #endif

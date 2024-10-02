@@ -41,7 +41,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     if (hasStart(str, "38") || hasStart(str, "48"))
         die("Can't convert \\e[38; or \\e[48; codes in GUI. Please use #hexcode colors instead.");
 
-    const size_t first_m = str.find('m');
+    const size_t first_m = str.rfind('m');
     if (first_m == std::string::npos)
         die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
 
@@ -89,7 +89,9 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 {
     if (std::count(noesc_str.begin(), noesc_str.end(), ';') < 4)
         die("ANSI escape code color '\\e[{}' should have an rgb type value\n"
-            "e.g \\e[38;2;r;g;b", noesc_str);
+            "e.g \\e[38;2;255;255;255m", noesc_str);
+    if (noesc_str.rfind('m') == std::string::npos)
+        die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
 
     const std::vector<std::string>& rgb_str = split(noesc_str.substr(5), ';');
 
@@ -103,18 +105,31 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
     return ss.str();
 }
 
-/*
+#if 0
 static std::string convert_hex_ansi_escape(const std::string_view hexstr, const bool bg = false)
 {
     fmt::rgb rgb(hexStringToColor(hexstr));
     fmt::detail::ansi_color_escape<char> ansi(rgb, bg ? "\x1b[48;2;" : "\x1b[38;2;");
     return ansi.begin();
 }
-*/
-static std::string get_and_color_percentage(const float& n1, const float& n2, systemInfo_t& systemInfo,
-                                            const Config& config, const colors_t& colors, const bool parsingLayout,
+#endif
+
+// some times we don't want to use the original pureOutput,
+// so we have to create a tmp string just for the sake of the function arguments
+static std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
+{
+    return parse(input, parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+}
+
+static std::string parse(const std::string_view input, parse_args_t& parse_args)
+{
+    return parse(input, parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+}
+
+static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
                                             const bool invert = false)
 {
+    const Config& config = parse_args.config;
     const float result = static_cast<float>(n1 / n2 * static_cast<float>(100));
 
     std::string color;
@@ -138,7 +153,7 @@ static std::string get_and_color_percentage(const float& n1, const float& n2, sy
     }
 
     std::string _;
-    return parse(fmt::format("{}{:.2f}%${{0}}", color, result), systemInfo, _, config, colors, parsingLayout);
+    return parse(fmt::format("{}{:.2f}%${{0}}", color, result), parse_args);
 }
 
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
@@ -182,6 +197,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     bool firstrun_noclr = true;
 
     static std::vector<std::string> auto_colors;
+    parse_args_t parse_args(systemInfo, pureOutput, config, colors, parsingLayout);
 
     if (!config.sep_reset.empty() && parsingLayout)
     {
@@ -325,13 +341,13 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
             case '>':
             {
-                const size_t& dot_pos = command.find('.');
+                const size_t dot_pos = command.find('.');
                 if (dot_pos == std::string::npos)
                     die("module name '{}' doesn't have a dot '.' for separiting module name and value", command);
 
                 const std::string& moduleName       = command.substr(0, dot_pos);
                 const std::string& moduleMemberName = command.substr(dot_pos + 1);
-                addValueFromModule(systemInfo, moduleName, moduleMemberName, config, colors, parsingLayout);
+                addValueFromModule(moduleName, moduleMemberName, parse_args);
 
                 output.replace(dollarSignIndex, taglen, getInfoFromName(systemInfo, moduleName, moduleMemberName));
 
@@ -349,11 +365,11 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 const bool invert = (command.front() == '!');
 
                 std::string  _;
-                const float& n1 = std::stof(parse(command.substr(invert ? 1 : 0, comma_pos),  systemInfo, _, config, colors, parsingLayout));
-                const float& n2 = std::stof(parse(command.substr(comma_pos + 1), systemInfo, _, config, colors, parsingLayout));
+                const float n1 = std::stof(parse(command.substr(invert ? 1 : 0, comma_pos), _, parse_args));
+                const float n2 = std::stof(parse(command.substr(comma_pos + 1), _, parse_args));
 
                 output.replace(dollarSignIndex, taglen,
-                               get_and_color_percentage(n1, n2, systemInfo, config, colors, parsingLayout, invert));
+                               get_and_color_percentage(n1, n2, parse_args, invert));
             }
             break;
 
@@ -377,17 +393,17 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 const std::string& false_statment = command.substr(true_comma + 1);
 
                 std::string _;
-                const std::string& parsed_conditional = parse(conditional, systemInfo, _, config, colors, parsingLayout);
-                const std::string& parsed_equalto     = parse(equalto, systemInfo, _, config, colors, parsingLayout);
+                const std::string& parsed_conditional = parse(conditional, _, parse_args);
+                const std::string& parsed_equalto     = parse(equalto, _, parse_args);
 
                 if (parsed_conditional == parsed_equalto)
                 {
-                    const std::string& parsed_true_stam = parse(true_statment, systemInfo, _, config, colors, parsingLayout);
+                    const std::string& parsed_true_stam = parse(true_statment, _, parse_args);
                     output.replace(dollarSignIndex, taglen, parsed_true_stam);
                 }
                 else
                 {
-                    const std::string& parsed_false_stam = parse(false_statment, systemInfo, _, config, colors, parsingLayout);
+                    const std::string& parsed_false_stam = parse(false_statment, _, parse_args);
                     output.replace(dollarSignIndex, taglen, parsed_false_stam);
                 }
             }
@@ -813,10 +829,13 @@ static std::string prettify_de_name(const std::string_view de_name)
     return de_name.data();
 }
 
-void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, const std::string& moduleMemberName,
-                        const Config& config, const colors_t& colors, bool parsingLayout)
+void addValueFromModule(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args)
 {
 #define SYSINFO_INSERT(x) sysInfo.at(moduleName).insert({ moduleMemberName, variant(x) })
+
+    // just aliases for convention
+    const Config& config  = parse_args.config;
+    systemInfo_t& sysInfo = parse_args.systemInfo;
 
     const  auto&                         moduleMember_hash = fnv1a16::hash(moduleMemberName);
     static std::vector<std::uint16_t>    queried_gpus;
@@ -918,15 +937,15 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
             switch (moduleMember_hash)
             {
                 case "title"_fnv1a16:
-                    SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", sysInfo, _, config, colors,
-                                         parsingLayout));
+                    SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", _, parse_args));
                     break;
 
                 case "title_sep"_fnv1a16:
                 {
+                    // no need to parse anything
                     Query::User   query_user;
                     Query::System query_system;
-                    const size_t& title_len = fmt::format("{}@{}", query_user.name(), query_system.hostname()).length();
+                    const size_t& title_len = std::string_view(query_user.name() + ' ' + query_system.hostname()).length();
 
                     std::string str;
                     str.reserve(config.builtin_title_sep.length() * title_len);
@@ -939,11 +958,11 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 // clang-format off
                 case "colors"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", sysInfo, _, config, colors, parsingLayout));
+                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", _, parse_args));
                     break;
 
                 case "colors_light"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", sysInfo, _, config, colors, parsingLayout));
+                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", _, parse_args));
                     break;
 
                 default:
@@ -963,7 +982,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                         SYSINFO_INSERT(
                             parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
-                                              symbol), sysInfo, _, config, colors, parsingLayout));
+                                              symbol), _, parse_args));
                     }
                     else if (hasStart(moduleMemberName, "colors_light_symbol"))
                     {
@@ -980,7 +999,7 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                         SYSINFO_INSERT(
                             parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
-                                              symbol), sysInfo, _, config, colors, parsingLayout));
+                                              symbol), _, parse_args));
                     }
             }
         }
@@ -1193,13 +1212,13 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "disk"_fnv1a16:
                 {
                     const std::string& perc = get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), 
-                                                                        sysInfo, config, colors, parsingLayout);
+                                                                        parse_args);
 
                     std::string _;
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {} - {}", 
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                                byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
-                                               parse("${0}(" + perc + ")", sysInfo, _, config, colors, parsingLayout),
+                                               parse("${0}(" + perc + ")", _, parse_args),
 						query_disk.typefs()));
                 } break;
                     // clang-format on
@@ -1218,12 +1237,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 case "free_perc"_fnv1a16:
                     SYSINFO_INSERT(get_and_color_percentage(query_disk.free_amount(), query_disk.total_amount(),
-                                                            sysInfo, config, colors, parsingLayout, true));
+                                                            parse_args, true));
                     break;
 
                 case "used_perc"_fnv1a16:
                     SYSINFO_INSERT(get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(),
-                                                            sysInfo, config, colors, parsingLayout));
+                                                            parse_args));
                     break;
 
                 case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1073741824); break;
@@ -1270,13 +1289,13 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     else
                     {
                         const std::string& perc = get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(), 
-                                                                           sysInfo, config, colors, parsingLayout);
+                                                                           parse_args);
                         
                         std::string _;
                         SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
                                                     byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                                     byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
-                                                    parse("${0}(" + perc + ")", sysInfo, _, config, colors, parsingLayout)));
+                                                    parse("${0}(" + perc + ")", _, parse_args)));
                     }
                     break;
                     // clang-format on
@@ -1295,12 +1314,12 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
 
                 case "free_perc"_fnv1a16:
                     SYSINFO_INSERT(get_and_color_percentage(query_ram.swap_free_amount(), query_ram.swap_total_amount(),
-                                                            sysInfo, config, colors, parsingLayout, true));
+                                                            parse_args, true));
                     break;
 
                 case "used_perc"_fnv1a16:
                     SYSINFO_INSERT(get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(),
-                                                            sysInfo, config, colors, parsingLayout));
+                                                            parse_args));
                     break;
 
                 case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1048576); break;
@@ -1343,14 +1362,14 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                 case "ram"_fnv1a16:
                 {
                     const std::string& perc = get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(),
-                                                                        sysInfo, config, colors, parsingLayout);
+                                                                        parse_args);
                     
                     std::string _;
                     // clang-format off
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                                byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
-                                               parse("${0}(" + perc + ")", sysInfo, _, config, colors, parsingLayout)));
+                                               parse("${0}(" + perc + ")", _, parse_args)));
                     break;
                     // clang-format on
                 }
@@ -1367,13 +1386,11 @@ void addValueFromModule(systemInfo_t& sysInfo, const std::string& moduleName, co
                     break;
 
                 case "free_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(query_ram.free_amount(), query_ram.total_amount(), sysInfo,
-                                                            config, colors, parsingLayout, true));
+                    SYSINFO_INSERT(get_and_color_percentage(query_ram.free_amount(), query_ram.total_amount(), parse_args, true));
                     break;
 
                 case "used_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), sysInfo,
-                                                            config, colors, parsingLayout));
+                    SYSINFO_INSERT(get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args));
                     break;
 
                 case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount() / 1048576); break;
