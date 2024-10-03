@@ -36,7 +36,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 {
     std::string              path{ Display::detect_distro(config) };
     systemInfo_t             systemInfo{};
-    std::vector<std::string> layout{ config.layout };
+    std::vector<std::string> layout{ config.m_args_layout.empty() ? config.layout : config.m_args_layout };
 
     int image_width, image_height, channels;
 

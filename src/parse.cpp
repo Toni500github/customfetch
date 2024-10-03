@@ -237,7 +237,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         if (dollarSignIndex == std::string::npos)
             break;
 
-        else if (dollarSignIndex <= oldDollarSignIndex && start)
+        else if (dollarSignIndex <= oldDollarSignIndex && start && !config.m_disable_colors)
         {
             dollarSignIndex = output.find('$', dollarSignIndex + 1);
             // oh nooo.. whatever
@@ -408,6 +408,14 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
             case '}':  // please pay close attention when reading this really long code
 
+                if (config.m_disable_colors)
+                {
+                    output.erase(dollarSignIndex, taglen);
+                    if (tagpos != std::string::npos)
+                        pureOutput.erase(tagpos, tagToReplace.length());
+                    break;
+                }
+
                 // if at end there a '$', it will make the end output "$</span>" and so it will confuse
                 // addValueFromModule() and so let's make it "$ </span>". this is geniunenly stupid
                 if (config.gui && output.back() == '$')
@@ -426,7 +434,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                             // I don't care, it does the work and well
                             if (command == *it_name)
                                 command = config.colors_value.at(it_value);
-                            goto jump;
+                            goto jumpauto;
                         }
 
                         if (command == *it_name)
@@ -446,7 +454,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     command = auto_colors.at(ver);
                 }
 
-            jump:
+            jumpauto:
                 if (command == "1")
                 {
                     if (firstrun_noclr)

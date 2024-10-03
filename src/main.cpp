@@ -44,8 +44,9 @@ static void help(bool invalid_opt = false)
     fmt::println(R"(
 A command-line system information tool (or neofetch like program), which its focus point is customizability and perfomance
 
-    -n, --no-display		Do not display the ascii art
-    -s, --source-path <path>	Path to the ascii art file to display
+    -n, --no-display		Do not display the logo
+    -N, --no-color              Do not output and parse colors. Useful for stdout or pipe operations
+    -s, --source-path <path>	Path to the ascii art or image file to display
     -C, --config <path>		Path to the config file to use
     -a, --ascii-logo-type [<name>]
                                 The type of ASCII art to apply ("small" or "old").
@@ -61,6 +62,10 @@ A command-line system information tool (or neofetch like program), which its foc
     -i, --image-backend	<name>	(EXPERIMENTAL) Image backend tool for displaying images in terminal.
                                 Right now only 'kitty' and 'viu' are supported
 				It's recommended to use GUI mode for the moment if something doesn't work
+
+    -m, --layout-line           Will replace the config layout, with a layout you specify in the arguments
+				Example: "cufetch -m "${{auto}}OS: $<os.name>" -m "${{auto}}CPU: $<cpu.cpu>" "
+				Will only print the logo (if not disabled), along side the parsed OS and CPU
 
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it was enabled)
     -o, --offset <num>          Offset between the ascii art and the layout
@@ -266,11 +271,12 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlga::f:o:C:i:d:D:s:";
+    const char *optstring = "-VhnNLlga::f:o:C:i:d:D:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
         {"no-display",       no_argument,       0, 'n'},
+        {"no-color",         no_argument,       0, 'N'},
         {"list-modules",     no_argument,       0, 'l'},
         {"logo-only",        no_argument,       0, 'L'},
         {"gui",              no_argument,       0, 'g'},
@@ -278,6 +284,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"offset",           required_argument, 0, 'o'},
         {"font",             required_argument, 0, 'f'},
         {"config",           required_argument, 0, 'C'},
+        {"layout-line",      required_argument, 0, 'm'},
         {"data-dir",         required_argument, 0, 'D'},
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
@@ -329,10 +336,14 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.data_dir = optarg; break;
             case 'd':
                 config.m_custom_distro = str_tolower(optarg); break;
+            case 'm':
+                config.m_args_layout.push_back(optarg); break;
             case 's':
                 config.source_path = optarg; break;
             case 'i':
                 config.m_image_backend = optarg; break;
+            case 'N':
+                config.m_disable_colors = true; break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
                     config.ascii_logo_type = optarg;

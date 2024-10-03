@@ -147,7 +147,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
                                          const std::string_view path)
 {
     systemInfo_t             systemInfo{};
-    std::vector<std::string> asciiArt{}, layout{ config.layout };
+    std::vector<std::string> asciiArt{}, layout{ config.m_args_layout.empty() ? config.layout : config.m_args_layout };
 
     debug("Display::render path = {}", path);
 
@@ -231,7 +231,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         std::string pureOutput;
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
-        asciiArt_s += config.gui ? "" : NOCOLOR;
+        if (!config.m_disable_colors)
+            asciiArt_s += config.gui ? "" : NOCOLOR;
 
         if (config.gui)
         {
@@ -306,15 +307,17 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         for (size_t j = 0; j < spaces; j++)
             layout.at(i).insert(origin, " ");
 
-        layout.at(i) += config.gui ? "" : NOCOLOR;
+        if (!config.m_disable_colors)
+            layout.at(i) += config.gui ? "" : NOCOLOR;
     }
 
     for (; i < asciiArt.size(); i++)
     {
         std::string line;
+        line.reserve(config.logo_padding_left + asciiArt.at(i).length());
 
         for (size_t j = 0; j < config.logo_padding_left; j++)
-            line += " ";
+            line += ' ';
 
         line += asciiArt.at(i);
 

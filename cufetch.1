@@ -96,7 +96,10 @@ To escape any $ or bracket, just use \\
 .SH OPTIONS
 .TP
 \fB\-n\fR, \fB\-\-no\-display\fR
-Do not display the ascii art
+Do not display the logo
+.TP
+\fB\-N\fR, \fB\-\-no\-color\fR
+Do not output and parse colors. Useful for stdout or pipe operations
 .TP
 \fB\-s\fR, \fB\-\-source\-path\fR <path>
 Path to the ascii art file to display
@@ -128,6 +131,13 @@ An example: "[Liberation Mono] [Normal] [12]", which can be "Liberation Mono Nor
 \fB\fI(EXPERIMENTAL)\fR Image backend tool for displaying images in terminal. Right now only kitty and viu are supported
 .br
 It's recommended to use GUI mode for the moment if something doesn't work
+.TP
+\fB\-m\fR, \fB\-\-layout\-line\fR
+Will replace the config layout, with a layout you specify in the arguments
+.br
+Example: "cufetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>" "
+.br
+Will only print the logo (if not disabled), along side the parsed OS and CPU
 .TP
 \fB\-g\fR, \fB\-\-gui\fR
 Use GUI mode instead of priting in the terminal (use \fB\-V\fR to check if it's enabled)

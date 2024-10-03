@@ -66,9 +66,11 @@ public:
     std::vector<std::string> apk_files;
 
     // inner management / argument configs
+    std::vector<std::string> m_args_layout;
     std::string m_custom_distro;
     std::string m_image_backend;
     bool        m_disable_source  = false;
+    bool        m_disable_colors  = false;
     bool        m_display_distro  = true;
     bool        m_print_logo_only = false;
 
