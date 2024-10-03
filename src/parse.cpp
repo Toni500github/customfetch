@@ -276,10 +276,11 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         }
 
         std::string command; // what's inside the tag
-        size_t      endBracketIndex = -1;
-
-        char type    = ' ';  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
-        const char opentag = output[dollarSignIndex + 1];
+        command.reserve(256); // should be enough for not allocating over and over
+        
+        size_t     endBracketIndex = -1;
+        char       type    = ' ';  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
+        const char opentag = output.at(dollarSignIndex + 1);
 
         switch (opentag)
         {

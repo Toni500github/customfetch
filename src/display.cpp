@@ -50,12 +50,10 @@ std::string Display::detect_distro(const Config& config)
     }
 }
 
-static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors,
+static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, const Config& config, const colors_t& colors,
                                                   const std::string_view path, const std::uint16_t font_width,
                                                   const std::uint16_t font_height)
 {
-    std::string              distro_path{ Display::detect_distro(config) };
-    systemInfo_t             systemInfo{};
     std::vector<std::string> layout{ config.layout };
 
     int image_width, image_height, channels;
@@ -68,23 +66,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     else
         die("Unable to load image '{}'", path);
 
-    if (!config.ascii_logo_type.empty())
-    {
-        const size_t& pos = distro_path.rfind('.');
-
-        if (pos != std::string::npos)
-            distro_path.insert(pos, "_" + config.ascii_logo_type);
-        else
-            distro_path += "_" + config.ascii_logo_type;
-    }
-
-    // this is just for parse() to auto add the distro colors
-    std::ifstream file(distro_path, std::ios::binary);
-    std::string   line, _;
-
-    while (std::getline(file, line))
-        parse(line, systemInfo, _, config, colors, false);
-
+    std::string _;
     for (std::string& layout : layout)
         layout = parse(layout, systemInfo, _, config, colors, true);
 
@@ -167,18 +149,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     systemInfo_t             systemInfo{};
     std::vector<std::string> asciiArt{}, layout{ config.layout };
 
-    // 1. if we shouldn't display the autodetected distro
-    // 2. if we don't have --no-display enabled
-    // 3. if the source path for the logo is not empty
-    // 4. if we don't want to display a custom distro
-    // 5. if we aren't in GUI mode (I don't remember why to check that)
-    // damn I forgot even why I made this
-    if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty() &&
-        (!config.m_custom_distro.empty() && !config.gui))
-    {
-        die("You need to specify if either using a custom distro ascii art OR a custom source path");
-    }
-
     debug("Display::render path = {}", path);
 
     std::ifstream file;
@@ -189,6 +159,29 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         fileToAnalyze.open(path.data(), std::ios::binary);
         if (!file.is_open() || !fileToAnalyze.is_open())
             die("Could not open ascii art file \"{}\"", path);
+    }
+
+    if (!config.m_custom_distro.empty() && !config.m_display_distro)
+    {
+        std::string distro_path{ Display::detect_distro(config) };
+        if (!config.ascii_logo_type.empty())
+        {
+            const size_t pos = distro_path.rfind('.');
+
+            if (pos != std::string::npos)
+                distro_path.insert(pos, "_" + config.ascii_logo_type);
+            else
+                distro_path += "_" + config.ascii_logo_type;
+        }
+
+        debug("{} distro_path = {}", __FUNCTION__, distro_path);
+
+        // this is just for parse() to auto add the distro colors
+        std::ifstream distro_file(distro_path);
+        std::string   line, _;
+
+        while (std::getline(distro_file, line))
+            parse(line, systemInfo, _, config, colors, false);
     }
 
     std::vector<size_t> pureAsciiArtLens;
@@ -218,9 +211,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             get_pos(y, x);
             fmt::print("\033[{};{}H", y, x);
 
-            const auto& ret = render_with_image(config, colors, path, font_width, font_height);
-
-            return ret;
+            return render_with_image(systemInfo, config, colors, path, font_width, font_height);
         }
     }
 
@@ -307,8 +298,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             origin += asciiArt.at(i).length();
         }
 
-        const size_t& spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
-                               (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
+        const size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
+                                (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
 
         debug("spaces: {}", spaces);
 

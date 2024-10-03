@@ -383,7 +383,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     return true;
 }
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 
 #ifdef VENDOR_TEST
@@ -423,7 +423,7 @@ int main (int argc, char *argv[])
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
 
-    if (!config.ascii_logo_type.empty())
+    if (!config.ascii_logo_type.empty() && config.m_display_distro)
     {
         const size_t& pos = path.rfind('.');
         
