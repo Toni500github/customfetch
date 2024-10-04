@@ -125,6 +125,20 @@ static std::string parse(const std::string_view input, std::string& _, parse_arg
     return parse(input, parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
 }
 
+static char gettype(const char opentag)
+{
+    switch (opentag)
+    {
+        case '(': return ')';
+        case '<': return '>';
+        case '%': return '%';
+        case '[': return ']';
+        case '{': return '}';
+    }
+
+    return ' '; // neither of them
+}
+
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
                                             const bool invert = false)
 {
@@ -236,7 +250,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     retry:
         if (dollarSignIndex == std::string::npos)
             break;
-
+        //                                                      small workaround cuz idk how to fix this
         else if (dollarSignIndex <= oldDollarSignIndex && start && !config.m_disable_colors)
         {
             dollarSignIndex = output.find('$', dollarSignIndex + 1);
@@ -254,7 +268,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         if (skip_bypass)
         {
             if (dollarSignIndex > 0 and
-                (output[dollarSignIndex - 1] == '\\' and (dollarSignIndex == 1 or output[dollarSignIndex - 2] != '\\')))
+                (output.at(dollarSignIndex - 1) == '\\' and (dollarSignIndex == 1 or output.at(dollarSignIndex - 2) != '\\')))
             {
                 skip_bypass = false;
                 continue;
@@ -279,27 +293,41 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         command.reserve(256); // should be enough for not allocating over and over
         
         size_t     endBracketIndex = -1;
-        char       type    = ' ';  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
         const char opentag = output.at(dollarSignIndex + 1);
-
-        switch (opentag)
-        {
-            case '(': type = ')'; break;
-            case '<': type = '>'; break;
-            case '%': type = '%'; break;
-            case '[': type = ']'; break;
-            case '{': type = '}'; break;
-            default:  // neither of them
-                break;
-        }
-
+        
+        const char type = gettype(opentag);  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
         if (type == ' ')
             continue;
+
+        // if we get a tag inside a tag, then let's skip until we skipped the subtag
+        // entirely
+        size_t skip_lenght = 0;
 
         // let's get what's inside the brackets
         for (size_t i = dollarSignIndex + 2; i < output.size(); i++)
         {
-            if (output.at(i) == type && output.at(i - 1) != '\\')
+            if (skip_lenght > 0)
+            {
+                skip_lenght--;
+                continue;
+            }
+
+            if (output.at(i) == '$')
+            {
+                const char type = gettype(output.at(i + 1));
+                if (type != ' ')
+                {
+                    const size_t pos = output.find(type, i);
+                    if (pos == output.npos)
+                        die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
+
+                    const size_t len = (pos + 1) - i;
+                    command += parse(output.substr(i, len), _, parse_args);
+                    skip_lenght = len - 1;
+                    continue;
+                }
+            }
+            else if (output.at(i) == type && output.at(i - 1) != '\\')
             {
                 endBracketIndex = i;
                 break;
@@ -1171,8 +1199,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
         {
             switch (moduleMember_hash)
             {
-                case "name"_fnv1a16: SYSINFO_INSERT(query_gpu.name()); break;
-                case "vendor"_fnv1a16: SYSINFO_INSERT(shorten_vendor_name(query_gpu.vendor())); break;
+                case "name"_fnv1a16:    SYSINFO_INSERT(query_gpu.name()); break;
+                case "vendor"_fnv1a16:  SYSINFO_INSERT(shorten_vendor_name(query_gpu.vendor())); break;
                 case "vendor_long"_fnv1a16: SYSINFO_INSERT(query_gpu.vendor()); break;
             }
         }

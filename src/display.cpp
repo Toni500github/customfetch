@@ -50,12 +50,10 @@ std::string Display::detect_distro(const Config& config)
     }
 }
 
-static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, const Config& config, const colors_t& colors,
-                                                  const std::string_view path, const std::uint16_t font_width,
-                                                  const std::uint16_t font_height)
+static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std::vector<std::string>& layout,
+                                                  const Config& config, const colors_t& colors, const std::string_view path,
+                                                  const std::uint16_t font_width, const std::uint16_t font_height)
 {
-    std::vector<std::string> layout{ config.layout };
-
     int image_width, image_height, channels;
 
     // load the image and get its width and height
@@ -211,7 +209,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             get_pos(y, x);
             fmt::print("\033[{};{}H", y, x);
 
-            return render_with_image(systemInfo, config, colors, path, font_width, font_height);
+            return render_with_image(systemInfo, layout, config, colors, path, font_width, font_height);
         }
     }
 

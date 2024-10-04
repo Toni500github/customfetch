@@ -173,7 +173,7 @@ theme-gtk-all
 # example: if you want to show your 512MiB of used RAM in GiB
 # use the `used-GiB` variant (they don't print the unit tho)
 ram
-  ram		: used and total amount of RAM (auto) [2.81 GiB / 15.88 GiB]
+  ram           : used and total amount of RAM (auto) with used percentage [2.81 GiB / 15.88 GiB (5.34%)]
   used		: used amount of RAM (auto) [2.81 GiB]
   free		: available amount of RAM (auto) [10.46 GiB]
   total		: total amount of RAM (auto) [15.88 GiB]
@@ -182,7 +182,7 @@ ram
 
 # same comments as RAM (above)
 swap
-  swap          : used and total amount of the swapfile (auto) [477.68 MiB / 512.00 MiB]
+  swap          : used and total amount of the swapfile (auto) with used percentage [477.68 MiB / 512.00 MiB (88.45%)]
   free		: available amount of the swapfile (auto) [34.32 MiB]
   total		: total amount of the swapfile (auto) [512.00 MiB]
   used		: used amount of the swapfile (auto) [477.68 MiB]
@@ -194,7 +194,7 @@ swap
 #	or a filesystem path
 #	e.g disk(/) or disk(/dev/sda5)
 disk(/path/to/fs)
-  disk		: used and total amount of disk space (auto) with type of filesystem [360.02 GiB / 438.08 GiB - ext4]
+  disk		: used and total amount of disk space (auto) with type of filesystem and used percentage [379.83 GiB / 438.08 GiB (86.70%) - ext4]
   used          : used amount of disk space (auto) [360.02 GiB]
   free          : available amount of disk space (auto) [438.08 GiB]
   total         : total amount of disk space (auto) [100.08 GiB]

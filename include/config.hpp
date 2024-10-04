@@ -288,7 +288,7 @@ flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")
+# note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version" if GUI mode was enabled)
 [gui]
 enable = false
 

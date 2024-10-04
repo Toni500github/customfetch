@@ -33,12 +33,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 /* Set module members values to a systemInfo_t map.
  * If the name of said module matches any module name, it will be added
  * else, error out.
- * @param sysInfo The systemInfo_t map
  * @param moduleName The module name
  * @param moduleMemberName The module member name
- * @param config The config
- * @param colors The colors
- * @param parsingLayout If we are parsing the layout or not (default true)
+ * @param parse_args The parse() like arguments 
  */
 void addValueFromModule(const std::string& moduleName, const std::string& moduleMemberName,
                         parse_args_t& parse_args);
@@ -53,7 +50,7 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
 template <typename... Styles>
 void append_styles(fmt::text_style& current_style, Styles&&... styles)
 {
-    current_style = current_style | (styles | ...);
+    current_style |= (styles | ...);
 }
 
 
