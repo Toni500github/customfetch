@@ -45,7 +45,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install Packages
-      run: sudo apt-get update && sudo apt-get install build-essential cmake neofetch tree libgtk-3-dev pkg-config libgtkmm-3.0-dev libprocps-dev -y
+      run: sudo apt-get update && sudo apt-get install build-essential cmake neofetch tree libgtk-3-dev pkg-config libgtkmm-3.0-dev -y
     
     - name: Clean
       run: make clean
@@ -78,7 +78,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install the packages
-      run: pacman -Syyu git sudo base-devel fakeroot pkgconf tree neofetch libprocps --noconfirm --needed
+      run: pacman -Syyu git sudo base-devel fakeroot pkgconf tree neofetch --noconfirm --needed
     
     - name: get /etc/sudoers
       run: |
@@ -115,7 +115,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install the packages
-      run: pacman -Syyu git sudo binutils gdb base-devel fakeroot pkgconf tree neofetch fastfetch libprocps --noconfirm --needed
+      run: pacman -Syyu git sudo binutils gdb base-devel fakeroot pkgconf tree neofetch fastfetch --noconfirm --needed
     
     - name: get /etc/sudoers
       run: |
@@ -148,3 +148,29 @@ jobs:
 
     - name: Test customfetch
       run: ./build/debug/cufetch
+
+  test-all-ascii-art:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Packages
+      run: sudo apt-get update && sudo apt-get install build-essential tree pkg-config -y
+    
+    - name: Clean
+      run: make clean
+
+    - name: Compile
+      run: sudo make install DEBUG=0 VENDOR_TEST=1 GUI_MODE=0
+       
+    - name: Test all the ascii art logos
+      run: |
+        for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" $f && cufetch -s $f -D assets \
+        --color "c1=#fff111" \ # randomly picked colors just for the sake of other non completed asciis
+        --color "c2=#00ff1a" \
+        --color "c3=#faa311" \
+        --color "c4=#343412" \
+        --color "c5=#fff311" \
+        --color "c6=#faa3aa" \
+        && sleep 1; done || true
