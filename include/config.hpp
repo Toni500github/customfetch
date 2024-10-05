@@ -77,7 +77,7 @@ public:
     void        loadConfigFile(const std::string_view filename, colors_t& colors);
     std::string getThemeValue(const std::string_view value, const std::string_view fallback) const;
     void        generateConfig(const std::string_view filename);
-    void        addAliasColors(const std::string_view value);
+    void        addAliasColors(const std::string& str);
     std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
 
     template <typename T>
