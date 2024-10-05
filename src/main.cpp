@@ -446,7 +446,10 @@ int main(int argc, char *argv[])
 
     if (!std::filesystem::exists(path) &&
         !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
-        die("'{}' doesn't exist. Can't load image/text file", path);
+    {
+        if (!config.m_disable_source)
+            die("'{}' doesn't exist. Can't load image/text file", path);
+    }
 
     debug("{} path = {}", __PRETTY_FUNCTION__, path);
 

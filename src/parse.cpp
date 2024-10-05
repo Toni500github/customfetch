@@ -136,7 +136,7 @@ static char gettype(const char opentag)
         case '{': return '}';
     }
 
-    return ' '; // neither of them
+    return '\0'; // neither of them
 }
 
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
@@ -248,7 +248,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         dollarSignIndex    = output.find('$', dollarSignIndex);
 
     retry:
-        if (dollarSignIndex == std::string::npos)
+        if (dollarSignIndex == std::string::npos || dollarSignIndex >= output.length()-1)
             break;
         //                                                      small workaround cuz idk how to fix this
         else if (dollarSignIndex <= oldDollarSignIndex && start && !config.m_disable_colors)
@@ -291,12 +291,11 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
         std::string command; // what's inside the tag
         command.reserve(256); // should be enough for not allocating over and over
-        
+
         size_t     endBracketIndex = -1;
         const char opentag = output.at(dollarSignIndex + 1);
-        
-        const char type = gettype(opentag);  // ' ' = undefined, ')' = shell exec, 2 = ')' asking for a module
-        if (type == ' ')
+        const char type = gettype(opentag);  // '\0' = undefined, ')' = shell exec, 2 = ')' asking for a module
+        if (type == '\0')
             continue;
 
         // if we get a tag inside a tag, then let's skip until we skipped the subtag
@@ -314,14 +313,16 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
 
             if (output.at(i) == '$')
             {
-                const char type = gettype(output.at(i + 1));
-                if (type != ' ')
+                const char subtype = gettype(output.at(i + 1));
+                if (subtype != '\0')
                 {
-                    const size_t pos = output.find(type, i);
+                    const size_t pos = output.find(subtype, i);
                     if (pos == output.npos)
                         die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
 
+                    endBracketIndex = pos;
                     const size_t len = (pos + 1) - i;
+
                     command += parse(output.substr(i, len), _, parse_args);
                     skip_lenght = len - 1;
                     continue;
@@ -413,24 +414,15 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 if (true_comma == command.npos)
                     die("conditional tag {} doesn't have a comma for separiting the true statment", command);
 
-                const std::string& conditional    = command.substr(0, conditional_comma);
+                const std::string& condition      = command.substr(0, conditional_comma);
                 const std::string& equalto        = command.substr(conditional_comma + 1, equalto_comma - conditional_comma - 1);
                 const std::string& true_statment  = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
                 const std::string& false_statment = command.substr(true_comma + 1);
 
-                const std::string& parsed_conditional = parse(conditional, _, parse_args);
-                const std::string& parsed_equalto     = parse(equalto, _, parse_args);
-
-                if (parsed_conditional == parsed_equalto)
-                {
-                    const std::string& parsed_true_stam = parse(true_statment, _, parse_args);
-                    output.replace(dollarSignIndex, taglen, parsed_true_stam);
-                }
+                if (condition == equalto)
+                    output.replace(dollarSignIndex, taglen, true_statment);
                 else
-                {
-                    const std::string& parsed_false_stam = parse(false_statment, _, parse_args);
-                    output.replace(dollarSignIndex, taglen, parsed_false_stam);
-                }
+                    output.replace(dollarSignIndex, taglen, false_statment);
             }
             break;
 
