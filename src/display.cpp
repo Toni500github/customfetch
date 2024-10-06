@@ -149,6 +149,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     debug("Display::render path = {}", path);
 
+    bool isImage = false;
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
     if (!config.m_disable_source)
@@ -157,9 +158,20 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         fileToAnalyze.open(path.data(), std::ios::binary);
         if (!file.is_open() || !fileToAnalyze.is_open())
             die("Could not open ascii art file \"{}\"", path);
+
+        // first check if the file is an image
+        // without even using the same library that "file" uses
+        // No extra bloatware nice
+        if (!already_analyzed_file)
+        {
+            debug("Display::render() analyzing file");
+            std::array<unsigned char, 32> buffer;
+            fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
+            isImage = is_file_image(buffer.data());
+        }
     }
 
-    if (!config.m_custom_distro.empty() && !config.m_display_distro)
+    if (!config.m_display_distro && isImage)
     {
         std::string distro_path{ Display::detect_distro(config) };
         if (!config.ascii_logo_type.empty())
@@ -185,33 +197,25 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
 
-    // first check if the file is an image
-    // without even using the same library that "file" uses
-    // No extra bloatware nice
-    if (!already_analyzed_file)
+    if (isImage)
     {
-        debug("Display::render() analyzing file");
-        std::array<unsigned char, 32> buffer;
-        fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
-        if (is_file_image(buffer.data()))
-        {
-            // clear screen
-            write(1, "\33[H\33[2J", 7);
+        // clear screen
+        write(1, "\33[H\33[2J", 7);
 
-            struct winsize win;
-            ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
+        struct winsize win;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
 
-            const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
-            const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
+        const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
+        const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
 
-            // why... why reverse the cardinal coordinates..
-            int y = 0, x = 0;
-            get_pos(y, x);
-            fmt::print("\033[{};{}H", y, x);
+        // why... why reverse the cardinal coordinates..
+        int y = 0, x = 0;
+        get_pos(y, x);
+        fmt::print("\033[{};{}H", y, x);
 
-            return render_with_image(systemInfo, layout, config, colors, path, font_width, font_height);
-        }
+        return render_with_image(systemInfo, layout, config, colors, path, font_width, font_height);
     }
+    
 
     for (int i = 0; i < config.logo_padding_top; i++)
     {
