@@ -13,9 +13,9 @@ using namespace Query;
     SRECLAIMABLE
 };*/
 
-static size_t get_from_text(std::string& line, u_short& iter_index)
+static size_t get_from_text(std::string& line, u_short& iter_index, const std::uint16_t len)
 {
-    std::string amount = line.substr(line.find(':') + 1);
+    std::string amount = line.substr(len + 1);
     strip(amount);
     ++iter_index;
     return std::stoi(amount);
@@ -40,16 +40,16 @@ static RAM::RAM_t get_amount() noexcept
     while (std::getline(file, line) && iter_index < 4)
     {
         if (hasStart(line, "MemAvailable:"))
-            memory_infos.free_amount = get_from_text(line, iter_index);
+            memory_infos.free_amount = get_from_text(line, iter_index, "MemAvailable:"_len);
 
-        if (hasStart(line, "MemTotal:"))
-            memory_infos.total_amount = get_from_text(line, iter_index);
+        else if (hasStart(line, "MemTotal:"))
+            memory_infos.total_amount = get_from_text(line, iter_index, "MemTotal:"_len);
 
-        if (hasStart(line, "SwapFree:"))
-            memory_infos.swap_free_amount = get_from_text(line, iter_index);
+        else if (hasStart(line, "SwapFree:"))
+            memory_infos.swap_free_amount = get_from_text(line, iter_index, "SwapFree:"_len);
 
-        if (hasStart(line, "SwapTotal:"))
-            memory_infos.swap_total_amount = get_from_text(line, iter_index);
+        else if (hasStart(line, "SwapTotal:"))
+            memory_infos.swap_total_amount = get_from_text(line, iter_index, "SwapTotal:"_len);
 
         /*if (line.find("Shmem:") != std::string::npos)
             extra_mem_info.at(SHMEM) = get_from_text(line);

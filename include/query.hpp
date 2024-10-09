@@ -210,7 +210,7 @@ public:
         std::string mountdir;
     };
 
-    Disk(const std::string_view path, std::vector<std::string_view>& paths);
+    Disk(const std::string_view path, std::vector<std::string>& paths);
 
     float&       total_amount() noexcept;
     float&       free_amount() noexcept;

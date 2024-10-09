@@ -8,12 +8,12 @@
 
 using namespace Query;
 
-static std::string _get_name(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s)
+static std::string get_name(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s)
 {
     std::string name = binarySearchPCIArray(m_vendor_id_s, m_device_id_s);
     debug("GPU binarySearchPCIArray name = {}", name);
-    size_t first_bracket = name.find('[');
-    size_t last_bracket  = name.rfind(']');
+    const size_t first_bracket = name.find('[');
+    const size_t last_bracket  = name.rfind(']');
 
     // remove the chips name "TU106 [GeForce GTX 1650]"
     // This should work for AMD and Intel too.
@@ -29,7 +29,7 @@ static std::string _get_name(const std::string_view m_vendor_id_s, const std::st
     return name;
 }
 
-static std::string _get_vendor(const std::string_view m_vendor_id_s)
+static std::string get_vendor(const std::string_view m_vendor_id_s)
 { return binarySearchPCIArray(m_vendor_id_s); }
 
 static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std::string_view m_device_id_s)
@@ -41,8 +41,8 @@ static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std:
     if (m_device_id_s == UNKNOWN || m_vendor_id_s == UNKNOWN)
         return ret;
 
-    ret.name   = _get_name(m_vendor_id_s, m_device_id_s);
-    ret.vendor = _get_vendor(m_vendor_id_s);
+    ret.name   = get_name(m_vendor_id_s, m_device_id_s);
+    ret.vendor = get_vendor(m_vendor_id_s);
 
     return ret;
 }
@@ -54,8 +54,8 @@ GPU::GPU(const std::uint16_t id, std::vector<std::uint16_t>& queried_gpus)
     else
         return;
 
-    const u_short max_iter = 10;
-    u_short       id_iter  = id;
+    const std::uint16_t max_iter = 10;
+    std::uint16_t       id_iter  = id;
     std::string   sys_path;
     int           i = 0;
     for (; i <= max_iter; i++)

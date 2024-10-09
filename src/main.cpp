@@ -5,7 +5,6 @@
 
 #include "config.hpp"
 #include "display.hpp"
-#include "fmt/compile.h"
 #include "gui.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -19,14 +18,10 @@
      : (optarg != NULL))
 
 using namespace std::string_view_literals;
-using namespace fmt::literals;
 
 static void version()
 {
-    // {fmt} lib doesn't like fmt::println()
-    // why? I know that "just put the newline \n and shut up" (nobody said it)
-    // but would be nice :)
-    fmt::print("customfetch {} branch {}\n"_cf, VERSION, BRANCH);
+    fmt::println("customfetch {} branch {}", VERSION, BRANCH);
 
 #ifdef GUI_MODE
     fmt::println("GUI mode enabled");
@@ -134,6 +129,8 @@ user
   terminal_name	: Terminal name [alacritty]
   terminal_version: Terminal version [0.13.2]
 
+# with `symb` I mean a symbol to be used for the
+# view of the color palette
 builtin
   title     	: user and hostname colored with ${{auto2}} [toni@arch2]
   title_sep     : separator between the title and the system infos (with the title lenght) [--------]
@@ -146,12 +143,13 @@ builtin
 # such as indeed cursor
 # because it is not GTK-Qt specific
 theme
+  cursor	: cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
   cursor_name	: cursor name [Bibata-Modern-Ice]
   cursor_size	: cursor size [16]
 
 # the N stands for the gtk version number to query
-# so for example if you want to query the gtk3 theme version
-# write it like "theme.gtk3"
+# so for example if you want to query the gtk3 theme name
+# write it like "theme-gtk3.name"
 # note: they may be inaccurate if didn't find anything in the config files
 # 	thus because of using as last resort the `gsettings` exacutable
 theme-gtkN

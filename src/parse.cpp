@@ -862,11 +862,11 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
     const Config& config  = parse_args.config;
     systemInfo_t& sysInfo = parse_args.systemInfo;
 
-    const  auto&                         moduleMember_hash = fnv1a16::hash(moduleMemberName);
-    static std::vector<std::uint16_t>    queried_gpus;
-    static std::vector<std::string_view> queried_disks;
-    static std::vector<std::string>      queried_themes_names;
-    static systemInfo_t                  queried_themes;
+    const  auto&                      moduleMember_hash = fnv1a16::hash(moduleMemberName);
+    static std::vector<std::uint16_t> queried_gpus;
+    static std::vector<std::string>   queried_disks;
+    static std::vector<std::string>   queried_themes_names;
+    static systemInfo_t               queried_themes;
 
     if (moduleName == "os")
     {
@@ -1092,6 +1092,12 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
         {
             switch (moduleMember_hash)
             {
+                case "cursor"_fnv1a16:
+                    if (query_theme.cursor_size() == UNKNOWN)
+                        SYSINFO_INSERT(query_theme.cursor());
+                    else
+                        SYSINFO_INSERT(fmt::format("{} ({}px)", query_theme.cursor(), query_theme.cursor_size()));
+                    break;
                 case "cursor_name"_fnv1a16: SYSINFO_INSERT(query_theme.cursor()); break;
                 case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_theme.cursor_size()); break;
             }
