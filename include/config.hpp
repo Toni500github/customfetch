@@ -52,6 +52,7 @@ public:
     bool          gui                = false;
     bool          sep_reset_after    = false;
     bool          slow_query_warnings= false;
+    bool          use_SI_unit        = false;
 
     // modules specific config
     std::string uptime_d_fmt;
@@ -243,11 +244,17 @@ magenta = "\e[1;35m"
 cyan    = "\e[1;36m"
 white   = "\e[1;37m"
 
-# Alias colors. Basically more color variables, but config depending.
+# Alias colors. Basically more color variables, but config depending (no shot).
 # They can be used as like as the color tag.
 # This is as like as using the --color argument
 # Syntax must be "name=value", e.g "purple=magenta" or "orange=!#F08000"
 alias-colors = ["purple=magenta"]
+
+# Used in disk, ram and swap modules.
+# If true, we're going to use the SI standard byte unit (1kb == 1000 bytes)
+# Else if false, we using the IEC byte unit (1kb == 1024 bytes)
+# Really nerdy stuff
+use-SI-byte-unit = false
 
 # Colors to be used in percentage tag and modules members.
 # They are used as if you're using the color tag.
@@ -316,4 +323,4 @@ bg-image = "disable"
 
 )#";
 
-#endif
+#endif // _CONFIG_HPP

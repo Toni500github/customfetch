@@ -17,6 +17,7 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
+// declarations of static members in query.hpp
 Query::System::System_t Query::System::m_system_infos;
 Query::Theme::Theme_t   Query::Theme::m_theme_infos;
 Query::User::User_t     Query::User::m_users_infos;
@@ -118,6 +119,7 @@ static std::string convert_hex_ansi_escape(const std::string_view hexstr, const 
 }
 #endif
 
+// parse() for parse_args_t& arguments
 // some times we don't want to use the original pureOutput,
 // so we have to create a tmp string just for the sake of the function arguments
 static std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
@@ -868,6 +870,18 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
     static std::vector<std::string>   queried_themes_names;
     static systemInfo_t               queried_themes;
 
+    const std::uint16_t byte_unit = config.use_SI_unit ? 1000 : 1024;
+    constexpr std::array<std::string_view, 32> sorted_valid_prefixes = {"B", "EB", "EiB", "GB", "GiB", "kB", "KiB", "MB", "MiB", "PB", "PiB", "TB", "TiB", "YB", "YiB", "ZB", "ZiB"};
+
+    const auto& return_devided_bytes = [&sorted_valid_prefixes, &moduleMemberName](const float& amount) -> float
+    {
+        const std::string& prefix = moduleMemberName.substr(moduleMemberName.find('-')+1);
+        if (std::binary_search(sorted_valid_prefixes.begin(), sorted_valid_prefixes.end(), prefix))
+            return static_cast<float>(devide_bytes(amount, prefix).num_bytes);
+
+        return 0;
+    };
+
     if (moduleName == "os")
     {
         Query::System query_system;
@@ -1228,9 +1242,9 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount());
-            byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount());
-            byte_units.at(FREE)  = auto_devide_bytes(query_disk.free_amount());
+            byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount(), byte_unit);
+            byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount(), byte_unit);
+            byte_units.at(FREE)  = auto_devide_bytes(query_disk.free_amount(), byte_unit);
 
             switch (moduleMember_hash)
             {
@@ -1274,17 +1288,13 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                                                             parse_args));
                     break;
 
-                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1073741824); break;
-                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1048576); break;
-                case "used-KiB"_fnv1a16: SYSINFO_INSERT(query_disk.used_amount() / 1024); break;
-
-                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount() / 1073741824); break;
-                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount() / 1048576); break;
-                case "total-KiB"_fnv1a16: SYSINFO_INSERT(query_disk.total_amount() / 1024); break;
-
-                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount() / 1073741824); break;
-                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount() / 1048576); break;
-                case "free-KiB"_fnv1a16: SYSINFO_INSERT(query_disk.free_amount() / 1024); break;
+                default:
+                    if (hasStart(moduleMemberName, "free-"))
+                        SYSINFO_INSERT(return_devided_bytes(query_disk.free_amount()));
+                    else if (hasStart(moduleMemberName, "used-"))
+                        SYSINFO_INSERT(return_devided_bytes(query_disk.used_amount()));
+                    else if (hasStart(moduleMemberName, "total-"))
+                        SYSINFO_INSERT(return_devided_bytes(query_disk.total_amount()));
             }
         }
     }
@@ -1305,9 +1315,10 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            byte_units.at(FREE)  = auto_devide_bytes(query_ram.swap_free_amount() * 1024);
-            byte_units.at(USED)  = auto_devide_bytes(query_ram.swap_used_amount() * 1024);
-            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * 1024);
+            //                                                            idk, trick the diviser
+            byte_units.at(FREE)  = auto_devide_bytes(query_ram.swap_free_amount() * byte_unit, byte_unit);
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.swap_used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * byte_unit, byte_unit);
 
             switch (moduleMember_hash)
             {
@@ -1350,17 +1361,13 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                                                             parse_args));
                     break;
 
-                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1048576); break;
-                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount() / 1024); break;
-                case "free-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_free_amount()); break;
-
-                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1048576); break;
-                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount() / 1024); break;
-                case "used-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_used_amount()); break;
-
-                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1048576); break;
-                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount() / 1024); break;
-                case "total-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.swap_total_amount()); break;
+                default:
+                    if (hasStart(moduleMemberName, "free-"))
+                        SYSINFO_INSERT(return_devided_bytes(query_ram.swap_free_amount()));
+                    else if (hasStart(moduleMemberName, "used-"))
+                        SYSINFO_INSERT(return_devided_bytes(query_ram.swap_used_amount()));
+                    else if (hasStart(moduleMemberName, "total-"))
+                        SYSINFO_INSERT(return_devided_bytes(query_ram.swap_total_amount()));
             }
         }
     }
@@ -1381,9 +1388,10 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * 1024);
-            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * 1024);
-            byte_units.at(FREE)  = auto_devide_bytes(query_ram.free_amount() * 1024);
+            //                                                     idk, trick the diviser
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
+            byte_units.at(FREE)  = auto_devide_bytes(query_ram.free_amount() * byte_unit, byte_unit);
 
             switch (moduleMember_hash)
             {
@@ -1420,17 +1428,13 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     SYSINFO_INSERT(get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args));
                     break;
 
-                case "used-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount() / 1048576); break;
-                case "used-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount() / 1024); break;
-                case "used-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.used_amount()); break;
-
-                case "total-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount() / 1048576); break;
-                case "total-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount() / 1024); break;
-                case "total-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.total_amount()); break;
-
-                case "free-GiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount() / 1048576); break;
-                case "free-MiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount() / 1024); break;
-                case "free-KiB"_fnv1a16: SYSINFO_INSERT(query_ram.free_amount()); break;
+                default:
+                    if (hasStart(moduleMemberName, "free-"))
+                        SYSINFO_INSERT(return_devided_bytes(query_ram.free_amount()));
+                    else if (hasStart(moduleMemberName, "used-"))
+                        SYSINFO_INSERT(return_devided_bytes(query_ram.used_amount()));
+                    else if (hasStart(moduleMemberName, "total-"))
+                        SYSINFO_INSERT(return_devided_bytes(query_ram.total_amount()));
             }
         }
     }

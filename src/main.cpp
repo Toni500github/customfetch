@@ -165,9 +165,9 @@ theme-gtk-all
   icons         : gtk icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]
   font          : gtk font theme name [Cantarell 10 [GTK2], Noto Sans,  10 [GTK3], Noto Sans 10 [GTK4]]
 
-# note: these members are auto displayed in KiB, MiB, GiB and TiB.
-# they all (except those who has the same name as the module or that ends with "_perc")
-# have a -KiB, -GiB and -MiB variant.
+# note: these members are auto displayed in from B to YB (depending if using SI byte unit or not(IEC)).
+# they all (except those that has the same name as the module or that ends with "_perc")
+# have variants from -B to -YB and -B to -YiB
 # example: if you want to show your 512MiB of used RAM in GiB
 # use the `used-GiB` variant (they don't print the unit tho)
 ram

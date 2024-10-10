@@ -20,7 +20,7 @@ constexpr std::size_t operator""_len(const char*, std::size_t ln) noexcept
 struct byte_units_t
 {
     std::string unit;
-    float       num_bytes;
+    double      num_bytes;
 };
 
 constexpr const char NOCOLOR[] = "\033[0m";
@@ -58,7 +58,8 @@ std::string  binarySearchPCIArray(const std::string_view vendor_id, const std::s
 std::string  binarySearchPCIArray(const std::string_view vendor_id);
 std::string  read_shell_exec(const std::string_view cmd);
 void         getFileValue(u_short& iterIndex, const std::string_view line, std::string& str, const size_t& amount);
-byte_units_t auto_devide_bytes(const size_t num);
+byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const std::string_view maxprefix = "");
+byte_units_t devide_bytes(const double num, const std::string_view prefix);
 bool         is_file_image(const unsigned char* bytes);
 void         ctrl_d_handler(const std::istream& cin);
 std::string  expandVar(std::string ret);
@@ -87,7 +88,7 @@ void error(const std::string_view fmt, Args&&... args) noexcept
 template <typename... Args>
 void die(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::println(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "ERROR: {}",
+    fmt::println(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "FATAL: {}",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
     std::exit(1);
 }
@@ -119,25 +120,25 @@ void info(const std::string_view fmt, Args&&... args) noexcept
  * @param def The default result
  * @param fmt The format string
  * @param args Arguments in the format
- * @returns the result, y = true, f = false, only returns def if the result is def
+ * @returns the result, y = true, n = false, only returns def if the result is def
  */
 template <typename... Args>
 bool askUserYorN(bool def, const std::string_view fmt, Args&&... args)
 {
-    const std::string& inputs_str = fmt::format("[{}/{}]: ", (def ? 'Y' : 'y'), (!def ? 'N' : 'n'));
+    const std::string& inputs_str = fmt::format(" [{}]: ", def ? "Y/n" : "y/N");
     std::string result;
     fmt::print(fmt::runtime(fmt), std::forward<Args>(args)...);
-    fmt::print(" {}", inputs_str);
+    fmt::print("{}", inputs_str);
 
     while (std::getline(std::cin, result) && (result.length() > 1))
-        fmt::print(BOLD_COLOR(fmt::rgb(fmt::color::yellow)), "Please answear y or n, {}", inputs_str);
+        fmt::print(BOLD_COLOR(fmt::rgb(fmt::color::yellow)), "Please answear y or n,{}", inputs_str);
 
     ctrl_d_handler(std::cin);
 
     if (result.empty())
         return def;
 
-    if (def ? tolower(result[0]) != 'n' : tolower(result[0]) != 'y')
+    if (def ? std::tolower(result[0]) != 'n' : std::tolower(result[0]) != 'y')
         return def;
 
     return !def;
