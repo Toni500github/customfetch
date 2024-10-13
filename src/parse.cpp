@@ -1097,7 +1097,7 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
     else if (moduleName == "theme")
     {
-        Query::Theme query_theme(queried_themes, config);
+        Query::Theme query_cursor(queried_themes, config);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1107,13 +1107,49 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
             switch (moduleMember_hash)
             {
                 case "cursor"_fnv1a16:
-                    if (query_theme.cursor_size() == UNKNOWN)
-                        SYSINFO_INSERT(query_theme.cursor());
+                    if (query_cursor.cursor_size() == UNKNOWN)
+                        SYSINFO_INSERT(query_cursor.cursor());
                     else
-                        SYSINFO_INSERT(fmt::format("{} ({}px)", query_theme.cursor(), query_theme.cursor_size()));
+                        SYSINFO_INSERT(fmt::format("{} ({}px)", query_cursor.cursor(), query_cursor.cursor_size()));
                     break;
-                case "cursor_name"_fnv1a16: SYSINFO_INSERT(query_theme.cursor()); break;
-                case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_theme.cursor_size()); break;
+                case "cursor_name"_fnv1a16: SYSINFO_INSERT(query_cursor.cursor()); break;
+                case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_cursor.cursor_size()); break;
+            }
+        }
+    }
+
+    else if (moduleName == "theme-gsettings")
+    {
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+             sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            if (hasStart(moduleMemberName, "cursor"))
+            {
+                Query::Theme query_cursor(queried_themes, config, true);
+                switch (moduleMember_hash)
+                {
+                    case "cursor"_fnv1a16:
+                        if (query_cursor.cursor_size() == UNKNOWN)
+                            SYSINFO_INSERT(query_cursor.cursor());
+                        else
+                            SYSINFO_INSERT(fmt::format("{} ({}px)", query_cursor.cursor(), query_cursor.cursor_size()));
+                    break;
+                    case "cursor_name"_fnv1a16: SYSINFO_INSERT(query_cursor.cursor()); break;
+                    case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_cursor.cursor_size()); break;
+                }
+            }
+            else
+            {
+                Query::Theme query_theme(0, queried_themes, queried_themes_names, "", config, true);
+                switch (moduleMember_hash)
+                {
+                    case "name"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_theme()); break;
+                    case "icons"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
+                    case "font"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_font()); break;
+                }
             }
         }
     }
@@ -1124,7 +1160,7 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
         Query::Theme gtk2(2, queried_themes, queried_themes_names, "gtk2", config);
         Query::Theme gtk3(3, queried_themes, queried_themes_names, "gtk3", config);
         Query::Theme gtk4(4, queried_themes, queried_themes_names, "gtk4", config);
-
+        
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 

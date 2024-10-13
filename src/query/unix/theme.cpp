@@ -101,8 +101,9 @@ static bool get_cursor_dconf(const std::string_view de_name, Theme::Theme_t& the
 
     LOAD_LIBRARY("libdconf.so", return false);
     LOAD_LIB_SYMBOL(DConfClient *, dconf_client_new, void);
-    LOAD_LIB_SYMBOL(GVariant *, dconf_client_read, DConfClient *client, const char *);
-    LOAD_LIB_SYMBOL(const gchar *, g_variant_get_string, GVariant *value, gsize *lenght);
+    LOAD_LIB_SYMBOL(GVariant *, dconf_client_read, DConfClient *, const char *);
+    LOAD_LIB_SYMBOL(const gchar *, g_variant_get_string, GVariant *, gsize *);
+    LOAD_LIB_SYMBOL(gint32, g_variant_get_int32, GVariant *);
 
     debug("calling {}", __PRETTY_FUNCTION__);
     DConfClient *client = dconf_client_new();
@@ -132,7 +133,7 @@ static bool get_cursor_dconf(const std::string_view de_name, Theme::Theme_t& the
     {
         variant = dconf_client_read(client, (interface + "cursor-size").c_str());
         if (variant)
-            theme.cursor = g_variant_get_string(variant, NULL);
+            theme.cursor = g_variant_get_int32(variant);
     }
 
     return assert_cursor(theme);
@@ -439,20 +440,19 @@ static void get_de_gtk_theme(const std::string_view de_name, const std::uint8_t 
 }
 
 static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, const std::string_view de_name,
-                          Theme::Theme_t& theme, const Config& config)
+                          Theme::Theme_t& theme, const Config& config, const bool gsettings_only)
 {
-    if (dont_query_dewm)
-    {
+    if (gsettings_only)
+        get_gtk_theme_gsettings(de_name, theme, config);
+    else if (dont_query_dewm)
         get_gtk_theme_from_configs(ver, de_name, theme, config);
-        return;
-    }
-
-    get_de_gtk_theme(de_name, ver, theme, config);
+    else 
+        get_de_gtk_theme(de_name, ver, theme, config);
 }
 
 // clang-format off
 Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
-             const std::string& theme_name_version, const Config& config)
+             const std::string& theme_name_version, const Config& config, const bool gsettings_only)
             : m_queried_themes(queried_themes),
               m_theme_name_version(theme_name_version),
               m_Config(config)
@@ -472,7 +472,7 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
     else
         m_wmde_name = de_name;
 
-    get_gtk_theme(query_user.m_bDont_query_dewm, ver, m_wmde_name, m_theme_infos, config);
+    get_gtk_theme(query_user.m_bDont_query_dewm, ver, m_wmde_name, m_theme_infos, config, gsettings_only);
 
     if (m_theme_infos.gtk_theme_name.empty())
         m_theme_infos.gtk_theme_name = MAGIC_LINE;
@@ -493,7 +493,7 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
 }
 
 // only use it for cursor
-Theme::Theme(systemInfo_t& queried_themes, const Config& config) : m_queried_themes(queried_themes), m_Config(config)
+Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only) : m_queried_themes(queried_themes), m_Config(config)
 {
     static bool done = false;
     if (hasStart(query_user.term_name(), "/dev") || done)
@@ -508,7 +508,8 @@ Theme::Theme(systemInfo_t& queried_themes, const Config& config) : m_queried_the
     else
         m_wmde_name = de_name;
 
-    if (get_de_cursor(m_wmde_name, m_theme_infos)){}
+    if (gsettings_only) { get_cursor_gsettings(m_wmde_name, m_theme_infos, config); }
+    else if (get_de_cursor(m_wmde_name, m_theme_infos)){}
     else if (get_cursor_from_gtk_configs(4, m_theme_infos)){}
     else if (get_cursor_from_gtk_configs(3, m_theme_infos)){}
     else if (get_cursor_from_gtk_configs(2, m_theme_infos)){}

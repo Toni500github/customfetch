@@ -24,9 +24,18 @@ static void version()
     fmt::println("customfetch {} branch {}", VERSION, BRANCH);
 
 #ifdef GUI_MODE
-    fmt::println("GUI mode enabled");
+    fmt::print("GUI mode enabled\n\n");
 #else
-    fmt::println("GUI mode IS NOT enabled");
+    fmt::print("GUI mode IS NOT enabled\n\n");
+#endif
+
+#if !(USE_DCONF)
+    fmt::println("NO flags were set");
+#else
+    fmt::println("set flags:");
+# if USE_DCONF
+    fmt::println("USE_DCONF");
+# endif
 #endif
 
     // if only everyone would not return error when querying the program version :(
@@ -147,11 +156,21 @@ theme
   cursor_name	: cursor name [Bibata-Modern-Ice]
   cursor_size	: cursor size [16]
 
+# If USE_DCONF flag is set, then we're going to use
+# dconf, else backing up to gsettings
+theme-gsettings
+  name          : gsettings theme name [Decay-Green]
+  icons         : gsettings icons theme name [Papirus-Dark]
+  font          : gsettings font theme name [Cantarell 10]
+  cursor        : gsettings cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
+  cursor_name   : gsettings cursor name [Bibata-Modern-Ice]
+  cursor_size   : gsettings cursor size [16]
+
 # the N stands for the gtk version number to query
 # so for example if you want to query the gtk3 theme name
 # write it like "theme-gtk3.name"
-# note: they may be inaccurate if didn't find anything in the config files
-# 	thus because of using as last resort the `gsettings` exacutable
+# note: may be slow because of calling "gsettings" if couldn't read from configs.
+#       Read theme-gsettings module comments
 theme-gtkN
   name		: gtk theme name [Arc-Dark]
   icons		: gtk icons theme name [Qogir-Dark]
@@ -159,11 +178,12 @@ theme-gtkN
 
 # basically as like as the "theme-gtkN" module above
 # but with gtk{{2,3,4}} and auto format gkt version
-# note: may be slow because of calling "gsettings" if couldn't read from configs
+# note: may be slow because of calling "gsettings" if couldn't read from configs.
+# 	Read theme-gsettings module comments
 theme-gtk-all
-  name          : gtk theme name [Decay-Green [GTK2], Arc-Dark [GTK3/4]]
+  name          : gtk theme name [Arc-Dark [GTK2/3/4]]
   icons         : gtk icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]
-  font          : gtk font theme name [Cantarell 10 [GTK2], Noto Sans,  10 [GTK3], Noto Sans 10 [GTK4]]
+  font          : gtk font theme name [Hack Nerd Font 13 [GTK2], Noto Sans 10 [GTK3/4]]
 
 # note: these members are auto displayed in from B to YB (depending if using SI byte unit or not(IEC)).
 # they all (except those that has the same name as the module or that ends with "_perc")
