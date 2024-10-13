@@ -182,8 +182,8 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
             if (std::holds_alternative<std::string>(result))
                 return std::get<std::string>(result);
 
-            else if (std::holds_alternative<float>(result))
-                return fmt::format("{:.2f}", (std::get<float>(result)));
+            else if (std::holds_alternative<double>(result))
+                return fmt::format("{:.2f}", (std::get<double>(result)));
 
             else
                 return fmt::to_string(std::get<size_t>(result));
@@ -873,11 +873,11 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
     const std::uint16_t byte_unit = config.use_SI_unit ? 1000 : 1024;
     constexpr std::array<std::string_view, 32> sorted_valid_prefixes = {"B", "EB", "EiB", "GB", "GiB", "kB", "KiB", "MB", "MiB", "PB", "PiB", "TB", "TiB", "YB", "YiB", "ZB", "ZiB"};
 
-    const auto& return_devided_bytes = [&sorted_valid_prefixes, &moduleMemberName](const float& amount) -> float
+    const auto& return_devided_bytes = [&sorted_valid_prefixes, &moduleMemberName](const double& amount) -> double
     {
         const std::string& prefix = moduleMemberName.substr(moduleMemberName.find('-')+1);
         if (std::binary_search(sorted_valid_prefixes.begin(), sorted_valid_prefixes.end(), prefix))
-            return static_cast<float>(devide_bytes(amount, prefix).num_bytes);
+            return devide_bytes(amount, prefix).num_bytes;
 
         return 0;
     };
@@ -1389,9 +1389,9 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             //                                                     idk, trick the diviser
-            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount()* byte_unit, byte_unit);
             byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
-            byte_units.at(FREE)  = auto_devide_bytes(query_ram.free_amount() * byte_unit, byte_unit);
+            byte_units.at(FREE)  = auto_devide_bytes(query_ram.free_amount()* byte_unit, byte_unit);
 
             switch (moduleMember_hash)
             {

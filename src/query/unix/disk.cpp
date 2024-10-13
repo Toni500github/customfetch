@@ -55,8 +55,8 @@ Disk::Disk(const std::string_view path, std::vector<std::string>& paths)
         return;
     }
 
-    m_disk_infos.total_amount = static_cast<float>(m_statvfs.f_blocks * m_statvfs.f_frsize);    
-    m_disk_infos.free_amount  = static_cast<float>(m_statvfs.f_bfree  * m_statvfs.f_frsize);    
+    m_disk_infos.total_amount = static_cast<double>(m_statvfs.f_blocks * m_statvfs.f_frsize);    
+    m_disk_infos.free_amount  = static_cast<double>(m_statvfs.f_bfree  * m_statvfs.f_frsize);    
     m_disk_infos.used_amount  = m_disk_infos.total_amount - m_disk_infos.free_amount;
 
     endmntent(mountsFile);
@@ -64,13 +64,13 @@ Disk::Disk(const std::string_view path, std::vector<std::string>& paths)
 }
 
 // clang-format off
-float& Disk::total_amount() noexcept
+double& Disk::total_amount() noexcept
 { return m_disk_infos.total_amount; }
 
-float& Disk::used_amount() noexcept 
+double& Disk::used_amount() noexcept 
 { return m_disk_infos.used_amount; }
 
-float& Disk::free_amount() noexcept
+double& Disk::free_amount() noexcept
 { return m_disk_infos.free_amount; }
 
 std::string& Disk::typefs() noexcept

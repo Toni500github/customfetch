@@ -22,8 +22,8 @@ extern "C" {
 }
 
 using systemInfo_t =
-    std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
-using variant = std::variant<std::string, size_t, float>;
+    std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, double>>>;
+using variant = std::variant<std::string, size_t, double>;
 
 namespace Query
 {
@@ -151,23 +151,23 @@ public:
         std::string name{ UNKNOWN };
         std::string nproc{ UNKNOWN };
 
-        float freq_max        = 0;
-        float freq_min        = 0;
-        float freq_cur        = 0;
-        float freq_bios_limit = 0;
+        double freq_max        = 0;
+        double freq_min        = 0;
+        double freq_cur        = 0;
+        double freq_bios_limit = 0;
 
         // private:
-        float freq_max_cpuinfo = 0;
+        double freq_max_cpuinfo = 0;
     };
 
     CPU() noexcept;
 
     std::string& name() noexcept;
     std::string& nproc() noexcept;
-    float&       freq_max() noexcept;
-    float&       freq_min() noexcept;
-    float&       freq_cur() noexcept;
-    float&       freq_bios_limit() noexcept;
+    double&       freq_max() noexcept;
+    double&       freq_min() noexcept;
+    double&       freq_cur() noexcept;
+    double&       freq_bios_limit() noexcept;
 
 private:
     static bool  m_bInit;
@@ -202,9 +202,9 @@ class Disk
 public:
     struct Disk_t
     {
-        float       total_amount = 0;
-        float       free_amount  = 0;
-        float       used_amount  = 0;
+        double       total_amount = 0;
+        double       free_amount  = 0;
+        double       used_amount  = 0;
         std::string typefs;
         std::string device;
         std::string mountdir;
@@ -212,9 +212,9 @@ public:
 
     Disk(const std::string_view path, std::vector<std::string>& paths);
 
-    float&       total_amount() noexcept;
-    float&       free_amount() noexcept;
-    float&       used_amount() noexcept;
+    double&       total_amount() noexcept;
+    double&       free_amount() noexcept;
+    double&       used_amount() noexcept;
     std::string& typefs() noexcept;
     std::string& device() noexcept;
     std::string& mountdir() noexcept;
@@ -229,22 +229,22 @@ class RAM
 public:
     struct RAM_t
     {
-        float total_amount      = 0;
-        float free_amount       = 0;
-        float used_amount       = 0;
-        float swap_free_amount  = 0;
-        float swap_used_amount  = 0;
-        float swap_total_amount = 0;
+        double total_amount      = 0;
+        double free_amount       = 0;
+        double used_amount       = 0;
+        double swap_free_amount  = 0;
+        double swap_used_amount  = 0;
+        double swap_total_amount = 0;
     };
 
     RAM() noexcept;
 
-    float& total_amount() noexcept;
-    float& free_amount() noexcept;
-    float& used_amount() noexcept;
-    float& swap_free_amount() noexcept;
-    float& swap_used_amount() noexcept;
-    float& swap_total_amount() noexcept;
+    double& total_amount() noexcept;
+    double& free_amount() noexcept;
+    double& used_amount() noexcept;
+    double& swap_free_amount() noexcept;
+    double& swap_used_amount() noexcept;
+    double& swap_total_amount() noexcept;
 
 private:
     static bool  m_bInit;

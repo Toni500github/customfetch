@@ -251,8 +251,8 @@ white   = "\e[1;37m"
 alias-colors = ["purple=magenta"]
 
 # Used in disk, ram and swap modules.
-# If true, we're going to use the SI standard byte unit (1kb == 1000 bytes)
-# Else if false, we using the IEC byte unit (1kb == 1024 bytes)
+# If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)
+# Else if false, we using the IEC byte unit (1KiB == 1024 bibytes)
 # Really nerdy stuff
 use-SI-byte-unit = false
 

@@ -41,7 +41,7 @@ static CPU::CPU_t get_cpu_infos()
 
         if (hasStart(line, "cpu MHz"))
         {
-            float tmp = std::stof(get_from_text(line));
+            double tmp = std::stof(get_from_text(line));
             if (tmp > cpu_mhz)
                 cpu_mhz = tmp;
         }
@@ -50,7 +50,7 @@ static CPU::CPU_t get_cpu_infos()
     // sometimes /proc/cpuinfo at model name
     // the name will contain the min freq
     // happens on intel cpus especially
-    const size_t& pos = ret.name.rfind('@');
+    const size_t pos = ret.name.rfind('@');
     if (pos != std::string::npos)
         ret.name.erase(pos - 1);
 
@@ -60,13 +60,13 @@ static CPU::CPU_t get_cpu_infos()
     // add 1 to the nproc
     ret.nproc = fmt::to_string(std::stoi(ret.nproc) + 1);
 
-    constexpr std::string_view freq_dir = "/sys/devices/system/cpu/cpu0/cpufreq";
+    const std::string freq_dir = "/sys/devices/system/cpu/cpu0/cpufreq";
     if (std::filesystem::exists(freq_dir))
     {
-        std::ifstream cpu_bios_limit_f(fmt::format("{}/bios_limit", freq_dir));
-        std::ifstream cpu_scaling_cur_f(fmt::format("{}/scaling_cur_freq", freq_dir));
-        std::ifstream cpu_scaling_max_f(fmt::format("{}/scaling_max_freq", freq_dir));
-        std::ifstream cpu_scaling_min_f(fmt::format("{}/scaling_min_freq", freq_dir));
+        std::ifstream cpu_bios_limit_f(freq_dir  + "/bios_limit");
+        std::ifstream cpu_scaling_cur_f(freq_dir + "/scaling_cur_freq");
+        std::ifstream cpu_scaling_max_f(freq_dir + "/scaling_max_freq");
+        std::ifstream cpu_scaling_min_f(freq_dir + "/scaling_min_freq");
 
         std::string freq_bios_limit, freq_cpu_scaling_cur, freq_cpu_scaling_max, freq_cpu_scaling_min;
 
@@ -99,14 +99,14 @@ std::string& CPU::name() noexcept
 std::string& CPU::nproc() noexcept
 { return m_cpu_infos.nproc; }
 
-float& CPU::freq_bios_limit() noexcept
+double& CPU::freq_bios_limit() noexcept
 { return m_cpu_infos.freq_bios_limit; }
 
-float& CPU::freq_cur() noexcept
+double& CPU::freq_cur() noexcept
 { return m_cpu_infos.freq_cur; }
 
-float& CPU::freq_max() noexcept
+double& CPU::freq_max() noexcept
 { return (m_cpu_infos.freq_max <= 0) ? m_cpu_infos.freq_max_cpuinfo : m_cpu_infos.freq_max; }
 
-float& CPU::freq_min() noexcept
+double& CPU::freq_min() noexcept
 { return m_cpu_infos.freq_min; }
