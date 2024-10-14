@@ -35,7 +35,7 @@ static std::string get_de_name()
     return ret;
 }
 
-static std::string get_wm_name()
+static std::string get_wm_name(std::string& wm_path_exec)
 {
     std::string path, proc_name, wm_name;
     const uid_t uid = getuid();
@@ -53,8 +53,8 @@ static std::string get_wm_name()
             continue;
 
         path = dir_entry.path() / "cmdline";
-        std::ifstream f(path, std::ios::binary);
-        std::getline(f, proc_name);
+        std::ifstream f_cmdline(path, std::ios::binary);
+        std::getline(f_cmdline, proc_name);
 
         size_t pos = 0;
         if ((pos = proc_name.find('\0')) != std::string::npos)
@@ -68,6 +68,8 @@ static std::string get_wm_name()
         if ((wm_name = prettify_wm_name(proc_name)) == MAGIC_LINE)
             continue;
 
+        char buf[PATH_MAX];
+        wm_path_exec = realpath((dir_entry.path().string() + "/exe").c_str(), buf);
         break;
     }
 
@@ -108,10 +110,10 @@ static std::string get_de_version(const std::string_view de_name)
     }
 }
 
-static std::string get_wm_wayland_name()
+static std::string get_wm_wayland_name(std::string& wm_path_exec)
 {
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
-    LOAD_LIBRARY("libwayland-client.so", return get_wm_name();)
+    LOAD_LIBRARY("libwayland-client.so", return get_wm_name(wm_path_exec);)
 
     LOAD_LIB_SYMBOL(wl_display*, wl_display_connect, const char* name)
     LOAD_LIB_SYMBOL(void, wl_display_disconnect, wl_display* display)
@@ -130,11 +132,14 @@ static std::string get_wm_wayland_name()
     f >> ret;
     wl_display_disconnect(display);
 
+    char buf[PATH_MAX];    
+    wm_path_exec = realpath(fmt::format("/proc/{}/exe", ucred.pid).c_str(), buf);
+
     UNLOAD_LIBRARY()
 
     return prettify_wm_name(ret);
 #else
-    return get_wm_name();
+    return get_wm_name(wm_path_exec);
 #endif
 }
 
@@ -352,9 +357,9 @@ std::string& User::wm_name(bool dont_query_dewm, const std::string_view term_nam
     {
         const char* env = std::getenv("WAYLAND_DISPLAY");
         if (env != nullptr && env[0] != '\0')
-            m_users_infos.wm_name = get_wm_wayland_name();
+            m_users_infos.wm_name = get_wm_wayland_name(m_users_infos.m_wm_path);
         else
-            m_users_infos.wm_name = get_wm_name();
+            m_users_infos.wm_name = get_wm_name(m_users_infos.m_wm_path);
 
         if (m_users_infos.de_name == m_users_infos.wm_name)
             m_users_infos.de_name = MAGIC_LINE;
@@ -363,6 +368,39 @@ std::string& User::wm_name(bool dont_query_dewm, const std::string_view term_nam
     }
 
     return m_users_infos.wm_name;
+}
+
+std::string& User::wm_version(bool dont_query_dewm, const std::string_view term_name)
+{
+    if (dont_query_dewm || hasStart(term_name, "/dev"))
+    {
+        m_users_infos.wm_name = MAGIC_LINE;
+        return m_users_infos.wm_name;
+    }
+    
+    static bool done = false;
+    if (!done)
+    {
+        m_users_infos.wm_version.clear();
+        if (m_users_infos.wm_name == "dwm")
+        {
+            read_exec({m_users_infos.m_wm_path.c_str(), "-v"}, m_users_infos.wm_version, true);
+            m_users_infos.wm_version.erase(0, "dwm-"_len);
+        }
+        else
+        {
+            read_exec({m_users_infos.m_wm_path.c_str(), "--version"}, m_users_infos.wm_version);
+            m_users_infos.wm_version.erase(0, m_users_infos.wm_name.length() + 1);
+            
+            const size_t pos = m_users_infos.wm_version.find(' ');
+            if (pos != std::string::npos)
+                m_users_infos.wm_version.erase(pos);
+        }
+
+        done = true;
+    }
+
+    return m_users_infos.wm_version;
 }
 
 std::string& User::de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name)
@@ -382,7 +420,8 @@ std::string& User::de_name(bool dont_query_dewm, const std::string_view term_nam
 
     if (!done)
     {
-        if (m_users_infos.de_name != MAGIC_LINE && wm_name != MAGIC_LINE && m_users_infos.de_name == wm_name)
+        if ((m_users_infos.de_name != MAGIC_LINE && wm_name != MAGIC_LINE) &&
+            m_users_infos.de_name == wm_name)
         {
             m_users_infos.de_name = MAGIC_LINE;
             done = true;

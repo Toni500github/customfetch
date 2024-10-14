@@ -318,10 +318,11 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     if (pipe(pipeout.data()) < 0)
         die("pipe() failed: {}", strerror(errno));
 
-    pid_t pid = fork();
+    const pid_t pid = fork();
 
+    // we wait for the command to finish then start executing the rest
     if (pid > 0)
-    {  // we wait for the command to finish then start executing the rest
+    {
         close(pipeout.at(1));
 
         int status;

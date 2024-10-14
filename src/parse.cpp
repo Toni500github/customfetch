@@ -1083,6 +1083,10 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     SYSINFO_INSERT(query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name()));
                     break;
 
+                case "wm_version"_fnv1a16:
+                    SYSINFO_INSERT(query_user.wm_version(query_user.m_bDont_query_dewm, query_user.term_name()));
+                    break;
+
                 case "terminal"_fnv1a16:
                     SYSINFO_INSERT(prettify_term_name(query_user.term_name()) + ' ' +
                                    query_user.term_version(query_user.term_name()));
@@ -1097,7 +1101,7 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
     else if (moduleName == "theme")
     {
-        Query::Theme query_cursor(queried_themes, config);
+        Query::Theme query_theme(queried_themes, config, false);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1107,13 +1111,13 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
             switch (moduleMember_hash)
             {
                 case "cursor"_fnv1a16:
-                    if (query_cursor.cursor_size() == UNKNOWN)
-                        SYSINFO_INSERT(query_cursor.cursor());
+                    if (query_theme.cursor_size() == UNKNOWN)
+                        SYSINFO_INSERT(query_theme.cursor());
                     else
-                        SYSINFO_INSERT(fmt::format("{} ({}px)", query_cursor.cursor(), query_cursor.cursor_size()));
+                        SYSINFO_INSERT(fmt::format("{} ({}px)", query_theme.cursor(), query_theme.cursor_size()));
                     break;
-                case "cursor_name"_fnv1a16: SYSINFO_INSERT(query_cursor.cursor()); break;
-                case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_cursor.cursor_size()); break;
+                case "cursor_name"_fnv1a16: SYSINFO_INSERT(query_theme.cursor()); break;
+                case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_theme.cursor_size()); break;
             }
         }
     }
@@ -1143,7 +1147,7 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
             }
             else
             {
-                Query::Theme query_theme(0, queried_themes, queried_themes_names, "", config, true);
+                Query::Theme query_theme(0, queried_themes, queried_themes_names, "gsettings", config, true);
                 switch (moduleMember_hash)
                 {
                     case "name"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_theme()); break;
