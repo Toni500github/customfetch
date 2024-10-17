@@ -383,19 +383,15 @@ std::string& User::wm_version(bool dont_query_dewm, const std::string_view term_
     {
         m_users_infos.wm_version.clear();
         if (m_users_infos.wm_name == "dwm")
-        {
             read_exec({m_users_infos.m_wm_path.c_str(), "-v"}, m_users_infos.wm_version, true);
-            m_users_infos.wm_version.erase(0, "dwm-"_len);
-        }
         else
-        {
             read_exec({m_users_infos.m_wm_path.c_str(), "--version"}, m_users_infos.wm_version);
-            m_users_infos.wm_version.erase(0, m_users_infos.wm_name.length() + 1);
-            
-            const size_t pos = m_users_infos.wm_version.find(' ');
-            if (pos != std::string::npos)
-                m_users_infos.wm_version.erase(pos);
-        }
+
+        m_users_infos.wm_version.erase(0, m_users_infos.wm_name.length() + 1);
+
+        const size_t pos = m_users_infos.wm_version.find(' ');
+        if (pos != std::string::npos)
+            m_users_infos.wm_version.erase(pos);
 
         done = true;
     }

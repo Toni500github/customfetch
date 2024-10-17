@@ -43,9 +43,6 @@ std::string _;
 
 static std::array<std::string, 3> get_ansi_color(const std::string_view str, const colors_t& colors)
 {
-    if (hasStart(str, "38") || hasStart(str, "48"))
-        die("Can't convert \\e[38; or \\e[48; codes in GUI. Please use #hexcode colors instead.");
-
     const size_t first_m = str.rfind('m');
     if (first_m == std::string::npos)
         die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
@@ -318,14 +315,39 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 const char subtype = gettype(output.at(i + 1));
                 if (subtype != '\0')
                 {
-                    const size_t pos = output.find(subtype, i);
-                    if (pos == output.npos)
-                        die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
+                    size_t pos = i;
+                    while ((pos = output.find(subtype, pos + 1)))
+                    {
+                        if (pos == output.npos)
+                            die("PARSER (1st): Opened tag is not closed at index {} in string '{}'", dollarSignIndex, output);
+
+                        if (output.at(pos - 1) != '\\')
+                            break;
+                        else
+                            output.erase(pos - 1, 1);
+                    }
+                    const size_t oldpos = pos;
+                    if (output.substr(i, pos).find('$') != output.npos)
+                    {
+                        while ((pos = output.find(subtype, pos + 1)))
+                        {
+                            if (pos == output.npos)
+                            {
+                                pos = oldpos;
+                                break;
+                            }
+                            if (output.at(pos - 1) != '\\')
+                                break;
+                            else
+                                output.erase(pos - 1, 1);
+                        }
+                    }
 
                     endBracketIndex = pos;
                     const size_t len = (pos + 1) - i;
 
                     command += parse(output.substr(i, len), _, parse_args);
+                    debug("command = " + command);
                     skip_lenght = len - 1;
                     continue;
                 }
@@ -335,12 +357,13 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 endBracketIndex = i;
                 break;
             }
-            else if (output.at(i) == type)
+            
+            if (output.at(i) == type)
                 command.pop_back();
 
             command += output.at(i);
         }
-
+        
         if (static_cast<int>(endBracketIndex) == -1)
             die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
 
@@ -373,7 +396,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             {
                 const size_t dot_pos = command.find('.');
                 if (dot_pos == std::string::npos)
-                    die("module name '{}' doesn't have a dot '.' for separiting module name and value", command);
+                    die("module name '{}' doesn't have a dot '.' for separating module name and value", command);
 
                 const std::string& moduleName       = command.substr(0, dot_pos);
                 const std::string& moduleMemberName = command.substr(dot_pos + 1);
