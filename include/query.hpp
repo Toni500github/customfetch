@@ -144,7 +144,6 @@ private:
     systemInfo_t&     m_queried_themes;
     const std::string m_theme_name_version;
     std::string       m_wmde_name;
-    const Config&     m_Config;
 };
 
 class CPU

@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include "config.hpp"
+#include "fmt/format.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "rapidxml-1.13/rapidxml.hpp"
@@ -122,22 +123,18 @@ static bool get_cursor_dconf(const std::string_view de_name, Theme::Theme_t& the
             interface = "/org/gnome/desktop/interface/";
     }
 
-    if (theme.cursor == MAGIC_LINE || theme.cursor.empty())
-    {
-        variant = dconf_client_read(client, (interface + "cursor-theme").c_str());
-        if (variant)
-            theme.cursor = g_variant_get_string(variant, NULL);
-    }
+    
+    variant = dconf_client_read(client, (interface + "cursor-theme").c_str());
+    if (variant)
+        theme.cursor = g_variant_get_string(variant, NULL);
+    
 
-    if (theme.cursor_size == UNKNOWN || theme.cursor_size.empty())
-    {
-        variant = dconf_client_read(client, (interface + "cursor-size").c_str());
-        if (variant)
-            theme.cursor = g_variant_get_int32(variant);
-    }
+    
+    variant = dconf_client_read(client, (interface + "cursor-size").c_str());
+    if (variant)
+        theme.cursor_size = fmt::to_string(g_variant_get_int32(variant));
 
     return assert_cursor(theme);
-
 #else
     return false;
 #endif
@@ -454,10 +451,9 @@ static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, co
 Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
              const std::string& theme_name_version, const Config& config, const bool gsettings_only)
             : m_queried_themes(queried_themes),
-              m_theme_name_version(theme_name_version),
-              m_Config(config)
+              m_theme_name_version(theme_name_version)
 {
-    if (std::find(queried_themes_names.begin(), queried_themes_names.end(), m_theme_name_version) 
+    if (std::find(queried_themes_names.begin(), queried_themes_names.end(), m_theme_name_version)
         == queried_themes_names.end())
         queried_themes_names.push_back(m_theme_name_version);
     else
@@ -493,12 +489,8 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
 }
 
 // only use it for cursor
-Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only) : m_queried_themes(queried_themes), m_Config(config)
+Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only) : m_queried_themes(queried_themes)
 {
-    static bool done = false;
-    if (hasStart(query_user.term_name(), "/dev") || done)
-        return;
-
     const std::string& wm_name = query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name());
     const std::string& de_name = query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(), wm_name);
 
@@ -514,7 +506,7 @@ Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gset
     else if (get_cursor_from_gtk_configs(3, m_theme_infos)){}
     else if (get_cursor_from_gtk_configs(2, m_theme_infos)){}
     else if (get_cursor_xresources(m_theme_infos)){}
-    else get_cursor_gsettings(m_wmde_name, m_theme_infos, m_Config);
+    else get_cursor_gsettings(m_wmde_name, m_theme_infos, config);
 
     if (m_theme_infos.cursor.empty())
         m_theme_infos.cursor = MAGIC_LINE;
@@ -525,11 +517,10 @@ Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gset
             m_theme_infos.cursor.erase(pos);
 
         if ((pos = m_theme_infos.cursor.rfind('_')) != std::string::npos)
-            m_theme_infos.cursor.erase(pos);
+            m_theme_infos.cursor.erase(pos - 1);
 
     }
 
-    done = true;
 }
 
 std::string Theme::gtk_theme() noexcept
