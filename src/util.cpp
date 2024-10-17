@@ -118,11 +118,11 @@ byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const
 
     std::array<std::string_view, 10> prefixes;
     if (base == 1024)
-        prefixes = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"};
+        prefixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     else if (base == 1000)
-        prefixes = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+        prefixes = { "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
     else
-        prefixes = {"B"};
+        prefixes = { "B" };
 
     std::uint16_t counter = 0;
     if (maxprefix.empty())
@@ -132,12 +132,11 @@ byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const
     }
     else
     {
-        for (; counter < prefixes.size() && size >= base && prefixes.at(counter) != maxprefix;
-                ++counter)
+        for (; counter < prefixes.size() && size >= base && prefixes.at(counter) != maxprefix; ++counter)
             size /= base;
     }
 
-    return {prefixes.at(counter).data(), size};
+    return { prefixes.at(counter).data(), size };
 }
 
 byte_units_t devide_bytes(const double num, const std::string_view prefix)

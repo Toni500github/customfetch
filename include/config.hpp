@@ -38,21 +38,21 @@ public:
     std::vector<std::string> layout;
     std::vector<std::string> percentage_colors;
     std::vector<std::string> colors_name, colors_value;
-    std::string   source_path;
-    std::string   font;
-    std::string   data_dir;
-    std::string   sep_reset;
-    std::string   builtin_title_sep;
-    std::string   gui_bg_image;
-    std::string   ascii_logo_type;
-    std::uint16_t offset             = 0;
-    std::uint16_t logo_padding_left  = 0;
-    std::uint16_t logo_padding_top   = 0;
-    std::uint16_t layout_padding_top = 0;
-    bool          gui                = false;
-    bool          sep_reset_after    = false;
-    bool          slow_query_warnings= false;
-    bool          use_SI_unit        = false;
+    std::string              source_path;
+    std::string              font;
+    std::string              data_dir;
+    std::string              sep_reset;
+    std::string              builtin_title_sep;
+    std::string              gui_bg_image;
+    std::string              ascii_logo_type;
+    std::uint16_t            offset              = 0;
+    std::uint16_t            logo_padding_left   = 0;
+    std::uint16_t            logo_padding_top    = 0;
+    std::uint16_t            layout_padding_top  = 0;
+    bool                     gui                 = false;
+    bool                     sep_reset_after     = false;
+    bool                     slow_query_warnings = false;
+    bool                     use_SI_unit         = false;
 
     // modules specific config
     std::string uptime_d_fmt;
@@ -68,17 +68,17 @@ public:
 
     // inner management / argument configs
     std::vector<std::string> m_args_layout;
-    std::string m_custom_distro;
-    std::string m_image_backend;
-    bool        m_disable_source  = false;
-    bool        m_disable_colors  = false;
-    bool        m_display_distro  = true;
-    bool        m_print_logo_only = false;
+    std::string              m_custom_distro;
+    std::string              m_image_backend;
+    bool                     m_disable_source  = false;
+    bool                     m_disable_colors  = false;
+    bool                     m_display_distro  = true;
+    bool                     m_print_logo_only = false;
 
-    void        loadConfigFile(const std::string_view filename, colors_t& colors);
-    std::string getThemeValue(const std::string_view value, const std::string_view fallback) const;
-    void        generateConfig(const std::string_view filename);
-    void        addAliasColors(const std::string& str);
+    void                     loadConfigFile(const std::string_view filename, colors_t& colors);
+    std::string              getThemeValue(const std::string_view value, const std::string_view fallback) const;
+    void                     generateConfig(const std::string_view filename);
+    void                     addAliasColors(const std::string& str);
     std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
 
     template <typename T>
@@ -329,4 +329,4 @@ bg-image = "disable"
 
 )#";
 
-#endif // _CONFIG_HPP
+#endif  // _CONFIG_HPP

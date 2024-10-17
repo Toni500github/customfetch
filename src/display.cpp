@@ -3,7 +3,7 @@
 #include "display.hpp"
 
 #ifndef GUI_MODE
-# define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 #endif
 
 #include <pty.h>
@@ -51,8 +51,9 @@ std::string Display::detect_distro(const Config& config)
 }
 
 static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std::vector<std::string>& layout,
-                                                  const Config& config, const colors_t& colors, const std::string_view path,
-                                                  const std::uint16_t font_width, const std::uint16_t font_height)
+                                                  const Config& config, const colors_t& colors,
+                                                  const std::string_view path, const std::uint16_t font_width,
+                                                  const std::uint16_t font_height)
 {
     int image_width, image_height, channels;
 
@@ -149,7 +150,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     debug("Display::render path = {}", path);
 
-    bool isImage = false;
+    bool          isImage = false;
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
     if (!config.m_disable_source)
@@ -215,7 +216,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         return render_with_image(systemInfo, layout, config, colors, path, font_width, font_height);
     }
-    
 
     for (int i = 0; i < config.logo_padding_top; i++)
     {
@@ -302,7 +302,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         }
 
         const size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
-                                (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
+                              (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
 
         debug("spaces: {}", spaces);
 

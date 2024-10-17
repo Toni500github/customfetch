@@ -98,8 +98,8 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     // useImage can be either a gif or an image
     if (useImage && !config.m_disable_source)
     {
-        Glib::RefPtr<Gdk::PixbufAnimation> img = Gdk::PixbufAnimation::create_from_file(path.data());
-        m_img = Gtk::manage(new Gtk::Image(img));
+        const auto& img = Gdk::PixbufAnimation::create_from_file(path.data());
+        m_img           = Gtk::manage(new Gtk::Image(img));
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
         m_box.pack_start(*m_img, Gtk::PACK_SHRINK);
@@ -111,7 +111,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     auto                   context = m_label.get_pango_context();
     Pango::FontDescription font(config.font);
     debug("font family = {}", font.get_family().raw());
-    debug("font style = {}",  fmt::underlying(font.get_style()));
+    debug("font style = {}", fmt::underlying(font.get_style()));
     debug("font weight = {}", fmt::underlying(font.get_weight()));
     context->set_font_description(font);
 

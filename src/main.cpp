@@ -9,6 +9,7 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
+// clang-format off
 // https://cfengine.com/blog/2021/optional-arguments-with-getopt-long/
 // because "--opt-arg arg" won't work
 // but "--opt-arg=arg" will
@@ -16,6 +17,7 @@
     ((optarg == NULL && optind < argc && argv[optind][0] != '-') \
      ? (bool) (optarg = argv[optind++]) \
      : (optarg != NULL))
+// clang-format on
 
 using namespace std::string_view_literals;
 
@@ -33,9 +35,9 @@ static void version()
     fmt::println("NO flags were set");
 #else
     fmt::println("set flags:");
-# if USE_DCONF
+#if USE_DCONF
     fmt::println("USE_DCONF");
-# endif
+#endif
 #endif
 
     // if only everyone would not return error when querying the program version :(
@@ -455,15 +457,14 @@ int main(int argc, char *argv[])
     if (!config.ascii_logo_type.empty() && config.m_display_distro)
     {
         const size_t& pos = path.rfind('.');
-        
+
         if (pos != std::string::npos)
             path.insert(pos, "_" + config.ascii_logo_type);
         else
             path += "_" + config.ascii_logo_type;
     }
 
-    if (!std::filesystem::exists(path) &&
-        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
+    if (!std::filesystem::exists(path) && !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
     {
         if (!config.m_disable_source)
             die("'{}' doesn't exist. Can't load image/text file", path);
@@ -474,7 +475,7 @@ int main(int argc, char *argv[])
 #ifdef GUI_MODE
     if (config.gui)
     {
-        const Glib::RefPtr<Gtk::Application>& app = Gtk::Application::create("org.toni.customfetch");
+        const auto& app = Gtk::Application::create("org.toni.customfetch");
         GUI::Window window(config, colors, path);
         return app->run(window);
     }

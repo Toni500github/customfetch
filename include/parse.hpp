@@ -35,10 +35,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
  * else, error out.
  * @param moduleName The module name
  * @param moduleMemberName The module member name
- * @param parse_args The parse() like arguments 
+ * @param parse_args The parse() like arguments
  */
-void addValueFromModule(const std::string& moduleName, const std::string& moduleMemberName,
-                        parse_args_t& parse_args);
+void addValueFromModule(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args);
 
 /*
  * Return a module member value
@@ -52,6 +51,5 @@ void append_styles(fmt::text_style& current_style, Styles&&... styles)
 {
     current_style |= (styles | ...);
 }
-
 
 #endif

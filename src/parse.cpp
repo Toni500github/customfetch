@@ -91,7 +91,8 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 {
     if (std::count(noesc_str.begin(), noesc_str.end(), ';') < 4)
         die("ANSI escape code color '\\e[{}' should have an rgb type value\n"
-            "e.g \\e[38;2;255;255;255m", noesc_str);
+            "e.g \\e[38;2;255;255;255m",
+            noesc_str);
     if (noesc_str.rfind('m') == std::string::npos)
         die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
 
@@ -101,7 +102,7 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
     const uint g = std::stoul(rgb_str.at(1));
     const uint b = std::stoul(rgb_str.at(2));
 
-    const uint result = (r<<16) | (g<<8)| (b);
+    const uint        result = (r << 16) | (g << 8) | (b);
     std::stringstream ss;
     ss << std::hex << result;
     return ss.str();
@@ -135,14 +136,14 @@ static char gettype(const char opentag)
         case '{': return '}';
     }
 
-    return '\0'; // neither of them
+    return '\0';  // neither of them
 }
 
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
                                             const bool invert = false)
 {
     const Config& config = parse_args.config;
-    const float result = static_cast<float>(n1 / n2 * static_cast<float>(100));
+    const float   result = static_cast<float>(n1 / n2 * static_cast<float>(100));
 
     std::string color;
     if (!invert)
@@ -193,8 +194,8 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
                   const colors_t& colors, const bool parsingLayout)
 {
-    std::string output{input.data()};
-    pureOutput         = output;
+    std::string output{ input.data() };
+    pureOutput = output;
 
     size_t dollarSignIndex    = 0;
     size_t oldDollarSignIndex = 0;
@@ -247,7 +248,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         dollarSignIndex    = output.find('$', dollarSignIndex);
 
     retry:
-        if (dollarSignIndex == std::string::npos || dollarSignIndex >= output.length()-1)
+        if (dollarSignIndex == std::string::npos || dollarSignIndex >= output.length() - 1)
             break;
         //                                                      small workaround cuz idk how to fix this
         else if (dollarSignIndex <= oldDollarSignIndex && start && !config.m_disable_colors)
@@ -266,8 +267,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         // backslashes, thats your fault atp.
         if (skip_bypass)
         {
-            if (dollarSignIndex > 0 and
-                (output.at(dollarSignIndex - 1) == '\\' and (dollarSignIndex == 1 or output.at(dollarSignIndex - 2) != '\\')))
+            if (dollarSignIndex > 0 and (output.at(dollarSignIndex - 1) == '\\' and
+                                         (dollarSignIndex == 1 or output.at(dollarSignIndex - 2) != '\\')))
             {
                 skip_bypass = false;
                 continue;
@@ -288,11 +289,11 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             dollarSignIndex--;
         }
 
-        std::string command; // what's inside the tag
-        command.reserve(256); // should be enough for not allocating over and over
+        std::string command;   // what's inside the tag
+        command.reserve(256);  // should be enough for not allocating over and over
 
         size_t     endBracketIndex = -1;
-        const char opentag = output.at(dollarSignIndex + 1);
+        const char opentag         = output.at(dollarSignIndex + 1);
         const char type = gettype(opentag);  // '\0' = undefined, ')' = shell exec, 2 = ')' asking for a module
         if (type == '\0')
             continue;
@@ -319,7 +320,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                     while ((pos = output.find(subtype, pos + 1)))
                     {
                         if (pos == output.npos)
-                            die("PARSER (1st): Opened tag is not closed at index {} in string '{}'", dollarSignIndex, output);
+                            die("PARSER (1st): Opened tag is not closed at index {} in string '{}'", dollarSignIndex,
+                                output);
 
                         if (output.at(pos - 1) != '\\')
                             break;
@@ -343,7 +345,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         }
                     }
 
-                    endBracketIndex = pos;
+                    endBracketIndex  = pos;
                     const size_t len = (pos + 1) - i;
 
                     command += parse(output.substr(i, len), _, parse_args);
@@ -357,13 +359,13 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 endBracketIndex = i;
                 break;
             }
-            
+
             if (output.at(i) == type)
                 command.pop_back();
 
             command += output.at(i);
         }
-        
+
         if (static_cast<int>(endBracketIndex) == -1)
             die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
 
@@ -420,8 +422,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                 const float n1 = std::stof(parse(command.substr(invert ? 1 : 0, comma_pos), _, parse_args));
                 const float n2 = std::stof(parse(command.substr(comma_pos + 1), _, parse_args));
 
-                output.replace(dollarSignIndex, taglen,
-                               get_and_color_percentage(n1, n2, parse_args, invert));
+                output.replace(dollarSignIndex, taglen, get_and_color_percentage(n1, n2, parse_args, invert));
             }
             break;
 
@@ -566,16 +567,11 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                         bgcolor = true;
                                         tagfmt += "bgcolor='" + str_clr.substr(pos) + "' ";
                                         break;
-                                    case '!':
-                                        tagfmt += "weight='bold' "; break;
-                                    case 'u':
-                                        tagfmt += "underline='single' "; break;
-                                    case 'i':
-                                        tagfmt += "style='italic' "; break;
-                                    case 'o':
-                                        tagfmt += "overline='single' "; break;
-                                    case 's':
-                                        tagfmt += "strikethrough='true' "; break;
+                                    case '!': tagfmt += "weight='bold' "; break;
+                                    case 'u': tagfmt += "underline='single' "; break;
+                                    case 'i': tagfmt += "style='italic' "; break;
+                                    case 'o': tagfmt += "overline='single' "; break;
+                                    case 's': tagfmt += "strikethrough='true' "; break;
 
                                     case 'a':
                                         argmode_pos = i;
@@ -630,22 +626,24 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         // "\\e" is for checking in the ascii_art, \033 in the config
                         else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
                         {
-                            const std::string& noesc_str = hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
+                            const std::string& noesc_str =
+                                hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
                             debug("noesc_str = {}", noesc_str);
 
                             if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
                             {
                                 const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
-                                output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                               fmt::format("<span {}gcolor='#{}'>{}</span>", hasStart(noesc_str, "38") ? 'f' : 'b', hexclr,
-                                                            output.substr(endBracketIndex + 1)));
+                                output.replace(
+                                    dollarSignIndex, output.length() - dollarSignIndex,
+                                    fmt::format("<span {}gcolor='#{}'>{}</span>", hasStart(noesc_str, "38") ? 'f' : 'b',
+                                                hexclr, output.substr(endBracketIndex + 1)));
                             }
                             else
                             {
-                                const std::array<std::string, 3>& clrs = get_ansi_color(noesc_str, colors);
-                                const std::string_view color           = clrs.at(0);
-                                const std::string_view weight          = clrs.at(1);
-                                const std::string_view type            = clrs.at(2);
+                                const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
+                                const std::string_view            color  = clrs.at(0);
+                                const std::string_view            weight = clrs.at(1);
+                                const std::string_view            type   = clrs.at(2);
                                 output.replace(dollarSignIndex, output.length() - dollarSignIndex,
                                                fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color, weight,
                                                            output.substr(endBracketIndex + 1)));
@@ -707,16 +705,11 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                                         bgcolor = true;
                                         append_styles(style, fmt::bg(hexStringToColor(str_clr.substr(pos))));
                                         break;
-                                    case '!':
-                                        append_styles(style, fmt::emphasis::bold); break;
-                                    case 'u':
-                                        append_styles(style, fmt::emphasis::underline); break;
-                                    case 'i':
-                                        append_styles(style, fmt::emphasis::italic); break;
-                                    case 'l':
-                                        append_styles(style, fmt::emphasis::blink); break;
-                                    case 's':
-                                        append_styles(style, fmt::emphasis::strikethrough); break;
+                                    case '!': append_styles(style, fmt::emphasis::bold); break;
+                                    case 'u': append_styles(style, fmt::emphasis::underline); break;
+                                    case 'i': append_styles(style, fmt::emphasis::italic); break;
+                                    case 'l': append_styles(style, fmt::emphasis::blink); break;
+                                    case 's': append_styles(style, fmt::emphasis::strikethrough); break;
 
                                     case 'U':
                                     case 'B':
@@ -739,10 +732,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
                         // "\\e" is for checking in the ascii_art, \033 in the config
                         else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
                         {
-                            formatted_replacement_string =
-                                fmt::format("\x1B[{}{}",
-                                            hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3),
-                                            output.substr(endBracketIndex + 1));
+                            formatted_replacement_string = fmt::format(
+                                "\x1B[{}{}", hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3),
+                                output.substr(endBracketIndex + 1));
                         }
 
                         else
@@ -894,7 +886,9 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
     static systemInfo_t               queried_themes;
 
     const std::uint16_t byte_unit = config.use_SI_unit ? 1000 : 1024;
-    constexpr std::array<std::string_view, 32> sorted_valid_prefixes = {"B", "EB", "EiB", "GB", "GiB", "kB", "KiB", "MB", "MiB", "PB", "PiB", "TB", "TiB", "YB", "YiB", "ZB", "ZiB"};
+    constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
+                                                                         "KiB", "MB", "MiB", "PB", "PiB", "TB",
+                                                                         "TiB", "YB", "YiB", "ZB", "ZiB" };
 
     const auto& return_devided_bytes = [&sorted_valid_prefixes, &moduleMemberName](const double& amount) -> double
     {
@@ -973,8 +967,9 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
             switch (moduleMember_hash)
             {
                 case "host"_fnv1a16:
-                    SYSINFO_INSERT(std::string_view(query_system.host_vendor() + ' ' + query_system.host_modelname() + ' ' +
-                                               query_system.host_version()).data());
+                    SYSINFO_INSERT(std::string_view(query_system.host_vendor() + ' ' + query_system.host_modelname() +
+                                                    ' ' + query_system.host_version())
+                                       .data());
                     break;
 
                 case "host_name"_fnv1a16: SYSINFO_INSERT(query_system.host_modelname()); break;
@@ -1006,7 +1001,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     // no need to parse anything
                     Query::User   query_user;
                     Query::System query_system;
-                    const size_t& title_len = std::string_view(query_user.name() + '@' + query_system.hostname()).length();
+                    const size_t& title_len =
+                        std::string_view(query_user.name() + '@' + query_system.hostname()).length();
 
                     std::string str;
                     str.reserve(config.builtin_title_sep.length() * title_len);
@@ -1017,7 +1013,7 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                 }
                 break;
 
-                // clang-format off
+                    // clang-format off
                 case "colors"_fnv1a16:
                     SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", _, parse_args));
                     break;
@@ -1147,9 +1143,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
     else if (moduleName == "theme-gsettings")
     {
-
         if (sysInfo.find(moduleName) == sysInfo.end())
-             sysInfo.insert({ moduleName, {} });
+            sysInfo.insert({ moduleName, {} });
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
@@ -1163,7 +1158,7 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                             SYSINFO_INSERT(query_cursor.cursor());
                         else
                             SYSINFO_INSERT(fmt::format("{} ({}px)", query_cursor.cursor(), query_cursor.cursor_size()));
-                    break;
+                        break;
                     case "cursor_name"_fnv1a16: SYSINFO_INSERT(query_cursor.cursor()); break;
                     case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_cursor.cursor_size()); break;
                 }
@@ -1173,9 +1168,9 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                 Query::Theme query_theme(0, queried_themes, queried_themes_names, "gsettings", config, true);
                 switch (moduleMember_hash)
                 {
-                    case "name"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_theme()); break;
+                    case "name"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_theme()); break;
                     case "icons"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_icon_theme()); break;
-                    case "font"_fnv1a16: SYSINFO_INSERT(query_theme.gtk_font()); break;
+                    case "font"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_font()); break;
                 }
             }
         }
@@ -1274,8 +1269,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
         {
             switch (moduleMember_hash)
             {
-                case "name"_fnv1a16:    SYSINFO_INSERT(query_gpu.name()); break;
-                case "vendor"_fnv1a16:  SYSINFO_INSERT(shorten_vendor_name(query_gpu.vendor())); break;
+                case "name"_fnv1a16:        SYSINFO_INSERT(query_gpu.name()); break;
+                case "vendor"_fnv1a16:      SYSINFO_INSERT(shorten_vendor_name(query_gpu.vendor())); break;
                 case "vendor_long"_fnv1a16: SYSINFO_INSERT(query_gpu.vendor()); break;
             }
         }
@@ -1311,9 +1306,11 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
             switch (moduleMember_hash)
             {
-                case "fs"_fnv1a16:       SYSINFO_INSERT(query_disk.typefs()); break;
-                case "device"_fnv1a16:   SYSINFO_INSERT(query_disk.device()); break;
-                case "mountdir"_fnv1a16: SYSINFO_INSERT(query_disk.mountdir()); break;
+                case "fs"_fnv1a16:     SYSINFO_INSERT(query_disk.typefs()); break;
+                case "device"_fnv1a16: SYSINFO_INSERT(query_disk.device()); break;
+                case "mountdir"_fnv1a16:
+                    SYSINFO_INSERT(query_disk.mountdir());
+                    break;
 
                     // clang-format off
                 case "disk"_fnv1a16:
@@ -1347,8 +1344,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     break;
 
                 case "used_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(),
-                                                            parse_args));
+                    SYSINFO_INSERT(
+                        get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), parse_args));
                     break;
 
                 default:
@@ -1452,17 +1449,17 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             //                                                     idk, trick the diviser
-            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount()* byte_unit, byte_unit);
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
             byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
-            byte_units.at(FREE)  = auto_devide_bytes(query_ram.free_amount()* byte_unit, byte_unit);
+            byte_units.at(FREE)  = auto_devide_bytes(query_ram.free_amount() * byte_unit, byte_unit);
 
             switch (moduleMember_hash)
             {
                 case "ram"_fnv1a16:
                 {
-                    const std::string& perc = get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(),
-                                                                        parse_args);
-                    
+                    const std::string& perc =
+                        get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args);
+
                     // clang-format off
                     SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
                                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
@@ -1484,11 +1481,13 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     break;
 
                 case "free_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(query_ram.free_amount(), query_ram.total_amount(), parse_args, true));
+                    SYSINFO_INSERT(
+                        get_and_color_percentage(query_ram.free_amount(), query_ram.total_amount(), parse_args, true));
                     break;
 
                 case "used_perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args));
+                    SYSINFO_INSERT(
+                        get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args));
                     break;
 
                 default:

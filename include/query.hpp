@@ -90,7 +90,7 @@ public:
         std::string de_version{ UNKNOWN };
         std::string term_name{ MAGIC_LINE };
         std::string term_version{ MAGIC_LINE };
-    //private:
+        // private:
         std::string m_wm_path;
     };
 
@@ -167,10 +167,10 @@ public:
 
     std::string& name() noexcept;
     std::string& nproc() noexcept;
-    double&       freq_max() noexcept;
-    double&       freq_min() noexcept;
-    double&       freq_cur() noexcept;
-    double&       freq_bios_limit() noexcept;
+    double&      freq_max() noexcept;
+    double&      freq_min() noexcept;
+    double&      freq_cur() noexcept;
+    double&      freq_bios_limit() noexcept;
 
 private:
     static bool  m_bInit;
@@ -205,9 +205,9 @@ class Disk
 public:
     struct Disk_t
     {
-        double       total_amount = 0;
-        double       free_amount  = 0;
-        double       used_amount  = 0;
+        double      total_amount = 0;
+        double      free_amount  = 0;
+        double      used_amount  = 0;
         std::string typefs;
         std::string device;
         std::string mountdir;
@@ -215,9 +215,9 @@ public:
 
     Disk(const std::string_view path, std::vector<std::string>& paths);
 
-    double&       total_amount() noexcept;
-    double&       free_amount() noexcept;
-    double&       used_amount() noexcept;
+    double&      total_amount() noexcept;
+    double&      free_amount() noexcept;
+    double&      used_amount() noexcept;
     std::string& typefs() noexcept;
     std::string& device() noexcept;
     std::string& mountdir() noexcept;
