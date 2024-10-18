@@ -167,4 +167,4 @@ jobs:
     # yes, i know too long
     # the --color arguments are just for adding a missing color to the non done ascii
     - name: Test all the ascii art logos
-      run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" $f && cufetch -s $f -D assets --color "c1=#fff111" --color "c2=#00ff1a" --color "c3=#faa311" --color "c4=#343412" --color "c5=#fff311" --color "c6=#faa3aa" && sleep 1; done || true
+      run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" $f && cufetch -s $f -D assets --color "c1=#fff111" --color "c2=#00ff1a" --color "c3=#faa311" --color "c4=#343412" --color "c5=#fff311" --color "c6=#faa3aa" && sleep 1; done
