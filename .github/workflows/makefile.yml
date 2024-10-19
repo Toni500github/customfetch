@@ -162,7 +162,7 @@ jobs:
       run: make clean
 
     - name: Compile
-      run: sudo make install DEBUG=0 VENDOR_TEST=1 GUI_MODE=0
+      run: sudo make install DEBUG=0 VENDOR_TEST=0 GUI_MODE=0
 
     # yes, i know too long
     # the --color arguments are just for adding a missing color to the non done ascii
