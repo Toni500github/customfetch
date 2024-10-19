@@ -182,7 +182,7 @@ layout = [
     "${auto}Theme: $<theme-gtk-all.name>",
     "${auto}Icons: $<theme-gtk-all.icons>",
     "${auto}Font: $<theme-gtk-all.font>",
-    "${auto}Cursor: $<theme.cursor_name> ($<theme.cursor_size>px)",
+    "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name>",
     "${auto}DE: $<user.de_name>",
     "${auto}Disk (/): $<disk(/).disk>",

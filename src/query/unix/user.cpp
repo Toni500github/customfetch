@@ -161,7 +161,7 @@ static std::string get_shell_name(const std::string_view shell_path)
     return shell_path.substr(shell_path.rfind('/') + 1).data();
 }
 
-static std::string get_term_name(std::string& term_ver)
+static std::string get_term_name(std::string& term_ver, const std::string_view osname)
 {
     // cufetch -> shell -> terminal
     const pid_t   ppid = getppid();
@@ -200,12 +200,13 @@ static std::string get_term_name(std::string& term_ver)
     // on NixOS, instead of returning the -wrapped name.
     // tested on gnome-console, kitty, st and alacritty
     // hope now NixOS users will know the terminal they got, along the version if possible
-    else if (hasEnding(term_name, "wrapped"))
+    if (osname.find("NixOS") != osname.npos ||
+        (hasEnding(term_name, "wrapped") && which("nix") != UNKNOWN))
     {
         // /nix/store/sha256string-gnome-console-0.31.0/bin/.kgx-wrapped
         char        buf[PATH_MAX];
         std::string tmp_name = realpath(("/proc/" + term_pid + "/exe").c_str(), buf);
-        
+
         size_t pos;
         if ((pos = tmp_name.find('-')) != std::string::npos)
             tmp_name.erase(0, pos + 1);  // gnome-console-0.31.0/bin/.kgx-wrapped
@@ -467,7 +468,8 @@ std::string& User::term_name()
     static bool done = false;
     if (!done)
     {
-        m_users_infos.term_name = get_term_name(m_users_infos.term_version);
+        Query::System query_sys;
+        m_users_infos.term_name = get_term_name(m_users_infos.term_version, query_sys.os_name());
         if (hasStart(str_tolower(m_users_infos.term_name), "login") || hasStart(m_users_infos.term_name, "init") ||
             hasStart(m_users_infos.term_name, "(init)"))
         {
