@@ -73,8 +73,11 @@ layout = [
   Each part can have a tag or anything else.
 .PP
   For example: $[$<user.name>,$(echo $USER),correct,NOT correct]
-.br
+.nf
   This is useful when on some terminal or WM the detection can be different than others
+  Or maybe even on holidays for printing special texts
+  e.g $[$(date +%d-%m),25-12,${red}Happy ${white}Christmas!,]
+.fi
 .PP
 * The \fBBash command tag $()\fR speaks for itself.
 .br

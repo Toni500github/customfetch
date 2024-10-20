@@ -117,7 +117,10 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #
 # Each part can have a tag or anything else.
 # e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
+#
 # This is useful when on some terminal or WM the detection can be different than others
+# Or maybe even on holidays for printing special texts
+# e.g $[$(date +%d-%m),25-12,${red}Happy ${white}Christmas!,]
 
 # The Color tag ${} is used for printing the text of a certain color.
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
