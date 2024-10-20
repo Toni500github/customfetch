@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -16,6 +17,43 @@
 #include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
+
+class Parser
+{
+public:
+    Parser(const std::string_view src) : src{src} {}
+
+    bool try_read(char c)
+    {
+        if (is_eof())
+            return false;
+
+        if (src.at(pos) == c)
+        {
+            ++pos;
+            return true;
+        }
+
+        return false;
+    }
+
+    char read_char()
+    {
+        if (is_eof())
+            return 0;
+
+        ++pos;
+        return src[pos - 1];
+    }
+
+    bool is_eof()
+    { return pos >= src.length(); }
+
+    void rewind(const size_t count = 1)
+    { pos -= std::min(pos, count); }
+    const std::string_view src;
+    size_t                 pos = 0;
+};
 
 // declarations of static members in query.hpp
 Query::System::System_t Query::System::m_system_infos;
@@ -125,20 +163,6 @@ static std::string parse(const std::string_view input, std::string& _, parse_arg
     return parse(input, parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
 }
 
-static char gettype(const char opentag)
-{
-    switch (opentag)
-    {
-        case '(': return ')';
-        case '<': return '>';
-        case '%': return '%';
-        case '[': return ']';
-        case '{': return '}';
-    }
-
-    return '\0';  // neither of them
-}
-
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
                                             const bool invert = false)
 {
@@ -191,25 +215,466 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
     return "(unknown/invalid module)";
 }
 
+std::string parse(Parser& parser, parse_args_t& parse_args, bool evaluate = true, char until = 0);
+
+std::optional<std::string> parse_conditional_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
+{
+    if (!parser.try_read('['))
+        return {};
+
+    const std::string& condA = parse(parser, parse_args, evaluate, ',');
+    const std::string& condB = parse(parser, parse_args, evaluate, ',');
+
+    const bool cond = (condA == condB);
+
+    const std::string& condTrue  = parse(parser, parse_args, cond, ',');
+    const std::string& condFalse = parse(parser, parse_args, !cond, ']');
+
+    return cond ? condTrue : condFalse;
+}
+
+std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
+{
+    if (!parser.try_read('('))
+        return {};
+
+    std::string command = parse(parser, parse_args, evaluate, ')');
+
+    if (!evaluate)
+        return {};
+
+    const bool removetag = (command.front() == '!');
+    if (removetag)
+        command.erase(0, 1);
+
+    const std::string& cmd_output = read_shell_exec(command);
+    if (!parse_args.parsingLayout && !parser.is_eof())
+    {
+        if (removetag)
+            parse_args.pureOutput.erase(parser.pos, command.length());
+        else
+            parse_args.pureOutput.replace(parser.pos, command.length(), cmd_output);
+    }
+
+    return cmd_output;
+}
+
+std::uint16_t              endspan_count = 0;
+std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
+{
+    if (!parser.try_read('{'))
+        return {};
+
+    std::string color = parse(parser, parse_args, evaluate, '}');
+
+    if (!evaluate)
+        return {};
+    
+    static std::vector<std::string> auto_colors;
+
+    std::string     output;
+    const Config&   config = parse_args.config;
+    const colors_t& colors = parse_args.colors;
+    const size_t    taglen = color.length() + "${}"_len;
+    const size_t    tagpos = parse_args.pureOutput.find("${" + color + "}");
+
+    if (config.m_disable_colors)
+    {
+        if (tagpos != std::string::npos)
+            parse_args.pureOutput.erase(tagpos, taglen);
+        return "";
+    }
+
+    // if at end there a '$', it will make the end output "$</span>" and so it will confuse
+    // addValueFromModule() and so let's make it "$ </span>". this is geniunenly stupid
+    if (config.gui && output.back() == '$')
+        output += ' ';
+
+    if (!config.colors_name.empty())
+    {
+        const auto& it_name = std::find(config.colors_name.begin(), config.colors_name.end(), color);
+        if (it_name != config.colors_name.end())
+        {
+            const auto& it_value = std::distance(config.colors_name.begin(), it_name);
+
+            if (hasStart(color, "auto"))
+            {
+                // "ehhmmm why goto and double code? that's ugly and unconvienient :nerd:"
+                // I don't care, it does the work and well
+                if (color == *it_name)
+                    color = config.colors_value.at(it_value);
+                goto jumpauto;
+            }
+
+            if (color == *it_name)
+                color = config.colors_value.at(it_value);
+        }
+    }
+
+    if (hasStart(color, "auto"))
+    {
+        int ver = color.length() > 4 ? std::stoi(color.substr(4)) - 1 : 0;
+        if (ver < 1 || static_cast<size_t>(ver) >= auto_colors.size())
+            ver = 0;
+
+        if (auto_colors.empty())
+            auto_colors.push_back(NOCOLOR_BOLD);
+
+        color = auto_colors.at(ver);
+    }
+
+jumpauto:
+    if (color == "1")
+    {
+        if (parse_args.firstrun_noclr)
+            output += config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD;
+        else
+        {
+            output += config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD;
+            if (endspan_count > 0)
+                endspan_count--;
+        }
+    }
+    else if (color == "0")
+    {
+        if (parse_args.firstrun_noclr)
+            output += config.gui ? "<span>" : NOCOLOR;
+        else
+        {
+            output += config.gui ? "</span><span>" : NOCOLOR;
+            if (endspan_count > 0)
+                endspan_count--;
+        }
+    }
+    else
+    {
+        std::string str_clr;
+        if (config.gui)
+        {
+            switch (fnv1a16::hash(color))
+            {
+                case "black"_fnv1a16:   str_clr = colors.gui_black; break;
+                case "red"_fnv1a16:     str_clr = colors.gui_red; break;
+                case "blue"_fnv1a16:    str_clr = colors.gui_blue; break;
+                case "green"_fnv1a16:   str_clr = colors.gui_green; break;
+                case "cyan"_fnv1a16:    str_clr = colors.gui_cyan; break;
+                case "yellow"_fnv1a16:  str_clr = colors.gui_yellow; break;
+                case "magenta"_fnv1a16: str_clr = colors.gui_magenta; break;
+                case "white"_fnv1a16:   str_clr = colors.gui_white; break;
+                default:                str_clr = color; break;
+            }
+
+            const size_t pos = str_clr.find('#');
+            if (pos != std::string::npos)
+            {
+                std::string        tagfmt  = "span ";
+                const std::string& opt_clr = str_clr.substr(0, pos);
+
+                size_t      argmode_pos    = 0;
+                const auto& append_argmode = [&](const std::string_view fmt, const std::string_view error) -> size_t {
+                    if (opt_clr.at(argmode_pos + 1) == '(')
+                    {
+                        const size_t closebrak = opt_clr.find(')', argmode_pos);
+                        if (closebrak == std::string::npos)
+                            die("{} mode in color {} doesn't have close bracket", error, str_clr);
+
+                        const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
+                        tagfmt += fmt.data() + value + "' ";
+
+                        return closebrak;
+                    }
+                    return 0;
+                };
+
+                bool bgcolor = false;
+                for (uint i = 0; i < opt_clr.length(); ++i)
+                {
+                    switch (opt_clr.at(i))
+                    {
+                        case 'b':
+                            bgcolor = true;
+                            tagfmt += "bgcolor='" + str_clr.substr(pos) + "' ";
+                            break;
+                        case '!': tagfmt += "weight='bold' "; break;
+                        case 'u': tagfmt += "underline='single' "; break;
+                        case 'i': tagfmt += "style='italic' "; break;
+                        case 'o': tagfmt += "overline='single' "; break;
+                        case 's': tagfmt += "strikethrough='true' "; break;
+
+                        case 'a':
+                            argmode_pos = i;
+                            i += append_argmode("fgalpha='", "fgalpha");
+                            break;
+
+                        case 'A':
+                            argmode_pos = i;
+                            i += append_argmode("bgalpha='", "bgalpha");
+                            break;
+
+                        case 'L':
+                            argmode_pos = i;
+                            i += append_argmode("underline='", "underline option");
+                            break;
+
+                        case 'U':
+                            argmode_pos = i;
+                            i += append_argmode("underline_color='#", "colored underline");
+                            break;
+
+                        case 'B':
+                            argmode_pos = i;
+                            i += append_argmode("bgcolor='#", "bgcolor");
+                            break;
+
+                        case 'w':
+                            argmode_pos = i;
+                            i += append_argmode("weight='", "font weight style");
+                            break;
+
+                        case 'O':
+                            argmode_pos = i;
+                            i += append_argmode("overline_color='#", "overline color");
+                            break;
+
+                        case 'S':
+                            argmode_pos = i;
+                            i += append_argmode("strikethrough_color='#", "color of strikethrough line");
+                            break;
+                    }
+                }
+
+                if (!bgcolor)
+                    tagfmt += "fgcolor='" + str_clr.substr(pos) + "' ";
+
+                tagfmt.pop_back();
+                output += "<" + tagfmt + ">";
+            }
+
+            // "\\e" is for checking in the ascii_art, \033 in the config
+            else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
+            {
+                const std::string& noesc_str = hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
+                debug("noesc_str = {}", noesc_str);
+
+                if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
+                {
+                    const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
+                    output += fmt::format("<span {}gcolor='#{}'>", hasStart(noesc_str, "38") ? 'f' : 'b', hexclr);
+                }
+                else
+                {
+                    const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
+                    const std::string_view            color  = clrs.at(0);
+                    const std::string_view            weight = clrs.at(1);
+                    const std::string_view            type   = clrs.at(2);
+                    output += fmt::format("<span {}='{}' weight='{}'>", type, color, weight);
+                }
+            }
+
+            else
+            {
+                error("PARSER: failed to parse line with color '{}'", str_clr);
+                return output;
+            }
+        }
+        // if (!config.gui)
+        else
+        {
+            switch (fnv1a16::hash(color))
+            {
+                case "black"_fnv1a16:   str_clr = colors.black; break;
+                case "red"_fnv1a16:     str_clr = colors.red; break;
+                case "blue"_fnv1a16:    str_clr = colors.blue; break;
+                case "green"_fnv1a16:   str_clr = colors.green; break;
+                case "cyan"_fnv1a16:    str_clr = colors.cyan; break;
+                case "yellow"_fnv1a16:  str_clr = colors.yellow; break;
+                case "magenta"_fnv1a16: str_clr = colors.magenta; break;
+                case "white"_fnv1a16:   str_clr = colors.white; break;
+                default:                str_clr = color; break;
+            }
+
+            const size_t pos = str_clr.find('#');
+            if (pos != std::string::npos)
+            {
+                const std::string& opt_clr = str_clr.substr(0, pos);
+
+                fmt::text_style style;
+
+                const auto& skip_gui_argmode = [&opt_clr](const size_t index) -> size_t {
+                    if (opt_clr.at(index + 1) == '(')
+                    {
+                        const size_t closebrak = opt_clr.find(')', index);
+                        if (closebrak == std::string::npos)
+                            return 0;
+
+                        return closebrak;
+                    }
+                    return 0;
+                };
+
+                bool bgcolor = false;
+                for (uint i = 0; i < opt_clr.length(); ++i)
+                {
+                    switch (opt_clr.at(i))
+                    {
+                        case 'b':
+                            bgcolor = true;
+                            append_styles(style, fmt::bg(hexStringToColor(str_clr.substr(pos))));
+                            break;
+                        case '!': append_styles(style, fmt::emphasis::bold); break;
+                        case 'u': append_styles(style, fmt::emphasis::underline); break;
+                        case 'i': append_styles(style, fmt::emphasis::italic); break;
+                        case 'l': append_styles(style, fmt::emphasis::blink); break;
+                        case 's': append_styles(style, fmt::emphasis::strikethrough); break;
+
+                        case 'U':
+                        case 'B':
+                        case 'S':
+                        case 'a':
+                        case 'w':
+                        case 'O':
+                        case 'A':
+                        case 'L': i += skip_gui_argmode(i); break;
+                    }
+                }
+
+                if (!bgcolor)
+                    append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
+
+                output += fmt::format(style, "");
+            }
+
+            // "\\e" is for checking in the ascii_art, \033 in the config
+            else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
+            {
+                output += "\x1B[";
+                output += hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
+            }
+
+            else
+            {
+                error("PARSER: failed to parse line with color '{}'", str_clr);
+                return output;
+            }
+        }
+
+        if (!parse_args.parsingLayout &&
+            std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
+            auto_colors.push_back(color);
+    }
+
+    if (!parse_args.parsingLayout && tagpos != std::string::npos)
+        parse_args.pureOutput.erase(tagpos, taglen);
+
+    parse_args.firstrun_noclr = false;
+
+    ++endspan_count;
+    return output;
+}
+
+std::optional<std::string> parse_info_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
+{
+    if (!parser.try_read('<'))
+        return {};
+
+    const std::string& module = parse(parser, parse_args, evaluate, '>');
+
+    if (!evaluate)
+        return {};
+
+    const size_t dot_pos = module.find('.');
+    if (dot_pos == module.npos)
+        die("module name '{}' doesn't have a dot '.' for separating module name and value", module);
+
+    const std::string& moduleName       = module.substr(0, dot_pos);
+    const std::string& moduleMemberName = module.substr(dot_pos + 1);
+    addValueFromModule(moduleName, moduleMemberName, parse_args);
+
+    return getInfoFromName(parse_args.systemInfo, moduleName, moduleMemberName);
+}
+
+std::optional<std::string> parse_perc_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
+{
+    if (!parser.try_read('%'))
+        return {};
+
+    const std::string& command = parse(parser, parse_args, evaluate, '%');
+
+    if (!evaluate)
+        return {};
+
+    const size_t comma_pos = command.find(',');
+    if (comma_pos == std::string::npos)
+        die("percentage tag '{}' doesn't have a comma for separating the 2 numbers", command);
+
+    const bool invert = (command.front() == '!');
+
+    const float n1 = std::stof(parse(command.substr(invert ? 1 : 0, comma_pos), _, parse_args));
+    const float n2 = std::stof(parse(command.substr(comma_pos + 1), _, parse_args));
+
+    return get_and_color_percentage(n1, n2, parse_args, invert);
+}
+
+std::optional<std::string> parse_tags(Parser& parser, parse_args_t& parse_args, const bool evaluate)
+{
+    if (!parser.try_read('$'))
+        return {};
+
+    if (const auto& ifTag = parse_conditional_tag(parser, parse_args, evaluate))
+        return ifTag;
+
+    if (const auto& command_tag = parse_command_tag(parser, parse_args, evaluate))
+        return command_tag;
+
+    if (const auto& module_tag = parse_info_tag(parser, parse_args, evaluate))
+        return module_tag;
+
+    if (const auto& color_tag = parse_color_tag(parser, parse_args, evaluate))
+        return color_tag;
+
+    if (const auto& perc_tag = parse_perc_tag(parser, parse_args, evaluate))
+        return perc_tag;
+
+    parser.rewind();
+    return {};
+}
+
+std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate, const char until)
+{
+    std::string result;
+
+    while (until == 0 ? !parser.is_eof() : !parser.try_read(until))
+    {
+        if (until != 0 && parser.is_eof())
+        {
+            error("PARSER: Missing tag close bracket {} in string '{}'", until, parser.src);
+            return result;
+        }
+
+        if (parser.try_read('\\'))
+            result += parser.read_char();
+
+        else if (const auto tagStr = parse_tags(parser, parse_args, evaluate))
+            result += *tagStr;
+
+        else
+            result += parser.read_char();
+    }
+
+    return result;
+}
+
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
                   const colors_t& colors, const bool parsingLayout)
 {
     std::string output{ input.data() };
     pureOutput = output;
 
-    size_t dollarSignIndex    = 0;
-    size_t oldDollarSignIndex = 0;
-    bool   start              = false;
-    bool   skip_bypass        = false;
-
     // we only use it in GUI mode,
     // prevent issue where in the ascii art,
     // theres at first either ${1} or ${0}
     // and that's a problem with pango markup
     bool firstrun_noclr = true;
-
-    static std::vector<std::string> auto_colors;
-    parse_args_t parse_args(systemInfo, pureOutput, config, colors, parsingLayout);
 
     if (!config.sep_reset.empty() && parsingLayout)
     {
@@ -242,524 +707,18 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     replace_str(pureOutput, "\\<", "<");
     replace_str(pureOutput, "\\&", "&");
 
-    while (true)
+    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, firstrun_noclr };
+    Parser       parser{ output };
+
+    std::string ret{ parse(parser, parse_args) };
+    if (parse_args.config.gui)
     {
-        oldDollarSignIndex = dollarSignIndex;
-        dollarSignIndex    = output.find('$', dollarSignIndex);
-
-    retry:
-        if (dollarSignIndex == std::string::npos || dollarSignIndex >= output.length() - 1)
-            break;
-        //                                                      small workaround cuz idk how to fix this
-        else if (dollarSignIndex <= oldDollarSignIndex && start && !config.m_disable_colors)
-        {
-            dollarSignIndex = output.find('$', dollarSignIndex + 1);
-            // oh nooo.. whatever
-            goto retry;
-        }
-
-        start = true;
-
-        // check for bypass
-        // YOU CAN USE AND/NOT IN C++????
-        // btw the second part checks if it has a \ before it and NOT a \ before the backslash, (check for escaped
-        // backslash) example: \$ is bypassed, \\$ is NOT bypassed. this will not make an effort to check multiple
-        // backslashes, thats your fault atp.
-        if (skip_bypass)
-        {
-            if (dollarSignIndex > 0 and (output.at(dollarSignIndex - 1) == '\\' and
-                                         (dollarSignIndex == 1 or output.at(dollarSignIndex - 2) != '\\')))
-            {
-                skip_bypass = false;
-                continue;
-            }
-        }
-
-        // maybe let's remove the bypass '\\$'
-        if (dollarSignIndex > 0 and
-            output.at(dollarSignIndex - 1) == '\\' and output.at(dollarSignIndex - 2) == '\\')
-        {
-            skip_bypass = true;
-            output.erase(dollarSignIndex - 1, 1);
-
-            const size_t pos = pureOutput.find("\\\\$");
-            if (pos != pureOutput.npos)
-                pureOutput.erase(pos, 1);
-
-            dollarSignIndex--;
-        }
-
-        std::string command;   // what's inside the tag
-        command.reserve(256);  // should be enough for not allocating over and over
-
-        size_t     endBracketIndex = -1;
-        const char opentag         = output.at(dollarSignIndex + 1);
-        const char type = gettype(opentag);  // '\0' = undefined, ')' = shell exec, 2 = ')' asking for a module
-        if (type == '\0')
-            continue;
-
-        // if we get a tag inside a tag, then let's skip until we skipped the subtag
-        // entirely
-        size_t skip_lenght = 0;
-
-        // let's get what's inside the brackets
-        for (size_t i = dollarSignIndex + 2; i < output.size(); i++)
-        {
-            if (skip_lenght > 0)
-            {
-                skip_lenght--;
-                continue;
-            }
-
-            if (output.at(i) == '$')
-            {
-                const char subtype = gettype(output.at(i + 1));
-                if (subtype != '\0')
-                {
-                    size_t pos = i;
-                    while ((pos = output.find(subtype, pos + 1)))
-                    {
-                        if (pos == output.npos)
-                            die("PARSER (1st): Opened tag is not closed at index {} in string '{}'", dollarSignIndex,
-                                output);
-
-                        if (output.at(pos - 1) != '\\')
-                            break;
-                        else
-                            output.erase(pos - 1, 1);
-                    }
-                    const size_t oldpos = pos;
-                    if (output.substr(i, pos).find('$') != output.npos)
-                    {
-                        while ((pos = output.find(subtype, pos + 1)))
-                        {
-                            if (pos == output.npos)
-                            {
-                                pos = oldpos;
-                                break;
-                            }
-                            if (output.at(pos - 1) != '\\')
-                                break;
-                            else
-                                output.erase(pos - 1, 1);
-                        }
-                    }
-
-                    endBracketIndex  = pos;
-                    const size_t len = (pos + 1) - i;
-
-                    command += parse(output.substr(i, len), _, parse_args);
-                    debug("command = " + command);
-                    skip_lenght = len - 1;
-                    continue;
-                }
-            }
-            else if (output.at(i) == type && output.at(i - 1) != '\\')
-            {
-                endBracketIndex = i;
-                break;
-            }
-
-            if (output.at(i) == type)
-                command.pop_back();
-
-            command += output.at(i);
-        }
-
-        if (static_cast<int>(endBracketIndex) == -1)
-            die("PARSER: Opened tag is not closed at index {} in string {}", dollarSignIndex, output);
-
-        const std::string& tagToReplace = fmt::format("${}{}{}", opentag, command, type);
-        const size_t       tagpos       = pureOutput.find(tagToReplace);
-        const size_t       taglen       = (endBracketIndex + 1) - dollarSignIndex;
-
-        switch (type)
-        {
-            case ')':
-            {
-                const bool removetag = (command.front() == '!');
-                if (removetag)
-                    command.erase(0, 1);
-
-                const std::string& cmd_output = read_shell_exec(command);
-                output.replace(dollarSignIndex, taglen, cmd_output);
-
-                if (!parsingLayout && tagpos != std::string::npos)
-                {
-                    if (removetag)
-                        pureOutput.erase(tagpos, taglen);
-                    else
-                        pureOutput.replace(tagpos, taglen, cmd_output);
-                }
-            }
-            break;
-
-            case '>':
-            {
-                const size_t dot_pos = command.find('.');
-                if (dot_pos == std::string::npos)
-                    die("module name '{}' doesn't have a dot '.' for separating module name and value", command);
-
-                const std::string& moduleName       = command.substr(0, dot_pos);
-                const std::string& moduleMemberName = command.substr(dot_pos + 1);
-                addValueFromModule(moduleName, moduleMemberName, parse_args);
-
-                output.replace(dollarSignIndex, taglen, getInfoFromName(systemInfo, moduleName, moduleMemberName));
-
-                if (!parsingLayout && tagpos != std::string::npos)
-                    pureOutput.replace(tagpos, taglen, getInfoFromName(systemInfo, moduleName, moduleMemberName));
-            }
-            break;
-
-            case '%':
-            {
-                const size_t& comma_pos = command.find(',');
-                if (comma_pos == std::string::npos)
-                    die("percentage tag '{}' doesn't have a comma for separating the 2 numbers", command);
-
-                const bool invert = (command.front() == '!');
-
-                const float n1 = std::stof(parse(command.substr(invert ? 1 : 0, comma_pos), _, parse_args));
-                const float n2 = std::stof(parse(command.substr(comma_pos + 1), _, parse_args));
-
-                output.replace(dollarSignIndex, taglen, get_and_color_percentage(n1, n2, parse_args, invert));
-            }
-            break;
-
-            case ']':
-            {
-                const size_t& conditional_comma = command.find(',');
-                if (conditional_comma == command.npos)
-                    die("conditional tag {} doesn't have a comma for separiting the conditional", command);
-
-                const size_t& equalto_comma = command.find(',', conditional_comma + 1);
-                if (equalto_comma == command.npos)
-                    die("conditional tag {} doesn't have a comma for separiting the equalto", command);
-
-                const size_t& true_comma = command.find(',', equalto_comma + 1);
-                if (true_comma == command.npos)
-                    die("conditional tag {} doesn't have a comma for separiting the true statment", command);
-
-                const std::string& condition      = command.substr(0, conditional_comma);
-                const std::string& equalto        = command.substr(conditional_comma + 1, equalto_comma - conditional_comma - 1);
-                const std::string& true_statment  = command.substr(equalto_comma + 1, true_comma - equalto_comma - 1);
-                const std::string& false_statment = command.substr(true_comma + 1);
-
-                if (condition == equalto)
-                    output.replace(dollarSignIndex, taglen, true_statment);
-                else
-                    output.replace(dollarSignIndex, taglen, false_statment);
-            }
-            break;
-
-            case '}':  // please pay close attention when reading this really long code
-
-                if (config.m_disable_colors)
-                {
-                    output.erase(dollarSignIndex, taglen);
-                    if (tagpos != std::string::npos)
-                        pureOutput.erase(tagpos, tagToReplace.length());
-                    break;
-                }
-
-                // if at end there a '$', it will make the end output "$</span>" and so it will confuse
-                // addValueFromModule() and so let's make it "$ </span>". this is geniunenly stupid
-                if (config.gui && output.back() == '$')
-                    output += ' ';
-
-                if (!config.colors_name.empty())
-                {
-                    const auto& it_name = std::find(config.colors_name.begin(), config.colors_name.end(), command);
-                    if (it_name != config.colors_name.end())
-                    {
-                        const auto& it_value = std::distance(config.colors_name.begin(), it_name);
-
-                        if (hasStart(command, "auto"))
-                        {
-                            // "ehhmmm why goto and double code? that's ugly and unconvienient :nerd:"
-                            // I don't care, it does the work and well
-                            if (command == *it_name)
-                                command = config.colors_value.at(it_value);
-                            goto jumpauto;
-                        }
-
-                        if (command == *it_name)
-                            command = config.colors_value.at(it_value);
-                    }
-                }
-
-                if (hasStart(command, "auto"))
-                {
-                    int ver = command.length() > 4 ? std::stoi(command.substr(4)) - 1 : 0;
-                    if (ver < 1 || static_cast<size_t>(ver) >= auto_colors.size())
-                        ver = 0;
-
-                    if (auto_colors.empty())
-                        auto_colors.push_back(NOCOLOR_BOLD);
-
-                    command = auto_colors.at(ver);
-                }
-
-            jumpauto:
-                if (command == "1")
-                {
-                    if (firstrun_noclr)
-                        output.replace(dollarSignIndex, taglen,
-                                       config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD);
-                    else
-                        output.replace(dollarSignIndex, taglen,
-                                       config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD);
-                }
-                else if (command == "0")
-                {
-                    if (firstrun_noclr)
-                        output.replace(dollarSignIndex, taglen, config.gui ? "<span>" : NOCOLOR);
-                    else
-                        output.replace(dollarSignIndex, taglen, config.gui ? "</span><span>" : NOCOLOR);
-                }
-                else
-                {
-                    std::string str_clr;
-                    if (config.gui)
-                    {
-                        switch (fnv1a16::hash(command))
-                        {
-                            case "black"_fnv1a16:   str_clr = colors.gui_black; break;
-                            case "red"_fnv1a16:     str_clr = colors.gui_red; break;
-                            case "blue"_fnv1a16:    str_clr = colors.gui_blue; break;
-                            case "green"_fnv1a16:   str_clr = colors.gui_green; break;
-                            case "cyan"_fnv1a16:    str_clr = colors.gui_cyan; break;
-                            case "yellow"_fnv1a16:  str_clr = colors.gui_yellow; break;
-                            case "magenta"_fnv1a16: str_clr = colors.gui_magenta; break;
-                            case "white"_fnv1a16:   str_clr = colors.gui_white; break;
-                            default:                str_clr = command; break;
-                        }
-
-                        const size_t pos = str_clr.find('#');
-                        if (pos != std::string::npos)
-                        {
-                            std::string tagfmt = "span ";
-                            const std::string& opt_clr = str_clr.substr(0, pos);
-
-                            size_t argmode_pos = 0;
-                            const auto& append_argmode = [&](const std::string_view fmt, const std::string_view error) -> size_t
-                            {
-                                if (opt_clr.at(argmode_pos + 1) == '(')
-                                {
-                                    const size_t closebrak = opt_clr.find(')', argmode_pos);
-                                    if (closebrak == std::string::npos)
-                                        die("{} mode in color {} doesn't have close bracket", error, str_clr);
-
-                                    const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
-                                    tagfmt += fmt.data() + value + "' ";
-
-                                    return closebrak;
-                                }
-                                return 0;
-                            };
-
-                            bool bgcolor = false;
-                            for (uint i = 0; i < opt_clr.length(); ++i)
-                            {
-                                switch (opt_clr.at(i))
-                                {
-                                    case 'b':
-                                        bgcolor = true;
-                                        tagfmt += "bgcolor='" + str_clr.substr(pos) + "' ";
-                                        break;
-                                    case '!': tagfmt += "weight='bold' "; break;
-                                    case 'u': tagfmt += "underline='single' "; break;
-                                    case 'i': tagfmt += "style='italic' "; break;
-                                    case 'o': tagfmt += "overline='single' "; break;
-                                    case 's': tagfmt += "strikethrough='true' "; break;
-
-                                    case 'a':
-                                        argmode_pos = i;
-                                        i += append_argmode("fgalpha='", "fgalpha");
-                                        break;
-
-                                    case 'A':
-                                        argmode_pos = i;
-                                        i += append_argmode("bgalpha='", "bgalpha");
-                                        break;
-
-                                    case 'L':
-                                        argmode_pos = i;
-                                        i += append_argmode("underline='", "underline option");
-                                        break;
-
-                                    case 'U':
-                                        argmode_pos = i;
-                                        i += append_argmode("underline_color='#", "colored underline");
-                                        break;
-
-                                    case 'B':
-                                        argmode_pos = i;
-                                        i += append_argmode("bgcolor='#", "bgcolor");
-                                        break;
-
-                                    case 'w':
-                                        argmode_pos = i;
-                                        i += append_argmode("weight='", "font weight style");
-                                        break;
-
-                                    case 'O':
-                                        argmode_pos = i;
-                                        i += append_argmode("overline_color='#", "overline color");
-                                        break;
-
-                                    case 'S':
-                                        argmode_pos = i;
-                                        i += append_argmode("strikethrough_color='#", "color of strikethrough line");
-                                        break;
-                                }
-                            }
-
-                            if (!bgcolor)
-                                tagfmt += "fgcolor='" + str_clr.substr(pos) + "' ";
-
-                            tagfmt.pop_back();
-                            output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                           fmt::format("<{}>{}</span>", tagfmt, output.substr(endBracketIndex + 1)));
-                        }
-
-                        // "\\e" is for checking in the ascii_art, \033 in the config
-                        else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
-                        {
-                            const std::string& noesc_str =
-                                hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
-                            debug("noesc_str = {}", noesc_str);
-
-                            if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
-                            {
-                                const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
-                                output.replace(
-                                    dollarSignIndex, output.length() - dollarSignIndex,
-                                    fmt::format("<span {}gcolor='#{}'>{}</span>", hasStart(noesc_str, "38") ? 'f' : 'b',
-                                                hexclr, output.substr(endBracketIndex + 1)));
-                            }
-                            else
-                            {
-                                const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
-                                const std::string_view            color  = clrs.at(0);
-                                const std::string_view            weight = clrs.at(1);
-                                const std::string_view            type   = clrs.at(2);
-                                output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                               fmt::format("<span {}='{}' weight='{}'>{}</span>", type, color, weight,
-                                                           output.substr(endBracketIndex + 1)));
-                            }
-                        }
-
-                        else
-                        {
-                            error("PARSER: failed to parse line with color '{}'", str_clr);
-                            break;
-                        }
-
-                        firstrun_noclr = false;
-                    }
-                    // if (!config.gui)
-                    else
-                    {
-                        switch (fnv1a16::hash(command))
-                        {
-                            case "black"_fnv1a16:   str_clr = colors.black; break;
-                            case "red"_fnv1a16:     str_clr = colors.red; break;
-                            case "blue"_fnv1a16:    str_clr = colors.blue; break;
-                            case "green"_fnv1a16:   str_clr = colors.green; break;
-                            case "cyan"_fnv1a16:    str_clr = colors.cyan; break;
-                            case "yellow"_fnv1a16:  str_clr = colors.yellow; break;
-                            case "magenta"_fnv1a16: str_clr = colors.magenta; break;
-                            case "white"_fnv1a16:   str_clr = colors.white; break;
-                            default:                str_clr = command; break;
-                        }
-
-                        std::string formatted_replacement_string;
-
-                        const size_t pos = str_clr.find('#');
-                        if (pos != std::string::npos)
-                        {
-                            const std::string& opt_clr = str_clr.substr(0, pos);
-
-                            fmt::text_style style;
-
-                            const auto& skip_gui_argmode = [&opt_clr](const size_t index) -> size_t
-                            {
-                                if (opt_clr.at(index + 1) == '(')
-                                {
-                                    const size_t closebrak = opt_clr.find(')', index);
-                                    if (closebrak == std::string::npos)
-                                        return 0;
-
-                                    return closebrak;
-                                }
-                                return 0;
-                            };
-
-                            bool bgcolor = false;
-                            for (uint i = 0; i < opt_clr.length(); ++i)
-                            {
-                                switch (opt_clr.at(i))
-                                {
-                                    case 'b':
-                                        bgcolor = true;
-                                        append_styles(style, fmt::bg(hexStringToColor(str_clr.substr(pos))));
-                                        break;
-                                    case '!': append_styles(style, fmt::emphasis::bold); break;
-                                    case 'u': append_styles(style, fmt::emphasis::underline); break;
-                                    case 'i': append_styles(style, fmt::emphasis::italic); break;
-                                    case 'l': append_styles(style, fmt::emphasis::blink); break;
-                                    case 's': append_styles(style, fmt::emphasis::strikethrough); break;
-
-                                    case 'U':
-                                    case 'B':
-                                    case 'S':
-                                    case 'a':
-                                    case 'w':
-                                    case 'O':
-                                    case 'A':
-                                    case 'L':
-                                        i += skip_gui_argmode(i); break;
-                                }
-                            }
-
-                            if (!bgcolor)
-                                append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
-
-                            formatted_replacement_string = fmt::format(style, "{}", output.substr(endBracketIndex + 1));
-                        }
-
-                        // "\\e" is for checking in the ascii_art, \033 in the config
-                        else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
-                        {
-                            formatted_replacement_string = fmt::format(
-                                "\x1B[{}{}", hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3),
-                                output.substr(endBracketIndex + 1));
-                        }
-
-                        else
-                        {
-                            error("PARSER: failed to parse line with color '{}'", str_clr);
-                            break;
-                        }
-                        output.replace(dollarSignIndex, output.length() - dollarSignIndex,
-                                       formatted_replacement_string);
-                    }
-
-                    if (!parsingLayout &&
-                        std::find(auto_colors.begin(), auto_colors.end(), command) == auto_colors.end())
-                        auto_colors.push_back(command);
-                }
-
-                if (config.gui && firstrun_noclr)
-                    output += "</span>";
-
-                if (!parsingLayout && tagpos != std::string::npos)
-                    pureOutput.erase(tagpos, tagToReplace.length());
-        }
+        for (std::uint16_t i = 0; i < endspan_count; ++i)
+            ret += "</span>";
     }
+    endspan_count = 0;
 
-    return output;
+    return ret;
 }
 
 static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t hours, const std::uint16_t mins,
@@ -879,7 +838,7 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
     const Config& config  = parse_args.config;
     systemInfo_t& sysInfo = parse_args.systemInfo;
 
-    const  auto&                      moduleMember_hash = fnv1a16::hash(moduleMemberName);
+    const auto&                       moduleMember_hash = fnv1a16::hash(moduleMemberName);
     static std::vector<std::uint16_t> queried_gpus;
     static std::vector<std::string>   queried_disks;
     static std::vector<std::string>   queried_themes_names;
@@ -890,9 +849,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                                                                          "KiB", "MB", "MiB", "PB", "PiB", "TB",
                                                                          "TiB", "YB", "YiB", "ZB", "ZiB" };
 
-    const auto& return_devided_bytes = [&sorted_valid_prefixes, &moduleMemberName](const double& amount) -> double
-    {
-        const std::string& prefix = moduleMemberName.substr(moduleMemberName.find('-')+1);
+    const auto& return_devided_bytes = [&sorted_valid_prefixes, &moduleMemberName](const double& amount) -> double {
+        const std::string& prefix = moduleMemberName.substr(moduleMemberName.find('-') + 1);
         if (std::binary_search(sorted_valid_prefixes.begin(), sorted_valid_prefixes.end(), prefix))
             return devide_bytes(amount, prefix).num_bytes;
 
@@ -967,9 +925,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
             switch (moduleMember_hash)
             {
                 case "host"_fnv1a16:
-                    SYSINFO_INSERT(std::string_view(query_system.host_vendor() + ' ' + query_system.host_modelname() +
-                                                    ' ' + query_system.host_version())
-                                       .data());
+                    SYSINFO_INSERT(query_system.host_vendor() + ' ' + query_system.host_modelname() + ' ' +
+                                   query_system.host_version());
                     break;
 
                 case "host_name"_fnv1a16: SYSINFO_INSERT(query_system.host_modelname()); break;

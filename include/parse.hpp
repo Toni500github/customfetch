@@ -14,7 +14,8 @@ struct parse_args_t
     std::string&    pureOutput;
     const Config&   config;
     const colors_t& colors;
-    const bool&     parsingLayout;
+    const bool      parsingLayout;
+    bool&           firstrun_noclr;
 };
 
 /* Parse input, in-place, with data from systemInfo.
