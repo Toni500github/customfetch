@@ -146,15 +146,6 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
     return ss.str();
 }
 
-#if 0
-static std::string convert_hex_ansi_escape(const std::string_view hexstr, const bool bg = false)
-{
-    fmt::rgb rgb(hexStringToColor(hexstr));
-    fmt::detail::ansi_color_escape<char> ansi(rgb, bg ? "\x1b[48;2;" : "\x1b[38;2;");
-    return ansi.begin();
-}
-#endif
-
 // parse() for parse_args_t& arguments
 // some times we don't want to use the original pureOutput,
 // so we have to create a tmp string just for the sake of the function arguments
@@ -542,7 +533,13 @@ jumpauto:
                 if (!bgcolor)
                     append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
 
-                output += fmt::format(style, "");
+                // you can't fmt::format(style, ""); ughh
+                const uint32_t rgb_num = bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
+                fmt::rgb rgb(rgb_num);
+                fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1b[48;2;" : "\x1b[38;2;");
+                fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
+                output += emph.begin();
+                output += ansi.begin();
             }
 
             // "\\e" is for checking in the ascii_art, \033 in the config
