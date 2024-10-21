@@ -14,6 +14,6 @@ ${cyan}llllllllllllll  lllllllllllllllllll
 ${cyan}llllllllllllll  lllllllllllllllllll
 ${cyan}llllllllllllll  lllllllllllllllllll
 ${cyan}`'ccllllllllll  lllllllllllllllllll
-${cyan}       `' \*::  :ccllllllllllllllll
+${cyan}       `' \\*::  :ccllllllllllllllll
 ${cyan}                       ````''*::cll
 ${cyan}                                 ``

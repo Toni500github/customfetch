@@ -1,6 +1,6 @@
-${blue}   /\ /\
-${blue}  /${1}/ ${blue}\  \
-${blue} /${1}/   ${blue}\  \
-${blue}/${1}//    ${blue}\  \
-${1}//      ${blue}\  \
-${blue}         \
+${blue}   /\\ /\\
+${blue}  /${1}/ ${blue}\\  \\
+${blue} /${1}/   ${blue}\\  \\
+${blue}/${1}//    ${blue}\\  \\
+${1}//      ${blue}\\  \\
+${blue}         \\
