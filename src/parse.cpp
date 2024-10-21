@@ -238,7 +238,8 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     if (!parser.try_read('('))
         return {};
 
-    std::string command = parse(parser, parse_args, evaluate, ')');
+    std::string  command = parse(parser, parse_args, evaluate, ')');
+    const size_t tagpos  = parse_args.pureOutput.find("$(" + command + ")");
 
     if (!evaluate)
         return {};
@@ -248,12 +249,12 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
         command.erase(0, 1);
 
     const std::string& cmd_output = read_shell_exec(command);
-    if (!parse_args.parsingLayout && !parser.is_eof())
+    if (!parse_args.parsingLayout && tagpos != std::string::npos)
     {
         if (removetag)
-            parse_args.pureOutput.erase(parser.pos, command.length());
+            parse_args.pureOutput.erase(tagpos, command.length() + "$(!)"_len);
         else
-            parse_args.pureOutput.replace(parser.pos, command.length(), cmd_output);
+            parse_args.pureOutput.replace(tagpos, command.length() + 3, cmd_output);
     }
 
     return cmd_output;
@@ -717,6 +718,13 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
             ret += "</span>";
     }
     endspan_count = 0;
+
+    size_t pos = 0;
+    while ((pos = pureOutput.find('\\', pos)) != pureOutput.npos)
+    {
+        pureOutput.erase(pos, 1);
+        ++pos;
+    }
 
     return ret;
 }
