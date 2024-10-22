@@ -699,7 +699,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         ++pos;
     }
 
-    if (!parse_args.firstrun_clr)
+    if (config.gui && !parse_args.firstrun_clr)
         ret += "</span>";
 
     return ret;
