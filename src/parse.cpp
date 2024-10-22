@@ -251,7 +251,6 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     return cmd_output;
 }
 
-std::uint16_t              endspan_count = 0;
 std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
 {
     if (!parser.try_read('{'))
@@ -269,6 +268,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     const colors_t& colors = parse_args.colors;
     const size_t    taglen = color.length() + "${}"_len;
     const size_t    tagpos = parse_args.pureOutput.find("${" + color + "}");
+    const std::string& endspan = (!parse_args.firstrun_clr ? "</span>" : "");
 
     if (config.m_disable_colors)
     {
@@ -318,25 +318,11 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 jumpauto:
     if (color == "1")
     {
-        if (parse_args.firstrun_noclr)
-            output += config.gui ? "<span weight='bold'>" : NOCOLOR_BOLD;
-        else
-        {
-            output += config.gui ? "</span><span weight='bold'>" : NOCOLOR_BOLD;
-            if (endspan_count > 0)
-                endspan_count--;
-        }
+        output += config.gui ? endspan + "<span weight='bold'>" : NOCOLOR_BOLD;
     }
     else if (color == "0")
     {
-        if (parse_args.firstrun_noclr)
-            output += config.gui ? "<span>" : NOCOLOR;
-        else
-        {
-            output += config.gui ? "</span><span>" : NOCOLOR;
-            if (endspan_count > 0)
-                endspan_count--;
-        }
+        output += config.gui ? endspan + "<span>" : NOCOLOR;
     }
     else
     {
@@ -439,7 +425,7 @@ jumpauto:
                     tagfmt += "fgcolor='" + str_clr.substr(pos) + "' ";
 
                 tagfmt.pop_back();
-                output += "<" + tagfmt + ">";
+                output += endspan + "<" + tagfmt + ">";
             }
 
             // "\\e" is for checking in the ascii_art, \033 in the config
@@ -451,7 +437,7 @@ jumpauto:
                 if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
                 {
                     const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
-                    output += fmt::format("<span {}gcolor='#{}'>", hasStart(noesc_str, "38") ? 'f' : 'b', hexclr);
+                    output += fmt::format("{}<span {}gcolor='#{}'>", endspan, hasStart(noesc_str, "38") ? 'f' : 'b', hexclr);
                 }
                 else
                 {
@@ -459,7 +445,7 @@ jumpauto:
                     const std::string_view            color  = clrs.at(0);
                     const std::string_view            weight = clrs.at(1);
                     const std::string_view            type   = clrs.at(2);
-                    output += fmt::format("<span {}='{}' weight='{}'>", type, color, weight);
+                    output += fmt::format("{}<span {}='{}' weight='{}'>", endspan, type, color, weight);
                 }
             }
 
@@ -536,7 +522,7 @@ jumpauto:
                 // you can't fmt::format(style, ""); ughh
                 const uint32_t rgb_num = bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
                 fmt::rgb rgb(rgb_num);
-                fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1b[48;2;" : "\x1b[38;2;");
+                fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1B[48;2;" : "\x1B[38;2;");
                 fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
                 output += emph.begin();
                 output += ansi.begin();
@@ -564,9 +550,8 @@ jumpauto:
     if (!parse_args.parsingLayout && tagpos != std::string::npos)
         parse_args.pureOutput.erase(tagpos, taglen);
 
-    parse_args.firstrun_noclr = false;
+    parse_args.firstrun_clr = false;
 
-    ++endspan_count;
     return output;
 }
 
@@ -668,11 +653,8 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     std::string output{ input.data() };
     pureOutput = output;
 
-    // we only use it in GUI mode,
-    // prevent issue where in the ascii art,
-    // theres at first either ${1} or ${0}
-    // and that's a problem with pango markup
-    bool firstrun_noclr = true;
+    // we only use it in GUI mode
+    bool firstrun_clr = true;
 
     if (!config.sep_reset.empty() && parsingLayout)
     {
@@ -705,16 +687,10 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     replace_str(pureOutput, "\\<", "<");
     replace_str(pureOutput, "\\&", "&");
 
-    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, firstrun_noclr };
+    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, firstrun_clr };
     Parser       parser{ output };
 
     std::string ret{ parse(parser, parse_args) };
-    if (parse_args.config.gui)
-    {
-        for (std::uint16_t i = 0; i < endspan_count; ++i)
-            ret += "</span>";
-    }
-    endspan_count = 0;
 
     size_t pos = 0;
     while ((pos = pureOutput.find('\\', pos)) != pureOutput.npos)
@@ -722,6 +698,9 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
         pureOutput.erase(pos, 1);
         ++pos;
     }
+
+    if (!parse_args.firstrun_clr)
+        ret += "</span>";
 
     return ret;
 }

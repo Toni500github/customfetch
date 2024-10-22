@@ -15,7 +15,7 @@ struct parse_args_t
     const Config&   config;
     const colors_t& colors;
     const bool      parsingLayout;
-    bool&           firstrun_noclr;
+    bool&           firstrun_clr;
 };
 
 /* Parse input, in-place, with data from systemInfo.
