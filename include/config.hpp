@@ -53,6 +53,7 @@ public:
     bool                     sep_reset_after     = false;
     bool                     slow_query_warnings = false;
     bool                     use_SI_unit         = false;
+    bool                     wrap_lines          = false;
 
     // modules specific config
     std::string uptime_d_fmt;
@@ -243,7 +244,7 @@ logo-padding-top = 0
 # Padding of the layout from the top
 layout-padding-top = 0
 
-# Colors
+# Colors in the terminal
 black   = "\e[1;30m"
 red     = "\e[1;31m"
 green   = "\e[1;32m"
@@ -272,6 +273,11 @@ use-SI-byte-unit = false
 # 2nd color for normal
 # 3rd color for bad
 percentage-colors = ["green", "yellow", "red"]
+
+# Usually in neofetch/fastfetch, when your terminal size is too small,
+# to render some text in 1 line, they wrap those lines.
+# Enable/Disable if you want this
+wrap-lines = true
 
 # $<os.uptime> config
 [os.uptime]
@@ -315,8 +321,8 @@ enable = false
 font = "Liberation Mono Normal 12"
 
 # These are the colors you can use in the GUI mode.
-# They overwrite the normal colors from above,
-# but they can only have hexcodes colors
+# They overwrite the terminal colors from above.
+# They can only have hexcodes colors
 black   = "!#000005"
 red     = "!#ff2000"
 green   = "!#00ff00"

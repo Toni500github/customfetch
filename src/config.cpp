@@ -44,6 +44,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->slow_query_warnings= this->getValue<bool>("config.slow-query-warnings", false);
     this->sep_reset_after    = this->getValue<bool>("config.sep-reset-after", false);
     this->use_SI_unit        = this->getValue<bool>("config.use-SI-byte-unit", false);
+    this->wrap_lines         = this->getValue<bool>("config.wrap-lines", true);
     this->ascii_logo_type    = this->getValue<std::string>("config.ascii-logo-type", "");
     this->source_path        = this->getValue<std::string>("config.source-path", "os");
     this->data_dir           = this->getValue<std::string>("config.data-dir", "/usr/share/customfetch");

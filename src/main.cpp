@@ -486,13 +486,20 @@ int main(int argc, char *argv[])
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif
 
-    // hide cursor and disable line wrapping
-    fmt::print("\x1B[?25l\x1B[?7l");
+    if (config.wrap_lines)
+    {
+        // hide cursor and disable line wrapping
+        fmt::print("\x1B[?25l\x1B[?7l");
+        
+        Display::display(Display::render(config, colors, false, path));
 
-    Display::display(Display::render(config, colors, false, path));
-
-    // enable both of them again
-    fmt::print("\x1B[?25h\x1B[?7h");
+        // enable both of them again
+        fmt::print("\x1B[?25h\x1B[?7h");
+    }
+    else
+    {
+        Display::display(Display::render(config, colors, false, path));
+    }
 
     return 0;
 }
