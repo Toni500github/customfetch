@@ -1,21 +1,21 @@
-${c1}                  :::::::
-            :::::::::::::::::::
-         :::::::::::::::::::::::::
-       ::::::::${c2}cllcccccllllllll${c1}::::::
-    :::::::::${c2}lc               dc${c1}:::::::
-   ::::::::${c2}cl   clllccllll    oc${c1}:::::::::
-  :::::::::${c2}o   lc${c1}::::::::${c2}co   oc${c1}::::::::::
- ::::::::::${c2}o    cccclc${c1}:::::${c2}clcc${c1}::::::::::::
- :::::::::::${c2}lc        cclccclc${c1}:::::::::::::
-::::::::::::::${c2}lcclcc          lc${c1}::::::::::::
-::::::::::${c2}cclcc${c1}:::::${c2}lccclc     oc${c1}:::::::::::
-::::::::::${c2}o    l${c1}::::::::::${c2}l    lc${c1}:::::::::::
- :::::${c2}cll${c1}:${c2}o     clcllcccll     o${c1}:::::::::::
- :::::${c2}occ${c1}:${c2}o                  clc${c1}:::::::::::
-  ::::${c2}ocl${c1}:${c2}ccslclccclclccclclc${c1}:::::::::::::
-   :::${c2}oclcccccccccccccllllllllllllll${c1}:::::
-    ::${c2}lcc1lcccccccccccccccccccccccco${c1}::::
-      ::::::::::::::::::::::::::::::::
-        ::::::::::::::::::::::::::::
-           ::::::::::::::::::::::
-                ::::::::::::
+${!#687bba}                  :::::::
+${!#687bba}            :::::::::::::::::::
+${!#687bba}         :::::::::::::::::::::::::
+${!#687bba}       ::::::::${white}cllcccccllllllll${!#687bba}::::::
+${!#687bba}    :::::::::${white}lc               dc${!#687bba}:::::::
+${!#687bba}   ::::::::${white}cl   clllccllll    oc${!#687bba}:::::::::
+${!#687bba}  :::::::::${white}o   lc${!#687bba}::::::::${white}co   oc${!#687bba}::::::::::
+${!#687bba} ::::::::::${white}o    cccclc${!#687bba}:::::${white}clcc${!#687bba}::::::::::::
+${!#687bba} :::::::::::${white}lc        cclccclc${!#687bba}:::::::::::::
+${!#687bba}::::::::::::::${white}lcclcc          lc${!#687bba}::::::::::::
+${!#687bba}::::::::::${white}cclcc${!#687bba}:::::${white}lccclc     oc${!#687bba}:::::::::::
+${!#687bba}::::::::::${white}o    l${!#687bba}::::::::::${white}l    lc${!#687bba}:::::::::::
+${!#687bba} :::::${white}cll${!#687bba}:${white}o     clcllcccll     o${!#687bba}:::::::::::
+${!#687bba} :::::${white}occ${!#687bba}:${white}o                  clc${!#687bba}:::::::::::
+${!#687bba}  ::::${white}ocl${!#687bba}:${white}ccslclccclclccclclc${!#687bba}:::::::::::::
+${!#687bba}   :::${white}oclcccccccccccccllllllllllllll${!#687bba}:::::
+${!#687bba}    ::${white}lcc1lcccccccccccccccccccccccco${!#687bba}::::
+${!#687bba}      ::::::::::::::::::::::::::::::::
+${!#687bba}        ::::::::::::::::::::::::::::
+${!#687bba}           ::::::::::::::::::::::
+${!#687bba}                ::::::::::::

@@ -1,17 +1,17 @@
-${c1}                     `-/oshdmNMNdhyo+:-`
-${c2}y${c1}/s+:-``    `.-:+oydNMMMMNhs/-``
-${c2}-m+${c1}NMMMMMMMMMMMMMMMMMMMNdhmNMMMmdhs+/-`
- ${c2}-m+${c1}NMMMMMMMMMMMMMMMMMMMMmy+:`
-  ${c2}-N/${c1}dMMMMMMMMMMMMMMMds:`
-   ${c2}-N/${c1}hMMMMMMMMMmho:`
-    ${c2}-N/${c1}-:/++/:.`
-${c2}     :M+
-      :Mo
-       :Ms
-        :Ms
-         :Ms
-          :Ms
-           :Ms
-            :Ms
-             :Ms
-              :Ms
+${!#fc6906}                     `-/oshdmNMNdhyo+:-`
+${white}y${!#fc6906}/s+:-``    `.-:+oydNMMMMNhs/-``
+${white}-m+${!#fc6906}NMMMMMMMMMMMMMMMMMMMNdhmNMMMmdhs+/-`
+ ${white}-m+${!#fc6906}NMMMMMMMMMMMMMMMMMMMMmy+:`
+  ${white}-N/${!#fc6906}dMMMMMMMMMMMMMMMds:`
+   ${white}-N/${!#fc6906}hMMMMMMMMMmho:`
+    ${white}-N/${!#fc6906}-:/++/:.`
+${white}     :M+
+${white}      :Mo
+${white}       :Ms
+${white}        :Ms
+${white}         :Ms
+${white}          :Ms
+${white}           :Ms
+${white}            :Ms
+${white}             :Ms
+${white}              :Ms

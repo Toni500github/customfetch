@@ -1,20 +1,20 @@
-${c1}           `:+yhmNMMMMNmhy+:`
-        -odMMNhso//////oshNMMdo-
-      /dMMh+.              .+hMMd/
-    /mMNo`                    `oNMm:
-  `yMMo`                        `oMMy`
- `dMN-                            -NMd`
- hMN.                              .NMh
-/MM/                  -os`          /MM/
-dMm    `smNmmhs/- `:sNMd+   ``       mMd
-MMy    oMd--:+yMMMMMNo.:ohmMMMNy`    yMM
-MMy    -NNyyhmMNh+oNMMMMMy:.  dMo    yMM
-dMm     `/++/-``/yNNh+/sdNMNddMm-    mMd
-/MM/          `dNy:       `-::-     /MM/
- hMN.                              .NMh
- `dMN-                            -NMd`
-  `yMMo`                        `oMMy`
-    /mMNo`                    `oNMm/
-      /dMMh+.              .+hMMd/
-        -odMMNhso//////oshNMMdo-
-           `:+yhmNMMMMNmhy+:`
+${red}           `:+yhmNMMMMNmhy+:`
+${red}        -odMMNhso//////oshNMMdo-
+${red}      /dMMh+.              .+hMMd/
+${red}    /mMNo`                    `oNMm:
+${red}  `yMMo`                        `oMMy`
+${red} `dMN-                            -NMd`
+${red} hMN.                              .NMh
+${red}/MM/                  -os`          /MM/
+${red}dMm    `smNmmhs/- `:sNMd+   ``       mMd
+${red}MMy    oMd--:+yMMMMMNo.:ohmMMMNy`    yMM
+${red}MMy    -NNyyhmMNh+oNMMMMMy:.  dMo    yMM
+${red}dMm     `/++/-``/yNNh+/sdNMNddMm-    mMd
+${red}/MM/          `dNy:       `-::-     /MM/
+${red} hMN.                              .NMh
+${red} `dMN-                            -NMd`
+${red}  `yMMo`                        `oMMy`
+${red}    /mMNo`                    `oNMm/
+${red}      /dMMh+.              .+hMMd/
+${red}        -odMMNhso//////oshNMMdo-
+${red}           `:+yhmNMMMMNmhy+:`

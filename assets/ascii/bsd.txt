@@ -2,10 +2,10 @@ ${red}             ,        ,
 ${red}            /(        )`
 ${red}            \\ \\___   / |
 ${red}            /- _  `-/  '
-${red}           (${1}/\\/ \\ ${red}\\   /\\
-${red}           ${1}/ /   | `    ${red}\\
-${red}           ${blue}O O   ${1}) ${red}/    |
-${red}           ${1}`-^--'${red}`\\<     '
+${red}           (${white}/\\/ \\ ${red}\\   /\\
+${red}           ${white}/ /   | `    ${red}\\
+${red}           ${blue}O O   ${white}) ${red}/    |
+${red}           ${white}`-^--'${red}`\<     '
 ${red}          (_.)  _  )   /
 ${red}           `.___/`    /
 ${red}             `-----' /

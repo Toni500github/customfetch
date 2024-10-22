@@ -1,18 +1,18 @@
-${c1}                    ..
-                  .oK0l
-                 :0KKKKd.
-               .xKO0KKKKd
-              ,Od' .d0000l
-             .c;.   .'''...           ..'.
-.,:cloddxxxkkkkOOOOkkkkkkkkxxxxxxxxxkkkx:
-;kOOOOOOOkxOkc'...',;;;;,,,'',;;:cllc:,.
- .okkkkd,.lko  .......',;:cllc:;,,'''''.
-   .cdo. :xd' cd:.  ..';'',,,'',,;;;,'.
-      . .ddl.;doooc'..;oc;'..';::;,'.
-        coo;.oooolllllllcccc:'.  .
-       .ool''lllllccccccc:::::;.
-       ;lll. .':cccc:::::::;;;;'
-       :lcc:'',..';::::;;;;;;;,,.
-       :cccc::::;...';;;;;,,,,,,.
-       ,::::::;;;,'.  ..',,,,'''.
-        ........          ......
+${red}                    ..
+${red}                  .oK0l
+${red}                 :0KKKKd.
+${red}               .xKO0KKKKd
+${red}              ,Od' .d0000l
+${red}             .c;.   .'''...           ..'.
+${red}.,:cloddxxxkkkkOOOOkkkkkkkkxxxxxxxxxkkkx:
+${red};kOOOOOOOkxOkc'...',;;;;,,,'',;;:cllc:,.
+${red} .okkkkd,.lko  .......',;:cllc:;,,'''''.
+${red}   .cdo. :xd' cd:.  ..';'',,,'',,;;;,'.
+${red}      . .ddl.;doooc'..;oc;'..';::;,'.
+${red}        coo;.oooolllllllcccc:'.  .
+${red}       .ool''lllllccccccc:::::;.
+${red}       ;lll. .':cccc:::::::;;;;'
+${red}       :lcc:'',..';::::;;;;;;;,,.
+${red}       :cccc::::;...';;;;;,,,,,,.
+${red}       ,::::::;;;,'.  ..',,,,'''.
+${red}        ........          ......

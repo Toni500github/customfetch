@@ -1,20 +1,20 @@
-${c1}           `.:/ossyyyysso/:.
-        `.:yyyyyyyyyyyyyyyyyy:.`
-      .:yyyyyyyyyyyyyyyyyyyyyyyy:.
-    .:yyyyyyyyyyyyyyyyyyyyyyyyyyyy:.
-   -yyyyyyyyyyyyyy${c2}+hNMMMNh+${c1}yyyyyyyyy-
-  :yy${c2}mNy+${c1}yyyyyyyy${c2}+Nmso++smMdhyysoo+${c1}yy:
- -yy${c2}+MMMmmy${c1}yyyyyy${c2}hh${c1}yyyyyyyyyyyyyyyyyyy-
-.yyyy${c2}NMN${c1}yy${c2}shhs${c1}yyy${c2}+o${c1}yyyyyyyyyyyyyyyyyyyy.
-:yyyy${c2}oNM+${c1}yyyy${c2}+sso${c1}yyyyyyy${c2}ss${c1}yyyyyyyyyyyyy:
-:yyyyy${c2}+dNs${c1}yyyyyyy${c2}++${c1}yyyyy${c2}oN+${c1}yyyyyyyyyyyy:
-:yyyyy${c2}oMMmhysso${c1}yyyyyyyyyy${c2}mN+${c1}yyyyyyyyyyy:
-:yyyyyy${c2}hMm${c1}yyyyy${c2}+++${c1}yyyyyyy${c2}+MN${c1}yyyyyyyyyyy:
-.yyyyyyy${c2}ohmy+${c1}yyyyyyyyyyyyy${c2}NMh${c1}yyyyyyyyyy.
- -yyyyyyyyyy${c2}++${c1}yyyyyyyyyyyy${c2}MMh${c1}yyyyyyyyy-
-  :yyyyyyyyyyyyyyyyyyyyy${c2}+mMN+${c1}yyyyyyyy:
-   -yyyyyyyyyyyyyyyyy${c2}+sdMMd+${c1}yyyyyyyy-
-    .:yyyyyyyyy${c2}hmdmmNMNdy+${c1}yyyyyyyy:.
-      .:yyyyyyy${c2}my${c1}yyyyyyyyyyyyyyy:.
-        `.:yyyy${c2}s${c1}yyyyyyyyyyyyy:.`
-           `.:/oosyyyysso/:.`
+${blue}           `.:/ossyyyysso/:.
+${blue}        `.:yyyyyyyyyyyyyyyyyy:.`
+${blue}      .:yyyyyyyyyyyyyyyyyyyyyyyy:.
+${blue}    .:yyyyyyyyyyyyyyyyyyyyyyyyyyyy:.
+${blue}   -yyyyyyyyyyyyyy${white}+hNMMMNh+${blue}yyyyyyyyy-
+${blue}  :yy${white}mNy+${blue}yyyyyyyy${white}+Nmso++smMdhyysoo+${blue}yy:
+${blue} -yy${white}+MMMmmy${blue}yyyyyy${white}hh${blue}yyyyyyyyyyyyyyyyyyy-
+${blue}.yyyy${white}NMN${blue}yy${white}shhs${blue}yyy${white}+o${blue}yyyyyyyyyyyyyyyyyyyy.
+${blue}:yyyy${white}oNM+${blue}yyyy${white}+sso${blue}yyyyyyy${white}ss${blue}yyyyyyyyyyyyy:
+${blue}:yyyyy${white}+dNs${blue}yyyyyyy${white}++${blue}yyyyy${white}oN+${blue}yyyyyyyyyyyy:
+${blue}:yyyyy${white}oMMmhysso${blue}yyyyyyyyyy${white}mN+${blue}yyyyyyyyyyy:
+${blue}:yyyyyy${white}hMm${blue}yyyyy${white}+++${blue}yyyyyyy${white}+MN${blue}yyyyyyyyyyy:
+${blue}.yyyyyyy${white}ohmy+${blue}yyyyyyyyyyyyy${white}NMh${blue}yyyyyyyyyy.
+${blue} -yyyyyyyyyy${white}++${blue}yyyyyyyyyyyy${white}MMh${blue}yyyyyyyyy-
+${blue}  :yyyyyyyyyyyyyyyyyyyyy${white}+mMN+${blue}yyyyyyyy:
+${blue}   -yyyyyyyyyyyyyyyyy${white}+sdMMd+${blue}yyyyyyyy-
+${blue}    .:yyyyyyyyy${white}hmdmmNMNdy+${blue}yyyyyyyy:.
+${blue}      .:yyyyyyy${white}my${blue}yyyyyyyyyyyyyyy:.
+${blue}        `.:yyyy${white}s${blue}yyyyyyyyyyyyy:.`
+${blue}           `.:/oosyyyysso/:.`

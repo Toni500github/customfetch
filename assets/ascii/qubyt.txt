@@ -1,15 +1,15 @@
-${c1}    ########################${c2}(${c3}ooo
-${c1}    ########################${c2}(${c3}ooo
-${c1}###${c2}(${c3}ooo                  ${c1}###${c2}(${c3}ooo
-${c1}###${c2}(${c3}ooo                  ${c1}###${c2}(${c3}ooo
-${c1}###${c2}(${c3}ooo                  ${c1}###${c2}(${c3}ooo
-${c1}###${c2}(${c3}ooo                  ${c1}###${c2}(${c3}ooo
-${c1}###${c2}(${c3}ooo                  ${c1}###${c2}(${c3}ooo
-${c1}###${c2}(${c3}ooo                  ${c1}###${c2}(${c3}ooo
-${c1}###${c2}(${c3}ooo           ${c1}##${c3}o    ${c2}((((${c3}ooo
-${c1}###${c2}(${c3}ooo          o${c2}((${c1}###   ${c3}oooooo
-${c1}###${c2}(${c3}ooo           oo${c2}((${c1}###${c3}o
-${c1}###${c2}(${c3}ooo             ooo${c2}((${c1}###
-${c1}################${c2}(${c3}oo    oo${c2}((((${c3}o
-${c2}(((((((((((((((((${c3}ooo     ooooo
-  oooooooooooooooooo        o
+${blue}    ########################${magenta}(${black}ooo
+${blue}    ########################${magenta}(${black}ooo
+${blue}###${magenta}(${black}ooo                  ${blue}###${magenta}(${black}ooo
+${blue}###${magenta}(${black}ooo                  ${blue}###${magenta}(${black}ooo
+${blue}###${magenta}(${black}ooo                  ${blue}###${magenta}(${black}ooo
+${blue}###${magenta}(${black}ooo                  ${blue}###${magenta}(${black}ooo
+${blue}###${magenta}(${black}ooo                  ${blue}###${magenta}(${black}ooo
+${blue}###${magenta}(${black}ooo                  ${blue}###${magenta}(${black}ooo
+${blue}###${magenta}(${black}ooo           ${blue}##${black}o    ${magenta}((((${black}ooo
+${blue}###${magenta}(${black}ooo          o${magenta}((${blue}###   ${black}oooooo
+${blue}###${magenta}(${black}ooo           oo${magenta}((${blue}###${black}o
+${blue}###${magenta}(${black}ooo             ooo${magenta}((${blue}###
+${blue}################${magenta}(${black}oo    oo${magenta}((((${black}o
+${magenta}(((((((((((((((((${black}ooo     ooooo
+${black}  oooooooooooooooooo        o
