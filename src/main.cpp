@@ -70,7 +70,7 @@ A command-line system information tool (or neofetch like program), which its foc
 				It's recommended to use GUI mode for the moment if something doesn't work
 
     -m, --layout-line           Will replace the config layout, with a layout you specify in the arguments
-				Example: "cufetch -m "${{auto}}OS: $<os.name>" -m "${{auto}}CPU: $<cpu.cpu>" "
+				Example: `cufetch -m "${{auto}}OS: $<os.name>" -m "${{auto}}CPU: $<cpu.cpu>"`
 				Will only print the logo (if not disabled), along side the parsed OS and CPU
 
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it was enabled)
@@ -81,6 +81,7 @@ A command-line system information tool (or neofetch like program), which its foc
     -V, --version		Print the version along with the git branch it was built
 
     --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
+    --wrap-lines [<0,1>]	Disable (0) or Enable (1) wrapping lines when printing in terminal
     --logo-padding-top	<num>	Padding of the logo from the top
     --logo-padding-left	<num>	Padding of the logo from the left
     --layout-padding-top <num>  Padding of the layout from the top
@@ -311,6 +312,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"source-path",      required_argument, 0, 's'},
         {"image-backend",    required_argument, 0, 'i'},
 
+        {"wrap-lines",         optional_argument, 0, "wrap-lines"_fnv1a16},
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
         {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
         {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
@@ -320,7 +322,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"bg-image",           required_argument, 0, "bg-image"_fnv1a16},
         {"color",              required_argument, 0, "color"_fnv1a16},
         {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
-        
+
         {0,0,0,0}
     };
 
@@ -384,6 +386,13 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case "bg-image"_fnv1a16:
                 config.gui_bg_image = optarg; break;
 
+            case "wrap-lines"_fnv1a16:
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.wrap_lines = static_cast<bool>(std::stoi(optarg));
+                else
+                    config.wrap_lines = true;
+                break;
+
             case "color"_fnv1a16:
                 config.addAliasColors(optarg); break;
 
@@ -402,7 +411,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.sep_reset_after = std::stoi(optarg);
+                    config.sep_reset_after = static_cast<bool>(std::stoi(optarg));
                 else
                     config.sep_reset_after = true;
                 break;
