@@ -178,6 +178,9 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
     }
     debug("term_pid = {}", term_pid);
 
+    if (std::stoi(term_pid) < 1)
+        return MAGIC_LINE;
+
     std::ifstream f("/proc/" + term_pid + "/comm", std::ios::in);
     std::string   term_name;
     std::getline(f, term_name);

@@ -48,6 +48,7 @@ std::vector<std::string> split(const std::string_view text, const char delim)
     {
         vec.push_back(line);
     }
+
     return vec;
 }
 
