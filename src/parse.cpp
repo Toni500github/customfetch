@@ -263,12 +263,12 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     
     static std::vector<std::string> auto_colors;
 
-    std::string     output;
-    const Config&   config = parse_args.config;
-    const colors_t& colors = parse_args.colors;
-    const size_t    taglen = color.length() + "${}"_len;
-    const size_t    tagpos = parse_args.pureOutput.find("${" + color + "}");
-    const std::string& endspan = (!parse_args.firstrun_clr ? "</span>" : "");
+    std::string         output;
+    const Config&       config  = parse_args.config;
+    const colors_t&     colors  = parse_args.colors;
+    const size_t        taglen  = color.length() + "${}"_len;
+    const size_t        tagpos  = parse_args.pureOutput.find("${" + color + "}");
+    const std::string   endspan = (!parse_args.firstrun_clr ? "</span>" : "");
 
     if (config.m_disable_colors)
     {
@@ -520,12 +520,18 @@ jumpauto:
                     append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
 
                 // you can't fmt::format(style, ""); ughh
-                const uint32_t rgb_num = bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
-                fmt::rgb rgb(rgb_num);
-                fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1B[48;2;" : "\x1B[38;2;");
-                fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
-                output += emph.begin();
-                output += ansi.begin();
+                if (style.has_background() || style.has_foreground())
+                {
+                    const uint32_t rgb_num = bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
+                    fmt::rgb rgb(rgb_num);
+                    fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1B[48;2;" : "\x1B[38;2;");
+                    output += ansi.begin();
+                }
+                if (style.has_emphasis())
+                {
+                    fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
+                    output += emph.begin();
+                }
             }
 
             // "\\e" is for checking in the ascii_art, \033 in the config
