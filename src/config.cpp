@@ -38,54 +38,53 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     // clang-format off
     // Idk but with `this->` looks more readable
-    this->layout             = this->getValueArrayStr("config.layout", {});
-    this->percentage_colors  = this->getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
-    this->gui                = this->getValue<bool>("gui.enable", false);
-    this->slow_query_warnings= this->getValue<bool>("config.slow-query-warnings", false);
-    this->sep_reset_after    = this->getValue<bool>("config.sep-reset-after", false);
-    this->use_SI_unit        = this->getValue<bool>("config.use-SI-byte-unit", false);
-    this->wrap_lines         = this->getValue<bool>("config.wrap-lines", true);
-    this->ascii_logo_type    = this->getValue<std::string>("config.ascii-logo-type", "");
-    this->source_path        = this->getValue<std::string>("config.source-path", "os");
-    this->data_dir           = this->getValue<std::string>("config.data-dir", "/usr/share/customfetch");
-    this->sep_reset          = this->getValue<std::string>("config.sep-reset", ":");
-    this->offset             = this->getValue<std::uint16_t>("config.offset", 5);
-    this->logo_padding_left  = this->getValue<std::uint16_t>("config.logo-padding-left", 0);
-    this->layout_padding_top = this->getValue<std::uint16_t>("config.layout-padding-top", 0);
-    this->logo_padding_top   = this->getValue<std::uint16_t>("config.logo-padding-top", 0);
-    this->font               = this->getValue<std::string>("gui.font", "Liberation Mono Normal 12");
-    this->gui_bg_image       = this->getValue<std::string>("gui.bg-image", "disable");
+    this->layout              = getValueArrayStr("config.layout", {});
+    this->percentage_colors   = getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
+    this->gui                 = getValue<bool>("gui.enable", false);
+    this->slow_query_warnings = getValue<bool>("config.slow-query-warnings", false);
+    this->sep_reset_after     = getValue<bool>("config.sep-reset-after", false);
+    this->use_SI_unit         = getValue<bool>("config.use-SI-byte-unit", false);
+    this->wrap_lines          = getValue<bool>("config.wrap-lines", true);
+    this->sep_reset           = getValue<std::string>("config.sep-reset", ":");
+    this->offset              = getValue<std::uint16_t>("config.offset", 5);
+    this->logo_padding_left   = getValue<std::uint16_t>("config.logo-padding-left", 0);
+    this->layout_padding_top  = getValue<std::uint16_t>("config.layout-padding-top", 0);
+    this->logo_padding_top    = getValue<std::uint16_t>("config.logo-padding-top", 0);
+    this->ascii_logo_type     = getValue<std::string>("config.ascii-logo-type", "");
+    this->source_path         = getValue<std::string>("config.source-path", "os");
+    this->data_dir            = getValue<std::string>("config.data-dir", "/usr/share/customfetch");
+    this->font                = getValue<std::string>("gui.font", "Liberation Mono Normal 12");
+    this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
+    this->builtin_title_sep   = getValue<std::string>("config.title-sep", "-");
 
-    this->builtin_title_sep  = this->getValue<std::string>("config.title-sep", "-");
+    this->uptime_d_fmt = getValue<std::string>("os.uptime.days", " days");
+    this->uptime_h_fmt = getValue<std::string>("os.uptime.hours", " hours");
+    this->uptime_m_fmt = getValue<std::string>("os.uptime.mins", " mins");
+    this->uptime_s_fmt = getValue<std::string>("os.uptime.secs", " secs");
 
-    this->uptime_d_fmt = this->getValue<std::string>("os.uptime.days", " days");
-    this->uptime_h_fmt = this->getValue<std::string>("os.uptime.hours", " hours");
-    this->uptime_m_fmt = this->getValue<std::string>("os.uptime.mins", " mins");
-    this->uptime_s_fmt = this->getValue<std::string>("os.uptime.secs", " secs");
+    this->pkgs_managers= getValueArrayStr("os.pkgs.pkg-managers", {});
+    this->pacman_dirs  = getValueArrayStr("os.pkgs.pacman-dirs",  {"/var/lib/pacman/local"});
+    this->dpkg_files   = getValueArrayStr("os.pkgs.dpkg-files",   {"/var/lib/dpkg/status"});
+    this->flatpak_dirs = getValueArrayStr("os.pkgs.flatpak-dirs", {"/var/lib/flatpak/app", "~/.local/share/flatpak/app"});
+    this->apk_files    = getValueArrayStr("os.pkgs.apk-files",    {"/var/lib/apk/db/installed"});
 
-    this->pkgs_managers= this->getValueArrayStr("os.pkgs.pkg-managers", {});
-    this->pacman_dirs  = this->getValueArrayStr("os.pkgs.pacman-dirs",  {"/var/lib/pacman/local"});
-    this->dpkg_files   = this->getValueArrayStr("os.pkgs.dpkg-files",   {"/var/lib/dpkg/status"});
-    this->flatpak_dirs = this->getValueArrayStr("os.pkgs.flatpak-dirs", {"/var/lib/flatpak/app", "~/.local/share/flatpak/app"});
-    this->apk_files    = this->getValueArrayStr("os.pkgs.apk-files",    {"/var/lib/apk/db/installed"});
+    colors.black       = getThemeValue("config.black",   "\033[1;30m");
+    colors.red         = getThemeValue("config.red",     "\033[1;31m");
+    colors.green       = getThemeValue("config.green",   "\033[1;32m");
+    colors.yellow      = getThemeValue("config.yellow",  "\033[1;33m");
+    colors.blue        = getThemeValue("config.blue",    "\033[1;34m");
+    colors.magenta     = getThemeValue("config.magenta", "\033[1;35m");
+    colors.cyan        = getThemeValue("config.cyan",    "\033[1;36m");
+    colors.white       = getThemeValue("config.white",   "\033[1;37m");
 
-    colors.black       = this->getThemeValue("config.black",   "\033[1;30m");
-    colors.red         = this->getThemeValue("config.red",     "\033[1;31m");
-    colors.green       = this->getThemeValue("config.green",   "\033[1;32m");
-    colors.yellow      = this->getThemeValue("config.yellow",  "\033[1;33m");
-    colors.blue        = this->getThemeValue("config.blue",    "\033[1;34m");
-    colors.magenta     = this->getThemeValue("config.magenta", "\033[1;35m");
-    colors.cyan        = this->getThemeValue("config.cyan",    "\033[1;36m");
-    colors.white       = this->getThemeValue("config.white",   "\033[1;37m");
-
-    colors.gui_black   = this->getThemeValue("gui.black",   "!#000005");
-    colors.gui_red     = this->getThemeValue("gui.red",     "!#ff2000");
-    colors.gui_green   = this->getThemeValue("gui.green",   "!#00ff00");
-    colors.gui_blue    = this->getThemeValue("gui.blue",    "!#00aaff");
-    colors.gui_cyan    = this->getThemeValue("gui.cyan",    "!#00ffff");
-    colors.gui_yellow  = this->getThemeValue("gui.yellow",  "!#ffff00");
-    colors.gui_magenta = this->getThemeValue("gui.magenta", "!#ff11cc");
-    colors.gui_white   = this->getThemeValue("gui.white",   "!#ffffff");
+    colors.gui_black   = getThemeValue("gui.black",   "!#000005");
+    colors.gui_red     = getThemeValue("gui.red",     "!#ff2000");
+    colors.gui_green   = getThemeValue("gui.green",   "!#00ff00");
+    colors.gui_blue    = getThemeValue("gui.blue",    "!#00aaff");
+    colors.gui_cyan    = getThemeValue("gui.cyan",    "!#00ffff");
+    colors.gui_yellow  = getThemeValue("gui.yellow",  "!#ffff00");
+    colors.gui_magenta = getThemeValue("gui.magenta", "!#ff11cc");
+    colors.gui_white   = getThemeValue("gui.white",   "!#ffffff");
 
     if (this->percentage_colors.size() < 3)
     {

@@ -104,7 +104,6 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
         type = "bgcolor";
 
     // last number
-    // https://stackoverflow.com/a/5030086
     // clang-format off
     switch (col.back())
     {
@@ -245,7 +244,7 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
         if (removetag)
             parse_args.pureOutput.erase(tagpos, command.length() + "$(!)"_len);
         else
-            parse_args.pureOutput.replace(tagpos, command.length() + 3, cmd_output);
+            parse_args.pureOutput.replace(tagpos, command.length() + "$()"_len, cmd_output);
     }
 
     return cmd_output;

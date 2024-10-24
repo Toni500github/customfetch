@@ -43,10 +43,10 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     // load the image and get its width and height
     unsigned char* img = stbi_load(config.source_path.c_str(), &image_width, &image_height, &channels, 0);
 
-    if (img)
-        stbi_image_free(img);
-    else
+    if (!img)
         die("Unable to load image '{}'", config.source_path);
+
+    stbi_image_free(img);
 
     if (!config.ascii_logo_type.empty())
     {

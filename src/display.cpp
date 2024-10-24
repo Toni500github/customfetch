@@ -60,10 +60,10 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     // load the image and get its width and height
     unsigned char* img = stbi_load(path.data(), &image_width, &image_height, &channels, 0);
 
-    if (img)
-        stbi_image_free(img);
-    else
+    if (!img)
         die("Unable to load image '{}'", path);
+    
+    stbi_image_free(img);
 
     std::string _;
     for (std::string& layout : layout)
