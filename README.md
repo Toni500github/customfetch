@@ -117,13 +117,13 @@ layout = [
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
     "${auto}Uptime: $<os.uptime>",
-    "${auto}Terminal: $<user.term>",
+    "${auto}Terminal: $<user.terminal>",
     "${auto}Shell: $<user.shell>",
     "${auto}Packages: $<os.pkgs>",
     "${auto}Theme: $<theme-gtk-all.name>",
     "${auto}Icons: $<theme-gtk-all.icons>",
     "${auto}Font: $<theme-gtk-all.font>",
-    "${auto}Cursor: $<theme.cursor> ($<theme.cursor_size>px)",
+    "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name>",
     "${auto}DE: $<user.de_name>",
     "${auto}Disk(/): $<disk(/).disk>",
@@ -138,8 +138,8 @@ layout = [
 
 ```
 
-We use the `config.toml` file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
-You have 5 tags:
+In the config we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
+There are 5 tags:
 * `$<module.member>` - Used for printing the value of a member of a module.
 * `${color}` - Used for displaying text in a specific color.
 * `$(bash command)` - Used to execute bash commands and print the output.
@@ -158,15 +158,18 @@ They can be used in the ascii art text file and layout, but how to use them?
  e.g `$(echo \"hello world\" | cut -d' ' -f2)` will only print world
 
 * **The conditional tag (`$[]`)** is used for displaying different outputs based on the comparison.\
-  Syntax MUST be `$[something,equalToSomethingElse,iftrue,ifalse]` with no spaces between commas.\
+  Syntax MUST be `$[something,equalToSomethingElse,iftrue,ifalse]` (**note**: putting spaces between commas can change the expected result).\
   Each part can have a tag or anything else.\
   e.g `$[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]`\
-  This is useful when on some terminal or WM the detection can be different than others\
+  This is useful when on some terminal or WM the detection can be different than others,\
+  Or maybe even on holidays for printing special texts\
 
-* **The color tag (`${}`)** is used for which color to use for colorizing the text\
- e.g `${red}hello world` will indeed print "hello world" in red (or the color you set in the variable).\
+* **The color tag (`${}`)** is used for printing the text in a certain color.\
+ e.g `${red}hello world` will indeed print "hello world" in red (or the color you set in the variable/tag).\
  The colors can be: <ins>black</ins>, <ins>red</ins>, <ins>green</ins>, <ins>blue</ins>, <ins>cyan</ins>, <ins>yellow</ins>, <ins>magenta</ins>, <ins>white</ins> and they can be configured in the config file.\
- You can put a custom hex color e.g: `${#ff6622}`.\
+ **ANSI escape colors** can be used, e.g `\e[1;31m` or `\e[38;2;160;223;11m`.\
+ Alternatively, You can put a custom **hex color** e.g: `#ff6622`.\
+ You can also use them inside the tag, like `${!#343345}` or `${\e[1;31m}`.\
  It's possible to enable multiple options, put these symbols before `#`:\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Terminal and GUI**\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`b` - for making the color in the background\
@@ -176,38 +179,41 @@ They can be used in the ascii art text file and layout, but how to use them?
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`s` - for strikethrough text\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**GUI Only**\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`o` - for overline\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`a(value)` - for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`L(value)` - to  underline the text with a style (`none`, `single`, `double`, `low`, `error`)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`a(value)` - for fg alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`L(value)` - for choosing an underline style (`none`, `single`, `double`, `low`, `error`)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`U(value)` - for choosing the underline color (hexcode without #)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`B(value)` - for bg color text (hexcode without #)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`S(value)` - for choosing strikethrough color (same value as above)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`O(value)` - for choosing overline color (same value as above)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`A(value)` - for bg alpha (same value as for fg alpha a(value))\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`w(value)` - for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`B(value)` - for choosing the bg color text (hexcode without #)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`S(value)` - for choosing the strikethrough color (hexcode without #)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`O(value)` - for choosing the overline color (hexcode without #)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`A(value)` - for choosing the bg text alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`w(value)` - for choosing the font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Terminal Only**\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`l` - for blinking text\
  \
- Alternatively, ANSI escape codes can be used, e.g `\\e[1;31m` and `\\e[38;2;160;223;11m`.\
+ To reset colors, use `${0}` for a normal reset or `${1}` for a bold reset.\
  For auto coloring, depending on the ascii logo colors, use `${auto}`.\
  They can be used for different colors too. So for getting the 2nd color of the ascii logo,\
- use `${auto2}`, for the 4th one use `${auto4}` and so on.
- If you're in GUI mode and the source path is an image, all the auto colors will be white
+ use `${auto2}`, for the 4th one use `${auto4}` and so on.\
+ If you're in GUI mode and the source path is an image, all the auto colors will be the same colors as distro ascii art.
 
 * **The Percentage tag (`$%%`)** is used for displaying the percentage between 2 numbers.\
   It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
   For example: $%10,5%
   For inverting colors of bad and great (red and green), before the first `%` a put `!`
 
-Any `$` or brackets can be escaped with a backslash `\`
+Any `$` or brackets can be escaped with a backslash `\`. You need to escape backslashes too :(\
+**NOTE:** For having compatibility with GUI mode, you need to escape `<` (EXCEPT if you are using in a info tag, like `$<os.name>`) and `&`\
+e.g `the number 50 is \< than 100 \& 98`
+Won't affect the printing in terminal
 
 # TODOs
-* Color all ASCII arts (101/262) will take long ahh time
+* Color all ASCII arts (157/262) will take long ahh time
 
 # Thanks
 I would like to thanks:
 * my best-friend [BurntRanch](https://github.com/BurntRanch/),\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me initialize this project and motivate me for keep going\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for making my customizability idea come true with the parsing.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me initialize this project and motivate me to keep going\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for making my customizability idea come true with the parser.
 
 * the Better C++ [discord server](https://discord.gg/uSzTjkXtAM), \
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me improving the codebase and helping me with any issues I got,\

@@ -10,9 +10,9 @@ customfetch focus point is to be customizable and fast at the same time.
 .PP
 How does it work?
 .PP
-We use the \fBconfig.toml\fR file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
-.PP
-You have 5 tags:
+In the config we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
+.br
+There are 5 tags:
 .nf
 * \fB$<module.member>\fR - Used for printing the value of a member of a module.
 * \fB${color}\fR - Used for displaying text in a specific color.
@@ -29,7 +29,7 @@ layout = [
 	"My OS is $<os.name>, and username is $<user.name>",
 	"The color of the following text will be ${red}red",
 	"This is a $(echo \\"bash command\\")",
-	"Check if \\\\$<user.name> is correct: $[$<user.name>,toni,indeed,it's not toni but $(echo $USER)]",
+	"Check if \\$<user.name> is correct: $[$<user.name>,toni,indeed,it's not toni but $(echo $USER)]",
 	"The discount between 50$ and 100$ is $%50,100%"
 ]
 .fi
@@ -38,25 +38,25 @@ layout = [
 .br
   All the modules and their members are listed in the `--list-modules` argument
 .PP
-* The \fBColor tag ${}\fR is used for printing the text of a certain color.
+* The \fBColor tag ${}\fR is used for printing the text in a certain color.
 .nf
   The colors can be predefined such as: \fIblack\fR, \fIred\fR, \fIgreen\fR, \fIblue\fR, \fIcyan\fR, \fIyellow\fR, \fImagenta\fR, \fIwhite\fR and they can be configured in the config file.
-  They can have hexcodes colors (e.g "#5522dd").
+  
+  \fBANSI escape colors\fR can be used, e.g "\\e[1;31m" and "\\e[38;5;160;223;11m".
+  Alternatively, They can have \fBhexcodes colors\fR (e.g "#5522dd").
   You can apply special effects to colors by using the following symbols before the '#' in hex codes:
 
-      \fBTerminal and GUI\fR                    \fBGUI Only\fR
+      \fBTerminal and GUI\fR                         \fBGUI Only\fR
   * \fBb\fR  for background color.     	* \fBo\fR        for overline
-  * \fBu\fR  to  underline the text    	* \fBa(value)\fR for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
-  * \fB!\fR  for bold text             	* \fBL(value)\fR to  underline with a style (`none`, `single`, `double`, `low`, `error`)
+  * \fBu\fR  to  underline the text    	* \fBa(value)\fR for fg alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)
+  * \fB!\fR  for bold text             	* \fBL(value)\fR for choosing an underline style (`none`, `single`, `double`, `low`, `error`)
   * \fBi\fR  for italic text           	* \fBU(value)\fR for choosing the underline color (hexcode without #)
-                                     * \fBB(value)\fR for bg color text (hexcode without #)
-       \fBTerminal Only\fR                 * \fBS(value)\fR for strikethrough color (same value as above)
-  * \fBl\fR  for blinking text             * \fBO(value)\fR for overline color (same value as above)
-                                     * \fBA(value)\fR for bg alpha (same value as a(value))
-                                     * \fBw(value)\fR for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
+                                     * \fBB(value)\fR for choosing the bg color text (hexcode without #)
+       \fBTerminal Only\fR                 * \fBS(value)\fR for choosing the strikethrough color (hexcode without #)
+  * \fBl\fR  for blinking text             * \fBO(value)\fR for choosing the overline color (hexcode without #)
+                                     * \fBA(value)\fR for choosing the bg text alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)
+                                     * \fBw(value)\fR for choosing the font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
 .fi
-.PP
-  Alternatively, ANSI escape codes can be used, e.g "\\e[1;31m" and "\\e[38;5;160m".
 .PP
   You can also use them inside the tag, like \fB${!#343345}\fR or \fB${\\e[1;31m}\fR.
 .PP
@@ -68,7 +68,7 @@ layout = [
 .PP
 * The \fBConditional tag $[]\fR is used to display different outputs based on the comparison.
 .br
-  The syntax \fBMUST\fR be: $[something,equalToSomethingElse,ifTrue,ifFalse] \fBnote:\fR putting spaces could change the expected result
+  The syntax \fBMUST\fR be: $[something,equalToSomethingElse,ifTrue,ifFalse] \fBnote:\fR putting spaces between commas can change the expected result
 .br
   Each part can have a tag or anything else.
 .PP
@@ -95,7 +95,12 @@ layout = [
 .br
   For inverting colors of bad and great (red and green), before the first '%' put '!' (without quotes ofc)
 .PP
-To escape any $ or bracket, just use \\
+.nf
+Any `$` or brackets can be escaped with a backslash \\. You need to escape backslashes too :(
+\fBNOTE\fR: For having compatibility with GUI mode, you need to escape `<` (EXCEPT if you are using in a info tag, like $<os.name>) and `&`
+e.g "the number 50 is \\< than 100 \\& 98"
+.fi
+
 .SH OPTIONS
 .TP
 \fB\-n\fR, \fB\-\-no\-display\fR
