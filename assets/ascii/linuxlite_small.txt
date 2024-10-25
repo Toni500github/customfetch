@@ -1,7 +1,7 @@
-${yellow}   /\
-${yellow}  /  \
+${yellow}   /\\
+${yellow}  /  \\
 ${yellow} / ${1}/ ${yellow}/
 ${yellow}> ${1}/ ${yellow}/
-${yellow}\ ${1}\ ${yellow}\
-${yellow} \_${1}\\${yellow}_\
-${1}    \
+${yellow}\\ ${1}\\ ${yellow}\\
+${yellow} \\_${1}\\${yellow}_\\
+${1}    \\

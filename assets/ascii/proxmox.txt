@@ -1,20 +1,20 @@
-${c1}         .://:`              `://:.
-       `hMMMMMMd/          /dMMMMMMh`
-        `sMMMMMMMd:      :mMMMMMMMs`
-${c2}`-/+oo+/:${c1}`.yMMMMMMMh-  -hMMMMMMMy.`${c2}:/+oo+/-`
-`:oooooooo/${c1}`-hMMMMMMMyyMMMMMMMh-`${c2}/oooooooo:`
-  `/oooooooo:${c1}`:mMMMMMMMMMMMMm:`${c2}:oooooooo/`
-    ./ooooooo+-${c1} +NMMMMMMMMN+ ${c2}-+ooooooo/.
-      .+ooooooo+-${c1}`oNMMMMNo`${c2}-+ooooooo+.
-        -+ooooooo/.${c1}`sMMs`${c2}./ooooooo+-
-          :oooooooo/${c1}`..`${c2}/oooooooo:
-          :oooooooo/`${c1}..${c2}`/oooooooo:
-        -+ooooooo/.`${c1}sMMs${c2}`./ooooooo+-
-      .+ooooooo+-`${c1}oNMMMMNo${c2}`-+ooooooo+.
-    ./ooooooo+-${c1} +NMMMMMMMMN+ ${c2}-+ooooooo/.
-  `/oooooooo:`${c1}:mMMMMMMMMMMMMm:${c2}`:oooooooo/`
-`:oooooooo/`${c1}-hMMMMMMMyyMMMMMMMh-${c2}`/oooooooo:`
-`-/+oo+/:`${c1}.yMMMMMMMh-  -hMMMMMMMy.${c2}`:/+oo+/-`
-${c1}        `sMMMMMMMm:      :dMMMMMMMs`
-       `hMMMMMMd/          /dMMMMMMh`
-         `://:`              `://:`
+${!#fc6906}${white}         .://:`              `://:.
+${white}       `hMMMMMMd/          /dMMMMMMh`
+${white}        `sMMMMMMMd:      :mMMMMMMMs`
+${!#fc6906}`-/+oo+/:${white}`.yMMMMMMMh-  -hMMMMMMMy.`${!#fc6906}:/+oo+/-`
+${!#fc6906}`:oooooooo/${white}`-hMMMMMMMyyMMMMMMMh-`${!#fc6906}/oooooooo:`
+${!#fc6906}  `/oooooooo:${white}`:mMMMMMMMMMMMMm:`${!#fc6906}:oooooooo/`
+${!#fc6906}    ./ooooooo+-${white} +NMMMMMMMMN+ ${!#fc6906}-+ooooooo/.
+${!#fc6906}      .+ooooooo+-${white}`oNMMMMNo`${!#fc6906}-+ooooooo+.
+${!#fc6906}        -+ooooooo/.${white}`sMMs`${!#fc6906}./ooooooo+-
+${!#fc6906}          :oooooooo/${white}`..`${!#fc6906}/oooooooo:
+${!#fc6906}          :oooooooo/`${white}..${!#fc6906}`/oooooooo:
+${!#fc6906}        -+ooooooo/.`${white}sMMs${!#fc6906}`./ooooooo+-
+${!#fc6906}      .+ooooooo+-`${white}oNMMMMNo${!#fc6906}`-+ooooooo+.
+${!#fc6906}    ./ooooooo+-${white} +NMMMMMMMMN+ ${!#fc6906}-+ooooooo/.
+${!#fc6906}  `/oooooooo:`${white}:mMMMMMMMMMMMMm:${!#fc6906}`:oooooooo/`
+${!#fc6906}`:oooooooo/`${white}-hMMMMMMMyyMMMMMMMh-${!#fc6906}`/oooooooo:`
+${!#fc6906}`-/+oo+/:`${white}.yMMMMMMMh-  -hMMMMMMMy.${!#fc6906}`:/+oo+/-`
+${white}        `sMMMMMMMm:      :dMMMMMMMs`
+${white}       `hMMMMMMd/          /dMMMMMMh`
+${white}         `://:`              `://:`

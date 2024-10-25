@@ -12,7 +12,7 @@ static size_t get_num_count_dir(const std::string_view path)
     if (!std::filesystem::exists(path))
         return 0;
 
-    const auto& dirIter = std::filesystem::directory_iterator{path};
+    const auto& dirIter = std::filesystem::directory_iterator{ path };
 
     return std::count_if(begin(dirIter), end(dirIter),
                         [](const auto& entry) { return entry.is_directory(); });
@@ -20,7 +20,7 @@ static size_t get_num_count_dir(const std::string_view path)
 
 static size_t get_num_string_file(const std::string_view path, const std::string_view str)
 {
-    size_t ret = 0;
+    size_t        ret = 0;
     std::ifstream f(path.data());
     if (!f.is_open())
         return 0;

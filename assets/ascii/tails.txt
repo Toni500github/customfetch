@@ -1,19 +1,19 @@
-${c1}      ``
-  ./yhNh
-syy/Nshh         `:o/
-N:dsNshh  █   `ohNMMd
-N-/+Nshh      `yMMMMd
-N-yhMshh       yMMMMd
-N-s:hshh  █    yMMMMd so//.
-N-oyNsyh       yMMMMd d  Mms.
-N:hohhhd:.     yMMMMd  syMMM+
-Nsyh+-..+y+-   yMMMMd   :mMM+
-+hy-      -ss/`yMMMM     `+d+
-  :sy/.     ./yNMMMMm      ``
-    .+ys- `:+hNMMMMMMy/`
-      `hNmmMMMMMMMMMMMMdo.
-       dMMMMMMMMMMMMMMMMMNh:
-       +hMMMMMMMMMMMMMMMMMmy.
-         -oNMMMMMMMMMMmy+.`
-           `:yNMMMds/.`
-              .//`
+${magenta}      ``
+${magenta}  ./yhNh
+${magenta}syy/Nshh         `:o/
+${magenta}N:dsNshh  █   `ohNMMd
+${magenta}N-/+Nshh      `yMMMMd
+${magenta}N-yhMshh       yMMMMd
+${magenta}N-s:hshh  █    yMMMMd so//.
+${magenta}N-oyNsyh       yMMMMd d  Mms.
+${magenta}N:hohhhd:.     yMMMMd  syMMM+
+${magenta}Nsyh+-..+y+-   yMMMMd   :mMM+
+${magenta}+hy-      -ss/`yMMMM     `+d+
+${magenta}  :sy/.     ./yNMMMMm      ``
+${magenta}    .+ys- `:+hNMMMMMMy/`
+${magenta}      `hNmmMMMMMMMMMMMMdo.
+${magenta}       dMMMMMMMMMMMMMMMMMNh:
+${magenta}       +hMMMMMMMMMMMMMMMMMmy.
+${magenta}         -oNMMMMMMMMMMmy+.`
+${magenta}           `:yNMMMds/.`
+${magenta}              .//`

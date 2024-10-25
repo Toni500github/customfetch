@@ -35,7 +35,7 @@ static std::string get_de_name()
     return ret;
 }
 
-static std::string get_wm_name()
+static std::string get_wm_name(std::string& wm_path_exec)
 {
     std::string path, proc_name, wm_name;
     const uid_t uid = getuid();
@@ -53,8 +53,8 @@ static std::string get_wm_name()
             continue;
 
         path = dir_entry.path() / "cmdline";
-        std::ifstream f(path, std::ios::binary);
-        std::getline(f, proc_name);
+        std::ifstream f_cmdline(path, std::ios::binary);
+        std::getline(f_cmdline, proc_name);
 
         size_t pos = 0;
         if ((pos = proc_name.find('\0')) != std::string::npos)
@@ -68,6 +68,8 @@ static std::string get_wm_name()
         if ((wm_name = prettify_wm_name(proc_name)) == MAGIC_LINE)
             continue;
 
+        char buf[PATH_MAX];
+        wm_path_exec = realpath((dir_entry.path().string() + "/exe").c_str(), buf);
         break;
     }
 
@@ -92,26 +94,26 @@ static std::string get_de_version(const std::string_view de_name)
 
         case "gnome"_fnv1a16:
         case "gnome-shell"_fnv1a16:
-            {
-                std::string ret;
-                read_exec({ "gnome-shell", "--version" }, ret);
-                ret.erase(0, ret.rfind(' '));
-                return ret;
-            }
+        {
+            std::string ret;
+            read_exec({ "gnome-shell", "--version" }, ret);
+            ret.erase(0, ret.rfind(' '));
+            return ret;
+        }
         default:
-            {
-                std::string ret;
-                read_exec({ de_name.data(), "--version" }, ret);
-                ret.erase(0, ret.rfind(' '));
-                return ret;
-            }
+        {
+            std::string ret;
+            read_exec({ de_name.data(), "--version" }, ret);
+            ret.erase(0, ret.rfind(' '));
+            return ret;
+        }
     }
 }
 
-static std::string get_wm_wayland_name()
+static std::string get_wm_wayland_name(std::string& wm_path_exec)
 {
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
-    LOAD_LIBRARY("libwayland-client.so", return get_wm_name();)
+    LOAD_LIBRARY("libwayland-client.so", return get_wm_name(wm_path_exec);)
 
     LOAD_LIB_SYMBOL(wl_display*, wl_display_connect, const char* name)
     LOAD_LIB_SYMBOL(void, wl_display_disconnect, wl_display* display)
@@ -130,40 +132,16 @@ static std::string get_wm_wayland_name()
     f >> ret;
     wl_display_disconnect(display);
 
+    char buf[PATH_MAX];    
+    wm_path_exec = realpath(fmt::format("/proc/{}/exe", ucred.pid).c_str(), buf);
+
     UNLOAD_LIBRARY()
 
     return prettify_wm_name(ret);
 #else
-    return get_wm_name();
+    return get_wm_name(wm_path_exec);
 #endif
 }
-
-/*static std::string get_wm_x11_name() {
-#if __has_include(<sys/socket.h>) && __has_include(<X11/Xlib.h>)
-    LOAD_LIBRARY("libX11.so", return MAGIC_LINE;)
-    dlerror();
-    LOAD_LIB_SYMBOL(Display *, XOpenDisplay, char*)
-    LOAD_LIB_SYMBOL(int, XCloseDisplay, Display *)
-
-    Display *display = XOpenDisplay(NULL);
-    if (display == NULL)
-        return MAGIC_LINE;
-
-    debug("Connection x11 = {}", ConnectionNumber(display));
-    std::string ret = MAGIC_LINE;
-
-    struct ucred ucred;
-    socklen_t len = sizeof(struct ucred);
-    if (getsockopt(ConnectionNumber(display), SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1)
-        return UNKNOWN;
-
-    std::ifstream f(fmt::format("/proc/{}/comm", ucred.pid), std::ios::in);
-    f >> ret;
-    XCloseDisplay(display);
-
-    return ret;
-#endif
-}*/
 
 static std::string get_shell_version(const std::string_view shell_name)
 {
@@ -183,10 +161,10 @@ static std::string get_shell_name(const std::string_view shell_path)
     return shell_path.substr(shell_path.rfind('/') + 1).data();
 }
 
-static std::string get_term_name(std::string& term_ver)
+static std::string get_term_name(std::string& term_ver, const std::string_view osname)
 {
     // cufetch -> shell -> terminal
-    pid_t         ppid = getppid();
+    const pid_t   ppid = getppid();
     std::ifstream ppid_f(fmt::format("/proc/{}/status", ppid), std::ios::in);
     std::string   line, term_pid;
     while (std::getline(ppid_f, line))
@@ -200,6 +178,9 @@ static std::string get_term_name(std::string& term_ver)
     }
     debug("term_pid = {}", term_pid);
 
+    if (std::stoi(term_pid) < 1)
+        return MAGIC_LINE;
+
     std::ifstream f("/proc/" + term_pid + "/comm", std::ios::in);
     std::string   term_name;
     std::getline(f, term_name);
@@ -212,23 +193,23 @@ static std::string get_term_name(std::string& term_ver)
     // I hope this is not super stupid
     else if (hasStart(term_name, "gnome"))
     {
-        size_t pos = term_name.rfind('l');
-        if (pos != std::string::npos)
-            term_name.erase(pos+1);
-        else if ((pos = term_name.rfind('e')) != std::string::npos)
-            term_name.erase(pos+1);
+        if (hasStart(term_name, "gnome-console"))
+            term_name.erase("gnome-console"_len + 1);
+        else if (hasStart(term_name, "gnome-terminal"))
+            term_name.erase("gnome-terminal"_len + 1);
     }
     
     // let's try to get the real terminal name
     // on NixOS, instead of returning the -wrapped name.
     // tested on gnome-console, kitty, st and alacritty
     // hope now NixOS users will know the terminal they got, along the version if possible
-    else if (hasEnding(term_name, "wrapped"))
+    if (osname.find("NixOS") != osname.npos ||
+        (hasEnding(term_name, "wrapped") && which("nix") != UNKNOWN))
     {
-        // /nix/store/random_stuff-gnome-console-0.31.0/bin/.kgx-wrapped
+        // /nix/store/sha256string-gnome-console-0.31.0/bin/.kgx-wrapped
         char        buf[PATH_MAX];
         std::string tmp_name = realpath(("/proc/" + term_pid + "/exe").c_str(), buf);
-        
+
         size_t pos;
         if ((pos = tmp_name.find('-')) != std::string::npos)
             tmp_name.erase(0, pos + 1);  // gnome-console-0.31.0/bin/.kgx-wrapped
@@ -262,12 +243,12 @@ static std::string get_term_version(std::string_view term_name)
     switch (fnv1a16::hash(str_tolower(term_name.data())))
     {
         case "st"_fnv1a16:
-            if (detect_st_ver(ret))
+            if (fast_detect_st_ver(ret))
                 remove_term_name = false;
             break;
         
         case "konsole"_fnv1a16:
-            if (detect_konsole_ver(ret))
+            if (fast_detect_konsole_ver(ret))
                 remove_term_name = false;
             break;
         
@@ -286,7 +267,10 @@ static std::string get_term_version(std::string_view term_name)
 
     if (hasStart(ret, "# GNOME"))
     {
-        ret.erase(0, "# GNOME Terminal "_len);
+        if (hasStart(ret, "# GNOME Console "))
+            ret.erase(0, "# GNOME Console"_len);
+        else if (hasStart(ret, "# GNOME Terminal "))
+            ret.erase(0, "# GNOME Terminal "_len);
         debug("gnome ret = {}", ret);
         remove_term_name = false;
     }
@@ -313,7 +297,7 @@ User::User() noexcept
 {
     if (!m_bInit)
     {
-        uid_t uid = getuid();
+        const uid_t uid = getuid();
 
         if (m_pPwd = getpwuid(uid), !m_pPwd)
             die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
@@ -377,9 +361,9 @@ std::string& User::wm_name(bool dont_query_dewm, const std::string_view term_nam
     {
         const char* env = std::getenv("WAYLAND_DISPLAY");
         if (env != nullptr && env[0] != '\0')
-            m_users_infos.wm_name = get_wm_wayland_name();
+            m_users_infos.wm_name = get_wm_wayland_name(m_users_infos.m_wm_path);
         else
-            m_users_infos.wm_name = get_wm_name();
+            m_users_infos.wm_name = get_wm_name(m_users_infos.m_wm_path);
 
         if (m_users_infos.de_name == m_users_infos.wm_name)
             m_users_infos.de_name = MAGIC_LINE;
@@ -388,6 +372,45 @@ std::string& User::wm_name(bool dont_query_dewm, const std::string_view term_nam
     }
 
     return m_users_infos.wm_name;
+}
+
+std::string& User::wm_version(bool dont_query_dewm, const std::string_view term_name)
+{
+    if (dont_query_dewm || hasStart(term_name, "/dev"))
+    {
+        m_users_infos.wm_name = MAGIC_LINE;
+        return m_users_infos.wm_name;
+    }
+    
+    static bool done = false;
+    if (!done)
+    {
+        m_users_infos.wm_version.clear();
+        if (m_users_infos.wm_name == "Xfwm4" && get_fast_xfwm4_version(m_users_infos.wm_version, m_users_infos.m_wm_path))
+        {
+            done = true;
+            goto _return;
+        }
+
+        if (m_users_infos.wm_name == "dwm")
+            read_exec({m_users_infos.m_wm_path.c_str(), "-v"}, m_users_infos.wm_version, true);
+        else
+            read_exec({m_users_infos.m_wm_path.c_str(), "--version"}, m_users_infos.wm_version);
+
+        if (m_users_infos.wm_name == "Xfwm4")
+            m_users_infos.wm_version.erase(0, "\tThis is xfwm4 version "_len); // saying only "xfwm4 4.18.2 etc." no?
+        else
+            m_users_infos.wm_version.erase(0, m_users_infos.wm_name.length() + 1);
+
+        const size_t pos = m_users_infos.wm_version.find(' ');
+        if (pos != std::string::npos)
+            m_users_infos.wm_version.erase(pos);
+
+        done = true;
+    }
+
+    _return:
+    return m_users_infos.wm_version;
 }
 
 std::string& User::de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name)
@@ -407,7 +430,8 @@ std::string& User::de_name(bool dont_query_dewm, const std::string_view term_nam
 
     if (!done)
     {
-        if (m_users_infos.de_name != MAGIC_LINE && wm_name != MAGIC_LINE && m_users_infos.de_name == wm_name)
+        if ((m_users_infos.de_name != MAGIC_LINE && wm_name != MAGIC_LINE) &&
+            m_users_infos.de_name == wm_name)
         {
             m_users_infos.de_name = MAGIC_LINE;
             done = true;
@@ -447,7 +471,8 @@ std::string& User::term_name()
     static bool done = false;
     if (!done)
     {
-        m_users_infos.term_name = get_term_name(m_users_infos.term_version);
+        Query::System query_sys;
+        m_users_infos.term_name = get_term_name(m_users_infos.term_version, query_sys.os_name());
         if (hasStart(str_tolower(m_users_infos.term_name), "login") || hasStart(m_users_infos.term_name, "init") ||
             hasStart(m_users_infos.term_name, "(init)"))
         {
@@ -473,9 +498,7 @@ std::string& User::term_version(const std::string_view term_name)
             goto done;
         }
         else if (m_users_infos.term_version != MAGIC_LINE)
-        {
             goto done;
-        }
 
         m_users_infos.term_version = get_term_version(term_name);
     done:

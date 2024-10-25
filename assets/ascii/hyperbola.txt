@@ -1,16 +1,16 @@
-${c1}                     WW
-                     KX              W
-                    WO0W          NX0O
-                    NOO0NW  WNXK0OOKW
-                    W0OOOOOOOOOOOOKN
-                     N0OOOOOOO0KXW
-                       WNXXXNW
-                 NXK00000KN
-             WNK0OOOOOOOOOO0W
-           NK0OOOOOOOOOOOOOO0W
-         X0OOOOOOO00KK00OOOOOK
-       X0OOOO0KNWW      WX0OO0W
-     X0OO0XNW              KOOW
-   N00KNW                   KOW
- NKXN                       W0W
-WW                           W
+${black}                     WW
+${black}                     KX              W
+${black}                    WO0W          NX0O
+${black}                    NOO0NW  WNXK0OOKW
+${black}                    W0OOOOOOOOOOOOKN
+${black}                     N0OOOOOOO0KXW
+${black}                       WNXXXNW
+${black}                 NXK00000KN
+${black}             WNK0OOOOOOOOOO0W
+${black}           NK0OOOOOOOOOOOOOO0W
+${black}         X0OOOOOOO00KK00OOOOOK
+${black}       X0OOOO0KNWW      WX0OO0W
+${black}     X0OO0XNW              KOOW
+${black}   N00KNW                   KOW
+${black} NKXN                       W0W
+${black}WW                           W

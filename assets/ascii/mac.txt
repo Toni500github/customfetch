@@ -1,17 +1,17 @@
-${c1}                    c.'
-                 ,xNMM.
-               .OMMMMo
-               lMM"
-     .;loddo:.  .olloddol;.
-   cKMMMMMMMMMMNWMMMMMMMMMM0:
-${c2} .KMMMMMMMMMMMMMMMMMMMMMMMWd.
- XMMMMMMMMMMMMMMMMMMMMMMMX.
-${c3};MMMMMMMMMMMMMMMMMMMMMMMM:
-:MMMMMMMMMMMMMMMMMMMMMMMM:
-${c4}.MMMMMMMMMMMMMMMMMMMMMMMMX.
- kMMMMMMMMMMMMMMMMMMMMMMMMWd.
- ${c5}'XMMMMMMMMMMMMMMMMMMMMMMMMMMk
-  'XMMMMMMMMMMMMMMMMMMMMMMMMK.
-    ${c6}kMMMMMMMMMMMMMMMMMMMMMMd
-     ;KMMMMMMMWXXWMMMMMMMk.
-       "cooc*"    "*coo'"
+${green}                    c.'
+${green}                 ,xNMM.
+${green}               .OMMMMo
+${green}               lMM"
+${green}     .;loddo:.  .olloddol;.
+${green}   cKMMMMMMMMMMNWMMMMMMMMMM0:
+${yellow} .KMMMMMMMMMMMMMMMMMMMMMMMWd.
+${yellow} XMMMMMMMMMMMMMMMMMMMMMMMX.
+${red};MMMMMMMMMMMMMMMMMMMMMMMM:
+${red}:MMMMMMMMMMMMMMMMMMMMMMMM:
+${red}.MMMMMMMMMMMMMMMMMMMMMMMMX.
+${red} kMMMMMMMMMMMMMMMMMMMMMMMMWd.
+${magenta} 'XMMMMMMMMMMMMMMMMMMMMMMMMMMk
+${magenta}  'XMMMMMMMMMMMMMMMMMMMMMMMMK.
+    ${blue}kMMMMMMMMMMMMMMMMMMMMMMd
+     ${blue};KMMMMMMMWXXWMMMMMMMk.
+       ${blue}"cooc*"    "*coo'"

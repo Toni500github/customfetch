@@ -22,8 +22,8 @@ extern "C" {
 }
 
 using systemInfo_t =
-    std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, float>>>;
-using variant = std::variant<std::string, size_t, float>;
+    std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, double>>>;
+using variant = std::variant<std::string, size_t, double>;
 
 namespace Query
 {
@@ -85,10 +85,13 @@ public:
         std::string shell_name{ UNKNOWN };
         std::string shell_version{ UNKNOWN };
         std::string wm_name{ MAGIC_LINE };
+        std::string wm_version{ UNKNOWN };
         std::string de_name{ MAGIC_LINE };
         std::string de_version{ UNKNOWN };
         std::string term_name{ MAGIC_LINE };
         std::string term_version{ MAGIC_LINE };
+        // private:
+        std::string m_wm_path;
     };
 
     User() noexcept;
@@ -98,6 +101,7 @@ public:
     std::string& shell_name() noexcept;
     std::string& shell_version(const std::string_view shell_name);
     std::string& wm_name(bool dont_query_dewm, const std::string_view term_name);
+    std::string& wm_version(bool dont_query_dewm, const std::string_view term_name);
     std::string& de_name(bool dont_query_dewm, const std::string_view term_name, const std::string_view wm_name);
     std::string& de_version(const std::string_view de_name);
     std::string& term_name();
@@ -124,9 +128,9 @@ public:
     };
 
     Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
-          const std::string& theme_name_version, const Config &config);
+          const std::string& theme_name_version, const Config& config, const bool gsettings_only = false);
 
-    Theme(systemInfo_t& queried_themes, const Config &config);
+    Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only = false);
 
     std::string  gtk_theme() noexcept;
     std::string  gtk_icon_theme() noexcept;
@@ -140,7 +144,6 @@ private:
     systemInfo_t&     m_queried_themes;
     const std::string m_theme_name_version;
     std::string       m_wmde_name;
-    const Config&     m_Config;
 };
 
 class CPU
@@ -151,23 +154,23 @@ public:
         std::string name{ UNKNOWN };
         std::string nproc{ UNKNOWN };
 
-        float freq_max        = 0;
-        float freq_min        = 0;
-        float freq_cur        = 0;
-        float freq_bios_limit = 0;
+        double freq_max        = 0;
+        double freq_min        = 0;
+        double freq_cur        = 0;
+        double freq_bios_limit = 0;
 
         // private:
-        float freq_max_cpuinfo = 0;
+        double freq_max_cpuinfo = 0;
     };
 
     CPU() noexcept;
 
     std::string& name() noexcept;
     std::string& nproc() noexcept;
-    float&       freq_max() noexcept;
-    float&       freq_min() noexcept;
-    float&       freq_cur() noexcept;
-    float&       freq_bios_limit() noexcept;
+    double&      freq_max() noexcept;
+    double&      freq_min() noexcept;
+    double&      freq_cur() noexcept;
+    double&      freq_bios_limit() noexcept;
 
 private:
     static bool  m_bInit;
@@ -202,19 +205,19 @@ class Disk
 public:
     struct Disk_t
     {
-        float       total_amount = 0;
-        float       free_amount  = 0;
-        float       used_amount  = 0;
+        double      total_amount = 0;
+        double      free_amount  = 0;
+        double      used_amount  = 0;
         std::string typefs;
         std::string device;
         std::string mountdir;
     };
 
-    Disk(const std::string_view path, std::vector<std::string_view>& paths);
+    Disk(const std::string_view path, std::vector<std::string>& paths);
 
-    float&       total_amount() noexcept;
-    float&       free_amount() noexcept;
-    float&       used_amount() noexcept;
+    double&      total_amount() noexcept;
+    double&      free_amount() noexcept;
+    double&      used_amount() noexcept;
     std::string& typefs() noexcept;
     std::string& device() noexcept;
     std::string& mountdir() noexcept;
@@ -229,22 +232,22 @@ class RAM
 public:
     struct RAM_t
     {
-        float total_amount      = 0;
-        float free_amount       = 0;
-        float used_amount       = 0;
-        float swap_free_amount  = 0;
-        float swap_used_amount  = 0;
-        float swap_total_amount = 0;
+        double total_amount      = 0;
+        double free_amount       = 0;
+        double used_amount       = 0;
+        double swap_free_amount  = 0;
+        double swap_used_amount  = 0;
+        double swap_total_amount = 0;
     };
 
     RAM() noexcept;
 
-    float& total_amount() noexcept;
-    float& free_amount() noexcept;
-    float& used_amount() noexcept;
-    float& swap_free_amount() noexcept;
-    float& swap_used_amount() noexcept;
-    float& swap_total_amount() noexcept;
+    double& total_amount() noexcept;
+    double& free_amount() noexcept;
+    double& used_amount() noexcept;
+    double& swap_free_amount() noexcept;
+    double& swap_used_amount() noexcept;
+    double& swap_total_amount() noexcept;
 
 private:
     static bool  m_bInit;

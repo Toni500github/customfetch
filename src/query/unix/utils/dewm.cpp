@@ -92,7 +92,7 @@ std::string prettify_wm_name(const std::string_view name) noexcept
 
         case "gnome-shell"_fnv1a16:
         case "gnome-session-binary"_fnv1a16:
-        case "mutter"_fnv1a16:               return "Mutter";
+        case "mutter"_fnv1a16:        return "Mutter";
 
         case "herbstluftwm"_fnv1a16: return "herbstluftwm";
         case "howm"_fnv1a16:         return "howm";
@@ -251,4 +251,23 @@ std::string get_xfce4_version()
     ret.erase(0, "xfce4-session"_len + 1);
     ret.erase(ret.find(' '));
     return ret;
+}
+
+bool get_fast_xfwm4_version(std::string& ret, const std::string& exec_path)
+{
+    std::ifstream f(exec_path, std::ios::binary);
+    if (!f.is_open())
+        return false;
+
+    std::string line;
+    while (read_binary_file(f, line))
+    {
+        if (line == "using GTK+-%d.%d.%d.")
+            return true;
+
+        // previous line, which will eventually be the version
+        ret = line;
+    }
+
+    return false;
 }

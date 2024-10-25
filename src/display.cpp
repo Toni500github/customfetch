@@ -1,12 +1,14 @@
 /* Implementation of the system behind displaying/rendering the information */
 
 #include "display.hpp"
-#include <unistd.h>
-#include "fmt/format.h"
 
+#ifndef GUI_MODE
 #define STB_IMAGE_IMPLEMENTATION
-#include <termios.h>
+#endif
+
 #include <pty.h>
+#include <termios.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <array>
@@ -17,6 +19,7 @@
 
 #include "config.hpp"
 #include "fmt/core.h"
+#include "fmt/format.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "stb_image.h"
@@ -47,40 +50,22 @@ std::string Display::detect_distro(const Config& config)
     }
 }
 
-static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors, const std::string_view path,
-                                                  const std::uint16_t font_width, const std::uint16_t font_height)
+static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std::vector<std::string>& layout,
+                                                  const Config& config, const colors_t& colors,
+                                                  const std::string_view path, const std::uint16_t font_width,
+                                                  const std::uint16_t font_height)
 {
-    std::string              distro_path{ Display::detect_distro(config) };
-    systemInfo_t             systemInfo{};
-    std::vector<std::string> layout{ config.layout };
-
     int image_width, image_height, channels;
 
     // load the image and get its width and height
     unsigned char* img = stbi_load(path.data(), &image_width, &image_height, &channels, 0);
 
-    if (img)
-        stbi_image_free(img);
-    else
+    if (!img)
         die("Unable to load image '{}'", path);
+    
+    stbi_image_free(img);
 
-    if (!config.ascii_logo_type.empty())
-    {
-        const size_t& pos = distro_path.rfind('.');
-
-        if (pos != std::string::npos)
-            distro_path.insert(pos, "_" + config.ascii_logo_type);
-        else
-            distro_path += "_" + config.ascii_logo_type;
-    }
-
-    // this is just for parse() to auto add the distro colors
-    std::ifstream file(distro_path, std::ios::binary);
-    std::string line, _;
-
-    while (std::getline(file, line))
-        parse(line, systemInfo, _, config, colors, false);
-
+    std::string _;
     for (std::string& layout : layout)
         layout = parse(layout, systemInfo, _, config, colors, true);
 
@@ -89,11 +74,12 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    const size_t width  = image_width  / font_width;
+    const size_t width  = image_width / font_width;
     const size_t height = image_height / font_height;
 
     if (config.m_image_backend == "kitty")
-        taur_exec({ "kitty", "+kitten", "icat", "--align", "left", "--place", fmt::format("{}x{}@0x0", width, height), path });
+        taur_exec({ "kitty", "+kitten", "icat", "--align", "left", "--place", fmt::format("{}x{}@0x0", width, height),
+                    path });
     else if (config.m_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
     else
@@ -160,22 +146,11 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
                                          const std::string_view path)
 {
     systemInfo_t             systemInfo{};
-    std::vector<std::string> asciiArt{}, layout{ config.layout };
-
-    // 1. if we shouldn't display the autodetected distro
-    // 2. if we don't have --no-display enabled
-    // 3. if the source path for the logo is not empty
-    // 4. if we don't want to display a custom distro
-    // 5. if we aren't in GUI mode (I don't remember why to check that)
-    // damn I forgot even why I made this
-    if (!config.m_display_distro && !config.m_disable_source && !config.source_path.empty() &&
-       (!config.m_custom_distro.empty() && !config.gui))
-    {
-        die("You need to specify if either using a custom distro ascii art OR a custom source path");
-    }
+    std::vector<std::string> asciiArt{}, layout{ config.m_args_layout.empty() ? config.layout : config.m_args_layout };
 
     debug("Display::render path = {}", path);
 
+    bool          isImage = false;
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
     if (!config.m_disable_source)
@@ -184,39 +159,62 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         fileToAnalyze.open(path.data(), std::ios::binary);
         if (!file.is_open() || !fileToAnalyze.is_open())
             die("Could not open ascii art file \"{}\"", path);
+
+        // first check if the file is an image
+        // without even using the same library that "file" uses
+        // No extra bloatware nice
+        if (!already_analyzed_file)
+        {
+            debug("Display::render() analyzing file");
+            std::array<unsigned char, 32> buffer;
+            fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
+            isImage = is_file_image(buffer.data());
+        }
+    }
+
+    if (!config.m_display_distro && isImage)
+    {
+        std::string distro_path{ Display::detect_distro(config) };
+        if (!config.ascii_logo_type.empty())
+        {
+            const size_t pos = distro_path.rfind('.');
+
+            if (pos != std::string::npos)
+                distro_path.insert(pos, "_" + config.ascii_logo_type);
+            else
+                distro_path += "_" + config.ascii_logo_type;
+        }
+
+        debug("{} distro_path = {}", __FUNCTION__, distro_path);
+
+        // this is just for parse() to auto add the distro colors
+        std::ifstream distro_file(distro_path);
+        std::string   line, _;
+
+        while (std::getline(distro_file, line))
+            parse(line, systemInfo, _, config, colors, false);
     }
 
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
 
-    // first check if the file is an image
-    // without even using the same library that "file" uses
-    // No extra bloatware nice
-    if (!already_analyzed_file)
+    if (isImage)
     {
-        debug("Display::render() analyzing file");
-        std::array<unsigned char, 32> buffer;
-        fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
-        if (is_file_image(buffer.data()))
-        {
-            // clear screen
-            write(1, "\33[H\33[2J", 7);
-            
-            struct winsize win;
-            ioctl (STDOUT_FILENO, TIOCGWINSZ, &win);
+        // clear screen
+        write(1, "\33[H\33[2J", 7);
 
-            const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
-            const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
+        struct winsize win;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
 
-            const auto& ret = render_with_image(config, colors, path, font_width, font_height);
+        const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
+        const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
 
-            // why... why reverse the cardinal coordinates..
-            int y = 0, x = 0;
-            get_pos(y, x);
-            fmt::print("\033[{};{}H", y, x);
+        // why... why reverse the cardinal coordinates..
+        int y = 0, x = 0;
+        get_pos(y, x);
+        fmt::print("\033[{};{}H", y, x);
 
-            return ret;
-        }
+        return render_with_image(systemInfo, layout, config, colors, path, font_width, font_height);
     }
 
     for (int i = 0; i < config.logo_padding_top; i++)
@@ -235,7 +233,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         std::string pureOutput;
         std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
-        asciiArt_s += config.gui ? "" : NOCOLOR;
+        if (!config.m_disable_colors)
+            asciiArt_s += config.gui ? "" : NOCOLOR;
 
         if (config.gui)
         {
@@ -302,23 +301,25 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             origin += asciiArt.at(i).length();
         }
 
-        const size_t& spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
-                               (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
+        const size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
+                              (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
 
         debug("spaces: {}", spaces);
 
         for (size_t j = 0; j < spaces; j++)
             layout.at(i).insert(origin, " ");
 
-        layout.at(i) += config.gui ? "" : NOCOLOR;
+        if (!config.m_disable_colors)
+            layout.at(i) += config.gui ? "" : NOCOLOR;
     }
 
     for (; i < asciiArt.size(); i++)
     {
         std::string line;
+        line.reserve(config.logo_padding_left + asciiArt.at(i).length());
 
         for (size_t j = 0; j < config.logo_padding_left; j++)
-            line += " ";
+            line += ' ';
 
         line += asciiArt.at(i);
 

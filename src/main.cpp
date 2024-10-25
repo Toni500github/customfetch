@@ -9,6 +9,7 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
+// clang-format off
 // https://cfengine.com/blog/2021/optional-arguments-with-getopt-long/
 // because "--opt-arg arg" won't work
 // but "--opt-arg=arg" will
@@ -16,6 +17,7 @@
     ((optarg == NULL && optind < argc && argv[optind][0] != '-') \
      ? (bool) (optarg = argv[optind++]) \
      : (optarg != NULL))
+// clang-format on
 
 using namespace std::string_view_literals;
 
@@ -24,9 +26,18 @@ static void version()
     fmt::println("customfetch {} branch {}", VERSION, BRANCH);
 
 #ifdef GUI_MODE
-    fmt::println("GUI mode enabled");
+    fmt::print("GUI mode enabled\n\n");
 #else
-    fmt::println("GUI mode IS NOT enabled");
+    fmt::print("GUI mode IS NOT enabled\n\n");
+#endif
+
+#if !(USE_DCONF)
+    fmt::println("NO flags were set");
+#else
+    fmt::println("set flags:");
+#if USE_DCONF
+    fmt::println("USE_DCONF");
+#endif
 #endif
 
     // if only everyone would not return error when querying the program version :(
@@ -39,8 +50,9 @@ static void help(bool invalid_opt = false)
     fmt::println(R"(
 A command-line system information tool (or neofetch like program), which its focus point is customizability and perfomance
 
-    -n, --no-display		Do not display the ascii art
-    -s, --source-path <path>	Path to the ascii art file to display
+    -n, --no-display		Do not display the logo
+    -N, --no-color              Do not output and parse colors. Useful for stdout or pipe operations
+    -s, --source-path <path>	Path to the ascii art or image file to display
     -C, --config <path>		Path to the config file to use
     -a, --ascii-logo-type [<name>]
                                 The type of ASCII art to apply ("small" or "old").
@@ -53,8 +65,13 @@ A command-line system information tool (or neofetch like program), which its foc
     -f, --font <name>           The font to be used in GUI mode (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
                                 An example: [Liberation Mono] [Normal] [12], which can be "Liberation Mono Normal 12"
 
-    -i, --image-backend	<name>	(EXPERIMENTAL) Image backend tool for displaying images in terminal. Right now only 'kitty' and 'viu' are supported
+    -i, --image-backend	<name>	(EXPERIMENTAL) Image backend tool for displaying images in terminal.
+                                Right now only 'kitty' and 'viu' are supported
 				It's recommended to use GUI mode for the moment if something doesn't work
+
+    -m, --layout-line           Will replace the config layout, with a layout you specify in the arguments
+				Example: `cufetch -m "${{auto}}OS: $<os.name>" -m "${{auto}}CPU: $<cpu.cpu>"`
+				Will only print the logo (if not disabled), along side the parsed OS and CPU
 
     -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it was enabled)
     -o, --offset <num>          Offset between the ascii art and the layout
@@ -64,6 +81,7 @@ A command-line system information tool (or neofetch like program), which its foc
     -V, --version		Print the version along with the git branch it was built
 
     --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
+    --wrap-lines [<0,1>]	Disable (0) or Enable (1) wrapping lines when printing in terminal
     --logo-padding-top	<num>	Padding of the logo from the top
     --logo-padding-left	<num>	Padding of the logo from the left
     --layout-padding-top <num>  Padding of the layout from the top
@@ -72,8 +90,6 @@ A command-line system information tool (or neofetch like program), which its foc
     --sep-reset-after [<num>]   Reset color either before of after 'sep-reset' (1 = after && 0 = before)
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
-    --kitty			Alias to "--image-backend=kitty"
-    --viu                       Alias to "--image-backend=viu"
 
     --color <string>            Replace instances of a color with another value.
                                 Syntax MUST be "name=value" with no space beetween "=", example: --color "foo=#444333".
@@ -120,11 +136,14 @@ user
   shell_path	: login shell (with path) [/bin/zsh]
   shell_version : login shell version (may be not correct) [5.9]
   de_name	: Desktop Enviroment current session name [Plasma]
-  wm_name	: Windows manager current session name [dwm, xfwm4]
-  term		: Terminal name and version [alacritty 0.13.2]
-  term_name	: Terminal name [alacritty]
-  term_version	: Terminal version [0.13.2]
+  wm_name	: Window manager current session name [dwm, xfwm4]
+  wm_version	: Window manager version (may not working correctly) [6.2, 4.18.0]
+  terminal	: Terminal name and version [alacritty 0.13.2]
+  terminal_name	: Terminal name [alacritty]
+  terminal_version: Terminal version [0.13.2]
 
+# with `symb` I mean a symbol to be used for the
+# view of the color palette
 builtin
   title     	: user and hostname colored with ${{auto2}} [toni@arch2]
   title_sep     : separator between the title and the system infos (with the title lenght) [--------]
@@ -137,14 +156,25 @@ builtin
 # such as indeed cursor
 # because it is not GTK-Qt specific
 theme
-  cursor	: cursor name [Bibata-Modern-Ice]
+  cursor	: cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
+  cursor_name	: cursor name [Bibata-Modern-Ice]
   cursor_size	: cursor size [16]
 
+# If USE_DCONF flag is set, then we're going to use
+# dconf, else backing up to gsettings
+theme-gsettings
+  name          : gsettings theme name [Decay-Green]
+  icons         : gsettings icons theme name [Papirus-Dark]
+  font          : gsettings font theme name [Cantarell 10]
+  cursor        : gsettings cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
+  cursor_name   : gsettings cursor name [Bibata-Modern-Ice]
+  cursor_size   : gsettings cursor size [16]
+
 # the N stands for the gtk version number to query
-# so for example if you want to query the gtk3 theme version
-# write it like "theme.gtk3"
-# note: they may be inaccurate if didn't find anything in the config files
-# 	thus because of using as last resort the `gsettings` exacutable
+# so for example if you want to query the gtk3 theme name
+# write it like "theme-gtk3.name"
+# note: may be slow because of calling "gsettings" if couldn't read from configs.
+#       Read theme-gsettings module comments
 theme-gtkN
   name		: gtk theme name [Arc-Dark]
   icons		: gtk icons theme name [Qogir-Dark]
@@ -152,19 +182,20 @@ theme-gtkN
 
 # basically as like as the "theme-gtkN" module above
 # but with gtk{{2,3,4}} and auto format gkt version
-# note: may be slow because of calling "gsettings" if couldn't read from configs
+# note: may be slow because of calling "gsettings" if couldn't read from configs.
+# 	Read theme-gsettings module comments
 theme-gtk-all
-  name          : gtk theme name [Decay-Green [GTK2], Arc-Dark [GTK3/4]]
+  name          : gtk theme name [Arc-Dark [GTK2/3/4]]
   icons         : gtk icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]
-  font          : gtk font theme name [Cantarell 10 [GTK2], Noto Sans,  10 [GTK3], Noto Sans 10 [GTK4]]
+  font          : gtk font theme name [Hack Nerd Font 13 [GTK2], Noto Sans 10 [GTK3/4]]
 
-# note: these members are auto displayed in KiB, MiB, GiB and TiB.
-# they all (except those who has the same name as the module or that ends with "_perc")
-# have a -KiB, -GiB and -MiB variant.
+# note: these members are auto displayed in from B to YB (depending if using SI byte unit or not(IEC)).
+# they all (except those that has the same name as the module or that ends with "_perc")
+# have variants from -B to -YB and -B to -YiB
 # example: if you want to show your 512MiB of used RAM in GiB
 # use the `used-GiB` variant (they don't print the unit tho)
 ram
-  ram		: used and total amount of RAM (auto) [2.81 GiB / 15.88 GiB]
+  ram           : used and total amount of RAM (auto) with used percentage [2.81 GiB / 15.88 GiB (5.34%)]
   used		: used amount of RAM (auto) [2.81 GiB]
   free		: available amount of RAM (auto) [10.46 GiB]
   total		: total amount of RAM (auto) [15.88 GiB]
@@ -173,7 +204,7 @@ ram
 
 # same comments as RAM (above)
 swap
-  swap          : used and total amount of the swapfile (auto) [477.68 MiB / 512.00 MiB]
+  swap          : used and total amount of the swapfile (auto) with used percentage [477.68 MiB / 512.00 MiB (88.45%)]
   free		: available amount of the swapfile (auto) [34.32 MiB]
   total		: total amount of the swapfile (auto) [512.00 MiB]
   used		: used amount of the swapfile (auto) [477.68 MiB]
@@ -185,7 +216,7 @@ swap
 #	or a filesystem path
 #	e.g disk(/) or disk(/dev/sda5)
 disk(/path/to/fs)
-  disk		: used and total amount of disk space (auto) with type of filesystem [360.02 GiB / 438.08 GiB - ext4]
+  disk		: used and total amount of disk space (auto) with type of filesystem and used percentage [379.83 GiB / 438.08 GiB (86.70%) - ext4]
   used          : used amount of disk space (auto) [360.02 GiB]
   free          : available amount of disk space (auto) [438.08 GiB]
   total         : total amount of disk space (auto) [100.08 GiB]
@@ -233,8 +264,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
     int option_index = 0;
     opterr = 0;
     const char *optstring = "-C:";
-    static const struct option opts[] =
-    {
+    static const struct option opts[] = {
         {"config", required_argument, 0, 'C'},
         {0,0,0,0}
     };
@@ -251,9 +281,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
             case 'C': 
                 if (!std::filesystem::exists(optarg))
                     die("config file '{}' doesn't exist", optarg);
-
                 return optarg;
-                break;
         }
     }
 
@@ -265,11 +293,12 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlga::f:o:C:i:d:D:s:";
+    const char *optstring = "-VhnNLlga::f:o:C:i:d:D:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
         {"no-display",       no_argument,       0, 'n'},
+        {"no-color",         no_argument,       0, 'N'},
         {"list-modules",     no_argument,       0, 'l'},
         {"logo-only",        no_argument,       0, 'L'},
         {"gui",              no_argument,       0, 'g'},
@@ -277,13 +306,13 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"offset",           required_argument, 0, 'o'},
         {"font",             required_argument, 0, 'f'},
         {"config",           required_argument, 0, 'C'},
+        {"layout-line",      required_argument, 0, 'm'},
         {"data-dir",         required_argument, 0, 'D'},
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
         {"image-backend",    required_argument, 0, 'i'},
 
-        {"kitty",              no_argument,       0, "kitty"_fnv1a16},
-        {"viu",                no_argument,       0, "viu"_fnv1a16},
+        {"wrap-lines",         optional_argument, 0, "wrap-lines"_fnv1a16},
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
         {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
         {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
@@ -293,7 +322,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"bg-image",           required_argument, 0, "bg-image"_fnv1a16},
         {"color",              required_argument, 0, "color"_fnv1a16},
         {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
-        
+
         {0,0,0,0}
     };
 
@@ -330,10 +359,14 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.data_dir = optarg; break;
             case 'd':
                 config.m_custom_distro = str_tolower(optarg); break;
+            case 'm':
+                config.m_args_layout.push_back(optarg); break;
             case 's':
                 config.source_path = optarg; break;
             case 'i':
                 config.m_image_backend = optarg; break;
+            case 'N':
+                config.m_disable_colors = true; break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
                     config.ascii_logo_type = optarg;
@@ -353,20 +386,15 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case "bg-image"_fnv1a16:
                 config.gui_bg_image = optarg; break;
 
-            case "color"_fnv1a16:
-            {
-                const std::string& optarg_str = optarg;
-                const size_t& pos = optarg_str.find('=');
-                if (pos == std::string::npos)
-                    die("argument color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
-                        "for more check with --help", optarg_str);
+            case "wrap-lines"_fnv1a16:
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.wrap_lines = static_cast<bool>(std::stoi(optarg));
+                else
+                    config.wrap_lines = true;
+                break;
 
-                const std::string& name = optarg_str.substr(0, pos);
-                const std::string& value = optarg_str.substr(pos + 1);
-                config.m_arg_colors_name.push_back(name);
-                config.m_arg_colors_value.push_back(value);
-            }
-            break;
+            case "color"_fnv1a16:
+                config.addAliasColors(optarg); break;
 
             case "gen-config"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
@@ -383,15 +411,10 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.sep_reset_after = std::stoi(optarg);
+                    config.sep_reset_after = static_cast<bool>(std::stoi(optarg));
                 else
                     config.sep_reset_after = true;
                 break;
-
-            case "kitty"_fnv1a16:
-                config.m_image_backend = "kitty"; break;
-            case "viu"_fnv1a16:
-                config.m_image_backend = "viu"; break;
 
             default:
                 return false;
@@ -401,7 +424,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     return true;
 }
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 
 #ifdef VENDOR_TEST
@@ -441,26 +464,28 @@ int main (int argc, char *argv[])
 
     std::string path = config.m_display_distro ? Display::detect_distro(config) : config.source_path;
 
-    if (!config.ascii_logo_type.empty())
+    if (!config.ascii_logo_type.empty() && config.m_display_distro)
     {
         const size_t& pos = path.rfind('.');
-        
+
         if (pos != std::string::npos)
             path.insert(pos, "_" + config.ascii_logo_type);
         else
             path += "_" + config.ascii_logo_type;
     }
 
-    if (!std::filesystem::exists(path) &&
-        !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
-        die("'{}' doesn't exist. Can't load image/text file", path);
+    if (!std::filesystem::exists(path) && !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
+    {
+        if (!config.m_disable_source)
+            die("'{}' doesn't exist. Can't load image/text file", path);
+    }
 
     debug("{} path = {}", __PRETTY_FUNCTION__, path);
 
 #ifdef GUI_MODE
     if (config.gui)
     {
-        const Glib::RefPtr<Gtk::Application>& app = Gtk::Application::create("org.toni.customfetch");
+        const auto& app = Gtk::Application::create("org.toni.customfetch");
         GUI::Window window(config, colors, path);
         return app->run(window);
     }
@@ -470,7 +495,20 @@ int main (int argc, char *argv[])
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif
 
-    Display::display(Display::render(config, colors, false, path));
+    if (config.wrap_lines)
+    {
+        // hide cursor and disable line wrapping
+        fmt::print("\x1B[?25l\x1B[?7l");
+        
+        Display::display(Display::render(config, colors, false, path));
+
+        // enable both of them again
+        fmt::print("\x1B[?25h\x1B[?7h");
+    }
+    else
+    {
+        Display::display(Display::render(config, colors, false, path));
+    }
 
     return 0;
 }

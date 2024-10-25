@@ -1,17 +1,17 @@
-         ${1}`.-::---..
+         ${white}`.-::---..
 ${green}      .:++++ooooosssoo:.
 ${green}    .+o++::.      `.:oos+.
-${green}   :oo:.`             -+oo${1}:
-${green} ${1}`${green}+o/`    .${1}::::::${green}-.    .++-${1}`
-${green}${1}`${green}/s/    .yyyyyyyyyyo:   +o-${1}`
-${green}${1}`${green}so     .ss       ohyo` :s-${1}:
-${green}${1}`${green}s/     .ss  h  m  myy/ /s`${1}`
+${green}   :oo:.`             -+oo${white}:
+${green} ${white}`${green}+o/`    .${white}::::::${green}-.    .++-${white}`
+${green}${white}`${green}/s/    .yyyyyyyyyyo:   +o-${white}`
+${green}${white}`${green}so     .ss       ohyo` :s-${white}:
+${green}${white}`${green}s/     .ss  h  m  myy/ /s`${white}`
 ${green}`s:     `oo  s  m  Myy+-o:`
 ${green}`oo      :+sdoohyoydyso/.
 ${green} :o.      .:////////++:
-${green} `/++        ${1}-:::::-
-${green}  ${1}`${green}++-
-${green}   ${1}`${green}/+-
-${green}     ${1}.${green}+/.
-${green}       ${1}.${green}:+-.
+${green} `/++        ${white}-:::::-
+${green}  ${white}`${green}++-
+${green}   ${white}`${green}/+-
+${green}     ${white}.${green}+/.
+${green}       ${white}.${green}:+-.
           `--.``

@@ -1,7 +1,7 @@
 ${blue}                __
 ${blue}         -wwwWWWWWWWWWwww-
 ${blue}        -WWWWWWWWWWWWWWWWWWw-
-${blue}          \WWWWWWWWWWWWWWWWWWW-
+${blue}          \\WWWWWWWWWWWWWWWWWWW-
 ${blue}  _Ww      `WWWWWWWWWWWWWWWWWWWw
 ${blue} -W${white}E${blue}Www                -WWWWWWWWW-
 ${blue}_WW${white}U${blue}WWWW-                _WWWWWWWW

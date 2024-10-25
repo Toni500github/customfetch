@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <cerrno>
+#include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -47,6 +48,7 @@ std::vector<std::string> split(const std::string_view text, const char delim)
     {
         vec.push_back(line);
     }
+
     return vec;
 }
 
@@ -99,48 +101,58 @@ std::string expandVar(std::string ret)
 
 std::string read_by_syspath(const std::string_view path)
 {
-    std::ifstream f_drm(path.data());
-    if (!f_drm.is_open())
+    std::ifstream f(path.data());
+    if (!f.is_open())
     {
         error("Failed to open {}", path);
         return UNKNOWN;
     }
 
     std::string ret;
-    std::getline(f_drm, ret);
+    std::getline(f, ret);
     return ret;
 }
 
-byte_units_t auto_devide_bytes(const size_t num)
+byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const std::string_view maxprefix)
 {
-    struct byte_units_t ret;
-    if (num >= 1000000000000)
+    double size = num;
+
+    std::array<std::string_view, 10> prefixes;
+    if (base == 1024)
+        prefixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+    else if (base == 1000)
+        prefixes = { "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+    else
+        prefixes = { "B" };
+
+    std::uint16_t counter = 0;
+    if (maxprefix.empty())
     {
-        ret.num_bytes = static_cast<float>(num) / 1099511627776;
-        ret.unit      = "TiB";
-    }
-    else if (num >= 1000000000)
-    {
-        ret.num_bytes = static_cast<float>(num) / 1073741824;
-        ret.unit      = "GiB";
-    }
-    else if (num >= 1000000)
-    {
-        ret.num_bytes = static_cast<float>(num) / 1048576;
-        ret.unit      = "MiB";
-    }
-    else if (num >= 1000)
-    {
-        ret.num_bytes = static_cast<float>(num) / 1024;
-        ret.unit      = "kiB";
+        for (; counter < prefixes.size() && size >= base; ++counter)
+            size /= base;
     }
     else
     {
-        ret.num_bytes = num;
-        ret.unit      = "bytes";
+        for (; counter < prefixes.size() && size >= base && prefixes.at(counter) != maxprefix; ++counter)
+            size /= base;
     }
 
-    return ret;
+    return { prefixes.at(counter).data(), size };
+}
+
+byte_units_t devide_bytes(const double num, const std::string_view prefix)
+{
+    if (prefix != "B")
+    {
+        // GiB
+        // 012
+        if (prefix.size() == 3 && prefix.at(1) == 'i')
+            return auto_devide_bytes(num, 1024, prefix);
+        else
+            return auto_devide_bytes(num, 1000, prefix);
+    }
+
+    return auto_devide_bytes(num, 0);
 }
 
 bool is_file_image(const unsigned char* bytes)
@@ -217,8 +229,7 @@ void getFileValue(u_short& iterIndex, const std::string_view line, std::string& 
 
 std::string shorten_vendor_name(std::string vendor)
 {
-    if (vendor.find("AMD")            != vendor.npos ||
-        vendor.find("Advanced Micro") != vendor.npos)
+    if (vendor.find("AMD") != vendor.npos || vendor.find("Advanced Micro") != vendor.npos)
         vendor = "AMD";
 
     size_t pos = 0;
@@ -230,18 +241,13 @@ std::string shorten_vendor_name(std::string vendor)
 
 fmt::rgb hexStringToColor(const std::string_view hexstr)
 {
-    // convert the hexadecimal string to individual components
     std::stringstream ss;
     ss << std::hex << hexstr.substr(1).data();
 
-    uint intValue;
-    ss >> intValue;
+    uint value;
+    ss >> value;
 
-    const uint red   = (intValue >> 16) & 0xFF;
-    const uint green = (intValue >> 8) & 0xFF;
-    const uint blue  = intValue & 0xFF;
-
-    return fmt::rgb(red, green, blue);
+    return fmt::rgb(value);
 }
 
 bool read_binary_file(std::ifstream& f, std::string& ret)
@@ -271,7 +277,7 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
     return false;
 }
 
-std::string which(const std::string& command)
+std::string which(const std::string_view command)
 {
     const std::string_view env = std::getenv("PATH");
     struct stat sb;
@@ -283,14 +289,14 @@ std::string which(const std::string& command)
         // -300ns for not creating a string. stonks
         fullPath += dir;
         fullPath += '/';
-        fullPath += command;
+        fullPath += command.data();
         if ((stat(fullPath.data(), &sb) == 0) && sb.st_mode & S_IXUSR)
             return fullPath.data();
 
         fullPath.clear();
     }
-    
-    return UNKNOWN; // not found
+
+    return UNKNOWN;  // not found
 }
 
 // https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
@@ -312,10 +318,11 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     if (pipe(pipeout.data()) < 0)
         die("pipe() failed: {}", strerror(errno));
 
-    pid_t pid = fork();
+    const pid_t pid = fork();
 
+    // we wait for the command to finish then start executing the rest
     if (pid > 0)
-    {  // we wait for the command to finish then start executing the rest
+    {
         close(pipeout.at(1));
 
         int status;
@@ -528,7 +535,7 @@ std::string read_shell_exec(const std::string_view cmd)
     // why there is a '\n' at the end??
     if (!result.empty() && result.back() == '\n')
         result.pop_back();
-    
+
     return result;
 }
 

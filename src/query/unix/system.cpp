@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cerrno>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
@@ -36,12 +37,13 @@ static void get_host_paths(System::System_t& paths)
         {
             // everyone does it like "KVM/QEMU Standard PC (...) (host_version)" so why not
             paths.host_vendor  = "KVM/QEMU";
-            paths.host_version = fmt::format("({})", read_by_syspath(syspath + "/product_version"));
+            paths.host_version = std::string_view('(' + read_by_syspath(syspath + "/product_version") + ')').data();
         }
         else
             paths.host_version = read_by_syspath(syspath + "/product_version");
     }
 
+    // idfk why it has a newline
     if (paths.host_version.back() == '\n')
         paths.host_version.pop_back();
 }
@@ -70,8 +72,8 @@ static System::System_t get_system_infos_lsb_releases()
     }
 
     // get OS /etc/lsb-release infos
-    u_short iter_index = 0;
-    std::string    line;
+    std::uint16_t iter_index = 0;
+    std::string   line;
     while (std::getline(os_release_file, line) && iter_index < 3)
     {
         if (hasStart(line, "DISTRIB_DESCRIPTION="))

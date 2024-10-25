@@ -10,59 +10,53 @@ customfetch focus point is to be customizable and fast at the same time.
 .PP
 How does it work?
 .PP
-We use the \fBconfig.toml\fR file, in there we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
-.PP
-You have 5 tags:
+In the config we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.
 .br
+There are 5 tags:
+.nf
 * \fB$<module.member>\fR - Used for printing the value of a member of a module.
-.br
 * \fB${color}\fR - Used for displaying text in a specific color.
-.br
 * \fB$(bash command)\fR - Used to execute bash commands and print the output.
-.br
 * \fB$[something,equalToSomething,ifTrue,ifFalse]\fR - Conditional tag to display different outputs based on the comparison.
-.br
+.fi
 * \fB$%n1,n2%\fR - Used to print the percentage and print with colors
 .PP
 They can be used in the ascii art text file and layout, but how to use them?
 .br
 Here's a simple bare-minimal example:
-.br
+.nf
 layout = [
-.br
 	"My OS is $<os.name>, and username is $<user.name>",
-.br
 	"The color of the following text will be ${red}red",
-.br
 	"This is a $(echo \\"bash command\\")",
-.br
-	"Check if \\\\$<user.name> is correct: $[$<user.name>,toni,indeed,it's not toni but $(echo $USER)]",
-.br
+	"Check if \\$<user.name> is correct: $[$<user.name>,toni,indeed,it's not toni but $(echo $USER)]",
 	"The discount between 50$ and 100$ is $%50,100%"
-.br
 ]
+.fi
 .PP
 * The \fBInfo tag $<>\fR will prints the value of a member of a module.
 .br
   All the modules and their members are listed in the `--list-modules` argument
 .PP
-* The \fBColor tag ${}\fR is used for printing the text of a certain color.
-.br
+* The \fBColor tag ${}\fR is used for printing the text in a certain color.
+.nf
   The colors can be predefined such as: \fIblack\fR, \fIred\fR, \fIgreen\fR, \fIblue\fR, \fIcyan\fR, \fIyellow\fR, \fImagenta\fR, \fIwhite\fR and they can be configured in the config file.
-.br
-  They can have hexcodes colors (e.g "#5522dd").
-.br
+  
+  \fBANSI escape colors\fR can be used, e.g "\\e[1;31m" and "\\e[38;5;160;223;11m".
+  Alternatively, They can have \fBhexcodes colors\fR (e.g "#5522dd").
   You can apply special effects to colors by using the following symbols before the '#' in hex codes:
-.br
-  * \fBb\fR for background color.
-.br
-  * \fBu\fR for underlining the text.
-.br
-  * \fB!\fR for bold text.
-.br
-  * \fBi\fR for italic text.
-.PP
-  Alternatively, ANSI escape codes can be used, e.g "\\e[1;31m" and "\\e[38;5;160m", but \fBnote\fR that 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
+
+      \fBTerminal and GUI\fR                         \fBGUI Only\fR
+  * \fBb\fR  for background color.     	* \fBo\fR        for overline
+  * \fBu\fR  to  underline the text    	* \fBa(value)\fR for fg alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)
+  * \fB!\fR  for bold text             	* \fBL(value)\fR for choosing an underline style (`none`, `single`, `double`, `low`, `error`)
+  * \fBi\fR  for italic text           	* \fBU(value)\fR for choosing the underline color (hexcode without #)
+                                     * \fBB(value)\fR for choosing the bg color text (hexcode without #)
+       \fBTerminal Only\fR                 * \fBS(value)\fR for choosing the strikethrough color (hexcode without #)
+  * \fBl\fR  for blinking text             * \fBO(value)\fR for choosing the overline color (hexcode without #)
+                                     * \fBA(value)\fR for choosing the bg text alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)
+                                     * \fBw(value)\fR for choosing the font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
+.fi
 .PP
   You can also use them inside the tag, like \fB${!#343345}\fR or \fB${\\e[1;31m}\fR.
 .PP
@@ -74,13 +68,16 @@ layout = [
 .PP
 * The \fBConditional tag $[]\fR is used to display different outputs based on the comparison.
 .br
-  The syntax \fBMUST\fR be: $[something,equalToSomethingElse,ifTrue,ifFalse] \fBnote:\fR putting spaces could change the expected result
+  The syntax \fBMUST\fR be: $[something,equalToSomethingElse,ifTrue,ifFalse] \fBnote:\fR putting spaces between commas can change the expected result
 .br
   Each part can have a tag or anything else.
 .PP
   For example: $[$<user.name>,$(echo $USER),correct,NOT correct]
-.br
+.nf
   This is useful when on some terminal or WM the detection can be different than others
+  Or maybe even on holidays for printing special texts
+  e.g $[$(date +%d-%m),25-12,${red}Happy ${white}Christmas!,]
+.fi
 .PP
 * The \fBBash command tag $()\fR speaks for itself.
 .br
@@ -98,11 +95,19 @@ layout = [
 .br
   For inverting colors of bad and great (red and green), before the first '%' put '!' (without quotes ofc)
 .PP
-To escape any $ or bracket, just use \\
+.nf
+Any `$` or brackets can be escaped with a backslash \\. You need to escape backslashes too :(
+\fBNOTE\fR: For having compatibility with GUI mode, you need to escape `<` (EXCEPT if you are using in a info tag, like $<os.name>) and `&`
+e.g "the number 50 is \\< than 100 \\& 98"
+.fi
+
 .SH OPTIONS
 .TP
 \fB\-n\fR, \fB\-\-no\-display\fR
-Do not display the ascii art
+Do not display the logo
+.TP
+\fB\-N\fR, \fB\-\-no\-color\fR
+Do not output and parse colors. Useful for stdout or pipe operations
 .TP
 \fB\-s\fR, \fB\-\-source\-path\fR <path>
 Path to the ascii art file to display
@@ -135,6 +140,13 @@ An example: "[Liberation Mono] [Normal] [12]", which can be "Liberation Mono Nor
 .br
 It's recommended to use GUI mode for the moment if something doesn't work
 .TP
+\fB\-m\fR, \fB\-\-layout\-line\fR
+Will replace the config layout, with a layout you specify in the arguments
+.br
+Example: "cufetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>" "
+.br
+Will only print the logo (if not disabled), along side the parsed OS and CPU
+.TP
 \fB\-g\fR, \fB\-\-gui\fR
 Use GUI mode instead of priting in the terminal (use \fB\-V\fR to check if it's enabled)
 .TP
@@ -156,6 +168,9 @@ Print the version along with the git branch it was built
 \fB\-\-bg\-image\fR <path>
 Path to image to be used in the background in GUI (put "disable" for disabling in the config)
 .TP
+\fB\-\-wrap\-lines\fR [<0,1>]
+Disable (0) or Enable (1) wrapping lines when printing in terminal
+.TP
 \fB\-\-logo\-padding\-top\fR <num>
 Padding of the logo from the top
 .TP
@@ -175,12 +190,6 @@ Reset color either before of after 'sep-reset' (1 = after && 0 = before)
 Generate default config file to config folder (if path, it will generate to the path)
 .br
 Will ask for confirmation if file exists already
-.TP
-\fB\-\-kitty\fR
-Alias to "--image-backend=kitty"
-.TP
-\fB\-\-viu\fR
-Alias to "--image-backend=viu"
 .TP
 \fB\-\-color\fR <string>
 Replace instances of a color with another value.

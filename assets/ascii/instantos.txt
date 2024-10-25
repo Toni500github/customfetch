@@ -1,21 +1,21 @@
-${c1}
-     'cx0XWWMMWNKOd:'.
-  .;kNMMMMMMMMMMMMMWNKd'
- 'kNMMMMMMWNNNWMMMMMMMMXo.
-,0MMMMMW0o;'..,:dKWMMMMMWx.
-OMMMMMXl.        .xNMMMMMNo
-WMMMMNl           .kWWMMMMO'
-MMMMMX;            oNWMMMMK,
-NMMMMWo           .OWMMMMMK,
-kWMMMMNd.        ,kWMMMMMMK,
-'kWMMMMWXxl:;;:okNMMMMMMMMK,
- .oXMMMMMMMWWWMMMMMMMMMMMMK,
-   'oKWMMMMMMMMMMMMMMMMMMMK,
-     .;lxOKXXXXXXXXXXXXXXXO;......
-          ................,d0000000kd:.
-                          .kMMMMMMMMMW0;
-                          .kMMMMMMMMMMMX
-                          .xMMMMMMMMMMMW
-                           cXMMMMMMMMMM0
-                            :0WMMMMMMNx,
-                             .o0NMWNOc.
+${cyan}${blue}
+${blue}     'cx0XWWMMWNKOd:'.
+${blue}  .;kNMMMMMMMMMMMMMWNKd'
+${blue} 'kNMMMMMMWNNNWMMMMMMMMXo.
+${blue},0MMMMMW0o;'..,:dKWMMMMMWx.
+${blue}OMMMMMXl.        .xNMMMMMNo
+${blue}WMMMMNl           .kWWMMMMO'
+${blue}MMMMMX;            oNWMMMMK,
+${blue}NMMMMWo           .OWMMMMMK,
+${blue}kWMMMMNd.        ,kWMMMMMMK,
+${blue}'kWMMMMWXxl:;;:okNMMMMMMMMK,
+${blue} .oXMMMMMMMWWWMMMMMMMMMMMMK,
+${blue}   'oKWMMMMMMMMMMMMMMMMMMMK,
+${blue}     .;lxOKXXXXXXXXXXXXXXXO;......
+${blue}          ................,d0000000kd:.
+${blue}                          .kMMMMMMMMMW0;
+${blue}                          .kMMMMMMMMMMMX
+${blue}                          .xMMMMMMMMMMMW
+${blue}                           cXMMMMMMMMMM0
+${blue}                            :0WMMMMMMNx,
+${blue}                             .o0NMWNOc.

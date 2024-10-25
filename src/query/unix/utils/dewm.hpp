@@ -10,6 +10,6 @@ std::string get_mate_version();
 std::string get_xfce4_version();
 std::string get_cinnamon_version();
 std::string get_kwin_version();
-
+bool get_fast_xfwm4_version(std::string& ret, const std::string& exec_path);
 
 #endif

@@ -37,20 +37,23 @@ public:
     // config file
     std::vector<std::string> layout;
     std::vector<std::string> percentage_colors;
-    std::string   source_path;
-    std::string   font;
-    std::string   data_dir;
-    std::string   sep_reset;
-    std::string   builtin_title_sep;
-    std::string   gui_bg_image;
-    std::string   ascii_logo_type;
-    std::uint16_t offset             = 0;
-    std::uint16_t logo_padding_left  = 0;
-    std::uint16_t logo_padding_top   = 0;
-    std::uint16_t layout_padding_top = 0;
-    bool          gui                = false;
-    bool          sep_reset_after    = false;
-    bool          slow_query_warnings= false;
+    std::vector<std::string> colors_name, colors_value;
+    std::string              source_path;
+    std::string              font;
+    std::string              data_dir;
+    std::string              sep_reset;
+    std::string              builtin_title_sep;
+    std::string              gui_bg_image;
+    std::string              ascii_logo_type;
+    std::uint16_t            offset              = 0;
+    std::uint16_t            logo_padding_left   = 0;
+    std::uint16_t            logo_padding_top    = 0;
+    std::uint16_t            layout_padding_top  = 0;
+    bool                     gui                 = false;
+    bool                     sep_reset_after     = false;
+    bool                     slow_query_warnings = false;
+    bool                     use_SI_unit         = false;
+    bool                     wrap_lines          = false;
 
     // modules specific config
     std::string uptime_d_fmt;
@@ -64,18 +67,19 @@ public:
     std::vector<std::string> dpkg_files;
     std::vector<std::string> apk_files;
 
-    // inner management
-    std::string m_custom_distro;
-    std::string m_image_backend;
-    bool        m_disable_source  = false;
-    bool        m_display_distro  = true;
-    bool        m_print_logo_only = false;
-    std::vector<std::string> m_arg_colors_name, m_arg_colors_value;
+    // inner management / argument configs
+    std::vector<std::string> m_args_layout;
+    std::string              m_custom_distro;
+    std::string              m_image_backend;
+    bool                     m_disable_source  = false;
+    bool                     m_disable_colors  = false;
+    bool                     m_display_distro  = true;
+    bool                     m_print_logo_only = false;
 
-    void        loadConfigFile(const std::string_view filename, colors_t& colors);
-    std::string getThemeValue(const std::string_view value, const std::string_view fallback) const;
-    void        generateConfig(const std::string_view filename);
-
+    void                     loadConfigFile(const std::string_view filename, colors_t& colors);
+    std::string              getThemeValue(const std::string_view value, const std::string_view fallback) const;
+    void                     generateConfig(const std::string_view filename);
+    void                     addAliasColors(const std::string& str);
     std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
 
     template <typename T>
@@ -114,7 +118,10 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #
 # Each part can have a tag or anything else.
 # e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
+#
 # This is useful when on some terminal or WM the detection can be different than others
+# Or maybe even on holidays for printing special texts
+# e.g $[$(date +%d-%m),25-12,${red}Happy ${white}Christmas!,]
 
 # The Color tag ${} is used for printing the text of a certain color.
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
@@ -123,13 +130,19 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #
 # They can have hexcodes colors (e.g "#5522dd").
 # You can apply special effects to colors by using the following symbols before the '#' in hex codes:
-# * b  for background color.
-# * u  for underline the text
-# * !  for bold text
-# * i  for italic text
 #
-# Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[0;34m}.
-# NOTE: 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
+#     Terminal and GUI                          GUI Only
+# * b - for background color.     * o        - for overline
+# * u - to  underline the text    * a(value) - for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
+# * ! - for bold text             * L(value) - to  underline the text with a style (`none`, `single`, `double`, `low`, `error`)
+# * i - for italic text           * U(value) - for choosing the underline color (hexcode without #)
+# * s - for strikethrough text    * B(value) - for bg color text (same value as above)
+#                                 * S(value) - for strikethrough color (same value as above)
+#     Terminal Only               * O(value) - for overline color (same value as above)
+# * l - for blinking text         * A(value) - for bg alpha (same value as a(value))
+#                                 * w(value) - for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
+#
+# Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[38;2;34;255;11m}.
 #
 # To reset colors, use ${0} for a normal reset or ${1} for a bold reset.
 #
@@ -142,17 +155,23 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # For inverting colors of bad and great (red and green), before the first '%' put '!'
 # without quotes ofc
 
+################################################################
 # Little FAQ
 # Q: Why when I use & or < in the config or ASCII art, it won't work on GUI mode?
 # A: replace "<" with "\\<" in the config, or "\<" in the ascii art. Same goes for &
 #    It won't affect the printing in terminal
-
+#
 # Q: I want to use `cbonsai` as ASCII art, how do I use it?
 # A: First off, create a text file and there put only `$(!cbonsai -p)`
 #    Save the file and use `-s "/path/to/text/file"`.
 #    Use `--offset` (`-o`) for aligning and put it under the bonsai.
 #
 #    Read the manual cufetch.1 for more infos with $() tag
+#
+# Q: Can I run recursive tags?
+# A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>).disk>" works,
+#    Then I guess yeah
+################################################################
 
 layout = [
     "$<builtin.title>",
@@ -161,13 +180,13 @@ layout = [
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
     "${auto}Uptime: $<os.uptime>",
-    "${auto}Terminal: $<user.term>",
+    "${auto}Terminal: $<user.terminal>",
     "${auto}Shell: $<user.shell>",
     "${auto}Packages: $<os.pkgs>",
     "${auto}Theme: $<theme-gtk-all.name>",
     "${auto}Icons: $<theme-gtk-all.icons>",
     "${auto}Font: $<theme-gtk-all.font>",
-    "${auto}Cursor: $<theme.cursor> ($<theme.cursor_size>px)",
+    "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name>",
     "${auto}DE: $<user.de_name>",
     "${auto}Disk (/): $<disk(/).disk>",
@@ -225,7 +244,7 @@ logo-padding-top = 0
 # Padding of the layout from the top
 layout-padding-top = 0
 
-# Colors
+# Colors in the terminal
 black   = "\e[1;30m"
 red     = "\e[1;31m"
 green   = "\e[1;32m"
@@ -235,6 +254,18 @@ magenta = "\e[1;35m"
 cyan    = "\e[1;36m"
 white   = "\e[1;37m"
 
+# Alias colors. Basically more color variables, but config depending (no shot).
+# They can be used as like as the color tag.
+# This is as like as using the --color argument
+# Syntax must be "name=value", e.g "purple=magenta" or "orange=!#F08000"
+alias-colors = ["purple=magenta"]
+
+# Used in disk, ram and swap modules.
+# If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)
+# Else if false, we using the IEC byte unit (1KiB == 1024 bibytes)
+# Really nerdy stuff
+use-SI-byte-unit = false
+
 # Colors to be used in percentage tag and modules members.
 # They are used as if you're using the color tag.
 # It's an array just for "convinience"
@@ -242,6 +273,11 @@ white   = "\e[1;37m"
 # 2nd color for normal
 # 3rd color for bad
 percentage-colors = ["green", "yellow", "red"]
+
+# Usually in neofetch/fastfetch, when your terminal size is too small,
+# to render some text in 1 line, they wrap those lines.
+# Enable/Disable if you want this
+wrap-lines = true
 
 # $<os.uptime> config
 [os.uptime]
@@ -274,7 +310,7 @@ flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version")
+# note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version" if GUI mode was enabled)
 [gui]
 enable = false
 
@@ -285,8 +321,8 @@ enable = false
 font = "Liberation Mono Normal 12"
 
 # These are the colors you can use in the GUI mode.
-# They overwrite the normal colors from above,
-# but they can only have hexcodes colors
+# They overwrite the terminal colors from above.
+# They can only have hexcodes colors
 black   = "!#000005"
 red     = "!#ff2000"
 green   = "!#00ff00"
@@ -302,4 +338,4 @@ bg-image = "disable"
 
 )#";
 
-#endif
+#endif  // _CONFIG_HPP

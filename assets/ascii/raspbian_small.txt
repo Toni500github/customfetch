@@ -1,6 +1,6 @@
 ${red}${green}   ..    ,.
 ${green}  :oo: .:oo:
-${green}  'o\o o/o:
+${green}  'o\\o o/o:
 ${red} :: . :: . ::
 ${red}:: :::  ::: ::
 ${red}:'  '',.''  ':

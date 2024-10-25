@@ -1,16 +1,16 @@
-${c1}                     ..
-  .....         ..OSSAAAAAAA..
- .KKKKSS.     .SSAAAAAAAAAAA.
-.KKKKKSO.    .SAAAAAAAAAA...
-KKKKKKS.   .OAAAAAAAA.
-KKKKKKS.  .OAAAAAA.
-KKKKKKS. .SSAA..
-.KKKKKS..OAAAAAAAAAAAA........
- DKKKKO.=AA=========A===AASSSO..
-  AKKKS.==========AASSSSAAAAAASS.
-  .=KKO..========ASS.....SSSSASSSS.
-    .KK.       .ASS..O.. =SSSSAOSS:
-     .OK.      .ASSSSSSSO...=A.SSA.
-       .K      ..SSSASSSS.. ..SSA.
-                 .SSS.AAKAKSSKA.
-                    .SSS....S..
+${blue}                     ..
+${blue}  .....         ..OSSAAAAAAA..
+${blue} .KKKKSS.     .SSAAAAAAAAAAA.
+${blue}.KKKKKSO.    .SAAAAAAAAAA...
+${blue}KKKKKKS.   .OAAAAAAAA.
+${blue}KKKKKKS.  .OAAAAAA.
+${blue}KKKKKKS. .SSAA..
+${blue}.KKKKKS..OAAAAAAAAAAAA........
+${blue} DKKKKO.=AA=========A===AASSSO..
+${blue}  AKKKS.==========AASSSSAAAAAASS.
+${blue}  .=KKO..========ASS.....SSSSASSSS.
+${blue}    .KK.       .ASS..O.. =SSSSAOSS:
+${blue}     .OK.      .ASSSSSSSO...=A.SSA.
+${blue}       .K      ..SSSASSSS.. ..SSA.
+${blue}                 .SSS.AAKAKSSKA.
+${blue}                    .SSS....S..
