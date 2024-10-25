@@ -496,7 +496,9 @@ int main(int argc, char *argv[])
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif
 
+#if CAVA
     Cava cava;
+#endif
     if (config.wrap_lines)
     {
         // hide cursor and disable line wrapping
