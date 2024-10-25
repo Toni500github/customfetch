@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <filesystem>
 
+#include "cava.hpp"
 #include "config.hpp"
 #include "display.hpp"
 #include "gui.hpp"
@@ -495,6 +496,7 @@ int main(int argc, char *argv[])
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif
 
+    Cava cava;
     if (config.wrap_lines)
     {
         // hide cursor and disable line wrapping

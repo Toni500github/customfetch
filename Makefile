@@ -10,6 +10,7 @@ VENDOR_TEST 	?= 0
 DEVICE_TEST     ?= 0
 
 USE_DCONF	?= 1
+CAVA		?= 0
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
@@ -47,6 +48,20 @@ ifeq ($(USE_DCONF), 1)
         endif
 endif
 
+define CAVA_ERROR
+option CAVA is enabled but directory "subprojects/cava/include/" does NOT exists.
+Please clone customfetch with --recurse-submodules
+endef
+
+ifeq ($(CAVA), 1)
+        ifneq ($(wildcard ./subprojects/cava/include/*),)
+                CXXFLAGS += -DCAVA=1 -I./subprojects/cava/include/ `pkg-config --cflags $(BUILDDIR)/cava/cava.pc`
+		LDFLAGS  += -L./$(BUILDDIR)/cava `pkg-config --libs $(BUILDDIR)/cava/cava.pc`
+        else
+                $(error $(CAVA_ERROR))
+        endif
+endif
+
 NAME		= customfetch
 TARGET		= cufetch
 OLDVERSION	= 0.9.2
@@ -58,7 +73,7 @@ LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
-all: fmt toml $(TARGET)
+all: fmt toml cava $(TARGET)
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
@@ -70,6 +85,19 @@ toml:
 ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
 	mkdir -p $(BUILDDIR)/toml++
 	make -C src/toml++ BUILDDIR=$(BUILDDIR)/toml++
+endif
+
+CAVA_FILES := $(wildcard $(BUILDDIR)/cava/*)
+cava:
+ifeq ($(CAVA), 1)
+# Check if either cava.pc or libcava.a exists (why so damn verbose)
+ifneq ($(filter $(BUILDDIR)/cava/cava.pc $(BUILDDIR)/cava/libcava.a, $(CAVA_FILES)), $(BUILDDIR)/cava/cava.pc $(BUILDDIR)/cava/libcava.a)
+	mkdir -p $(BUILDDIR)/cava
+	sed -i -e "s#cava_lib = shared_library#cava_lib = static_library#" ./subprojects/cava/meson.build
+	cd ./subprojects/cava/ && meson setup --wipe build
+	meson compile -C ./subprojects/cava/build
+	mv -f ./subprojects/cava/build/libcava.a ./subprojects/cava/build/meson-private/cava.pc $(BUILDDIR)/cava
+endif
 endif
 
 $(TARGET): fmt toml $(OBJ)

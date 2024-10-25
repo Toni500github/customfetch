@@ -1,0 +1,3 @@
+[submodule "subprojects/cava"]
+	path = subprojects/cava
+	url = https://github.com/LukashonakV/cava/
