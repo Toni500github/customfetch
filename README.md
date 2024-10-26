@@ -225,7 +225,7 @@ Won't affect the printing in terminal
 I would like to thanks:
 * my best-friend [BurntRanch](https://github.com/BurntRanch/),\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me initialize this project and motivate me to keep going\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for making my customizability idea come true with the parser.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for making my customizability idea come true with the first prototype of the parser.
 
 * the Better C++ [discord server](https://discord.gg/uSzTjkXtAM), \
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me improving the codebase and helping me with any issues I got,\
