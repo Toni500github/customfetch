@@ -20,7 +20,10 @@
 #
 # Each part can have a tag or anything else.
 # e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
+#
 # This is useful when on some terminal or WM the detection can be different than others
+# Or maybe even on holidays for printing special texts
+# e.g $[$(date +%d-%m),25-12,${red}Happy ${white}Christmas!,]
 
 # The Color tag ${} is used for printing the text of a certain color.
 # e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
@@ -29,15 +32,21 @@
 #
 # They can have hexcodes colors (e.g "#5522dd").
 # You can apply special effects to colors by using the following symbols before the '#' in hex codes:
-# * b  for background color.
-# * u  for underline the text
-# * !  for bold text
-# * i  for italic text
 #
-# Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[0;34m}.
-# NOTE: 256-color ANSI escape codes (those that starts with \\[38 or \\[48) cannot be used in GUI mode.
+#     Terminal and GUI                          GUI Only
+# * b - for background color.     * o        - for overline
+# * u - to  underline the text    * a(value) - for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
+# * ! - for bold text             * L(value) - to  underline the text with a style (`none`, `single`, `double`, `low`, `error`)
+# * i - for italic text           * U(value) - for choosing the underline color (hexcode without #)
+# * s - for strikethrough text    * B(value) - for bg color text (same value as above)
+#                                 * S(value) - for strikethrough color (same value as above)
+#     Terminal Only               * O(value) - for overline color (same value as above)
+# * l - for blinking text         * A(value) - for bg alpha (same value as a(value))
+#                                 * w(value) - for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
 #
-# To reset colors, use ${0} for a full reset or ${1} for a bold reset.
+# Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[38;2;34;255;11m}.
+#
+# To reset colors, use ${0} for a normal reset or ${1} for a bold reset.
 #
 # To use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
 # If you're using GUI mode and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
@@ -48,24 +57,30 @@
 # For inverting colors of bad and great (red and green), before the first '%' put '!'
 # without quotes ofc
 
+################################################################
 # Little FAQ
 # Q: Why when I use & or < in the config or ASCII art, it won't work on GUI mode?
 # A: replace "<" with "\\<" in the config, or "\<" in the ascii art. Same goes for &
 #    It won't affect the printing in terminal
-
+#
 # Q: I want to use `cbonsai` as ASCII art, how do I use it?
 # A: First off, create a text file and there put only `$(!cbonsai -p)`
 #    Save the file and use `-s "/path/to/text/file"`.
 #    Use `--offset` (`-o`) for aligning and put it under the bonsai.
 #
 #    Read the manual cufetch.1 for more infos with $() tag
+#
+# Q: Can I run recursive tags?
+# A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>).disk>" works,
+#    Then I guess yeah
+################################################################
 
 
 # Old pipelines screensavers inspired layout
 # This is really system depedent and really meassy
 # but proves how customizable you can be
 layout = [
-	"$<builtin.title>",
+	"${red}$<user.name>${0}@${cyan}$<os.hostname>",
 	"$<builtin.title_sep>",
 	"${red}$<os.name> ${cyan} $<system.arch>${cyan} \\<- Arch ",
 	"${red}	    ^		      ${green} $<os.kernel> \\<━━━┓",
@@ -76,7 +91,7 @@ layout = [
 	"${green}Kernel ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
 	"		${blue}Uptime ━━┓",
 	"	         	 ${blue}┃${cyan}  ┏━━ Shell",
-	"	       ${yellow} ┏━━━━━━━━${blue}┃${yellow}━━${cyan}┃${yellow}━━> $<user.term>",
+	"	       ${yellow} ┏━━━━━━━━${blue}┃${yellow}━━${cyan}┃${yellow}━━> $<user.terminal>",
 	"	       ${yellow} ┃  	 ${blue}┃ ${cyan} ┗━━━━> $<user.shell>",
 	"	       ${yellow} ┃${blue}        ↓",
 	"${yellow}Terminal ━━┛     ${blue}$<os.uptime>",
@@ -89,8 +104,8 @@ layout = [
 	"                             ┃                                                         ┃",
 	"                             ┃    ${!#448aa4}Disk (/) -> $<disk(/).disk>  ┃",
 	"System Infos ━━━━━━━━━━━━━━━━┫    ${magenta}CPU -> $<cpu.cpu>              ┃",
-	"                             ┃    ${blue}GPU -> $<gpu.name>                       ┃",
-        "                             ┃    ${!#03ff93}RAM usage -> $<ram.ram>            ┃",
+	"                             ┃    ${blue}GPU -> $<gpu.vendor> $<gpu.name>                       ┃",
+        "                             ┃    ${!#03ff93}RAM usage -> $<ram.ram>           ┃",
         "                             ┃                                                         ┃",
         "                             ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
 	"",
@@ -127,6 +142,10 @@ sep-reset = "->"
 # false = before ("test ${0}-> ")
 sep-reset-after = false
 
+# Warn against tradeoffs between slower queries for availability
+# e.g. falling back to gsettings when we can't find the config file for GTK
+slow-query-warnings = false
+
 # Offset between the ascii art and the layout
 offset = 5
 
@@ -139,7 +158,7 @@ logo-padding-top = 0
 # Padding of the layout from the top
 layout-padding-top = 0
 
-# Colors
+# Colors in terminal
 black   = "\e[1;30m"
 red     = "\e[1;31m"
 green   = "\e[1;32m"
@@ -148,6 +167,31 @@ blue    = "\e[1;34m"
 magenta = "\e[1;35m"
 cyan    = "\e[1;36m"
 white   = "\e[1;37m"
+
+# Alias colors. Basically more color variables, but config depending (no shot).
+# They can be used as like as the color tag.
+# This is as like as using the --color argument
+# Syntax must be "name=value", e.g "purple=magenta" or "orange=!#F08000"
+alias-colors = ["purple=magenta"]
+
+# Used in disk, ram and swap modules.
+# If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)
+# Else if false, we using the IEC byte unit (1KiB == 1024 bibytes)
+# Really nerdy stuff
+use-SI-byte-unit = false
+
+# Colors to be used in percentage tag and modules members.
+# They are used as if you're using the color tag.
+# It's an array just for "convinience"
+# 1st color for good
+# 2nd color for normal
+# 3rd color for bad
+percentage-colors = ["green", "yellow", "red"]
+
+# Usually in neofetch/fastfetch, when your terminal size is too small,
+# to render some text in 1 line, they wrap those lines.
+# Enable/Disable if you want this
+wrap-lines = true
 
 # $<os.uptime> config
 [os.uptime]
