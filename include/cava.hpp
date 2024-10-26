@@ -15,7 +15,8 @@ class Cava
 {
 public:
     Cava();
-
+    ~Cava();
+    void update();
 private:
     struct error_s m_error{};          // cava errors
     struct config_params m_prm{};      // cava parameters
