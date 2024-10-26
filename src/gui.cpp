@@ -61,12 +61,14 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     // this is just for parse() to auto add the distro colors
     std::ifstream file(path, std::ios::binary);
     std::string   line, _;
+    parse_args_t parse_args{ systemInfo, _, config, colors, false, true };
 
     while (std::getline(file, line))
-        parse(line, systemInfo, _, config, colors, false);
+        parse(line, parse_args);
 
+    parse_args.parsingLayout = true;
     for (std::string& layout : layout)
-        layout = parse(layout, systemInfo, _, config, colors, true);
+        layout = parse(layout, parse_args);
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),

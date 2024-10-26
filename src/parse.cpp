@@ -145,12 +145,14 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
     return ss.str();
 }
 
-// parse() for parse_args_t& arguments
-// some times we don't want to use the original pureOutput,
-// so we have to create a tmp string just for the sake of the function arguments
-static std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
+std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
 {
     return parse(input, parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+}
+
+std::string parse(const std::string_view input, parse_args_t& parse_args)
+{
+    return parse(input, parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout);
 }
 
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
@@ -662,9 +664,6 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     std::string output{ input.data() };
     pureOutput = output;
 
-    // we only use it in GUI mode
-    bool firstrun_clr = true;
-
     if (!config.sep_reset.empty() && parsingLayout)
     {
         if (config.sep_reset_after)
@@ -696,7 +695,7 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     replace_str(pureOutput, "\\<", "<");
     replace_str(pureOutput, "\\&", "&");
 
-    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, firstrun_clr };
+    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true };
     Parser       parser{ output };
 
     std::string ret{ parse(parser, parse_args) };

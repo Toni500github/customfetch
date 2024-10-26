@@ -66,8 +66,9 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     stbi_image_free(img);
 
     std::string _;
+    parse_args_t parse_args{ systemInfo, _, config, colors, true, true };
     for (std::string& layout : layout)
-        layout = parse(layout, systemInfo, _, config, colors, true);
+        layout = parse(layout, parse_args);
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
@@ -150,6 +151,9 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     debug("Display::render path = {}", path);
 
+    std::string pureOutput;
+    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false, true };
+
     bool          isImage = false;
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
@@ -192,7 +196,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         std::string   line, _;
 
         while (std::getline(distro_file, line))
-            parse(line, systemInfo, _, config, colors, false);
+            parse(line, _, parse_args);
     }
 
     std::vector<size_t> pureAsciiArtLens;
@@ -231,8 +235,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     std::string line;
     while (std::getline(file, line))
     {
-        std::string pureOutput;
-        std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
+        std::string asciiArt_s = parse(line, parse_args);
         if (!config.m_disable_colors)
             asciiArt_s += config.gui ? "" : NOCOLOR;
 
@@ -278,8 +281,9 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         return asciiArt;
 
     std::string _;
+    parse_args.parsingLayout = true;
     for (std::string& layout : layout)
-        layout = parse(layout, systemInfo, _, config, colors, true);
+        layout = parse(layout, _, parse_args);
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),

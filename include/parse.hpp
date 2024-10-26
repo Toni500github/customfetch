@@ -14,8 +14,8 @@ struct parse_args_t
     std::string&    pureOutput;
     const Config&   config;
     const colors_t& colors;
-    const bool      parsingLayout;
-    bool&           firstrun_clr;
+    bool            parsingLayout;
+    bool            firstrun_clr;
 };
 
 /* Parse input, in-place, with data from systemInfo.
@@ -30,6 +30,12 @@ struct parse_args_t
  */
 std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
                   const colors_t& colors, const bool parsingLayout);
+
+// parse() for parse_args_t& arguments
+std::string parse(const std::string_view input, parse_args_t& parse_args);
+// some times we don't want to use the original pureOutput,
+// so we have to create a tmp string just for the sake of the function arguments
+std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args);
 
 /* Set module members values to a systemInfo_t map.
  * If the name of said module matches any module name, it will be added
