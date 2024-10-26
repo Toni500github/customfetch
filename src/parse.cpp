@@ -451,6 +451,8 @@ jumpauto:
             else
             {
                 error("PARSER: failed to parse line with color '{}'", str_clr);
+                if (!parse_args.parsingLayout && tagpos != std::string::npos)
+                    parse_args.pureOutput.erase(tagpos, taglen);
                 return output;
             }
         }
@@ -543,6 +545,8 @@ jumpauto:
             else
             {
                 error("PARSER: failed to parse line with color '{}'", str_clr);
+                if (!parse_args.parsingLayout && tagpos != std::string::npos)
+                    parse_args.pureOutput.erase(tagpos, taglen);
                 return output;
             }
         }
