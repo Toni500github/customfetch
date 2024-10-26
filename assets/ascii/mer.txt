@@ -1,27 +1,27 @@
-${c1}                         dMs
-                         .-`
-                       `y`-o+`
-                        ``NMMy
-                      .--`:++.
-                    .hNNNNs
-                    /MMMMMN
-                    `ommmd/ +/
-                      ````  +/
-                     `:+sssso/-`
-  .-::. `-::-`     `smNMNmdmNMNd/      .://-`
-.ymNMNNdmNMMNm+`  -dMMh:.....+dMMs   `sNNMMNo
-dMN+::NMMy::hMM+  mMMo `ohhy/ `dMM+  yMMy::-
-MMm   yMM-  :MMs  NMN` `:::::--sMMh  dMM`
-MMm   yMM-  -MMs  mMM+ `ymmdsymMMMs  dMM`
-NNd   sNN-  -NNs  -mMNs-.--..:dMMh`  dNN
----   .--`  `--.   .smMMmdddmMNdo`   .--
-                     ./ohddds+:`
-                     +h- `.:-.
-                     ./`.dMMMN+
-                        +MMMMMd
-                        `+dmmy-
-                      ``` .+`
-                     .dMNo-y.
-                     `hmm/
-                         .:`
-                         dMs
+${blue}                         dMs
+${blue}                         .-`
+${blue}                       `y`-o+`
+${blue}                        ``NMMy
+${blue}                      .--`:++.
+${blue}                    .hNNNNs
+${blue}                    /MMMMMN
+${blue}                    `ommmd/ +/
+${blue}                      ````  +/
+${blue}                     `:+sssso/-`
+${blue}  .-::. `-::-`     `smNMNmdmNMNd/      .://-`
+${blue}.ymNMNNdmNMMNm+`  -dMMh:.....+dMMs   `sNNMMNo
+${blue}dMN+::NMMy::hMM+  mMMo `ohhy/ `dMM+  yMMy::-
+${blue}MMm   yMM-  :MMs  NMN` `:::::--sMMh  dMM`
+${blue}MMm   yMM-  -MMs  mMM+ `ymmdsymMMMs  dMM`
+${blue}NNd   sNN-  -NNs  -mMNs-.--..:dMMh`  dNN
+${blue}---   .--`  `--.   .smMMmdddmMNdo`   .--
+${blue}                     ./ohddds+:`
+${blue}                     +h- `.:-.
+${blue}                     ./`.dMMMN+
+${blue}                        +MMMMMd
+${blue}                        `+dmmy-
+${blue}                      ``` .+`
+${blue}                     .dMNo-y.
+${blue}                     `hmm/
+${blue}                         .:`
+${blue}                         dMs

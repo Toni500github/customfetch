@@ -207,7 +207,8 @@ e.g `the number 50 is \< than 100 \& 98`
 Won't affect the printing in terminal
 
 # TODOs
-* Color all ASCII arts (157/262) will take long ahh time
+* ~~Color all ASCII arts (157/262) will take long ahh time~~ DONE
+* Release 0.10.0
 
 # Thanks
 I would like to thanks:

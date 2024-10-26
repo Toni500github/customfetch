@@ -1,13 +1,13 @@
-${c1}`-.                                 `-.
-  -ohys/-`                    `:+shy/`
-     -omNNdyo/`          :+shmNNy/`
-             ${c3}      -
-                 /mMmo
-                 hMMMN`
-                 .NMMs
-    ${c1}  -:+oooo+//: ${c3}/MN${c1}. -///oooo+/-`
-     /:.`          ${c3}/${c1}           `.:/`
-${c3}          __
-         |  |   _ _ ___ ___ ___
-         |  |__| | |   | .'|  _|
-         |_____|___|_|_|__,|_|
+${blue}`-.                                 `-.
+${blue}  -ohys/-`                    `:+shy/`
+${blue}     -omNNdyo/`          :+shmNNy/`
+${yellow}                   -
+${yellow}                 /mMmo
+${yellow}                 hMMMN`
+${yellow}                 .NMMs
+${blue}      -:+oooo+//: ${yellow}/MN${blue}. -///oooo+/-`
+${blue}     /:.`          ${yellow}/${blue}           `.:/`
+${yellow}          __
+${yellow}         |  |   _ _ ___ ___ ___
+${yellow}         |  |__| | |   | .'|  _|
+${yellow}         |_____|___|_|_|__,|_|

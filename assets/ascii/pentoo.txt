@@ -1,4 +1,4 @@
-${white}           `:oydNNMMMMNNdyo:`
+${magenta}${white}           `:oydNNMMMMNNdyo:`
 ${white}        :yNMMMMMMMMMMMMMMMMNy:
 ${white}      :dMMMMMMMMMMMMMMMMMMMMMMd:
 ${white}     oMMMMMMMho/-....-/ohMMMMMMMo

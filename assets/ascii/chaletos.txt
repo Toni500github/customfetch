@@ -1,20 +1,20 @@
-${c1}             `.//+osso+/:``
-         `/sdNNmhyssssydmNNdo:`
-       :hNmy+-`          .-+hNNs-
-     /mMh/`       `+:`       `+dMd:
-   .hMd-        -sNNMNo.  /yyy  /mMs`
-  -NM+       `/dMd/--omNh::dMM   `yMd`
- .NN+      .sNNs:/dMNy:/hNmo/s     yMd`
- hMs    `/hNd+-smMMMMMMd+:omNy-    `dMo
-:NM.  .omMy:/hNMMMMMMMMMMNy:/hMd+`  :Md`
-/Md` `sm+.omMMMMMMMMMMMMMMMMd/-sm+  .MN:
-/Md`      MMMMMMMMMMMMMMMMMMMN      .MN:
-:NN.      MMMMMMm....--NMMMMMN      -Mm.
-`dMo      MMMMMMd      mMMMMMN      hMs
- -MN:     MMMMMMd      mMMMMMN     oMm`
-  :NM:    MMMMMMd      mMMMMMN    +Mm-
-   -mMy.  mmmmmmh      dmmmmmh  -hMh.
-     oNNs-                    :yMm/
-      .+mMdo:`            `:smMd/`
-         -ohNNmhsoo++osshmNNh+.
-            `./+syyhhyys+:``
+${blue}             `.//+osso+/:``
+${blue}         `/sdNNmhyssssydmNNdo:`
+${blue}       :hNmy+-`          .-+hNNs-
+${blue}     /mMh/`       `+:`       `+dMd:
+${blue}   .hMd-        -sNNMNo.  /yyy  /mMs`
+${blue}  -NM+       `/dMd/--omNh::dMM   `yMd`
+${blue} .NN+      .sNNs:/dMNy:/hNmo/s     yMd`
+${blue} hMs    `/hNd+-smMMMMMMd+:omNy-    `dMo
+${blue}:NM.  .omMy:/hNMMMMMMMMMMNy:/hMd+`  :Md`
+${blue}/Md` `sm+.omMMMMMMMMMMMMMMMMd/-sm+  .MN:
+${blue}/Md`      MMMMMMMMMMMMMMMMMMMN      .MN:
+${blue}:NN.      MMMMMMm....--NMMMMMN      -Mm.
+${blue}`dMo      MMMMMMd      mMMMMMN      hMs
+${blue} -MN:     MMMMMMd      mMMMMMN     oMm`
+${blue}  :NM:    MMMMMMd      mMMMMMN    +Mm-
+${blue}   -mMy.  mmmmmmh      dmmmmmh  -hMh.
+${blue}     oNNs-                    :yMm/
+${blue}      .+mMdo:`            `:smMd/`
+${blue}         -ohNNmhsoo++osshmNNh+.
+${blue}            `./+syyhhyys+:``

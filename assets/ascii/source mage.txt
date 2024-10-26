@@ -1,21 +1,21 @@
-${c2}       :ymNMNho.
-.+sdmNMMMMMMMMMMy`
-.-::/yMMMMMMMMMMMm-
-      sMMMMMMMMMMMm/
-     /NMMMMMMMMMMMMMm:
-    .MMMMMMMMMMMMMMMMM:
-    `MMMMMMMMMMMMMMMMMN.
-     NMMMMMMMMMMMMMMMMMd
-     mMMMMMMMMMMMMMMMMMMo
-     hhMMMMMMMMMMMMMMMMMM.
-     .`/MMMMMMMMMMMMMMMMMs
-        :mMMMMMMMMMMMMMMMN`
-         `sMMMMMMMMMMMMMMM+
-           /NMMMMMMMMMMMMMN`
-             oMMMMMMMMMMMMM+
-          ./sd.-hMMMMMMMMmmN`
-      ./+oyyyh- `MMMMMMMMMmNh
-                 sMMMMMMMMMmmo
-                 `NMMMMMMMMMd:
-                  -dMMMMMMMMMo
-                    -shmNMMms.
+${blue}${1}       :ymNMNho.
+${1}.+sdmNMMMMMMMMMMy`
+${1}.-::/yMMMMMMMMMMMm-
+${1}      sMMMMMMMMMMMm/
+${1}     /NMMMMMMMMMMMMMm:
+${1}    .MMMMMMMMMMMMMMMMM:
+${1}    `MMMMMMMMMMMMMMMMMN.
+${1}     NMMMMMMMMMMMMMMMMMd
+${1}     mMMMMMMMMMMMMMMMMMMo
+${1}     hhMMMMMMMMMMMMMMMMMM.
+${1}     .`/MMMMMMMMMMMMMMMMMs
+${1}        :mMMMMMMMMMMMMMMMN`
+${1}         `sMMMMMMMMMMMMMMM+
+${1}           /NMMMMMMMMMMMMMN`
+${1}             oMMMMMMMMMMMMM+
+${1}          ./sd.-hMMMMMMMMmmN`
+${1}      ./+oyyyh- `MMMMMMMMMmNh
+${1}                 sMMMMMMMMMmmo
+${1}                 `NMMMMMMMMMd:
+${1}                  -dMMMMMMMMMo
+${1}                    -shmNMMms.

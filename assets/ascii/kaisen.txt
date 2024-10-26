@@ -1,18 +1,18 @@
-${c1}                          `
-                  `:+oyyho.
-             `+:`sdddddd/
-        `+` :ho oyo++ohds-`
-       .ho :dd.  .: `sddddddhhyso+/-
-       ody.ddd-:yd- +hysssyhddddddddho`
-       yddddddhddd` ` `--`   -+hddddddh.
-       hddy-+dddddy+ohh/..+sddddy/:::+ys
-      :ddd/sdddddddddd- oddddddd       `
-     `yddddddddddddddd/ /ddddddd/
-:.  :ydddddddddddddddddo..sddddddy/`
-odhdddddddo- `ddddh+-``....-+hdddddds.
--ddddddhd:   /dddo  -ydddddddhdddddddd-
- /hdy:o - `:sddds   .`./hdddddddddddddo
-  `/-  `+hddyosy+       :dddddddy-.-od/
-      :sydds           -hddddddd`    /
-       .+shd-      `:ohddddddddd`
-                `:+ooooooooooooo:
+${red}                          `${white}
+${red}                  `:+oyyho.
+${red}             `+:`sdddddd/
+${red}        `+` :ho oyo++ohds-`
+${red}       .ho :dd.  .: `sddddddhhyso+/-
+${red}       ody.ddd-:yd- +hysssyhddddddddho`
+${red}       yddddddhddd` ` `--`   -+hddddddh.
+${red}       hddy-+dddddy+ohh/..+sddddy/:::+ys
+${red}      :ddd/sdddddddddd- oddddddd       `
+${red}     `yddddddddddddddd/ /ddddddd/
+${red}:.  :ydddddddddddddddddo..sddddddy/`
+${red}odhdddddddo- `ddddh+-``....-+hdddddds.
+${red}-ddddddhd:   /dddo  -ydddddddhdddddddd-
+${red} /hdy:o - `:sddds   .`./hdddddddddddddo
+${red}  `/-  `+hddyosy+       :dddddddy-.-od/
+${red}      :sydds           -hddddddd`    /
+${red}       .+shd-      `:ohddddddddd`
+${red}                `:+ooooooooooooo:

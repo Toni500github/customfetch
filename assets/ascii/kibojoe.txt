@@ -1,13 +1,13 @@
-            ${c3}           ./+oooooo+/.
-           -/+ooooo+/:.`
-          ${c1}`${c3}yyyo${c2}+++/++${c3}osss${c1}.
-         ${c1}+NMN${c3}yssssssssssss${c1}.
-       ${c1}.dMMMMN${c3}sssssssssssy${c1}Ns`
-      +MMMMMMMm${c3}sssssssssssh${c1}MNo`
-    `hMMMMMNNNMd${c3}sssssssssssd${c1}MMN/
-   .${c3}syyyssssssy${c1}NNmmmmd${c3}sssss${c1}hMMMMd:
-  -NMmh${c3}yssssssssyhhhhyssyh${c1}mMMMMMMMy`
- -NMMMMMNN${c3}mdhyyyyyyyhdm${c1}NMMMMMMMMMMMN+
-`NMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMd.
-ods+/:-----://+oyydmNMMMMMMMMMMMMMMMMMN-
-`                     .-:+osyhhdmmNNNmdo
+${blue}           ./+oooooo+/.
+           ${blue}-/+ooooo+/:.`
+          ${green}`${blue}yyyo${white}+++/++${blue}osss${green}.
+         ${green}+NMN${blue}yssssssssssss${green}.
+       ${green}.dMMMMN${blue}sssssssssssy${green}Ns`
+      ${green}+MMMMMMMm${blue}sssssssssssh${green}MNo`
+    ${green}`hMMMMMNNNMd${blue}sssssssssssd${green}MMN/
+   .${blue}syyyssssssy${green}NNmmmmd${blue}sssss${green}hMMMMd:
+  ${green}-NMmh${blue}yssssssssyhhhhyssyh${green}mMMMMMMMy`
+ ${green}-NMMMMMNN${blue}mdhyyyyyyyhdm${green}NMMMMMMMMMMMN+
+${green}`NMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMd.
+${green}ods+/:-----://+oyydmNMMMMMMMMMMMMMMMMMN-
+${green}`                     .-:+osyhhdmmNNNmdo

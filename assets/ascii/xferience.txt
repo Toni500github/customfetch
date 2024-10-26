@@ -1,19 +1,19 @@
-${c1}           ``--:::::::-.`
-        .-/+++ooooooooo+++:-`
-     `-/+oooooooooooooooooo++:.
-    -/+oooooo/+ooooooooo+/ooo++:`
-  `/+oo++oo.   .+oooooo+.-: +:-o+-
- `/+o/.  -o.    :oooooo+ ```:.+oo+-
-`:+oo-    -/`   :oooooo+ .`-`+oooo/.
-.+ooo+.    .`   `://///+-+..oooooo+:`
--+ooo:`                ``.-+oooooo+/`
--+oo/`                       :+oooo/.
-.+oo:            ..-/. .      -+oo+/`
-`/++-         -:::++::/.      -+oo+-
- ./o:          `:///+-     `./ooo+:`
-  .++-         `` /-`   -:/+oooo+:`
-   .:+/:``          `-:ooooooo++-
-     ./+o+//:...../+oooooooo++:`
-       `:/++ooooooooooooo++/-`
-          `.-//++++++//:-.`
-               ``````
+${cyan}           ``--:::::::-.`
+${cyan}        .-/+++ooooooooo+++:-`
+${cyan}     `-/+oooooooooooooooooo++:.
+${cyan}    -/+oooooo/+ooooooooo+/ooo++:`
+${cyan}  `/+oo++oo.   .+oooooo+.-: +:-o+-
+${cyan} `/+o/.  -o.    :oooooo+ ```:.+oo+-
+${cyan}`:+oo-    -/`   :oooooo+ .`-`+oooo/.
+${cyan}.+ooo+.    .`   `://///+-+..oooooo+:`
+${cyan}-+ooo:`                ``.-+oooooo+/`
+${cyan}-+oo/`                       :+oooo/.
+${cyan}.+oo:            ..-/. .      -+oo+/`
+${cyan}`/++-         -:::++::/.      -+oo+-
+${cyan} ./o:          `:///+-     `./ooo+:`
+${cyan}  .++-         `` /-`   -:/+oooo+:`
+${cyan}   .:+/:``          `-:ooooooo++-
+${cyan}     ./+o+//:...../+oooooooo++:`
+${cyan}       `:/++ooooooooooooo++/-`
+${cyan}          `.-//++++++//:-.`
+${cyan}               ``````

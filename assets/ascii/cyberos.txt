@@ -1,15 +1,15 @@
-${c3}             !M$EEEEEEEEEEEP
-            .MMMMM000000Nr.
-            ${c3}&MMMMMM${c2}MMMMMMMMMMMMM9
-           ${c3}~MMM${c1}MMMM${c2}MMMMMMMMMMMMC
-      ${c1}"    ${c3}M${c1}MMMMMMM${c2}MMMMMMMMMMs
-    ${c1}iM${c2}MMM&&${c1}MMMMMMMM${c2}MMMMMMMM\\
-   ${c1}BMMM${c2}MMMMM${c1}MMMMMMM${c2}MMMMMM${c3}"
-  ${c1}9MMMMM${c2}MMMMMMM${c1}MMMM${c2}MMMM${c3}MMMf-
-        ${c2}sMMMMMMMM${c1}MM${c2}M${c3}MMMMMMMMM3_
-         ${c2}+ffffffff${c1}P${c3}MMMMMMMMMMMM0
-                    ${c2}CMMMMMMMMMMM
-                      }MMMMMMMMM
-                        ~MMMMMMM
-                          "RMMMM
-                            .PMB
+${!#5a91fa}${!#545af4}${!#630ff4}             !M$EEEEEEEEEEEP
+${!#630ff4}            .MMMMM000000Nr.
+            ${!#630ff4}\&MMMMMM${!#5c93fc}MMMMMMMMMMMMM9
+           ${!#630ff4}~MMM${!#64c3fc}MMMM${!#5c93fc}MMMMMMMMMMMMC
+      ${!#64c3fc}"    ${!#630ff4}M${!#64c3fc}MMMMMMM${!#5c93fc}MMMMMMMMMMs
+    ${!#64c3fc}iM${!#5c93fc}MMM\&\&${!#64c3fc}MMMMMMMM${!#5c93fc}MMMMMMMM\\
+   ${!#64c3fc}BMMM${!#5c93fc}MMMMM${!#64c3fc}MMMMMMM${!#5c93fc}MMMMMM${!#545af4}"
+  ${!#64c3fc}9MMMMM${!#5c93fc}MMMMMMM${!#64c3fc}MMMM${!#5c93fc}MMMM${!#545af4}MMMf-
+        ${!#5c93fc}sMMMMMMMM${!#64c3fc}MM${!#5c93fc}M${!#545af4}MMMMMMMMM3_
+         ${!#5c93fc}+ffffffff${!#64c3fc}P${!#545af4}MMMMMMMMMMMM0
+${!#5a91fa}                    CMMMMMMMMMMM
+${!#5a91fa}                      }MMMMMMMMM
+${!#5a91fa}                        ~MMMMMMM
+${!#5a91fa}                          "RMMMM
+${!#5a91fa}                            .PMB

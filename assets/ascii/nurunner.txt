@@ -1,19 +1,19 @@
-${c1}                  ,xc
-                ;00cxXl
-              ;K0,   .xNo.
-            :KO'       .lXx.
-          cXk.    ;xl     cXk.
-        cXk.    ;k:.,xo.    cXk.
-     .lXx.    :x::0MNl,dd.    :KO,
-   .xNx.    cx;:KMMMMMNo'dx.    ;KK;
- .dNl.    cd,cXMMMMMMMMMWd,ox'    'OK:
-;WK.    'K,.KMMMMMMMMMMMMMWc.Kx     lMO
- 'OK:    'dl'xWMMMMMMMMMM0::x:    'OK:
-   .kNo    .xo'xWMMMMMM0;:O:    ;KK;
-     .dXd.   .do,oNMMO;ck:    ;00,
-        oNd.   .dx,;'cO;    ;K0,
-          oNx.    okk;    ;K0,
-            lXx.        :KO'
-              cKk'    cXk.
-                ;00:lXx.
-                  ,kd.
+${blue}                  ,xc
+${blue}                ;00cxXl
+${blue}              ;K0,   .xNo.
+${blue}            :KO'       .lXx.
+${blue}          cXk.    ;xl     cXk.
+${blue}        cXk.    ;k:.,xo.    cXk.
+${blue}     .lXx.    :x::0MNl,dd.    :KO,
+${blue}   .xNx.    cx;:KMMMMMNo'dx.    ;KK;
+${blue} .dNl.    cd,cXMMMMMMMMMWd,ox'    'OK:
+${blue};WK.    'K,.KMMMMMMMMMMMMMWc.Kx     lMO
+${blue} 'OK:    'dl'xWMMMMMMMMMM0::x:    'OK:
+${blue}   .kNo    .xo'xWMMMMMM0;:O:    ;KK;
+${blue}     .dXd.   .do,oNMMO;ck:    ;00,
+${blue}        oNd.   .dx,;'cO;    ;K0,
+${blue}          oNx.    okk;    ;K0,
+${blue}            lXx.        :KO'
+${blue}              cKk'    cXk.
+${blue}                ;00:lXx.
+${blue}                  ,kd.

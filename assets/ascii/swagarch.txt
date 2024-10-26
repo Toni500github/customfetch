@@ -1,15 +1,15 @@
-${c2}        .;ldkOKXXNNNNXXK0Oxoc,.
-   ,lkXMMNK0OkkxkkOKWMMMMMMMMMM;
- 'K0xo  ..,;:c:.     `'lKMMMMM0
-     .lONMMMMMM'         `lNMk'
-${c2}    ;WMMMMMMMMMO.              ${c1}....::...
-${c2}    OMMMMMMMMMMMMKl.       ${c1}.,;;;;;ccccccc,
-${c2}    `0MMMMMMMMMMMMMM0:         ${c1}.. .ccccccc.
-${c2}      'kWMMMMMMMMMMMMMNo.   ${c1}.,:'  .ccccccc.
-${c2}        `c0MMMMMMMMMMMMMN,${c1},:c;    :cccccc:
-${c2} ckl.      `lXMMMMMMMMMX${c1}occcc:.. ;ccccccc.
-${c2}dMMMMXd,     `OMMMMMMWk${c1}ccc;:''` ,ccccccc:
-${c2}XMMMMMMMWKkxxOWMMMMMNo${c1}ccc;     .cccccccc.
-${c2} `':ldxO0KXXXXXK0Okdo${c1}cccc.     :cccccccc.
-                    :ccc:'     `cccccccc:,
-                                   ''
+${1}        .;ldkOKXXNNNNXXK0Oxoc,.
+${1}   ,lkXMMNK0OkkxkkOKWMMMMMMMMMM;
+${1} 'K0xo  ..,;:c:.     `'lKMMMMM0
+${1}     .lONMMMMMM'         `lNMk'
+${1}    ;WMMMMMMMMMO.              ${blue}....::...
+${1}    OMMMMMMMMMMMMKl.       ${blue}.,;;;;;ccccccc,
+${1}    `0MMMMMMMMMMMMMM0:         ${blue}.. .ccccccc.
+${1}      'kWMMMMMMMMMMMMMNo.   ${blue}.,:'  .ccccccc.
+${1}        `c0MMMMMMMMMMMMMN,${blue},:c;    :cccccc:
+${1} ckl.      `lXMMMMMMMMMX${blue}occcc:.. ;ccccccc.
+${1}dMMMMXd,     `OMMMMMMWk${blue}ccc;:''` ,ccccccc:
+${1}XMMMMMMMWKkxxOWMMMMMNo${blue}ccc;     .cccccccc.
+${1} `':ldxO0KXXXXXK0Okdo${blue}cccc.     :cccccccc.
+${blue}                    :ccc:'     `cccccccc:,
+${blue}                                   ''

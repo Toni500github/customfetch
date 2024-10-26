@@ -1,17 +1,17 @@
-${c1}yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yyyys             oyyyyyyyyyyyyyyyy
-yyyys  yyyyyyyyy  oyyyyyyyyyyyyyyyy
-yyyys  yyyyyyyyy  oyyyyyyyyyyyyyyyy
-yyyys  yyyyyyyyy  oyyyyyyyyyyyyyyyy
-yyyys  yyyyyyyyy  oyyyyyyyyyyyyyyyy
-yyyys  yyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yyyyy                         syyyy
-yyyyyyyyyyyyyyyyyyyyyyyyyyyy  syyyy
-yyyyyyyyyyyyyyyy  syyyyyyyyy  syyyy
-yyyyyyyyyyyyyyyy  oyyyyyyyyy  syyyy
-yyyyyyyyyyyyyyyy  oyyyyyyyyy  syyyy
-yyyyyyyyyyyyyyyy  syyyyyyyyy  syyyy
-yyyyyyyyyyyyyyyy              yyyyy
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+${cyan}yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+${cyan}yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+${cyan}yyyys             oyyyyyyyyyyyyyyyy
+${cyan}yyyys  yyyyyyyyy  oyyyyyyyyyyyyyyyy
+${cyan}yyyys  yyyyyyyyy  oyyyyyyyyyyyyyyyy
+${cyan}yyyys  yyyyyyyyy  oyyyyyyyyyyyyyyyy
+${cyan}yyyys  yyyyyyyyy  oyyyyyyyyyyyyyyyy
+${cyan}yyyys  yyyyyyyyyyyyyyyyyyyyyyyyyyyy
+${cyan}yyyyy                         syyyy
+${cyan}yyyyyyyyyyyyyyyyyyyyyyyyyyyy  syyyy
+${cyan}yyyyyyyyyyyyyyyy  syyyyyyyyy  syyyy
+${cyan}yyyyyyyyyyyyyyyy  oyyyyyyyyy  syyyy
+${cyan}yyyyyyyyyyyyyyyy  oyyyyyyyyy  syyyy
+${cyan}yyyyyyyyyyyyyyyy  syyyyyyyyy  syyyy
+${cyan}yyyyyyyyyyyyyyyy              yyyyy
+${cyan}yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+${cyan}yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy

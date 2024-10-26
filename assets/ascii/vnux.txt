@@ -1,20 +1,20 @@
-${c1}              `
-           ^[XOx~.
-        ^_nwdbbkp0ti'
-        <vJCZw0LQ0Uj>
-${c2}          _j>!vC1,,
-     ${c4},${c2}   ,CY${c3}O${c2}t${c3}O${c2}1(l;"
-`${c4}~-{r(1I${c2} ^${c1}/zmwJuc:${c2}I^
-'${c4}?)|${c1}U${c4}/}-${c2} ^${c3}f${c1}OCLLOw${c3}_${c2},;
- ,${c4}i,``. ${c2}",${c3}k%ooW@$d"${c2}I,'
-  '    ;^${c3}u$$$$$$$$^<${c2}:^
-   ` .>>${c3}($$${c5}$@@@@$$${c3}$nl${c2}[::
-    `!}?${c3}B$${c5}%&WMMW&%$${c3}$1}-${c2}}":
-    ^?j${c3}Z$${c5}WMMWWWWMMW$${c3}ofc${c2};;`
-    <~x&${c3}$${c5}&MWWWWWWWWp${c3}-${c5}l>[<
-${c1} 'ljmwn${c2}~tk8${c5}MWWWWM8O${c2}X${c1}r${c2}+]nC${c1}[
-!JZqwwdX${c2}:^C8${c5}#MMMM@${c2}X${c1}Odpdpq0<
-<wwwwmmpO${c2}1${c3}0@%%%%8${c2}d${c1}nqmwmqqqJl
-?QOZmqqqpb${c2}t[run/?!${c1}0pwqqQj-,
- ^:l<{nUUv>      ^x00J("
-                   ^"
+${yellow}              `
+${yellow}           ^[XOx~.
+${yellow}        ^_nwdbbkp0ti'
+${yellow}        \<vJCZw0LQ0Uj>
+${black}          _j>!vyellow,,
+${red}     ,${black}   ,CY${white}O${black}t${white}O${black}1(l;"
+${black}`${red}~-{r(1I${black} ^${yellow}/zmwJuc:${black}I^
+${black}'${red}?)|${yellow}U${red}/}-${black} ^${white}f${yellow}OCLLOw${white}_${black},;
+${black} ,${red}i,``. ${black}",${white}k%ooW@$d"${black}I,'
+${black}  '    ;^${white}u$$$$$$$$^\<${black}:^
+${black}   ` .>>${white}($$${1}$@@@@$$${white}$nl${black}[::
+${black}    `!}?${white}B$${1}%\&WMMW\&%$${white}$1}-${black}}":
+${black}    ^?j${white}Z$${1}WMMWWWWMMW$${white}ofc${black};;`
+${black}    \<~x\&${white}$${1}\&MWWWWWWWWp${white}-${1}l>[\<
+${yellow} 'ljmwn${black}~tk8${1}MWWWWM8O${black}X${yellow}r${black}+]nC${yellow}[
+${yellow}!JZqwwdX${black}:^C8${1}#MMMM@${black}X${yellow}Odpdpq0\<
+${yellow}\<wwwwmmpO${black}1${white}0@%%%%8${black}d${yellow}nqmwmqqqJl
+${yellow}?QOZmqqqpb${black}t[run/?!${yellow}0pwqqQj-,
+${yellow} ^:l\<{nUUv>      ^x00J("
+${yellow}                   ^"

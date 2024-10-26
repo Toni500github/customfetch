@@ -1,20 +1,20 @@
-${c1}              ..-::::::-.`
-         `.:+++++++++++${c2}ooo${c1}++:.`
-       ./+++++++++++++${c2}sMMMNdyo${c1}+/.
-     .++++++++++++++++${c2}oyhmMMMMms${c1}++.
-   `/+++++++++${c2}osyhddddhys${c1}+${c2}osdMMMh${c1}++/`
-  `+++++++++${c2}ydMMMMNNNMMMMNds${c1}+${c2}oyyo${c1}++++`
-  +++++++++${c2}dMMNhso${c1}++++${c2}oydNMMmo${c1}++++++++`
- :+${c2}odmy${c1}+++${c2}ooysoohmNMMNmyoohMMNs${c1}+++++++:
- ++${c2}dMMm${c1}+${c2}oNMd${c1}++${c2}yMMMmhhmMMNs+yMMNo${c1}+++++++
-`++${c2}NMMy${c1}+${c2}hMMd${c1}+${c2}oMMMs${c1}++++${c2}sMMN${c1}++${c2}NMMs${c1}+++++++.
-`++${c2}NMMy${c1}+${c2}hMMd${c1}+${c2}oMMMo${c1}++++${c2}sMMN${c1}++${c2}mMMs${c1}+++++++.
- ++${c2}dMMd${c1}+${c2}oNMm${c1}++${c2}yMMNdhhdMMMs${c1}+y${c2}MMNo${c1}+++++++
- :+${c2}odmy${c1}++${c2}oo${c1}+${c2}ss${c1}+${c2}ohNMMMMmho${c1}+${c2}yMMMs${c1}+++++++:
-  +++++++++${c2}hMMmhs+ooo+oshNMMms${c1}++++++++
-  `++++++++${c2}oymMMMMNmmNMMMMmy+oys${c1}+++++`
-   `/+++++++++${c2}oyhdmmmmdhso+sdMMMs${c1}++/
-     ./+++++++++++++++${c2}oyhdNMMMms${c1}++.
-       ./+++++++++++++${c2}hMMMNdyo${c1}+/.
-         `.:+++++++++++${c2}sso${c1}++:.
-              ..-::::::-..
+${cyan}              ..-::::::-.`
+${cyan}         `.:+++++++++++${white}ooo${cyan}++:.`
+${cyan}       ./+++++++++++++${white}sMMMNdyo${cyan}+/.
+${cyan}     .++++++++++++++++${white}oyhmMMMMms${cyan}++.
+${cyan}   `/+++++++++${white}osyhddddhys${cyan}+${white}osdMMMh${cyan}++/`
+${cyan}  `+++++++++${white}ydMMMMNNNMMMMNds${cyan}+${white}oyyo${cyan}++++`
+${cyan}  +++++++++${white}dMMNhso${cyan}++++${white}oydNMMmo${cyan}++++++++`
+${cyan} :+${white}odmy${cyan}+++${white}ooysoohmNMMNmyoohMMNs${cyan}+++++++:
+${cyan} ++${white}dMMm${cyan}+${white}oNMd${cyan}++${white}yMMMmhhmMMNs+yMMNo${cyan}+++++++
+${cyan}`++${white}NMMy${cyan}+${white}hMMd${cyan}+${white}oMMMs${cyan}++++${white}sMMN${cyan}++${white}NMMs${cyan}+++++++.
+${cyan}`++${white}NMMy${cyan}+${white}hMMd${cyan}+${white}oMMMo${cyan}++++${white}sMMN${cyan}++${white}mMMs${cyan}+++++++.
+${cyan} ++${white}dMMd${cyan}+${white}oNMm${cyan}++${white}yMMNdhhdMMMs${cyan}+y${white}MMNo${cyan}+++++++
+${cyan} :+${white}odmy${cyan}++${white}oo${cyan}+${white}ss${cyan}+${white}ohNMMMMmho${cyan}+${white}yMMMs${cyan}+++++++:
+${cyan}  +++++++++${white}hMMmhs+ooo+oshNMMms${cyan}++++++++
+${cyan}  `++++++++${white}oymMMMMNmmNMMMMmy+oys${cyan}+++++`
+${cyan}   `/+++++++++${white}oyhdmmmmdhso+sdMMMs${cyan}++/
+${cyan}     ./+++++++++++++++${white}oyhdNMMMms${cyan}++.
+${cyan}       ./+++++++++++++${white}hMMMNdyo${cyan}+/.
+${cyan}         `.:+++++++++++${white}sso${cyan}++:.
+${cyan}              ..-::::::-..

@@ -1,18 +1,18 @@
-${c1}     _ _ _        "kkkkkkkk.
-   ,kkkkkkkk.,    'kkkkkkkkk,
-   ,kkkkkkkkkkkk., 'kkkkkkkkk.
-  ,kkkkkkkkkkkkkkkk,'kkkkkkkk,
- ,kkkkkkkkkkkkkkkkkkk'kkkkkkk.
-  "''"''',;::,,"''kkk''kkkkk;   __
-      ,kkkkkkkkkk, "k''kkkkk' ,kkkk
-    ,kkkkkkk' ., ' .: 'kkkk',kkkkkk
-  ,kkkkkkkk'.k'   ,  ,kkkk;kkkkkkkkk
- ,kkkkkkkk';kk 'k  "'k',kkkkkkkkkkkk
-.kkkkkkkkk.kkkk.'kkkkkkkkkkkkkkkkkk'
-;kkkkkkkk''kkkkkk;'kkkkkkkkkkkkk''
-'kkkkkkk; 'kkkkkkkk.,""''"''""
-  ''kkkk;  'kkkkkkkkkk.,
-     ';'    'kkkkkkkkkkkk.,
-             ';kkkkkkkkkk'
-               ';kkkkkk'
-                  "''"
+${blue}${magenta}${blue}     _ _ _        "kkkkkkkk.
+${blue}   ,kkkkkkkk.,    'kkkkkkkkk,
+${blue}   ,kkkkkkkkkkkk., 'kkkkkkkkk.
+${blue}  ,kkkkkkkkkkkkkkkk,'kkkkkkkk,
+${blue} ,kkkkkkkkkkkkkkkkkkk'kkkkkkk.
+${blue}  "''"''',;::,,"''kkk''kkkkk;   __
+${blue}      ,kkkkkkkkkk, "k''kkkkk' ,kkkk
+${blue}    ,kkkkkkk' ., ' .: 'kkkk',kkkkkk
+${blue}  ,kkkkkkkk'.k'   ,  ,kkkk;kkkkkkkkk
+${blue} ,kkkkkkkk';kk 'k  "'k',kkkkkkkkkkkk
+${blue}.kkkkkkkkk.kkkk.'kkkkkkkkkkkkkkkkkk'
+${blue};kkkkkkkk''kkkkkk;'kkkkkkkkkkkkk''
+${blue}'kkkkkkk; 'kkkkkkkk.,""''"''""
+${blue}  ''kkkk;  'kkkkkkkkkk.,
+${blue}     ';'    'kkkkkkkkkkkk.,
+${blue}             ';kkkkkkkkkk'
+${blue}               ';kkkkkk'
+${blue}                  "''"
