@@ -1,13 +1,17 @@
-[![GitHub top language](https://img.shields.io/github/languages/top/Toni500github/customfetch?logo=cplusplusbuilder&label=)](https://github.com/Toni500github/customfetch/blob/main/src)
-[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/Toni500github/customfetch/makefile.yml)](https://github.com/Toni500github/customfetch/actions)\
-[![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
+<h1 align="center">
+  Customfetch
+</h1>
 
-# Customfetch
+<p align="center">
+    A system information fetch tool (or neofetch like program), which its focus point is the perfomance and <b>customizability</b>
+</p>
+<p align="center">
+    <img src="https://img.shields.io/github/languages/top/Toni500github/customfetch?logo=cplusplusbuilder&label=" />
+    <img src="https://img.shields.io/github/actions/workflow/status/Toni500github/customfetch/makefile.yml" />
+    <img src="https://img.shields.io/badge/Standard-C%2B%2B20-success" />
+</p>
 
-A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\
-`customfetch` is designed to provide a really customizable way to display your system informations in the way you like or want.
-
-Currently supports Linux distros only. Android may be coming when stable release
+<!--Currently supports Linux distros only. Android may be coming when stable release
 <!-- Comment this because it's still in WIP for 3 weeks, no shit it won't work on some OSs
 >[!NOTE]
 >The goal is to be cross-platform, so maybe Android and MacOS support will come some day\
@@ -17,19 +21,21 @@ Currently supports Linux distros only. Android may be coming when stable release
 >or maybe continue using neofetch/fastfetch if it still works great for you
 -->
 
-<img align=left width=52% height=50% src="assets/screenshots/nitch_catpan-style.png" />
-<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="49%" height="16px" align="left" />
-<img align=left width=52% height=50% src="assets/screenshots/modern-simple.png"/>
+<!-- Looks fire on PC but ass on mobile fucking hell. too bad -->
+<img align=left width=54% height=54% src="assets/screenshots/nitch_catpan-style.png" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="45%" height="20px" align="left" />
+<img align=left width=54% height=54% src="assets/screenshots/modern-simple.png"/>
 <p align="center">
-    <img align="top" width=44% height=20% src="assets/screenshots/cbonsai.png" />
+    <img align="top" width=43.12% height=10% src="assets/screenshots/cbonsai.png" />
 </p>
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="1px" height="1px" align="left" />
 <img src="assets/screenshots/pipeline-style.png" />
 
 ## Key Features
 
-* **GUI mode (GTK3)**
+* **GUI mode (GTK3)** 
 * Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
-* Lightweight
+* Super lightweight, 3.1MB max
 
 ## Depends
 currently requires **C++20**, but it's possible to compile with C++17 too (not officially supported)
@@ -39,6 +45,11 @@ currently requires **C++20**, but it's possible to compile with C++17 too (not o
 If you want to install with GUI mode install from your package manager:
 * `gtk3`
 * `gtkmm3`
+
+optional dependencies that will make customfetch faster
+* `dconf`: Alternative to the slow `gsettings` command
+* `xfce4util`: Query XFCE4 version faster
+* `wayland-client`: Library for getting the Wayland compositor faster
 
 ## Installation
 
