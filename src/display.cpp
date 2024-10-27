@@ -67,8 +67,11 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
 
     std::string _;
     parse_args_t parse_args{ systemInfo, _, config, colors, true, true };
-    for (std::string& layout : layout)
-        layout = parse(layout, parse_args);
+    for (std::string& line : layout)
+    {
+        line = parse(line, parse_args);
+        line.insert(0, NOCOLOR);
+    }
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
