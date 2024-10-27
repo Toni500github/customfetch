@@ -45,6 +45,7 @@ public:
     std::string              builtin_title_sep;
     std::string              gui_bg_image;
     std::string              ascii_logo_type;
+    std::string              logo_position;
     std::uint16_t            offset              = 0;
     std::uint16_t            logo_padding_left   = 0;
     std::uint16_t            logo_padding_top    = 0;
@@ -228,9 +229,9 @@ sep-reset = ":"
 # false = before ("test ${0}-> ")
 sep-reset-after = false
 
-# Warn against tradeoffs between slower queries for availability
-# e.g. falling back to gsettings when we can't find the config file for GTK
-slow-query-warnings = false
+# Where the logo should be displayed.
+# Values: "top" or "left"
+logo-position = "left"
 
 # Offset between the ascii art and the layout
 offset = 5
@@ -278,6 +279,10 @@ percentage-colors = ["green", "yellow", "red"]
 # to render some text in 1 line, they wrap those lines.
 # Enable/Disable if you want this
 wrap-lines = true
+
+# Warn against tradeoffs between slower queries for availability
+# e.g. falling back to gsettings when we can't find the config file for GTK
+slow-query-warnings = false
 
 # $<os.uptime> config
 [os.uptime]

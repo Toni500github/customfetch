@@ -82,7 +82,7 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     const size_t height = image_height / font_height;
 
     if (config.m_image_backend == "kitty")
-        taur_exec({ "kitty", "+kitten", "icat", "--align", "left", "--place", fmt::format("{}x{}@0x0", width, height),
+        taur_exec({ "kitty", "+kitten", "icat", "--align", (config.logo_position == "top" ? "center" : config.logo_position), "--place", fmt::format("{}x{}@0x0", width, height),
                     path });
     else if (config.m_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
@@ -91,9 +91,17 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
             "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
             config.m_image_backend);
 
-    for (size_t i = 0; i < layout.size(); i++)
+    if (config.logo_position == "top")
+    {
+        for (size_t _ = 0; _ < height + config.layout_padding_top; ++_)
+            layout.insert(layout.begin(), "");
+
+        return layout;
+    }
+
+    for (size_t i = 0; i < layout.size(); ++i)
         // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
-        for (size_t _ = 0; _ < width + config.offset; _++)
+        for (size_t _ = 0; _ < width + config.offset; ++_)
             layout.at(i).insert(0, " ");
 
     return layout;
@@ -285,13 +293,22 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     std::string _;
     parse_args.parsingLayout = true;
-    for (std::string& layout : layout)
-        layout = parse(layout, _, parse_args);
+    for (std::string& line : layout)
+    {
+        line = parse(line, _, parse_args);
+        line.insert(0, NOCOLOR);
+    }
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
+
+    if (config.logo_position == "top")
+    {
+        Display::display(asciiArt);
+        return layout;
+    }
 
     size_t i;
     for (i = 0; i < layout.size(); i++)

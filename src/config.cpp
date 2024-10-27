@@ -46,17 +46,18 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->sep_reset_after     = getValue<bool>("config.sep-reset-after", false);
     this->use_SI_unit         = getValue<bool>("config.use-SI-byte-unit", false);
     this->wrap_lines          = getValue<bool>("config.wrap-lines", true);
-    this->sep_reset           = getValue<std::string>("config.sep-reset", ":");
     this->offset              = getValue<std::uint16_t>("config.offset", 5);
     this->logo_padding_left   = getValue<std::uint16_t>("config.logo-padding-left", 0);
     this->layout_padding_top  = getValue<std::uint16_t>("config.layout-padding-top", 0);
     this->logo_padding_top    = getValue<std::uint16_t>("config.logo-padding-top", 0);
+    this->sep_reset           = getValue<std::string>("config.sep-reset", ":");
     this->ascii_logo_type     = getValue<std::string>("config.ascii-logo-type", "");
     this->source_path         = getValue<std::string>("config.source-path", "os");
+    this->logo_position       = getValue<std::string>("config.logo-position", "left");
     this->data_dir            = getValue<std::string>("config.data-dir", get_data_dir("customfetch"));
+    this->builtin_title_sep   = getValue<std::string>("config.title-sep", "-");
     this->font                = getValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
-    this->builtin_title_sep   = getValue<std::string>("config.title-sep", "-");
 
     this->uptime_d_fmt = getValue<std::string>("os.uptime.days", " days");
     this->uptime_h_fmt = getValue<std::string>("os.uptime.hours", " hours");

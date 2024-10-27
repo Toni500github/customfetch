@@ -73,7 +73,8 @@ A command-line system information tool (or neofetch like program), which its foc
 				Example: `cufetch -m "${{auto}}OS: $<os.name>" -m "${{auto}}CPU: $<cpu.cpu>"`
 				Will only print the logo (if not disabled), along side the parsed OS and CPU
 
-    -g, --gui                   Use GUI mode instead of priting in the terminal (use -V to check if it was enabled)
+    -g, --gui                   Use GUI mode instead of priting in the terminal (use --version to check if it was enabled)
+    -p, --logo-position <value> Position of the logo ("top" or "left")
     -o, --offset <num>          Offset between the ascii art and the layout
     -l. --list-modules  	Print the list of the modules and its members
     -h, --help			Print this help menu
@@ -293,7 +294,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlgN::a::f:o:C:i:d:D:s:m:";
+    const char *optstring = "-VhnLlgN::a::f:o:C:i:d:D:p:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
@@ -307,6 +308,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"font",             required_argument, 0, 'f'},
         {"config",           required_argument, 0, 'C'},
         {"layout-line",      required_argument, 0, 'm'},
+        {"logo-position",    required_argument, 0, 'p'},
         {"data-dir",         required_argument, 0, 'D'},
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
@@ -361,6 +363,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.m_custom_distro = str_tolower(optarg); break;
             case 'm':
                 config.m_args_layout.push_back(optarg); break;
+            case 'p':
+                config.logo_position = optarg; break;
             case 's':
                 config.source_path = optarg; break;
             case 'i':
