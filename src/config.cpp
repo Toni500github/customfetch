@@ -1,5 +1,6 @@
 #include "config.hpp"
 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -95,6 +96,10 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     for (const std::string& str : this->getValueArrayStr("config.alias-colors", {}))
         this->addAliasColors(str);
+
+    const char *no_color = std::getenv("NO_COLOR");
+    if (no_color != NULL && no_color[0] != '\0')
+        this->m_disable_colors = true;
 }
 
 // Config::getValue() but don't want to specify the template

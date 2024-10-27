@@ -51,7 +51,7 @@ static void help(bool invalid_opt = false)
 A command-line system information tool (or neofetch like program), which its focus point is customizability and perfomance
 
     -n, --no-display		Do not display the logo
-    -N, --no-color              Do not output and parse colors. Useful for stdout or pipe operations
+    -N, --no-color [<0,1>]      Do not output and parse colors. Useful for stdout or pipe operations (Disable (0) or Enable (1))
     -s, --source-path <path>	Path to the ascii art or image file to display
     -C, --config <path>		Path to the config file to use
     -a, --ascii-logo-type [<name>]
@@ -293,15 +293,15 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnNLlga::f:o:C:i:d:D:s:m:";
+    const char *optstring = "-VhnLlgN::a::f:o:C:i:d:D:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
         {"no-display",       no_argument,       0, 'n'},
-        {"no-color",         no_argument,       0, 'N'},
         {"list-modules",     no_argument,       0, 'l'},
         {"logo-only",        no_argument,       0, 'L'},
         {"gui",              no_argument,       0, 'g'},
+        {"no-color",         optional_argument, 0, 'N'},
         {"ascii-logo-type",  optional_argument, 0, 'a'},
         {"offset",           required_argument, 0, 'o'},
         {"font",             required_argument, 0, 'f'},
@@ -352,7 +352,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 'g':
                 config.gui = true; break;
             case 'o':
-                config.offset = std::atoi(optarg); break;
+                config.offset = std::stoi(optarg); break;
             case 'C': // we have already did it in parse_config_path()
                 break;
             case 'D':
@@ -366,7 +366,11 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 'i':
                 config.m_image_backend = optarg; break;
             case 'N':
-                config.m_disable_colors = true; break;
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.m_disable_colors = static_cast<bool>(std::stoi(optarg));
+                else
+                    config.m_disable_colors = true;
+                break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
                     config.ascii_logo_type = optarg;
@@ -375,13 +379,13 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 break;
 
             case "logo-padding-top"_fnv1a16:
-                config.logo_padding_top = std::atoi(optarg); break;
+                config.logo_padding_top = std::stoi(optarg); break;
 
             case "logo-padding-left"_fnv1a16:
-                config.logo_padding_left = std::atoi(optarg); break;
+                config.logo_padding_left = std::stoi(optarg); break;
 
             case "layout-padding-top"_fnv1a16:
-                config.layout_padding_top = std::atoi(optarg); break;
+                config.layout_padding_top = std::stoi(optarg); break;
 
             case "bg-image"_fnv1a16:
                 config.gui_bg_image = optarg; break;
