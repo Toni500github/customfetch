@@ -277,9 +277,12 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
     return false;
 }
 
-std::string which(const std::string_view command)
+std::string get_relative_path(const std::string_view relative_path, const std::string_view _env, const long long mode)
 {
-    const std::string_view env = std::getenv("PATH");
+    const char *env = std::getenv(_env.data());
+    if (!env)
+        return UNKNOWN;
+
     struct stat sb;
     std::string fullPath;
     fullPath.reserve(1024);
@@ -289,14 +292,29 @@ std::string which(const std::string_view command)
         // -300ns for not creating a string. stonks
         fullPath += dir;
         fullPath += '/';
-        fullPath += command.data();
-        if ((stat(fullPath.data(), &sb) == 0) && sb.st_mode & S_IXUSR)
-            return fullPath.data();
+        fullPath += relative_path.data();
+        if ((stat(fullPath.c_str(), &sb) == 0) && sb.st_mode & mode)
+            return fullPath.c_str();
 
         fullPath.clear();
     }
 
     return UNKNOWN;  // not found
+}
+
+std::string which(const std::string_view command)
+{
+    return get_relative_path(command, "PATH", S_IXUSR);
+}
+
+std::string get_data_path(const std::string_view file)
+{
+    return get_relative_path(file, "XDG_DATA_DIRS", S_IFREG);
+}
+
+std::string get_data_dir()
+{
+    return get_relative_path("", "XDG_DATA_DIRS", S_IFDIR);
 }
 
 // https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
