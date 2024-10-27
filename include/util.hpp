@@ -66,7 +66,7 @@ std::string  expandVar(std::string ret);
 bool         taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_print = true);
 std::string  which(const std::string_view command);
 std::string  get_data_path(const std::string_view file);
-std::string  get_data_dir();
+std::string  get_data_dir(const std::string_view dir);
 std::string  get_relative_path(const std::string_view relative_path, const std::string_view _env, const long long mode);
 bool         read_binary_file(std::ifstream& f, std::string& ret);
 void         replace_str(std::string& str, const std::string_view from, const std::string_view to);

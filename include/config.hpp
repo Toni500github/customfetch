@@ -206,7 +206,6 @@ layout = [
 source-path = "os"
 
 # Path to where we'll take all the distros/OSs ascii arts.
-# If on NixOS, comment/remove this line.
 # note: it MUST contain an "ascii" subdirectory
 data-dir = "/usr/share/customfetch"
 

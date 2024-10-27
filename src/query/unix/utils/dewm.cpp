@@ -135,8 +135,7 @@ std::string prettify_wm_name(const std::string_view name) noexcept
 
 std::string get_mate_version()
 {
-    const std::string& path = get_data_path("mate-about/mate-version.xml");
-    std::ifstream      f(path, std::ios::in);
+    std::ifstream f(get_data_path("mate-about/mate-version.xml"), std::ios::in);
     if (!f.is_open())
     {
         std::string ret;

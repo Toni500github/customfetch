@@ -52,7 +52,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->logo_padding_top    = getValue<std::uint16_t>("config.logo-padding-top", 0);
     this->ascii_logo_type     = getValue<std::string>("config.ascii-logo-type", "");
     this->source_path         = getValue<std::string>("config.source-path", "os");
-    this->data_dir            = getValue<std::string>("config.data-dir", get_data_path("customfetch"));
+    this->data_dir            = getValue<std::string>("config.data-dir", get_data_dir("customfetch"));
     this->font                = getValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
     this->builtin_title_sep   = getValue<std::string>("config.title-sep", "-");

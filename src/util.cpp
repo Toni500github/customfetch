@@ -312,9 +312,9 @@ std::string get_data_path(const std::string_view file)
     return get_relative_path(file, "XDG_DATA_DIRS", S_IFREG);
 }
 
-std::string get_data_dir()
+std::string get_data_dir(const std::string_view dir)
 {
-    return get_relative_path("", "XDG_DATA_DIRS", S_IFDIR);
+    return get_relative_path(dir, "XDG_DATA_DIRS", S_IFDIR);
 }
 
 // https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
