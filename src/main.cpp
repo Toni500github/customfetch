@@ -51,7 +51,7 @@ static void help(bool invalid_opt = false)
 A command-line system information tool (or neofetch like program), which its focus point is customizability and perfomance
 
     -n, --no-display		Do not display the logo
-    -N, --no-color [<0,1>]      Do not output and parse colors. Useful for stdout or pipe operations (Disable (0) or Enable (1))
+    -N, --no-color              Do not output and parse colors. Useful for stdout or pipe operations
     -s, --source-path <path>	Path to the ascii art or image file to display
     -C, --config <path>		Path to the config file to use
     -a, --ascii-logo-type [<name>]
@@ -294,7 +294,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlgN::a::f:o:C:i:d:D:p:s:m:";
+    const char *optstring = "-VhnLlgNa::f:o:C:i:d:D:p:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
@@ -302,7 +302,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"list-modules",     no_argument,       0, 'l'},
         {"logo-only",        no_argument,       0, 'L'},
         {"gui",              no_argument,       0, 'g'},
-        {"no-color",         optional_argument, 0, 'N'},
+        {"no-color",         no_argument,       0, 'N'},
         {"ascii-logo-type",  optional_argument, 0, 'a'},
         {"offset",           required_argument, 0, 'o'},
         {"font",             required_argument, 0, 'f'},
@@ -370,11 +370,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 'i':
                 config.m_image_backend = optarg; break;
             case 'N':
-                if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.m_disable_colors = static_cast<bool>(std::stoi(optarg));
-                else
-                    config.m_disable_colors = true;
-                break;
+                config.m_disable_colors = true; break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
                     config.ascii_logo_type = optarg;
