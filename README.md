@@ -22,11 +22,11 @@
 -->
 
 <!-- Looks fire on PC but ass on mobile fucking hell. too bad -->
-<img align=left width=54% height=54% src="assets/screenshots/nitch_catpan-style.png" />
+<img align=left width=54% src="assets/screenshots/nitch_catpan-style.png" />
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="45%" height="20px" align="left" />
-<img align=left width=54% height=54% src="assets/screenshots/modern-simple.png"/>
+<img align=left width=54% src="assets/screenshots/modern-simple.png"/>
 <p align="center">
-    <img align="top" width=43.12% height=10% src="assets/screenshots/cbonsai.png" />
+    <img align="top" width=43% src="assets/screenshots/cbonsai.png" />
 </p>
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="1px" height="1px" align="left" />
 <img src="assets/screenshots/pipeline-style.png" />
