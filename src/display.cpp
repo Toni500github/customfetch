@@ -70,7 +70,8 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     for (std::string& line : layout)
     {
         line = parse(line, parse_args);
-        line.insert(0, NOCOLOR);
+        if (!config.m_disable_colors)
+            line.insert(0, NOCOLOR);
     }
 
     // erase each element for each instance of MAGIC_LINE
@@ -296,7 +297,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     for (std::string& line : layout)
     {
         line = parse(line, _, parse_args);
-        line.insert(0, NOCOLOR);
+        if (!config.gui && !config.m_disable_colors)
+            line.insert(0, NOCOLOR);
     }
 
     // erase each element for each instance of MAGIC_LINE

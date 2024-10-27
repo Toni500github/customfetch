@@ -137,8 +137,8 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
             die("Background image path '{}' doesn't exist", config.gui_bg_image);
 
         m_original_pixbuf = Gdk::Pixbuf::create_from_file(config.gui_bg_image);
-        update_background_image(get_allocation().get_width(), get_allocation().get_height());
-        m_overlay.add(m_bg_image);
+        m_bg_image.set(m_original_pixbuf);
+        m_overlay.add_overlay(m_bg_image);
     }
 
     m_box.pack_start(m_label, Gtk::PACK_SHRINK);
