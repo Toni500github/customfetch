@@ -52,6 +52,7 @@ A command-line system information tool (or neofetch like program), which its foc
 
     -n, --no-display		Do not display the logo
     -N, --no-color              Do not output and parse colors. Useful for stdout or pipe operations
+    --enable-colors             Inverse of --no-color
     -s, --source-path <path>	Path to the ascii art or image file to display
     -C, --config <path>		Path to the config file to use
     -a, --ascii-logo-type [<name>]
@@ -313,7 +314,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
         {"image-backend",    required_argument, 0, 'i'},
-
+        
+        {"enable-colors",      no_argument,       0, "enable-colors"_fnv1a16},
         {"wrap-lines",         optional_argument, 0, "wrap-lines"_fnv1a16},
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
         {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
@@ -412,6 +414,9 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
             case "title-sep"_fnv1a16:
                 config.builtin_title_sep = optarg; break;
+
+            case "enable-colors"_fnv1a16:
+                config.m_disable_colors = false; break;
 
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
