@@ -12,6 +12,7 @@
 #include "fmt/ranges.h"
 #include "gdkmm/pixbufanimation.h"
 #include "gtkmm/enums.h"
+#include "glibmm/main.h"
 #include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
@@ -110,8 +111,8 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     m_box.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
 
     // https://stackoverflow.com/a/76372996
-    auto                   context = m_label.get_pango_context();
-    Pango::FontDescription font(config.font);
+    Glib::RefPtr<Pango::Context> context = m_label.get_pango_context();
+    Pango::FontDescription       font(config.font);
     debug("font family = {}", font.get_family().raw());
     debug("font style = {}", fmt::underlying(font.get_style()));
     debug("font weight = {}", fmt::underlying(font.get_weight()));
@@ -136,8 +137,19 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
         if (!std::filesystem::exists(config.gui_bg_image))
             die("Background image path '{}' doesn't exist", config.gui_bg_image);
 
-        m_original_pixbuf = Gdk::Pixbuf::create_from_file(config.gui_bg_image);
-        m_bg_image.set(m_original_pixbuf);
+        m_bg_animation = Gdk::PixbufAnimation::create_from_file(config.gui_bg_image);
+        if (m_bg_animation->is_static_image())
+        {
+            // set it initially and resize only on window resize
+            m_bg_static_image = m_bg_animation->get_static_image();
+            update_static_image();
+        }
+        else
+        {
+            // animated image: use timer to update frames
+            const int duration = m_bg_animation->get_iter(nullptr)->get_delay_time();
+            Glib::signal_timeout().connect(sigc::mem_fun(*this, &Window::on_update_animation), duration);
+        }
         m_overlay.add_overlay(m_bg_image);
     }
 
@@ -147,7 +159,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     m_overlay.add_overlay(m_alignment);
     add(m_overlay);
 
-    signal_size_allocate().connect(sigc::mem_fun(*this, &Window::on_window_resized));
+    signal_size_allocate().connect(sigc::mem_fun(*this, &Window::on_window_resize));
 
     show_all_children();
 }

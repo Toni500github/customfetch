@@ -5,6 +5,7 @@
 
 #include "config.hpp"
 #include "gdkmm/pixbuf.h"
+#include "gdkmm/pixbufanimation.h"
 #include "gtkmm/alignment.h"
 #include "gtkmm/box.h"
 #include "gtkmm/container.h"
@@ -28,28 +29,53 @@ private:
     Gtk::Alignment  m_alignment;
     Gtk::Label      m_label;
     Gtk::Image     *m_img, m_bg_image;
-    Glib::RefPtr<Gdk::Pixbuf> m_original_pixbuf;
+    Glib::RefPtr<Gdk::PixbufAnimationIter> m_iter;
+    Glib::RefPtr<Gdk::PixbufAnimation> m_bg_animation;
+    Glib::RefPtr<Gdk::Pixbuf> m_bg_static_image;
+    int m_width, m_height;
 
-    void update_background_image(const int width, const int height)
+    void on_window_resize(Gtk::Allocation& allocation)
     {
-        if (m_original_pixbuf)
-        {
-            const Glib::RefPtr<Gdk::Pixbuf> scaled_pixbuf =
-                m_original_pixbuf->scale_simple(width, height, Gdk::INTERP_BILINEAR);
+        m_width = allocation.get_width();
+        m_height = allocation.get_height();
 
-            m_bg_image.set(scaled_pixbuf);
+        if (m_bg_static_image)
+            // static image: Update to fit the new window size
+            update_static_image();
+        else if (m_iter)
+            // animated image: Update the current frame
+            update_frame();
+    }
+
+    bool on_update_animation()
+    {
+        if (!m_iter)
+            m_iter = m_bg_animation->get_iter(nullptr);
+        else
+            m_iter->advance();
+
+        update_frame();
+        return true;  // continue the timer
+    }
+
+    void update_static_image()
+    {
+        // scale the static image to fit the window size
+        const Glib::RefPtr<Gdk::Pixbuf> scaled_image = m_bg_static_image->scale_simple(m_width, m_height, Gdk::INTERP_BILINEAR);
+        m_bg_image.set(scaled_image);
+    }
+
+    void update_frame()
+    {
+        // scale the current frame of the animation to fit the window size
+        const Glib::RefPtr<Gdk::Pixbuf> current_frame = m_iter->get_pixbuf();
+        if (current_frame)
+        {
+            const Glib::RefPtr<Gdk::Pixbuf> scaled_frame = current_frame->scale_simple(m_width, m_height, Gdk::INTERP_BILINEAR);
+            m_bg_image.set(scaled_frame);
         }
     }
 
-    // Signal handler for window resize
-    void on_window_resized(Gtk::Allocation& allocation)
-    {
-        const int new_width  = allocation.get_width();
-        const int new_height = allocation.get_height();
-
-        // Update the background image with the new dimensions
-        update_background_image(new_width, new_height);
-    }
 };
 
 }  // namespace GUI
