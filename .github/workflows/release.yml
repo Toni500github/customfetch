@@ -42,7 +42,7 @@ jobs:
       run: make dist DEBUG=0 && mv ./customfetch-*.tar.gz ./customfetch.tar.gz
 
     - name: Upload to github artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: customfetch
         path: ./customfetch.tar.gz
@@ -70,7 +70,7 @@ jobs:
       run: make dist DEBUG=0 GUI_MODE=1 && mv ./customfetch-*.tar.gz ./customfetch-gui.tar.gz
 
     - name: Upload to github artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: customfetch-gui
         path: ./customfetch-gui.tar.gz
@@ -107,7 +107,7 @@ jobs:
         mv ../customfetch_0.9.3-1_amd64.deb ../customfetch_amd64.deb
 
     - name: Upload to github artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: customfetch-deb-pkg
         path: /tmp/customfetch-0.9.3.orig/customfetch_amd64.deb
@@ -144,7 +144,7 @@ jobs:
         mv ../customfetch_0.9.3-1_amd64.deb ../customfetch-gui_amd64.deb
 
     - name: Upload to github artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: customfetch-gui-deb-pkg
         path: /tmp/customfetch-0.9.3.orig/customfetch-gui_amd64.deb
