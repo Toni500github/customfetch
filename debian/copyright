@@ -3,8 +3,8 @@ Upstream-Name: customfetch
 Source: https://github.com/Toni500github/customfetch
 
 Files: *
-Copyright: 2024 Toni500github
-License: GPL-3
+Copyright: 2024 Toni500
+License: BSD-3-Clause
 
 Files: include/rapidxml-1.13/*
 Copyright: 2006 - 2009, Marcin Kalicinski
