@@ -2,7 +2,8 @@ Source: customfetch
 Section: utils
 Priority: optional
 Maintainer: toni500 <toni500minecraft@gmail.com>
-Build-Depends: libwayland-dev libdconf-dev libglib2.0-dev
+Build-Depends: pkg-config,libgtkmm-3.0-dev,libwayland-dev,libdconf-dev,libglib2.0-dev
+Suggests: libwayland-client0,libdconf1,libglib2.0-0
 Standards-Version: 4.5.1
 Homepage: https://github.com/Toni500github/customfetch
 
