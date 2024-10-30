@@ -33,8 +33,8 @@
 
 ## Key Features
 
-* **GUI mode (GTK3)** 
-* Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
+* **GUI mode (GTK3)**: Run customfetch even as a GUI application
+* Really easy customizable and fast, check [Config (with explanation)](#config-with-explanation) section
 * Super lightweight, 3.1MB max
 
 ## Depends
@@ -46,9 +46,10 @@ If you want to install with GUI mode install from your package manager:
 * `gtk3`
 * `gtkmm3`
 
-optional dependencies that will make customfetch faster
+optional dependencies that will make customfetch faster.
+The name can vary depending on the package manager or distro
 * `dconf`: Alternative to the slow `gsettings` command
-* `xfce4util`: Query XFCE4 version faster
+* `libxfce4util`: Query XFCE4 version faster
 * `wayland-client`: Library for getting the Wayland compositor faster
 
 ## Installation
@@ -135,11 +136,11 @@ layout = [
     "${auto}Icons: $<theme-gtk-all.icons>",
     "${auto}Font: $<theme-gtk-all.font>",
     "${auto}Cursor: $<theme.cursor>",
-    "${auto}WM: $<user.wm_name>",
-    "${auto}DE: $<user.de_name>",
+    "${auto}WM: $<user.wm_name> $<user.wm_version>",
+    "${auto}DE: $<user.de_name> $<user.de_version>",
     "${auto}Disk(/): $<disk(/).disk>",
     "${auto}CPU: $<cpu.cpu>",
-    "${auto}GPU: $<gpu.name>",
+    "${auto}GPU: $<gpu.vendor> $<gpu.name>",
     "${auto}RAM: $<ram.ram>",
     "",
     "$<builtin.colors>", # normal colors palette
@@ -218,8 +219,7 @@ e.g `the number 50 is \< than 100 \& 98`
 Won't affect the printing in terminal
 
 # TODOs
-* ~~Color all ASCII arts (157/262) will take long ahh time~~ DONE
-* Release 0.10.0
+* tell me
 
 # Thanks
 I would like to thanks:
