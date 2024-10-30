@@ -23,7 +23,7 @@
  *
  */
 
-/* Implementation of the system behind displaying/rendering the information */
+// Implementation of the system behind displaying/rendering the information
 
 #include "display.hpp"
 
@@ -71,7 +71,7 @@ std::string Display::detect_distro(const Config& config)
         if (std::filesystem::exists(format))
             return format;
 
-        return fmt::format("{}/ascii/linux.txt", config.data_dir);
+        return config.data_dir + "/ascii/linux.txt";
     }
 }
 
@@ -103,7 +103,8 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
-
+        
+    // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
     const size_t width  = image_width / font_width;
     const size_t height = image_height / font_height;
 
@@ -126,7 +127,6 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     }
 
     for (size_t i = 0; i < layout.size(); ++i)
-        // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
         for (size_t _ = 0; _ < width + config.offset; ++_)
             layout.at(i).insert(0, " ");
 

@@ -1,0 +1,22 @@
+${green}           .-------------------------:
+${green}          .${blue}+=${green}========================.
+${green}         :${blue}++${green}===${blue}++===${green}===============-       :${blue}++${green}-
+${green}        :${blue}*++${green}====${blue}+++++==${green}===========-        .==:
+${green}       -${blue}*+++${green}=====${blue}+***++=${green}=========:
+${green}      =${blue}*++++=${green}=======------------:
+${green}     =${blue}*+++++=${green}====-                     ...${green}
+${green}   .${blue}+*+++++${green}=-===:                    .${blue}=+++=${green}:
+${green}  :${blue}++++${green}=====-==:                     -***${blue}**${green}+
+${green} :${blue}++=${green}=======-=.                      .=+**+.${green}
+${green}.${blue}+${green}==========-.                          .${green}
+${green} :${blue}+++++++${green}====-                                .${green}--==-.${green}
+${green}  :${blue}++${green}==========.                             :${blue}+++++++${green}:
+${green}   ${green}.-===========.                            =*****+*+
+${green}    ${green}.-===========:                           .+*****+:
+${green}      ${green}-=======${blue}++++${green}:::::::::::::::::::::::::-:  .${green}---:
+${green}       :======${blue}++++${green}====${blue}+++******************=.
+${green}        ${green}:=====${blue}+++${green}==========${blue}++++++++++++++*-
+${green}         ${green}.====${blue}++${green}==============${blue}++++++++++*-
+${green}          ${green}.===${blue}+${green}==================${blue}+++++++:
+${green}           ${green}.-=======================${blue}+++:
+${green}             ..........................

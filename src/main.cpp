@@ -508,18 +508,15 @@ int main(int argc, char *argv[])
             path += "_" + config.ascii_logo_type;
     }
 
-    if (!std::filesystem::exists(path) && !std::filesystem::exists((path = config.data_dir + "/ascii/linux.txt")))
-    {
-        if (!config.m_disable_source)
-            die("'{}' doesn't exist. Can't load image/text file", path);
-    }
+    if (!std::filesystem::exists(path) && !config.m_disable_source)
+        die("'{}' doesn't exist. Can't load image/text file", path);
 
     debug("{} path = {}", __PRETTY_FUNCTION__, path);
 
 #ifdef GUI_MODE
     if (config.gui)
     {
-        const auto& app = Gtk::Application::create("org.toni.customfetch");
+        const auto  app = Gtk::Application::create("org.toni.customfetch");
         GUI::Window window(config, colors, path);
         return app->run(window);
     }
