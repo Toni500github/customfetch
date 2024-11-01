@@ -5,7 +5,7 @@ ${red}                .8Xxd                8X:.
 ${red}              .8Xx;                    8x:.
 ${red}            .tt8x          .d            x88;
 ${red}         .@8x8;          .db:              xx@;
-${red}       ,tSXX°          .bbbbbbbbbbbbbbbbbbbB8x@;
+${red}       ,tSXX*          .bbbbbbbbbbbbbbbbbbbB8x@;
 ${red}     .SXxx            bBBBBBBBBBBBBBBBBBBBbSBX8;
 ${red}   ,888S                                     pd!
 ${red}  8X88/                                       q

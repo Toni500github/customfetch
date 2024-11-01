@@ -1,9 +1,9 @@
-${cyan}        .°°.
-${cyan}         °°   .°°.
-${cyan}         .°°°. °°
+${cyan}        .**.
+${cyan}         **   .**.
+${cyan}         .***. **
 ${cyan}         .   .
-${cyan}          °°° .°°°.
-${cyan}      .°°°.   '___'
+${cyan}          *** .***.
+${cyan}      .***.   '___'
 ${white}     .${cyan}'___'     ${white}   .
 ${white}   :dkxc;'.  ..,cxkd;
 ${white} .dkk. kkkkkkkkkk .kkd.
