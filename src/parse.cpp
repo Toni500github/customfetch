@@ -46,14 +46,14 @@
 class Parser
 {
 public:
-    Parser(const std::string_view src) : src{src} {}
+    Parser(const std::string_view src, std::string& pureOutput) : src{src}, pureOutput{pureOutput} {}
 
-    bool try_read(char c)
+    bool try_read(const char c)
     {
         if (is_eof())
             return false;
 
-        if (src.at(pos) == c)
+        if (src[pos] == c)
         {
             ++pos;
             return true;
@@ -62,10 +62,13 @@ public:
         return false;
     }
 
-    char read_char()
+    char read_char(const bool add_pureOutput = false)
     {
         if (is_eof())
             return 0;
+
+        if (add_pureOutput)
+            pureOutput += src[pos];
 
         ++pos;
         return src[pos - 1];
@@ -76,7 +79,10 @@ public:
 
     void rewind(const size_t count = 1)
     { pos -= std::min(pos, count); }
+
     const std::string_view src;
+    std::string&           pureOutput;
+    size_t                 dollar_pos = 0;
     size_t                 pos = 0;
 };
 
@@ -172,12 +178,12 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 
 std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
 {
-    return parse(input, parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+    return parse(input.data(), parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
 }
 
 std::string parse(const std::string_view input, parse_args_t& parse_args)
 {
-    return parse(input, parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+    return parse(input.data(), parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout);
 }
 
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
@@ -232,7 +238,7 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
     return "(unknown/invalid module)";
 }
 
-std::string parse(Parser& parser, parse_args_t& parse_args, bool evaluate = true, char until = 0);
+std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate = true, const char until = 0);
 
 std::optional<std::string> parse_conditional_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
 {
@@ -255,8 +261,7 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     if (!parser.try_read('('))
         return {};
 
-    std::string  command = parse(parser, parse_args, evaluate, ')');
-    const size_t tagpos  = parse_args.pureOutput.find("$(" + command + ")");
+    std::string command = parse(parser, parse_args, evaluate, ')');
 
     if (!evaluate)
         return {};
@@ -266,13 +271,8 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
         command.erase(0, 1);
 
     const std::string& cmd_output = read_shell_exec(command);
-    if (!parse_args.parsingLayout && tagpos != std::string::npos)
-    {
-        if (removetag)
-            parse_args.pureOutput.erase(tagpos, command.length() + "$(!)"_len);
-        else
-            parse_args.pureOutput.replace(tagpos, command.length() + "$()"_len, cmd_output);
-    }
+    if (!parse_args.parsingLayout && !removetag && parser.dollar_pos != std::string::npos)
+        parse_args.pureOutput.replace(parser.dollar_pos, command.length() + "$()"_len, cmd_output);
 
     return cmd_output;
 }
@@ -293,13 +293,12 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     const Config&       config  = parse_args.config;
     const colors_t&     colors  = parse_args.colors;
     const size_t        taglen  = color.length() + "${}"_len;
-    const size_t        tagpos  = parse_args.pureOutput.find("${" + color + "}");
     const std::string   endspan = (!parse_args.firstrun_clr ? "</span>" : "");
 
     if (config.m_disable_colors)
     {
-        if (tagpos != std::string::npos)
-            parse_args.pureOutput.erase(tagpos, taglen);
+        if (parser.dollar_pos != std::string::npos)
+            parse_args.pureOutput.erase(parser.dollar_pos, taglen);
         return "";
     }
 
@@ -478,8 +477,8 @@ jumpauto:
             else
             {
                 error("PARSER: failed to parse line with color '{}'", str_clr);
-                if (!parse_args.parsingLayout && tagpos != std::string::npos)
-                    parse_args.pureOutput.erase(tagpos, taglen);
+                if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+                    parse_args.pureOutput.erase(parser.dollar_pos, taglen);
                 return output;
             }
         }
@@ -548,6 +547,11 @@ jumpauto:
                     append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
 
                 // you can't fmt::format(style, ""); ughh
+                if (style.has_emphasis())
+                {
+                    fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
+                    output += emph.begin();
+                }
                 if (style.has_background() || style.has_foreground())
                 {
                     const uint32_t rgb_num = bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
@@ -555,25 +559,20 @@ jumpauto:
                     fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1B[48;2;" : "\x1B[38;2;");
                     output += ansi.begin();
                 }
-                if (style.has_emphasis())
-                {
-                    fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
-                    output += emph.begin();
-                }
             }
 
             // "\\e" is for checking in the ascii_art, \033 in the config
             else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
             {
-                output += "\x1B[";
+                output += "\033[";
                 output += hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
             }
 
             else
             {
                 error("PARSER: failed to parse line with color '{}'", str_clr);
-                if (!parse_args.parsingLayout && tagpos != std::string::npos)
-                    parse_args.pureOutput.erase(tagpos, taglen);
+                if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+                    parse_args.pureOutput.erase(parser.dollar_pos, taglen);
                 return output;
             }
         }
@@ -583,8 +582,8 @@ jumpauto:
             auto_colors.push_back(color);
     }
 
-    if (!parse_args.parsingLayout && tagpos != std::string::npos)
-        parse_args.pureOutput.erase(tagpos, taglen);
+    if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+        parse_args.pureOutput.erase(parser.dollar_pos, taglen);
 
     parse_args.firstrun_clr = false;
 
@@ -609,7 +608,11 @@ std::optional<std::string> parse_info_tag(Parser& parser, parse_args_t& parse_ar
     const std::string& moduleMemberName = module.substr(dot_pos + 1);
     addValueFromModule(moduleName, moduleMemberName, parse_args);
 
-    return getInfoFromName(parse_args.systemInfo, moduleName, moduleMemberName);
+    const std::string& info = getInfoFromName(parse_args.systemInfo, moduleName, moduleMemberName);
+
+    if (parser.dollar_pos != std::string::npos)
+        parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
+    return info;
 }
 
 std::optional<std::string> parse_perc_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
@@ -639,17 +642,20 @@ std::optional<std::string> parse_tags(Parser& parser, parse_args_t& parse_args, 
     if (!parser.try_read('$'))
         return {};
 
-    if (const auto& ifTag = parse_conditional_tag(parser, parse_args, evaluate))
-        return ifTag;
+    if (parser.dollar_pos != std::string::npos)
+        parser.dollar_pos = parser.pureOutput.find('$', parser.dollar_pos);
 
-    if (const auto& command_tag = parse_command_tag(parser, parse_args, evaluate))
-        return command_tag;
+    if (const auto& color_tag = parse_color_tag(parser, parse_args, evaluate))
+        return color_tag;
 
     if (const auto& module_tag = parse_info_tag(parser, parse_args, evaluate))
         return module_tag;
 
-    if (const auto& color_tag = parse_color_tag(parser, parse_args, evaluate))
-        return color_tag;
+    if (const auto& command_tag = parse_command_tag(parser, parse_args, evaluate))
+        return command_tag;
+
+    if (const auto& ifTag = parse_conditional_tag(parser, parse_args, evaluate))
+        return ifTag;
 
     if (const auto& perc_tag = parse_perc_tag(parser, parse_args, evaluate))
         return perc_tag;
@@ -671,36 +677,31 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
         }
 
         if (parser.try_read('\\'))
-            result += parser.read_char();
-
-        else if (const auto tagStr = parse_tags(parser, parse_args, evaluate))
+        {
+            result += parser.read_char(until == 0);
+        }
+        else if (const auto& tagStr = parse_tags(parser, parse_args, evaluate))
+        {
             result += *tagStr;
-
+        }
         else
-            result += parser.read_char();
+        {
+            result += parser.read_char(until == 0);
+        }
     }
 
     return result;
 }
 
-std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
+std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
                   const colors_t& colors, const bool parsingLayout)
 {
-    std::string output{ input.data() };
-    pureOutput = output;
-
     if (!config.sep_reset.empty() && parsingLayout)
     {
         if (config.sep_reset_after)
-        {
-            replace_str(output,     config.sep_reset, config.sep_reset + "${0}");
-            replace_str(pureOutput, config.sep_reset, config.sep_reset + "${0}");
-        }
+            replace_str(input, config.sep_reset, config.sep_reset + "${0}");
         else
-        {
-            replace_str(output,     config.sep_reset, "${0}" + config.sep_reset);
-            replace_str(pureOutput, config.sep_reset, "${0}" + config.sep_reset);
-        }
+            replace_str(input, config.sep_reset, "${0}" + config.sep_reset);
     }
 
     // escape pango markup
@@ -708,29 +709,19 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     // workaround: just put "\<" or "\&" in the config, e.g "$<os.kernel> \<- Kernel"
     if (config.gui)
     {
-        replace_str(output, "\\<", "&lt;");
-        replace_str(output, "\\&", "&amp;");
+        replace_str(input, "\\<", "&lt;");
+        replace_str(input, "\\&", "&amp;");
     }
     else
     {
-        replace_str(output, "\\<", "<");
-        replace_str(output, "\\&", "&");
+        replace_str(input, "\\<", "<");
+        replace_str(input, "\\&", "&");
     }
-
-    replace_str(pureOutput, "\\<", "<");
-    replace_str(pureOutput, "\\&", "&");
 
     parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true };
-    Parser       parser{ output };
+    Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };
-
-    size_t pos = 0;
-    while ((pos = pureOutput.find('\\', pos)) != pureOutput.npos)
-    {
-        pureOutput.erase(pos, 1);
-        ++pos;
-    }
 
     if (config.gui && !parse_args.firstrun_clr)
         ret += "</span>";

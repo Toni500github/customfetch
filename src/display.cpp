@@ -188,9 +188,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     debug("Display::render path = {}", path);
 
-    std::string pureOutput;
-    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false, true };
-
     bool          isImage = false;
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
@@ -232,6 +229,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         std::ifstream distro_file(distro_path);
         std::string   line, _;
 
+        parse_args_t parse_args{ systemInfo, _, config, colors, false, true };
+
         while (std::getline(distro_file, line))
             parse(line, _, parse_args);
     }
@@ -272,6 +271,9 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     std::string line;
     while (std::getline(file, line))
     {
+        std::string pureOutput;
+        parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false, true };
+
         std::string asciiArt_s = parse(line, parse_args);
         if (!config.m_disable_colors)
             asciiArt_s += config.gui ? "" : NOCOLOR;
@@ -279,7 +281,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         if (config.gui)
         {
             // check parse.cpp
-            const size_t pos = asciiArt_s.rfind("$ </");
+            const size_t pos = asciiArt_s.rfind("$ </span>");
             if (pos != std::string::npos)
                 asciiArt_s.replace(pos, 2, "$");
         }
@@ -318,10 +320,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         return asciiArt;
 
     std::string _;
-    parse_args.parsingLayout = true;
+    parse_args_t parse_args{ systemInfo, _, config, colors, true, true };
     for (std::string& line : layout)
     {
-        line = parse(line, _, parse_args);
+        line = parse(line, parse_args);
         if (!config.gui && !config.m_disable_colors)
             line.insert(0, NOCOLOR);
     }
@@ -382,6 +384,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
 void Display::display(const std::vector<std::string>& renderResult)
 {
-    for (const std::string_view str : renderResult)
+    for (const std::string& str : renderResult)
         fmt::println("{}", str);
 }

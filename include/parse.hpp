@@ -53,7 +53,7 @@ struct parse_args_t
  * @param parsingLayout If we are parsing layout or not
  * @param is_image If the source path is an image (used for GUI mode only)
  */
-std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
+std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
                   const colors_t& colors, const bool parsingLayout);
 
 // parse() for parse_args_t& arguments
