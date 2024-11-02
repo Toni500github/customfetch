@@ -56,7 +56,7 @@
 #  include <string>        // std::string
 #  include <system_error>  // std::system_error
 
-// Checking FMT_CPLUSPLUS for warning suppression in MSVC.
+// Check FMT_CPLUSPLUS to avoid a warning in MSVC.
 #  if FMT_HAS_INCLUDE(<bit>) && FMT_CPLUSPLUS > 201703L
 #    include <bit>  // std::bit_cast
 #  endif
@@ -119,7 +119,7 @@
 #endif
 
 namespace std {
-template <class T> struct iterator_traits<fmt::basic_appender<T>> {
+template <typename T> struct iterator_traits<fmt::basic_appender<T>> {
   using iterator_category = output_iterator_tag;
   using value_type = T;
   using difference_type =
@@ -149,8 +149,8 @@ FMT_END_NAMESPACE
 #  else
 #    define FMT_THROW(x) \
       ::fmt::detail::assert_fail(__FILE__, __LINE__, (x).what())
-#  endif
-#endif
+#  endif  // FMT_USE_EXCEPTIONS
+#endif    // FMT_THROW
 
 #ifdef FMT_NO_UNIQUE_ADDRESS
 // Use the provided definition.
@@ -174,6 +174,14 @@ FMT_END_NAMESPACE
 #  define FMT_REDUCE_INT_INSTANTIATIONS 0
 #endif
 
+FMT_BEGIN_NAMESPACE
+
+template <typename Char, typename Traits, typename Allocator>
+struct is_contiguous<std::basic_string<Char, Traits, Allocator>>
+    : std::true_type {};
+
+namespace detail {
+
 // __builtin_clz is broken in clang with Microsoft codegen:
 // https://github.com/fmtlib/fmt/issues/519.
 #if !FMT_MSC_VERSION
@@ -185,49 +193,30 @@ FMT_END_NAMESPACE
 #  endif
 #endif
 
-// __builtin_ctz is broken in Intel Compiler Classic on Windows:
-// https://github.com/fmtlib/fmt/issues/2510.
-#ifndef __ICL
-#  if FMT_HAS_BUILTIN(__builtin_ctz) || FMT_GCC_VERSION || FMT_ICC_VERSION || \
-      defined(__NVCOMPILER)
-#    define FMT_BUILTIN_CTZ(n) __builtin_ctz(n)
-#  endif
-#  if FMT_HAS_BUILTIN(__builtin_ctzll) || FMT_GCC_VERSION || \
-      FMT_ICC_VERSION || defined(__NVCOMPILER)
-#    define FMT_BUILTIN_CTZLL(n) __builtin_ctzll(n)
-#  endif
-#endif
-
-// Some compilers masquerade as both MSVC and GCC-likes or otherwise support
+// Some compilers masquerade as both MSVC and GCC but otherwise support
 // __builtin_clz and __builtin_clzll, so only define FMT_BUILTIN_CLZ using the
 // MSVC intrinsics if the clz and clzll builtins are not available.
-#if FMT_MSC_VERSION && !defined(FMT_BUILTIN_CLZLL) && \
-    !defined(FMT_BUILTIN_CTZLL)
-FMT_BEGIN_NAMESPACE
-namespace detail {
+#if FMT_MSC_VERSION && !defined(FMT_BUILTIN_CLZLL)
 // Avoid Clang with Microsoft CodeGen's -Wunknown-pragmas warning.
-#  if !defined(__clang__)
-#    pragma intrinsic(_BitScanForward)
+#  ifndef __clang__
 #    pragma intrinsic(_BitScanReverse)
-#    if defined(_WIN64)
-#      pragma intrinsic(_BitScanForward64)
+#    ifdef _WIN64
 #      pragma intrinsic(_BitScanReverse64)
 #    endif
 #  endif
 
 inline auto clz(uint32_t x) -> int {
+  FMT_ASSERT(x != 0, "");
+  FMT_MSC_WARNING(suppress : 6102)  // Suppress a bogus static analysis warning.
   unsigned long r = 0;
   _BitScanReverse(&r, x);
-  FMT_ASSERT(x != 0, "");
-  // Static analysis complains about using uninitialized data
-  // "r", but the only way that can happen is if "x" is 0,
-  // which the callers guarantee to not happen.
-  FMT_MSC_WARNING(suppress : 6102)
   return 31 ^ static_cast<int>(r);
 }
 #  define FMT_BUILTIN_CLZ(n) detail::clz(n)
 
 inline auto clzll(uint64_t x) -> int {
+  FMT_ASSERT(x != 0, "");
+  FMT_MSC_WARNING(suppress : 6102)  // Suppress a bogus static analysis warning.
   unsigned long r = 0;
 #  ifdef _WIN64
   _BitScanReverse64(&r, x);
@@ -238,48 +227,10 @@ inline auto clzll(uint64_t x) -> int {
   // Scan the low 32 bits.
   _BitScanReverse(&r, static_cast<uint32_t>(x));
 #  endif
-  FMT_ASSERT(x != 0, "");
-  FMT_MSC_WARNING(suppress : 6102)  // Suppress a bogus static analysis warning.
   return 63 ^ static_cast<int>(r);
 }
 #  define FMT_BUILTIN_CLZLL(n) detail::clzll(n)
-
-inline auto ctz(uint32_t x) -> int {
-  unsigned long r = 0;
-  _BitScanForward(&r, x);
-  FMT_ASSERT(x != 0, "");
-  FMT_MSC_WARNING(suppress : 6102)  // Suppress a bogus static analysis warning.
-  return static_cast<int>(r);
-}
-#  define FMT_BUILTIN_CTZ(n) detail::ctz(n)
-
-inline auto ctzll(uint64_t x) -> int {
-  unsigned long r = 0;
-  FMT_ASSERT(x != 0, "");
-  FMT_MSC_WARNING(suppress : 6102)  // Suppress a bogus static analysis warning.
-#  ifdef _WIN64
-  _BitScanForward64(&r, x);
-#  else
-  // Scan the low 32 bits.
-  if (_BitScanForward(&r, static_cast<uint32_t>(x))) return static_cast<int>(r);
-  // Scan the high 32 bits.
-  _BitScanForward(&r, static_cast<uint32_t>(x >> 32));
-  r += 32;
-#  endif
-  return static_cast<int>(r);
-}
-#  define FMT_BUILTIN_CTZLL(n) detail::ctzll(n)
-}  // namespace detail
-FMT_END_NAMESPACE
-#endif
-
-FMT_BEGIN_NAMESPACE
-
-template <typename Char, typename Traits, typename Allocator>
-struct is_contiguous<std::basic_string<Char, Traits, Allocator>>
-    : std::true_type {};
-
-namespace detail {
+#endif  // FMT_MSC_VERSION && !defined(FMT_BUILTIN_CLZLL)
 
 FMT_CONSTEXPR inline void abort_fuzzing_if(bool condition) {
   ignore_unused(condition);
@@ -1862,7 +1813,7 @@ auto find_escape(const Char* begin, const Char* end)
 
 inline auto find_escape(const char* begin, const char* end)
     -> find_escape_result<char> {
-  if (!detail::use_utf8) return find_escape<char>(begin, end);
+  if (!use_utf8) return find_escape<char>(begin, end);
   auto result = find_escape_result<char>{end, nullptr, 0};
   for_each_codepoint(string_view(begin, to_unsigned(end - begin)),
                      [&](uint32_t cp, string_view sv) {
@@ -3884,7 +3835,7 @@ template <typename T> auto ptr(T p) -> const void* {
  * **Example**:
  *
  *     enum class color { red, green, blue };
- *     auto s = fmt::format("{}", fmt::underlying(color::red));
+ *     auto s = fmt::format("{}", fmt::underlying(color::red));  // s == "0"
  */
 template <typename Enum>
 constexpr auto underlying(Enum e) noexcept -> underlying_t<Enum> {
@@ -3966,14 +3917,14 @@ template <typename T> struct formatter<group_digits_view<T>> : formatter<T> {
   }
 
   template <typename FormatContext>
-  auto format(group_digits_view<T> t, FormatContext& ctx) const
+  auto format(group_digits_view<T> view, FormatContext& ctx) const
       -> decltype(ctx.out()) {
     auto specs = specs_;
     detail::handle_dynamic_spec(specs.dynamic_width(), specs.width,
                                 specs.width_ref, ctx);
     detail::handle_dynamic_spec(specs.dynamic_precision(), specs.precision,
                                 specs.precision_ref, ctx);
-    auto arg = detail::make_write_int_arg(t.value, specs.sign());
+    auto arg = detail::make_write_int_arg(view.value, specs.sign());
     return detail::write_int(
         ctx.out(), static_cast<detail::uint64_or_128_t<T>>(arg.abs_value),
         arg.prefix, specs, detail::digit_grouping<char>("\3", ","));
@@ -4043,9 +3994,9 @@ template <typename T, typename Char = char> struct nested_formatter {
 
 inline namespace literals {
 #if FMT_USE_NONTYPE_TEMPLATE_ARGS
-template <detail::fixed_string Str> constexpr auto operator""_a() {
-  using char_t = remove_cvref_t<decltype(Str.data[0])>;
-  return detail::udl_arg<char_t, sizeof(Str.data) / sizeof(char_t), Str>();
+template <detail::fixed_string S> constexpr auto operator""_a() {
+  using char_t = remove_cvref_t<decltype(*S.data)>;
+  return detail::udl_arg<char_t, sizeof(S.data) / sizeof(char_t), S>();
 }
 #else
 /**
@@ -4088,16 +4039,16 @@ class format_int {
   }
 
  public:
-  explicit FMT_CONSTEXPR20 format_int(int value) : str_(format_signed(value)) {}
-  explicit FMT_CONSTEXPR20 format_int(long value)
+  FMT_CONSTEXPR20 explicit format_int(int value) : str_(format_signed(value)) {}
+  FMT_CONSTEXPR20 explicit format_int(long value)
       : str_(format_signed(value)) {}
-  explicit FMT_CONSTEXPR20 format_int(long long value)
+  FMT_CONSTEXPR20 explicit format_int(long long value)
       : str_(format_signed(value)) {}
-  explicit FMT_CONSTEXPR20 format_int(unsigned value)
+  FMT_CONSTEXPR20 explicit format_int(unsigned value)
       : str_(format_unsigned(value)) {}
-  explicit FMT_CONSTEXPR20 format_int(unsigned long value)
+  FMT_CONSTEXPR20 explicit format_int(unsigned long value)
       : str_(format_unsigned(value)) {}
-  explicit FMT_CONSTEXPR20 format_int(unsigned long long value)
+  FMT_CONSTEXPR20 explicit format_int(unsigned long long value)
       : str_(format_unsigned(value)) {}
 
   /// Returns the number of characters written to the output buffer.
@@ -4120,25 +4071,24 @@ class format_int {
   inline auto str() const -> std::string { return {str_, size()}; }
 };
 
-#define FMT_STRING_IMPL(s, base)                                           \
-  [] {                                                                     \
-    /* Use the hidden visibility as a workaround for a GCC bug (#1973). */ \
-    /* Use a macro-like name to avoid shadowing warnings. */               \
-    struct FMT_VISIBILITY("hidden") FMT_COMPILE_STRING : base {            \
-      using char_type = fmt::remove_cvref_t<decltype(s[0])>;               \
-      FMT_CONSTEXPR explicit operator fmt::basic_string_view<char_type>()  \
-          const {                                                          \
-        return fmt::detail::compile_string_to_view<char_type>(s);          \
-      }                                                                    \
-    };                                                                     \
-    using FMT_STRING_VIEW =                                                \
-        fmt::basic_string_view<typename FMT_COMPILE_STRING::char_type>;    \
-    fmt::detail::ignore_unused(FMT_STRING_VIEW(FMT_COMPILE_STRING()));     \
-    return FMT_COMPILE_STRING();                                           \
+#define FMT_STRING_IMPL(s, base)                                              \
+  [] {                                                                        \
+    /* Use the hidden visibility as a workaround for a GCC bug (#1973). */    \
+    /* Use a macro-like name to avoid shadowing warnings. */                  \
+    struct FMT_VISIBILITY("hidden") FMT_COMPILE_STRING : base {               \
+      using char_type = fmt::remove_cvref_t<decltype(s[0])>;                  \
+      constexpr explicit operator fmt::basic_string_view<char_type>() const { \
+        return fmt::detail::compile_string_to_view<char_type>(s);             \
+      }                                                                       \
+    };                                                                        \
+    using FMT_STRING_VIEW =                                                   \
+        fmt::basic_string_view<typename FMT_COMPILE_STRING::char_type>;       \
+    fmt::detail::ignore_unused(FMT_STRING_VIEW(FMT_COMPILE_STRING()));        \
+    return FMT_COMPILE_STRING();                                              \
   }()
 
 /**
- * Constructs a compile-time format string from a string literal `s`.
+ * Constructs a legacy compile-time format string from a string literal `s`.
  *
  * **Example**:
  *
@@ -4258,8 +4208,7 @@ FMT_NODISCARD auto to_string(T value) -> std::string {
   // The buffer should be large enough to store the number including the sign
   // or "false" for bool.
   char buffer[max_of(detail::digits10<T>() + 2, 5)];
-  char* begin = buffer;
-  return {buffer, detail::write<char>(begin, value)};
+  return {buffer, detail::write<char>(buffer, value)};
 }
 
 template <typename T, FMT_ENABLE_IF(detail::use_format_as<T>::value)>
