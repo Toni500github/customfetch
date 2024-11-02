@@ -107,13 +107,13 @@ inline constexpr std::array<int, %s> get_pci_vendors_location_array() {
 }
 
 inline std::string get_pci_ids() {
-    return R"""(%s)""";
+    return R"(%s)";
 }
 
 inline const std::string& all_ids = get_pci_ids();
 inline constexpr std::array<std::string_view, %s> pci_vendors_array = get_pci_vendors_array();
 inline constexpr std::array<int, %s> pci_vendors_location_array = get_pci_vendors_location_array();
 
-#endif  // PCI_IDS_HPP""" % (len(vendor_array), repr(vendor_array).replace("'", '"').replace('[', '{').replace(']', '}'), len(location_array), repr(location_array).replace("'", '"').replace('[', '{').replace(']', '}'), file, len(vendor_array), len(location_array)))
+#endif  // _PCI_IDS_HPP""" % (len(vendor_array), repr(vendor_array).replace("'", '"').replace('[', '{').replace(']', '}'), len(location_array), repr(location_array).replace("'", '"').replace('[', '{').replace(']', '}'), file, len(vendor_array), len(location_array)))
 
 print(file[159514:159524])
