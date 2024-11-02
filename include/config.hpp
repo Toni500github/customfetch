@@ -161,11 +161,11 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # * b - for background color.     * o        - for overline
 # * u - to  underline the text    * a(value) - for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
 # * ! - for bold text             * L(value) - to  underline the text with a style (`none`, `single`, `double`, `low`, `error`)
-# * i - for italic text           * U(value) - for choosing the underline color (hexcode without #)
-# * s - for strikethrough text    * B(value) - for bg color text (same value as above)
-#                                 * S(value) - for strikethrough color (same value as above)
-#     Terminal Only               * O(value) - for overline color (same value as above)
-# * l - for blinking text         * A(value) - for bg alpha (same value as a(value))
+# * i - for italic text           * U(value) - for choosing the underline color (hexcode color)
+# * s - for strikethrough text    * B(value) - for bg color text (hexcode color)
+#                                 * S(value) - for strikethrough color (hexcode color)
+#     Terminal Only               * O(value) - for overline color (hexcode color)
+# * l - for blinking text         * A(value) - for bg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
 #                                 * w(value) - for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
 #
 # Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[38;2;34;255;11m}.

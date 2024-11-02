@@ -367,7 +367,7 @@ jumpauto:
                 default:                str_clr = color; break;
             }
 
-            const size_t pos = str_clr.find('#');
+            const size_t pos = str_clr.rfind('#');
             if (pos != std::string::npos)
             {
                 std::string        tagfmt  = "span ";
@@ -390,7 +390,7 @@ jumpauto:
                 };
 
                 bool bgcolor = false;
-                for (uint i = 0; i < opt_clr.length(); ++i)
+                for (size_t i = 0; i < opt_clr.length(); ++i)
                 {
                     switch (opt_clr.at(i))
                     {
@@ -421,12 +421,12 @@ jumpauto:
 
                         case 'U':
                             argmode_pos = i;
-                            i += append_argmode("underline_color='#", "colored underline");
+                            i += append_argmode("underline_color='", "colored underline");
                             break;
 
                         case 'B':
                             argmode_pos = i;
-                            i += append_argmode("bgcolor='#", "bgcolor");
+                            i += append_argmode("bgcolor='", "bgcolor");
                             break;
 
                         case 'w':
@@ -436,12 +436,12 @@ jumpauto:
 
                         case 'O':
                             argmode_pos = i;
-                            i += append_argmode("overline_color='#", "overline color");
+                            i += append_argmode("overline_color='", "overline color");
                             break;
 
                         case 'S':
                             argmode_pos = i;
-                            i += append_argmode("strikethrough_color='#", "color of strikethrough line");
+                            i += append_argmode("strikethrough_color='", "color of strikethrough line");
                             break;
                     }
                 }
@@ -498,7 +498,7 @@ jumpauto:
                 default:                str_clr = color; break;
             }
 
-            const size_t pos = str_clr.find('#');
+            const size_t pos = str_clr.rfind('#');
             if (pos != std::string::npos)
             {
                 const std::string& opt_clr = str_clr.substr(0, pos);
@@ -518,7 +518,7 @@ jumpauto:
                 };
 
                 bool bgcolor = false;
-                for (uint i = 0; i < opt_clr.length(); ++i)
+                for (size_t i = 0; i < opt_clr.length(); ++i)
                 {
                     switch (opt_clr.at(i))
                     {
