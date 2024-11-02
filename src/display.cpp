@@ -48,6 +48,7 @@
 #include "parse.hpp"
 #include "query.hpp"
 #include "stb_image.h"
+#include "utf8/checked.h"
 #include "util.hpp"
 
 std::string Display::detect_distro(const Config& config)
@@ -287,27 +288,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         }
 
         asciiArt.push_back(asciiArt_s);
-        size_t pureOutputLen = pureOutput.length();
-
-        // shootout to my bf BurntRanch that helped me with this whole project
-        // with the parsing and addValueFromModule()
-        // and also fixing the problem with calculating the aligniment
-        // with unicode characters
-        size_t remainingUnicodeChars = 0;
-        for (unsigned char c : pureOutput)
-        {
-            if (remainingUnicodeChars > 0)
-            {
-                remainingUnicodeChars--;
-                continue;
-            }
-            // debug("c = {:c}", c);
-            if (c > 127)
-            {
-                remainingUnicodeChars = 2;
-                pureOutputLen -= 2;
-            }
-        }
+        const size_t pureOutputLen = utf8::distance(pureOutput.begin(), pureOutput.end());
 
         if (static_cast<int>(pureOutputLen) > maxLineLength)
             maxLineLength = static_cast<int>(pureOutputLen);
