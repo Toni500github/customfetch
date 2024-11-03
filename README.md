@@ -22,14 +22,14 @@
 -->
 
 <!-- Looks fire on PC but ass on mobile fucking hell. too bad -->
-<img align=left width=54% src="assets/screenshots/nitch_catpan-style.png" />
+<img align=left width=54% src="screenshots/nitch_catpan-style.png" />
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="45%" height="20px" align="left" />
-<img align=left width=54% src="assets/screenshots/modern-simple.png"/>
+<img align=left width=54% src="screenshots/modern-simple.png"/>
 <p align="center">
-    <img align="top" width=43% src="assets/screenshots/cbonsai.png" />
+    <img align="top" width=43% src="screenshots/cbonsai.png" />
 </p>
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="1px" height="1px" align="left" />
-<img src="assets/screenshots/pipeline-style.png" />
+<img src="screenshots/pipeline-style.png" />
 
 ## Key Features
 
@@ -112,7 +112,7 @@ cufetch
 ## Config (with explanation)
 
 Read the manual `cufetch.1` or the comments in the default generated config for knowing more about the configuration in customfetch.\
-This is only a brief explaination and preview.
+This is only an explaination about tags and preview, that can be always found in the documentation.
 
 Here's an example using my config
 
@@ -193,10 +193,10 @@ They can be used in the ascii art text file and layout, but how to use them?
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`o` - for overline\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`a(value)` - for fg alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`L(value)` - for choosing an underline style (`none`, `single`, `double`, `low`, `error`)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`U(value)` - for choosing the underline color (hexcode without #)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`B(value)` - for choosing the bg color text (hexcode without #)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`S(value)` - for choosing the strikethrough color (hexcode without #)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`O(value)` - for choosing the overline color (hexcode without #)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`U(value)` - for choosing the underline color (hexcode color)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`B(value)` - for choosing the bg color text (hexcode color)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`S(value)` - for choosing the strikethrough color (hexcode color)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`O(value)` - for choosing the overline color (hexcode color)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`A(value)` - for choosing the bg text alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`w(value)` - for choosing the font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Terminal Only**\
@@ -243,4 +243,4 @@ I would like to thanks:
 I hope you'll like customfetch, and also checkout [TabAUR](https://github.com/BurntRanch/TabAUR/tree/dev), our other project that was made before customfetch.\
 Don't forgot [sdl_engine](https://github.com/BurntRanch/sdl_engine) too ;)
 
-![meme.png](assets/screenshots/meme.png)
+![meme.png](screenshots/meme.png)
