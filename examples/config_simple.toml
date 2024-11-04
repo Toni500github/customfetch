@@ -81,10 +81,15 @@ layout = [
     "${magenta} 󰍛   $<cpu.cpu>",
     "${blue} 󰘚   $<gpu.vendor> $<gpu.name>",
     "${!#03ff93}    $<ram.ram>",
+    "${!#af3af2} 󰋊   $<disk(/).used> / $<disk(/).total> ($<disk(/).used_perc>)",
     "${1}├────────── Software Information ──────────┤",
     "${red}    $<os.name> $<system.arch>",
     "${cyan} 󰊠   $<os.uptime>",
-    "${cyan}    $<user.shell>",
+    "${!#afff2a}    $<os.kernel>",
+    "${!#f5dffa}    $<user.wm_name> $<user.wm_version>",
+    "${!#ffa1a4}    $<user.terminal>",
+    "${cyan}    $<user.shell>",
+    "${green}    $<os.pkgs>",
     "${1}└──────────────────────────────────────────┘",
     "$<builtin.colors_symbol( )>"
 ]
