@@ -140,7 +140,8 @@ NOTE: there are modules such as "user.de_version" that may slow down cufetch bec
       cufetch is still fast tho :)
 
 os
-  name		: OS name (pretty_name) [Ubuntu 22.04.4 LTS, Arch Linux]
+  name		: OS name (pretty name) [Ubuntu 22.04.4 LTS, Arch Linux]
+  name_id	: OS name id [ubuntu, arch]
   kernel	: kernel name and version [Linux 6.9.3-zen1-1-zen]
   kernel_name	: kernel name [Linux]
   kernel_version: kernel version [6.9.3-zen1-1-zen]
@@ -500,12 +501,16 @@ int main(int argc, char *argv[])
 
     if (!config.ascii_logo_type.empty() && config.m_display_distro)
     {
-        const size_t& pos = path.rfind('.');
+        std::string logo_type_path{path};
+        const size_t pos = path.rfind('.');
 
         if (pos != std::string::npos)
-            path.insert(pos, "_" + config.ascii_logo_type);
+            logo_type_path.insert(pos, "_" + config.ascii_logo_type);
         else
-            path += "_" + config.ascii_logo_type;
+            logo_type_path += "_" + config.ascii_logo_type;
+
+        if (std::filesystem::exists(logo_type_path))
+            path = logo_type_path;
     }
 
     if (!std::filesystem::exists(path) && !config.m_disable_source)

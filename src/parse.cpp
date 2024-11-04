@@ -885,6 +885,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
             {
                 case "name"_fnv1a16: SYSINFO_INSERT(query_system.os_pretty_name()); break;
 
+                case "name_id"_fnv1a16: SYSINFO_INSERT(query_system.os_id()); break;
+
                 case "uptime"_fnv1a16:
                     SYSINFO_INSERT(get_auto_uptime(uptime_days, uptime_hours.count() % 24, uptime_mins.count() % 60,
                                                    uptime_secs.count() % 60, config));
