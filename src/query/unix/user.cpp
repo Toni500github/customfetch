@@ -188,7 +188,7 @@ static std::string get_shell_name(const std::string_view shell_path)
 
 static std::string get_term_name(std::string& term_ver, const std::string_view osname)
 {
-    // cufetch -> shell -> terminal
+    // customfetch -> shell -> terminal
     const pid_t   ppid = getppid();
     std::ifstream ppid_f(fmt::format("/proc/{}/status", ppid), std::ios::in);
     std::string   line, term_pid;

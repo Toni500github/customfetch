@@ -2,9 +2,11 @@ build/
 assets/distro_ascii_arts.json
 assets/distro_ascii_arts.txt
 cufetch
-test.txt
+test*.txt
 pci.ids
 output/
+customfetch
+customfetch_r
 cufetch_r
 thinkpad-arch_logo.txt
 tanjiro_logo.txt

@@ -38,7 +38,7 @@ jobs:
       run: |
         cd /tmp/customfetch-0.10.1.orig
         sudo dpkg -i customfetch_0.10.1-1_amd64.deb
-        cufetch --wrap-lines=0
+        customfetch --wrap-lines=0
   
   build_ubuntu-latest:
 
@@ -69,7 +69,7 @@ jobs:
         printf "getting 0x5353 hexcode\n" && grep -nri "5353" /sys/class/ || true
        
     - name: Test customfetch
-      run: ./build/debug/cufetch --wrap-lines=0
+      run: ./build/debug/customfetch --wrap-lines=0
 
   build_Arch-AUR:
   
@@ -106,7 +106,7 @@ jobs:
       run: neofetch
 
     - name: Test customfetch
-      run: cufetch --wrap-lines=0
+      run: customfetch --wrap-lines=0
 
   build_Arch:
   
@@ -150,7 +150,7 @@ jobs:
         printf "/etc/os-release\n" && cat /etc/os-release
 
     - name: Test customfetch
-      run: ./build/debug/cufetch --wrap-lines=0
+      run: ./build/debug/customfetch --wrap-lines=0
 
   test-all-ascii-art:
     runs-on: ubuntu-latest
@@ -170,4 +170,4 @@ jobs:
     # yes, i know too long
     # the --color arguments are just for adding a missing color to the non done ascii
     - name: Test all the ascii art logos
-      run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" "$f" && cufetch --wrap-lines=0 -s "$f" -D assets --color "c1=!#fff111" --color "c2=!#00ff1a" --color "c3=!#faa311" --color "c4=!#343412" --color "c5=!#fff311" --color "c6=!#faa3aa" && sleep 1; done
+      run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" "$f" && customfetch --wrap-lines=0 -s "$f" -D assets --color "c1=!#fff111" --color "c2=!#00ff1a" --color "c3=!#faa311" --color "c4=!#343412" --color "c5=!#fff311" --color "c6=!#faa3aa" && sleep 1; done

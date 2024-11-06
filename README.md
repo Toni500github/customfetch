@@ -56,7 +56,7 @@ The name can vary depending on the package manager or distro
 
 >[!NOTE]
 >installing with GUI mode may slow down customfetch a bit because it needs to load the GUI libraries at runtime.\
->To check if it's enabled or not, run "cufetch --version"
+>To check if it's enabled or not, run "customfetch --version"
 
 ### Debian/Ubuntu and based
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
@@ -73,9 +73,9 @@ taur -S customfetch-gui-bin
 
 ### General Distros (Manual installation)
 Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni500github/customfetch/releases/latest) \
-It contains the binary `cufetch` and the manual `cufetch.1` with the `LICENSE`.\
+It contains the binary `customfetch` and the manual `customfetch.1` with the `LICENSE`.\
 Togheter with the directory `assets/ascii` with the distro ascii art logos.\
-If installing the GUI mode version, there's `cufetch.desktop`
+If installing the GUI mode version, there's `customfetch.desktop`
 
 ### Arch and based (AUR) (source)
 ```bash
@@ -106,12 +106,12 @@ cd customfetch
 make install DEBUG=0 GUI_MODE=0
 
 # automatically generates a config and prints the infos
-cufetch
+customfetch
 ```
 
 ## Config (with explanation)
 
-Read the manual `cufetch.1` or the comments in the default generated config for knowing more about the configuration in customfetch.\
+Read the manual `customfetch.1` or the comments in the default generated config for knowing more about the configuration in customfetch.\
 This is only an explaination about tags and preview, that can be always found in the documentation.
 
 Here's an example using my config

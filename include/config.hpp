@@ -192,7 +192,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #    Save the file and use `-s "/path/to/text/file"`.
 #    Use `--offset` (`-o`) for aligning and put it under the bonsai.
 #
-#    Read the manual cufetch.1 for more infos with $() tag
+#    Read the manual customfetch.1 for more infos with $() tag
 #
 # Q: Can I run recursive tags?
 # A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>).disk>" works,
@@ -340,7 +340,7 @@ flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version" if GUI mode was enabled)
+# note: customfetch needs to be compiled with GUI_MODE=1 (check with "customfetch --version" if GUI mode was enabled)
 [gui]
 enable = false
 

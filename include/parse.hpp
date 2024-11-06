@@ -44,7 +44,7 @@ struct parse_args_t
 };
 
 /* Parse input, in-place, with data from systemInfo.
- * Documentation on formatting is in the default config.toml file or the cufetch.1 manual.
+ * Documentation on formatting is in the default config.toml file or the customfetch.1 manual.
  * @param input The string to parse
  * @param systemInfo The system infos
  * @param pureOutput The output of the string but without tags

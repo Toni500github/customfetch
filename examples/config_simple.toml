@@ -68,7 +68,7 @@
 #    Save the file and use `-s "/path/to/text/file"`.
 #    Use `--offset` (`-o`) for aligning and put it under the bonsai.
 #
-#    Read the manual cufetch.1 for more infos with $() tag
+#    Read the manual customfetch.1 for more infos with $() tag
 #
 # Q: Can I run recursive tags?
 # A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>).disk>" works,

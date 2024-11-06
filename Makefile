@@ -48,7 +48,7 @@ ifeq ($(USE_DCONF), 1)
 endif
 
 NAME		= customfetch
-TARGET		= cufetch
+TARGET		= $(NAME)
 OLDVERSION	= 0.10.0
 VERSION    	= 0.10.1
 BRANCH     	= $(shell git rev-parse --abbrev-ref HEAD)
@@ -75,9 +75,10 @@ endif
 $(TARGET): fmt toml $(OBJ)
 	mkdir -p $(BUILDDIR)
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
+	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
 dist:
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE cufetch.1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
 
 clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)
@@ -90,19 +91,20 @@ distclean:
 
 install: $(TARGET)
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	cd $(DESTDIR)$(PREFIX)/bin/ && ln -sf $(TARGET) cufetch
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
-	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < cufetch.1 > $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
-	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
+	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(TARGET).1 > $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
+	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
 ifeq ($(GUI_MODE), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
-	cp -f cufetch.desktop $(DESTDIR)$(APPPREFIX)
+	cp -f $(TARGET).desktop $(DESTDIR)$(APPPREFIX)
 endif
 
 uninstall:
-	rm -f  $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-	rm -f  $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
-	rm -f  $(DESTDIR)$(APPPREFIX)/cufetch.desktop
+	rm -f  $(DESTDIR)$(PREFIX)/bin/$(TARGET) $(DESTDIR)$(PREFIX)/bin/cufetch
+	rm -f  $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
+	rm -f  $(DESTDIR)$(APPPREFIX)/$(TARGET).desktop
 	rm -rf $(DESTDIR)$(PREFIX)/share/customfetch/
 
 remove: uninstall
