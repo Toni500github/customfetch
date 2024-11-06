@@ -1,1 +1,0 @@
-$(!pyfiglet -f small_slant $<os.name> | lolcat)

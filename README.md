@@ -63,12 +63,11 @@ Download the latest `.deb` package in [releases](https://github.com/Toni500githu
 
 ### Arch and based (AUR)
 ```bash
-# btw checkout our other project https://github.com/BurntRanch/TabAUR ;)
 # either
-taur -S customfetch-bin
+yay -S customfetch-bin
 
 # or wiht GUI mode
-taur -S customfetch-gui-bin
+yay -S customfetch-gui-bin
 ```
 
 ### General Distros (Manual installation)
@@ -80,19 +79,19 @@ If installing the GUI mode version, there's `customfetch.desktop`
 ### Arch and based (AUR) (source)
 ```bash
 # either
-taur -S customfetch
+yay -S customfetch
 
 # or wiht GUI mode
-taur -S customfetch-gui
+yay -S customfetch-gui
 ```
 
 ### Arch and based (unstable) (AUR) (source)
 ```bash
 # either
-taur -S customfetch-git
+yay -S customfetch-git
 
 # or wiht GUI mode
-taur -S customfetch-gui-git
+yay -S customfetch-gui-git
 ```
 
 ### Compile from (source) (unstable)
