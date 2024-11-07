@@ -78,7 +78,11 @@ $(TARGET): fmt toml $(OBJ)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
 dist:
+ifeq ($(GUI_MODE), 1)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).desktop $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+else
 	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+endif
 
 clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)
@@ -98,7 +102,7 @@ install: $(TARGET)
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
 ifeq ($(GUI_MODE), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
-	cp -f $(TARGET).desktop $(DESTDIR)$(APPPREFIX)
+	cp -f $(TARGET).desktop $(DESTDIR)$(APPPREFIX)/$(TARGET).desktop
 endif
 
 uninstall:
