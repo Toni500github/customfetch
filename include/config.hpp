@@ -203,8 +203,8 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 ################################################################
 
 layout = [
-    "$<builtin.title>",
-    "$<builtin.title_sep>",
+    "$<title>",
+    "$<title_sep>",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
@@ -218,14 +218,14 @@ layout = [
     "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name>",
     "${auto}DE: $<user.de_name>",
-    "${auto}Disk (/): $<disk(/).disk>",
-    "${auto}Swap: $<swap.swap>",
-    "${auto}CPU: $<cpu.cpu>",
-    "${auto}GPU: $<gpu.vendor> $<gpu.name>",
-    "${auto}RAM: $<ram.ram>",
+    "${auto}Disk (/): $<disk(/)>",
+    "${auto}Swap: $<swap>",
+    "${auto}CPU: $<cpu>",
+    "${auto}GPU: $<gpu>",
+    "${auto}RAM: $<ram>",
     "",
-    "$<builtin.colors>", # normal colors
-    "$<builtin.colors_light>" # light colors
+    "$<colors>", # normal colors
+    "$<colors_light>" # light colors
 ]
 
 # display ascii-art or image/gif (GUI only) near layout
