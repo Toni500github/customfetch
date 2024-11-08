@@ -131,6 +131,9 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 
 # The Info tag $<> lets you print the value of a member of a module.
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
+#
+# There are variants who you only need the module name,
+# such as $<ram> or $<title>
 # All the modules and their members are listed in the `--list-modules` argument
 
 # The Bash command tag $() will execute bash commands and print the output.

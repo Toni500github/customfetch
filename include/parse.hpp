@@ -69,7 +69,15 @@ std::string parse(const std::string_view input, std::string& _, parse_args_t& pa
  * @param moduleMemberName The module member name
  * @param parse_args The parse() like arguments
  */
-void addValueFromModule(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args);
+void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args);
+
+/* Set module only values to a systemInfo_t map.
+ * If the name of said module matches any module name, it will be added
+ * else, error out.
+ * @param moduleName The module name
+ * @param parse_args The parse() like arguments
+ */
+void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args);
 
 /*
  * Return a module member value

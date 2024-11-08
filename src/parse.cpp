@@ -602,11 +602,19 @@ std::optional<std::string> parse_info_tag(Parser& parser, parse_args_t& parse_ar
 
     const size_t dot_pos = module.find('.');
     if (dot_pos == module.npos)
-        die("module name '{}' doesn't have a dot '.' for separating module name and value", module);
+    {
+        addValueFromModule(module, parse_args);
+        const std::string& info = getInfoFromName(parse_args.systemInfo, module, "module-" + module);
+
+        if (parser.dollar_pos != std::string::npos)
+            parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
+
+        return info;
+    }
 
     const std::string& moduleName       = module.substr(0, dot_pos);
     const std::string& moduleMemberName = module.substr(dot_pos + 1);
-    addValueFromModule(moduleName, moduleMemberName, parse_args);
+    addValueFromModuleMember(moduleName, moduleMemberName, parse_args);
 
     const std::string& info = getInfoFromName(parse_args.systemInfo, moduleName, moduleMemberName);
 
@@ -838,7 +846,13 @@ static std::string prettify_de_name(const std::string_view de_name)
     return de_name.data();
 }
 
-void addValueFromModule(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args)
+std::vector<std::uint16_t> queried_gpus;
+std::vector<std::string>   queried_disks;
+std::vector<std::string>   queried_themes_names;
+systemInfo_t               queried_themes;
+
+// clang-format on
+void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args)
 {
 #define SYSINFO_INSERT(x) sysInfo.at(moduleName).insert({ moduleMemberName, variant(x) })
 
@@ -846,13 +860,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
     const Config& config  = parse_args.config;
     systemInfo_t& sysInfo = parse_args.systemInfo;
 
-    const auto&                       moduleMember_hash = fnv1a16::hash(moduleMemberName);
-    static std::vector<std::uint16_t> queried_gpus;
-    static std::vector<std::string>   queried_disks;
-    static std::vector<std::string>   queried_themes_names;
-    static systemInfo_t               queried_themes;
-
-    const std::uint16_t byte_unit = config.use_SI_unit ? 1000 : 1024;
+    const auto&                                moduleMember_hash = fnv1a16::hash(moduleMemberName);
+    const std::uint16_t                        byte_unit = config.use_SI_unit ? 1000 : 1024;
     constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
                                                                          "KiB", "MB", "MiB", "PB", "PiB", "TB",
                                                                          "TiB", "YB", "YiB", "ZB", "ZiB" };
@@ -946,85 +955,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                 case "host_version"_fnv1a16: SYSINFO_INSERT(query_system.host_version()); break;
 
                 case "arch"_fnv1a16: SYSINFO_INSERT(query_system.arch()); break;
-            }
-        }
-    }
-
-    else if (moduleName == "builtin")
-    {
-        if (sysInfo.find(moduleName) == sysInfo.end())
-            sysInfo.insert({ moduleName, {} });
-
-        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
-        {
-            switch (moduleMember_hash)
-            {
-                case "title"_fnv1a16:
-                    SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", _, parse_args));
-                    break;
-
-                case "title_sep"_fnv1a16:
-                {
-                    // no need to parse anything
-                    Query::User   query_user;
-                    Query::System query_system;
-                    const size_t& title_len =
-                        std::string_view(query_user.name() + '@' + query_system.hostname()).length();
-
-                    std::string str;
-                    str.reserve(config.builtin_title_sep.length() * title_len);
-                    for (size_t i = 0; i < title_len; i++)
-                        str += config.builtin_title_sep;
-
-                    SYSINFO_INSERT(str);
-                }
-                break;
-
-                    // clang-format off
-                case "colors"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", _, parse_args));
-                    break;
-
-                case "colors_light"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", _, parse_args));
-                    break;
-
-                default:
-                    // I really dislike how repetitive this code is
-                    if (hasStart(moduleMemberName, "colors_symbol"))
-                    {
-                        if (moduleMemberName.length() <= "colors_symbol()"_len)
-                            die("color palette module member '{}' in invalid.\n"
-                                "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
-                                "e.g 'colors_symbol(@)' or 'colors_symbol(string)'",
-                                moduleMemberName);
-
-                        std::string symbol = moduleMemberName;
-                        symbol.erase(0, "colors_symbol("_len);
-                        symbol.pop_back();
-                        debug("symbol = {}", symbol);
-
-                        SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
-                                              symbol), _, parse_args));
-                    }
-                    else if (hasStart(moduleMemberName, "colors_light_symbol"))
-                    {
-                        if (moduleMemberName.length() <= "colors_light_symbol()"_len)
-                            die("light color palette module member '{}' in invalid.\n"
-                                "Must be used like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
-                                "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'",
-                                moduleMemberName);
-
-                        std::string symbol = moduleMemberName;
-                        symbol.erase(0, "colors_light_symbol("_len);
-                        symbol.pop_back();
-                        debug("symbol = {}", symbol);
-
-                        SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
-                                              symbol), _, parse_args));
-                    }
             }
         }
     }
@@ -1202,11 +1132,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
         {
             switch (moduleMember_hash)
             {
-                case "cpu"_fnv1a16:
-                    SYSINFO_INSERT(
-                        fmt::format("{} ({}) @ {:.2f} GHz", query_cpu.name(), query_cpu.nproc(), query_cpu.freq_max()));
-                    break;
-
                 case "name"_fnv1a16: SYSINFO_INSERT(query_cpu.name()); break;
 
                 case "nproc"_fnv1a16: SYSINFO_INSERT(query_cpu.nproc()); break;
@@ -1279,20 +1204,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     SYSINFO_INSERT(query_disk.mountdir());
                     break;
 
-                    // clang-format off
-                case "disk"_fnv1a16:
-                {
-                    const std::string& perc = get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), 
-                                                                        parse_args);
-
-                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {} - {}", 
-                                               byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
-                                               byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
-                                               parse("${0}(" + perc + ")", _, parse_args),
-				                query_disk.typefs()));
-                } break;
-                    // clang-format on
-
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
@@ -1349,23 +1260,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
             switch (moduleMember_hash)
             {
-                case "swap"_fnv1a16:
-                    // clang-format off
-                    if (byte_units.at(TOTAL).num_bytes < 1)
-                        SYSINFO_INSERT("Disabled");
-                    else
-                    {
-                        const std::string& perc = get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(), 
-                                                                           parse_args);
-                        
-                        SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
-                                                    byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
-                                                    byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
-                                                    parse("${0}(" + perc + ")", _, parse_args)));
-                    }
-                    break;
-                    // clang-format on
-
                 case "free"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
                     break;
@@ -1422,19 +1316,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
             switch (moduleMember_hash)
             {
-                case "ram"_fnv1a16:
-                {
-                    const std::string& perc =
-                        get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args);
-
-                    // clang-format off
-                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
-                                               byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
-                                               byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
-                                               parse("${0}(" + perc + ")", _, parse_args)));
-                    break;
-                    // clang-format on
-                }
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
@@ -1465,6 +1346,262 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     else if (hasStart(moduleMemberName, "total-"))
                         SYSINFO_INSERT(return_devided_bytes(query_ram.total_amount()));
             }
+        }
+    }
+
+    else
+        die("Invalid module name: {}", moduleName);
+
+#undef SYSINFO_INSERT
+}
+
+void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
+{
+    const std::string& moduleMemberName = "module-" + moduleName;
+#define SYSINFO_INSERT(x) sysInfo.at(moduleName).insert({ moduleMemberName, variant(x) })
+
+    // just aliases for convention
+    const Config& config  = parse_args.config;
+    systemInfo_t& sysInfo = parse_args.systemInfo;
+
+    const std::uint16_t byte_unit = config.use_SI_unit ? 1000 : 1024;
+
+    if (moduleName == "title")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+        
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", _, parse_args));
+        }
+    }
+
+    else if (moduleName == "title_sep")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+        
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            // no need to parse anything
+            Query::User   query_user;
+            Query::System query_system;
+            const size_t& title_len =
+                std::string_view(query_user.name() + '@' + query_system.hostname()).length();
+
+            std::string str;
+            str.reserve(config.builtin_title_sep.length() * title_len);
+            for (size_t i = 0; i < title_len; i++)
+                str += config.builtin_title_sep;
+
+            SYSINFO_INSERT(str);
+        }
+    }
+
+    else if (moduleName == "cpu")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+        
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            Query::CPU query_cpu;
+            SYSINFO_INSERT(
+                fmt::format("{} ({}) @ {:.2f} GHz", query_cpu.name(), query_cpu.nproc(), query_cpu.freq_max()));
+        }
+    }
+
+    else if (hasStart(moduleName, "gpu"))
+    {
+        const std::uint16_t id =
+            static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3)) : 0);
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            Query::GPU query_gpu(id, queried_gpus);
+            SYSINFO_INSERT(shorten_vendor_name(query_gpu.vendor()) + " " + query_gpu.name());
+        }
+    }
+
+    else if (hasStart(moduleName, "disk"))
+    {
+        if (moduleName.length() < "disk()"_len)
+            die("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)", moduleName);
+
+        enum
+        {
+            USED = 0,
+            TOTAL,
+        };
+        std::string path = moduleName;
+        path.erase(0, 5);  // disk(
+        path.pop_back();   // )
+        debug("disk path = {}", path);
+
+        Query::Disk                 query_disk(path, queried_disks);
+        std::array<byte_units_t, 2> byte_units;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount(), byte_unit);
+            byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount(), byte_unit);
+
+            const std::string& perc = get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), 
+                                                                parse_args);
+
+            // clang-format off
+            SYSINFO_INSERT (fmt::format("{:.2f} {} / {:.2f} {} {} - {}", 
+                            byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
+                            byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
+                            parse("${0}(" + perc + ")", _, parse_args),
+			    query_disk.typefs()));
+            // clang-format on
+        }
+    }
+
+    else if (moduleName == "ram")
+    {
+        Query::RAM query_ram;
+        enum
+        {
+            USED = 0,
+            TOTAL,
+        };
+        std::array<byte_units_t, 2> byte_units;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            //                                                            idk, trick the diviser
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
+
+            const std::string& perc =
+                get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args);
+
+            // clang-format off
+            SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
+                                       byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
+                                       byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
+                                       parse("${0}(" + perc + ")", _, parse_args)));
+            // clang-format on
+        }
+    }
+
+    else if (moduleName == "swap")
+    {
+        Query::RAM query_ram;
+        enum
+        {
+            USED = 0,
+            TOTAL,
+        };
+        std::array<byte_units_t, 2> byte_units;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            //                                                            idk, trick the diviser
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.swap_used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * byte_unit, byte_unit);
+
+            // clang-format off
+            if (byte_units.at(TOTAL).num_bytes < 1)
+                SYSINFO_INSERT("Disabled");
+            else
+            {
+                const std::string& perc = get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(), 
+                                                                   parse_args);
+                
+                SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
+                                            byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
+                                            byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
+                                            parse("${0}(" + perc + ")", _, parse_args)));
+            }
+            // clang-format on
+        }
+    }
+
+    else if (moduleName == "colors")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", _, parse_args));
+        }
+    }
+
+    else if (moduleName == "colors_light")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", _, parse_args));
+        }
+    }
+    
+    // clang-format off
+    // I really dislike how repetitive this code is
+    else if (hasStart(moduleName, "colors_symbol"))
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            if (moduleName.length() <= "colors_symbol()"_len)
+                die("color palette module member '{}' in invalid.\n"
+                    "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
+                    "e.g 'colors_symbol(@)' or 'colors_symbol(string)'",
+                    moduleName);
+
+            std::string symbol = moduleName;
+            symbol.erase(0, "colors_symbol("_len);
+            symbol.pop_back();
+            debug("symbol = {}", symbol);
+
+            SYSINFO_INSERT(
+                parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
+                                  symbol), _, parse_args));
+        }
+    }
+
+    else if (hasStart(moduleName, "colors_light_symbol"))
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            if (moduleName.length() <= "colors_light_symbol()"_len)
+                die("light color palette module member '{}' in invalid.\n"
+                    "Must be used like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
+                    "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'",
+                    moduleName);
+
+            std::string symbol = moduleName;
+            symbol.erase(0, "colors_light_symbol("_len);
+            symbol.pop_back();
+            debug("symbol = {}", symbol);
+
+            SYSINFO_INSERT(
+                parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
+                                  symbol), _, parse_args));
         }
     }
 
