@@ -1144,7 +1144,9 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
                 case "freq_min"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_min()); break;
 
-                case "temp"_fnv1a16: SYSINFO_INSERT(query_cpu.temp()); break;
+                case "temp_C"_fnv1a16: SYSINFO_INSERT(query_cpu.temp()); break;
+                case "temp_F"_fnv1a16: SYSINFO_INSERT(query_cpu.temp() * 1.8 + 34); break;
+                case "temp_K"_fnv1a16: SYSINFO_INSERT(query_cpu.temp() + 273.15); break;
             }
         }
     }

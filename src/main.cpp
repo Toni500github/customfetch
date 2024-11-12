@@ -302,9 +302,11 @@ gpu
   vendor	: GPU short vendor name [NVIDIA]
   vendor_long   : GPU vendor name [NVIDIA Corporation]
 
+# cpu module has a memeber called "temp" and it has 3 variant units:
+# "temp_C" (Celsius) "temp_F" (Fahrenheit) "temp_K" (Kelvin)
 cpu
   name		: CPU model name [AMD Ryzen 5 5500]
-  temp		: CPU temperature (Celsius) [40.62]
+  temp		: CPU temperature (by the choosen unit) [40.62]
   nproc         : CPU number of virtual proccessors [12]
   freq_bios_limit: CPU freq (limited by bios, in GHz) [4.32]
   freq_cur	: CPU freq (current, in GHz) [3.42]
