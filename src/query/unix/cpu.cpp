@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <string>
 
 #include "fmt/format.h"
 #include "query.hpp"
@@ -109,6 +110,33 @@ static CPU::CPU_t get_cpu_infos()
     return ret;
 }
 
+static double get_cpu_temp()
+{
+    for (const auto& dir : std::filesystem::directory_iterator{"/sys/class/hwmon/"})
+    {
+        const std::string& name = read_by_syspath((dir.path() / "name").string());
+        debug("name = {}", name);
+        // if only !continue
+        if (name == "cpu" ||
+            name == "k10temp" || 
+            name == "coretemp"){}
+        else
+            continue;
+
+        const std::string& temp_file = std::filesystem::exists(dir.path() / "temp1_input") ? dir.path() / "temp1_input" :
+                                                                                             dir.path() / "device/temp1_input";
+        if (!std::filesystem::exists(temp_file))
+            continue;
+
+        const double ret = std::stod(read_by_syspath(temp_file));
+        debug("cpu temp ret = {}", ret);
+
+        return ret / 1000.0;
+    }
+
+    return 0.0;
+}
+
 CPU::CPU() noexcept
 {
     if (!m_bInit)
@@ -135,3 +163,13 @@ double& CPU::freq_max() noexcept
 
 double& CPU::freq_min() noexcept
 { return m_cpu_infos.freq_min; }
+
+double& CPU::temp() noexcept
+{
+    static bool done = false;
+    if (!done)
+        m_cpu_infos.temp = get_cpu_temp();
+    done = true;
+
+    return m_cpu_infos.temp;
+}

@@ -183,6 +183,7 @@ public:
         double freq_min        = 0;
         double freq_cur        = 0;
         double freq_bios_limit = 0;
+        double temp            = 0;
 
         // private:
         double freq_max_cpuinfo = 0;
@@ -196,6 +197,7 @@ public:
     double&      freq_min() noexcept;
     double&      freq_cur() noexcept;
     double&      freq_bios_limit() noexcept;
+    double&      temp() noexcept;
 
 private:
     static bool  m_bInit;

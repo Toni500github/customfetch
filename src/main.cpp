@@ -304,6 +304,7 @@ gpu
 
 cpu
   name		: CPU model name [AMD Ryzen 5 5500]
+  temp		: CPU temperature (Celsius) [40.62]
   nproc         : CPU number of virtual proccessors [12]
   freq_bios_limit: CPU freq (limited by bios, in GHz) [4.32]
   freq_cur	: CPU freq (current, in GHz) [3.42]

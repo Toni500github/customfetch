@@ -1143,6 +1143,8 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                 case "freq_max"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_max()); break;
 
                 case "freq_min"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_min()); break;
+
+                case "temp"_fnv1a16: SYSINFO_INSERT(query_cpu.temp()); break;
             }
         }
     }
