@@ -26,15 +26,15 @@
 #include "platform.hpp"
 #if CF_ANDROID
 
-#include "query.hpp"
-#include "util.hpp"
-
-#include <unistd.h>
 #include <sys/stat.h>
+#include <unistd.h>
+
 #include <array>
 #include <string_view>
 
 #include "../unix/utils/packages.hpp"
+#include "query.hpp"
+#include "util.hpp"
 
 using namespace Query;
 
@@ -42,13 +42,16 @@ static System::System_t get_system_infos()
 {
     System::System_t ret;
 
-    ret.os_name = "Android";
-    ret.os_id = "android";
-    ret.os_version_id = get_android_property("ro.build.version.release");
+    ret.os_name             = "Android";
+    ret.os_id               = "android";
+    ret.os_version_id       = get_android_property("ro.build.version.release");
     ret.os_version_codename = get_android_property("ro.build.version.codename");
-    ret.os_pretty_name = "Android " + ret.os_version_codename + " " + ret.os_version_id;
+    ret.os_pretty_name      = "Android " + ret.os_version_codename + " " + ret.os_version_id;
 
-    const std::array<std::string_view, 8> properties_name = {"ro.product.marketname", "ro.vendor.product.display", "ro.config.devicename", "ro.config.marketing_name", "ro.product.vendor.model", "ro.product.oppo_model", "ro.oppo.market.name", "ro.product.brand"};
+    const std::array<std::string_view, 8> properties_name = { "ro.product.marketname",   "ro.vendor.product.display",
+                                                              "ro.config.devicename",    "ro.config.marketing_name",
+                                                              "ro.product.vendor.model", "ro.product.oppo_model",
+                                                              "ro.oppo.market.name",     "ro.product.brand" };
     for (const std::string_view name : properties_name)
     {
         if (ret.host_modelname.empty() || ret.host_modelname == UNKNOWN)
@@ -57,7 +60,7 @@ static System::System_t get_system_infos()
             break;
     }
 
-    ret.host_vendor = get_android_property("ro.product.manufacturer");
+    ret.host_vendor  = get_android_property("ro.product.manufacturer");
     ret.host_version = get_android_property("ro.product.model");
     if (access("/system/bin/init", F_OK) == 0)
     {
@@ -81,7 +84,6 @@ System::System()
         m_system_infos = get_system_infos();
     }
     m_bInit = true;
-
 }
 
 // clang-format off

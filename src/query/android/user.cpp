@@ -26,14 +26,15 @@
 #include "platform.hpp"
 #if CF_ANDROID
 
-#include "query.hpp"
-#include "util.hpp"
-#include "fmt/format.h"
-
-#include <string>
 #include <linux/limits.h>
 #include <unistd.h>
+
 #include <cstdlib>
+#include <string>
+
+#include "fmt/format.h"
+#include "query.hpp"
+#include "util.hpp"
 
 using namespace Query;
 
@@ -67,21 +68,21 @@ User::User() noexcept
         char buf[PATH_MAX];
         if (getenv("TERMUX_VERSION") || getenv("TERMUX_MAIN_PACKAGE_FORMAT"))
         {
-            m_users_infos.shell_path = realpath(fmt::format("/proc/{}/exe", getppid()).c_str(), buf);
-            m_users_infos.shell_name = get_shell_name(m_users_infos.shell_path);
+            m_users_infos.shell_path    = realpath(fmt::format("/proc/{}/exe", getppid()).c_str(), buf);
+            m_users_infos.shell_name    = get_shell_name(m_users_infos.shell_path);
             m_users_infos.shell_version = get_shell_version(m_users_infos.shell_name);
-            m_users_infos.term_name = "Termux";
-            m_users_infos.term_version = getenv("TERMUX_VERSION");
+            m_users_infos.term_name     = "Termux";
+            m_users_infos.term_version  = getenv("TERMUX_VERSION");
         }
         else
         {
             m_users_infos.shell_path = m_pPwd->pw_shell;
         }
 
-        m_users_infos.wm_name = m_users_infos.wm_version = m_users_infos.de_name = m_users_infos.de_version = m_users_infos.m_wm_path = MAGIC_LINE;
+        m_users_infos.wm_name = m_users_infos.wm_version = m_users_infos.de_name = m_users_infos.de_version =
+            m_users_infos.m_wm_path                                              = MAGIC_LINE;
     }
     m_bInit = true;
-
 }
 
 // clang-format off
