@@ -1,7 +1,13 @@
 #ifndef _PLATFORM_H
 #define _PLATFORM_H
 
-#if (defined(unix) || defined(__unix) || defined(__unix__))
+#if (defined(__ANDROID__) || defined(ANDROID_API))
+# define CF_ANDROID 1
+#else
+# define CF_ANDROID 0
+#endif
+
+#if (defined(unix) || defined(__unix) || defined(__unix__)) && !CF_ANDROID
 # define CF_UNIX 1
 #else
 # define CF_UNIX 0
@@ -11,12 +17,6 @@
 # define CF_WINDOWS 1
 #else
 # define CF_WINDOWS 0
-#endif
-
-#if (defined(__ANDROID__) || defined(ANDROID_API))
-# define CF_ANDROID 1
-#else
-# define CF_ANDROID 0
 #endif
 
 #if !(CF_UNIX || CF_ANDROID) || CF_WINDOWS
