@@ -1,6 +1,9 @@
 #ifndef _PCI_IDS_HPP
 #define _PCI_IDS_HPP
 
+#include "platform.hpp"
+#if !CF_ANDROID
+
 #include <array>
 #include <string>
 
@@ -39087,5 +39090,12 @@ C ff  Unassigned class
 inline const std::string&                           all_ids                    = get_pci_ids();
 inline constexpr std::array<std::string_view, 2405> pci_vendors_array          = get_pci_vendors_array();
 inline constexpr std::array<int, 2405>              pci_vendors_location_array = get_pci_vendors_location_array();
+#else
+
+inline const std::string&                           all_ids                    = {};
+inline constexpr std::array<std::string_view, 2405> pci_vendors_array          = {};
+inline constexpr std::array<int, 2405>              pci_vendors_location_array = {};
+
+#endif // !CF_ANDROID
 
 #endif  // _PCI_IDS_HPP

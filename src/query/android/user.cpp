@@ -67,7 +67,7 @@ User::User() noexcept
         char buf[PATH_MAX];
         if (getenv("TERMUX_VERSION") || getenv("TERMUX_MAIN_PACKAGE_FORMAT"))
         {
-            m_users_infos.shell_path = realpath(fmt::format("/proc/{}/exe", getpid()).c_str(), buf);
+            m_users_infos.shell_path = realpath(fmt::format("/proc/{}/exe", getppid()).c_str(), buf);
             m_users_infos.shell_name = get_shell_name(m_users_infos.shell_path);
             m_users_infos.shell_version = get_shell_version(m_users_infos.shell_name);
             m_users_infos.term_name = "Termux";

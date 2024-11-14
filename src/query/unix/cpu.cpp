@@ -284,7 +284,7 @@ static CPU::CPU_t get_cpu_infos()
 
 static double get_cpu_temp()
 {
-#if CF_ANDROID
+#if !CF_ANDROID
     for (const auto& dir : std::filesystem::directory_iterator{ "/sys/class/hwmon/" })
     {
         const std::string& name = read_by_syspath((dir.path() / "name").string());
