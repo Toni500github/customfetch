@@ -35,6 +35,7 @@
 
 #include "fmt/color.h"
 #include "fmt/core.h"
+#include "platform.hpp"
 
 // clang-format off
 constexpr std::size_t operator""_len(const char*, std::size_t ln) noexcept
@@ -105,6 +106,10 @@ std::string  shorten_vendor_name(std::string vendor);
 std::string  getHomeConfigDir();
 std::string  getConfigDir();
 std::vector<std::string> split(const std::string_view text, char delim);
+
+#if CF_ANDROID
+std::string get_android_property(const std::string_view name);
+#endif
 
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept

@@ -107,6 +107,7 @@ class User
 public:
     struct User_t
     {
+        std::string shell_path{ UNKNOWN };
         std::string shell_name{ UNKNOWN };
         std::string shell_version{ UNKNOWN };
         std::string wm_name{ MAGIC_LINE };

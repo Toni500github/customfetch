@@ -338,7 +338,7 @@ pkg-managers = ["pacman", "dpkg", "flatpak"]
 #
 # If you don't know what these ares, leave them by default settings
 pacman-dirs  = ["/var/lib/pacman/local/"]
-dpkg-files   = ["/var/lib/dpkg/status"]
+dpkg-files   = ["/var/lib/dpkg/status", "/data/data/com.termux/files/usr/var/lib/dpkg/status"]
 flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 

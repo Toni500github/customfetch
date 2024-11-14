@@ -23,6 +23,9 @@
  *
  */
 
+#include "platform.hpp"
+#if CF_UNIX
+
 #include <dlfcn.h>
 #include <unistd.h>
 
@@ -532,3 +535,5 @@ std::string& User::term_version(const std::string_view term_name)
 
     return m_users_infos.term_version;
 }
+
+#endif

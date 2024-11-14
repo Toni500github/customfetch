@@ -48,6 +48,7 @@
 #include "fmt/color.h"
 #include "fmt/ranges.h"
 #include "pci.ids.hpp"
+#include "platform.hpp"
 
 // https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
 bool hasEnding(const std::string_view fullString, const std::string_view ending)
@@ -341,6 +342,19 @@ std::string get_data_dir(const std::string_view dir)
 {
     return get_relative_path(dir, "XDG_DATA_DIRS", S_IFDIR);
 }
+
+#if CF_ANDROID
+#include <sys/system_properties.h>
+std::string get_android_property(const std::string_view name)
+{
+    char ret[PROP_VALUE_MAX];
+    const int len = __system_property_get(name.data(), ret);
+    if (len <= 0)
+        return "";
+
+    return ret;
+}
+#endif
 
 // https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
 void replace_str(std::string& str, const std::string_view from, const std::string_view to)

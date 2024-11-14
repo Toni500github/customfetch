@@ -23,6 +23,9 @@
  *
  */
 
+#include "platform.hpp"
+#if CF_UNIX
+
 #include <algorithm>
 #include <cstdint>
 #include <filesystem>
@@ -111,3 +114,5 @@ std::string& GPU::name() noexcept
 
 std::string& GPU::vendor() noexcept
 { return m_gpu_infos.vendor; }
+
+#endif

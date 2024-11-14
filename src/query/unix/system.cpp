@@ -23,6 +23,9 @@
  *
  */
 
+#include "platform.hpp"
+#if CF_UNIX
+
 #include <linux/limits.h>
 #include <unistd.h>
 
@@ -312,3 +315,5 @@ std::string& System::pkgs_installed(const Config& config)
 
     return m_system_infos.pkgs_installed;
 }
+
+#endif
