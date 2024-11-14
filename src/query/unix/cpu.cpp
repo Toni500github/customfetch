@@ -25,10 +25,12 @@
 
 #include <sys/types.h>
 
+#include <array>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <string_view>
 
 #include "fmt/format.h"
 #include "platform.hpp"
@@ -284,7 +286,43 @@ static CPU::CPU_t get_cpu_infos()
 
 static double get_cpu_temp()
 {
-#if !CF_ANDROID
+#if CF_ANDROID
+    // https://github.com/kamgurgul/cpu-info/blob/master/shared/src/androidMain/kotlin/com/kgurgul/cpuinfo/data/provider/TemperatureProvider.android.kt#L119
+    constexpr std::array<std::string_view, 20> temp_paths = {
+        "/sys/devices/system/cpu/cpu0/cpufreq/cpu_temp",
+        "/sys/devices/system/cpu/cpu0/cpufreq/FakeShmoo_cpu_temp",
+        "/sys/class/thermal/thermal_zone0/temp",
+        "/sys/class/i2c-adapter/i2c-4/4-004c/temperature",
+        "/sys/devices/platform/tegra-i2c.3/i2c-4/4-004c/temperature",
+        "/sys/devices/platform/omap/omap_temp_sensor.0/temperature",
+        "/sys/devices/platform/tegra_tmon/temp1_input",
+        "/sys/kernel/debug/tegra_thermal/temp_tj",
+        "/sys/devices/platform/s5p-tmu/temperature",
+        "/sys/class/thermal/thermal_zone1/temp",
+        "/sys/class/hwmon/hwmon0/device/temp1_input",
+        "/sys/devices/virtual/thermal/thermal_zone1/temp",
+        "/sys/devices/virtual/thermal/thermal_zone0/temp",
+        "/sys/class/thermal/thermal_zone3/temp",
+        "/sys/class/thermal/thermal_zone4/temp",
+        "/sys/class/hwmon/hwmonX/temp1_input",
+        "/sys/devices/platform/s5p-tmu/curr_temp",
+        "/sys/htc/cpu_temp",
+        "/sys/devices/platform/tegra-i2c.3/i2c-4/4-004c/ext_temperature",
+        "/sys/devices/platform/tegra-tsensor/tsensor_temperature",
+    };
+    for (const std::string_view path : temp_paths)
+    {
+	debug("checking {}", path);
+        if (!std::filesystem::exists(path))
+            continue;
+
+        const double ret = std::stod(read_by_syspath(path)) / 1000.0;
+        debug("cpu temp ret = {}", ret);
+
+        if (ret >= -1.0 && ret <= 250.0)
+            return ret;
+    }
+#else
     for (const auto& dir : std::filesystem::directory_iterator{ "/sys/class/hwmon/" })
     {
         const std::string& name = read_by_syspath((dir.path() / "name").string());
