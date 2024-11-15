@@ -226,24 +226,23 @@ static CPU::CPU_t get_cpu_infos()
 #if CF_ANDROID
     if (ret.name == UNKNOWN)
     {
-        std::string vendor;
-        ret.name = get_android_property("ro.soc.model");
-        if (ret.name.empty())
+        ret.modelname = get_android_property("ro.soc.model");
+        if (ret.modelname.empty())
         {
-            vendor   = "MTK";
-            ret.name = get_android_property("ro.mediatek.platform");
+            ret.vendor    = "MTK";
+            ret.modelname = get_android_property("ro.mediatek.platform");
         }
-        if (vendor.empty())
+        if (ret.vendor.empty())
         {
-            vendor = get_android_property("ro.soc.manufacturer");
-            if (vendor.empty())
-                vendor = get_android_property("ro.soc.manufacturer");
+            ret.vendor = get_android_property("ro.soc.manufacturer");
+            if (ret.vendor.empty())
+                ret.vendor = get_android_property("ro.product.product.manufacturer");
         }
 
-        if ((vendor == "QTI" || vendor == "QUALCOMM") &&
-            (hasStart(ret.name, "SM") || hasStart(ret.name, "APQ") || hasStart(ret.name, "MSM") ||
-             hasStart(ret.name, "SDM") || hasStart(ret.name, "QM")))
-            ret.name = detect_qualcomm(ret.name);
+        if ((ret.vendor == "QTI" || ret.vendor == "QUALCOMM") &&
+            (hasStart(ret.modelname, "SM") || hasStart(ret.modelname, "APQ") || hasStart(ret.modelname, "MSM") ||
+             hasStart(ret.modelname, "SDM") || hasStart(ret.modelname, "QM")))
+            ret.name = detect_qualcomm(ret.modelname);
     }
 #endif
 
@@ -361,6 +360,12 @@ std::string& CPU::name() noexcept
 
 std::string& CPU::nproc() noexcept
 { return m_cpu_infos.nproc; }
+
+std::string& CPU::vendor() noexcept
+{ return m_cpu_infos.vendor; }
+
+std::string& CPU::modelname() noexcept
+{ return m_cpu_infos.modelname; }
 
 double& CPU::freq_bios_limit() noexcept
 { return m_cpu_infos.freq_bios_limit; }

@@ -188,12 +188,19 @@ public:
 
         // private:
         double freq_max_cpuinfo = 0;
+        std::string modelname;
+        std::string vendor;
     };
 
     CPU() noexcept;
 
     std::string& name() noexcept;
     std::string& nproc() noexcept;
+
+    // only in Android
+    std::string& vendor() noexcept;
+    std::string& modelname() noexcept;
+
     double&      freq_max() noexcept;
     double&      freq_min() noexcept;
     double&      freq_cur() noexcept;
