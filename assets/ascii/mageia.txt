@@ -1,19 +1,19 @@
-${c1}        .°°.
-         °°   .°°.
-         .°°°. °°
-         .   .
-          °°° .°°°.
-      .°°°.   '___'
-${c2}     .${c1}'___'     ${c2}   .
-   :dkxc;'.  ..,cxkd;
- .dkk. kkkkkkkkkk .kkd.
-.dkk.  ';cloolc;.  .kkd
-ckk.                .kk;
-xO:                  cOd
-xO:                  lOd
-lOO.                .OO:
-.k00.              .00x
- .k00;            ;00O.
-  .lO0Kc;,,,,,,;c0KOc.
-     ;d00KKKKKK00d;
-        .,KKKK,.
+${cyan}        .°°.
+${cyan}         °°   .°°.
+${cyan}         .°°°. °°
+${cyan}         .   .
+${cyan}          °°° .°°°.
+${cyan}      .°°°.   '___'
+${white}     .${cyan}'___'     ${white}   .
+${white}   :dkxc;'.  ..,cxkd;
+${white} .dkk. kkkkkkkkkk .kkd.
+${white}.dkk.  ';cloolc;.  .kkd
+${white}ckk.                .kk;
+${white}xO:                  cOd
+${white}xO:                  lOd
+${white}lOO.                .OO:
+${white}.k00.              .00x
+${white} .k00;            ;00O.
+${white}  .lO0Kc;,,,,,,;c0KOc.
+${white}     ;d00KKKKKK00d;
+${white}        .,KKKK,.

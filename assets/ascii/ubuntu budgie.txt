@@ -1,20 +1,20 @@
-${c2}           ./oydmMMMMMMmdyo/.
-        :smMMMMMMMMMMMhs+:++yhs:
-     `omMMMMMMMMMMMN+`        `odo`
-    /NMMMMMMMMMMMMN-            `sN/
-  `hMMMMmhhmMMMMMMh               sMh`
- .mMmo-     /yMMMMm`              `MMm.
- mN/       yMMMMMMMd-              MMMm
-oN-        oMMMMMMMMMms+//+o+:    :MMMMo
-m/          +NMMMMMMMMMMMMMMMMm. :NMMMMm
-M`           .NMMMMMMMMMMMMMMMNodMMMMMMM
-M-            sMMMMMMMMMMMMMMMMMMMMMMMMM
-mm`           mMMMMMMMMMNdhhdNMMMMMMMMMm
-oMm/        .dMMMMMMMMh:      :dMMMMMMMo
- mMMNyo/:/sdMMMMMMMMM+          sMMMMMm
- .mMMMMMMMMMMMMMMMMMs           `NMMMm.
-  `hMMMMMMMMMMM.oo+.            `MMMh`
-    /NMMMMMMMMMo                sMN/
-     `omMMMMMMMMy.            :dmo`
-        :smMMMMMMMh+-`   `.:ohs:
-           ./oydmMMMMMMdhyo/.
+${blue}${1}           ./oydmMMMMMMmdyo/.
+${1}        :smMMMMMMMMMMMhs+:++yhs:
+${1}     `omMMMMMMMMMMMN+`        `odo`
+${1}    /NMMMMMMMMMMMMN-            `sN/
+${1}  `hMMMMmhhmMMMMMMh               sMh`
+${1} .mMmo-     /yMMMMm`              `MMm.
+${1} mN/       yMMMMMMMd-              MMMm
+${1}oN-        oMMMMMMMMMms+//+o+:    :MMMMo
+${1}m/          +NMMMMMMMMMMMMMMMMm. :NMMMMm
+${1}M`           .NMMMMMMMMMMMMMMMNodMMMMMMM
+${1}M-            sMMMMMMMMMMMMMMMMMMMMMMMMM
+${1}mm`           mMMMMMMMMMNdhhdNMMMMMMMMMm
+${1}oMm/        .dMMMMMMMMh:      :dMMMMMMMo
+${1} mMMNyo/:/sdMMMMMMMMM+          sMMMMMm
+${1} .mMMMMMMMMMMMMMMMMMs           `NMMMm.
+${1}  `hMMMMMMMMMMM.oo+.            `MMMh`
+${1}    /NMMMMMMMMMo                sMN/
+${1}     `omMMMMMMMMy.            :dmo`
+${1}        :smMMMMMMMh+-`   `.:ohs:
+${1}           ./oydmMMMMMMdhyo/.

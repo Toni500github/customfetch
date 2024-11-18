@@ -1,15 +1,15 @@
-${c3}                     ...`
-${c3}                     `-///:-`
-${c3}                       .+${c2}ssys${c3}/
-${c3}                        +${c2}yyyyy${c3}o    ${c2}
-${c2}                        -yyyyyy:
-${c2}           `.:/+ooo+/:` -yyyyyy+
-${c2}         `:oyyyyyys+:-.`syyyyyy:
-${c2}        .syyyyyyo-`   .oyyyyyyo
-${c2}       `syyyyyy   `-+yyyyyyy/`
-${c2}       /yyyyyy+ -/osyyyyyyo/.
-${c2}       +yyyyyy-  `.-:::-.`
-${c2}       .yyyyyy-
-${c3}        :${c2}yyyyy${c3}o
-${c3}         .+${c2}ooo${c3}+
-${c3}           `.::/:.
+${magenta}                     ...`
+${magenta}                     `-///:-`
+${magenta}                       .+ssys/
+${magenta}                        +yyyyyo    
+${magenta}                        -yyyyyy:
+${magenta}           `.:/+ooo+/:` -yyyyyy+
+${magenta}         `:oyyyyyys+:-.`syyyyyy:
+${magenta}        .syyyyyyo-`   .oyyyyyyo
+${magenta}       `syyyyyy   `-+yyyyyyy/`
+${magenta}       /yyyyyy+ -/osyyyyyyo/.
+${magenta}       +yyyyyy-  `.-:::-.`
+${magenta}       .yyyyyy-
+${magenta}        :yyyyyo
+${magenta}         .+ooo+
+${magenta}           `.::/:.

@@ -1,3 +1,28 @@
+/*
+ * Copyright 2024 Toni500git
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ * disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #ifndef _CONFIG_HPP
 #define _CONFIG_HPP
 
@@ -45,6 +70,7 @@ public:
     std::string              builtin_title_sep;
     std::string              gui_bg_image;
     std::string              ascii_logo_type;
+    std::string              logo_position;
     std::uint16_t            offset              = 0;
     std::uint16_t            logo_padding_left   = 0;
     std::uint16_t            logo_padding_top    = 0;
@@ -105,6 +131,9 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 
 # The Info tag $<> lets you print the value of a member of a module.
 # e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
+#
+# There are variants who you only need the module name,
+# such as $<ram> or $<title>
 # All the modules and their members are listed in the `--list-modules` argument
 
 # The Bash command tag $() will execute bash commands and print the output.
@@ -135,11 +164,11 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # * b - for background color.     * o        - for overline
 # * u - to  underline the text    * a(value) - for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
 # * ! - for bold text             * L(value) - to  underline the text with a style (`none`, `single`, `double`, `low`, `error`)
-# * i - for italic text           * U(value) - for choosing the underline color (hexcode without #)
-# * s - for strikethrough text    * B(value) - for bg color text (same value as above)
-#                                 * S(value) - for strikethrough color (same value as above)
-#     Terminal Only               * O(value) - for overline color (same value as above)
-# * l - for blinking text         * A(value) - for bg alpha (same value as a(value))
+# * i - for italic text           * U(value) - for choosing the underline color (hexcode color)
+# * s - for strikethrough text    * B(value) - for bg color text (hexcode color)
+#                                 * S(value) - for strikethrough color (hexcode color)
+#     Terminal Only               * O(value) - for overline color (hexcode color)
+# * l - for blinking text         * A(value) - for bg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
 #                                 * w(value) - for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
 #
 # Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[38;2;34;255;11m}.
@@ -166,7 +195,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #    Save the file and use `-s "/path/to/text/file"`.
 #    Use `--offset` (`-o`) for aligning and put it under the bonsai.
 #
-#    Read the manual cufetch.1 for more infos with $() tag
+#    Read the manual customfetch.1 for more infos with $() tag
 #
 # Q: Can I run recursive tags?
 # A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>).disk>" works,
@@ -174,8 +203,8 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 ################################################################
 
 layout = [
-    "$<builtin.title>",
-    "$<builtin.title_sep>",
+    "$<title>",
+    "$<title_sep>",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
@@ -189,14 +218,14 @@ layout = [
     "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name>",
     "${auto}DE: $<user.de_name>",
-    "${auto}Disk (/): $<disk(/).disk>",
-    "${auto}Swap: $<swap.swap>",
-    "${auto}CPU: $<cpu.cpu>",
-    "${auto}GPU: $<gpu.vendor> $<gpu.name>",
-    "${auto}RAM: $<ram.ram>",
+    "${auto}Disk (/): $<disk(/)>",
+    "${auto}Swap: $<swap>",
+    "${auto}CPU: $<cpu>",
+    "${auto}GPU: $<gpu>",
+    "${auto}RAM: $<ram>",
     "",
-    "$<builtin.colors>", # normal colors
-    "$<builtin.colors_light>" # light colors
+    "$<colors>", # normal colors
+    "$<colors_light>" # light colors
 ]
 
 # display ascii-art or image/gif (GUI only) near layout
@@ -205,7 +234,7 @@ layout = [
 # or "off" for disabling ascii-art or image displaying
 source-path = "os"
 
-# Path to where we'll take all the distros/OSs ascii arts
+# Path to where we'll take all the distros/OSs ascii arts.
 # note: it MUST contain an "ascii" subdirectory
 data-dir = "/usr/share/customfetch"
 
@@ -228,9 +257,9 @@ sep-reset = ":"
 # false = before ("test ${0}-> ")
 sep-reset-after = false
 
-# Warn against tradeoffs between slower queries for availability
-# e.g. falling back to gsettings when we can't find the config file for GTK
-slow-query-warnings = false
+# Where the logo should be displayed.
+# Values: "top" or "left"
+logo-position = "left"
 
 # Offset between the ascii art and the layout
 offset = 5
@@ -279,6 +308,10 @@ percentage-colors = ["green", "yellow", "red"]
 # Enable/Disable if you want this
 wrap-lines = true
 
+# Warn against tradeoffs between slower queries for availability
+# e.g. falling back to gsettings when we can't find the config file for GTK
+slow-query-warnings = false
+
 # $<os.uptime> config
 [os.uptime]
 # how to display the name of the uptime
@@ -310,7 +343,7 @@ flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_MODE=1 (check with "cufetch --version" if GUI mode was enabled)
+# note: customfetch needs to be compiled with GUI_MODE=1 (check with "customfetch --version" if GUI mode was enabled)
 [gui]
 enable = false
 

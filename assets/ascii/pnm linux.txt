@@ -1,20 +1,20 @@
-${c1}
-               ``.---..` `--`
-            ``.---........-:.${c2}-::`${c1}
-           ${c2}./::-${c1}........${c2}--::.````${c1}
-          ${c2}.:://:::${c1}----${c2}::::-..${c1}
-          ..${c2}--:::::--::::++-${c1}.`
-  ${c2}`-:-`${c1}   .-ohy+::${c2}-:::${c1}/sdmdd:.${c2}   `-:-
-   .-:::${c1}...${c3}sNNmds$y${c1}o/+${c3}sy+NN$m${c1}d+.`${c2}-:::-.
-     `.-:-${c1}./${c3}dN${c1}()${c3}yyooosd${c1}()${c3}$m${c1}dy${c2}-.::-.`${c1}
-      ${c2}`.${c1}-...-${c3}+hNdyyyyyydmy${c1}:......${c2}`${c1}
- ``..--.....-${c3}yNNm${c4}hssssh${c3}mmdo${c1}.........```
-`-:://:.....${c3}hNNNNN${c4}mddm${c3}NNNmds${c1}.....//::--`
-  ```.:-...${c3}oNNNNNNNNNNNNNNmd/${c1}...:-.```
-      .....${c3}hNNNNNNNNNNNNNNmds${c1}....`
-      --...${c3}hNNNNNNNNNNNNNNmdo${c1}.....
-      .:...${c3}/NNNNNNNNNNNNNNdd${c1}:....`
-       `-...${c3}+mNNNNNNNNNNNmh${c1}:...-.
-     ${c4}.:+o+/:-${c1}:+oo+///++o+/:-${c4}:/+ooo/:.
-       ${c4}+oo/:o-            +oooooso.`
-       ${c4}.`   `             `/  .-//-
+${!#3C74DD}
+${!#3C74DD}               ``.---..` `--`
+${!#3C74DD}            ``.---........-:.${red}-::`${!#3C74DD}
+           ${red}./::-${!#3C74DD}........${red}--::.````${!#3C74DD}
+          ${red}.:://:::${!#3C74DD}----${red}::::-..${!#3C74DD}
+          ${#3C74DD}..${red}--:::::--::::++-${!#3C74DD}.`
+  ${red}`-:-`${!#3C74DD}   .-ohy+::${red}-:::${!#3C74DD}/sdmdd:.${red}   `-:-
+   ${red}.-:::${!#3C74DD}...${white}sNNmds$y${!#3C74DD}o/+${white}sy+NN$m${!#3C74DD}d+.`${red}-:::-.
+     ${red}`.-:-${!#3C74DD}./${white}dN${!#3C74DD}()${white}yyooosd${!#3C74DD}()${white}$m${!#3C74DD}dy${red}-.::-.`${!#3C74DD}
+      ${red}`.${!#3C74DD}-...-${white}+hNdyyyyyydmy${!#3C74DD}:......${red}`${!#3C74DD}
+${!#3C74DD} ``..--.....-${white}yNNm${!#FF7518}hssssh${white}mmdo${!#3C74DD}.........```
+${!#3C74DD}`-:://:.....${white}hNNNNN${!#FF7518}mddm${white}NNNmds${!#3C74DD}.....//::--`
+${!#3C74DD}  ```.:-...${white}oNNNNNNNNNNNNNNmd/${!#3C74DD}...:-.```
+${!#3C74DD}      .....${white}hNNNNNNNNNNNNNNmds${!#3C74DD}....`
+${!#3C74DD}      --...${white}hNNNNNNNNNNNNNNmdo${!#3C74DD}.....
+${!#3C74DD}      .:...${white}/NNNNNNNNNNNNNNdd${!#3C74DD}:....`
+${!#3C74DD}       `-...${white}+mNNNNNNNNNNNmh${!#3C74DD}:...-.
+     ${!#FF7518}.:+o+/:-${!#3C74DD}:+oo+///++o+/:-${!#FF7518}:/+ooo/:.
+       ${!#FF7518}+oo/:o-            +oooooso.`
+       ${!#FF7518}.`   `             `/  .-//-

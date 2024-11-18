@@ -1,14 +1,15 @@
-${c3}
-
-           MMMM              MMMM
-           MMMM              MMMM
-           MMMM              MMMM
-           MMMM              MMMM
-           MMMM${c4}       .ciO| /YMMMMM*"
-${c3}           MMMM${c4}   .cOMMMMM|/MMMMM/`
- ,         ,iMM|/MMMMMMMMMMMMMMM*
-  `*.__,-cMMMMMMMMMMMMMMMMM/`${c3}.MMM
-           MM${c4}MMMMMMM/`:MMM/  ${c3}MMMM
-           MMMM              MMMM
-           MMMM              MMMM
-           """"              """"
+${yellow}${red}
+${white}
+${white}
+${white}           MMMM              MMMM
+${white}           MMMM              MMMM
+${white}           MMMM              MMMM
+${white}           MMMM              MMMM
+${white}           MMMM${green}       .ciO| /YMMMMM*"
+${white}           MMMM${green}   .cOMMMMM|/MMMMM/`
+${green} ,         ,iMM|/MMMMMMMMMMMMMMM*
+${green}  `*.__,-cMMMMMMMMMMMMMMMMM/`${white}.MMM
+${white}           MM${green}MMMMMMM/`:MMM/  ${white}MMMM
+${white}           MMMM              MMMM
+${white}           MMMM              MMMM
+${white}           """"              """"

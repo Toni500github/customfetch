@@ -1,18 +1,18 @@
-${c2}                             A
-                            VW
-                           VVW\\
-                         .yWWW\\
- ,;,,u,;yy;;v;uyyyyyyy  ,WWWWW^
-    *WWWWWWWWWWWWWWWW/  $VWWWWw      ,
-        ^*%WWWWWWVWWX  $WWWW**    ,yy
-        ,    "**WWW/' **'   ,yy/WWW*`
-       &WWWWwy    `*`  <,ywWW%VWWW*
-     yWWWWWWWWWW*    .,   "**WW%W
-   ,&WWWWWM*"`  ,y/  &WWWww   ^*
-  XWWX*^   ,yWWWW09 .WWWWWWWWwy,
- *`        &WWWWWM  WWWWWWWWWWWWWww,
-           (WWWWW` /#####WWW***********
-           ^WWWW
-            VWW
-            Wh.
-            V/
+${black}${1}                             A
+${1}                            VW
+${1}                           VVW\\
+${1}                         .yWWW\\
+${1} ,;,,u,;yy;;v;uyyyyyyy  ,WWWWW^
+${1}    *WWWWWWWWWWWWWWWW/  $VWWWWw      ,
+${1}        ^*%WWWWWWVWWX  $WWWW**    ,yy
+${1}        ,    "**WWW/' **'   ,yy/WWW*`
+${1}       &WWWWwy    `*`  <,ywWW%VWWW*
+${1}     yWWWWWWWWWW*    .,   "**WW%W
+${1}   ,&WWWWWM*"`  ,y/  &WWWww   ^*
+${1}  XWWX*^   ,yWWWW09 .WWWWWWWWwy,
+${1} *`        &WWWWWM  WWWWWWWWWWWWWww,
+${1}           (WWWWW` /#####WWW***********
+${1}           ^WWWW
+${1}            VWW
+${1}            Wh.
+${1}            V/

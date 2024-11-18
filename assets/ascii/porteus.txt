@@ -1,23 +1,23 @@
-${c1}             `.-:::-.`
-         -+ydmNNNNNNNmdy+-
-      .+dNmdhs+//////+shdmdo.
-    .smmy+-`             ./sdy:
-  `omdo.    `.-/+osssso+/-` `+dy.
- `yms.   `:shmNmdhsoo++osyyo-``oh.
- hm/   .odNmds/.`    ``.....:::-+s
-/m:  `+dNmy:`   `./oyhhhhyyooo++so
-ys  `yNmy-    .+hmmho:-.`     ```
-s:  yNm+`   .smNd+.
-`` /Nm:    +dNd+`
-   yN+   `smNy.
-   dm    oNNy`
-   hy   -mNm.
-   +y   oNNo
-   `y`  sNN:
-    `:  +NN:
-     `  .mNo
-         /mm`
-          /my`
-           .sy`
-             .+:
-                `
+${cyan}             `.-:::-.`
+${cyan}         -+ydmNNNNNNNmdy+-
+${cyan}      .+dNmdhs+//////+shdmdo.
+${cyan}    .smmy+-`             ./sdy:
+${cyan}  `omdo.    `.-/+osssso+/-` `+dy.
+${cyan} `yms.   `:shmNmdhsoo++osyyo-``oh.
+${cyan} hm/   .odNmds/.`    ``.....:::-+s
+${cyan}/m:  `+dNmy:`   `./oyhhhhyyooo++so
+${cyan}ys  `yNmy-    .+hmmho:-.`     ```
+${cyan}s:  yNm+`   .smNd+.
+${cyan}`` /Nm:    +dNd+`
+${cyan}   yN+   `smNy.
+${cyan}   dm    oNNy`
+${cyan}   hy   -mNm.
+${cyan}   +y   oNNo
+${cyan}   `y`  sNN:
+${cyan}    `:  +NN:
+${cyan}     `  .mNo
+${cyan}         /mm`
+${cyan}          /my`
+${cyan}           .sy`
+${cyan}             .+:
+${cyan}                `

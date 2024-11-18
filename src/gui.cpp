@@ -1,3 +1,28 @@
+/*
+ * Copyright 2024 Toni500git
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ * disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #ifdef GUI_MODE
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -12,6 +37,7 @@
 #include "fmt/ranges.h"
 #include "gdkmm/pixbufanimation.h"
 #include "gtkmm/enums.h"
+#include "glibmm/main.h"
 #include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
@@ -61,12 +87,14 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     // this is just for parse() to auto add the distro colors
     std::ifstream file(path, std::ios::binary);
     std::string   line, _;
+    parse_args_t parse_args{ systemInfo, _, config, colors, false, true };
 
     while (std::getline(file, line))
-        parse(line, systemInfo, _, config, colors, false);
+        parse(line, parse_args);
 
+    parse_args.parsingLayout = true;
     for (std::string& layout : layout)
-        layout = parse(layout, systemInfo, _, config, colors, true);
+        layout = parse(layout, parse_args);
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
@@ -108,8 +136,8 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     m_box.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
 
     // https://stackoverflow.com/a/76372996
-    auto                   context = m_label.get_pango_context();
-    Pango::FontDescription font(config.font);
+    Glib::RefPtr<Pango::Context> context = m_label.get_pango_context();
+    Pango::FontDescription       font(config.font);
     debug("font family = {}", font.get_family().raw());
     debug("font style = {}", fmt::underlying(font.get_style()));
     debug("font weight = {}", fmt::underlying(font.get_weight()));
@@ -134,9 +162,20 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
         if (!std::filesystem::exists(config.gui_bg_image))
             die("Background image path '{}' doesn't exist", config.gui_bg_image);
 
-        m_original_pixbuf = Gdk::Pixbuf::create_from_file(config.gui_bg_image);
-        update_background_image(get_allocation().get_width(), get_allocation().get_height());
-        m_overlay.add(m_bg_image);
+        m_bg_animation = Gdk::PixbufAnimation::create_from_file(config.gui_bg_image);
+        if (m_bg_animation->is_static_image())
+        {
+            // set it initially and resize only on window resize
+            m_bg_static_image = m_bg_animation->get_static_image();
+            update_static_image();
+        }
+        else
+        {
+            // animated image: use timer to update frames
+            const int duration = m_bg_animation->get_iter(nullptr)->get_delay_time();
+            Glib::signal_timeout().connect(sigc::mem_fun(*this, &Window::on_update_animation), duration);
+        }
+        m_overlay.add_overlay(m_bg_image);
     }
 
     m_box.pack_start(m_label, Gtk::PACK_SHRINK);
@@ -145,7 +184,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     m_overlay.add_overlay(m_alignment);
     add(m_overlay);
 
-    signal_size_allocate().connect(sigc::mem_fun(*this, &Window::on_window_resized));
+    signal_size_allocate().connect(sigc::mem_fun(*this, &Window::on_window_resize));
 
     show_all_children();
 }

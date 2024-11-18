@@ -1,9 +1,36 @@
+/*
+ * Copyright 2024 Toni500git
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ * disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #ifndef _GUI_HPP
 #define _GUI_HPP
 
 #ifdef GUI_MODE
 
 #include "config.hpp"
+#include "gdkmm/pixbuf.h"
+#include "gdkmm/pixbufanimation.h"
 #include "gtkmm/alignment.h"
 #include "gtkmm/box.h"
 #include "gtkmm/container.h"
@@ -27,28 +54,53 @@ private:
     Gtk::Alignment  m_alignment;
     Gtk::Label      m_label;
     Gtk::Image     *m_img, m_bg_image;
-    Glib::RefPtr<Gdk::Pixbuf> m_original_pixbuf;
+    Glib::RefPtr<Gdk::PixbufAnimationIter> m_iter;
+    Glib::RefPtr<Gdk::PixbufAnimation> m_bg_animation;
+    Glib::RefPtr<Gdk::Pixbuf> m_bg_static_image;
+    int m_width, m_height;
 
-    void update_background_image(int width, int height)
+    void on_window_resize(Gtk::Allocation& allocation)
     {
-        if (m_original_pixbuf)
-        {
-            Glib::RefPtr<Gdk::Pixbuf> scaled_pixbuf =
-                m_original_pixbuf->scale_simple(width, height, Gdk::INTERP_BILINEAR);
+        m_width = allocation.get_width();
+        m_height = allocation.get_height();
 
-            m_bg_image.set(scaled_pixbuf);
+        if (m_bg_static_image)
+            // static image: Update to fit the new window size
+            update_static_image();
+        else if (m_iter)
+            // animated image: Update the current frame
+            update_frame();
+    }
+
+    bool on_update_animation()
+    {
+        if (!m_iter)
+            m_iter = m_bg_animation->get_iter(nullptr);
+        else
+            m_iter->advance();
+
+        update_frame();
+        return true;  // continue the timer
+    }
+
+    void update_static_image()
+    {
+        // scale the static image to fit the window size
+        const Glib::RefPtr<Gdk::Pixbuf> scaled_image = m_bg_static_image->scale_simple(m_width, m_height, Gdk::INTERP_BILINEAR);
+        m_bg_image.set(scaled_image);
+    }
+
+    void update_frame()
+    {
+        // scale the current frame of the animation to fit the window size
+        const Glib::RefPtr<Gdk::Pixbuf> current_frame = m_iter->get_pixbuf();
+        if (current_frame)
+        {
+            const Glib::RefPtr<Gdk::Pixbuf> scaled_frame = current_frame->scale_simple(m_width, m_height, Gdk::INTERP_BILINEAR);
+            m_bg_image.set(scaled_frame);
         }
     }
 
-    // Signal handler for window resize
-    void on_window_resized(Gtk::Allocation& allocation)
-    {
-        int new_width  = allocation.get_width();
-        int new_height = allocation.get_height();
-
-        // Update the background image with the new dimensions
-        update_background_image(new_width, new_height);
-    }
 };
 
 }  // namespace GUI

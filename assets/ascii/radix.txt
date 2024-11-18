@@ -1,18 +1,18 @@
-${c2}                .:oyhdmNo
-             `/yhyoosdms`
-            -o+/ohmmho-
-           ..`.:/:-`
-     `.--:::-.``${c1}
-  .+ydNMMMMMMNmhs:`
-`omMMMMMMMMMMMMMMNh-
-oNMMMNmddhhyyhhhddmy.
-mMMMMNmmddhhysoo+/:-`
-yMMMMMMMMMMMMMMMMNNh.
--dmmmmmNNMMMMMMMMMMs`
- -+oossyhmMMMMMMMMd-
- `sNMMMMMMMMMMMMMm:
-  `yMMMMMMNmdhhhh:
-   `sNMMMMMNmmho.
-    `+mMMMMMMMy.
-      .yNMMMm+`
-       `:yd+.
+${green}                .:oyhdmNo
+${green}             `/yhyoosdms`
+${green}            -o+/ohmmho-
+${green}           ..`.:/:-`
+${green}     `.--:::-.``
+${red}  .+ydNMMMMMMNmhs:`
+${red}`omMMMMMMMMMMMMMMNh-
+${red}oNMMMNmddhhyyhhhddmy.
+${red}mMMMMNmmddhhysoo+/:-`
+${red}yMMMMMMMMMMMMMMMMNNh.
+${red}-dmmmmmNNMMMMMMMMMMs`
+${red} -+oossyhmMMMMMMMMd-
+${red} `sNMMMMMMMMMMMMMm:
+${red}  `yMMMMMMNmdhhhh:
+${red}   `sNMMMMMNmmho.
+${red}    `+mMMMMMMMy.
+${red}      .yNMMMm+`
+${red}       `:yd+.

@@ -1,13 +1,17 @@
-[![GitHub top language](https://img.shields.io/github/languages/top/Toni500github/customfetch?logo=cplusplusbuilder&label=)](https://github.com/Toni500github/customfetch/blob/main/src)
-[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/Toni500github/customfetch/makefile.yml)](https://github.com/Toni500github/customfetch/actions)\
-[![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
+<h1 align="center">
+  Customfetch
+</h1>
 
-# Customfetch
+<p align="center">
+    A system information fetch tool (or neofetch like program), which its focus point is the perfomance and <b>customizability</b>
+</p>
+<p align="center">
+    <img src="https://img.shields.io/github/languages/top/Toni500github/customfetch?logo=cplusplusbuilder&label=" />
+    <img src="https://img.shields.io/github/actions/workflow/status/Toni500github/customfetch/makefile.yml" />
+    <img src="https://img.shields.io/badge/Standard-C%2B%2B20-success" />
+</p>
 
-A system information fetch tool (or [neofetch](https://github.com/dylanaraps/neofetch) like program), which its focus point is the customizability and perfomance.\
-`customfetch` is designed to provide a really customizable way to display your system informations in the way you like or want.
-
-Currently supports Linux distros only. Android may be coming when stable release
+<!--Currently supports Linux distros only. Android may be coming when stable release
 <!-- Comment this because it's still in WIP for 3 weeks, no shit it won't work on some OSs
 >[!NOTE]
 >The goal is to be cross-platform, so maybe Android and MacOS support will come some day\
@@ -17,19 +21,21 @@ Currently supports Linux distros only. Android may be coming when stable release
 >or maybe continue using neofetch/fastfetch if it still works great for you
 -->
 
-<img align=left width=52% height=50% src="assets/screenshots/nitch_catpan-style.png" />
-<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="49%" height="16px" align="left" />
-<img align=left width=52% height=50% src="assets/screenshots/modern-simple.png"/>
+<!-- Looks fire on PC but ass on mobile fucking hell. too bad -->
+<img align=left width=54% src="screenshots/nitch_catpan-style2.png" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="45%" height="14px" align="left" />
+<img align=left width=54% src="screenshots/modern-simple.png"/>
 <p align="center">
-    <img align="top" width=44% height=20% src="assets/screenshots/cbonsai.png" />
+    <img align="top" width=43.20% src="screenshots/cbonsai.png" />
 </p>
-<img src="assets/screenshots/pipeline-style.png" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="1px" height="1px" align="left" />
+<img src="screenshots/pipeline-style.png" />
 
 ## Key Features
 
-* **GUI mode (GTK3)**
-* Really customizable and fast, check [Config (with explanation)](#config-with-explanation) section
-* Lightweight
+* **GUI mode (GTK3)**: Run customfetch even as a GUI application
+* Really easy customizable and fast, check [Config (with explanation)](#config-with-explanation) section
+* Super lightweight, 3.1MB max
 
 ## Depends
 currently requires **C++20**, but it's possible to compile with C++17 too (not officially supported)
@@ -40,47 +46,52 @@ If you want to install with GUI mode install from your package manager:
 * `gtk3`
 * `gtkmm3`
 
+optional dependencies that will make customfetch faster.
+The name can vary depending on the package manager or distro
+* `dconf`: Alternative to the slow `gsettings` command
+* `libxfce4util`: Query XFCE4 version faster
+* `wayland-client`: Library for getting the Wayland compositor faster
+
 ## Installation
 
 >[!NOTE]
 >installing with GUI mode may slow down customfetch a bit because it needs to load the GUI libraries at runtime.\
->To check if it's enabled or not, run "cufetch --version"
+>To check if it's enabled or not, run "customfetch --version"
 
 ### Debian/Ubuntu and based
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
 
 ### Arch and based (AUR)
 ```bash
-# btw checkout our other project https://github.com/BurntRanch/TabAUR ;)
 # either
-taur -S customfetch-bin
+yay -S customfetch-bin
 
 # or wiht GUI mode
-taur -S customfetch-gui-bin
+yay -S customfetch-gui-bin
 ```
 
 ### General Distros (Manual installation)
 Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni500github/customfetch/releases/latest) \
-It contains the binary `cufetch` and the manual `cufetch.1` with the `LICENSE`.\
+It contains the binary `customfetch` and the manual `customfetch.1` with the `LICENSE`.\
 Togheter with the directory `assets/ascii` with the distro ascii art logos.\
-If installing the GUI mode version, there's `cufetch.desktop`
+If installing the GUI mode version, there's `customfetch.desktop`
 
 ### Arch and based (AUR) (source)
 ```bash
 # either
-taur -S customfetch
+yay -S customfetch
 
 # or wiht GUI mode
-taur -S customfetch-gui
+yay -S customfetch-gui
 ```
 
 ### Arch and based (unstable) (AUR) (source)
 ```bash
 # either
-taur -S customfetch-git
+yay -S customfetch-git
 
 # or wiht GUI mode
-taur -S customfetch-gui-git
+yay -S customfetch-gui-git
 ```
 
 ### Compile from (source) (unstable)
@@ -94,13 +105,13 @@ cd customfetch
 make install DEBUG=0 GUI_MODE=0
 
 # automatically generates a config and prints the infos
-cufetch
+customfetch
 ```
 
 ## Config (with explanation)
 
-Read the manual `cufetch.1` or the comments in the default generated config for knowing more about the configuration in customfetch.\
-This is only a brief explaination and preview.
+Read the manual `customfetch.1` or the comments in the default generated config for knowing more about the configuration in customfetch.\
+This is only an explaination about tags and preview, that can be always found in the documentation.
 
 Here's an example using my config
 
@@ -124,11 +135,11 @@ layout = [
     "${auto}Icons: $<theme-gtk-all.icons>",
     "${auto}Font: $<theme-gtk-all.font>",
     "${auto}Cursor: $<theme.cursor>",
-    "${auto}WM: $<user.wm_name>",
-    "${auto}DE: $<user.de_name>",
+    "${auto}WM: $<user.wm_name> $<user.wm_version>",
+    "${auto}DE: $<user.de_name> $<user.de_version>",
     "${auto}Disk(/): $<disk(/).disk>",
     "${auto}CPU: $<cpu.cpu>",
-    "${auto}GPU: $<gpu.name>",
+    "${auto}GPU: $<gpu.vendor> $<gpu.name>",
     "${auto}RAM: $<ram.ram>",
     "",
     "$<builtin.colors>", # normal colors palette
@@ -181,10 +192,10 @@ They can be used in the ascii art text file and layout, but how to use them?
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`o` - for overline\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`a(value)` - for fg alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`L(value)` - for choosing an underline style (`none`, `single`, `double`, `low`, `error`)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`U(value)` - for choosing the underline color (hexcode without #)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`B(value)` - for choosing the bg color text (hexcode without #)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`S(value)` - for choosing the strikethrough color (hexcode without #)\
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`O(value)` - for choosing the overline color (hexcode without #)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`U(value)` - for choosing the underline color (hexcode color)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`B(value)` - for choosing the bg color text (hexcode color)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`S(value)` - for choosing the strikethrough color (hexcode color)\
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`O(value)` - for choosing the overline color (hexcode color)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`A(value)` - for choosing the bg text alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`w(value)` - for choosing the font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)\
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Terminal Only**\
@@ -207,13 +218,13 @@ e.g `the number 50 is \< than 100 \& 98`
 Won't affect the printing in terminal
 
 # TODOs
-* Color all ASCII arts (157/262) will take long ahh time
+* tell me
 
 # Thanks
 I would like to thanks:
 * my best-friend [BurntRanch](https://github.com/BurntRanch/),\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me initialize this project and motivate me to keep going\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for making my customizability idea come true with the parser.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for making my customizability idea come true with the first prototype of the parser.
 
 * the Better C++ [discord server](https://discord.gg/uSzTjkXtAM), \
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me improving the codebase and helping me with any issues I got,\
@@ -231,4 +242,4 @@ I would like to thanks:
 I hope you'll like customfetch, and also checkout [TabAUR](https://github.com/BurntRanch/TabAUR/tree/dev), our other project that was made before customfetch.\
 Don't forgot [sdl_engine](https://github.com/BurntRanch/sdl_engine) too ;)
 
-![meme.png](assets/screenshots/meme.png)
+![meme.png](screenshots/meme.png)

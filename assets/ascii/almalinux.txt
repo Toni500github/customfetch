@@ -13,7 +13,7 @@ ${blue},xkkkd;kk'      ,d;    ${cyan}ld.   ${green}':dkd::cc,
 ${blue} .,,.;xkko'.';lxo.      ${cyan}dx,  ${green}:kkk'xkkkkc
 ${blue}     'dkkkkkxo:.        ${cyan};kx  ${green}.kkk:;xkkd.
 ${blue}       .....   ${cyan}.;dk:.   ${cyan}lkk.  ${green}:;,
-             ${cyan}:kkkkkkkdoxkkx
+${cyan}             :kkkkkkkdoxkkx
 ${cyan}              ,c,,;;;:xkkd.
 ${cyan}                ;kkkkl...
 ${cyan}                ;kkkkl

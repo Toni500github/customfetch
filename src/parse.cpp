@@ -1,3 +1,28 @@
+/*
+ * Copyright 2024 Toni500git
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ * disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #include "parse.hpp"
 
 #include <unistd.h>
@@ -21,14 +46,14 @@
 class Parser
 {
 public:
-    Parser(const std::string_view src) : src{src} {}
+    Parser(const std::string_view src, std::string& pureOutput) : src{src}, pureOutput{pureOutput} {}
 
-    bool try_read(char c)
+    bool try_read(const char c)
     {
         if (is_eof())
             return false;
 
-        if (src.at(pos) == c)
+        if (src[pos] == c)
         {
             ++pos;
             return true;
@@ -37,10 +62,13 @@ public:
         return false;
     }
 
-    char read_char()
+    char read_char(const bool add_pureOutput = false)
     {
         if (is_eof())
             return 0;
+
+        if (add_pureOutput)
+            pureOutput += src[pos];
 
         ++pos;
         return src[pos - 1];
@@ -51,7 +79,10 @@ public:
 
     void rewind(const size_t count = 1)
     { pos -= std::min(pos, count); }
+
     const std::string_view src;
+    std::string&           pureOutput;
+    size_t                 dollar_pos = 0;
     size_t                 pos = 0;
 };
 
@@ -145,12 +176,14 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
     return ss.str();
 }
 
-// parse() for parse_args_t& arguments
-// some times we don't want to use the original pureOutput,
-// so we have to create a tmp string just for the sake of the function arguments
-static std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
+std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
 {
-    return parse(input, parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+    return parse(input.data(), parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+}
+
+std::string parse(const std::string_view input, parse_args_t& parse_args)
+{
+    return parse(input.data(), parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout);
 }
 
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
@@ -205,7 +238,7 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
     return "(unknown/invalid module)";
 }
 
-std::string parse(Parser& parser, parse_args_t& parse_args, bool evaluate = true, char until = 0);
+std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate = true, const char until = 0);
 
 std::optional<std::string> parse_conditional_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
 {
@@ -228,8 +261,7 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     if (!parser.try_read('('))
         return {};
 
-    std::string  command = parse(parser, parse_args, evaluate, ')');
-    const size_t tagpos  = parse_args.pureOutput.find("$(" + command + ")");
+    std::string command = parse(parser, parse_args, evaluate, ')');
 
     if (!evaluate)
         return {};
@@ -239,13 +271,8 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
         command.erase(0, 1);
 
     const std::string& cmd_output = read_shell_exec(command);
-    if (!parse_args.parsingLayout && tagpos != std::string::npos)
-    {
-        if (removetag)
-            parse_args.pureOutput.erase(tagpos, command.length() + "$(!)"_len);
-        else
-            parse_args.pureOutput.replace(tagpos, command.length() + "$()"_len, cmd_output);
-    }
+    if (!parse_args.parsingLayout && !removetag && parser.dollar_pos != std::string::npos)
+        parse_args.pureOutput.replace(parser.dollar_pos, command.length() + "$()"_len, cmd_output);
 
     return cmd_output;
 }
@@ -266,13 +293,12 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     const Config&       config  = parse_args.config;
     const colors_t&     colors  = parse_args.colors;
     const size_t        taglen  = color.length() + "${}"_len;
-    const size_t        tagpos  = parse_args.pureOutput.find("${" + color + "}");
     const std::string   endspan = (!parse_args.firstrun_clr ? "</span>" : "");
 
     if (config.m_disable_colors)
     {
-        if (tagpos != std::string::npos)
-            parse_args.pureOutput.erase(tagpos, taglen);
+        if (parser.dollar_pos != std::string::npos)
+            parse_args.pureOutput.erase(parser.dollar_pos, taglen);
         return "";
     }
 
@@ -341,7 +367,7 @@ jumpauto:
                 default:                str_clr = color; break;
             }
 
-            const size_t pos = str_clr.find('#');
+            const size_t pos = str_clr.rfind('#');
             if (pos != std::string::npos)
             {
                 std::string        tagfmt  = "span ";
@@ -364,7 +390,7 @@ jumpauto:
                 };
 
                 bool bgcolor = false;
-                for (uint i = 0; i < opt_clr.length(); ++i)
+                for (size_t i = 0; i < opt_clr.length(); ++i)
                 {
                     switch (opt_clr.at(i))
                     {
@@ -395,12 +421,12 @@ jumpauto:
 
                         case 'U':
                             argmode_pos = i;
-                            i += append_argmode("underline_color='#", "colored underline");
+                            i += append_argmode("underline_color='", "colored underline");
                             break;
 
                         case 'B':
                             argmode_pos = i;
-                            i += append_argmode("bgcolor='#", "bgcolor");
+                            i += append_argmode("bgcolor='", "bgcolor");
                             break;
 
                         case 'w':
@@ -410,12 +436,12 @@ jumpauto:
 
                         case 'O':
                             argmode_pos = i;
-                            i += append_argmode("overline_color='#", "overline color");
+                            i += append_argmode("overline_color='", "overline color");
                             break;
 
                         case 'S':
                             argmode_pos = i;
-                            i += append_argmode("strikethrough_color='#", "color of strikethrough line");
+                            i += append_argmode("strikethrough_color='", "color of strikethrough line");
                             break;
                     }
                 }
@@ -451,6 +477,8 @@ jumpauto:
             else
             {
                 error("PARSER: failed to parse line with color '{}'", str_clr);
+                if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+                    parse_args.pureOutput.erase(parser.dollar_pos, taglen);
                 return output;
             }
         }
@@ -470,7 +498,7 @@ jumpauto:
                 default:                str_clr = color; break;
             }
 
-            const size_t pos = str_clr.find('#');
+            const size_t pos = str_clr.rfind('#');
             if (pos != std::string::npos)
             {
                 const std::string& opt_clr = str_clr.substr(0, pos);
@@ -490,7 +518,7 @@ jumpauto:
                 };
 
                 bool bgcolor = false;
-                for (uint i = 0; i < opt_clr.length(); ++i)
+                for (size_t i = 0; i < opt_clr.length(); ++i)
                 {
                     switch (opt_clr.at(i))
                     {
@@ -519,6 +547,11 @@ jumpauto:
                     append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
 
                 // you can't fmt::format(style, ""); ughh
+                if (style.has_emphasis())
+                {
+                    fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
+                    output += emph.begin();
+                }
                 if (style.has_background() || style.has_foreground())
                 {
                     const uint32_t rgb_num = bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
@@ -526,23 +559,20 @@ jumpauto:
                     fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1B[48;2;" : "\x1B[38;2;");
                     output += ansi.begin();
                 }
-                if (style.has_emphasis())
-                {
-                    fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
-                    output += emph.begin();
-                }
             }
 
             // "\\e" is for checking in the ascii_art, \033 in the config
             else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
             {
-                output += "\x1B[";
+                output += "\033[";
                 output += hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
             }
 
             else
             {
                 error("PARSER: failed to parse line with color '{}'", str_clr);
+                if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+                    parse_args.pureOutput.erase(parser.dollar_pos, taglen);
                 return output;
             }
         }
@@ -552,8 +582,8 @@ jumpauto:
             auto_colors.push_back(color);
     }
 
-    if (!parse_args.parsingLayout && tagpos != std::string::npos)
-        parse_args.pureOutput.erase(tagpos, taglen);
+    if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+        parse_args.pureOutput.erase(parser.dollar_pos, taglen);
 
     parse_args.firstrun_clr = false;
 
@@ -572,13 +602,25 @@ std::optional<std::string> parse_info_tag(Parser& parser, parse_args_t& parse_ar
 
     const size_t dot_pos = module.find('.');
     if (dot_pos == module.npos)
-        die("module name '{}' doesn't have a dot '.' for separating module name and value", module);
+    {
+        addValueFromModule(module, parse_args);
+        const std::string& info = getInfoFromName(parse_args.systemInfo, module, "module-" + module);
+
+        if (parser.dollar_pos != std::string::npos)
+            parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
+
+        return info;
+    }
 
     const std::string& moduleName       = module.substr(0, dot_pos);
     const std::string& moduleMemberName = module.substr(dot_pos + 1);
-    addValueFromModule(moduleName, moduleMemberName, parse_args);
+    addValueFromModuleMember(moduleName, moduleMemberName, parse_args);
 
-    return getInfoFromName(parse_args.systemInfo, moduleName, moduleMemberName);
+    const std::string& info = getInfoFromName(parse_args.systemInfo, moduleName, moduleMemberName);
+
+    if (parser.dollar_pos != std::string::npos)
+        parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
+    return info;
 }
 
 std::optional<std::string> parse_perc_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
@@ -608,17 +650,20 @@ std::optional<std::string> parse_tags(Parser& parser, parse_args_t& parse_args, 
     if (!parser.try_read('$'))
         return {};
 
-    if (const auto& ifTag = parse_conditional_tag(parser, parse_args, evaluate))
-        return ifTag;
+    if (parser.dollar_pos != std::string::npos)
+        parser.dollar_pos = parser.pureOutput.find('$', parser.dollar_pos);
 
-    if (const auto& command_tag = parse_command_tag(parser, parse_args, evaluate))
-        return command_tag;
+    if (const auto& color_tag = parse_color_tag(parser, parse_args, evaluate))
+        return color_tag;
 
     if (const auto& module_tag = parse_info_tag(parser, parse_args, evaluate))
         return module_tag;
 
-    if (const auto& color_tag = parse_color_tag(parser, parse_args, evaluate))
-        return color_tag;
+    if (const auto& command_tag = parse_command_tag(parser, parse_args, evaluate))
+        return command_tag;
+
+    if (const auto& ifTag = parse_conditional_tag(parser, parse_args, evaluate))
+        return ifTag;
 
     if (const auto& perc_tag = parse_perc_tag(parser, parse_args, evaluate))
         return perc_tag;
@@ -640,39 +685,31 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
         }
 
         if (parser.try_read('\\'))
-            result += parser.read_char();
-
-        else if (const auto tagStr = parse_tags(parser, parse_args, evaluate))
+        {
+            result += parser.read_char(until == 0);
+        }
+        else if (const auto& tagStr = parse_tags(parser, parse_args, evaluate))
+        {
             result += *tagStr;
-
+        }
         else
-            result += parser.read_char();
+        {
+            result += parser.read_char(until == 0);
+        }
     }
 
     return result;
 }
 
-std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
+std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
                   const colors_t& colors, const bool parsingLayout)
 {
-    std::string output{ input.data() };
-    pureOutput = output;
-
-    // we only use it in GUI mode
-    bool firstrun_clr = true;
-
     if (!config.sep_reset.empty() && parsingLayout)
     {
         if (config.sep_reset_after)
-        {
-            replace_str(output,     config.sep_reset, config.sep_reset + "${0}");
-            replace_str(pureOutput, config.sep_reset, config.sep_reset + "${0}");
-        }
+            replace_str(input, config.sep_reset, config.sep_reset + "${0}");
         else
-        {
-            replace_str(output,     config.sep_reset, "${0}" + config.sep_reset);
-            replace_str(pureOutput, config.sep_reset, "${0}" + config.sep_reset);
-        }
+            replace_str(input, config.sep_reset, "${0}" + config.sep_reset);
     }
 
     // escape pango markup
@@ -680,29 +717,19 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
     // workaround: just put "\<" or "\&" in the config, e.g "$<os.kernel> \<- Kernel"
     if (config.gui)
     {
-        replace_str(output, "\\<", "&lt;");
-        replace_str(output, "\\&", "&amp;");
+        replace_str(input, "\\<", "&lt;");
+        replace_str(input, "\\&", "&amp;");
     }
     else
     {
-        replace_str(output, "\\<", "<");
-        replace_str(output, "\\&", "&");
+        replace_str(input, "\\<", "<");
+        replace_str(input, "\\&", "&");
     }
 
-    replace_str(pureOutput, "\\<", "<");
-    replace_str(pureOutput, "\\&", "&");
-
-    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, firstrun_clr };
-    Parser       parser{ output };
+    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true };
+    Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };
-
-    size_t pos = 0;
-    while ((pos = pureOutput.find('\\', pos)) != pureOutput.npos)
-    {
-        pureOutput.erase(pos, 1);
-        ++pos;
-    }
 
     if (config.gui && !parse_args.firstrun_clr)
         ret += "</span>";
@@ -819,7 +846,13 @@ static std::string prettify_de_name(const std::string_view de_name)
     return de_name.data();
 }
 
-void addValueFromModule(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args)
+std::vector<std::uint16_t> queried_gpus;
+std::vector<std::string>   queried_disks;
+std::vector<std::string>   queried_themes_names;
+systemInfo_t               queried_themes;
+
+// clang-format on
+void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args)
 {
 #define SYSINFO_INSERT(x) sysInfo.at(moduleName).insert({ moduleMemberName, variant(x) })
 
@@ -827,13 +860,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
     const Config& config  = parse_args.config;
     systemInfo_t& sysInfo = parse_args.systemInfo;
 
-    const auto&                       moduleMember_hash = fnv1a16::hash(moduleMemberName);
-    static std::vector<std::uint16_t> queried_gpus;
-    static std::vector<std::string>   queried_disks;
-    static std::vector<std::string>   queried_themes_names;
-    static systemInfo_t               queried_themes;
-
-    const std::uint16_t byte_unit = config.use_SI_unit ? 1000 : 1024;
+    const auto&                                moduleMember_hash = fnv1a16::hash(moduleMemberName);
+    const std::uint16_t                        byte_unit = config.use_SI_unit ? 1000 : 1024;
     constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
                                                                          "KiB", "MB", "MiB", "PB", "PiB", "TB",
                                                                          "TiB", "YB", "YiB", "ZB", "ZiB" };
@@ -865,6 +893,8 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
             switch (moduleMember_hash)
             {
                 case "name"_fnv1a16: SYSINFO_INSERT(query_system.os_pretty_name()); break;
+
+                case "name_id"_fnv1a16: SYSINFO_INSERT(query_system.os_id()); break;
 
                 case "uptime"_fnv1a16:
                     SYSINFO_INSERT(get_auto_uptime(uptime_days, uptime_hours.count() % 24, uptime_mins.count() % 60,
@@ -925,85 +955,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                 case "host_version"_fnv1a16: SYSINFO_INSERT(query_system.host_version()); break;
 
                 case "arch"_fnv1a16: SYSINFO_INSERT(query_system.arch()); break;
-            }
-        }
-    }
-
-    else if (moduleName == "builtin")
-    {
-        if (sysInfo.find(moduleName) == sysInfo.end())
-            sysInfo.insert({ moduleName, {} });
-
-        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
-        {
-            switch (moduleMember_hash)
-            {
-                case "title"_fnv1a16:
-                    SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", _, parse_args));
-                    break;
-
-                case "title_sep"_fnv1a16:
-                {
-                    // no need to parse anything
-                    Query::User   query_user;
-                    Query::System query_system;
-                    const size_t& title_len =
-                        std::string_view(query_user.name() + '@' + query_system.hostname()).length();
-
-                    std::string str;
-                    str.reserve(config.builtin_title_sep.length() * title_len);
-                    for (size_t i = 0; i < title_len; i++)
-                        str += config.builtin_title_sep;
-
-                    SYSINFO_INSERT(str);
-                }
-                break;
-
-                    // clang-format off
-                case "colors"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", _, parse_args));
-                    break;
-
-                case "colors_light"_fnv1a16:
-                    SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", _, parse_args));
-                    break;
-
-                default:
-                    // I really dislike how repetitive this code is
-                    if (hasStart(moduleMemberName, "colors_symbol"))
-                    {
-                        if (moduleMemberName.length() <= "colors_symbol()"_len)
-                            die("color palette module member '{}' in invalid.\n"
-                                "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
-                                "e.g 'colors_symbol(@)' or 'colors_symbol(string)'",
-                                moduleMemberName);
-
-                        std::string symbol = moduleMemberName;
-                        symbol.erase(0, "colors_symbol("_len);
-                        symbol.pop_back();
-                        debug("symbol = {}", symbol);
-
-                        SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
-                                              symbol), _, parse_args));
-                    }
-                    else if (hasStart(moduleMemberName, "colors_light_symbol"))
-                    {
-                        if (moduleMemberName.length() <= "colors_light_symbol()"_len)
-                            die("light color palette module member '{}' in invalid.\n"
-                                "Must be used like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
-                                "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'",
-                                moduleMemberName);
-
-                        std::string symbol = moduleMemberName;
-                        symbol.erase(0, "colors_light_symbol("_len);
-                        symbol.pop_back();
-                        debug("symbol = {}", symbol);
-
-                        SYSINFO_INSERT(
-                            parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
-                                              symbol), _, parse_args));
-                    }
             }
         }
     }
@@ -1181,11 +1132,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
         {
             switch (moduleMember_hash)
             {
-                case "cpu"_fnv1a16:
-                    SYSINFO_INSERT(
-                        fmt::format("{} ({}) @ {:.2f} GHz", query_cpu.name(), query_cpu.nproc(), query_cpu.freq_max()));
-                    break;
-
                 case "name"_fnv1a16: SYSINFO_INSERT(query_cpu.name()); break;
 
                 case "nproc"_fnv1a16: SYSINFO_INSERT(query_cpu.nproc()); break;
@@ -1197,6 +1143,10 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                 case "freq_max"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_max()); break;
 
                 case "freq_min"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_min()); break;
+
+                case "temp_C"_fnv1a16: SYSINFO_INSERT(query_cpu.temp()); break;
+                case "temp_F"_fnv1a16: SYSINFO_INSERT(query_cpu.temp() * 1.8 + 34); break;
+                case "temp_K"_fnv1a16: SYSINFO_INSERT(query_cpu.temp() + 273.15); break;
             }
         }
     }
@@ -1258,20 +1208,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     SYSINFO_INSERT(query_disk.mountdir());
                     break;
 
-                    // clang-format off
-                case "disk"_fnv1a16:
-                {
-                    const std::string& perc = get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), 
-                                                                        parse_args);
-
-                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {} - {}", 
-                                               byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
-                                               byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
-                                               parse("${0}(" + perc + ")", _, parse_args),
-				                query_disk.typefs()));
-                } break;
-                    // clang-format on
-
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
@@ -1328,23 +1264,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
             switch (moduleMember_hash)
             {
-                case "swap"_fnv1a16:
-                    // clang-format off
-                    if (byte_units.at(TOTAL).num_bytes < 1)
-                        SYSINFO_INSERT("Disabled");
-                    else
-                    {
-                        const std::string& perc = get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(), 
-                                                                           parse_args);
-                        
-                        SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
-                                                    byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
-                                                    byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
-                                                    parse("${0}(" + perc + ")", _, parse_args)));
-                    }
-                    break;
-                    // clang-format on
-
                 case "free"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
                     break;
@@ -1401,19 +1320,6 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
 
             switch (moduleMember_hash)
             {
-                case "ram"_fnv1a16:
-                {
-                    const std::string& perc =
-                        get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args);
-
-                    // clang-format off
-                    SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
-                                               byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
-                                               byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
-                                               parse("${0}(" + perc + ")", _, parse_args)));
-                    break;
-                    // clang-format on
-                }
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
@@ -1444,6 +1350,262 @@ void addValueFromModule(const std::string& moduleName, const std::string& module
                     else if (hasStart(moduleMemberName, "total-"))
                         SYSINFO_INSERT(return_devided_bytes(query_ram.total_amount()));
             }
+        }
+    }
+
+    else
+        die("Invalid module name: {}", moduleName);
+
+#undef SYSINFO_INSERT
+}
+
+void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
+{
+    const std::string& moduleMemberName = "module-" + moduleName;
+#define SYSINFO_INSERT(x) sysInfo.at(moduleName).insert({ moduleMemberName, variant(x) })
+
+    // just aliases for convention
+    const Config& config  = parse_args.config;
+    systemInfo_t& sysInfo = parse_args.systemInfo;
+
+    const std::uint16_t byte_unit = config.use_SI_unit ? 1000 : 1024;
+
+    if (moduleName == "title")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+        
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", _, parse_args));
+        }
+    }
+
+    else if (moduleName == "title_sep")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+        
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            // no need to parse anything
+            Query::User   query_user;
+            Query::System query_system;
+            const size_t& title_len =
+                std::string_view(query_user.name() + '@' + query_system.hostname()).length();
+
+            std::string str;
+            str.reserve(config.builtin_title_sep.length() * title_len);
+            for (size_t i = 0; i < title_len; i++)
+                str += config.builtin_title_sep;
+
+            SYSINFO_INSERT(str);
+        }
+    }
+
+    else if (moduleName == "cpu")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+        
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            Query::CPU query_cpu;
+            SYSINFO_INSERT(
+                fmt::format("{} ({}) @ {:.2f} GHz", query_cpu.name(), query_cpu.nproc(), query_cpu.freq_max()));
+        }
+    }
+
+    else if (hasStart(moduleName, "gpu"))
+    {
+        const std::uint16_t id =
+            static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3)) : 0);
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            Query::GPU query_gpu(id, queried_gpus);
+            SYSINFO_INSERT(shorten_vendor_name(query_gpu.vendor()) + " " + query_gpu.name());
+        }
+    }
+
+    else if (hasStart(moduleName, "disk"))
+    {
+        if (moduleName.length() < "disk()"_len)
+            die("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)", moduleName);
+
+        enum
+        {
+            USED = 0,
+            TOTAL,
+        };
+        std::string path = moduleName;
+        path.erase(0, 5);  // disk(
+        path.pop_back();   // )
+        debug("disk path = {}", path);
+
+        Query::Disk                 query_disk(path, queried_disks);
+        std::array<byte_units_t, 2> byte_units;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount(), byte_unit);
+            byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount(), byte_unit);
+
+            const std::string& perc = get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), 
+                                                                parse_args);
+
+            // clang-format off
+            SYSINFO_INSERT (fmt::format("{:.2f} {} / {:.2f} {} {} - {}", 
+                            byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
+                            byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
+                            parse("${0}(" + perc + ")", _, parse_args),
+			    query_disk.typefs()));
+            // clang-format on
+        }
+    }
+
+    else if (moduleName == "ram")
+    {
+        Query::RAM query_ram;
+        enum
+        {
+            USED = 0,
+            TOTAL,
+        };
+        std::array<byte_units_t, 2> byte_units;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            //                                                            idk, trick the diviser
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
+
+            const std::string& perc =
+                get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args);
+
+            // clang-format off
+            SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
+                                       byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
+                                       byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
+                                       parse("${0}(" + perc + ")", _, parse_args)));
+            // clang-format on
+        }
+    }
+
+    else if (moduleName == "swap")
+    {
+        Query::RAM query_ram;
+        enum
+        {
+            USED = 0,
+            TOTAL,
+        };
+        std::array<byte_units_t, 2> byte_units;
+
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            //                                                            idk, trick the diviser
+            byte_units.at(USED)  = auto_devide_bytes(query_ram.swap_used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * byte_unit, byte_unit);
+
+            // clang-format off
+            if (byte_units.at(TOTAL).num_bytes < 1)
+                SYSINFO_INSERT("Disabled");
+            else
+            {
+                const std::string& perc = get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(), 
+                                                                   parse_args);
+                
+                SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
+                                            byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
+                                            byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
+                                            parse("${0}(" + perc + ")", _, parse_args)));
+            }
+            // clang-format on
+        }
+    }
+
+    else if (moduleName == "colors")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", _, parse_args));
+        }
+    }
+
+    else if (moduleName == "colors_light")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", _, parse_args));
+        }
+    }
+    
+    // clang-format off
+    // I really dislike how repetitive this code is
+    else if (hasStart(moduleName, "colors_symbol"))
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            if (moduleName.length() <= "colors_symbol()"_len)
+                die("color palette module member '{}' in invalid.\n"
+                    "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
+                    "e.g 'colors_symbol(@)' or 'colors_symbol(string)'",
+                    moduleName);
+
+            std::string symbol = moduleName;
+            symbol.erase(0, "colors_symbol("_len);
+            symbol.pop_back();
+            debug("symbol = {}", symbol);
+
+            SYSINFO_INSERT(
+                parse(fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} {0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
+                                  symbol), _, parse_args));
+        }
+    }
+
+    else if (hasStart(moduleName, "colors_light_symbol"))
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            if (moduleName.length() <= "colors_light_symbol()"_len)
+                die("light color palette module member '{}' in invalid.\n"
+                    "Must be used like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
+                    "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'",
+                    moduleName);
+
+            std::string symbol = moduleName;
+            symbol.erase(0, "colors_light_symbol("_len);
+            symbol.pop_back();
+            debug("symbol = {}", symbol);
+
+            SYSINFO_INSERT(
+                parse(fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} {0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
+                                  symbol), _, parse_args));
         }
     }
 

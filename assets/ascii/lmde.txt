@@ -1,4 +1,4 @@
-         ${white}`.-::---..
+         ${green}${white}`.-::---..
 ${green}      .:++++ooooosssoo:.
 ${green}    .+o++::.      `.:oos+.
 ${green}   :oo:.`             -+oo${white}:

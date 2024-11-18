@@ -1,24 +1,24 @@
-${c1}  `:oho/-`
-`mMMMMMMMMMMMNmmdhy-
- dMMMMMMMMMMMMMMMMMMs`
- +MMsohNMMMMMMMMMMMMMm/
- .My   .+dMMMMMMMMMMMMMh.
-  +       :NMMMMMMMMMMMMNo
-           `yMMMMMMMMMMMMMm:
-             /NMMMMMMMMMMMMMy`
-              .hMMMMMMMMMMMMMN+
-                  ``-NMMMMMMMMMd-
-                     /MMMMMMMMMMMs`
-                      mMMMMMMMsyNMN/
-                      +MMMMMMMo  :sNh.
-                      `NMMMMMMm     -o/
-                       oMMMMMMM.
-                       `NMMMMMM+
-                        +MMd/NMh
-                         mMm -mN`
-                         /MM  `h:
-                          dM`   .
-                          :M-
-                           d:
-                           -+
-                            -
+${cyan}  `:oho/-`
+${cyan}`mMMMMMMMMMMMNmmdhy-
+${cyan} dMMMMMMMMMMMMMMMMMMs`
+${cyan} +MMsohNMMMMMMMMMMMMMm/
+${cyan} .My   .+dMMMMMMMMMMMMMh.
+${cyan}  +       :NMMMMMMMMMMMMNo
+${cyan}           `yMMMMMMMMMMMMMm:
+${cyan}             /NMMMMMMMMMMMMMy`
+${cyan}              .hMMMMMMMMMMMMMN+
+${cyan}                  ``-NMMMMMMMMMd-
+${cyan}                     /MMMMMMMMMMMs`
+${cyan}                      mMMMMMMMsyNMN/
+${cyan}                      +MMMMMMMo  :sNh.
+${cyan}                      `NMMMMMMm     -o/
+${cyan}                       oMMMMMMM.
+${cyan}                       `NMMMMMM+
+${cyan}                        +MMd/NMh
+${cyan}                         mMm -mN`
+${cyan}                         /MM  `h:
+${cyan}                          dM`   .
+${cyan}                          :M-
+${cyan}                           d:
+${cyan}                           -+
+${cyan}                            -

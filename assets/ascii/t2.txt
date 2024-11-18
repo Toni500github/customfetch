@@ -1,7 +1,7 @@
-${c2}
-TTTTTTTTTT
-    tt   ${c1}222${c2}
-    tt  ${c1}2   2${c2}
-    tt     ${c1}2${c2}
-    tt    ${c1}2${c2}
-    tt  ${c1}22222${c2}
+${blue}
+${blue}TTTTTTTTTT
+${blue}    tt   ${1}222${blue}
+${blue}    tt  ${1}2   2${blue}
+${blue}    tt     ${1}2${blue}
+${blue}    tt    ${1}2${blue}
+${blue}    tt  ${1}22222${blue}

@@ -1,21 +1,21 @@
-${c1}                 `````
-           .-/+ooooooooo+/:-`
-        ./ooooooooooooooooooo+:.
-      -+oooooooooooooooooooooooo+-
-    .+ooooooooo+/:---::/+ooooooooo+.
-   :oooooooo/-`          `-/oo${c2}s´${c1}oooo.${c2}s´${c1}
-  :ooooooo/`                `${c2}sNds${c1}ooo${c2}sNds${c1}
- -ooooooo-                   ${c2}:dmy${c1}ooo${c2}:dmy${c1}
- +oooooo:                      :oooooo-
-.ooooooo                        .://:`
-:oooooo+                        ./+o+:`
--ooooooo`                      `oooooo+
-`ooooooo:                      /oooooo+
- -ooooooo:                    :ooooooo.
-  :ooooooo+.                .+ooooooo:
-   :oooooooo+-`          `-+oooooooo:
-    .+ooooooooo+/::::://oooooooooo+.
-      -+oooooooooooooooooooooooo+-
-        .:ooooooooooooooooooo+:.
-           `-:/ooooooooo+/:.`
-                 ``````
+${1}                 `````
+${1}           .-/+ooooooooo+/:-`
+${1}        ./ooooooooooooooooooo+:.
+${1}      -+oooooooooooooooooooooooo+-
+${1}    .+ooooooooo+/:---::/+ooooooooo+.
+${1}   :oooooooo/-`          `-/oo${green}s´${1}oooo.${green}s´
+${1}  :ooooooo/`                `${green}sNds${1}ooo${green}sNds
+${1} -ooooooo-                   ${green}:dmy${1}ooo${green}:dmy
+${1} +oooooo:                      :oooooo-
+${1}.ooooooo                        .://:`
+${1}:oooooo+                        ./+o+:`
+${1}-ooooooo`                      `oooooo+
+${1}`ooooooo:                      /oooooo+
+${1} -ooooooo:                    :ooooooo.
+${1}  :ooooooo+.                .+ooooooo:
+${1}   :oooooooo+-`          `-+oooooooo:
+${1}    .+ooooooooo+/::::://oooooooooo+.
+${1}      -+oooooooooooooooooooooooo+-
+${1}        .:ooooooooooooooooooo+:.
+${1}           `-:/ooooooooo+/:.`
+${1}                 ``````

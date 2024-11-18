@@ -1,18 +1,18 @@
-${c1}            ...........
-         ..             ..
-      ..                   ..
-    ..           ${c2}o           ${c1}..
-  ..            ${c2}:W'            ${c1}..
- ..             ${c2}.d.             ${c1}..
-:.             ${c2}.KNO              ${c1}.:
-:.             ${c2}cNNN.             ${c1}.:
-:              ${c2}dXXX,              ${c1}:
-:   ${c2}.          dXXX,       .cd,   ${c1}:
-:   ${c2}'kc ..     dKKK.    ,ll;:'    ${c1}:
-:     ${c2}.xkkxc;..dkkkc',cxkkl       ${c1}:
-:.     ${c2}.,cdddddddddddddo:.       ${c1}.:
- ..         ${c2}:lllllll:           ${c1}..
-   ..         ${c2}',,,,,          ${c1}..
-     ..                     ..
-        ..               ..
-          ...............
+${blue}            ...........
+${blue}         ..             ..
+${blue}      ..                   ..
+${blue}    ..           ${white}o           ${blue}..
+${blue}  ..            ${white}:W'            ${blue}..
+${blue} ..             ${white}.d.             ${blue}..
+${blue}:.             ${white}.KNO              ${blue}.:
+${blue}:.             ${white}cNNN.             ${blue}.:
+${blue}:              ${white}dXXX,              ${blue}:
+${blue}:   ${white}.          dXXX,       .cd,   ${blue}:
+${blue}:   ${white}'kc ..     dKKK.    ,ll;:'    ${blue}:
+${blue}:     ${white}.xkkxc;..dkkkc',cxkkl       ${blue}:
+${blue}:.     ${white}.,cdddddddddddddo:.       ${blue}.:
+${blue} ..         ${white}:lllllll:           ${blue}..
+${blue}   ..         ${white}',,,,,          ${blue}..
+${blue}     ..                     ..
+${blue}        ..               ..
+${blue}          ...............

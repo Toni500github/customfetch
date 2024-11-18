@@ -63,9 +63,9 @@ ifeq ($(CAVA), 1)
 endif
 
 NAME		= customfetch
-TARGET		= cufetch
-OLDVERSION	= 0.9.2
-VERSION    	= 0.9.3
+TARGET		= $(NAME)
+OLDVERSION	= 0.10.1
+VERSION    	= 0.10.2
 BRANCH     	= $(shell git rev-parse --abbrev-ref HEAD)
 SRC 	   	= $(wildcard src/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp)
 OBJ 	   	= $(SRC:.cpp=.o)
@@ -103,9 +103,14 @@ endif
 $(TARGET): fmt toml $(OBJ)
 	mkdir -p $(BUILDDIR)
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
+	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
 dist:
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE cufetch.1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+ifeq ($(GUI_MODE), 1)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).desktop $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+else
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+endif
 
 clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)
@@ -118,19 +123,20 @@ distclean:
 
 install: $(TARGET)
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	cd $(DESTDIR)$(PREFIX)/bin/ && ln -sf $(TARGET) cufetch
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
-	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < cufetch.1 > $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
-	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
+	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(TARGET).1 > $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
+	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
 ifeq ($(GUI_MODE), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
-	cp -f cufetch.desktop $(DESTDIR)$(APPPREFIX)
+	cp -f $(TARGET).desktop $(DESTDIR)$(APPPREFIX)/$(TARGET).desktop
 endif
 
 uninstall:
-	rm -f  $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-	rm -f  $(DESTDIR)$(MANPREFIX)/man1/cufetch.1
-	rm -f  $(DESTDIR)$(APPPREFIX)/cufetch.desktop
+	rm -f  $(DESTDIR)$(PREFIX)/bin/$(TARGET) $(DESTDIR)$(PREFIX)/bin/cufetch
+	rm -f  $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
+	rm -f  $(DESTDIR)$(APPPREFIX)/$(TARGET).desktop
 	rm -rf $(DESTDIR)$(PREFIX)/share/customfetch/
 
 remove: uninstall

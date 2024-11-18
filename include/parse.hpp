@@ -1,3 +1,28 @@
+/*
+ * Copyright 2024 Toni500git
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ * disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #ifndef _PARSE_HPP
 #define _PARSE_HPP
 
@@ -14,12 +39,12 @@ struct parse_args_t
     std::string&    pureOutput;
     const Config&   config;
     const colors_t& colors;
-    const bool      parsingLayout;
-    bool&           firstrun_clr;
+    bool            parsingLayout;
+    bool            firstrun_clr;
 };
 
 /* Parse input, in-place, with data from systemInfo.
- * Documentation on formatting is in the default config.toml file or the cufetch.1 manual.
+ * Documentation on formatting is in the default config.toml file or the customfetch.1 manual.
  * @param input The string to parse
  * @param systemInfo The system infos
  * @param pureOutput The output of the string but without tags
@@ -28,8 +53,14 @@ struct parse_args_t
  * @param parsingLayout If we are parsing layout or not
  * @param is_image If the source path is an image (used for GUI mode only)
  */
-std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
+std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
                   const colors_t& colors, const bool parsingLayout);
+
+// parse() for parse_args_t& arguments
+std::string parse(const std::string_view input, parse_args_t& parse_args);
+// some times we don't want to use the original pureOutput,
+// so we have to create a tmp string just for the sake of the function arguments
+std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args);
 
 /* Set module members values to a systemInfo_t map.
  * If the name of said module matches any module name, it will be added
@@ -38,7 +69,15 @@ std::string parse(const std::string_view input, systemInfo_t& systemInfo, std::s
  * @param moduleMemberName The module member name
  * @param parse_args The parse() like arguments
  */
-void addValueFromModule(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args);
+void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args);
+
+/* Set module only values to a systemInfo_t map.
+ * If the name of said module matches any module name, it will be added
+ * else, error out.
+ * @param moduleName The module name
+ * @param parse_args The parse() like arguments
+ */
+void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args);
 
 /*
  * Return a module member value

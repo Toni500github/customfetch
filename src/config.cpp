@@ -1,5 +1,31 @@
+/*
+ * Copyright 2024 Toni500git
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ * disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #include "config.hpp"
 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -45,17 +71,18 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->sep_reset_after     = getValue<bool>("config.sep-reset-after", false);
     this->use_SI_unit         = getValue<bool>("config.use-SI-byte-unit", false);
     this->wrap_lines          = getValue<bool>("config.wrap-lines", true);
-    this->sep_reset           = getValue<std::string>("config.sep-reset", ":");
     this->offset              = getValue<std::uint16_t>("config.offset", 5);
     this->logo_padding_left   = getValue<std::uint16_t>("config.logo-padding-left", 0);
     this->layout_padding_top  = getValue<std::uint16_t>("config.layout-padding-top", 0);
     this->logo_padding_top    = getValue<std::uint16_t>("config.logo-padding-top", 0);
+    this->sep_reset           = getValue<std::string>("config.sep-reset", ":");
     this->ascii_logo_type     = getValue<std::string>("config.ascii-logo-type", "");
     this->source_path         = getValue<std::string>("config.source-path", "os");
-    this->data_dir            = getValue<std::string>("config.data-dir", "/usr/share/customfetch");
+    this->logo_position       = getValue<std::string>("config.logo-position", "left");
+    this->data_dir            = getValue<std::string>("config.data-dir", get_data_dir("customfetch"));
+    this->builtin_title_sep   = getValue<std::string>("config.title-sep", "-");
     this->font                = getValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
-    this->builtin_title_sep   = getValue<std::string>("config.title-sep", "-");
 
     this->uptime_d_fmt = getValue<std::string>("os.uptime.days", " days");
     this->uptime_h_fmt = getValue<std::string>("os.uptime.hours", " hours");
@@ -95,6 +122,10 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     for (const std::string& str : this->getValueArrayStr("config.alias-colors", {}))
         this->addAliasColors(str);
+
+    const char *no_color = std::getenv("NO_COLOR");
+    if (no_color != NULL && no_color[0] != '\0')
+        this->m_disable_colors = true;
 }
 
 // Config::getValue() but don't want to specify the template

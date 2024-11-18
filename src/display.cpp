@@ -1,9 +1,34 @@
-/* Implementation of the system behind displaying/rendering the information */
+/*
+ * Copyright 2024 Toni500git
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ * disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+// Implementation of the system behind displaying/rendering the information
 
 #include "display.hpp"
 
 #ifndef GUI_MODE
-#define STB_IMAGE_IMPLEMENTATION
+# define STB_IMAGE_IMPLEMENTATION
 #endif
 
 #include <pty.h>
@@ -23,6 +48,7 @@
 #include "parse.hpp"
 #include "query.hpp"
 #include "stb_image.h"
+#include "utf8/checked.h"
 #include "util.hpp"
 
 std::string Display::detect_distro(const Config& config)
@@ -46,7 +72,7 @@ std::string Display::detect_distro(const Config& config)
         if (std::filesystem::exists(format))
             return format;
 
-        return fmt::format("{}/ascii/linux.txt", config.data_dir);
+        return config.data_dir + "/ascii/linux.txt";
     }
 }
 
@@ -66,19 +92,25 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     stbi_image_free(img);
 
     std::string _;
-    for (std::string& layout : layout)
-        layout = parse(layout, systemInfo, _, config, colors, true);
+    parse_args_t parse_args{ systemInfo, _, config, colors, true, true };
+    for (std::string& line : layout)
+    {
+        line = parse(line, parse_args);
+        if (!config.m_disable_colors)
+            line.insert(0, NOCOLOR);
+    }
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
-
+        
+    // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
     const size_t width  = image_width / font_width;
     const size_t height = image_height / font_height;
 
     if (config.m_image_backend == "kitty")
-        taur_exec({ "kitty", "+kitten", "icat", "--align", "left", "--place", fmt::format("{}x{}@0x0", width, height),
+        taur_exec({ "kitty", "+kitten", "icat", "--align", (config.logo_position == "top" ? "center" : config.logo_position), "--place", fmt::format("{}x{}@0x0", width, height),
                     path });
     else if (config.m_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
@@ -87,9 +119,16 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
             "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
             config.m_image_backend);
 
-    for (size_t i = 0; i < layout.size(); i++)
-        // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
-        for (size_t _ = 0; _ < width + config.offset; _++)
+    if (config.logo_position == "top")
+    {
+        for (size_t _ = 0; _ < height + config.layout_padding_top; ++_)
+            layout.insert(layout.begin(), "");
+
+        return layout;
+    }
+
+    for (size_t i = 0; i < layout.size(); ++i)
+        for (size_t _ = 0; _ < width + config.offset; ++_)
             layout.at(i).insert(0, " ");
 
     return layout;
@@ -191,8 +230,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         std::ifstream distro_file(distro_path);
         std::string   line, _;
 
+        parse_args_t parse_args{ systemInfo, _, config, colors, false, true };
+
         while (std::getline(distro_file, line))
-            parse(line, systemInfo, _, config, colors, false);
+            parse(line, _, parse_args);
     }
 
     std::vector<size_t> pureAsciiArtLens;
@@ -232,40 +273,22 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     while (std::getline(file, line))
     {
         std::string pureOutput;
-        std::string asciiArt_s = parse(line, systemInfo, pureOutput, config, colors, false);
+        parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false, true };
+
+        std::string asciiArt_s = parse(line, parse_args);
         if (!config.m_disable_colors)
             asciiArt_s += config.gui ? "" : NOCOLOR;
 
         if (config.gui)
         {
             // check parse.cpp
-            const size_t pos = asciiArt_s.rfind("$ </");
+            const size_t pos = asciiArt_s.rfind("$ </span>");
             if (pos != std::string::npos)
                 asciiArt_s.replace(pos, 2, "$");
         }
 
         asciiArt.push_back(asciiArt_s);
-        size_t pureOutputLen = pureOutput.length();
-
-        // shootout to my bf BurntRanch that helped me with this whole project
-        // with the parsing and addValueFromModule()
-        // and also fixing the problem with calculating the aligniment
-        // with unicode characters
-        size_t remainingUnicodeChars = 0;
-        for (unsigned char c : pureOutput)
-        {
-            if (remainingUnicodeChars > 0)
-            {
-                remainingUnicodeChars--;
-                continue;
-            }
-            // debug("c = {:c}", c);
-            if (c > 127)
-            {
-                remainingUnicodeChars = 2;
-                pureOutputLen -= 2;
-            }
-        }
+        const size_t pureOutputLen = utf8::distance(pureOutput.begin(), pureOutput.end());
 
         if (static_cast<int>(pureOutputLen) > maxLineLength)
             maxLineLength = static_cast<int>(pureOutputLen);
@@ -278,13 +301,24 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         return asciiArt;
 
     std::string _;
-    for (std::string& layout : layout)
-        layout = parse(layout, systemInfo, _, config, colors, true);
+    parse_args_t parse_args{ systemInfo, _, config, colors, true, true };
+    for (std::string& line : layout)
+    {
+        line = parse(line, parse_args);
+        if (!config.gui && !config.m_disable_colors)
+            line.insert(0, NOCOLOR);
+    }
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
+
+    if (config.logo_position == "top")
+    {
+        Display::display(asciiArt);
+        return layout;
+    }
 
     size_t i;
     for (i = 0; i < layout.size(); i++)
@@ -331,6 +365,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
 void Display::display(const std::vector<std::string>& renderResult)
 {
-    for (const std::string_view str : renderResult)
+    for (const std::string& str : renderResult)
         fmt::println("{}", str);
 }

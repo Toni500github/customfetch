@@ -1,11 +1,11 @@
-${c1} K   K U   U RRRR   ooo
- K  K  U   U R   R o   o
- KKK   U   U RRRR  o   o
- K  K  U   U R  R  o   o
- K   K  UUU  R   R  ooo
+${blue} K   K U   U RRRR   ooo
+${blue} K  K  U   U R   R o   o
+${blue} KKK   U   U RRRR  o   o
+${blue} K  K  U   U R  R  o   o
+${blue} K   K  UUU  R   R  ooo
 
-${c2}  SSS   AAA  W   W  AAA
- S     A   A W   W A   A
-  SSS  AAAAA W W W AAAAA
-     S A   A WW WW A   A
-  SSS  A   A W   W A   A
+${1}  SSS   AAA  W   W  AAA
+${1} S     A   A W   W A   A
+${1}  SSS  AAAAA W W W AAAAA
+${1}     S A   A WW WW A   A
+${1}  SSS  A   A W   W A   A

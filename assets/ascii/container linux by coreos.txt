@@ -1,20 +1,20 @@
-${c1}                .....
-          .';:cccccccc:;'.
-        ':ccccclc${c3}lllllllll${c1}cc:.
-     .;cccccccc${c3}lllllllllllllll${c1}c,
-    ;clllccccc${c3}llllllllllllllllll${c1}c,
-  .cllclccccc${c3}lllll${c2}lll${c3}llllllllllll${c1}c:
-  ccclclcccc${c3}cllll${c2}kWMMNKk${c3}llllllllll${c1}c:
- :ccclclcccc${c3}llll${c2}oWMMMMMMWO${c3}lllllllll${c1}c,
-.ccllllllccc${c3}clll${c2}OMMMMMMMMM0${c3}lllllllll${c1}c
-.lllllclcccc${c3}llll${c2}KMMMMMMMMMMo${c3}llllllll${c1}c.
-.lllllllcccc${c3}clll${c2}KMMMMMMMMN0${c3}lllllllll${c1}c.
-.cclllllcccc${c3}lllld${c2}xkkxxdo${c3}llllllllllc${c1}lc
- :cccllllllcccc${c3}lllccllllcclccc${c1}cccccc;
- .ccclllllllcccccccc${c3}lll${c1}ccccclccccccc
-  .cllllllllllclcccclccclccllllcllc
-    :cllllllllccclcllllllllllllcc;
-     .cccccccccccccclcccccccccc:.
-       .;cccclccccccllllllccc,.
-          .';ccccclllccc:;..
-                .....
+${blue}                .....
+${blue}          .';:cccccccc:;'.
+${blue}        ':ccccclc${red}lllllllll${blue}cc:.
+${blue}     .;cccccccc${red}lllllllllllllll${blue}c,
+${blue}    ;clllccccc${red}llllllllllllllllll${blue}c,
+${blue}  .cllclccccc${red}lllll${1}lll${red}llllllllllll${blue}c:
+${blue}  ccclclcccc${red}cllll${1}kWMMNKk${red}llllllllll${blue}c:
+${blue} :ccclclcccc${red}llll${1}oWMMMMMMWO${red}lllllllll${blue}c,
+${blue}.ccllllllccc${red}clll${1}OMMMMMMMMM0${red}lllllllll${blue}c
+${blue}.lllllclcccc${red}llll${1}KMMMMMMMMMMo${red}llllllll${blue}c.
+${blue}.lllllllcccc${red}clll${1}KMMMMMMMMN0${red}lllllllll${blue}c.
+${blue}.cclllllcccc${red}lllld${1}xkkxxdo${red}llllllllllc${blue}lc
+${blue} :cccllllllcccc${red}lllccllllcclccc${blue}cccccc;
+${blue} .ccclllllllcccccccc${red}lll${blue}ccccclccccccc
+${blue}  .cllllllllllclcccclccclccllllcllc
+${blue}    :cllllllllccclcllllllllllllcc;
+${blue}     .cccccccccccccclcccccccccc:.
+${blue}       .;cccclccccccllllllccc,.
+${blue}          .';ccccclllccc:;..
+${blue}                .....

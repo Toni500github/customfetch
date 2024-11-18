@@ -1,12 +1,12 @@
-${c1}
-      `-/+++++++++++++++++/-.`
-   `/syyyyyyyyyyyyyyyyyyyyyyys/.
-  :yyyyo/-...............-/oyyyy/
- /yyys-                     .oyyy+
-.yyyy`                       `syyy-
-:yyyo                         /yyy/
-.yyyy`                       `syyy-
- /yyys.                     .oyyyo
-  /yyyyo:-...............-:oyyyy/`
-   `/syyyyyyyyyyyyyyyyyyyyyyys+.
-     `.:/+ooooooooooooooo+/:.`
+${red}
+${red}      `-/+++++++++++++++++/-.`
+${red}   `/syyyyyyyyyyyyyyyyyyyyyyys/.
+${red}  :yyyyo/-...............-/oyyyy/
+${red} /yyys-                     .oyyy+
+${red}.yyyy`                       `syyy-
+${red}:yyyo                         /yyy/
+${red}.yyyy`                       `syyy-
+${red} /yyys.                     .oyyyo
+${red}  /yyyyo:-...............-:oyyyy/`
+${red}   `/syyyyyyyyyyyyyyyyyyyyyyys+.
+${red}     `.:/+ooooooooooooooo+/:.`

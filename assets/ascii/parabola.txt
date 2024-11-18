@@ -1,16 +1,16 @@
-${c1}                          `.-.    `.
-                   `.`  `:++.   `-+o+.
-             `` `:+/. `:+/.   `-+oooo+
-        ``-::-.:+/. `:+/.   `-+oooooo+
-    `.-:///-  ..`   .-.   `-+oooooooo-
- `..-..`                 `+ooooooooo:
-``                        :oooooooo/
-                          `ooooooo:
-                          `oooooo:
-                          -oooo+.
-                          +ooo/`
-                         -ooo-
-                        `+o/.
-                        /+-
-                       //`
-                      -.
+${magenta}                          `.-.    `.
+${magenta}                   `.`  `:++.   `-+o+.
+${magenta}             `` `:+/. `:+/.   `-+oooo+
+${magenta}        ``-::-.:+/. `:+/.   `-+oooooo+
+${magenta}    `.-:///-  ..`   .-.   `-+oooooooo-
+${magenta} `..-..`                 `+ooooooooo:
+${magenta}``                        :oooooooo/
+${magenta}                          `ooooooo:
+${magenta}                          `oooooo:
+${magenta}                          -oooo+.
+${magenta}                          +ooo/`
+${magenta}                         -ooo-
+${magenta}                        `+o/.
+${magenta}                        /+-
+${magenta}                       //`
+${magenta}                      -.

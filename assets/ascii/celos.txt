@@ -1,23 +1,24 @@
-${c4}                     .,cmmmmmmmmmmmc,.
-                .,cmMMMMMMMMMMMMMMMMMMMMmc.
-             .cMMMMMMMMMMMMMMMMMMMMMMMMMMMmc.
-           .cMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMc.
-         ,:MMM ${c3}####################################${c4}
-        cMMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmc.
-       .MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.
-      .MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMc
-      "******************************MMMMMMMMMMMMMc:
-${c3}#################################### ${c4}MMMMMMMMMMMMMc
-      "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM:
-       "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
-       'MMMMMMMMM*******************************:
-        \"MMMMMM ${c3}#####################################
-         ${c4}`:MMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmm;
-           `"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
-             `":MMMMMMMMMMMMMMMMMMMMMMMMM;'
-                `":MMMMMMMMMMMMMMMMMMM:"
-                     "************"
-
-
-
-
+${cyan}${blue}
+${magenta}                     .,cmmmmmmmmmmmc,.
+${magenta}                .,cmMMMMMMMMMMMMMMMMMMMMmc.
+${magenta}             .cMMMMMMMMMMMMMMMMMMMMMMMMMMMmc.
+${magenta}           .cMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMc.
+${magenta}         ,:MMM ${black}####################################
+${magenta}        cMMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmc.
+${magenta}       .MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.
+${magenta}      .MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMc
+${magenta}      "******************************MMMMMMMMMMMMMc:
+${black}#################################### ${magenta}MMMMMMMMMMMMMc
+${magenta}      "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM:
+${magenta}       "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
+${magenta}       'MMMMMMMMM*******************************:
+${magenta}        \"MMMMMM ${black}#####################################
+${magenta}         ${magenta}`:MMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmm;
+${magenta}           `"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
+${magenta}             `":MMMMMMMMMMMMMMMMMMMMMMMMM;'
+${magenta}                `":MMMMMMMMMMMMMMMMMMM:"
+${magenta}                     "************"
+${magenta}
+${magenta}
+${magenta}
+${magenta}

@@ -3,7 +3,7 @@
 .SH NAME
 customfetch \- A command\-line and GUI system information tool (or neofetch like program)
 .SH SYNOPSIS
-.B cufetch
+.B customfetch
 [\fI\,OPTION\/\fR]...
 .SH CONFIGURATION
 customfetch focus point is to be customizable and fast at the same time.
@@ -35,8 +35,13 @@ layout = [
 .fi
 .PP
 * The \fBInfo tag $<>\fR will prints the value of a member of a module.
-.br
+.nf
+  e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
+
+  There are variants who you only need the module name,
+  such as $<ram> or $<title>
   All the modules and their members are listed in the `--list-modules` argument
+.fi
 .PP
 * The \fBColor tag ${}\fR is used for printing the text in a certain color.
 .nf
@@ -50,10 +55,10 @@ layout = [
   * \fBb\fR  for background color.     	* \fBo\fR        for overline
   * \fBu\fR  to  underline the text    	* \fBa(value)\fR for fg alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)
   * \fB!\fR  for bold text             	* \fBL(value)\fR for choosing an underline style (`none`, `single`, `double`, `low`, `error`)
-  * \fBi\fR  for italic text           	* \fBU(value)\fR for choosing the underline color (hexcode without #)
-                                     * \fBB(value)\fR for choosing the bg color text (hexcode without #)
-       \fBTerminal Only\fR                 * \fBS(value)\fR for choosing the strikethrough color (hexcode without #)
-  * \fBl\fR  for blinking text             * \fBO(value)\fR for choosing the overline color (hexcode without #)
+  * \fBi\fR  for italic text           	* \fBU(value)\fR for choosing the underline color (hexcode color)
+                                     * \fBB(value)\fR for choosing the bg color text (hexcode color)
+       \fBTerminal Only\fR                 * \fBS(value)\fR for choosing the strikethrough color (hexcode color)
+  * \fBl\fR  for blinking text             * \fBO(value)\fR for choosing the overline color (hexcode color)
                                      * \fBA(value)\fR for choosing the bg text alpha (either a percentage value like `50%` or a plain integer between 1 and 65536)
                                      * \fBw(value)\fR for choosing the font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
 .fi
@@ -109,6 +114,9 @@ Do not display the logo
 \fB\-N\fR, \fB\-\-no\-color\fR
 Do not output and parse colors. Useful for stdout or pipe operations
 .TP
+\fB\-\-enable\-colors\fR
+Inverse of --no-color
+.TP
 \fB\-s\fR, \fB\-\-source\-path\fR <path>
 Path to the ascii art file to display
 .TP
@@ -143,12 +151,15 @@ It's recommended to use GUI mode for the moment if something doesn't work
 \fB\-m\fR, \fB\-\-layout\-line\fR
 Will replace the config layout, with a layout you specify in the arguments
 .br
-Example: "cufetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>" "
+Example: "customfetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>" "
 .br
 Will only print the logo (if not disabled), along side the parsed OS and CPU
 .TP
 \fB\-g\fR, \fB\-\-gui\fR
 Use GUI mode instead of priting in the terminal (use \fB\-V\fR to check if it's enabled)
+.TP
+\fB\-p\fR, \fB\-\-logo-position\fR <value>
+Position of the logo ("top" or "left")
 .TP
 \fB\-o\fR, \fB\-\-offset\fR <num>
 Offset between the ascii art and the system infos

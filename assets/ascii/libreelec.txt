@@ -1,20 +1,20 @@
-${c1}          :+ooo/.      ${c2}./ooo+:
-${c1}        :+ooooooo/.  ${c2}./ooooooo+:
-${c1}      :+ooooooooooo:${c2}:ooooooooooo+:
-${c1}    :+ooooooooooo+-  ${c2}-+ooooooooooo+:
-${c1}  :+ooooooooooo+-  ${c3}--  ${c2}-+ooooooooooo+:
-${c1}.+ooooooooooo+-  ${c3}:+oo+:  ${c2}-+ooooooooooo+-
-${c1}-+ooooooooo+-  ${c3}:+oooooo+:  ${c2}-+oooooooooo-
-${c1}  :+ooooo+-  ${c3}:+oooooooooo+:  ${c2}-+oooooo:
-${c1}    :+o+-  ${c3}:+oooooooooooooo+:  ${c2}-+oo:
-${c4}     ./   ${c3}:oooooooooooooooooo:   ${c5}/.
-${c4}   ./oo+:  ${c3}-+oooooooooooooo+-  ${c5}:+oo/.
-${c4} ./oooooo+:  ${c3}-+oooooooooo+-  ${c5}:+oooooo/.
-${c4}-oooooooooo+:  ${c3}-+oooooo+-  ${c5}:+oooooooooo-
-${c4}.+ooooooooooo+:  ${c3}-+oo+-  ${c5}:+ooooooooooo+.
-${c4}  -+ooooooooooo+:  ${c3}..  ${c5}:+ooooooooooo+-
-${c4}    -+ooooooooooo+:  ${c5}:+ooooooooooo+-
-${c4}      -+oooooooooo+:${c5}:+oooooooooo+-
-${c4}        -+oooooo+:    ${c5}:+oooooo+-
-${c4}          -+oo+:        ${c5}:+oo+-
-${c4}            ..            ${c5}..
+${green}          :+ooo/.      ${yellow}./ooo+:
+${green}        :+ooooooo/.  ${yellow}./ooooooo+:
+${green}      :+ooooooooooo:${yellow}:ooooooooooo+:
+${green}    :+ooooooooooo+-  ${yellow}-+ooooooooooo+:
+${green}  :+ooooooooooo+-  ${1}--  ${yellow}-+ooooooooooo+:
+${green}.+ooooooooooo+-  ${1}:+oo+:  ${yellow}-+ooooooooooo+-
+${green}-+ooooooooo+-  ${1}:+oooooo+:  ${yellow}-+oooooooooo-
+${green}  :+ooooo+-  ${1}:+oooooooooo+:  ${yellow}-+oooooo:
+${green}    :+o+-  ${1}:+oooooooooooooo+:  ${yellow}-+oo:
+${cyan}     ./   ${1}:oooooooooooooooooo:   ${magenta}/.
+${cyan}   ./oo+:  ${1}-+oooooooooooooo+-  ${magenta}:+oo/.
+${cyan} ./oooooo+:  ${1}-+oooooooooo+-  ${magenta}:+oooooo/.
+${cyan}-oooooooooo+:  ${1}-+oooooo+-  ${magenta}:+oooooooooo-
+${cyan}.+ooooooooooo+:  ${1}-+oo+-  ${magenta}:+ooooooooooo+.
+${cyan}  -+ooooooooooo+:  ${1}..  ${magenta}:+ooooooooooo+-
+${cyan}    -+ooooooooooo+:  ${magenta}:+ooooooooooo+-
+${cyan}      -+oooooooooo+:${magenta}:+oooooooooo+-
+${cyan}        -+oooooo+:    ${magenta}:+oooooo+-
+${cyan}          -+oo+:        ${magenta}:+oo+-
+${cyan}            ..            ${magenta}..
