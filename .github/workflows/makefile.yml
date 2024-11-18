@@ -41,8 +41,13 @@ jobs:
         customfetch --wrap-lines=0
   
   build_ubuntu-latest:
-
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform:
+          - linux/arm64/v8
+          - linux/amd64
+          - linux/aarch64
 
     steps:
     - uses: actions/checkout@v4
