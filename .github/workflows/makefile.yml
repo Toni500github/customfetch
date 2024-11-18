@@ -39,42 +39,69 @@ jobs:
         cd /tmp/customfetch-0.10.2.orig
         sudo dpkg -i customfetch_0.10.2-1_amd64.deb
         customfetch --wrap-lines=0
-  
+
   build_ubuntu-latest:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v4
+
+       - name: Install Packages
+         run: sudo apt-get update && sudo apt-get install build-essential cmake neofetch tree libgtk-3-dev pkg-config libgtkmm-3.0-dev -y
+
+       - name: Clean
+         run: make clean
+
+       - name: Build and install
+         run: sudo make install DEBUG=1 VENDOR_TEST=1 GUI_MODE=0
+
+       - name: Test neofetch
+         run: neofetch
+
+       - name: Check system values
+         run: |
+          ls -l /sys/devices/virtual/dmi/id/ /sys/class/dmi/id/
+          grep -Eri "virtual" /sys/class/dmi/id/ || true
+          cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
+          tree /sys/devices/system/cpu/cpu0/
+          printf "/etc/os-release\n" && cat /etc/os-release
+          printf "getting 0x5353 hexcode\n" && grep -nri "5353" /sys/class/ || true
+
+       - name: Test customfetch
+         run: ./build/debug/customfetch --wrap-lines=0
+         
+  ubuntu-latest_aarch64_armv7:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform:
-          - linux/arm64/v8
-          - linux/amd64
-          - linux/aarch64
+        platform: [armv7, aarch64]
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Install Packages
-      run: sudo apt-get update && sudo apt-get install build-essential cmake neofetch tree libgtk-3-dev pkg-config libgtkmm-3.0-dev -y
-    
-    - name: Clean
-      run: make clean
-
-    - name: Compile
-      run: sudo make install DEBUG=1 VENDOR_TEST=1 GUI_MODE=0
-
-    - name: Test neofetch
-      run: neofetch
-
-    - name: Check system values
-      run: |
-        ls -l /sys/devices/virtual/dmi/id/ /sys/class/dmi/id/
-        grep -Eri "virtual" /sys/class/dmi/id/ || true
-        cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
-        tree /sys/devices/system/cpu/cpu0/
-        printf "/etc/os-release\n" && cat /etc/os-release
-        printf "getting 0x5353 hexcode\n" && grep -nri "5353" /sys/class/ || true
-       
-    - name: Test customfetch
-      run: ./build/debug/customfetch --wrap-lines=0
+    - name: run VM
+      uses: uraimo/run-on-arch-action@v2
+      id: runcmd
+      with:
+        arch: ${{ matrix.platform }}
+        distro: ubuntu-latest
+        githubToken: ${{ github.token }}
+        run: |
+          # Install packages
+          sudo apt-get update && sudo apt-get install build-essential cmake neofetch tree libgtk-3-dev pkg-config libgtkmm-3.0-dev -y
+          # Clean
+          make clean
+          # Build and install
+          sudo make install DEBUG=1 VENDOR_TEST=1 GUI_MODE=0
+          # Test neofetch
+          neofetch
+          # Check system values
+          ls -l /sys/devices/virtual/dmi/id/ /sys/class/dmi/id/
+          grep -Eri "virtual" /sys/class/dmi/id/ || true
+          cat /sys/devices/virtual/dmi/id/board_name /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_version
+          tree /sys/devices/system/cpu/cpu0/
+          printf "/etc/os-release\n" && cat /etc/os-release
+          printf "getting 0x5353 hexcode\n" && grep -nri "5353" /sys/class/ || true
+          # Test customfetch
+          ./build/debug/customfetch --wrap-lines=0
 
   build_Arch-AUR:
   
