@@ -197,7 +197,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         file.open(path.data(), std::ios::binary);
         fileToAnalyze.open(path.data(), std::ios::binary);
         if (!file.is_open() || !fileToAnalyze.is_open())
-            die("Could not open ascii art file \"{}\"", path);
+            die("Could not open logo file \"{}\"", path);
 
         // first check if the file is an image
         // without even using the same library that "file" uses
@@ -239,6 +239,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
 
+#if !ANDROID_APP
     if (isImage)
     {
         // clear screen
@@ -257,6 +258,12 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         return render_with_image(systemInfo, layout, config, colors, path, font_width, font_height);
     }
+#else
+    if (isImage)
+    {
+        die("images not allowed in the android widget at the moment");
+    }
+#endif
 
     for (int i = 0; i < config.logo_padding_top; i++)
     {
@@ -279,6 +286,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         if (!config.m_disable_colors)
             asciiArt_s += config.gui ? "" : NOCOLOR;
 
+#if !ANDROID_APP
         if (config.gui)
         {
             // check parse.cpp
@@ -286,7 +294,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             if (pos != std::string::npos)
                 asciiArt_s.replace(pos, 2, "$");
         }
-
+#endif
         asciiArt.push_back(asciiArt_s);
         const size_t pureOutputLen = utf8::distance(pureOutput.begin(), pureOutput.end());
 

@@ -52,21 +52,6 @@ struct fnv1a_traits<64>
     static constexpr Type Offset = 0xcbf29ce484222325;
 };
 
-static constexpr __uint128_t Pack128(uint64_t high, uint64_t low)
-{
-    return ((__uint128_t)high << 64) + (__uint128_t)low;
-}
-
-// Traits for 128-bit FNV1a
-template<>
-struct fnv1a_traits<128>
-{
-    static constexpr bool Supported = true;
-    using Type = __uint128_t;
-
-    static constexpr Type Prime = Pack128(0x1000000, 0x000000000000013b);
-    static constexpr Type Offset = Pack128(0x6c62272e07bb0142, 0x62b821756295c58d);
-};
 
 // Generic FNV1a implementation
 template<size_t Bits>
@@ -176,7 +161,8 @@ struct fnv1a
 using fnv1a16 = fnv1a<16>;
 using fnv1a32 = fnv1a<32>;
 using fnv1a64 = fnv1a<64>;
-using fnv1a128 = fnv1a<128>;
+// we ain't gonna use this, so change to 16 bits instead
+using fnv1a128 = fnv1a<16>;
 
 constexpr fnv1a16::Type operator"" _fnv1a16(const char* s, const std::size_t l)
 {

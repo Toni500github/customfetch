@@ -1,4 +1,5 @@
-CXX       	?= g++
+#CXX       	?= g++
+CXX		= /home/toni/Android/Sdk/ndk/28.0.12433566/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android26-clang++
 PREFIX	  	?= /usr
 MANPREFIX	?= $(PREFIX)/share/man
 APPPREFIX 	?= $(PREFIX)/share/applications
@@ -6,6 +7,7 @@ VARS  	  	?=
 
 DEBUG 		?= 1
 GUI_MODE        ?= 0
+ANDROID_APP	?= 0
 VENDOR_TEST 	?= 0
 DEVICE_TEST     ?= 0
 
@@ -33,13 +35,19 @@ ifeq ($(DEVICE_TEST), 1)
 	VARS += -DDEVICE_TEST=1
 endif
 
-ifeq ($(GUI_MODE), 1)
+ifeq ($(ANDROID_APP), 1)
+        VARS     += -DANDROID_APP=1
+        CXXFLAGS += -static -fPIC
+	BUILDDIR  = build/android
+endif
+
+ifeq ($(GUI_MODE), 1 && !($(ANDROID_APP), 1))
         VARS 	 += -DGUI_MODE=1
 	LDFLAGS	 += `pkg-config --libs gtkmm-3.0`
 	CXXFLAGS += `pkg-config --cflags gtkmm-3.0`
 endif
 
-ifeq ($(USE_DCONF), 1)
+ifeq ($(USE_DCONF), 1 && !($(ANDROID_APP), 1))
         ifeq ($(shell pkg-config --exists glib-2.0 dconf && echo 1), 1)
                 CXXFLAGS += -DUSE_DCONF=1 `pkg-config --cflags glib-2.0 dconf`
         else
@@ -58,24 +66,34 @@ LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
 
-all: fmt toml $(TARGET)
+all: fmt toml $(TARGET) lib$(TARGET).a
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
 	mkdir -p $(BUILDDIR)/fmt
-	make -C src/fmt BUILDDIR=$(BUILDDIR)/fmt
+	make -C src/fmt BUILDDIR=$(BUILDDIR)/fmt CXX=$(CXX)
 endif
 
 toml:
 ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
 	mkdir -p $(BUILDDIR)/toml++
-	make -C src/toml++ BUILDDIR=$(BUILDDIR)/toml++
+	make -C src/toml++ BUILDDIR=$(BUILDDIR)/toml++ CXX=$(CXX)
 endif
 
 $(TARGET): fmt toml $(OBJ)
+ifneq ($(ANDROID_APP), 1)
 	mkdir -p $(BUILDDIR)
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
+endif
+
+lib$(TARGET).a: fmt toml $(OBJ)
+ifeq ($(ANDROID_APP), 1)
+	mkdir -p $(BUILDDIR)
+	ar qc $(BUILDDIR)/lib$(TARGET).a $(OBJ) $(BUILDDIR)/toml++/toml.o
+	ranlib $(BUILDDIR)/lib$(TARGET).a
+#	android/gradlew build --project-dir=./android
+endif
 
 dist:
 ifeq ($(GUI_MODE), 1)
@@ -85,7 +103,7 @@ else
 endif
 
 clean:
-	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)
+	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/libcustomfetch.a $(OBJ)
 
 distclean:
 	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ)

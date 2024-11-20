@@ -500,7 +500,11 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     return true;
 }
 
+#if ANDROID_APP
+int mainAndroid(int argc, char *argv[])
+#else
 int main(int argc, char *argv[])
+#endif
 {
 
 #ifdef VENDOR_TEST
@@ -533,6 +537,13 @@ int main(int argc, char *argv[])
     if (!parseargs(argc, argv, config, configFile))
         return 1;
 
+#if ANDROID_APP
+    // since ANDROID_APP means that it will run as an android widget, so in GUI,
+    // then let's make it always true
+    config.gui = true;
+    config.wrap_lines = false;
+#endif
+
     if (config.source_path.empty() || config.source_path == "off")
         config.m_disable_source = true;
 
@@ -559,6 +570,7 @@ int main(int argc, char *argv[])
     if (!std::filesystem::exists(path) && !config.m_disable_source)
         die("'{}' doesn't exist. Can't load image/text file", path);
 
+#if !ANDROID_APP
 #ifdef GUI_MODE
     if (config.gui)
     {
@@ -570,13 +582,14 @@ int main(int argc, char *argv[])
     if (config.gui)
         die("Can't run in GUI mode because it got disabled at compile time\n"
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
-#endif
+#endif // GUI_MODE
+#endif // !ANDROID_APP
 
     if (config.wrap_lines)
     {
         // hide cursor and disable line wrapping
         fmt::print("\x1B[?25l\x1B[?7l");
-        
+
         Display::display(Display::render(config, colors, false, path));
 
         // enable both of them again

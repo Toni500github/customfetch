@@ -1,12 +1,12 @@
 CXX	?= g++
 SRC 	 = toml.cpp
 TARGET   = toml.o
-CPPFLAGS = -I../../include -std=c++20
+CXXFLAGS = -I../../include -std=c++20
 
 all: $(TARGET)
 
 $(TARGET):
-	${CXX} $(SRC) $(CPPFLAGS) -c -o ../../$(BUILDDIR)/$@
+	${CXX} $(SRC) $(CXXFLAGS) -c -o ../../$(BUILDDIR)/$@
 
 clean:
 	rm -rf ../../$(BUILDDIR)/toml++/$(TARGET)

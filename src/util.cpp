@@ -636,13 +636,21 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
  * either from $XDG_CONFIG_HOME or from $HOME/.config/
  * @return user's config directory
  */
+#if ANDROID_APP
+std::string getHomeConfigDir()
+{
+    return "/storage/emulated/0/Documents/customfetch";
+}
+#else
 std::string getHomeConfigDir()
 {
     const char* dir = std::getenv("XDG_CONFIG_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
     {
         std::string str_dir(dir);
-        return str_dir.back() == '/' ? str_dir.substr(0, str_dir.rfind('/')) : str_dir;
+        if (str_dir.back() == '/')
+            str_dir.pop_back();
+        return str_dir;
     }
     else
     {
@@ -653,6 +661,7 @@ std::string getHomeConfigDir()
         return std::string(home) + "/.config";
     }
 }
+#endif
 
 /*
  * Get the customfetch config directory
