@@ -1,4 +1,4 @@
-build/
+build*/
 assets/distro_ascii_arts.json
 assets/distro_ascii_arts.txt
 cufetch

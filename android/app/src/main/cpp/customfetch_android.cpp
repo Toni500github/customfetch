@@ -14,7 +14,7 @@ Java_org_toni_customfetch_1android_widget_customfetch_idk(JNIEnv* env,
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_org_toni_customfetch_1android_widget_customfetchConfigureActivity_idk(JNIEnv *env, jobject thiz) {
-    /*Query::System system;
-    return env->NewStringUTF(system.arch().c_str());*/
-    return Java_org_toni_customfetch_1android_widget_customfetch_idk(env, thiz);
+    Query::System system;
+    return env->NewStringUTF(system.arch().c_str());
+    //return Java_org_toni_customfetch_1android_widget_customfetch_idk(env, thiz);
 }
