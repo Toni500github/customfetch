@@ -500,6 +500,11 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     return true;
 }
 
+void enable_cursor()
+{
+    fmt::print("\x1B[?25h\x1B[?7h");
+}
+
 #if ANDROID_APP
 int mainAndroid(int argc, char *argv[])
 #else
@@ -587,13 +592,17 @@ int main(int argc, char *argv[])
 
     if (config.wrap_lines)
     {
+        // https://en.cppreference.com/w/c/program/exit
+        // if something goes wrong like a segfault, then re-enable the cursor again
+        std::atexit(enable_cursor);
+        
         // hide cursor and disable line wrapping
         fmt::print("\x1B[?25l\x1B[?7l");
 
         Display::display(Display::render(config, colors, false, path));
 
         // enable both of them again
-        fmt::print("\x1B[?25h\x1B[?7h");
+        enable_cursor();
     }
     else
     {
