@@ -11,7 +11,6 @@ import org.toni.customfetch_android.R
  * App Widget Configuration implemented in [customfetchConfigureActivity]
  */
 class customfetch : AppWidgetProvider() {
-    external fun idk(): String?
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,

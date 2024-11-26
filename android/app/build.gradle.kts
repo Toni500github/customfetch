@@ -12,13 +12,13 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.10.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags += "-I${rootDir}/../include" // -L${rootDir}/../build/android/fmt -L${rootDir}/../build/android -lcustomfetch -lfmt"
-                targets("customfetch_android")
+                cppFlags += "-I${rootDir}/../include -DANDROID_APP=1"
+                targets("customfetch")
             }
         }
     }
@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.htmlspanner)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -1,4 +1,4 @@
-# Same file as the one before, just used to be compiled for android and with app/src/main/cpp/CMakeLists.txt
+# Same file as the one before, just used to be compiled for android
 
 cmake_minimum_required(VERSION 3.10)
 
@@ -9,14 +9,16 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3 -O0 -DDEBUG=1 -Wall -
 include_directories(${CMAKE_SOURCE_DIR}/../include)
 
 file(GLOB
-	SRC
-	"${CMAKE_SOURCE_DIR}/../src/*.cpp"
-	"${CMAKE_SOURCE_DIR}/../src/query/unix/*.cpp"
-	"${CMAKE_SOURCE_DIR}/../src/query/android/*.cpp"
-	"${CMAKE_SOURCE_DIR}/../src/query/unix/utils/*.cpp"
-	"${CMAKE_SOURCE_DIR}/../src/toml++/toml.cpp")
+		SRC
+		"${CMAKE_SOURCE_DIR}/../src/*.cpp"
+		"${CMAKE_SOURCE_DIR}/../src/query/unix/*.cpp"
+		"${CMAKE_SOURCE_DIR}/../src/query/android/*.cpp"
+		"${CMAKE_SOURCE_DIR}/../src/query/unix/utils/*.cpp"
+		"${CMAKE_SOURCE_DIR}/../src/toml++/toml.cpp"
+		"app/src/main/cpp/customfetch_android.cpp"
+)
 
-add_library(customfetch_android SHARED ${SRC})
+add_library(customfetch SHARED ${SRC})
 
 # get git branch
 execute_process(
@@ -26,7 +28,7 @@ execute_process(
 )
 
 set(VERSION "0.10.2")
-target_compile_definitions(customfetch_android PRIVATE
+target_compile_definitions(customfetch PRIVATE
     VERSION="${VERSION}"
     BRANCH="${GIT_BRANCH}"
     DANDROID_APP=1
@@ -38,4 +40,4 @@ add_library(fmt STATIC
         "${CMAKE_SOURCE_DIR}/../src/fmt/format.cc")
 
 # add library
-target_link_libraries(customfetch_android fmt log android)
+target_link_libraries(customfetch fmt log android)

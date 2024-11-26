@@ -37,7 +37,7 @@ class customfetchConfigureActivity : Activity() {
     }
     private lateinit var binding: CustomfetchConfigureBinding
 
-    external fun idk(): String?
+    private external fun idk(): String?
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
 

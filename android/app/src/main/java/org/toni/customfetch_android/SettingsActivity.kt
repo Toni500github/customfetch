@@ -7,7 +7,7 @@ import org.toni.customfetch_android.databinding.*
 
 class SettingsActivity : AppCompatActivity() {
 
-    external fun idk(): String?
+    external fun mainidk(): String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
@@ -18,6 +18,7 @@ class SettingsActivity : AppCompatActivity() {
                 .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        mainidk()
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
@@ -28,7 +29,7 @@ class SettingsActivity : AppCompatActivity() {
 
     companion object {
         init {
-            System.loadLibrary("customfetch_android")
+            System.loadLibrary("customfetch")
         }
     }
 }

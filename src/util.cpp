@@ -639,7 +639,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 #if ANDROID_APP
 std::string getHomeConfigDir()
 {
-    return "/storage/emulated/0/Documents/customfetch";
+    return "/storage/emulated/0/Documents";
 }
 #else
 std::string getHomeConfigDir()
