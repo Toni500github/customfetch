@@ -23,7 +23,7 @@
  *
  */
 
-#ifdef GUI_MODE
+#if GUI_MODE && !ANDROID_APP
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "gui.hpp"

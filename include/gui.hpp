@@ -26,7 +26,7 @@
 #ifndef _GUI_HPP
 #define _GUI_HPP
 
-#ifdef GUI_MODE
+#if GUI_MODE && !ANDROID_APP
 
 #include "config.hpp"
 #include "gdkmm/pixbuf.h"
@@ -105,6 +105,6 @@ private:
 
 }  // namespace GUI
 
-#endif  // GUI_MODE
+#endif  // GUI_MODE && !ANDROID_APP
 
 #endif  // _GUI_HPP

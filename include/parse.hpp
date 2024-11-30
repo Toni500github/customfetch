@@ -26,6 +26,7 @@
 #ifndef _PARSE_HPP
 #define _PARSE_HPP
 
+#include <string>
 #include "config.hpp"
 #include "query.hpp"
 
@@ -40,7 +41,8 @@ struct parse_args_t
     const Config&   config;
     const colors_t& colors;
     bool            parsingLayout;
-    bool            firstrun_clr;
+    bool            firstrun_clr = true;
+    std::string     endspan = ""; // only if ANDROID_APP
 };
 
 /* Parse input, in-place, with data from systemInfo.

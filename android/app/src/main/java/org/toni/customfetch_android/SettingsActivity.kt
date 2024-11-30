@@ -6,8 +6,6 @@ import androidx.preference.PreferenceFragmentCompat
 import org.toni.customfetch_android.databinding.*
 
 class SettingsActivity : AppCompatActivity() {
-
-    external fun mainidk(): String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
@@ -18,7 +16,6 @@ class SettingsActivity : AppCompatActivity() {
                 .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        mainidk()
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {

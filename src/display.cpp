@@ -76,6 +76,7 @@ std::string Display::detect_distro(const Config& config)
     }
 }
 
+#if !ANDROID_APP
 static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std::vector<std::string>& layout,
                                                   const Config& config, const colors_t& colors,
                                                   const std::string_view path, const std::uint16_t font_width,
@@ -180,6 +181,7 @@ static bool get_pos(int& y, int& x)
     tcsetattr(0, TCSANOW, &restore);
     return true;
 }
+#endif
 
 std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
                                          const std::string_view path)
@@ -196,8 +198,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         file.open(path.data(), std::ios::binary);
         fileToAnalyze.open(path.data(), std::ios::binary);
-        if (!file.is_open() || !fileToAnalyze.is_open())
-            die("Could not open logo file \"{}\"", path);
+        //if (!file.is_open() || !fileToAnalyze.is_open())
+          //  die("Could not open logo file \"{}\"", path);
 
         // first check if the file is an image
         // without even using the same library that "file" uses
@@ -286,15 +288,14 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         if (!config.m_disable_colors)
             asciiArt_s += config.gui ? "" : NOCOLOR;
 
-#if !ANDROID_APP
         if (config.gui)
         {
             // check parse.cpp
-            const size_t pos = asciiArt_s.rfind("$ </span>");
+            const size_t pos = asciiArt_s.rfind("$ </");
             if (pos != std::string::npos)
                 asciiArt_s.replace(pos, 2, "$");
         }
-#endif
+
         asciiArt.push_back(asciiArt_s);
         const size_t pureOutputLen = utf8::distance(pureOutput.begin(), pureOutput.end());
 

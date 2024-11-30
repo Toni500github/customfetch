@@ -32,9 +32,11 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <ios>
 #include <optional>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "config.hpp"
@@ -118,6 +120,8 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 
     std::string col = str.data();
     col.erase(first_m);  // 1;42
+
+#if !ANDROID_APP
     std::string weight = hasStart(col, "1;") ? "bold" : "normal";
     std::string type   = "fgcolor";  // either fgcolor or bgcolor
 
@@ -133,6 +137,17 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 
     if ((n >= 100 && n <= 107) || (n >= 40 && n <= 47))
         type = "bgcolor";
+#else
+    std::string weight = hasStart(col, "1;") ? "<b>" : "";
+    std::string type   = "color";  // either color or background-color
+
+    if (hasStart(col, "1;") || hasStart(col, "0;"))
+        col.erase(0, 2);
+
+    const int n = std::stoi(col);
+    if ((n >= 100 && n <= 107) || (n >= 40 && n <= 47))
+        type = "background-color";
+#endif
 
     // last number
     // clang-format off
@@ -289,11 +304,24 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     
     static std::vector<std::string> auto_colors;
 
-    std::string         output;
-    const Config&       config  = parse_args.config;
-    const colors_t&     colors  = parse_args.colors;
-    const size_t        taglen  = color.length() + "${}"_len;
-    const std::string   endspan = (!parse_args.firstrun_clr ? "</span>" : "");
+    std::string       output;
+    const Config&     config  = parse_args.config;
+    const colors_t&   colors  = parse_args.colors;
+    const size_t      taglen  = color.length() + "${}"_len;
+
+#if ANDROID_APP
+    std::string&      endspan = parse_args.endspan;
+    output                   += endspan;
+    parse_args.endspan.clear();
+
+    const auto&       append_endspan = [&](const std::string_view tag) {
+            endspan += "</";
+            endspan += tag;
+            endspan += ">";
+    };
+#else
+    const std::string endspan = (!parse_args.firstrun_clr ? "</span>" : "");
+#endif
 
     if (config.m_disable_colors)
     {
@@ -341,6 +369,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     }
 
 jumpauto:
+#if !ANDROID_APP
     if (color == "1")
     {
         output += config.gui ? endspan + "<span weight='bold'>" : NOCOLOR_BOLD;
@@ -576,11 +605,194 @@ jumpauto:
                 return output;
             }
         }
-
         if (!parse_args.parsingLayout &&
             std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
             auto_colors.push_back(color);
     }
+#else
+    if (color == "1")
+    {
+        output += endspan + "<b>";
+        append_endspan("b");
+    }
+    else if (color == "0")
+    {
+        output += endspan + "<span>";
+        append_endspan("span");
+    }
+    else
+    {
+        std::string str_clr;
+        switch (fnv1a16::hash(color))
+        {
+            case "black"_fnv1a16:   str_clr = colors.gui_black; break;
+            case "red"_fnv1a16:     str_clr = colors.gui_red; break;
+            case "blue"_fnv1a16:    str_clr = colors.gui_blue; break;
+            case "green"_fnv1a16:   str_clr = colors.gui_green; break;
+            case "cyan"_fnv1a16:    str_clr = colors.gui_cyan; break;
+            case "yellow"_fnv1a16:  str_clr = colors.gui_yellow; break;
+            case "magenta"_fnv1a16: str_clr = colors.gui_magenta; break;
+            case "white"_fnv1a16:   str_clr = colors.gui_white; break;
+            default:                str_clr = color; break;
+        }
+
+        const size_t pos = str_clr.rfind('#');
+        if (pos != std::string::npos)
+        {
+            std::string        tagfmt;
+            const std::string& opt_clr = str_clr.substr(0, pos);
+            const std::string& hexclr  = str_clr.substr(pos + 1);
+
+            size_t      argmode_pos       = 0;
+            /*const auto& get_argmode_value = [&](const std::string_view error) -> std::string {
+                if (opt_clr.at(argmode_pos + 1) == '(')
+                {
+                    const size_t closebrak = opt_clr.find(')', argmode_pos);
+                    if (closebrak == std::string::npos)
+                        die("{} mode in tag color {} doesn't have close bracket", error, str_clr);
+
+                    const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
+                    return value;
+                }
+                return "";
+            };*/
+
+            const auto& append_argmode = [&](const std::string_view fmt, const std::string_view error) -> size_t {
+                if (opt_clr.at(argmode_pos + 1) == '(')
+                {
+                    const size_t closebrak = opt_clr.find(')', argmode_pos);
+                    if (closebrak == std::string::npos)
+                        die("{} mode in tag color {} doesn't have close bracket", error, str_clr);
+
+                    const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
+                    tagfmt += fmt.data() + value + ";\">";
+
+                    return closebrak;
+                }
+                return 0;
+            };
+
+            const auto& skip_gui_argmode = [&](const size_t index) -> size_t {
+                if (opt_clr.at(index + 1) == '(')
+                {
+                    const size_t closebrak = opt_clr.find(')', index);
+                    if (closebrak == std::string::npos)
+                        return 0;
+
+                    return closebrak;
+                }
+                return 0;
+            };
+
+            bool bgcolor = false;
+            for (size_t i = 0; i < opt_clr.length(); ++i)
+            {
+                switch (opt_clr.at(i))
+                {
+                    case 'b':
+                        bgcolor = true;
+                        tagfmt += "<span style=\"background-color:" + str_clr.substr(pos) + ";\">";
+                        break;
+                    case '!': tagfmt += "<b>"; append_endspan("b"); break;
+                    case 'u': tagfmt += "<u>"; append_endspan("u"); break;
+                    case 'i': tagfmt += "<i>"; append_endspan("i"); break;
+                    case 's': tagfmt += "<s>"; append_endspan("s"); break;
+
+                    case 'B':
+                        argmode_pos = i;
+                        i += append_argmode("<span style=\"background-color:", "bgcolor");
+                        append_endspan("font");
+                        break;
+
+                    case 'S':
+                        argmode_pos = i;
+                        i += append_argmode("<span style=\"color:", "color of strikethrough line");
+                        tagfmt += "<s>";
+                        append_endspan("span");
+                        append_endspan("s");
+                        break;
+
+                    case 'a':
+                    case 'A':
+                    // alpha setting doesn't seem to work correctly no matter what. disabling for now.
+                    // if someone could help I would really really appreciate it
+                    /*{
+                        argmode_pos = i;
+                        std::string alpha_s = get_argmode_value("f/bgcolor alpha");
+                        std::uint16_t alpha = 0;
+                        const size_t perc_pos = alpha_s.find('%');
+                        if (perc_pos != alpha_s.npos)
+                        {
+                            alpha_s.erase(perc_pos);
+                            alpha = (std::stoi(alpha_s) * 0xf / 100);
+                        }
+                        else
+                        {
+                            alpha = std::stoi(alpha_s);
+                        }
+
+                        std::stringstream ss;
+                        ss << std::hex << alpha;
+                        if (hexclr.length() <= 6)
+                            str_clr.insert(pos + 1, ss.str());
+                        else
+                            str_clr.replace(pos + 1, 2, ss.str());
+
+                        i += skip_gui_argmode(i);
+                        break;
+                    }*/
+
+                    case 'L':
+                    case 'U':
+                    case 'w':
+                    case 'O':
+                    case 'o': i += skip_gui_argmode(i);
+
+                }
+            }
+
+            if (!bgcolor)
+                tagfmt += "<span style=\"color:" + str_clr.substr(pos) + ";\">";
+
+            append_endspan("span");
+            output += tagfmt;
+        }
+
+        // "\\e" is for checking in the ascii_art, \033 in the config
+        else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
+        {
+            const std::string& noesc_str = hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
+            debug("noesc_str = {}", noesc_str);
+
+            if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
+            {
+                const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
+                output += fmt::format("<span style=\"{}color:#{};\">", hasStart(noesc_str, "48") ? "background-" : "", hexclr);
+            }
+            else
+            {
+                const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
+                const std::string_view            color  = clrs.at(0);
+                const std::string_view            weight = clrs.at(1);
+                const std::string_view            type   = clrs.at(2);
+                output += fmt::format("{}<span style=\"{}:{};\">", weight, type, color);
+
+                if (weight == "<b>")
+                    append_endspan("b");
+            }
+            append_endspan("span");
+        }
+
+        else
+        {
+            error("PARSER: failed to parse line with color '{}'", str_clr);
+            if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+                parse_args.pureOutput.erase(parser.dollar_pos, taglen);
+            return output;
+        }
+
+    }
+#endif // !ANDROID_APP
 
     if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
         parse_args.pureOutput.erase(parser.dollar_pos, taglen);
@@ -726,13 +938,18 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
         replace_str(input, "\\&", "&");
     }
 
-    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true };
+    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true, ""};
     Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };
 
+#if ANDROID_APP
+    if (config.gui && !parse_args.firstrun_clr)
+        ret += parse_args.endspan;
+#else
     if (config.gui && !parse_args.firstrun_clr)
         ret += "</span>";
+#endif
 
     return ret;
 }

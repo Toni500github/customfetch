@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.text.HtmlCompat
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
@@ -37,7 +38,7 @@ class customfetchConfigureActivity : Activity() {
     }
     private lateinit var binding: CustomfetchConfigureBinding
 
-    private external fun idk(): String?
+    external fun mainidk(): String?
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
 
@@ -68,7 +69,8 @@ class customfetchConfigureActivity : Activity() {
         }
 
         appWidgetText.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
-        testView.text = idk()
+        val htmlContent = mainidk()
+        testView.text = htmlContent?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY) }
     }
 
 }
@@ -85,10 +87,11 @@ internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String) {
 
 // Read the prefix from the SharedPreferences object for this widget.
 // If there is no preference saved, get the default from a resource
-internal fun loadTitlePref(context: Context, appWidgetId: Int): String {
+internal fun loadTitlePref(context: Context, appWidgetId: Int): CharSequence? {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
-    return titleValue ?: context.getString(R.string.appwidget_text)
+    val htmlContent = customfetchConfigureActivity().mainidk()
+    return titleValue ?: htmlContent?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY) } //context.getString(R.string.appwidget_text)
 }
 
 internal fun deleteTitlePref(context: Context, appWidgetId: Int) {

@@ -27,9 +27,11 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 
 #include "config.hpp"
 #include "display.hpp"
+#include "fmt/ranges.h"
 #include "gui.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -50,7 +52,7 @@ static void version()
 {
     fmt::println("customfetch {} branch {}", VERSION, BRANCH);
 
-#ifdef GUI_MODE
+#if GUI_MODE
     fmt::print("GUI mode enabled\n\n");
 #else
     fmt::print("GUI mode IS NOT enabled\n\n");
@@ -500,13 +502,13 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     return true;
 }
 
-void enable_cursor()
+static void enable_cursor()
 {
     fmt::print("\x1B[?25h\x1B[?7h");
 }
 
 #if ANDROID_APP
-int mainAndroid(int argc, char *argv[])
+std::string mainAndroid_and_render(int argc, char *argv[])
 #else
 int main(int argc, char *argv[])
 #endif
@@ -540,13 +542,39 @@ int main(int argc, char *argv[])
     Config config(configFile, configDir, colors);
 
     if (!parseargs(argc, argv, config, configFile))
-        return 1;
+        return "";
 
 #if ANDROID_APP
     // since ANDROID_APP means that it will run as an android widget, so in GUI,
     // then let's make it always true
     config.gui = true;
+
+    // TODO: fix this shit
     config.wrap_lines = false;
+
+    if (!std::filesystem::exists(config.data_dir + "/ascii/android.txt"))
+    {
+        std::ofstream f(config.data_dir + "/ascii/android.txt");
+        f << "${green}         -o          o-\n"
+             "${green}          +hydNNNNdyh+\n"
+             "${green}        +mMMMMMMMMMMMMm+\n"
+             "${green}      `dMM${white}m:${green}NMMMMMMN${white}:m${green}MMd`\n"
+             "${green}      hMMMMMMMMMMMMMMMMMMh\n"
+             "${green}  ..  yyyyyyyyyyyyyyyyyyyy  ..\n"
+             "${green}.mMMm`MMMMMMMMMMMMMMMMMMMM`mMMm.\n"
+             "${green}:MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:\n"
+             "${green}:MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:\n"
+             "${green}:MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:\n"
+             "${green}:MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:\n"
+             "${green}-MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM-\n"
+             "${green} +yy+ MMMMMMMMMMMMMMMMMMMM +yy+\n"
+             "${green}      mMMMMMMMMMMMMMMMMMMm\n"
+             "${green}      `/++MMMMh++hMMMM++/`\n"
+             "${green}          MMMMo  oMMMM\n"
+             "${green}          MMMMo  oMMMM\n"
+             "${green}          oNMm-  -mMNs";
+        f.close();
+    }
 #endif
 
     if (config.source_path.empty() || config.source_path == "off")
@@ -576,7 +604,7 @@ int main(int argc, char *argv[])
         die("'{}' doesn't exist. Can't load image/text file", path);
 
 #if !ANDROID_APP
-#ifdef GUI_MODE
+#if GUI_MODE
     if (config.gui)
     {
         const auto  app = Gtk::Application::create("org.toni.customfetch");
@@ -588,7 +616,6 @@ int main(int argc, char *argv[])
         die("Can't run in GUI mode because it got disabled at compile time\n"
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif // GUI_MODE
-#endif // !ANDROID_APP
 
     if (config.wrap_lines)
     {
@@ -608,6 +635,9 @@ int main(int argc, char *argv[])
     {
         Display::display(Display::render(config, colors, false, path));
     }
+#else
+    return fmt::format("{}", fmt::join(Display::render(config, colors, false, path), "\n"));
+#endif// !ANDROID_APP
 
     return 0;
 }
