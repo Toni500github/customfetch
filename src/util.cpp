@@ -93,6 +93,7 @@ std::string expandVar(std::string ret)
     if (ret.empty())
         return ret;
 
+#if !ANDROID_APP
     const char* env;
     if (ret.front() == '~')
     {
@@ -121,6 +122,7 @@ std::string expandVar(std::string ret)
         ret = env;
         ret += temp;
     }
+#endif
 
     return ret;
 }

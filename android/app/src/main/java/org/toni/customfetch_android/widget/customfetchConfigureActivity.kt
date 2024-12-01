@@ -69,10 +69,13 @@ class customfetchConfigureActivity : Activity() {
         }
 
         appWidgetText.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
-        val htmlContent = mainidk()
-        testView.text = htmlContent?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY) }
     }
 
+    companion object {
+        init {
+            System.loadLibrary("customfetch")
+        }
+    }
 }
 
 private const val PREFS_NAME = "org.toni.customfetch_android.customfetch"
@@ -91,7 +94,7 @@ internal fun loadTitlePref(context: Context, appWidgetId: Int): CharSequence? {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
     val htmlContent = customfetchConfigureActivity().mainidk()
-    return titleValue ?: htmlContent?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY) } //context.getString(R.string.appwidget_text)
+    return htmlContent?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY) } //context.getString(R.string.appwidget_text)
 }
 
 internal fun deleteTitlePref(context: Context, appWidgetId: Int) {

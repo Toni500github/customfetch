@@ -34,7 +34,7 @@
 #include <vector>
 
 #include "fmt/color.h"
-#include "fmt/core.h"
+#include "fmt/base.h"
 #include "platform.hpp"
 
 // clang-format off
@@ -111,6 +111,72 @@ std::vector<std::string> split(const std::string_view text, char delim);
 std::string get_android_property(const std::string_view name);
 #endif
 
+#if ANDROID_APP
+
+#include "jni.h"
+#include "android/log.h"
+
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "JNI_TOAST", __VA_ARGS__)
+
+inline struct jni_objects
+{
+    JNIEnv *env;
+    jobject obj;
+} jni_objs;
+
+static constexpr const char *APPNAME = "customfetch_android";
+
+template <typename... Args>
+static void nativeLog(JNIEnv *env, jobject obj, int log_level, const std::string_view fmt, Args&&... args)
+{
+    jstring jMessage = env->NewStringUTF(fmt::format(fmt::runtime(fmt), args...).c_str());
+    const char *cMessage = env->GetStringUTFChars(jMessage, nullptr);
+
+    // Use Android's native logging
+    __android_log_print(log_level, APPNAME, "%s", cMessage);
+
+    env->ReleaseStringUTFChars(jMessage, cMessage);  // Clean up
+}
+
+template <typename... Args>
+void error(const std::string_view fmt, Args&&... args) noexcept
+{
+    const std::string& fmt_str = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
+    nativeLog(jni_objs.env, jni_objs.obj, ANDROID_LOG_ERROR, "{}", fmt_str);
+}
+
+template <typename... Args>
+void die(const std::string_view fmt, Args&&... args) noexcept
+{
+    const std::string& fmt_str = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
+    nativeLog(jni_objs.env, jni_objs.obj, ANDROID_LOG_FATAL, "{}", fmt_str);
+    abort();
+}
+
+template <typename... Args>
+void debug(const std::string_view fmt, Args&&... args) noexcept
+{
+#if DEBUG
+    const std::string& fmt_str = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
+    nativeLog(jni_objs.env, jni_objs.obj, ANDROID_LOG_DEBUG, "{}", fmt_str);
+#endif
+}
+
+template <typename... Args>
+void warn(const std::string_view fmt, Args&&... args) noexcept
+{
+    const std::string& fmt_str = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
+    nativeLog(jni_objs.env, jni_objs.obj, ANDROID_LOG_WARN, "{}", fmt_str);
+}
+
+template <typename... Args>
+void info(const std::string_view fmt, Args&&... args) noexcept
+{
+    const std::string& fmt_str = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
+    nativeLog(jni_objs.env, jni_objs.obj, ANDROID_LOG_INFO, "{}", fmt_str);
+}
+
+#else
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
 {
@@ -148,6 +214,7 @@ void info(const std::string_view fmt, Args&&... args) noexcept
     fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::cyan))), "INFO: {}\n",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
+#endif
 
 /** Ask the user a yes or no question.
  * @param def The default result

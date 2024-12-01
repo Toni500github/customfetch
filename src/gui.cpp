@@ -191,4 +191,4 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
 
 Window::~Window() {}
 
-#endif  // GUI_MODE
+#endif  // GUI_MODE && !ANDROID_APP

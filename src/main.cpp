@@ -508,11 +508,13 @@ static void enable_cursor()
 }
 
 #if ANDROID_APP
-std::string mainAndroid_and_render(int argc, char *argv[])
+std::string mainAndroid_and_render(int argc, char *argv[], JNIEnv *env, jobject obj)
+{
+    jni_objs = {env, obj};
 #else
 int main(int argc, char *argv[])
-#endif
 {
+#endif
 
 #ifdef VENDOR_TEST
     // test
@@ -636,7 +638,7 @@ int main(int argc, char *argv[])
         Display::display(Display::render(config, colors, false, path));
     }
 #else
-    return fmt::format("{}", fmt::join(Display::render(config, colors, false, path), "\n"));
+    return fmt::format("{}", fmt::join(Display::render(config, colors, false, path), "<br>"));
 #endif// !ANDROID_APP
 
     return 0;

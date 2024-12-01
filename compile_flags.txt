@@ -9,6 +9,8 @@
 -DUSE_DCONF=1
 -DDEBUG=1
 -DANDROID_APP=1
+-include/home/toni/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/android/log.h
+-include/home/toni/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h
 -I/usr/include/gtkmm-3.0
 -I/usr/lib/gtkmm-3.0/include
 -I/usr/include/gtk-3.0

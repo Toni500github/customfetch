@@ -191,6 +191,12 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     debug("Display::render path = {}", path);
 
+#if ANDROID_APP
+    const std::string_view space = "&nbsp;";
+#else
+    const std::string_view space = " ";
+#endif
+
     bool          isImage = false;
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
@@ -263,17 +269,17 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 #else
     if (isImage)
     {
-        die("images not allowed in the android widget at the moment");
+        die("images are NOT allowed in the android widget at the moment");
     }
 #endif
 
-    for (int i = 0; i < config.logo_padding_top; i++)
+    for (uint i = 0; i < config.logo_padding_top; i++)
     {
         pureAsciiArtLens.push_back(0);
-        asciiArt.push_back("");
+        asciiArt.emplace_back("");
     }
 
-    for (int i = 0; i < config.layout_padding_top; i++)
+    for (uint i = 0; i < config.layout_padding_top; i++)
     {
         layout.insert(layout.begin(), "");
     }
@@ -336,7 +342,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         // The user-specified offset to be put before the logo
         for (size_t j = 0; j < config.logo_padding_left; j++)
-            layout.at(i).insert(0, " ");
+            layout.at(i).insert(0, space);
 
         if (i < asciiArt.size())
         {
@@ -350,10 +356,11 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         debug("spaces: {}", spaces);
 
         for (size_t j = 0; j < spaces; j++)
-            layout.at(i).insert(origin, " ");
+            layout.at(i).insert(origin, space);
 
         if (!config.m_disable_colors)
             layout.at(i) += config.gui ? "" : NOCOLOR;
+
     }
 
     for (; i < asciiArt.size(); i++)

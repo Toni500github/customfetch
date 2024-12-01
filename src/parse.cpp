@@ -311,8 +311,8 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 
 #if ANDROID_APP
     std::string&      endspan = parse_args.endspan;
-    output                   += endspan;
-    parse_args.endspan.clear();
+    output += endspan;
+    endspan.clear();
 
     const auto&       append_endspan = [&](const std::string_view tag) {
             endspan += "</";
@@ -493,6 +493,10 @@ jumpauto:
                     const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
                     output += fmt::format("{}<span {}gcolor='#{}'>", endspan, hasStart(noesc_str, "38") ? 'f' : 'b', hexclr);
                 }
+                else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
+                {
+                    die("256 true color '{}' works only in terminal", noesc_str);
+                }
                 else
                 {
                     const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
@@ -612,12 +616,12 @@ jumpauto:
 #else
     if (color == "1")
     {
-        output += endspan + "<b>";
+        output += "<b>";
         append_endspan("b");
     }
     else if (color == "0")
     {
-        output += endspan + "<span>";
+        output += "<span>";
         append_endspan("span");
     }
     else
@@ -769,6 +773,10 @@ jumpauto:
                 const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
                 output += fmt::format("<span style=\"{}color:#{};\">", hasStart(noesc_str, "48") ? "background-" : "", hexclr);
             }
+            else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
+            {
+                die("256 true color '{}' works only in terminal", noesc_str);
+            }
             else
             {
                 const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
@@ -791,6 +799,9 @@ jumpauto:
             return output;
         }
 
+        if (!parse_args.parsingLayout &&
+            std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
+            auto_colors.push_back(color);
     }
 #endif // !ANDROID_APP
 
@@ -937,6 +948,10 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
         replace_str(input, "\\<", "<");
         replace_str(input, "\\&", "&");
     }
+#if ANDROID_APP
+    if (!parsingLayout)
+        replace_str(input, " ", "&nbsp;");
+#endif
 
     parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true, ""};
     Parser       parser{ input, pureOutput };
@@ -950,6 +965,8 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
     if (config.gui && !parse_args.firstrun_clr)
         ret += "</span>";
 #endif
+
+    replace_str(parse_args.pureOutput, "&nbsp;", " ");
 
     return ret;
 }
