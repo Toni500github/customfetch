@@ -48,40 +48,55 @@
 
 using namespace std::string_view_literals;
 
-static void version()
+#if ANDROID_APP
+#define STRING_IF_ANDROID_APP_ELSE(x) std::string
+#define RETURN_OR_PRINT(x) return x
+#define RETURN_IF_ANDROID_APP return
+#define _true "true"
+#define _false "failed"
+#else
+#define STRING_IF_ANDROID_APP_ELSE(x) x
+#define RETURN_OR_PRINT(x) fmt::println("{}", x)
+#define RETURN_IF_ANDROID_APP
+#define _true true
+#define _false false
+#endif
+
+static STRING_IF_ANDROID_APP_ELSE(void) version()
 {
-    fmt::println("customfetch {} branch {}", VERSION, BRANCH);
+    std::string version{"customfetch " VERSION " branch " BRANCH "\n"};
 
 #if GUI_MODE
-    fmt::print("GUI mode enabled\n\n");
+    version += "GUI mode enabled\n\n";
 #else
-    fmt::print("GUI mode IS NOT enabled\n\n");
+    version += "GUI mode IS NOT enabled\n\n";
 #endif
 
 #if !(USE_DCONF)
-    fmt::println("NO flags were set");
+    version += "NO flags were set\n";
 #else
-    fmt::println("set flags:");
+    version += "set flags:\n";
 #if USE_DCONF
-    fmt::println("USE_DCONF");
+    version += "USE_DCONF\n";
 #endif
 #endif
+
+    RETURN_OR_PRINT(version);
 
     // if only everyone would not return error when querying the program version :(
     std::exit(EXIT_SUCCESS);
 }
 
-static void help(bool invalid_opt = false)
+static STRING_IF_ANDROID_APP_ELSE(void) help(bool invalid_opt = false)
 {
-    fmt::println("Usage: customfetch [OPTIONS]...");
-    fmt::println(R"(
-A command-line system information tool (or neofetch like program), which its focus point is customizability and perfomance
+    constexpr std::string_view help(R"(Usage: customfetch [OPTIONS]...
+A command-line system information tool (or neofetch like program), which its focus point is customizability and performance
 
-    -n, --no-display		Do not display the logo
+    -n, --no-display            Do not display the logo
     -N, --no-color              Do not output and parse colors. Useful for stdout or pipe operations
     --enable-colors             Inverse of --no-color
-    -s, --source-path <path>	Path to the ascii art or image file to display
-    -C, --config <path>		Path to the config file to use
+    -s, --source-path <path>    Path to the ascii art or image file to display
+    -C, --config <path>         Path to the config file to use
     -a, --ascii-logo-type [<name>]
                                 The type of ASCII art to apply ("small" or "old").
                                 Basically will add "_<type>" to the logo filename.
@@ -93,45 +108,47 @@ A command-line system information tool (or neofetch like program), which its foc
     -f, --font <name>           The font to be used in GUI mode (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
                                 An example: [Liberation Mono] [Normal] [12], which can be "Liberation Mono Normal 12"
 
-    -i, --image-backend	<name>	(EXPERIMENTAL) Image backend tool for displaying images in terminal.
+    -i, --image-backend	<name>  (EXPERIMENTAL) Image backend tool for displaying images in terminal.
                                 Right now only 'kitty' and 'viu' are supported
-				It's recommended to use GUI mode for the moment if something doesn't work
+                                It's recommended to use GUI mode for the moment if something doesn't work
 
     -m, --layout-line           Will replace the config layout, with a layout you specify in the arguments
-				Example: `customfetch -m "${{auto}}OS: $<os.name>" -m "${{auto}}CPU: $<cpu.cpu>"`
-				Will only print the logo (if not disabled), along side the parsed OS and CPU
+                                Example: `customfetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>"`
+                                Will only print the logo (if not disabled), along side the parsed OS and CPU
 
-    -g, --gui                   Use GUI mode instead of priting in the terminal (use --version to check if it was enabled)
+    -g, --gui                   Use GUI mode instead of printing in the terminal (use --version to check if it was enabled)
     -p, --logo-position <value> Position of the logo ("top" or "left")
     -o, --offset <num>          Offset between the ascii art and the layout
-    -l. --list-modules  	Print the list of the modules and its members
-    -h, --help			Print this help menu
+    -l. --list-modules          Print the list of the modules and its members
+    -h, --help                  Print this help menu
     -L, --logo-only             Print only the logo
-    -V, --version		Print the version along with the git branch it was built
+    -V, --version               Print the version along with the git branch it was built
 
     --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
-    --wrap-lines [<0,1>]	Disable (0) or Enable (1) wrapping lines when printing in terminal
-    --logo-padding-top	<num>	Padding of the logo from the top
-    --logo-padding-left	<num>	Padding of the logo from the left
+    --wrap-lines [<0,1>]        Disable (0) or Enable (1) wrapping lines when printing in terminal
+    --logo-padding-top  <num>   Padding of the logo from the top
+    --logo-padding-left <num>   Padding of the logo from the left
     --layout-padding-top <num>  Padding of the layout from the top
     --title-sep <string>        A char (or string) to use in $<builtin.title_sep>
-    --sep-reset <string>        A separator (or string) that when ecountered, will automatically reset color
+    --sep-reset <string>        A separator (or string) that when encountered, will automatically reset color
     --sep-reset-after [<num>]   Reset color either before of after 'sep-reset' (1 = after && 0 = before)
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 
     --color <string>            Replace instances of a color with another value.
-                                Syntax MUST be "name=value" with no space beetween "=", example: --color "foo=#444333".
-				Thus replaces any instance of foo with #444333. Can be done with multiple colors separetly.
+                                Syntax MUST be "name=value" with no space between "=", example: --color "foo=#444333".
+                                Thus replaces any instance of foo with #444333. Can be done with multiple colors separately.
 
 Read the manual "customfetch.1" or the autogenerated config file for more infos about customfetch and how it works
-)"sv);
-    std::exit(invalid_opt);
+)");
+
+    RETURN_OR_PRINT(help.data());
+    std::exit(EXIT_SUCCESS);
 }
 
-static void modules_list()
+static STRING_IF_ANDROID_APP_ELSE(void) modules_list()
 {
-    fmt::println(R"(
+    constexpr std::string_view list(R"(
 MODULE ONLY
 Should be used in the config as like as $<module>
 Syntax:
@@ -322,14 +339,17 @@ system
   host_vendor	: Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
   arch          : the architecture of the machine [x86_64, aarch64]
 
-)"sv);
+)");
+
+    RETURN_OR_PRINT(list.data());
     std::exit(EXIT_SUCCESS);
+
 }
 
 // clang-format off
 // parseargs() but only for parsing the user config path trough args
 // and so we can directly construct Config
-static std::string parse_config_path(int argc, char* argv[], const std::string& configDir)
+static STRING_IF_ANDROID_APP_ELSE(bool) parse_config_path(int argc, char* argv[], const std::string& configDir)
 {
     int opt = 0;
     int option_index = 0;
@@ -359,7 +379,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
     return configDir + "/config.toml";
 }
 
-static bool parseargs(int argc, char* argv[], Config& config, const std::string_view configFile)
+static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config& config, const std::string_view configFile)
 {
     int opt = 0;
     int option_index = 0;
@@ -408,12 +428,12 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 0:
                 break;
             case '?':
-                help(EXIT_FAILURE); break;
+                RETURN_IF_ANDROID_APP help(EXIT_FAILURE); break;
 
             case 'V':
-                version(); break;
+                RETURN_IF_ANDROID_APP version(); break;
             case 'h':
-                help(); break;
+                RETURN_IF_ANDROID_APP help(); break;
             case 'n':
                 config.m_disable_source = true; break;
             case 'l':
@@ -495,11 +515,11 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 break;
 
             default:
-                return false;
+                return _false;
         }
     }
 
-    return true;
+    return _true;
 }
 
 static void enable_cursor()
@@ -543,40 +563,16 @@ int main(int argc, char *argv[])
 
     Config config(configFile, configDir, colors);
 
-    if (!parseargs(argc, argv, config, configFile))
-        return "";
+    const STRING_IF_ANDROID_APP_ELSE(bool)& parseargs_ret = parseargs(argc, argv, config, configFile);
+    if (parseargs_ret != _true)
+        return parseargs_ret;
 
 #if ANDROID_APP
     // since ANDROID_APP means that it will run as an android widget, so in GUI,
     // then let's make it always true
+    // and also disable wrap lines for cleaner look
     config.gui = true;
-
-    // TODO: fix this shit
     config.wrap_lines = false;
-
-    if (!std::filesystem::exists(config.data_dir + "/ascii/android.txt"))
-    {
-        std::ofstream f(config.data_dir + "/ascii/android.txt");
-        f << "${green}         -o          o-\n"
-             "${green}          +hydNNNNdyh+\n"
-             "${green}        +mMMMMMMMMMMMMm+\n"
-             "${green}      `dMM${white}m:${green}NMMMMMMN${white}:m${green}MMd`\n"
-             "${green}      hMMMMMMMMMMMMMMMMMMh\n"
-             "${green}  ..  yyyyyyyyyyyyyyyyyyyy  ..\n"
-             "${green}.mMMm`MMMMMMMMMMMMMMMMMMMM`mMMm.\n"
-             "${green}:MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:\n"
-             "${green}:MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:\n"
-             "${green}:MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:\n"
-             "${green}:MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:\n"
-             "${green}-MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM-\n"
-             "${green} +yy+ MMMMMMMMMMMMMMMMMMMM +yy+\n"
-             "${green}      mMMMMMMMMMMMMMMMMMMm\n"
-             "${green}      `/++MMMMh++hMMMM++/`\n"
-             "${green}          MMMMo  oMMMM\n"
-             "${green}          MMMMo  oMMMM\n"
-             "${green}          oNMm-  -mMNs";
-        f.close();
-    }
 #endif
 
     if (config.source_path.empty() || config.source_path == "off")
@@ -639,7 +635,7 @@ int main(int argc, char *argv[])
     }
 #else
     return fmt::format("{}", fmt::join(Display::render(config, colors, false, path), "<br>"));
-#endif// !ANDROID_APP
+#endif // !ANDROID_APP
 
-    return 0;
+    return _false; // 0 or "false"
 }

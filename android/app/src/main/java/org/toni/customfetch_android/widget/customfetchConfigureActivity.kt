@@ -5,12 +5,16 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.core.text.HtmlCompat
+import android.text.Spanned
 import android.view.View
 import android.widget.EditText
+import android.widget.ScrollView
 import android.widget.TextView
-import org.toni.customfetch_android.R
+import androidx.core.text.HtmlCompat
+import org.toni.customfetch_android.*
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
+import java.nio.file.Files
+import kotlin.io.path.Path
 
 /**
  * The configuration screen for the [customfetch] AppWidget.
@@ -19,6 +23,7 @@ class customfetchConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var appWidgetText: EditText
     private lateinit var testView: TextView
+    private lateinit var argsHelp: TextView
     private var onClickListener = View.OnClickListener {
         val context = this@customfetchConfigureActivity
 
@@ -38,7 +43,7 @@ class customfetchConfigureActivity : Activity() {
     }
     private lateinit var binding: CustomfetchConfigureBinding
 
-    external fun mainidk(): String?
+    external fun mainAndroid(argv: String): String?
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
 
@@ -49,8 +54,12 @@ class customfetchConfigureActivity : Activity() {
         binding = CustomfetchConfigureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (!Files.exists(Path(filesDir.absolutePath + "ascii")))
+            copyToAssetFolder(assets, filesDir.absolutePath, "ascii");
+
         appWidgetText = binding.appwidgetText
         testView = binding.testView
+        argsHelp = binding.argsHelp
         binding.addButton.setOnClickListener(onClickListener)
 
         // Find the widget id from the intent.
@@ -69,6 +78,7 @@ class customfetchConfigureActivity : Activity() {
         }
 
         appWidgetText.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
+        argsHelp.text = mainAndroid("customfetch --help")
     }
 
     companion object {
@@ -90,11 +100,10 @@ internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String) {
 
 // Read the prefix from the SharedPreferences object for this widget.
 // If there is no preference saved, get the default from a resource
-internal fun loadTitlePref(context: Context, appWidgetId: Int): CharSequence? {
+internal fun loadTitlePref(context: Context, appWidgetId: Int): String {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
-    val htmlContent = customfetchConfigureActivity().mainidk()
-    return htmlContent?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY) } //context.getString(R.string.appwidget_text)
+    return titleValue ?: "-D ${context.filesDir.absolutePath}" // context.getString(R.string.appwidget_text)
 }
 
 internal fun deleteTitlePref(context: Context, appWidgetId: Int) {

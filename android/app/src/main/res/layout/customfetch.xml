@@ -6,7 +6,7 @@
     android:theme="@style/Theme.Settings_testing.AppWidgetContainer">
 
     <TextView
-        android:id="@+id/appwidget_text"
+        android:id="@+id/customfetch_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
@@ -15,4 +15,5 @@
         android:textSize="9sp"
         android:fontFamily="monospace"
         tools:ignore="SmallSp" />
+
 </LinearLayout>
