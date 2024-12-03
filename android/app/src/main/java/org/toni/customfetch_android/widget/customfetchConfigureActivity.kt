@@ -5,16 +5,16 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.Spanned
 import android.view.View
+import android.widget.CheckBox
+import android.widget.CompoundButton
 import android.widget.EditText
-import android.widget.ScrollView
 import android.widget.TextView
-import androidx.core.text.HtmlCompat
 import org.toni.customfetch_android.*
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import java.nio.file.Files
 import kotlin.io.path.Path
+
 
 /**
  * The configuration screen for the [customfetch] AppWidget.
@@ -24,6 +24,7 @@ class customfetchConfigureActivity : Activity() {
     private lateinit var appWidgetText: EditText
     private lateinit var testView: TextView
     private lateinit var argsHelp: TextView
+    private lateinit var showModulesList: CheckBox
     private var onClickListener = View.OnClickListener {
         val context = this@customfetchConfigureActivity
 
@@ -60,6 +61,7 @@ class customfetchConfigureActivity : Activity() {
         appWidgetText = binding.appwidgetText
         testView = binding.testView
         argsHelp = binding.argsHelp
+        showModulesList = binding.showModulesList
         binding.addButton.setOnClickListener(onClickListener)
 
         // Find the widget id from the intent.
@@ -79,6 +81,13 @@ class customfetchConfigureActivity : Activity() {
 
         appWidgetText.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
         argsHelp.text = mainAndroid("customfetch --help")
+
+        showModulesList.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked)
+                argsHelp.text = mainAndroid("customfetch -l")
+            else
+                argsHelp.text = mainAndroid("customfetch --help")
+        })
     }
 
     companion object {

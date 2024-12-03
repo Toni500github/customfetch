@@ -434,10 +434,10 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 RETURN_IF_ANDROID_APP version(); break;
             case 'h':
                 RETURN_IF_ANDROID_APP help(); break;
+            case 'l':
+                RETURN_IF_ANDROID_APP modules_list(); break;
             case 'n':
                 config.m_disable_source = true; break;
-            case 'l':
-                modules_list(); break;
             case 'f':
                 config.font = optarg; break;
             case 'L':

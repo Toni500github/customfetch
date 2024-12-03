@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -26,6 +27,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/add_widget" />
+
+    <CheckBox
+        android:id="@+id/show_modules_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:labelFor="@+id/add_button"
+        android:text="@string/modules_list" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
