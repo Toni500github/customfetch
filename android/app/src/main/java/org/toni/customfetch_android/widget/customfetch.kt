@@ -43,10 +43,13 @@ class customfetch : AppWidgetProvider() {
 internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
-    appWidgetId: Int
+    appWidgetId: Int,
+    initConfigureActivity: Boolean = false
 ) {
     val arguments = loadTitlePref(context, appWidgetId)
-    val htmlContent = customfetchConfigureActivity().mainAndroid("customfetch $arguments")
+    val htmlContent =
+        if (initConfigureActivity) customfetchConfigureActivity().mainAndroid("customfetch $arguments")
+        else "useless text"
 
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)

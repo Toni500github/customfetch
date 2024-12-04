@@ -42,7 +42,8 @@ struct parse_args_t
     const colors_t& colors;
     bool            parsingLayout;
     bool            firstrun_clr = true;
-    std::string     endspan = ""; // only if ANDROID_APP
+    bool            no_more_reset = false;
+    std::string     endspan; // only if ANDROID_APP
 };
 
 /* Parse input, in-place, with data from systemInfo.
@@ -56,7 +57,7 @@ struct parse_args_t
  * @param is_image If the source path is an image (used for GUI mode only)
  */
 std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  const colors_t& colors, const bool parsingLayout);
+                  const colors_t& colors, const bool parsingLayout, bool& no_more_reset);
 
 // parse() for parse_args_t& arguments
 std::string parse(const std::string_view input, parse_args_t& parse_args);

@@ -112,7 +112,6 @@ std::string get_android_property(const std::string_view name);
 #endif
 
 #if ANDROID_APP
-
 #include "jni.h"
 #include "android/log.h"
 

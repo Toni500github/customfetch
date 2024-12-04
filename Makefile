@@ -79,6 +79,9 @@ $(TARGET): fmt toml $(OBJ)
 
 android_app:
 	./android/gradlew build --project-dir=./android
+	@if [ $$? -eq 0 ]; then\
+		echo "APK build successfully. Get it in $(CURDIR)/android/app/build/outputs/apk path and choose which to install (debug/release)";\
+	fi
 
 dist:
 ifeq ($(GUI_MODE), 1)

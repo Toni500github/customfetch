@@ -193,12 +193,12 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 
 std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
 {
-    return parse(input.data(), parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+    return parse(input.data(), parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
 std::string parse(const std::string_view input, parse_args_t& parse_args)
 {
-    return parse(input.data(), parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+    return parse(input.data(), parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
@@ -925,14 +925,16 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
 }
 
 std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  const colors_t& colors, const bool parsingLayout)
+                  const colors_t& colors, const bool parsingLayout, bool& no_more_reset)
 {
-    if (!config.sep_reset.empty() && parsingLayout)
+    if (!config.sep_reset.empty() && parsingLayout && !no_more_reset)
     {
         if (config.sep_reset_after)
             replace_str(input, config.sep_reset, config.sep_reset + "${0}");
         else
             replace_str(input, config.sep_reset, "${0}" + config.sep_reset);
+
+        no_more_reset = true;
     }
 
     // escape pango markup
@@ -953,7 +955,7 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
         replace_str(input, " ", "&nbsp;");
 #endif
 
-    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true, ""};
+    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true, no_more_reset, "" };
     Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };

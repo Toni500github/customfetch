@@ -90,7 +90,10 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     parse_args_t parse_args{ systemInfo, _, config, colors, false, true };
 
     while (std::getline(file, line))
+    {
         parse(line, parse_args);
+        parse_args.no_more_reset = false;
+    }
 
     parse_args.parsingLayout = true;
     for (std::string& layout : layout)

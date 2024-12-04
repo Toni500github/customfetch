@@ -5,6 +5,7 @@ cufetch
 test*.txt
 pci.ids
 output/
+useless_stuff/
 customfetch
 customfetch_r
 cufetch_r

@@ -204,8 +204,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         file.open(path.data(), std::ios::binary);
         fileToAnalyze.open(path.data(), std::ios::binary);
-        //if (!file.is_open() || !fileToAnalyze.is_open())
-          //  die("Could not open logo file \"{}\"", path);
+        if (!file.is_open() || !fileToAnalyze.is_open())
+            die("Could not open logo file \"{}\"", path);
 
         // first check if the file is an image
         // without even using the same library that "file" uses
@@ -238,10 +238,13 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         std::ifstream distro_file(distro_path);
         std::string   line, _;
 
-        parse_args_t parse_args{ systemInfo, _, config, colors, false, true };
+        parse_args_t parse_args{ systemInfo, _, config, colors, false, true, false, "" };
 
         while (std::getline(distro_file, line))
+        {
             parse(line, _, parse_args);
+            parse_args.no_more_reset = false;
+        }
     }
 
     std::vector<size_t> pureAsciiArtLens;
@@ -288,9 +291,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     while (std::getline(file, line))
     {
         std::string pureOutput;
-        parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false, true };
+        parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false, true, false, "" };
 
         std::string asciiArt_s = parse(line, parse_args);
+        parse_args.no_more_reset = false;
         if (!config.m_disable_colors)
             asciiArt_s += config.gui ? "" : NOCOLOR;
 
@@ -316,10 +320,11 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         return asciiArt;
 
     std::string _;
-    parse_args_t parse_args{ systemInfo, _, config, colors, true, true };
+    parse_args_t parse_args{ systemInfo, _, config, colors, true, true, false, "" };
     for (std::string& line : layout)
     {
         line = parse(line, parse_args);
+        parse_args.no_more_reset = false;
         if (!config.gui && !config.m_disable_colors)
             line.insert(0, NOCOLOR);
     }
