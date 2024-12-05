@@ -94,7 +94,6 @@ clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/libcustomfetch.a $(OBJ)
 
 distclean:
-	./android/gradlew clean --project-dir=./android
 	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ)
 	find . -type f -name "*.tar.gz" -exec rm -rf "{}" \;
 	find . -type f -name "*.o" -exec rm -rf "{}" \;

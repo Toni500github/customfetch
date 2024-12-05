@@ -349,7 +349,7 @@ system
 // clang-format off
 // parseargs() but only for parsing the user config path trough args
 // and so we can directly construct Config
-static STRING_IF_ANDROID_APP_ELSE(bool) parse_config_path(int argc, char* argv[], const std::string& configDir)
+static std::string parse_config_path(int argc, char* argv[], const std::string& configDir)
 {
     int opt = 0;
     int option_index = 0;

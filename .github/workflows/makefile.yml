@@ -2,9 +2,9 @@ name: Makefile CI (Test customfetch NOGUI)
 
 on:
   push:
-    branches: [ "main", "test", "windows" ]
+    branches: [ "main", "test", "android" ]
   pull_request:
-    branches: [ "main", "test", "windows" ]
+    branches: [ "main", "test", "android" ]
 
 jobs:
   build-deb:
