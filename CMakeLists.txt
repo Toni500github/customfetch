@@ -32,9 +32,46 @@ target_compile_definitions(customfetch PRIVATE
     BRANCH="${GIT_BRANCH}"
 )
 
+# https://github.com/libcpr/cpr/blob/5f475522597b8f3721e2440daddeced7a969f24c/CMakeLists.txt#L39
+macro(add_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
+    option(${OPTION_NAME} ${OPTION_TEXT} ${OPTION_DEFAULT})
+    if(DEFINED ENV{${OPTION_NAME}})
+        # Allow overriding the option through an environment variable
+        set(${OPTION_NAME} $ENV{${OPTION_NAME}})
+    endif()
+    if(${OPTION_NAME})
+        add_definitions(-D${OPTION_NAME})
+    endif()
+    message(STATUS "  ${OPTION_NAME}: ${${OPTION_NAME}}")
+endmacro()
+
+message(STATUS "Set flags:")
+message(STATUS "=================")
+add_option(GUI_MODE "Enable GTK3 GUI mode" 0)
+add_option(USE_DCONF "Compile customfetch with dconf support" 1)
+#add_option(VARS "Add additional flags at CXXFLAGS" )
+message(STATUS "=================")
+
+if(GUI_MODE)
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(GTKMM REQUIRED gtkmm-3.0 gdkmm-3.0)
+	target_link_libraries(customfetch PUBLIC ${GTKMM_LIBRARIES})
+	target_include_directories(customfetch PUBLIC ${GTKMM_INCLUDE_DIRS})
+	target_compile_options(customfetch PUBLIC ${GTKMM_CFLAGS_OTHER})
+endif()
+
+if(USE_DCONF)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(DCONF dconf)
+        target_link_libraries(customfetch PUBLIC ${DCONF_LIBRARIES})
+        target_include_directories(customfetch PUBLIC ${DCONF_INCLUDE_DIRS})
+        target_compile_options(customfetch PUBLIC ${DCONF_CFLAGS_OTHER})
+endif()
+
+
 # fmt
 add_library(fmt STATIC
 	"src/fmt/os.cc"
 	"src/fmt/format.cc")
 
-target_link_libraries(customfetch fmt)
+target_link_libraries(customfetch PUBLIC fmt)
