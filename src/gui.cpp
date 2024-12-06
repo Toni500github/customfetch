@@ -160,6 +160,8 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
         m_label.set_markup(fmt::format("{}", fmt::join(Display::render(config, colors, true, path), "\n")));
     }
 
+    auto_colors.clear();
+
     if (config.gui_bg_image != "disable")
     {
         if (!std::filesystem::exists(config.gui_bg_image))

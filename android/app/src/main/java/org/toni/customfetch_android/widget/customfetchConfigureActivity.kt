@@ -82,7 +82,7 @@ class customfetchConfigureActivity : Activity() {
         appWidgetText.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
         argsHelp.text = mainAndroid("customfetch --help")
 
-        showModulesList.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+        showModulesList.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
             if (isChecked)
                 argsHelp.text = mainAndroid("customfetch -l")
             else

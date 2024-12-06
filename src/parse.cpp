@@ -301,8 +301,6 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 
     if (!evaluate)
         return {};
-    
-    static std::vector<std::string> auto_colors;
 
     std::string       output;
     const Config&     config  = parse_args.config;
@@ -314,7 +312,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     output += endspan;
     endspan.clear();
 
-    const auto&       append_endspan = [&](const std::string_view tag) {
+    const auto& append_endspan = [&endspan](const std::string_view tag) {
             endspan += "</";
             endspan += tag;
             endspan += ">";

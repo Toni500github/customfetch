@@ -328,6 +328,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         if (!config.gui && !config.m_disable_colors)
             line.insert(0, NOCOLOR);
     }
+    
+    auto_colors.clear();
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
@@ -336,7 +338,12 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     if (config.logo_position == "top")
     {
+#if ANDROID_APP
+        if (!asciiArt.empty())
+            layout.insert(layout.begin(), asciiArt.begin(), asciiArt.end());
+#else
         Display::display(asciiArt);
+#endif
         return layout;
     }
 
@@ -374,7 +381,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         line.reserve(config.logo_padding_left + asciiArt.at(i).length());
 
         for (size_t j = 0; j < config.logo_padding_left; j++)
-            line += ' ';
+            line += space;
 
         line += asciiArt.at(i);
 
