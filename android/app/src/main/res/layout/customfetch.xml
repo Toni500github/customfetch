@@ -10,9 +10,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:scrollHorizontally="true"
+        android:scrollbars="horizontal"
+        android:focusable="true"
         android:contentDescription="@string/appwidget_text"
         android:text="@string/appwidget_text"
-        android:textSize="9sp"
+        android:textSize="7sp"
         android:fontFamily="monospace"
         tools:ignore="SmallSp" />
 

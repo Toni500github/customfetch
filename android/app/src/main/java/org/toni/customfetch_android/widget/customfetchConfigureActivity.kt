@@ -10,11 +10,10 @@ import android.widget.CheckBox
 import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.TextView
-import org.toni.customfetch_android.*
+import org.toni.customfetch_android.copyToAssetFolder
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import java.nio.file.Files
 import kotlin.io.path.Path
-
 
 /**
  * The configuration screen for the [customfetch] AppWidget.
@@ -22,7 +21,6 @@ import kotlin.io.path.Path
 class customfetchConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var appWidgetText: EditText
-    private lateinit var testView: TextView
     private lateinit var argsHelp: TextView
     private lateinit var showModulesList: CheckBox
     private var onClickListener = View.OnClickListener {
@@ -59,7 +57,6 @@ class customfetchConfigureActivity : Activity() {
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii");
 
         appWidgetText = binding.appwidgetText
-        testView = binding.testView
         argsHelp = binding.argsHelp
         showModulesList = binding.showModulesList
         binding.addButton.setOnClickListener(onClickListener)
@@ -112,7 +109,7 @@ internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String) {
 internal fun loadTitlePref(context: Context, appWidgetId: Int): String {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
-    return titleValue ?: "-D ${context.filesDir.absolutePath}" // context.getString(R.string.appwidget_text)
+    return titleValue ?: "-D ${context.filesDir.absolutePath} -a small"
 }
 
 internal fun deleteTitlePref(context: Context, appWidgetId: Int) {

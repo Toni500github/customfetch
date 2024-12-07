@@ -9,7 +9,7 @@
     android:previewImage="@drawable/example_appwidget_preview"
     android:previewLayout="@layout/customfetch"
     android:resizeMode="horizontal|vertical"
-    android:targetCellWidth="2"
-    android:targetCellHeight="2"
-    android:updatePeriodMillis="86400000"
+    android:targetCellWidth="1"
+    android:targetCellHeight="1"
+    android:updatePeriodMillis="10000"
     android:widgetCategory="home_screen" />
