@@ -258,7 +258,7 @@ sep-reset = ":"
 sep-reset-after = false
 
 # Where the logo should be displayed.
-# Values: "top" or "left"
+# Values: "top" or "left" or "bottom"
 logo-position = "left"
 
 # Offset between the ascii art and the layout

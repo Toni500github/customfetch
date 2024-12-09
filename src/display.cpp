@@ -336,14 +336,11 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    if (config.logo_position == "top")
+    if (config.logo_position == "top" || config.logo_position == "bottom")
     {
-#if ANDROID_APP
         if (!asciiArt.empty())
-            layout.insert(layout.begin(), asciiArt.begin(), asciiArt.end());
-#else
-        Display::display(asciiArt);
-#endif
+            layout.insert(config.logo_position == "top" ? layout.begin() : layout.end(),
+                          asciiArt.begin(), asciiArt.end());
         return layout;
     }
 

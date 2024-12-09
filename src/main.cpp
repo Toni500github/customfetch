@@ -117,7 +117,7 @@ A command-line system information tool (or neofetch like program), which its foc
                                 Will only print the logo (if not disabled), along side the parsed OS and CPU
 
     -g, --gui                   Use GUI mode instead of printing in the terminal (use --version to check if it was enabled)
-    -p, --logo-position <value> Position of the logo ("top" or "left")
+    -p, --logo-position <value> Position of the logo ("top" or "left" or "bottom")
     -o, --offset <num>          Offset between the ascii art and the layout
     -l. --list-modules          Print the list of the modules and its members
     -h, --help                  Print this help menu
@@ -131,7 +131,7 @@ A command-line system information tool (or neofetch like program), which its foc
     --layout-padding-top <num>  Padding of the layout from the top
     --title-sep <string>        A char (or string) to use in $<builtin.title_sep>
     --sep-reset <string>        A separator (or string) that when encountered, will automatically reset color
-    --sep-reset-after [<num>]   Reset color either before of after 'sep-reset' (1 = after && 0 = before)
+    --sep-reset-after [<0,1>]   Reset color either before (0) or after (1) 'sep-reset'
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 
