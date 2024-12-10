@@ -13,7 +13,7 @@
         android:focusable="true"
         android:contentDescription="@string/appwidget_text"
         android:text="@string/appwidget_text"
-        android:textSize="8sp"
+        android:textSize="7sp"
         android:fontFamily="monospace"
         tools:ignore="SmallSp" />
 

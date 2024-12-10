@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.CompoundButton
@@ -15,6 +16,8 @@ import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import java.nio.file.Files
 import kotlin.io.path.Path
 
+var disableLineWrap = false
+
 /**
  * The configuration screen for the [customfetch] AppWidget.
  */
@@ -23,6 +26,7 @@ class customfetchConfigureActivity : Activity() {
     private lateinit var appWidgetText: EditText
     private lateinit var argsHelp: TextView
     private lateinit var showModulesList: CheckBox
+    private lateinit var disableWrapLines: CheckBox
     private var onClickListener = View.OnClickListener {
         val context = this@customfetchConfigureActivity
 
@@ -59,6 +63,7 @@ class customfetchConfigureActivity : Activity() {
         appWidgetText = binding.appwidgetText
         argsHelp = binding.argsHelp
         showModulesList = binding.showModulesList
+        disableWrapLines = binding.disableWrapLines
         binding.addButton.setOnClickListener(onClickListener)
 
         // Find the widget id from the intent.
@@ -84,6 +89,9 @@ class customfetchConfigureActivity : Activity() {
                 argsHelp.text = mainAndroid("customfetch -l")
             else
                 argsHelp.text = mainAndroid("customfetch --help")
+        })
+        disableWrapLines.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
+            disableLineWrap = isChecked
         })
     }
 
