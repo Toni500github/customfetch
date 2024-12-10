@@ -304,9 +304,9 @@ use-SI-byte-unit = false
 percentage-colors = ["green", "yellow", "red"]
 
 # Usually in neofetch/fastfetch, when your terminal size is too small,
-# to render some text in 1 line, they wrap those lines.
+# to render some text in 1 line, they don't wrap those lines, instead they truncate them.
 # Enable/Disable if you want this
-wrap-lines = true
+wrap-lines = false
 
 # Warn against tradeoffs between slower queries for availability
 # e.g. falling back to gsettings when we can't find the config file for GTK

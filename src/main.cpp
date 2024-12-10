@@ -615,7 +615,7 @@ int main(int argc, char *argv[])
             "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
 #endif // GUI_MODE
 
-    if (config.wrap_lines)
+    if (!config.wrap_lines)
     {
         // https://en.cppreference.com/w/c/program/exit
         // if something goes wrong like a segfault, then re-enable the cursor again

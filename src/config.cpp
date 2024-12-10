@@ -70,7 +70,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->slow_query_warnings = getValue<bool>("config.slow-query-warnings", false);
     this->sep_reset_after     = getValue<bool>("config.sep-reset-after", false);
     this->use_SI_unit         = getValue<bool>("config.use-SI-byte-unit", false);
-    this->wrap_lines          = getValue<bool>("config.wrap-lines", true);
+    this->wrap_lines          = getValue<bool>("config.wrap-lines", false);
     this->offset              = getValue<std::uint16_t>("config.offset", 5);
     this->logo_padding_left   = getValue<std::uint16_t>("config.logo-padding-left", 0);
     this->layout_padding_top  = getValue<std::uint16_t>("config.layout-padding-top", 0);
