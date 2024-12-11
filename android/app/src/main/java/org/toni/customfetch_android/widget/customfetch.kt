@@ -16,6 +16,7 @@ import android.widget.RemoteViews
 import androidx.core.text.HtmlCompat
 import org.toni.customfetch_android.R
 
+
 /**
  * Implementation of App Widget functionality.
  * App Widget Configuration implemented in [customfetchConfigureActivity]
@@ -52,7 +53,7 @@ class customfetch : AppWidgetProvider() {
         val width = (widgetSize.getWidgetsSize(appWidgetId).first * 0.237f) // getWidgetSize(minWidthDp, maxWidthDp, context)
         Log.d("widthTesting", "width = $width")
         Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
-        
+
         val parsedContent = SpannableStringBuilder()
         val arguments = loadTitlePref(context, appWidgetId)
         val htmlContent = customfetchConfigureActivity().mainAndroid("customfetch $arguments")
@@ -131,8 +132,7 @@ class WidgetSizeProvider(
 internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
-    appWidgetId: Int,
-    initConfigureActivity: Boolean = false
+    appWidgetId: Int
 ) {
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)

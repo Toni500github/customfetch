@@ -1778,7 +1778,11 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
+#if !ANDROID_APP
             SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", _, parse_args));
+#else // bruh why the android HTML implementation gotta be so dumb
+            SYSINFO_INSERT(parse("${\033[40m}&nbsp;&nbsp;&nbsp;${\033[41m}&nbsp;&nbsp;&nbsp;${\033[42m}&nbsp;&nbsp;&nbsp;${\033[43m}&nbsp;&nbsp;&nbsp;${\033[44m}&nbsp;&nbsp;&nbsp;${\033[45m}&nbsp;&nbsp;&nbsp;${\033[46m}&nbsp;&nbsp;&nbsp;${\033[47m}&nbsp;&nbsp;&nbsp;${0}", _, parse_args));
+#endif
         }
     }
 
@@ -1789,7 +1793,11 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
+#if !ANDROID_APP
             SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", _, parse_args));
+#else
+            SYSINFO_INSERT(parse("${\033[100m}&nbsp;&nbsp;&nbsp;${\033[101m}&nbsp;&nbsp;&nbsp;${\033[102m}&nbsp;&nbsp;&nbsp;${\033[103m}&nbsp;&nbsp;&nbsp;${\033[104m}&nbsp;&nbsp;&nbsp;${\033[105m}&nbsp;&nbsp;&nbsp;${\033[106m}&nbsp;&nbsp;&nbsp;${\033[107m}&nbsp;&nbsp;&nbsp;${0}", _, parse_args));
+#endif
         }
     }
     

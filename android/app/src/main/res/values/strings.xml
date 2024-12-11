@@ -21,6 +21,6 @@
     <string name="configure">Configure (insert command line options)</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
-    <string name="modules_list">display modules list</string>
-    <string name="disable_wrap_lines">disable wrapping (truncate) text (may be unstable)</string>
+    <string name="modules_list">Display modules list</string>
+    <string name="disable_wrap_lines">Truncate text (may be unstable)</string>
 </resources>
