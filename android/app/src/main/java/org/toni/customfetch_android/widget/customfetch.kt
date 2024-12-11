@@ -16,7 +16,6 @@ import android.widget.RemoteViews
 import androidx.core.text.HtmlCompat
 import org.toni.customfetch_android.R
 
-
 /**
  * Implementation of App Widget functionality.
  * App Widget Configuration implemented in [customfetchConfigureActivity]
@@ -54,21 +53,7 @@ class customfetch : AppWidgetProvider() {
         Log.d("widthTesting", "width = $width")
         Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
 
-        val parsedContent = SpannableStringBuilder()
-        val arguments = loadTitlePref(context, appWidgetId)
-        val htmlContent = customfetchConfigureActivity().mainAndroid("customfetch $arguments")
-
-        if (disableLineWrap) {
-            val eachLine = htmlContent!!.split("<br>").map { it.trim() }
-            val paint = TextPaint()//.apply { textSize = 7f }
-            for (line in eachLine) {
-                var parsedLine = HtmlCompat.fromHtml(line, HtmlCompat.FROM_HTML_MODE_LEGACY)
-                parsedLine = ellipsize(parsedLine, paint, width, TruncateAt.END) as Spanned
-                parsedContent.appendLine(parsedLine)
-            }
-        } else {
-            parsedContent.append(htmlContent?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY) })
-        }
+        val parsedContent = getParsedContent(context, appWidgetId, width, disableLineWrap)
 
         val views = RemoteViews(context.packageName, R.layout.customfetch)
         views.setTextViewText(R.id.customfetch_text, parsedContent)
@@ -134,10 +119,41 @@ internal fun updateAppWidget(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
+    val widgetSize = WidgetSizeProvider(context)
+    val width = (widgetSize.getWidgetsSize(appWidgetId).first * 0.237f)
+    Log.d("widthTesting", "width = $width")
+    Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
+
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)
-    views.setTextViewText(R.id.customfetch_text, "Loading...")
+    views.setTextViewText(R.id.customfetch_text, getParsedContent(context, appWidgetId, width, disableLineWrap))
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)
+}
+
+internal fun getParsedContent(context: Context, appWidgetId: Int, width: Float, disableLineWrap: Boolean): SpannableStringBuilder {
+    val parsedContent = SpannableStringBuilder()
+    val arguments = loadTitlePref(context, appWidgetId)
+    val htmlContent = customfetchConfigureActivity().mainAndroid("customfetch $arguments")
+
+    if (disableLineWrap) {
+        val eachLine = htmlContent!!.split("<br>").map { it.trim() }
+        val paint = TextPaint()//.apply { textSize = 7f }
+        for (line in eachLine) {
+            var parsedLine = HtmlCompat.fromHtml(line, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            parsedLine =
+                ellipsize(parsedLine, paint, width, TruncateAt.END) as Spanned
+            parsedContent.appendLine(parsedLine)
+        }
+    } else {
+        parsedContent.append(htmlContent?.let {
+            HtmlCompat.fromHtml(
+                it,
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+            )
+        })
+    }
+
+    return parsedContent
 }
