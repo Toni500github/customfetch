@@ -38,7 +38,7 @@ jobs:
       run: |
         cd /tmp/customfetch-0.10.2.orig
         sudo dpkg -i customfetch_0.10.2-1_amd64.deb
-        customfetch --wrap-lines=1
+        customfetch --wrap-lines
   
   build_ubuntu-latest:
 
@@ -69,7 +69,7 @@ jobs:
         printf "getting 0x5353 hexcode\n" && grep -nri "5353" /sys/class/ || true
        
     - name: Test customfetch
-      run: ./build/debug/customfetch --wrap-lines=1
+      run: ./build/debug/customfetch --wrap-lines
 
   build_Arch-AUR:
   
@@ -106,7 +106,7 @@ jobs:
       run: neofetch
 
     - name: Test customfetch
-      run: customfetch --wrap-lines=1
+      run: customfetch --wrap-lines
 
   build_Arch:
   
@@ -150,7 +150,29 @@ jobs:
         printf "/etc/os-release\n" && cat /etc/os-release
 
     - name: Test customfetch
-      run: ./build/debug/customfetch --wrap-lines=1
+      run: ./build/debug/customfetch --wrap-lines
+
+  build-android-app:
+  
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x android/gradlew
+      
+      - name: Build with Gradle
+        run: make distclean && make android_app
+      
+      - name: Check files
+        run: tree android/app/build/outputs/apk
 
   test-all-ascii-art:
     runs-on: ubuntu-latest
@@ -170,4 +192,4 @@ jobs:
     # yes, i know too long
     # the --color arguments are just for adding a missing color to the non done ascii
     - name: Test all the ascii art logos
-      run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" "$f" && customfetch --wrap-lines=0 -s "$f" -D assets --color "c1=!#fff111" --color "c2=!#00ff1a" --color "c3=!#faa311" --color "c4=!#343412" --color "c5=!#fff311" --color "c6=!#faa3aa" && sleep 1; done
+      run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" "$f" && customfetch --wrap-lines -s "$f" -D assets --color "c1=!#fff111" --color "c2=!#00ff1a" --color "c3=!#faa311" --color "c4=!#343412" --color "c5=!#fff311" --color "c6=!#faa3aa" && sleep 1; done
