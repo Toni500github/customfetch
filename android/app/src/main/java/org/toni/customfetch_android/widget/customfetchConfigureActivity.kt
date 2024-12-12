@@ -1,14 +1,10 @@
 package org.toni.customfetch_android.widget
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
@@ -63,26 +59,6 @@ class customfetchConfigureActivity : Activity() {
 
         binding = CustomfetchConfigureBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager()) {
-                AlertDialog.Builder(this)
-                    .setTitle("Grant external storage management permission")
-                    .setMessage("Customfetch needs permissions to manage external storage for writing config files\n"+
-                            "By default we going to read/write the following directories:\n"+
-                            "/storage/emulated/0/.config/\n"+
-                            "/storage/emulated/0/.config/customfetch/")
-                    // The dialog is automatically dismissed when a dialog button is clicked.
-
-                    .setPositiveButton("Grant permission"
-                    ) { _, _ ->
-                        val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                        startActivity(intent)
-                    }
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show()
-            }
-        }
 
         if (!Files.exists(Path(filesDir.absolutePath + "ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
