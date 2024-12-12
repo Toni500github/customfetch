@@ -1,16 +1,24 @@
 package org.toni.customfetch_android.widget
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.os.Environment
+import android.provider.Settings
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.TextUtils.TruncateAt
+import android.text.TextUtils.ellipsize
 import android.view.View
 import android.widget.CheckBox
-import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import org.toni.customfetch_android.copyToAssetFolder
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import java.nio.file.Files
@@ -44,9 +52,8 @@ class customfetchConfigureActivity : Activity() {
         setResult(RESULT_OK, resultValue)
         finish()
     }
-    private lateinit var binding: CustomfetchConfigureBinding
 
-    external fun mainAndroid(argv: String): String?
+    private lateinit var binding: CustomfetchConfigureBinding
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
 
@@ -57,8 +64,28 @@ class customfetchConfigureActivity : Activity() {
         binding = CustomfetchConfigureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Environment.isExternalStorageManager()) {
+                AlertDialog.Builder(this)
+                    .setTitle("Grant external storage management permission")
+                    .setMessage("Customfetch needs permissions to manage external storage for writing config files\n"+
+                            "By default we going to read/write the following directories:\n"+
+                            "/storage/emulated/0/.config/\n"+
+                            "/storage/emulated/0/.config/customfetch/")
+                    // The dialog is automatically dismissed when a dialog button is clicked.
+
+                    .setPositiveButton("Grant permission"
+                    ) { _, _ ->
+                        val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                        startActivity(intent)
+                    }
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+            }
+        }
+
         if (!Files.exists(Path(filesDir.absolutePath + "ascii")))
-            copyToAssetFolder(assets, filesDir.absolutePath, "ascii");
+            copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
 
         appWidgetText = binding.appwidgetText
         argsHelp = binding.argsHelp
@@ -67,7 +94,6 @@ class customfetchConfigureActivity : Activity() {
         binding.addButton.setOnClickListener(onClickListener)
 
         // Find the widget id from the intent.
-        val intent = intent
         val extras = intent.extras
         if (extras != null) {
             appWidgetId = extras.getInt(
@@ -82,25 +108,58 @@ class customfetchConfigureActivity : Activity() {
         }
 
         appWidgetText.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
-        argsHelp.text = mainAndroid("customfetch --help")
+        argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
 
-        showModulesList.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
+        showModulesList.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked)
-                argsHelp.text = mainAndroid("customfetch -l")
+                argsHelp.text = customfetchRender.mainAndroid("customfetch -l")
             else
-                argsHelp.text = mainAndroid("customfetch --help")
-        })
-        disableWrapLines.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
+                argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
+        }
+        disableWrapLines.setOnCheckedChangeListener { _, isChecked ->
             disableLineWrap = isChecked
-        })
+        }
+    }
+}
+
+class CustomfetchMainRender {
+    fun getParsedContent(context: Context, appWidgetId: Int, width: Float, disableLineWrap: Boolean, otherArguments: String = ""): SpannableStringBuilder {
+        val parsedContent = SpannableStringBuilder()
+        val arguments = otherArguments.ifEmpty {
+            loadTitlePref(context, appWidgetId)
+        }
+
+        val htmlContent = mainAndroid("customfetch $arguments")
+
+        if (disableLineWrap) {
+            val eachLine = htmlContent!!.split("<br>").map { it.trim() }
+            val paint = TextPaint()//.apply { textSize = 7f }
+            for (line in eachLine) {
+                var parsedLine = HtmlCompat.fromHtml(line, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                parsedLine =
+                    ellipsize(parsedLine, paint, width, TruncateAt.END) as Spanned
+                parsedContent.appendLine(parsedLine)
+            }
+        } else {
+            parsedContent.append(htmlContent?.let {
+                HtmlCompat.fromHtml(
+                    it,
+                    HtmlCompat.FROM_HTML_MODE_COMPACT
+                )
+            })
+        }
+
+        return parsedContent
     }
 
+    external fun mainAndroid(argv: String): String?
     companion object {
         init {
             System.loadLibrary("customfetch")
         }
     }
 }
+val customfetchRender = CustomfetchMainRender()
 
 private const val PREFS_NAME = "org.toni.customfetch_android.customfetch"
 private const val PREF_PREFIX_KEY = "appwidget_"

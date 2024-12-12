@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">customfetch_android</string>
+    <string name="app_name">Customfetch Widget</string>
     <!-- Settings Activity Title -->
     <string name="title_activity_settings">SettingsActivity</string>
 

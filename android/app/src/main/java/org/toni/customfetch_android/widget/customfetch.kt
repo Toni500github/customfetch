@@ -5,15 +5,8 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Bundle
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.TextPaint
-import android.text.TextUtils.TruncateAt
-import android.text.TextUtils.ellipsize
 import android.util.Log
-import android.util.TypedValue
 import android.widget.RemoteViews
-import androidx.core.text.HtmlCompat
 import org.toni.customfetch_android.R
 
 /**
@@ -47,25 +40,15 @@ class customfetch : AppWidgetProvider() {
     ) {
         // Get the new widget size
         val widgetSize = WidgetSizeProvider(context)
-        val minWidthDp = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-        val maxWidthDp = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
         val width = (widgetSize.getWidgetsSize(appWidgetId).first * 0.237f) // getWidgetSize(minWidthDp, maxWidthDp, context)
         Log.d("widthTesting", "width = $width")
         Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
 
-        val parsedContent = getParsedContent(context, appWidgetId, width, disableLineWrap)
+        val parsedContent = customfetchRender.getParsedContent(context, appWidgetId, width, disableLineWrap)
 
         val views = RemoteViews(context.packageName, R.layout.customfetch)
         views.setTextViewText(R.id.customfetch_text, parsedContent)
         appWidgetManager.updateAppWidget(appWidgetId, views)
-    }
-
-    private fun convertDpToPx(context: Context, dp: Int): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp.toFloat(),
-            context.resources.displayMetrics
-        ).toInt()
     }
 
     override fun onEnabled(context: Context) {
@@ -124,36 +107,12 @@ internal fun updateAppWidget(
     Log.d("widthTesting", "width = $width")
     Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
 
+    val parsedContent = customfetchRender.getParsedContent(context, appWidgetId, width, disableLineWrap)
+
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)
-    views.setTextViewText(R.id.customfetch_text, getParsedContent(context, appWidgetId, width, disableLineWrap))
+    views.setTextViewText(R.id.customfetch_text, parsedContent)
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)
-}
-
-internal fun getParsedContent(context: Context, appWidgetId: Int, width: Float, disableLineWrap: Boolean): SpannableStringBuilder {
-    val parsedContent = SpannableStringBuilder()
-    val arguments = loadTitlePref(context, appWidgetId)
-    val htmlContent = customfetchConfigureActivity().mainAndroid("customfetch $arguments")
-
-    if (disableLineWrap) {
-        val eachLine = htmlContent!!.split("<br>").map { it.trim() }
-        val paint = TextPaint()//.apply { textSize = 7f }
-        for (line in eachLine) {
-            var parsedLine = HtmlCompat.fromHtml(line, HtmlCompat.FROM_HTML_MODE_LEGACY)
-            parsedLine =
-                ellipsize(parsedLine, paint, width, TruncateAt.END) as Spanned
-            parsedContent.appendLine(parsedLine)
-        }
-    } else {
-        parsedContent.append(htmlContent?.let {
-            HtmlCompat.fromHtml(
-                it,
-                HtmlCompat.FROM_HTML_MODE_LEGACY
-            )
-        })
-    }
-
-    return parsedContent
 }

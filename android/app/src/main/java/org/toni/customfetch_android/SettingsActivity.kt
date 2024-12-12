@@ -1,12 +1,7 @@
 package org.toni.customfetch_android
 
-import android.content.Context
-import android.content.Intent
 import android.content.res.AssetManager
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.Settings
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
@@ -27,12 +22,6 @@ class SettingsActivity : AppCompatActivity() {
                 .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                startActivity(intent)
-            }
-        }
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
@@ -42,7 +31,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 }
 
-val TAG: String = "AssetCopy"
+const val TAG: String = "AssetCopy"
 
 internal fun copyToAssetFolder(assets: AssetManager, absolutePath: String, assetSubFolder: String) {
     try {

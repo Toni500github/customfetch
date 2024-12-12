@@ -166,7 +166,7 @@ void Config::addAliasColors(const std::string& str)
 {
     const size_t pos = str.find('=');
     if (pos == std::string::npos)
-        die("alias color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
+        die("alias color '{}' does NOT have an equal sign '=' for separating color name and value.\n"
             "for more check with --help", str);
 
     const std::string& name  = str.substr(0, pos);
@@ -178,11 +178,13 @@ void Config::addAliasColors(const std::string& str)
 
 void Config::generateConfig(const std::string_view filename)
 {
+#if !ANDROID_APP
     if (std::filesystem::exists(filename))
     {
         if (!askUserYorN(false, "WARNING: config file {} already exists. Do you want to overwrite it?", filename))
             std::exit(1);
     }
+#endif
 
     std::ofstream f(filename.data(), std::ios::trunc);
     f << AUTOCONFIG;

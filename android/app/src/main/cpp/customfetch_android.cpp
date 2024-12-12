@@ -8,12 +8,6 @@
 
 #define ARRAY_SIZE(x) sizeof(x) / sizeof(x[0])
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_org_toni_customfetch_1android_widget_customfetch_idk(JNIEnv* env, jobject /* this */) {
-    std::string hello = "Hello from JNI.";
-    return env->NewStringUTF(hello.c_str());
-}
-
 void stringToCharArray(const std::vector<std::string>& tokens, char *argv[]) {
     // Allocate memory for each word
     for (size_t i = 0; i < tokens.size(); ++i) {
@@ -25,7 +19,7 @@ void stringToCharArray(const std::vector<std::string>& tokens, char *argv[]) {
 extern std::string mainAndroid_and_render(int argc, char *argv[], JNIEnv *env, jobject obj);
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_org_toni_customfetch_1android_widget_customfetchConfigureActivity_mainAndroid(JNIEnv *env, jobject obj, jstring args) {
+Java_org_toni_customfetch_1android_widget_CustomfetchMainRender_mainAndroid(JNIEnv *env, jobject obj, jstring args) {
     const std::string& str_args = env->GetStringUTFChars(args, nullptr);
     const std::vector<std::string>& tokens = split(str_args, ' ');
     char *argv[tokens.size()];
