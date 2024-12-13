@@ -9,15 +9,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:labelFor="@id/appwidget_text"
+        android:labelFor="@id/arguments_configure"
         android:text="@string/configure" />
 
     <EditText
-        android:id="@+id/appwidget_text"
+        android:id="@+id/arguments_configure"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autofillHints="EXAMPLE"
         android:inputType="text" />
+
+    <CheckBox
+        android:id="@+id/disable_wrap_lines"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:labelFor="@+id/arguments_configure"
+        android:text="@string/disable_wrap_lines" />
 
     <Button
         android:id="@+id/add_button"
@@ -25,13 +32,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/add_widget" />
-
-    <CheckBox
-        android:id="@+id/disable_wrap_lines"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:labelFor="@+id/add_button"
-        android:text="@string/disable_wrap_lines" />
 
     <CheckBox
         android:id="@+id/show_modules_list"

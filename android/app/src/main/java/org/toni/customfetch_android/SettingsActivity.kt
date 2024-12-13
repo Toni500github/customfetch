@@ -31,12 +31,10 @@ class SettingsActivity : AppCompatActivity() {
             if (!Environment.isExternalStorageManager()) {
                 AlertDialog.Builder(this)
                     .setTitle("Grant external storage management permission")
-                    .setMessage("Customfetch needs permissions to manage external storage for writing config files\n"+
+                    .setMessage("Customfetch needs permissions to manage external storage for writing config files.\n"+
                             "By default we going to read/write the following directories:\n"+
                             "/storage/emulated/0/.config/\n"+
                             "/storage/emulated/0/.config/customfetch/")
-                    // The dialog is automatically dismissed when a dialog button is clicked.
-
                     .setPositiveButton("Grant permission"
                     ) { _, _ ->
                         val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)

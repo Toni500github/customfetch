@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Bundle
+import android.text.TextPaint
 import android.util.Log
 import android.widget.RemoteViews
 import org.toni.customfetch_android.R
@@ -38,17 +39,7 @@ class customfetch : AppWidgetProvider() {
         appWidgetId: Int,
         newOptions: Bundle
     ) {
-        // Get the new widget size
-        val widgetSize = WidgetSizeProvider(context)
-        val width = (widgetSize.getWidgetsSize(appWidgetId).first * 0.237f) // getWidgetSize(minWidthDp, maxWidthDp, context)
-        Log.d("widthTesting", "width = $width")
-        Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
-
-        val parsedContent = customfetchRender.getParsedContent(context, appWidgetId, width, disableLineWrap)
-
-        val views = RemoteViews(context.packageName, R.layout.customfetch)
-        views.setTextViewText(R.id.customfetch_text, parsedContent)
-        appWidgetManager.updateAppWidget(appWidgetId, views)
+        updateAppWidget(context, appWidgetManager, appWidgetId)
     }
 
     override fun onEnabled(context: Context) {
@@ -102,12 +93,24 @@ internal fun updateAppWidget(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
-    val widgetSize = WidgetSizeProvider(context)
-    val width = (widgetSize.getWidgetsSize(appWidgetId).first * 0.237f)
+    // create a TextPaint to be used to measure text size
+    val textPaint = TextPaint()
+    val textSizeSp = 14f
+    val textSizePx = textSizeSp * context.resources.displayMetrics.scaledDensity
+    textPaint.textSize = textSizePx
+
+    val width = WidgetSizeProvider(context).getWidgetsSize(appWidgetId).first.toFloat()
+    Log.d("widthTesting", "textSizePx = $textSizePx")
     Log.d("widthTesting", "width = $width")
     Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
 
-    val parsedContent = customfetchRender.getParsedContent(context, appWidgetId, width, disableLineWrap)
+    val parsedContent = customfetchRender.getParsedContent(
+        context,
+        appWidgetId,
+        width,
+        disableLineWrap,
+        textPaint
+    )
 
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)

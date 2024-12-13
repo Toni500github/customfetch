@@ -27,7 +27,7 @@ var disableLineWrap = false
  */
 class customfetchConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-    private lateinit var appWidgetText: EditText
+    private lateinit var argumentsConfig: EditText
     private lateinit var argsHelp: TextView
     private lateinit var showModulesList: CheckBox
     private lateinit var disableWrapLines: CheckBox
@@ -35,7 +35,7 @@ class customfetchConfigureActivity : Activity() {
         val context = this@customfetchConfigureActivity
 
         // When the button is clicked, store the string locally
-        val widgetText = appWidgetText.text.toString()
+        val widgetText = argumentsConfig.text.toString()
         saveTitlePref(context, appWidgetId, widgetText)
 
         // It is the responsibility of the configuration activity to update the app widget
@@ -63,7 +63,7 @@ class customfetchConfigureActivity : Activity() {
         if (!Files.exists(Path(filesDir.absolutePath + "ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
 
-        appWidgetText = binding.appwidgetText
+        argumentsConfig = binding.argumentsConfigure
         argsHelp = binding.argsHelp
         showModulesList = binding.showModulesList
         disableWrapLines = binding.disableWrapLines
@@ -83,7 +83,7 @@ class customfetchConfigureActivity : Activity() {
             return
         }
 
-        appWidgetText.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
+        argumentsConfig.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
         argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
 
         showModulesList.setOnCheckedChangeListener { _, isChecked ->
@@ -99,7 +99,7 @@ class customfetchConfigureActivity : Activity() {
 }
 
 class CustomfetchMainRender {
-    fun getParsedContent(context: Context, appWidgetId: Int, width: Float, disableLineWrap: Boolean, otherArguments: String = ""): SpannableStringBuilder {
+    fun getParsedContent(context: Context, appWidgetId: Int, width: Float, disableLineWrap: Boolean, paint: TextPaint, otherArguments: String = ""): SpannableStringBuilder {
         val parsedContent = SpannableStringBuilder()
         val arguments = otherArguments.ifEmpty {
             loadTitlePref(context, appWidgetId)
@@ -109,7 +109,6 @@ class CustomfetchMainRender {
 
         if (disableLineWrap) {
             val eachLine = htmlContent!!.split("<br>").map { it.trim() }
-            val paint = TextPaint()//.apply { textSize = 7f }
             for (line in eachLine) {
                 var parsedLine = HtmlCompat.fromHtml(line, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 parsedLine =
@@ -118,10 +117,7 @@ class CustomfetchMainRender {
             }
         } else {
             parsedContent.append(htmlContent?.let {
-                HtmlCompat.fromHtml(
-                    it,
-                    HtmlCompat.FROM_HTML_MODE_COMPACT
-                )
+                HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_COMPACT)
             })
         }
 
@@ -144,6 +140,7 @@ private const val PREF_PREFIX_KEY = "appwidget_"
 internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String) {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
     prefs.putString(PREF_PREFIX_KEY + appWidgetId, text)
+    prefs.putBoolean(PREF_PREFIX_KEY + "bool_" + appWidgetId, disableLineWrap)
     prefs.apply()
 }
 
@@ -152,6 +149,7 @@ internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String) {
 internal fun loadTitlePref(context: Context, appWidgetId: Int): String {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
+    disableLineWrap = prefs.getBoolean(PREF_PREFIX_KEY + "bool_" + appWidgetId, false)
     return titleValue ?: "-D ${context.filesDir.absolutePath} -a small"
 }
 
