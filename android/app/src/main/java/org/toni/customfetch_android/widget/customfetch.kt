@@ -99,7 +99,11 @@ internal fun updateAppWidget(
     val textSizePx = textSizeSp * context.resources.displayMetrics.scaledDensity
     textPaint.textSize = textSizePx
 
-    val width = WidgetSizeProvider(context).getWidgetsSize(appWidgetId).first.toFloat()
+    val additionalTruncateWidth = loadTruncateWidthPref(context, appWidgetId).toFloat()
+    var width = WidgetSizeProvider(context).getWidgetsSize(appWidgetId).first.toFloat()
+    if (additionalTruncateWidth > 0.20)
+        width *= additionalTruncateWidth
+
     Log.d("widthTesting", "textSizePx = $textSizePx")
     Log.d("widthTesting", "width = $width")
     Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")

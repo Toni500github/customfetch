@@ -26,6 +26,20 @@
         android:labelFor="@+id/arguments_configure"
         android:text="@string/disable_wrap_lines" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:labelFor="@id/arguments_configure"
+        android:text="@string/additional_truncate" />
+
+    <EditText
+        android:id="@+id/additional_truncate_n"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="0.81"
+        android:inputType="text" />
+
     <Button
         android:id="@+id/add_button"
         android:layout_width="wrap_content"

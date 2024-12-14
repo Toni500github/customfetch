@@ -75,18 +75,16 @@ private fun copyDirectory(
         return
 
     val destDir = File(destinationDir, sourceDir)
-    if (!destDir.exists() && !destDir.mkdirs()) {
+    if (!destDir.exists() && !destDir.mkdirs())
         throw IOException("Failed to create directory: " + destDir.absolutePath)
-    }
 
     for (fileName in files) {
         val assetPath = "$sourceDir/$fileName"
         val destPath = destDir.path + "/" + fileName
-        if (isDirectory(assetManager, assetPath)) {
+        if (isDirectory(assetManager, assetPath))
             copyDirectory(assetManager, assetPath, destinationDir)
-        } else {
+        else
             copyFile(assetManager, assetPath, destPath)
-        }
     }
 }
 
@@ -102,9 +100,9 @@ private fun copyFile(assetManager: AssetManager, assetPath: String, destPath: St
         FileOutputStream(destPath).use { out ->
             val buffer = ByteArray(8192)
             var bytesRead: Int
-            while ((`in`.read(buffer).also { bytesRead = it }) != -1) {
+            while ((`in`.read(buffer).also { bytesRead = it }) != -1)
                 out.write(buffer, 0, bytesRead)
-            }
+
             Log.d(TAG, "File copied: $destPath")
         }
     }

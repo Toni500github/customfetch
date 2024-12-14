@@ -20,6 +20,7 @@ import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import java.nio.file.Files
 import kotlin.io.path.Path
 
+// truncate text
 var disableLineWrap = false
 
 /**
@@ -28,6 +29,7 @@ var disableLineWrap = false
 class customfetchConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var argumentsConfig: EditText
+    private lateinit var additionalTruncateWidth: EditText
     private lateinit var argsHelp: TextView
     private lateinit var showModulesList: CheckBox
     private lateinit var disableWrapLines: CheckBox
@@ -35,8 +37,7 @@ class customfetchConfigureActivity : Activity() {
         val context = this@customfetchConfigureActivity
 
         // When the button is clicked, store the string locally
-        val widgetText = argumentsConfig.text.toString()
-        saveTitlePref(context, appWidgetId, widgetText)
+        saveTitlePref(context, appWidgetId, argumentsConfig.text.toString(), additionalTruncateWidth.text.toString())
 
         // It is the responsibility of the configuration activity to update the app widget
         val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -64,6 +65,7 @@ class customfetchConfigureActivity : Activity() {
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
 
         argumentsConfig = binding.argumentsConfigure
+        additionalTruncateWidth = binding.additionalTruncateN
         argsHelp = binding.argsHelp
         showModulesList = binding.showModulesList
         disableWrapLines = binding.disableWrapLines
@@ -84,6 +86,7 @@ class customfetchConfigureActivity : Activity() {
         }
 
         argumentsConfig.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
+        additionalTruncateWidth.setText("0.81")
         argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
 
         showModulesList.setOnCheckedChangeListener { _, isChecked ->
@@ -137,10 +140,11 @@ private const val PREFS_NAME = "org.toni.customfetch_android.customfetch"
 private const val PREF_PREFIX_KEY = "appwidget_"
 
 // Write the prefix to the SharedPreferences object for this widget
-internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String) {
+internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String, truncateWidth: String) {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
     prefs.putString(PREF_PREFIX_KEY + appWidgetId, text)
     prefs.putBoolean(PREF_PREFIX_KEY + "bool_" + appWidgetId, disableLineWrap)
+    prefs.putString(PREF_PREFIX_KEY + "truncate_" + appWidgetId, truncateWidth)
     prefs.apply()
 }
 
@@ -151,6 +155,12 @@ internal fun loadTitlePref(context: Context, appWidgetId: Int): String {
     val titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
     disableLineWrap = prefs.getBoolean(PREF_PREFIX_KEY + "bool_" + appWidgetId, false)
     return titleValue ?: "-D ${context.filesDir.absolutePath} -a small"
+}
+
+internal fun loadTruncateWidthPref(context: Context, appWidgetId: Int): String {
+    val prefs = context.getSharedPreferences(PREFS_NAME, 0)
+    val truncateWidthValue = prefs.getString(PREF_PREFIX_KEY + "truncate_" + appWidgetId, null)
+    return truncateWidthValue ?: "0"
 }
 
 internal fun deleteTitlePref(context: Context, appWidgetId: Int) {
