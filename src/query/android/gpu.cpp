@@ -194,7 +194,7 @@ static std::string detect_adreno(const std::string& cpu_model_name)
     return MAGIC_LINE;
 }
 
-GPU::GPU(const std::uint16_t id, std::vector<std::uint16_t>& queried_gpus)
+GPU::GPU(const std::string& id, systemInfo_t& queried_gpus)
 {
     CPU query_cpu;
     if (query_cpu.vendor() == "QUALCOMM" || query_cpu.vendor() == "QTI")

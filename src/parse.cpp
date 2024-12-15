@@ -1080,10 +1080,10 @@ static std::string prettify_de_name(const std::string_view de_name)
     return de_name.data();
 }
 
-std::vector<std::uint16_t> queried_gpus;
-std::vector<std::string>   queried_disks;
-std::vector<std::string>   queried_themes_names;
-systemInfo_t               queried_themes;
+systemInfo_t queried_gpus;
+systemInfo_t queried_disks;
+systemInfo_t queried_themes_names;
+systemInfo_t queried_themes;
 
 // clang-format on
 void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args)
@@ -1251,7 +1251,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
     else if (moduleName == "theme")
     {
-        Query::Theme query_theme(queried_themes, config, false);
+        Query::Theme query_theme(config, false);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1281,7 +1281,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         {
             if (hasStart(moduleMemberName, "cursor"))
             {
-                Query::Theme query_cursor(queried_themes, config, true);
+                Query::Theme query_cursor(config, true);
                 switch (moduleMember_hash)
                 {
                     case "cursor"_fnv1a16:
@@ -1296,7 +1296,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
             }
             else
             {
-                Query::Theme query_theme(0, queried_themes, queried_themes_names, "gsettings", config, true);
+                Query::Theme query_theme(0, queried_themes, "gsettings", config, true);
                 switch (moduleMember_hash)
                 {
                     case "name"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_theme()); break;
@@ -1310,9 +1310,9 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
     // clang-format off
     else if (moduleName == "theme-gtk-all")
     {
-        Query::Theme gtk2(2, queried_themes, queried_themes_names, "gtk2", config);
-        Query::Theme gtk3(3, queried_themes, queried_themes_names, "gtk3", config);
-        Query::Theme gtk4(4, queried_themes, queried_themes_names, "gtk4", config);
+        Query::Theme gtk2(2, queried_themes, "gtk2", config);
+        Query::Theme gtk3(3, queried_themes, "gtk3", config);
+        Query::Theme gtk4(4, queried_themes, "gtk4", config);
         
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1338,7 +1338,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                 "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)",
                 moduleName);
 
-        Query::Theme query_theme(ver, queried_themes, queried_themes_names, fmt::format("gtk{}", ver), config);
+        Query::Theme query_theme(ver, queried_themes, fmt::format("gtk{}", ver), config);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1387,8 +1387,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
     else if (hasStart(moduleName, "gpu"))
     {
-        const std::uint16_t id =
-            static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3)) : 0);
+        const std::string& id = moduleName.length() > 3 ? moduleName.substr(3) : "0";
 
         Query::GPU query_gpu(id, queried_gpus);
 
@@ -1417,7 +1416,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
             TOTAL,
             FREE
         };
-        std::string path = moduleName.data();
+        std::string path{moduleName.data()};
         path.erase(0, 5);  // disk(
         path.pop_back();   // )
         debug("disk path = {}", path);
@@ -1652,8 +1651,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
     else if (hasStart(moduleName, "gpu"))
     {
-        const std::uint16_t id =
-            static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3)) : 0);
+        const std::string& id = (moduleName.length() > 3 ? moduleName.substr(3) : "0");
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
