@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import java.io.File
@@ -29,9 +30,9 @@ class SettingsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
-                AlertDialog.Builder(this)
+                val alert = AlertDialog.Builder(this)
                     .setTitle("Grant external storage management permission")
-                    .setMessage("Customfetch needs permissions to manage external storage for writing config files.\n"+
+                    .setMessage("Customfetch needs permissions to manage external storage to able to access config files.\n"+
                             "By default we going to read/write the following directories:\n"+
                             "/storage/emulated/0/.config/\n"+
                             "/storage/emulated/0/.config/customfetch/")
@@ -41,7 +42,10 @@ class SettingsActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show()
+
+                val view: View = layoutInflater.inflate(R.layout.grant_perm, null, false);
+                alert.setView(view)
+                alert.show()
             }
         }
     }
