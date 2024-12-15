@@ -14,6 +14,8 @@ import androidx.preference.PreferenceFragmentCompat
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.file.Files
+import kotlin.io.path.Path
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -48,6 +50,9 @@ class SettingsActivity : AppCompatActivity() {
                 alert.show()
             }
         }
+
+        if (!Files.exists(Path(filesDir.absolutePath + "ascii")))
+            copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {

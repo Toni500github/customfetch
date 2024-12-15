@@ -15,10 +15,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
-import org.toni.customfetch_android.copyToAssetFolder
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
-import java.nio.file.Files
-import kotlin.io.path.Path
 
 // truncate text
 var disableLineWrap = false
@@ -61,9 +58,6 @@ class customfetchConfigureActivity : Activity() {
         binding = CustomfetchConfigureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (!Files.exists(Path(filesDir.absolutePath + "ascii")))
-            copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
-
         argumentsConfig = binding.argumentsConfigure
         additionalTruncateWidth = binding.additionalTruncateN
         argsHelp = binding.argsHelp
@@ -86,7 +80,7 @@ class customfetchConfigureActivity : Activity() {
         }
 
         argumentsConfig.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
-        additionalTruncateWidth.setText("0.81")
+        additionalTruncateWidth.setText("0.6")
         argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
 
         showModulesList.setOnCheckedChangeListener { _, isChecked ->

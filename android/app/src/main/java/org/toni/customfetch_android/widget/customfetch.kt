@@ -95,7 +95,7 @@ internal fun updateAppWidget(
 ) {
     // create a TextPaint to be used to measure text size
     val textPaint = TextPaint()
-    val textSizeSp = 14f
+    val textSizeSp = 8f
     val textSizePx = textSizeSp * context.resources.displayMetrics.scaledDensity
     textPaint.textSize = textSizePx
 
