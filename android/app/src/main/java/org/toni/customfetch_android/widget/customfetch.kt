@@ -31,6 +31,7 @@ class customfetch : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             deleteTitlePref(context, appWidgetId)
         }
+        firstRun = true
     }
 
     override fun onAppWidgetOptionsChanged(
@@ -88,6 +89,7 @@ class WidgetSizeProvider(
 
 }
 
+var firstRun = true
 internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
@@ -108,14 +110,17 @@ internal fun updateAppWidget(
     Log.d("widthTesting", "width = $width")
     Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
 
-    val parsedContent = customfetchRender.getParsedContent(
-        context,
-        appWidgetId,
-        width,
-        disableLineWrap,
-        textPaint
-    )
+    val parsedContent = if (!firstRun) {
+        customfetchRender.getParsedContent(
+            context,
+            appWidgetId,
+            width,
+            disableLineWrap,
+            textPaint
+        )
+    } else ""
 
+    firstRun = false
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)
     views.setTextViewText(R.id.customfetch_text, parsedContent)

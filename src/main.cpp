@@ -570,9 +570,9 @@ int main(int argc, char *argv[])
 #if ANDROID_APP
     // since ANDROID_APP means that it will run as an android widget, so in GUI,
     // then let's make it always true
-    // and also disable wrap lines for cleaner look
     config.gui = true;
-    config.wrap_lines = false;
+    config.wrap_lines = true;
+    optind = 0;
 #endif
 
     if (config.source_path.empty() || config.source_path == "off")

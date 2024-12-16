@@ -160,5 +160,7 @@ internal fun loadTruncateWidthPref(context: Context, appWidgetId: Int): String {
 internal fun deleteTitlePref(context: Context, appWidgetId: Int) {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
     prefs.remove(PREF_PREFIX_KEY + appWidgetId)
+    prefs.remove(PREF_PREFIX_KEY + "bool_" + appWidgetId)
+    prefs.remove(PREF_PREFIX_KEY + "truncate_" + appWidgetId)
     prefs.apply()
 }
