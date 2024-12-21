@@ -1,5 +1,6 @@
 package org.toni.customfetch_android
 
+import org.toni.customfetch_android.R
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.res.AssetManager
@@ -43,7 +44,7 @@ class SettingsActivity : AppCompatActivity() {
                         val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
                         startActivity(intent)
                     }
-                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setIcon(R.drawable.icon_alert_yellow)
 
                 val view: View = layoutInflater.inflate(R.layout.grant_perm, null, false);
                 alert.setView(view)
@@ -53,6 +54,15 @@ class SettingsActivity : AppCompatActivity() {
 
         if (!Files.exists(Path(filesDir.absolutePath + "ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
+
+        AlertDialog.Builder(this)
+            .setTitle("Application is useless, use widget")
+            .setMessage("The application settings doesn't do anything, currently.\n"+
+                        "The main purpose of customfetch is the widget, so might as well check that out :)")
+            .setPositiveButton("Ok"
+            ) { _, _ -> }
+            .setIcon(android.R.drawable.ic_dialog_info)
+            .show()
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
@@ -85,7 +95,7 @@ private fun copyDirectory(
 
     val destDir = File(destinationDir, sourceDir)
     if (!destDir.exists() && !destDir.mkdirs())
-        throw IOException("Failed to create directory: " + destDir.absolutePath)
+        throw IOException("Failed to create directory: ${destDir.absolutePath}")
 
     for (fileName in files) {
         val assetPath = "$sourceDir/$fileName"

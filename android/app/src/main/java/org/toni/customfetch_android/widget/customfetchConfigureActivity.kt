@@ -34,7 +34,7 @@ class customfetchConfigureActivity : Activity() {
         val context = this@customfetchConfigureActivity
 
         // When the button is clicked, store the string locally
-        saveTitlePref(context, appWidgetId, argumentsConfig.text.toString(), additionalTruncateWidth.text.toString())
+        saveConfigPrefs(context, appWidgetId, argumentsConfig.text.toString(), additionalTruncateWidth.text.toString())
 
         // It is the responsibility of the configuration activity to update the app widget
         val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -79,7 +79,7 @@ class customfetchConfigureActivity : Activity() {
             return
         }
 
-        argumentsConfig.setText(loadTitlePref(this@customfetchConfigureActivity, appWidgetId))
+        argumentsConfig.setText(loadArgsPref(this@customfetchConfigureActivity, appWidgetId))
         additionalTruncateWidth.setText("0.6")
         argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
 
@@ -99,7 +99,7 @@ class CustomfetchMainRender {
     fun getParsedContent(context: Context, appWidgetId: Int, width: Float, disableLineWrap: Boolean, paint: TextPaint, otherArguments: String = ""): SpannableStringBuilder {
         val parsedContent = SpannableStringBuilder()
         val arguments = otherArguments.ifEmpty {
-            loadTitlePref(context, appWidgetId)
+            loadArgsPref(context, appWidgetId)
         }
 
         val htmlContent = mainAndroid("customfetch $arguments")
@@ -134,33 +134,33 @@ private const val PREFS_NAME = "org.toni.customfetch_android.customfetch"
 private const val PREF_PREFIX_KEY = "appwidget_"
 
 // Write the prefix to the SharedPreferences object for this widget
-internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String, truncateWidth: String) {
+internal fun saveConfigPrefs(context: Context, appWidgetId: Int, args: String, truncateWidth: String) {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
-    prefs.putString(PREF_PREFIX_KEY + appWidgetId, text)
-    prefs.putBoolean(PREF_PREFIX_KEY + "bool_" + appWidgetId, disableLineWrap)
-    prefs.putString(PREF_PREFIX_KEY + "truncate_" + appWidgetId, truncateWidth)
+    prefs.putString(PREF_PREFIX_KEY + appWidgetId + "_args", args)
+    prefs.putBoolean(PREF_PREFIX_KEY + appWidgetId + "_disableLineWrap", disableLineWrap)
+    prefs.putString(PREF_PREFIX_KEY + appWidgetId + "_truncateWidth", truncateWidth)
     prefs.apply()
 }
 
 // Read the prefix from the SharedPreferences object for this widget.
 // If there is no preference saved, get the default from a resource
-internal fun loadTitlePref(context: Context, appWidgetId: Int): String {
+internal fun loadArgsPref(context: Context, appWidgetId: Int): String {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
-    val titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
-    disableLineWrap = prefs.getBoolean(PREF_PREFIX_KEY + "bool_" + appWidgetId, false)
-    return titleValue ?: "-D ${context.filesDir.absolutePath} -a small"
+    val args = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_args", null)
+    disableLineWrap = prefs.getBoolean(PREF_PREFIX_KEY + appWidgetId + "_disableLineWrap", false)
+    return args ?: "-D ${context.filesDir.absolutePath} -a small"
 }
 
 internal fun loadTruncateWidthPref(context: Context, appWidgetId: Int): String {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
-    val truncateWidthValue = prefs.getString(PREF_PREFIX_KEY + "truncate_" + appWidgetId, null)
+    val truncateWidthValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_truncateWidth", null)
     return truncateWidthValue ?: "0"
 }
 
-internal fun deleteTitlePref(context: Context, appWidgetId: Int) {
+internal fun deleteConfigPrefs(context: Context, appWidgetId: Int) {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
-    prefs.remove(PREF_PREFIX_KEY + appWidgetId)
-    prefs.remove(PREF_PREFIX_KEY + "bool_" + appWidgetId)
-    prefs.remove(PREF_PREFIX_KEY + "truncate_" + appWidgetId)
+    prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_args")
+    prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_disableLineWrap")
+    prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_truncateWidth")
     prefs.apply()
 }
