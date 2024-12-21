@@ -31,7 +31,6 @@ class customfetch : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             deleteTitlePref(context, appWidgetId)
         }
-        firstRun = true
     }
 
     override fun onAppWidgetOptionsChanged(
@@ -118,7 +117,7 @@ internal fun updateAppWidget(
             disableLineWrap,
             textPaint
         )
-    } else ""
+    } else "useless text"
 
     firstRun = false
     // Construct the RemoteViews object
