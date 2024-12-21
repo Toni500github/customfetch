@@ -82,11 +82,12 @@ jobs:
 
     - name: Install the packages
       run: pacman -Syyu git sudo base-devel fakeroot pkgconf tree neofetch --noconfirm --needed
-    
-    - name: get /etc/sudoers
+
+    - name: Create a dedicated build user
       run: |
-        sed -i "s#root ALL=(ALL:ALL) ALL#root ALL=(ALL:ALL) NOPASSWD: ALL\nnobody ALL=(ALL:ALL) NOPASSWD: ALL#g" /etc/sudoers
-        cat /etc/sudoers
+        useradd -m -s /bin/bash builduser
+        echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    
     - name: get /etc/makepkg.conf
       run: |
         sed -i "s#purge debug lto#purge debug lto#" /etc/makepkg.conf
@@ -95,9 +96,9 @@ jobs:
     - name: Build and install using makepkg
       run: |
         git clone https://aur.archlinux.org/customfetch-git.git
-        chown -R nobody customfetch-git
+        chown -R builduser customfetch-git
         cd customfetch-git
-        sudo -u nobody makepkg -si --noconfirm
+        sudo -u builduser makepkg -si --noconfirm
 
     #- name: Setup SSH session
     #  uses: mxschmitt/action-tmate@v3
