@@ -59,7 +59,7 @@ class WidgetSizeProvider(
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
     fun getWidgetsSize(widgetId: Int): Pair<Int, Int> {
-        val isPortrait = context.resources.configuration.orientation == ORIENTATION_PORTRAIT
+        val isPortrait = (context.resources.configuration.orientation == ORIENTATION_PORTRAIT)
         val width = getWidgetWidth(isPortrait, widgetId)
         val height = getWidgetHeight(isPortrait, widgetId)
         val widthInPx = context.dip(width)
@@ -93,13 +93,15 @@ internal fun updateAppWidget(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
+    val disableLineWrap = getDisableLineWrap(context, appWidgetId)
+
     // create a TextPaint to be used to measure text size
     val textPaint = TextPaint()
     val textSizeSp = 8f
     val textSizePx = textSizeSp * context.resources.displayMetrics.scaledDensity
     textPaint.textSize = textSizePx
 
-    val additionalTruncateWidth = loadTruncateWidthPref(context, appWidgetId).toFloat()
+    val additionalTruncateWidth = getTruncateWidthPref(context, appWidgetId).toFloat()
     var width = WidgetSizeProvider(context).getWidgetsSize(appWidgetId).first.toFloat()
     if (additionalTruncateWidth > 0.20)
         width *= additionalTruncateWidth

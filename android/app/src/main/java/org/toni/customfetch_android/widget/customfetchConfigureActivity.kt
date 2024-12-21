@@ -17,9 +17,6 @@ import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 
-// truncate text
-var disableLineWrap = false
-
 /**
  * The configuration screen for the [customfetch] AppWidget.
  */
@@ -34,7 +31,7 @@ class customfetchConfigureActivity : Activity() {
         val context = this@customfetchConfigureActivity
 
         // When the button is clicked, store the string locally
-        saveConfigPrefs(context, appWidgetId, argumentsConfig.text.toString(), additionalTruncateWidth.text.toString())
+        saveConfigPrefs(context, appWidgetId, argumentsConfig.text.toString(), additionalTruncateWidth.text.toString(), disableLineWrap)
 
         // It is the responsibility of the configuration activity to update the app widget
         val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -46,7 +43,8 @@ class customfetchConfigureActivity : Activity() {
         setResult(RESULT_OK, resultValue)
         finish()
     }
-
+    // truncate text
+    private var disableLineWrap = false
     private lateinit var binding: CustomfetchConfigureBinding
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
@@ -79,7 +77,7 @@ class customfetchConfigureActivity : Activity() {
             return
         }
 
-        argumentsConfig.setText(loadArgsPref(this@customfetchConfigureActivity, appWidgetId))
+        argumentsConfig.setText(getArgsPref(this@customfetchConfigureActivity, appWidgetId))
         additionalTruncateWidth.setText("0.6")
         argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
 
@@ -99,7 +97,7 @@ class CustomfetchMainRender {
     fun getParsedContent(context: Context, appWidgetId: Int, width: Float, disableLineWrap: Boolean, paint: TextPaint, otherArguments: String = ""): SpannableStringBuilder {
         val parsedContent = SpannableStringBuilder()
         val arguments = otherArguments.ifEmpty {
-            loadArgsPref(context, appWidgetId)
+            getArgsPref(context, appWidgetId)
         }
 
         val htmlContent = mainAndroid("customfetch $arguments")
@@ -134,7 +132,7 @@ private const val PREFS_NAME = "org.toni.customfetch_android.customfetch"
 private const val PREF_PREFIX_KEY = "appwidget_"
 
 // Write the prefix to the SharedPreferences object for this widget
-internal fun saveConfigPrefs(context: Context, appWidgetId: Int, args: String, truncateWidth: String) {
+internal fun saveConfigPrefs(context: Context, appWidgetId: Int, args: String, truncateWidth: String, disableLineWrap: Boolean) {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
     prefs.putString(PREF_PREFIX_KEY + appWidgetId + "_args", args)
     prefs.putBoolean(PREF_PREFIX_KEY + appWidgetId + "_disableLineWrap", disableLineWrap)
@@ -144,14 +142,19 @@ internal fun saveConfigPrefs(context: Context, appWidgetId: Int, args: String, t
 
 // Read the prefix from the SharedPreferences object for this widget.
 // If there is no preference saved, get the default from a resource
-internal fun loadArgsPref(context: Context, appWidgetId: Int): String {
+internal fun getArgsPref(context: Context, appWidgetId: Int): String {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val args = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_args", null)
-    disableLineWrap = prefs.getBoolean(PREF_PREFIX_KEY + appWidgetId + "_disableLineWrap", false)
     return args ?: "-D ${context.filesDir.absolutePath} -a small"
 }
 
-internal fun loadTruncateWidthPref(context: Context, appWidgetId: Int): String {
+internal fun getDisableLineWrap(context: Context, appWidgetId: Int): Boolean {
+    val prefs = context.getSharedPreferences(PREFS_NAME, 0)
+    val value = prefs.getBoolean(PREF_PREFIX_KEY + appWidgetId + "_disableLineWrap", false)
+    return value
+}
+
+internal fun getTruncateWidthPref(context: Context, appWidgetId: Int): String {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val truncateWidthValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_truncateWidth", null)
     return truncateWidthValue ?: "0"
