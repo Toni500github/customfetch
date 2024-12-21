@@ -88,7 +88,6 @@ class WidgetSizeProvider(
 
 }
 
-var firstRun = true
 internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
@@ -109,7 +108,7 @@ internal fun updateAppWidget(
     Log.d("widthTesting", "width = $width")
     Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
 
-    val parsedContent = if (!firstRun) {
+    val parsedContent =
         customfetchRender.getParsedContent(
             context,
             appWidgetId,
@@ -117,9 +116,7 @@ internal fun updateAppWidget(
             disableLineWrap,
             textPaint
         )
-    } else "useless text"
 
-    firstRun = false
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)
     views.setTextViewText(R.id.customfetch_text, parsedContent)

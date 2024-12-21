@@ -58,7 +58,7 @@ class SettingsActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Application is useless, use widget")
             .setMessage("The application settings doesn't do anything, currently.\n"+
-                        "The main purpose of customfetch is the widget, so might as well check that out :)")
+                        "The main purpose of customfetch is the widget, so might as well check that out instead :)")
             .setPositiveButton("Ok"
             ) { _, _ -> }
             .setIcon(android.R.drawable.ic_dialog_info)
