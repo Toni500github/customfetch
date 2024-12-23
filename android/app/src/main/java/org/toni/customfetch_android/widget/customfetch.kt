@@ -44,6 +44,7 @@ class customfetch : AppWidgetProvider() {
 
     override fun onEnabled(context: Context) {
         // Enter relevant functionality for when the first widget is created
+
     }
 
     override fun onDisabled(context: Context) {
@@ -94,6 +95,7 @@ internal fun updateAppWidget(
     appWidgetId: Int
 ) {
     val disableLineWrap = getDisableLineWrap(context, appWidgetId)
+    val bgColor = getBgColor(context, appWidgetId)
 
     // create a TextPaint to be used to measure text size
     val textPaint = TextPaint()
@@ -122,6 +124,7 @@ internal fun updateAppWidget(
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)
     views.setTextViewText(R.id.customfetch_text, parsedContent)
+    views.setInt(R.id.widget_root, "setBackgroundColor", bgColor);
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)
