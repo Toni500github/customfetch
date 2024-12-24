@@ -10,26 +10,18 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceFragmentCompat
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import kotlin.io.path.Path
 
-
-class SettingsActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
-        if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.settings, SettingsFragment())
-                .commit()
-        }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setContentView(R.layout.activity_main)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 val alert = AlertDialog.Builder(this)
@@ -45,7 +37,7 @@ class SettingsActivity : AppCompatActivity() {
                     }
                     .setIcon(R.drawable.icon_alert_yellow)
 
-                val view: View = layoutInflater.inflate(R.layout.grant_perm, null, false);
+                val view: View = layoutInflater.inflate(R.layout.grant_perm, null, false)
                 alert.setView(view)
                 alert.show()
             }
@@ -62,12 +54,6 @@ class SettingsActivity : AppCompatActivity() {
             ) { _, _ -> }
             .setIcon(android.R.drawable.ic_dialog_info)
             .show()
-    }
-
-    class SettingsFragment : PreferenceFragmentCompat() {
-        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey)
-        }
     }
 }
 

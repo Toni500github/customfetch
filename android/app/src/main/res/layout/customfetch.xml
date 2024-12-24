@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/widget_root"
-    android:theme="@style/Theme.Settings_testing.AppWidgetContainer">
+    android:theme="@style/Theme.MainActivity.AppWidgetContainer">
 
     <TextView
         android:id="@+id/customfetch_text"
