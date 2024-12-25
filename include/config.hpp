@@ -157,7 +157,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # The colors can be predefined such as: black, red, green, blue, cyan, yellow, magenta, white.
 # They can be configured in the config file.
 #
-# They can have hexcodes colors (e.g "#5522dd").
+# They can have hex codes colors (e.g "#5522dd").
 # You can apply special effects to colors by using the following symbols before the '#' in hex codes:
 #
 #     Terminal and GUI                          GUI Only
@@ -198,7 +198,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #    Read the manual customfetch.1 for more infos with $() tag
 #
 # Q: Can I run recursive tags?
-# A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>).disk>" works,
+# A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>)>" works,
 #    Then I guess yeah
 ################################################################
 
@@ -247,7 +247,7 @@ ascii-logo-type = ""
 # A char (or string) to use in $<builtin.title_sep>
 title-sep = "-"
 
-# A separator (or string) that when ecountered, will automatically
+# A separator (or string) that when encountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
@@ -297,7 +297,7 @@ use-SI-byte-unit = false
 
 # Colors to be used in percentage tag and modules members.
 # They are used as if you're using the color tag.
-# It's an array just for "convinience"
+# It's an array just for "convenience"
 # 1st color for good
 # 2nd color for normal
 # 3rd color for bad
@@ -327,14 +327,14 @@ secs  = " seconds"
 # remember to not enter the same name twice, else the world will finish
 # Choices: pacman, flatpak, dpkg, apk
 #
-# Pro-tip: if your package manager isnt listed here, yet,
+# Pro-tip: if your package manager isn't listed here, yet,
 # use the bash command tag in the layout
 # e.g "Packages: $(pacman -Q | wc -l) (pacman)"
 pkg-managers = ["pacman", "dpkg", "flatpak"]
 
 # Distros and package manager specific
 # package manager paths for getting the packages count from path.
-# They are arrayies so you can add multiple paths.
+# They are arrays so you can add multiple paths.
 #
 # If you don't know what these ares, leave them by default settings
 pacman-dirs  = ["/var/lib/pacman/local/"]

@@ -120,10 +120,7 @@ class customfetchConfigureActivity : Activity() {
         argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
 
         showModulesList.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked)
-                argsHelp.text = customfetchRender.mainAndroid("customfetch -l")
-            else
-                argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
+            argsHelp.text = customfetchRender.mainAndroid("customfetch ${if (isChecked) "-l" else "-h"}")
         }
 
         disableWrapLinesCheck.setOnCheckedChangeListener { _, isChecked ->

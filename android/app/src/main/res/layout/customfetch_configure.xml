@@ -61,8 +61,7 @@
             android:id="@+id/radio_system_bg_color"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/use_system_theme_color"
-            android:checked="true" />
+            android:text="@string/use_system_theme_color" />
 
         <RadioButton
             android:id="@+id/radio_transparent_bg"

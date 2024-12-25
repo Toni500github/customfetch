@@ -71,9 +71,13 @@ std::string Display::detect_distro(const Config& config)
         format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()));
         if (std::filesystem::exists(format))
             return format;
-
-        return config.data_dir + "/ascii/linux.txt";
     }
+#if ANDROID_APP
+    return config.data_dir + "/ascii/android.txt";
+#else
+    return config.data_dir + "/ascii/linux.txt";
+#endif
+
 }
 
 #if !ANDROID_APP
@@ -93,12 +97,13 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     stbi_image_free(img);
 
     std::string _;
-    parse_args_t parse_args{ systemInfo, _, config, colors, true, true };
+    parse_args_t parse_args{ systemInfo, _, config, colors, true, true, false, "" };
     for (std::string& line : layout)
     {
         line = parse(line, parse_args);
         if (!config.m_disable_colors)
             line.insert(0, NOCOLOR);
+        parse_args.no_more_reset = false;
     }
 
     // erase each element for each instance of MAGIC_LINE
@@ -128,9 +133,9 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
         return layout;
     }
 
-    for (size_t i = 0; i < layout.size(); ++i)
+    for (auto& str : layout)
         for (size_t _ = 0; _ < width + config.offset; ++_)
-            layout.at(i).insert(0, " ");
+            str.insert(0, " ");
 
     return layout;
 }
