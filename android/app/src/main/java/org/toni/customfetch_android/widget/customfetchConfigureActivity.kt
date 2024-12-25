@@ -18,6 +18,8 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.core.graphics.toColorInt
 import androidx.core.text.HtmlCompat
@@ -39,19 +41,15 @@ class customfetchConfigureActivity : Activity() {
     private lateinit var argsHelp: TextView
     private lateinit var showModulesList: CheckBox
     private lateinit var disableWrapLinesCheck: CheckBox
-    private lateinit var useSystemBgColor: CheckBox
+    private lateinit var selectBgColor: RadioGroup
     private lateinit var colorPickerView: ColorPickerView
     private lateinit var colorPickerHex: EditText
     private lateinit var colorPreview: View
     private lateinit var brightnessSlideBar: BrightnessSlideBar
     private lateinit var alphaSlideBar: AlphaSlideBar
+    private lateinit var customColorSelect: LinearLayout
     private var onClickListener = View.OnClickListener {
         val context = this@customfetchConfigureActivity
-
-        val typedValue = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-        if (useSystemBgColor.isChecked)
-            bgColor = typedValue.data
 
         // When the button is clicked, store the string locally
         saveConfigPrefs(
@@ -94,12 +92,13 @@ class customfetchConfigureActivity : Activity() {
         argsHelp = binding.argsHelp
         showModulesList = binding.showModulesList
         disableWrapLinesCheck = binding.disableWrapLines
-        useSystemBgColor = binding.useSystemBgColor
+        selectBgColor = binding.selectBgColor
         colorPickerView = binding.bgColor
         colorPreview = binding.colorPreview
         colorPickerHex = binding.bgColorHex
         brightnessSlideBar = binding.brightnessSlide
         alphaSlideBar = binding.alphaSlideBar
+        customColorSelect = binding.customColorsSelect
         binding.addButton.setOnClickListener(onClickListener)
 
         // Find the widget id from the intent.
@@ -126,47 +125,67 @@ class customfetchConfigureActivity : Activity() {
             else
                 argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
         }
+
         disableWrapLinesCheck.setOnCheckedChangeListener { _, isChecked ->
             disableLineWrap = isChecked
         }
 
-        // disable scroll when interacting with the color picker
-        colorPickerView.setOnTouchListener { view, _ ->
-            view.parent.requestDisallowInterceptTouchEvent(true)
-            false // allow colorPickerView to handle the touch event
-        }
+        selectBgColor.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.radio_system_bg_color -> {
+                    customColorSelect.visibility = View.GONE
+                    val typedValue = TypedValue()
+                    this.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+                    bgColor = typedValue.data
+                }
 
-        // if modified edittext and it's valid, apply to the preview
-        // else if modified in the color picker, apply to the edittext
-        var hexColor = ""
-        colorPickerHex.addTextChangedListener (object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {
-                val col = s.toString()
-                if (isValidHex(col)) {
-                    colorPreview.setBackgroundColor(Color.parseColor(col))
-                    colorPickerView.setInitialColor(col.toColorInt())
-                    hexColor = col
-                    bgColor = col.toColorInt()
+                R.id.radio_transparent_bg -> {
+                    customColorSelect.visibility = View.GONE
+                    bgColor = 0x00FFFFFF
+                }
+
+                R.id.radio_custom_colors -> {
+                    customColorSelect.visibility = View.VISIBLE
+                    // disable scroll when interacting with the color picker
+                    colorPickerView.setOnTouchListener { view, _ ->
+                        view.parent.requestDisallowInterceptTouchEvent(true)
+                        false // allow colorPickerView to handle the touch event
+                    }
+
+                    // if modified edittext and it's valid, apply to the preview
+                    // else if modified in the color picker, apply to the edittext
+                    var hexColor = ""
+                    colorPickerHex.addTextChangedListener (object : TextWatcher {
+                        override fun afterTextChanged(s: Editable) {
+                            val col = s.toString()
+                            if (isValidHex(col)) {
+                                colorPreview.setBackgroundColor(Color.parseColor(col))
+                                colorPickerView.setInitialColor(col.toColorInt())
+                                hexColor = col
+                                bgColor = col.toColorInt()
+                            }
+                        }
+                        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+                        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+                    })
+                    var firstRun = true
+                    colorPickerView.setColorListener(ColorEnvelopeListener { envelope, _ ->
+                        if (firstRun)
+                            hexColor = "#${envelope.hexCode}"
+
+                        if (hexColor != "#${envelope.hexCode}") {
+                            colorPickerHex.setText("#${envelope.hexCode}")
+                            hexColor = "#${envelope.hexCode}"
+                        }
+                        colorPreview.setBackgroundColor(envelope.color)
+                        bgColor = envelope.color
+                        firstRun = false
+                    })
+                    colorPickerView.attachAlphaSlider(alphaSlideBar)
+                    colorPickerView.attachBrightnessSlider(brightnessSlideBar)
                 }
             }
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-        })
-        var firstRun = true
-        colorPickerView.setColorListener(ColorEnvelopeListener { envelope, _ ->
-            if (firstRun)
-                hexColor = "#${envelope.hexCode}"
-
-            if (hexColor != "#${envelope.hexCode}") {
-                colorPickerHex.setText("#${envelope.hexCode}")
-                hexColor = "#${envelope.hexCode}"
-            }
-            colorPreview.setBackgroundColor(envelope.color)
-            bgColor = envelope.color
-            firstRun = false
-        })
-        colorPickerView.attachAlphaSlider(alphaSlideBar)
-        colorPickerView.attachBrightnessSlider(brightnessSlideBar)
+        }
     }
 
     private fun isValidHex(color: String): Boolean =

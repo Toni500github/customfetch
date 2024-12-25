@@ -25,5 +25,7 @@
     <string name="modules_list">Display modules list</string>
     <string name="disable_wrap_lines">Truncate text (may be unstable, use it only on phones)</string>
     <string name="background_color">Background color</string>
-    <string name="use_system_theme_color">Use system theme color instead</string>
+    <string name="use_system_theme_color">System theme color</string>
+    <string name="transparent_background">Transparent background</string>
+    <string name="custom_color">Custom color</string>
 </resources>

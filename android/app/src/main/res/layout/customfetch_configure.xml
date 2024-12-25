@@ -52,57 +52,85 @@
         android:labelFor="@id/bg_color_hex"
         android:text="@string/background_color" />
 
-    <CheckBox
-        android:id="@+id/use_system_bg_color"
+    <RadioGroup
+        android:id="@+id/select_bg_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <RadioButton
+            android:id="@+id/radio_system_bg_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/use_system_theme_color"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/radio_transparent_bg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transparent_background" />
+
+        <RadioButton
+            android:id="@+id/radio_custom_colors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/custom_color"/>
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/custom_colors_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/use_system_theme_color"/>
+        android:orientation="vertical"
+        android:visibility="gone" >
 
-    <EditText
-        android:id="@+id/bg_color_hex"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Hex Color Code (#AARRGGBB)"
-        android:inputType="text" />
+        <EditText
+            android:id="@+id/bg_color_hex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Hex Color Code (#AARRGGBB)"
+            android:inputType="text" />
 
-    <com.skydoves.colorpickerview.ColorPickerView
-        android:id="@+id/bg_color"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        app:initialColor="@color/cardview_dark_background" />
+        <com.skydoves.colorpickerview.ColorPickerView
+            android:id="@+id/bg_color"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            app:initialColor="@color/cardview_dark_background" />
 
-    <!-- padding separator -->
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="20dp" />
+        <!-- padding separator -->
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
 
-    <com.skydoves.colorpickerview.sliders.AlphaSlideBar
-        android:id="@+id/alphaSlideBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:selector_AlphaSlideBar="@drawable/colorpickerview_wheel"
-        app:borderColor_AlphaSlideBar="@android:color/darker_gray"
-        app:borderSize_AlphaSlideBar="5"/>
+        <com.skydoves.colorpickerview.sliders.AlphaSlideBar
+            android:id="@+id/alphaSlideBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:selector_AlphaSlideBar="@drawable/colorpickerview_wheel"
+            app:borderColor_AlphaSlideBar="@android:color/darker_gray"
+            app:borderSize_AlphaSlideBar="5"/>
 
-    <!-- padding separator -->
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="20dp" />
+        <!-- padding separator -->
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
 
-    <com.skydoves.colorpickerview.sliders.BrightnessSlideBar
-        android:id="@+id/brightnessSlide"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:borderColor_BrightnessSlider="@android:color/darker_gray"
-        app:borderSize_BrightnessSlider="5"
-        app:selector_BrightnessSlider="@drawable/colorpickerview_wheel" />
+        <com.skydoves.colorpickerview.sliders.BrightnessSlideBar
+            android:id="@+id/brightnessSlide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:borderColor_BrightnessSlider="@android:color/darker_gray"
+            app:borderSize_BrightnessSlider="5"
+            app:selector_BrightnessSlider="@drawable/colorpickerview_wheel" />
 
-    <View
-        android:id="@+id/colorPreview"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:background="#FFFFFF" />
+        <View
+            android:id="@+id/colorPreview"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:background="#FFFFFF" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/add_button"
