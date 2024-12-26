@@ -35,7 +35,7 @@ namespace Display
 {
 
 /*
- * Render the layout along side the ASCII art and return the vector
+ * Render the layout along side the source file and return the vector
  * @param config The config class
  * @param colors The colors
  * @param already_analyzed_path If already checked that the source path is not a binary file
@@ -45,7 +45,7 @@ std::vector<std::string> render(const Config& config, const colors_t& colors, co
                                 const std::string_view path);
 
 /*
- * Display the ascii art and layout
+ * Display the rendered result (or just display a normal vector of strings)
  * @param renderResult The rendered vector usually by Display::render()
  */
 void display(const std::vector<std::string>& renderResult);

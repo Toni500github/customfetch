@@ -45,8 +45,10 @@ extern "C" {
 #include <unistd.h>
 }
 
+// Special variable for storing info modules values
 using systemInfo_t =
     std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, double>>>;
+// used in systemInfo_t most of the time
 using variant = std::variant<std::string, size_t, double>;
 
 namespace Query

@@ -50,7 +50,6 @@
 #include "pci.ids.hpp"
 #include "platform.hpp"
 
-// https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
 bool hasEnding(const std::string_view fullString, const std::string_view ending)
 {
     if (ending.length() > fullString.length())
@@ -84,10 +83,6 @@ void ctrl_d_handler(const std::istream& cin)
         die("Exiting due to CTRL-D or EOF");
 }
 
-/** Replace special symbols such as ~ and $ in std::strings
- * @param str The string
- * @return The modified string
- */
 std::string expandVar(std::string ret)
 {
     if (ret.empty())
@@ -208,12 +203,6 @@ bool is_file_image(const unsigned char* bytes)
     // clang-format on
 }
 
-/**
- * remove all white spaces (' ', '\t', '\n') from start and end of input
- * inplace!
- * @param input
- * @Original https://github.com/lfreist/hwinfo/blob/main/include/hwinfo/utils/stringutils.h#L50
- */
 void strip(std::string& input)
 {
     if (input.empty())
@@ -241,12 +230,6 @@ void strip(std::string& input)
     input.erase(0, input.find_first_not_of(ws));
 }
 
-/* Get file value from a file and trim quotes and double-quotes
- * @param iterIndex The iteration index used for getting the necessary value only tot times
- * @param line The string used in std::getline
- * @param str The string to assign the trimmed value, inline
- * @param amount The amount to be used in the line.substr() (should be used with something like "foobar"_len)
- */
 void getFileValue(u_short& iterIndex, const std::string_view line, std::string& str, const size_t& amount)
 {
     str = line.substr(amount);
@@ -305,17 +288,17 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
     return false;
 }
 
-std::string get_relative_path(const std::string_view relative_path, const std::string_view _env, const long long mode)
+std::string get_relative_path(const std::string_view relative_path, const std::string_view env, const long long mode)
 {
-    const char *env = std::getenv(_env.data());
-    if (!env)
+    const char *_env = std::getenv(env.data());
+    if (!_env)
         return UNKNOWN;
 
     struct stat sb;
     std::string fullPath;
     fullPath.reserve(1024);
 
-    for (const std::string& dir : split(env, ':'))
+    for (const std::string& dir : split(_env, ':'))
     {
         // -300ns for not creating a string. stonks
         fullPath += dir;
@@ -358,7 +341,6 @@ std::string get_android_property(const std::string_view name)
 }
 #endif
 
-// https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
 void replace_str(std::string& str, const std::string_view from, const std::string_view to)
 {
     size_t start_pos = 0;
@@ -432,11 +414,6 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     return false;
 }
 
-/** Executes commands with execvp() and keep the program running without existing
- * @param cmd_str The command to execute
- * @param exitOnFailure Whether to call exit(1) on command failure.
- * @return true if the command successed, else false
- */
 bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_print)
 {
     std::vector<const char*> cmd;
@@ -491,7 +468,6 @@ std::string str_toupper(std::string str)
     return str;
 }
 
-// Function to perform binary search on the pci vendors array to find a device from a vendor.
 std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::string_view pci_id_s)
 {
     const std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
@@ -532,7 +508,6 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::
     return name_from_entry(device_location);
 }
 
-// Function to perform binary search on the pci vendors array to find a vendor.
 std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 {
     const std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
@@ -571,7 +546,6 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
     return vendor_from_entry(vendors_location, vendor_id);
 }
 
-// http://stackoverflow.com/questions/478898/ddg#478960
 std::string read_shell_exec(const std::string_view cmd)
 {
     std::array<char, 1024> buffer;
@@ -612,7 +586,7 @@ std::string name_from_entry(size_t dev_entry_pos)
     return name;
 }
 
-std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_view vendor_id)
+std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_view vendor_id_s)
 {
     size_t end_line_pos = all_ids.find('\n', vendor_entry_pos);
     if (end_line_pos == std::string::npos)
@@ -620,7 +594,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 
     const std::string& line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
 
-    const size_t       after_id_pos = line.find(vendor_id) + 4;
+    const size_t       after_id_pos = line.find(vendor_id_s) + 4;
     const std::string& description  = line.substr(after_id_pos);
 
     const size_t first = description.find_first_not_of(' ');
@@ -633,11 +607,6 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 }
 
 // clang-format off
-/*
- * Get the user config directory
- * either from $XDG_CONFIG_HOME or from $HOME/.config/
- * @return user's config directory
- */
 #if ANDROID_APP
 std::string getHomeConfigDir()
 {
@@ -665,11 +634,5 @@ std::string getHomeConfigDir()
 }
 #endif
 
-/*
- * Get the customfetch config directory
- * where we'll have "config.toml"
- * from getHomeConfigDir()
- * @return customfetch's config directory
- */
 std::string getConfigDir()
 { return getHomeConfigDir() + "/customfetch"; }

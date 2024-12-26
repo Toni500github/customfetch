@@ -181,6 +181,7 @@ static std::string detect_adreno(const std::string& cpu_model_name)
         case "SM7675-AB"_fnv1a16: return "Adreno (TM) 732";
         case "SM8635"_fnv1a16:    return "Adreno (TM) 735";
 
+        case "SM8550"_fnv1a16:
         case "SM8550-AB"_fnv1a16:
         case "SM8550-AC"_fnv1a16: return "Adreno (TM) 740";
 

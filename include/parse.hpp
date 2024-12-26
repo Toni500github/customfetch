@@ -30,8 +30,8 @@
 #include "config.hpp"
 #include "query.hpp"
 
-/* the additional args that parse() needs for getting the necessary infos/configs.
- * only used for making the argument passing more clear.
+/* The additional args that parse() needs for getting the necessary infos/configs.
+ * Only used for making the argument passing more clear.
  * Always pass it non-const and by reference
  */
 struct parse_args_t
@@ -84,6 +84,9 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
 /*
  * Return a module member value
+ * @param systemInfo The systemInfo_t map
+ * @param moduleName The module name
+ * @param moduleMemberName The module member name
  */
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
                             const std::string_view moduleMemberName);

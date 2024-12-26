@@ -205,7 +205,7 @@ static std::string get_and_color_percentage(const float& n1, const float& n2, pa
                                             const bool invert = false)
 {
     const Config& config = parse_args.config;
-    const float   result = static_cast<float>(n1 / n2 * static_cast<float>(100));
+    const float   result = n1 / n2 * static_cast<float>(100);
 
     std::string color;
     if (!invert)

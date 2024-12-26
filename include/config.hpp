@@ -33,6 +33,8 @@
 #include "toml++/toml.hpp"
 #include "util.hpp"
 
+// config colors
+// those without gui_ prefix are for the terminal
 struct colors_t
 {
     std::string black;
@@ -57,9 +59,10 @@ struct colors_t
 class Config
 {
 public:
+    // Create .config directories and files and load the config file (args or default)
     Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
 
-    // config file
+    // Variables of config file in [config] table
     std::vector<std::string> layout;
     std::vector<std::string> percentage_colors;
     std::vector<std::string> colors_name, colors_value;
@@ -81,12 +84,14 @@ public:
     bool                     use_SI_unit         = false;
     bool                     wrap_lines          = false;
 
-    // modules specific config
+    // Variables of config file for 
+    // modules specific configs, e.g [uptime]
     std::string uptime_d_fmt;
     std::string uptime_h_fmt;
     std::string uptime_m_fmt;
     std::string uptime_s_fmt;
 
+    // [pkgs]
     std::vector<std::string> pkgs_managers;
     std::vector<std::string> pacman_dirs;
     std::vector<std::string> flatpak_dirs;
@@ -102,12 +107,37 @@ public:
     bool                     m_display_distro  = true;
     bool                     m_print_logo_only = false;
 
-    void                     loadConfigFile(const std::string_view filename, colors_t& colors);
-    std::string              getThemeValue(const std::string_view value, const std::string_view fallback) const;
-    void                     generateConfig(const std::string_view filename);
-    void                     addAliasColors(const std::string& str);
-    std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
+    /**
+     * Load config file and parse every config variables
+     * @param filename The config file path
+     * @param colors The colors struct where we'll put the default config colors.
+     *               It doesn't include the colors in config.alias-colors
+     */
+    void loadConfigFile(const std::string_view filename, colors_t& colors);
 
+    /**
+     * Generate a config file
+     * @param filename The config file path
+     */
+    void generateConfig(const std::string_view filename);
+    
+    /**
+     * Add alias values to colors_name and colors_value.
+     * @param str The alias color to add.
+     *            Must have a '=' for separating color name and value,
+     *            E.g "pink=!#FFC0CB"
+     */
+    void addAliasColors(const std::string& str);
+
+private:
+    // Parsed config from loadConfigFile()
+    toml::table tbl;
+
+    /**
+     * Get value of config variables
+     * @param value The config variable "path" (e.g "config.source-path")
+     * @param fallback Default value if couldn't retrive value
+     */
     template <typename T>
     T getValue(const std::string_view value, const T&& fallback) const
     {
@@ -118,10 +148,23 @@ public:
             return ret.value_or(fallback);
     }
 
-private:
-    toml::table tbl;
+    /**
+     * getValue() but don't want to specify the template, so it's std::string,
+     * and because of the name, only used when retriving the colors for terminal and GUI
+     * @param value The config variable "path" (e.g "config.gui-red")
+     * @param fallback Default value if couldn't retrive value
+     */
+    std::string getThemeValue(const std::string_view value, const std::string_view fallback) const;
+
+    /**
+     * Get value of config array of string variables
+     * @param value The config variable "path" (e.g "config.gui-red")
+     * @param fallback Default value if couldn't retrive value
+     */
+    std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
 };
 
+// default config
 inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # customfetch is designed with customizability in mind
 # here is how it works:

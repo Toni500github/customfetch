@@ -45,7 +45,15 @@ namespace GUI
 class Window : public Gtk::Window
 {
 public:
+    
+    /**
+     * Initialize and create everything and parse layout with source path.
+     * @param config The config class
+     * @param colors The non-alias colors struct
+     * @param path The logo source path
+     */ 
     Window(const Config& config, const colors_t& colors, const std::string_view path);
+    // Destroy the window, handled by GTK
     virtual ~Window();
 
 private:
@@ -59,19 +67,22 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> m_bg_static_image;
     int m_width, m_height;
 
-    void on_window_resize(Gtk::Allocation& allocation)
+    // Update background image size (gif or static)
+    // on window resize
+    void on_window_resize(const Gtk::Allocation& allocation)
     {
         m_width = allocation.get_width();
         m_height = allocation.get_height();
 
         if (m_bg_static_image)
-            // static image: Update to fit the new window size
+            // static image: update to fit the new window size
             update_static_image();
         else if (m_iter)
-            // animated image: Update the current frame
+            // gif: update the current frame
             update_frame();
     }
 
+    // Update background gif size
     bool on_update_animation()
     {
         if (!m_iter)
@@ -83,6 +94,7 @@ private:
         return true;  // continue the timer
     }
 
+    // Update background image size
     void update_static_image()
     {
         // scale the static image to fit the window size
@@ -90,6 +102,7 @@ private:
         m_bg_image.set(scaled_image);
     }
 
+    // Update background gif size in the current frame
     void update_frame()
     {
         // scale the current frame of the animation to fit the window size
