@@ -116,7 +116,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 {
     const size_t first_m = str.rfind('m');
     if (first_m == std::string::npos)
-        die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
+        die("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '{}'", str);
 
     std::string col = str.data();
     col.erase(first_m);  // 1;42
@@ -147,7 +147,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     const int n = std::stoi(col);
     if ((n >= 100 && n <= 107) || (n >= 40 && n <= 47))
         type = "background-color";
-#endif
+#endif // !ANDROID_APP
 
     // last number
     // clang-format off

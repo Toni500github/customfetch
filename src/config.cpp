@@ -57,9 +57,11 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     }
     catch (const toml::parse_error& err)
     {
-        error("Parsing config file {} failed:", filename);
-        std::cerr << err << std::endl;
-        exit(-1);
+        die("Parsing config file '{}' failed:\n"
+              "{}\n"
+              "\t(error occurred at line {} column {})",
+            filename, err.description(),
+            err.source().begin.line, err.source().begin.column);
     }
 
     // clang-format off
@@ -146,12 +148,9 @@ std::vector<std::string> Config::getValueArrayStr(const std::string_view        
             [&ret, value](auto&& el)
             {
                 if (const toml::value<std::string>* str_elem = el.as_string())
-                {
-                    const toml::value<std::string>& v = *str_elem;
-                    ret.push_back(v->data());
-                }
+                    ret.push_back((*str_elem)->data());
                 else
-                    warn("An element of the {} array variable is not a string", value);
+                    warn("An element of the '{}' array variable is not a string", value);
             }
         );
     }

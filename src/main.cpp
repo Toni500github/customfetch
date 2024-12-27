@@ -571,6 +571,8 @@ int main(int argc, char *argv[])
     // then let's make it always true
     config.gui = true;
     config.wrap_lines = true;
+
+    // reset option index
     optind = 0;
 #endif
 

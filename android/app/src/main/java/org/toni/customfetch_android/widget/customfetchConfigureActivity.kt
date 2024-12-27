@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -21,6 +23,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.graphics.toColorInt
 import androidx.core.text.HtmlCompat
 import com.skydoves.colorpickerview.ColorPickerView
@@ -29,6 +32,9 @@ import com.skydoves.colorpickerview.sliders.AlphaSlideBar
 import com.skydoves.colorpickerview.sliders.BrightnessSlideBar
 import org.toni.customfetch_android.R
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
+import java.io.File
+import java.nio.file.Files
+import kotlin.io.path.Path
 
 
 /**
@@ -203,7 +209,23 @@ class CustomfetchMainRender {
             getArgsPref(context, appWidgetId)
         }
 
+        val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
+        val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
         val htmlContent = mainAndroid("customfetch $arguments")
+        if (Files.exists(Path(errorLock))) {
+            val file = File(errorLock)
+            val error = file.bufferedReader().use { it.readText() }
+            val handler = Handler(Looper.getMainLooper())
+            handler.post {
+                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+            }
+            handler.post {
+                Toast.makeText(context, "read error logs at $errorFile", Toast.LENGTH_LONG).show()
+            }
+            file.delete()
+            parsedContent.append("read error logs at $errorFile\n\n$error")
+            return parsedContent
+        }
 
         if (disableLineWrap) {
             val eachLine = htmlContent!!.split("<br>").map { it.trim() }
