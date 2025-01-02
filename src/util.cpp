@@ -80,7 +80,7 @@ std::vector<std::string> split(const std::string_view text, const char delim)
 void ctrl_d_handler(const std::istream& cin)
 {
     if (cin.eof())
-        die("Exiting due to CTRL-D or EOF");
+        die(_("Exiting due to CTRL-D or EOF"));
 }
 
 std::string expandVar(std::string ret)
@@ -94,7 +94,7 @@ std::string expandVar(std::string ret)
     {
         env = std::getenv("HOME");
         if (env == nullptr)
-            die("FATAL: $HOME enviroment variable is not set (how?)");
+            die(_("FATAL: $HOME enviroment variable is not set (how?)"));
 
         ret.replace(0, 1, env);  // replace ~ with the $HOME value
     }
@@ -112,7 +112,7 @@ std::string expandVar(std::string ret)
 
         env = std::getenv(ret.c_str());
         if (env == nullptr)
-            die("No such enviroment variable: {}", ret);
+            die(_("No such enviroment variable: {}"), ret);
 
         ret = env;
         ret += temp;
@@ -127,7 +127,7 @@ std::string read_by_syspath(const std::string_view path)
     std::ifstream f(path.data());
     if (!f.is_open())
     {
-        error("Failed to open {}", path);
+        error(_("Failed to open {}"), path);
         return UNKNOWN;
     }
 
@@ -357,7 +357,7 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     std::array<int, 2> pipeout;
 
     if (pipe(pipeout.data()) < 0)
-        die("pipe() failed: {}", strerror(errno));
+        die(_("pipe() failed: {}"), strerror(errno));
 
     const pid_t pid = fork();
 
@@ -386,7 +386,7 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
         else
         {
             if (!noerror_print)
-                error("Failed to execute the command: {}", fmt::join(cmd, " "));
+                error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
         }
     }
     else if (pid == 0)
@@ -399,13 +399,13 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
         cmd.push_back(nullptr);
         execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
 
-        die("An error has occurred with execvp: {}", strerror(errno));
+        die(_("An error has occurred with execvp: {}"), strerror(errno));
     }
     else
     {
         close(pipeout.at(0));
         close(pipeout.at(1));
-        die("fork() failed: {}", strerror(errno));
+        die(_("fork() failed: {}"), strerror(errno));
     }
 
     close(pipeout.at(0));
@@ -424,7 +424,7 @@ bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_p
 
     if (pid < 0)
     {
-        die("fork() failed: {}", strerror(errno));
+        die(_("fork() failed: {}"), strerror(errno));
     }
 
     if (pid == 0)
@@ -434,7 +434,7 @@ bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_p
         execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
 
         // execvp() returns instead of exiting when failed
-        die("An error has occurred: {}: {}", cmd.at(0), strerror(errno));
+        die(_("An error has occurred: {}: {}"), cmd.at(0), strerror(errno));
     }
     else if (pid > 0)
     {  // we wait for the command to finish then start executing the rest
@@ -446,7 +446,7 @@ bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_p
         else
         {
             if (!noerror_print)
-                error("Failed to execute the command: {}", fmt::join(cmd, " "));
+                error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
         }
     }
 
@@ -559,7 +559,7 @@ std::string read_shell_exec(const std::string_view cmd)
     });
 
     if (!pipe)
-        die("popen() failed: {}", std::strerror(errno));
+        die(_("popen() failed: {}"), std::strerror(errno));
 
     result.reserve(buffer.size());
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
@@ -627,7 +627,7 @@ std::string getHomeConfigDir()
     {
         const char* home = std::getenv("HOME");
         if (home == nullptr)
-            die("Failed to find $HOME, set it to your home directory!");
+            die(_("Failed to find $HOME, set it to your home directory!"));
 
         return std::string(home) + "/.config";
     }

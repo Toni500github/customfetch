@@ -1,0 +1,319 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the customfetch package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: customfetch 0.10.2\n"
+"Report-Msgid-Bugs-To: https://github.com/Toni500github/customfetch\n"
+"POT-Creation-Date: 2025-01-02 20:18+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/config.cpp:39
+#, c++-format
+msgid "customfetch config folder was not found, Creating folders at {}!"
+msgstr ""
+
+#: src/config.cpp:45
+#, c++-format
+msgid "config file {} not found, generating new one"
+msgstr ""
+
+#: src/config.cpp:60
+#, c++-format
+msgid ""
+"Parsing config file '{}' failed:\n"
+"{}\n"
+"\t(error occurred at line {} column {})"
+msgstr ""
+
+#: src/config.cpp:120
+msgid ""
+"the config array percentage-colors doesn't have 3 colors for being used in "
+"percentage tag and modules\n"
+"backing up to green, yellow and red"
+msgstr ""
+
+#: src/config.cpp:153
+#, c++-format
+msgid "An element of the '{}' array variable is not a string"
+msgstr ""
+
+#: src/config.cpp:167
+#, c++-format
+msgid ""
+"alias color '{}' does NOT have an equal sign '=' for separating color name "
+"and value.\n"
+"for more check with --help"
+msgstr ""
+
+#: src/display.cpp:95 src/gui.cpp:73
+#, c++-format
+msgid "Unable to load image '{}'"
+msgstr ""
+
+#: src/display.cpp:124
+#, c++-format
+msgid ""
+"The image backend '{}' isn't supported, only kitty and viu.\n"
+"Please currently use the GUI mode for rendering the image/gif (use -h for "
+"more details)"
+msgstr ""
+
+#: src/display.cpp:169
+msgid "getpos: error reading response!"
+msgstr ""
+
+#: src/display.cpp:213
+#, c++-format
+msgid "Could not open logo file '{}'"
+msgstr ""
+
+#: src/display.cpp:280
+msgid "images are NOT allowed in the android widget at the moment"
+msgstr ""
+
+#: src/gui.cpp:168
+#, c++-format
+msgid "Background image path '{}' doesn't exist"
+msgstr ""
+
+#: src/main.cpp:373
+#, c++-format
+msgid "config file '{}' doesn't exist"
+msgstr ""
+
+#: src/main.cpp:626
+#, c++-format
+msgid "'{}' doesn't exist. Can't load image/text file"
+msgstr ""
+
+#: src/main.cpp:638
+msgid ""
+"Can't run in GUI mode because it got disabled at compile time\n"
+"Compile customfetch with GUI_MODE=1 or contact your distro to enable it"
+msgstr ""
+
+#: src/parse.cpp:119
+#, c++-format
+msgid ""
+"Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
+"escape code in '{}'"
+msgstr ""
+
+#: src/parse.cpp:176
+#, c++-format
+msgid ""
+"ANSI escape code color '\\e[{}' should have an rgb type value\n"
+"e.g \\e[38;2;255;255;255m"
+msgstr ""
+
+#: src/parse.cpp:180
+msgid ""
+"Parser: failed to parse layout/ascii art: missing m while using ANSI color "
+"escape code"
+msgstr ""
+
+#: src/parse.cpp:409
+#, c++-format
+msgid "{} mode in color {} doesn't have close bracket"
+msgstr ""
+
+#: src/parse.cpp:496 src/parse.cpp:776
+#, c++-format
+msgid "256 true color '{}' works only in terminal"
+msgstr ""
+
+#: src/parse.cpp:510 src/parse.cpp:604 src/parse.cpp:794
+#, c++-format
+msgid "PARSER: failed to parse line with color '{}'"
+msgstr ""
+
+#: src/parse.cpp:667
+#, c++-format
+msgid "{} mode in tag color {} doesn't have close bracket"
+msgstr ""
+
+#: src/parse.cpp:859
+#, c++-format
+msgid "percentage tag '{}' doesn't have a comma for separating the 2 numbers"
+msgstr ""
+
+#: src/parse.cpp:904
+#, c++-format
+msgid "PARSER: Missing tag close bracket {} in string '{}'"
+msgstr ""
+
+#: src/parse.cpp:1337
+#, c++-format
+msgid ""
+"seems theme-gtk module name '{}' doesn't have a version number to query.\n"
+"Syntax should be like 'theme_gtkN' which N stands for the version of gtk to "
+"query (single number)"
+msgstr ""
+
+#: src/parse.cpp:1411 src/parse.cpp:1669
+#, c++-format
+msgid "invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)"
+msgstr ""
+
+#: src/parse.cpp:1590 src/parse.cpp:1853
+#, c++-format
+msgid "Invalid module name: {}"
+msgstr ""
+
+#: src/parse.cpp:1812
+#, c++-format
+msgid ""
+"color palette module member '{}' in invalid.\n"
+"Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
+"e.g 'colors_symbol(@)' or 'colors_symbol(string)'"
+msgstr ""
+
+#: src/parse.cpp:1836
+#, c++-format
+msgid ""
+"light color palette module member '{}' in invalid.\n"
+"Must be used like 'colors_light_symbol(`symbol for printing the color "
+"palette`)'.\n"
+"e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'"
+msgstr ""
+
+#: src/util.cpp:83
+msgid "Exiting due to CTRL-D or EOF"
+msgstr ""
+
+#: src/util.cpp:97
+msgid "FATAL: $HOME enviroment variable is not set (how?)"
+msgstr ""
+
+#: src/util.cpp:115
+#, c++-format
+msgid "No such enviroment variable: {}"
+msgstr ""
+
+#: src/util.cpp:130
+#, c++-format
+msgid "Failed to open {}"
+msgstr ""
+
+#: src/util.cpp:360
+#, c++-format
+msgid "pipe() failed: {}"
+msgstr ""
+
+#: src/util.cpp:389 src/util.cpp:449
+#, c++-format
+msgid "Failed to execute the command: {}"
+msgstr ""
+
+#: src/util.cpp:402
+#, c++-format
+msgid "An error has occurred with execvp: {}"
+msgstr ""
+
+#: src/util.cpp:408 src/util.cpp:427
+#, c++-format
+msgid "fork() failed: {}"
+msgstr ""
+
+#: src/util.cpp:437
+#, c++-format
+msgid "An error has occurred: {}: {}"
+msgstr ""
+
+#: src/util.cpp:562
+#, c++-format
+msgid "popen() failed: {}"
+msgstr ""
+
+#: src/util.cpp:630
+msgid "Failed to find $HOME, set it to your home directory!"
+msgstr ""
+
+#: src/query/unix/cpu.cpp:204
+#, c++-format
+msgid "Could not open {}"
+msgstr ""
+
+#: src/query/unix/disk.cpp:62
+msgid "setmntent"
+msgstr ""
+
+#: src/query/unix/disk.cpp:63
+msgid "setmntent() failed. Could not get disk info"
+msgstr ""
+
+#: src/query/unix/disk.cpp:85
+msgid "Failed to get disk info"
+msgstr ""
+
+#: src/query/unix/gpu.cpp:104
+msgid "Failed to parse GPU infos on the path /sys/class/drm/"
+msgstr ""
+
+#: src/query/unix/ram.cpp:59
+#, c++-format
+msgid ""
+"Could not open {}\n"
+"Failed to get RAM infos"
+msgstr ""
+
+#: src/query/unix/system.cpp:98
+msgid "Failed to get OS infos"
+msgstr ""
+
+#: src/query/unix/system.cpp:172
+#, c++-format
+msgid ""
+"uname() failed: {}\n"
+"Could not get system infos"
+msgstr ""
+
+#: src/query/unix/system.cpp:175
+#, c++-format
+msgid ""
+"sysinfo() failed: {}\n"
+"Could not get system infos"
+msgstr ""
+
+#: src/query/unix/system.cpp:236
+msgid "/proc/1/comm doesn't exist! (what?)"
+msgstr ""
+
+#: src/query/unix/theme.cpp:179 src/query/unix/theme.cpp:381
+msgid ""
+"customfetch could not detect a gtk configuration file. customfetch will use "
+"the much-slower gsettings."
+msgstr ""
+
+#: src/query/unix/theme.cpp:180 src/query/unix/theme.cpp:382
+msgid ""
+"If there's a file in a standard location that we aren't detecting, please "
+"file an issue on our GitHub."
+msgstr ""
+
+#: src/query/unix/theme.cpp:383
+msgid ""
+"You can disable this warning by disabling slow-query-warnings in your config."
+"toml file."
+msgstr ""
+
+#: src/query/unix/user.cpp:331
+#, c++-format
+msgid ""
+"getpwent failed: {}\n"
+"Could not get user infos"
+msgstr ""
+
+#: src/query/unix/utils/dewm.cpp:201
+msgid "Root node <mate-version> not found"
+msgstr ""

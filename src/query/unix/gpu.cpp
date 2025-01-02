@@ -101,7 +101,7 @@ GPU::GPU(const std::string& id, systemInfo_t& queried_gpus)
 
     if (i >= max_iter)
     {
-        error("Failed to parse GPU infos on the path /sys/class/drm/");
+        error(_("Failed to parse GPU infos on the path /sys/class/drm/"));
         return;
     }
 

@@ -176,8 +176,8 @@ static bool get_cursor_gsettings(const std::string_view de_name, Theme::Theme_t&
 
     if (config.slow_query_warnings)
     {
-        warn("customfetch could not detect a gtk configuration file. customfetch will use the much-slower gsettings.");
-        warn("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub.");
+        warn(_("customfetch could not detect a gtk configuration file. customfetch will use the much-slower gsettings."));
+        warn(_("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub."));
         info("You can disable this warning by disabling slow-query-warnings in your config.toml file.");
     }
 
@@ -378,9 +378,9 @@ static void get_gtk_theme_gsettings(const std::string_view de_name, Theme::Theme
 
     if (config.slow_query_warnings)
     {
-        warn("customfetch could not detect a gtk configuration file. customfetch will use the much-slower gsettings.");
-        warn("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub.");
-        info("You can disable this warning by disabling slow-query-warnings in your config.toml file.");
+        warn(_("customfetch could not detect a gtk configuration file. customfetch will use the much-slower gsettings."));
+        warn(_("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub."));
+        info(_("You can disable this warning by disabling slow-query-warnings in your config.toml file."));
     }
 
     const char* interface;

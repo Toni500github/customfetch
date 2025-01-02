@@ -70,7 +70,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     unsigned char* img = stbi_load(config.source_path.c_str(), &image_width, &image_height, &channels, 0);
 
     if (!img)
-        die("Unable to load image '{}'", config.source_path);
+        die(_("Unable to load image '{}'"), config.source_path);
 
     stbi_image_free(img);
 
@@ -165,7 +165,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     if (config.gui_bg_image != "disable")
     {
         if (!std::filesystem::exists(config.gui_bg_image))
-            die("Background image path '{}' doesn't exist", config.gui_bg_image);
+            die(_("Background image path '{}' doesn't exist"), config.gui_bg_image);
 
         m_bg_animation = Gdk::PixbufAnimation::create_from_file(config.gui_bg_image);
         if (m_bg_animation->is_static_image())

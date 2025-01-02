@@ -328,7 +328,7 @@ User::User() noexcept
         const uid_t uid = getuid();
 
         if (m_pPwd = getpwuid(uid), !m_pPwd)
-            die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
+            die(_("getpwent failed: {}\nCould not get user infos"), std::strerror(errno));
 
         m_bInit = true;
     }

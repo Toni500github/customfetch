@@ -55,6 +55,15 @@ struct byte_units_t
     double      num_bytes;
 };
 
+#if ENABLE_NLS
+/* here so it doesn't need to be included elsewhere */
+#include <libintl.h>
+#include <locale.h>
+#define _(str) gettext(str)
+#else
+#define _(s) (char*)s
+#endif
+
 constexpr const char NOCOLOR[] = "\033[0m";
 constexpr const char NOCOLOR_BOLD[] = "\033[0m\033[1m";
 constexpr const char UNKNOWN[] = "(unknown)";

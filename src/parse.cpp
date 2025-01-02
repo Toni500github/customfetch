@@ -116,7 +116,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 {
     const size_t first_m = str.rfind('m');
     if (first_m == std::string::npos)
-        die("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '{}'", str);
+        die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '{}'"), str);
 
     std::string col = str.data();
     col.erase(first_m);  // 1;42
@@ -173,19 +173,19 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 {
     if (std::count(noesc_str.begin(), noesc_str.end(), ';') < 4)
-        die("ANSI escape code color '\\e[{}' should have an rgb type value\n"
-            "e.g \\e[38;2;255;255;255m",
+        die(_("ANSI escape code color '\\e[{}' should have an rgb type value\n"
+              "e.g \\e[38;2;255;255;255m"),
             noesc_str);
     if (noesc_str.rfind('m') == std::string::npos)
-        die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
+        die(_("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code"));
 
     const std::vector<std::string>& rgb_str = split(noesc_str.substr(5), ';');
 
     const uint r = std::stoul(rgb_str.at(0));
     const uint g = std::stoul(rgb_str.at(1));
     const uint b = std::stoul(rgb_str.at(2));
-
-    const uint        result = (r << 16) | (g << 8) | (b);
+    const uint result = (r << 16) | (g << 8) | (b);
+    
     std::stringstream ss;
     ss << std::hex << result;
     return ss.str();
@@ -406,7 +406,7 @@ jumpauto:
                     {
                         const size_t closebrak = opt_clr.find(')', argmode_pos);
                         if (closebrak == std::string::npos)
-                            die("{} mode in color {} doesn't have close bracket", error, str_clr);
+                            die(_("{} mode in color {} doesn't have close bracket"), error, str_clr);
 
                         const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
                         tagfmt += fmt.data() + value + "' ";
@@ -493,7 +493,7 @@ jumpauto:
                 }
                 else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
                 {
-                    die("256 true color '{}' works only in terminal", noesc_str);
+                    die(_("256 true color '{}' works only in terminal"), noesc_str);
                 }
                 else
                 {
@@ -507,7 +507,7 @@ jumpauto:
 
             else
             {
-                error("PARSER: failed to parse line with color '{}'", str_clr);
+                error(_("PARSER: failed to parse line with color '{}'"), str_clr);
                 if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
                     parse_args.pureOutput.erase(parser.dollar_pos, taglen);
                 return output;
@@ -601,7 +601,7 @@ jumpauto:
 
             else
             {
-                error("PARSER: failed to parse line with color '{}'", str_clr);
+                error(_("PARSER: failed to parse line with color '{}'"), str_clr);
                 if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
                     parse_args.pureOutput.erase(parser.dollar_pos, taglen);
                 return output;
@@ -651,7 +651,7 @@ jumpauto:
                 {
                     const size_t closebrak = opt_clr.find(')', argmode_pos);
                     if (closebrak == std::string::npos)
-                        die("{} mode in tag color {} doesn't have close bracket", error, str_clr);
+                        die(_("{} mode in tag color {} doesn't have close bracket"), error, str_clr);
 
                     const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
                     return value;
@@ -664,7 +664,7 @@ jumpauto:
                 {
                     const size_t closebrak = opt_clr.find(')', argmode_pos);
                     if (closebrak == std::string::npos)
-                        die("{} mode in tag color {} doesn't have close bracket", error, str_clr);
+                        die(_("{} mode in tag color {} doesn't have close bracket"), error, str_clr);
 
                     const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
                     tagfmt += fmt.data() + value + ";\">";
@@ -773,7 +773,7 @@ jumpauto:
             }
             else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
             {
-                die("256 true color '{}' works only in terminal", noesc_str);
+                die(_("256 true color '{}' works only in terminal"), noesc_str);
             }
             else
             {
@@ -791,7 +791,7 @@ jumpauto:
 
         else
         {
-            error("PARSER: failed to parse line with color '{}'", str_clr);
+            error(_("PARSER: failed to parse line with color '{}'"), str_clr);
             if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
                 parse_args.pureOutput.erase(parser.dollar_pos, taglen);
             return output;
@@ -856,7 +856,7 @@ std::optional<std::string> parse_perc_tag(Parser& parser, parse_args_t& parse_ar
 
     const size_t comma_pos = command.find(',');
     if (comma_pos == std::string::npos)
-        die("percentage tag '{}' doesn't have a comma for separating the 2 numbers", command);
+        die(_("percentage tag '{}' doesn't have a comma for separating the 2 numbers"), command);
 
     const bool invert = (command.front() == '!');
 
@@ -901,7 +901,7 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
     {
         if (until != 0 && parser.is_eof())
         {
-            error("PARSER: Missing tag close bracket {} in string '{}'", until, parser.src);
+            error(_("PARSER: Missing tag close bracket {} in string '{}'"), until, parser.src);
             return result;
         }
 
@@ -1334,8 +1334,8 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
             static_cast<std::uint8_t>(moduleName.length() > 9 ? std::stoi(moduleName.substr(9)) : 0);
 
         if (ver <= 0)
-            die("seems theme-gtk module name '{}' doesn't have a version number to query.\n"
-                "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)",
+            die(_("seems theme-gtk module name '{}' doesn't have a version number to query.\n"
+                  "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)"),
                 moduleName);
 
         Query::Theme query_theme(ver, queried_themes, fmt::format("gtk{}", ver), config);
@@ -1408,7 +1408,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
     else if (hasStart(moduleName, "disk"))
     {
         if (moduleName.length() < "disk()"_len)
-            die("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)", moduleName);
+            die(_("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)"), moduleName);
 
         enum
         {
@@ -1587,7 +1587,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
     }
 
     else
-        die("Invalid module name: {}", moduleName);
+        die(_("Invalid module name: {}"), moduleName);
 
 #undef SYSINFO_INSERT
 }
@@ -1666,7 +1666,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
     else if (hasStart(moduleName, "disk"))
     {
         if (moduleName.length() < "disk()"_len)
-            die("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)", moduleName);
+            die(_("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)"), moduleName);
 
         enum
         {
@@ -1809,9 +1809,9 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             if (moduleName.length() <= "colors_symbol()"_len)
-                die("color palette module member '{}' in invalid.\n"
-                    "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
-                    "e.g 'colors_symbol(@)' or 'colors_symbol(string)'",
+                die(_("color palette module member '{}' in invalid.\n"
+                      "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
+                      "e.g 'colors_symbol(@)' or 'colors_symbol(string)'"),
                     moduleName);
 
             std::string symbol = moduleName;
@@ -1833,9 +1833,9 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             if (moduleName.length() <= "colors_light_symbol()"_len)
-                die("light color palette module member '{}' in invalid.\n"
-                    "Must be used like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
-                    "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'",
+                die(_("light color palette module member '{}' in invalid.\n"
+                      "Must be used like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
+                      "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'"),
                     moduleName);
 
             std::string symbol = moduleName;
@@ -1850,5 +1850,5 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
     }
 
     else
-        die("Invalid module name: {}", moduleName);
+        die(_("Invalid module name: {}"), moduleName);
 }

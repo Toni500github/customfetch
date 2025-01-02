@@ -370,7 +370,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
 
             case 'C': 
                 if (!std::filesystem::exists(optarg))
-                    die("config file '{}' doesn't exist", optarg);
+                    die(_("config file '{}' doesn't exist"), optarg);
                 return optarg;
         }
     }
@@ -526,6 +526,24 @@ static void enable_cursor()
     fmt::print("\x1B[?25h\x1B[?7h");
 }
 
+/** Sets up gettext localization. Safe to call multiple times.
+ */
+/* Inspired by the monotone function localize_monotone. */
+// taken from pacman
+static void localize(void)
+{
+#if ENABLE_NLS
+    static int init = 0;
+    if (!init)
+    {
+        setlocale(LC_ALL, "");
+        bindtextdomain("customfetch", LOCALEDIR);
+        textdomain("customfetch");
+        init = 1;
+    }
+#endif
+}
+
 #if ANDROID_APP
 std::string mainAndroid_and_render(int argc, char *argv[], JNIEnv *env, jobject obj)
 {
@@ -560,13 +578,15 @@ int main(int argc, char *argv[])
     const std::string& configDir  = getConfigDir();
     const std::string& configFile = parse_config_path(argc, argv, configDir);
 
+    localize();
+
     Config config(configFile, configDir, colors);
 
-    const STRING_IF_ANDROID_APP_ELSE(bool)& parseargs_ret = parseargs(argc, argv, config, configFile);
+#if ANDROID_APP
+    const std::string& parseargs_ret = parseargs(argc, argv, config, configFile);
     if (parseargs_ret != _true)
         return parseargs_ret;
 
-#if ANDROID_APP
     // since ANDROID_APP means that it will run as an android widget, so in GUI,
     // then let's make it always true
     config.gui = true;
@@ -574,7 +594,10 @@ int main(int argc, char *argv[])
 
     // reset option index
     optind = 0;
-#endif
+#else
+    if (!parseargs(argc, argv, config, configFile))
+        return 1;
+#endif // ANDROID_APP
 
     if (config.source_path.empty() || config.source_path == "off")
         config.m_disable_source = true;
@@ -600,7 +623,7 @@ int main(int argc, char *argv[])
     debug("{} path = {}", __PRETTY_FUNCTION__, path);
 
     if (!std::filesystem::exists(path) && !config.m_disable_source)
-        die("'{}' doesn't exist. Can't load image/text file", path);
+        die(_("'{}' doesn't exist. Can't load image/text file"), path);
 
 #if !ANDROID_APP
 #if GUI_MODE
@@ -612,8 +635,8 @@ int main(int argc, char *argv[])
     }
 #else
     if (config.gui)
-        die("Can't run in GUI mode because it got disabled at compile time\n"
-            "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
+        die(_("Can't run in GUI mode because it got disabled at compile time\n"
+              "Compile customfetch with GUI_MODE=1 or contact your distro to enable it"));
 #endif // GUI_MODE
 
     if (!config.wrap_lines)

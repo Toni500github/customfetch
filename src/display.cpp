@@ -92,7 +92,7 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     unsigned char* img = stbi_load(path.data(), &image_width, &image_height, &channels, 0);
 
     if (!img)
-        die("Unable to load image '{}'", path);
+        die(_("Unable to load image '{}'"), path);
     
     stbi_image_free(img);
 
@@ -121,8 +121,8 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     else if (config.m_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
     else
-        die("The image backend '{}' isn't supported, only kitty and viu.\n"
-            "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
+        die(_("The image backend '{}' isn't supported, only kitty and viu.\n"
+            "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),
             config.m_image_backend);
 
     if (config.logo_position == "top")
@@ -166,7 +166,7 @@ static bool get_pos(int& y, int& x)
         if (!ret)
         {
             tcsetattr(0, TCSANOW, &restore);
-            die("getpos: error reading response!");
+            die(_("getpos: error reading response!"));
         }
         buf.at(i) = ch;
     }
@@ -210,7 +210,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         file.open(path.data(), std::ios::binary);
         fileToAnalyze.open(path.data(), std::ios::binary);
         if (!file.is_open() || !fileToAnalyze.is_open())
-            die("Could not open logo file '{}'", path);
+            die(_("Could not open logo file '{}'"), path);
 
         // first check if the file is an image
         // without even using the same library that "file" uses
@@ -277,7 +277,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 #else
     if (isImage)
     {
-        die("images are NOT allowed in the android widget at the moment");
+        die(_("images are NOT allowed in the android widget at the moment"));
     }
 #endif
 
@@ -396,5 +396,5 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 void Display::display(const std::vector<std::string>& renderResult)
 {
     for (const std::string& str : renderResult)
-        fmt::println("{}", str);
+        fmt::print("{}\n", str);
 }

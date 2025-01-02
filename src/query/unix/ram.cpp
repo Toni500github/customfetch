@@ -56,7 +56,7 @@ static RAM::RAM_t get_amount() noexcept
     std::ifstream file(meminfo_path.data());
     if (!file.is_open())
     {
-        error("Could not open {}\nFailed to get RAM infos", meminfo_path);
+        error(_("Could not open {}\nFailed to get RAM infos"), meminfo_path);
         return memory_infos;
     }
 

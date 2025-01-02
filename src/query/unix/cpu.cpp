@@ -201,7 +201,7 @@ static CPU::CPU_t get_cpu_infos()
     std::ifstream              file(cpuinfo_path.data());
     if (!file.is_open())
     {
-        error("Could not open {}", cpuinfo_path);
+        error(_("Could not open {}"), cpuinfo_path);
         return ret;
     }
 

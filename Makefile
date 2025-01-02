@@ -2,7 +2,8 @@ CXX       	?= g++
 PREFIX	  	?= /usr
 MANPREFIX	?= $(PREFIX)/share/man
 APPPREFIX 	?= $(PREFIX)/share/applications
-VARS  	  	?=
+LOCALEDIR	?= $(PREFIX)/share/locale
+VARS  	  	?= -DENABLE_NLS=1
 
 DEBUG 		?= 1
 GUI_MODE        ?= 0
@@ -56,7 +57,7 @@ SRC 	   	= $(wildcard src/*.cpp src/query/unix/*.cpp src/query/android/*.cpp src
 OBJ 	   	= $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\"
+CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
 
 all: fmt toml $(TARGET)
 
@@ -83,11 +84,14 @@ android_app:
 		echo "APK build successfully. Get it in $(CURDIR)/android/app/build/outputs/apk path and choose which to install (debug/release)";\
 	fi
 
-dist:
+locale:
+	scripts/make_mo.sh locale/
+
+dist: locale
 ifeq ($(GUI_MODE), 1)
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).desktop $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).desktop locale/ $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
 else
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).1 locale/ assets/ascii/ -C $(BUILDDIR) $(TARGET)
 endif
 
 clean:
@@ -99,13 +103,14 @@ distclean:
 	find . -type f -name "*.o" -exec rm -rf "{}" \;
 	find . -type f -name "*.a" -exec rm -rf "{}" \;
 
-install: $(TARGET)
+install: $(TARGET) locale
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 	cd $(DESTDIR)$(PREFIX)/bin/ && ln -sf $(TARGET) cufetch
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(TARGET).1 > $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
+	find locale/ -type f -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
 ifeq ($(GUI_MODE), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
 	cp -f $(TARGET).desktop $(DESTDIR)$(APPPREFIX)/$(TARGET).desktop
@@ -123,4 +128,4 @@ delete: uninstall
 updatever:
 	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
 
-.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all
+.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all locale
