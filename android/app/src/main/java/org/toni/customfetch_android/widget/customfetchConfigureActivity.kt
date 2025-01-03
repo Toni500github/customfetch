@@ -32,6 +32,8 @@ import com.skydoves.colorpickerview.sliders.AlphaSlideBar
 import com.skydoves.colorpickerview.sliders.BrightnessSlideBar
 import org.toni.customfetch_android.R
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
+import org.toni.customfetch_android.errorFile
+import org.toni.customfetch_android.errorLock
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -202,25 +204,27 @@ class CustomfetchMainRender {
         width: Float,
         disableLineWrap: Boolean,
         paint: TextPaint,
-        otherArguments: String = ""
+        otherArguments: String = "",
+        postToast: Boolean = true
     ): SpannableStringBuilder {
         val parsedContent = SpannableStringBuilder()
         val arguments = otherArguments.ifEmpty {
             getArgsPref(context, appWidgetId)
         }
 
-        val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
-        val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
         val htmlContent = mainAndroid("customfetch $arguments")
         if (Files.exists(Path(errorLock))) {
             val file = File(errorLock)
             val error = file.bufferedReader().use { it.readText() }
-            val handler = Handler(Looper.getMainLooper())
-            handler.post {
-                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-            }
-            handler.post {
-                Toast.makeText(context, "read error logs at $errorFile", Toast.LENGTH_LONG).show()
+            if (postToast) {
+                val handler = Handler(Looper.getMainLooper())
+                handler.post {
+                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                }
+                handler.post {
+                    Toast.makeText(context, "read error logs at $errorFile", Toast.LENGTH_LONG)
+                        .show()
+                }
             }
             file.delete()
             parsedContent.append("read error logs at $errorFile\n\n$error")

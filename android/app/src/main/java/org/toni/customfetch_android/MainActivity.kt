@@ -1,5 +1,6 @@
 package org.toni.customfetch_android
 
+import android.R.attr.fragment
 import android.content.Intent
 import android.content.res.AssetManager
 import android.os.Build
@@ -10,17 +11,26 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentTransaction
+import org.toni.customfetch_android.databinding.ActivityMainBinding
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import kotlin.io.path.Path
 
+
+const val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
+const val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
+const val TEST_CONFIG_FILE_REQUEST_CODE = 50
+
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
@@ -43,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (!Files.exists(Path(filesDir.absolutePath + "ascii")))
+        if (!Files.exists(Path(filesDir.absolutePath + "/ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
 
         AlertDialog.Builder(this)
@@ -54,6 +64,34 @@ class MainActivity : AppCompatActivity() {
             ) { _, _ -> }
             .setIcon(android.R.drawable.ic_dialog_info)
             .show()
+
+        binding.testConfigFile.setOnClickListener { _ ->
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+            }
+            startActivityForResult(intent, TEST_CONFIG_FILE_REQUEST_CODE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && data != null && data.data != null) {
+            data.data?.let { uri ->
+                when(requestCode) {
+                    TEST_CONFIG_FILE_REQUEST_CODE -> {
+                        val fragment = TestConfigFragment().apply {
+                            configFile = PathUtil.getPath(this@MainActivity, uri)
+                        }
+                        val transaction: FragmentTransaction =
+                            supportFragmentManager.beginTransaction()
+                        transaction.replace(android.R.id.content, fragment)
+                        transaction.addToBackStack(null).commit()
+                    }
+                    else -> {}
+                }
+            }
+        }
     }
 }
 
