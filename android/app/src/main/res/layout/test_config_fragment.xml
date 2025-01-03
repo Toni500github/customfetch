@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:id="@+id/testConfigFile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#2D2D2D" >
@@ -13,7 +13,8 @@
         android:background="#4F4F4F"
         android:popupTheme="?attr/actionBarPopupTheme"
         android:animateLayoutChanges="true"
-        android:title="Back" />
+        app:titleTextColor="#ffFFff"
+        app:title="Test config file" />
 
     <LinearLayout
         android:layout_width="match_parent"

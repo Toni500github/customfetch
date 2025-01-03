@@ -32,8 +32,6 @@ import com.skydoves.colorpickerview.sliders.AlphaSlideBar
 import com.skydoves.colorpickerview.sliders.BrightnessSlideBar
 import org.toni.customfetch_android.R
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
-import org.toni.customfetch_android.errorFile
-import org.toni.customfetch_android.errorLock
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -96,7 +94,7 @@ class customfetchConfigureActivity : Activity() {
         setContentView(binding.root)
 
         argumentsConfig = binding.argumentsConfigure
-        additionalTruncateWidth = binding.additionalTruncateN
+        additionalTruncateWidth = binding.additionalTruncateWidth
         argsHelp = binding.argsHelp
         showModulesList = binding.showModulesList
         disableWrapLinesCheck = binding.disableWrapLines
@@ -212,6 +210,8 @@ class CustomfetchMainRender {
             getArgsPref(context, appWidgetId)
         }
 
+        val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
+        val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
         val htmlContent = mainAndroid("customfetch $arguments")
         if (Files.exists(Path(errorLock))) {
             val file = File(errorLock)

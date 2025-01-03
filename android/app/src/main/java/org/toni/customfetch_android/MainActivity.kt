@@ -1,6 +1,5 @@
 package org.toni.customfetch_android
 
-import android.R.attr.fragment
 import android.content.Intent
 import android.content.res.AssetManager
 import android.os.Build
@@ -19,10 +18,9 @@ import java.io.IOException
 import java.nio.file.Files
 import kotlin.io.path.Path
 
-
-const val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
-const val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
-const val TEST_CONFIG_FILE_REQUEST_CODE = 50
+// kinda magic numbers
+const val TEST_CONFIG_FILE_RC = 2
+const val ABOUT_ME_RC = 4
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -56,21 +54,20 @@ class MainActivity : AppCompatActivity() {
         if (!Files.exists(Path(filesDir.absolutePath + "/ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
 
-        AlertDialog.Builder(this)
-            .setTitle("Application is useless, use widget")
-            .setMessage("The application settings doesn't do anything, currently.\n"+
-                        "The main purpose of customfetch is the widget, so might as well check that out instead :)")
-            .setPositiveButton("Ok"
-            ) { _, _ -> }
-            .setIcon(android.R.drawable.ic_dialog_info)
-            .show()
-
         binding.testConfigFile.setOnClickListener { _ ->
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "*/*"
             }
-            startActivityForResult(intent, TEST_CONFIG_FILE_REQUEST_CODE)
+            startActivityForResult(intent, TEST_CONFIG_FILE_RC)
+        }
+
+        binding.aboutMe.setOnClickListener { _ ->
+            val fragment = AboutMeFragment()
+            val transaction: FragmentTransaction =
+                supportFragmentManager.beginTransaction()
+            transaction.replace(android.R.id.content, fragment)
+            transaction.addToBackStack(null).commit()
         }
     }
 
@@ -79,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         if (resultCode == RESULT_OK && data != null && data.data != null) {
             data.data?.let { uri ->
                 when(requestCode) {
-                    TEST_CONFIG_FILE_REQUEST_CODE -> {
+                    TEST_CONFIG_FILE_RC -> {
                         val fragment = TestConfigFragment().apply {
                             configFile = PathUtil.getPath(this@MainActivity, uri)
                         }

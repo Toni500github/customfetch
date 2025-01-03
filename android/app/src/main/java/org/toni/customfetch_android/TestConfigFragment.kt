@@ -1,5 +1,7 @@
 package org.toni.customfetch_android
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.TextPaint
@@ -45,12 +47,12 @@ class TestConfigFragment : Fragment() {
         )
 
         if (result.contentEquals("android")) {
-            val htmlTitle = "<span style=\"color:green;\">SUCCESS</span>"
-            binding.titleResult.text = SpannableString(HtmlCompat.fromHtml(htmlTitle, HtmlCompat.FROM_HTML_MODE_COMPACT))
+            binding.titleResult.setTextColor(Color.GREEN)
+            binding.titleResult.text = "SUCCESS"
             binding.testConfigResult.text = "config file '$configFile' works!!"
         } else {
-            val htmlTitle = "<span style=\"color:red;\">FAILURE</span>"
-            binding.titleResult.text = SpannableString(HtmlCompat.fromHtml(htmlTitle, HtmlCompat.FROM_HTML_MODE_COMPACT))
+            binding.titleResult.setTextColor(Color.RED)
+            binding.titleResult.text = "FAILURE"
             binding.testConfigResult.text = result
         }
 

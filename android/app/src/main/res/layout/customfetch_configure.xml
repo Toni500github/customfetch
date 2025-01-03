@@ -39,7 +39,7 @@
         android:text="@string/additional_truncate" />
 
     <EditText
-        android:id="@+id/additional_truncate_n"
+        android:id="@+id/additional_truncate_width"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autofillHints="0.6"
