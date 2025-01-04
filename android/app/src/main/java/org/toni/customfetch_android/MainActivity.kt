@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -20,7 +21,6 @@ import kotlin.io.path.Path
 
 // kinda magic numbers
 const val TEST_CONFIG_FILE_RC = 2
-const val ABOUT_ME_RC = 4
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -53,6 +53,9 @@ class MainActivity : AppCompatActivity() {
 
         if (!Files.exists(Path(filesDir.absolutePath + "/ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
+
+        binding.discordLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.redditLink.movementMethod = LinkMovementMethod.getInstance()
 
         binding.testConfigFile.setOnClickListener { _ ->
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {

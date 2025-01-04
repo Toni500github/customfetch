@@ -15,17 +15,27 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:background="#4F4F4F"
         android:popupTheme="?attr/actionBarPopupTheme"
-        android:animateLayoutChanges="true"
-        app:titleTextColor="#ffFFff"
-        app:title="About Me" />
+        app:title="About Me"
+        app:titleTextColor="#ffFFff" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:text="Developers/Contributors"
+        android:textColor="#ffffff"
+        android:textSize="25sp" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
         android:src="@drawable/github_pfp"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip" />
 
@@ -38,8 +48,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/github_mark_white"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip" />
+            android:src="@drawable/github_mark_white" />
 
         <TextView
             android:id="@+id/toni_github_link"
@@ -47,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="4dp"
-            android:text="Toni500github"
+            android:text="@string/toni500_github"
             android:textColor="#ffffff" />
 
     </LinearLayout>
@@ -56,16 +65,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textColor="#BBBBBB"
         android:layout_marginTop="5dp"
         android:gravity="center"
-        android:text="Creator and maintainer of customfetch.\nA system information fetch tool (or neofetch like program), which its focus point is the performance and customizability" />
+        android:text="Creator and maintainer of customfetch.\nA system information fetch tool (or neofetch like program), which its focus point is the performance and customizability"
+        android:textColor="#BBBBBB" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="50dp"
         android:src="@drawable/burnt_github_pfp"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip" />
 
@@ -78,8 +87,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/github_mark_white"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip" />
+            android:src="@drawable/github_mark_white" />
 
         <TextView
             android:id="@+id/burnt_github_link"
@@ -87,7 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="4dp"
-            android:text="BurntRanch"
+            android:text="@string/burntranch_github"
             android:textColor="#ffffff" />
 
     </LinearLayout>
@@ -96,16 +104,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textColor="#BBBBBB"
         android:layout_marginTop="5dp"
         android:gravity="center"
-        android:text="BestFriend and collaborator of our projects.\nCreated the first prototype of the codebase/program and also helped a lot about anything in tecnical" />
+        android:text="BestFriend and collaborator of our projects.\nCreated the first prototype of the codebase/program and also helped a lot about anything in tecnical"
+        android:textColor="#BBBBBB" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="50dp"
         android:src="@drawable/better_cpp_discord_pfp"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip" />
 
@@ -126,7 +134,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="4dp"
-            android:text="Better C++ discord server"
+            android:text="@string/better_cpp_discord_server"
             android:textColor="#ffffff" />
 
     </LinearLayout>
@@ -135,10 +143,94 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textColor="#BBBBBB"
         android:layout_marginTop="5dp"
         android:gravity="center"
-        android:text="They helped me improving the codebase and also helped me with any issues I got. Also they were really patient lol" />
+        android:text="They helped me improving the codebase and also helped me with any issues I got. Also they were really patient lol"
+        android:textColor="#BBBBBB" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="80dp"
+        android:gravity="center"
+        android:text="Libraries"
+        android:textColor="#ffffff"
+        android:textSize="33sp" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:layout_width="100dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center"
+        android:src="@drawable/fmtlib_logo" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/github_mark_white" />
+
+        <TextView
+            android:id="@+id/fmtlib_github_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="4dp"
+            android:text="@string/fmtlib_github"
+            android:textColor="#ffffff" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:text="Formatting library that provides a fast and safe alternative to C stdio and C++ iostreams."
+        android:textColor="#BBBBBB" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="35dp"
+        android:src="@drawable/tomlplusplus_banner" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp" >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/github_mark_white" />
+
+        <TextView
+            android:id="@+id/toml_lib_github_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="4dp"
+            android:text="@string/tomlplusplus_github"
+            android:textColor="#ffffff" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:text="C++17 library for serializing and parsing TOML config files."
+        android:textColor="#BBBBBB" />
 
     <TextView
         android:layout_width="wrap_content"

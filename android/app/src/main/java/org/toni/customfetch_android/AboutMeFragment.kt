@@ -27,21 +27,12 @@ class AboutMeFragment : Fragment() {
                 requireActivity().supportFragmentManager.popBackStack()
             }
         }
-        binding.toniGithubLink.text = HtmlCompat.fromHtml(
-            "<a href=\"https://github.com/Toni500github/\">Toni500github</a>",
-            HtmlCompat.FROM_HTML_MODE_COMPACT
-        )
-        binding.burntGithubLink.text = HtmlCompat.fromHtml(
-            "<a href=\"https://github.com/BurntRanch/\">BurntRanch</a>",
-            HtmlCompat.FROM_HTML_MODE_COMPACT
-        )
-        binding.bcppDiscordLink.text = HtmlCompat.fromHtml(
-            "<a href=\"https://discord.gg/uSzTjkXtAM/\">Better C++ discord server</a>",
-            HtmlCompat.FROM_HTML_MODE_COMPACT
-        )
+
         binding.burntGithubLink.movementMethod = LinkMovementMethod.getInstance()
         binding.toniGithubLink.movementMethod = LinkMovementMethod.getInstance()
         binding.bcppDiscordLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.fmtlibGithubLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.tomlLibGithubLink.movementMethod = LinkMovementMethod.getInstance()
 
         return binding.root
     }
