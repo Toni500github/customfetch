@@ -21,6 +21,7 @@
         app:title="About Me"
         app:titleTextColor="#ffFFff" />
 
+    <!-- Developers/Contributors -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,6 +32,7 @@
         android:textColor="#ffffff"
         android:textSize="25sp" />
 
+    <!-- Toni's github -->
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -67,9 +69,11 @@
         android:layout_gravity="center"
         android:layout_marginTop="5dp"
         android:gravity="center"
+        android:paddingHorizontal="20dp"
         android:text="Creator and maintainer of customfetch.\nA system information fetch tool (or neofetch like program), which its focus point is the performance and customizability"
         android:textColor="#BBBBBB" />
 
+    <!-- Burnt's github -->
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -106,9 +110,11 @@
         android:layout_gravity="center"
         android:layout_marginTop="5dp"
         android:gravity="center"
+        android:paddingHorizontal="10dp"
         android:text="BestFriend and collaborator of our projects.\nCreated the first prototype of the codebase/program and also helped a lot about anything in tecnical"
         android:textColor="#BBBBBB" />
 
+    <!-- BCPP discord server -->
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -145,9 +151,11 @@
         android:layout_gravity="center"
         android:layout_marginTop="5dp"
         android:gravity="center"
+        android:paddingHorizontal="20dp"
         android:text="They helped me improving the codebase and also helped me with any issues I got. Also they were really patient lol"
         android:textColor="#BBBBBB" />
 
+    <!-- Libraries -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -158,6 +166,7 @@
         android:textColor="#ffffff"
         android:textSize="33sp" />
 
+    <!-- {fmt} -->
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="100dp"
         android:layout_height="70dp"
@@ -191,10 +200,12 @@
         android:layout_gravity="center"
         android:layout_marginTop="5dp"
         android:gravity="center"
+        android:paddingHorizontal="10dp"
         android:text="Formatting library that provides a fast and safe alternative to C stdio and C++ iostreams."
         android:textColor="#BBBBBB" />
 
-    <ImageView
+    <!-- toml++ -->
+    <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="wrap_content"
         android:layout_height="80dp"
         android:layout_gravity="center"
@@ -229,6 +240,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="5dp"
         android:gravity="center"
+        android:paddingHorizontal="10dp"
         android:text="C++17 library for serializing and parsing TOML config files."
         android:textColor="#BBBBBB" />
 
@@ -239,6 +251,7 @@
         android:layout_marginTop="85dp"
         android:layout_marginBottom="50dp"
         android:gravity="center"
+        android:paddingHorizontal="10dp"
         android:text="Did you know that customfetch is the only neofetch like program that is both: terminal app, GUI app and android widget?\nAt least by now :)"
         android:textColor="#ffffff" />
 
