@@ -50,3 +50,4 @@ scripts/test*
 *.out
 *.app
 .cache
+signing.properties

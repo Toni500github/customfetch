@@ -79,7 +79,11 @@ $(TARGET): fmt toml $(OBJ)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
 android_app:
-	./android/gradlew build --project-dir=./android
+ifeq ($(DEBUG), 1)
+	./android/gradlew assembleDebug --project-dir=./android
+else
+	./android/gradlew assembleRelease --project-dir=./android
+endif
 	@if [ $$? -eq 0 ]; then\
 		echo "APK build successfully. Get it in $(CURDIR)/android/app/build/outputs/apk path and choose which to install (debug/release)";\
 	fi
