@@ -90,14 +90,15 @@ static STRING_IF_ANDROID_APP_ELSE(void) version()
 static STRING_IF_ANDROID_APP_ELSE(void) help(bool invalid_opt = false)
 {
     constexpr std::string_view help(R"(Usage: customfetch [OPTIONS]...
-A command-line system information tool (or neofetch like program), which its focus point is customizability and performance
+A command-line, GUI app, android widget system information tool (or neofetch like program), which its focus point is customizability and performance.
 
-    -n, --no-display            Do not display the logo
-    -N, --no-color              Do not output and parse colors. Useful for stdout or pipe operations
-    --enable-colors             Inverse of --no-color
+NOTE: Arguments that takes [<bool>] values, the values can be either: true, 1, enable or leave it empty. Any other value will be treated as false.
+
+    -n, --no-logo [<bool>]      Do not display the logo
+    -N, --no-color [<bool>]     Do not output and parse colors. Useful for stdout or pipe operations
     -s, --source-path <path>    Path to the ascii art or image file to display
     -C, --config <path>         Path to the config file to use
-    -a, --ascii-logo-type [<name>]
+    -a, --ascii-logo-type [<type>]
                                 The type of ASCII art to apply ("small" or "old").
                                 Basically will add "_<type>" to the logo filename.
                                 It will return the regular linux ascii art if it doesn't exist.
@@ -112,7 +113,7 @@ A command-line system information tool (or neofetch like program), which its foc
                                 Right now only 'kitty' and 'viu' are supported
                                 It's recommended to use GUI mode for the moment if something doesn't work
 
-    -m, --layout-line           Will replace the config layout, with a layout you specify in the arguments
+    -m, --layout-line <string>  Will replace the config layout, with a layout you specify in the arguments
                                 Example: `customfetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>"`
                                 Will only print the logo (if not disabled), along side the parsed OS and CPU
 
@@ -120,22 +121,22 @@ A command-line system information tool (or neofetch like program), which its foc
     -p, --logo-position <value> Position of the logo ("top" or "left" or "bottom")
     -o, --offset <num>          Offset between the ascii art and the layout
     -l. --list-modules          Print the list of the modules and its members
+    -L, --logo-only [<bool>]    Print only the logo
     -h, --help                  Print this help menu
-    -L, --logo-only             Print only the logo
     -V, --version               Print the version along with the git branch it was built
 
     --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
-    --wrap-lines [<0,1>]        Disable (0) or Enable (1) wrapping lines when printing in terminal
+    --wrap-lines [<bool>]       Wrap lines when printing in terminal
     --logo-padding-top  <num>   Padding of the logo from the top
     --logo-padding-left <num>   Padding of the logo from the left
     --layout-padding-top <num>  Padding of the layout from the top
-    --title-sep <string>        A char (or string) to use in $<builtin.title_sep>
-    --sep-reset <string>        A separator (or string) that when encountered, will automatically reset color
-    --sep-reset-after [<0,1>]   Reset color either before (0) or after (1) 'sep-reset'
+    --title-sep <string>        A character (or string) to use in $<builtin.title_sep>
+    --sep-reset <string>        A character (or string) that when encountered, will automatically reset color
+    --sep-reset-after [<bool>]  Reset color either before or after 'sep-reset'
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 
-    --color <string>            Replace instances of a color with another value.
+    --add-color <string>        Replace instances of a color with another value.
                                 Syntax MUST be "name=value" with no space between "=", example: --color "foo=#444333".
                                 Thus replaces any instance of foo with #444333. Can be done with multiple colors separately.
 
@@ -345,6 +346,14 @@ system
 
 }
 
+static bool str_to_bool(const std::string_view str)
+{
+    if (str == "true" || str == "1" || str == "enable")
+        return true;
+
+    return false;
+}
+
 // clang-format off
 // parseargs() but only for parsing the user config path trough args
 // and so we can directly construct Config
@@ -387,11 +396,11 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
-        {"no-display",       no_argument,       0, 'n'},
         {"list-modules",     no_argument,       0, 'l'},
-        {"logo-only",        no_argument,       0, 'L'},
         {"gui",              no_argument,       0, 'g'},
-        {"no-color",         no_argument,       0, 'N'},
+        {"logo-only",        optional_argument, 0, 'L'},
+        {"no-logo",          optional_argument, 0, 'n'},
+        {"no-color",         optional_argument, 0, 'N'},
         {"ascii-logo-type",  optional_argument, 0, 'a'},
         {"offset",           required_argument, 0, 'o'},
         {"font",             required_argument, 0, 'f'},
@@ -402,18 +411,17 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
         {"image-backend",    required_argument, 0, 'i'},
-        
-        {"enable-colors",      no_argument,       0, "enable-colors"_fnv1a16},
+
+        {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
         {"wrap-lines",         optional_argument, 0, "wrap-lines"_fnv1a16},
+        {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
         {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
-        {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
         {"logo-padding-top",   required_argument, 0, "logo-padding-top"_fnv1a16},
         {"logo-padding-left",  required_argument, 0, "logo-padding-left"_fnv1a16},
         {"layout-padding-top", required_argument, 0, "layout-padding-top"_fnv1a16},
         {"bg-image",           required_argument, 0, "bg-image"_fnv1a16},
-        {"color",              required_argument, 0, "color"_fnv1a16},
-        {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
+        {"add-color",          required_argument, 0, "add-color"_fnv1a16},
 
         {0,0,0,0}
     };
@@ -435,12 +443,8 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 RETURN_IF_ANDROID_APP help(); break;
             case 'l':
                 RETURN_IF_ANDROID_APP modules_list(); break;
-            case 'n':
-                config.m_disable_source = true; break;
             case 'f':
                 config.font = optarg; break;
-            case 'L':
-                config.m_print_logo_only = true; break;
             case 'g':
                 config.gui = true; break;
             case 'o':
@@ -460,12 +464,28 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
             case 'i':
                 config.m_image_backend = optarg; break;
             case 'N':
-                config.m_disable_colors = true; break;
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.m_disable_colors = str_to_bool(optarg);
+                else
+                    config.m_disable_colors = true;
+                break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
                     config.ascii_logo_type = optarg;
                 else
                     config.ascii_logo_type.clear();
+                break;
+            case 'n':
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.m_disable_source = str_to_bool(optarg);
+                else
+                    config.m_disable_source = true;
+                break;
+            case 'L':
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.m_print_logo_only = str_to_bool(optarg);
+                else
+                    config.m_print_logo_only = true;
                 break;
 
             case "logo-padding-top"_fnv1a16:
@@ -482,12 +502,12 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
 
             case "wrap-lines"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.wrap_lines = static_cast<bool>(std::stoi(optarg));
+                    config.wrap_lines = str_to_bool(optarg);
                 else
                     config.wrap_lines = true;
                 break;
 
-            case "color"_fnv1a16:
+            case "add-color"_fnv1a16:
                 config.addAliasColors(optarg); break;
 
             case "gen-config"_fnv1a16:
@@ -503,12 +523,9 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
             case "title-sep"_fnv1a16:
                 config.builtin_title_sep = optarg; break;
 
-            case "enable-colors"_fnv1a16:
-                config.m_disable_colors = false; break;
-
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.sep_reset_after = static_cast<bool>(std::stoi(optarg));
+                    config.sep_reset_after = str_to_bool(optarg);
                 else
                     config.sep_reset_after = true;
                 break;
