@@ -97,7 +97,10 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 
     parse_args.parsingLayout = true;
     for (std::string& layout : layout)
+    {
         layout = parse(layout, parse_args);
+        parse_args.no_more_reset = false;
+    }
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
