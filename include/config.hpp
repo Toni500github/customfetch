@@ -240,7 +240,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #
 #    Read the manual customfetch.1 for more infos with $() tag
 #
-# Q: Can I run recursive tags?
+# Q: Can I use recursive tags?
 # A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>)>" works,
 #    Then I guess yeah
 ################################################################
@@ -254,14 +254,22 @@ layout = [
     "${auto}Uptime: $<os.uptime>",
     "${auto}Terminal: $<user.terminal>",
     "${auto}Shell: $<user.shell>",
-    "${auto}Packages: $<os.pkgs>",
+    "${auto}Packages: $<os.pkgs>",)#"
+#if !ANDROID_APP
+    R"#(
     "${auto}Theme: $<theme-gtk-all.name>",
     "${auto}Icons: $<theme-gtk-all.icons>",
     "${auto}Font: $<theme-gtk-all.font>",
     "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name>",
     "${auto}DE: $<user.de_name>",
+    "${auto}Disk (/): $<disk(/)>",)#"
+#else
+    R"#(
     "${auto}Disk (/): $<disk(/)>",
+    "${auto}Disk (/sdcard): $<disk(/storage/emulated/0)>",)#"
+#endif
+    R"#(
     "${auto}Swap: $<swap>",
     "${auto}CPU: $<cpu>",
     "${auto}GPU: $<gpu>",
@@ -279,13 +287,25 @@ source-path = "os"
 
 # Path to where we'll take all the distros/OSs ascii arts.
 # note: it MUST contain an "ascii" subdirectory
-data-dir = "/usr/share/customfetch"
+)#"
+#if !ANDROID_APP
+R"#(data-dir = "/usr/share/customfetch")#"
+#else
+R"#(data-dir = "/data/user/0/org.toni.customfetch_android/files")#"
+#endif
+R"#(
 
 # The type of ASCII art to apply ("small", "old").
 # Basically will add "_<type>" to the logo filename.
 # It will return the regular linux ascii art if it doesn't exist.
 # Leave empty it for regular.
-ascii-logo-type = ""
+)#"
+#if !ANDROID_APP
+R"#(ascii-logo-type = "")#"
+#else
+R"#(ascii-logo-type = "small")#"
+#endif
+R"#(
 
 # A char (or string) to use in $<builtin.title_sep>
 title-sep = "-"
@@ -326,9 +346,9 @@ magenta = "\e[1;35m"
 cyan    = "\e[1;36m"
 white   = "\e[1;37m"
 
-# Alias colors. Basically more color variables, but config depending (no shot).
+# Alias colors. Basically more color variables.
 # They can be used as like as the color tag.
-# This is as like as using the --color argument
+# This is as like as using the --add-color argument
 # Syntax must be "name=value", e.g "purple=magenta" or "orange=!#F08000"
 alias-colors = ["purple=magenta"]
 

@@ -40,11 +40,12 @@
 
 using namespace Query;
 
-// https://en.wikipedia.org/wiki/List_of_Qualcomm_Snapdragon_systems_on_chips
 #if CF_ANDROID
+// https://en.wikipedia.org/wiki/List_of_Qualcomm_Snapdragon_systems_on_chips
+// by Toni500git
 static std::string detect_qualcomm(const std::string& model_name)
 {
-    switch (fnv1a16::hash(model_name))
+    switch (fnv1a16::hash(str_toupper(model_name)))
     {
         case "SM8750-AB"_fnv1a16: return "Snapdragon 8 Elite";
         case "SM8635"_fnv1a16:    return "Snapdragon 8s Gen 3";
@@ -179,9 +180,11 @@ static std::string detect_qualcomm(const std::string& model_name)
         case "SM8350-AC"_fnv1a16: return "Snapdragon 888+";
     }
 
-    return UNKNOWN;
+    return model_name;
 }
 
+// https://en.wikipedia.org/wiki/Exynos#Current_Exynos_SoCs_(2020%E2%80%93present)
+// by BurntRanch
 static std::string detect_exynos(const std::string& model_name)
 {
     switch (fnv1a16::hash(str_toupper(model_name)))
@@ -223,58 +226,41 @@ static std::string detect_exynos(const std::string& model_name)
         case "S5PC520"_fnv1a16: return "Exynos 5 Dual 5250";
 
         case "S5E5260"_fnv1a16: return "Exynos 5 Hexa 5260";
-
         case "S5E5410"_fnv1a16: return "Exynos 5 Octa 5410";
-
         case "S5E5420"_fnv1a16: return "Exynos 5 Octa 5420";
 
         /* 5800 for chromebooks */
         case "S5E5422"_fnv1a16: return "Exynos 5 Octa 5422/5800";
 
         case "S5E5430"_fnv1a16: return "Exynos 5 Octa 5430";
-
         case "S5E5433"_fnv1a16: return "Exynos 7 Octa 5433";
-
         case "SC57270"_fnv1a16: return "Exynos 7 Dual 7270";
-
         case "S5E7420"_fnv1a16: return "Exynos 7 Octa 7420";
-
         case "S5E7570"_fnv1a16: return "Exynos 7 Quad 7570";
         /* TODO: Exynos 7 Quad/Octa 7578/7580 */
 
         case "S5E7870"_fnv1a16: return "Exynos 7 Octa 7870";
-
         case "S5E7872"_fnv1a16: return "Exynos 5 7872";
-
         case "S5E7880"_fnv1a16: return "Exynos 7880";
-
         case "S5E7884"_fnv1a16: return "Exynos 7884/7885";
         case "S5E7904"_fnv1a16: return "Exynos 7904";
-
         case "S5E8890"_fnv1a16: return "Exynos 8 Octa 8890";
         case "S5E8895"_fnv1a16: return "Exynos 8895";
-
         case "S5E9609"_fnv1a16: return "Exynos 9609";
         case "S5E9610"_fnv1a16: return "Exynos 9610";
         case "S5E9611"_fnv1a16: return "Exynos 9611";
-
         case "S5E9810"_fnv1a16: return "Exynos 9810";
-
-        case "S5E9820"_fnv1a16:   return "Exynos 9820";
-        case "S5E9825"_fnv1a16:   return "Exynos 9825";
-
-        case "S5E4212"_fnv1a16: return "Exynos 4 Dual 4212";
+        case "S5E9820"_fnv1a16: return "Exynos 9820";
+        case "S5E9825"_fnv1a16: return "Exynos 9825";
         /* TODO: Exynos 3 Dual 3250 */
 
-        case "SC57270"_fnv1a16: return "Exynos 7 Dual 7270";
-
-        case "SC59110XSC"_fnv1a16:   return "Exynos 9110";
-        case "SC55515XBD"_fnv1a16:   return "Exynos W920";
-        case "SC55515XBE"_fnv1a16:   return "Exynos W930";
-        case "SC55535AHA"_fnv1a16:   return "Exynos W1000";
+        case "SC59110XSC"_fnv1a16: return "Exynos 9110";
+        case "SC55515XBD"_fnv1a16: return "Exynos W920";
+        case "SC55515XBE"_fnv1a16: return "Exynos W930";
+        case "SC55535AHA"_fnv1a16: return "Exynos W1000";
     }
 
-    return UNKNOWN;
+    return model_name;
 }
 #endif
 
@@ -335,9 +321,8 @@ static CPU::CPU_t get_cpu_infos()
             (hasStart(ret.modelname, "SM") || hasStart(ret.modelname, "APQ") || hasStart(ret.modelname, "MSM") ||
              hasStart(ret.modelname, "SDM") || hasStart(ret.modelname, "QM")))
             ret.name = fmt::format("Qualcomm {} [{}]", detect_qualcomm(ret.modelname), ret.modelname);
-        else if (ret.vendor == "Samsung") {
+        else if (ret.vendor == "Samsung")
             ret.name = fmt::format("Samsung {} [{}]", detect_exynos(ret.modelname), ret.modelname);
-        }
         else
             ret.name = ret.vendor + " " + ret.modelname;
     }
