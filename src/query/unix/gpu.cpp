@@ -23,7 +23,11 @@
  *
  */
 
-#include <algorithm>
+#include "fmt/format.h"
+#include "parse.hpp"
+#include "platform.hpp"
+#if CF_UNIX
+
 #include <cstdint>
 #include <filesystem>
 #include <string>
@@ -72,15 +76,17 @@ static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std:
     return ret;
 }
 
-GPU::GPU(const std::uint16_t id, std::vector<std::uint16_t>& queried_gpus)
+GPU::GPU(const std::string& id, systemInfo_t& queried_gpus)
 {
-    if (std::find(queried_gpus.begin(), queried_gpus.end(), id) == queried_gpus.end())
-        queried_gpus.push_back(id);
-    else
+    if (queried_gpus.find(id) != queried_gpus.end())
+    {
+        m_gpu_infos.name   = getInfoFromName(queried_gpus, id, "name");
+        m_gpu_infos.vendor = getInfoFromName(queried_gpus, id, "vendor");
         return;
+    }
 
     const std::uint16_t max_iter = 10;
-    std::uint16_t       id_iter  = id;
+    std::uint16_t       id_iter  = std::stoi(id);
     std::string   sys_path;
     int           i = 0;
     for (; i <= max_iter; i++)
@@ -95,7 +101,7 @@ GPU::GPU(const std::uint16_t id, std::vector<std::uint16_t>& queried_gpus)
 
     if (i >= max_iter)
     {
-        error("Failed to parse GPU infos on the path /sys/class/drm/");
+        error(_("Failed to parse GPU infos on the path /sys/class/drm/"));
         return;
     }
 
@@ -103,6 +109,12 @@ GPU::GPU(const std::uint16_t id, std::vector<std::uint16_t>& queried_gpus)
     m_device_id_s = read_by_syspath(sys_path + "/device/device");
 
     m_gpu_infos = get_gpu_infos(m_vendor_id_s, m_device_id_s);
+    queried_gpus.insert(
+        {id, {
+            {"name",   variant(m_gpu_infos.name)},
+            {"vendor", variant(m_gpu_infos.vendor)},
+        }}
+    );
 }
 
 // clang-format off
@@ -111,3 +123,5 @@ std::string& GPU::name() noexcept
 
 std::string& GPU::vendor() noexcept
 { return m_gpu_infos.vendor; }
+
+#endif

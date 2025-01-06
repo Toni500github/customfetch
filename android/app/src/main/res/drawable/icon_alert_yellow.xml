@@ -1,0 +1,6 @@
+<!-- By OOjs UI Team and other contributors, MIT, https://commons.wikimedia.org/w/index.php?curid=78132716 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:viewportHeight="20" android:viewportWidth="20" android:width="24dp">
+      
+    <path android:fillColor="#FFffcc33" android:pathData="M19.64,16.36L11.53,2.3A1.85,1.85 0,0 0,10 1.21,1.85 1.85,0 0,0 8.48,2.3L0.36,16.36C-0.48,17.81 0.21,19 1.88,19h16.24c1.67,0 2.36,-1.19 1.52,-2.64zM11,16L9,16v-2h2zM11,12L9,12L9,6h2z"/>
+    
+</vector>

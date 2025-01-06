@@ -24,25 +24,31 @@
  */
 
 #include <mntent.h>
-#include <algorithm>
 #include <cstdio>
 #include <filesystem>
 
 #include "query.hpp"
 #include "util.hpp"
+#include "parse.hpp"
 
 using namespace Query;
 
-Disk::Disk(const std::string_view path, std::vector<std::string>& paths)
+Disk::Disk(const std::string& path, systemInfo_t& queried_paths)
 {
-    if (std::find(paths.begin(), paths.end(), path) == paths.end())
-        paths.push_back(path.data());
-    else
+    if (queried_paths.find(path) != queried_paths.end())
+    {
+        m_disk_infos.device       = getInfoFromName(queried_paths, path, "device");
+        m_disk_infos.mountdir     = getInfoFromName(queried_paths, path, "mountdir");
+        m_disk_infos.typefs       = getInfoFromName(queried_paths, path, "typefs");
+        m_disk_infos.total_amount = std::stod(getInfoFromName(queried_paths, path, "total_amount"));
+        m_disk_infos.used_amount  = std::stod(getInfoFromName(queried_paths, path, "used_amount"));
+        m_disk_infos.free_amount  = std::stod(getInfoFromName(queried_paths, path, "free_amount"));
         return;
+    }
 
     if (!std::filesystem::exists(path))
     {
-        // if user is using disk.disk or disk.fs
+        // if user is using $<disk(path)> or $<disk(path).fs>
         // then let's just "try" to remove it
         m_disk_infos.typefs = MAGIC_LINE;
         m_disk_infos.device = MAGIC_LINE;
@@ -53,8 +59,8 @@ Disk::Disk(const std::string_view path, std::vector<std::string>& paths)
     FILE* mountsFile = setmntent("/proc/mounts", "r");
     if (mountsFile == NULL)
     {
-        perror("setmntent");
-        error("setmntent() failed. Could not get disk info");
+        perror(_("setmntent"));
+        error(_("setmntent() failed. Could not get disk info"));
         return;
     }
 
@@ -71,12 +77,12 @@ Disk::Disk(const std::string_view path, std::vector<std::string>& paths)
         }
     }
 
-    const std::string_view statpath = (hasStart(path, "/dev") ? pDevice->mnt_dir : path);
+    const std::string& statpath = (hasStart(path, "/dev") ? pDevice->mnt_dir : path);
 
-    if (statvfs(statpath.data(), &m_statvfs) != 0)
+    if (statvfs(statpath.c_str(), &m_statvfs) != 0)
     {
         perror("statvfs");
-        error("Failed to get disk info");
+        error(_("Failed to get disk info"));
         return;
     }
 
@@ -85,7 +91,16 @@ Disk::Disk(const std::string_view path, std::vector<std::string>& paths)
     m_disk_infos.used_amount  = m_disk_infos.total_amount - m_disk_infos.free_amount;
 
     endmntent(mountsFile);
-
+    queried_paths.insert(
+        {path, {
+            {"total_amount", variant(m_disk_infos.total_amount)},
+            {"used_amount",  variant(m_disk_infos.used_amount)},
+            {"free_amount",  variant(m_disk_infos.free_amount)},
+            {"typefs",       variant(m_disk_infos.typefs)},
+            {"mountdir",     variant(m_disk_infos.mountdir)},
+            {"device",       variant(m_disk_infos.device)}
+        }}
+    );
 }
 
 // clang-format off

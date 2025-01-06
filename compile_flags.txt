@@ -8,6 +8,10 @@
 -DGUI_MODE=1
 -DUSE_DCONF=1
 -DDEBUG=1
+-DANDROID_APP=1
+-DENABLE_NLS=1
+-DLOCALEDIR="/usr/share/locale"
+-I./useless_stuff/
 -I/usr/include/gtkmm-3.0
 -I/usr/lib/gtkmm-3.0/include
 -I/usr/include/gtk-3.0

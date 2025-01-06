@@ -33,6 +33,8 @@
 #include "toml++/toml.hpp"
 #include "util.hpp"
 
+// config colors
+// those without gui_ prefix are for the terminal
 struct colors_t
 {
     std::string black;
@@ -57,9 +59,10 @@ struct colors_t
 class Config
 {
 public:
-    Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
+    // Create .config directories and files and load the config file (args or default)
+    Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors, bool do_not_load = false);
 
-    // config file
+    // Variables of config file in [config] table
     std::vector<std::string> layout;
     std::vector<std::string> percentage_colors;
     std::vector<std::string> colors_name, colors_value;
@@ -81,12 +84,14 @@ public:
     bool                     use_SI_unit         = false;
     bool                     wrap_lines          = false;
 
-    // modules specific config
+    // Variables of config file for 
+    // modules specific configs, e.g [uptime]
     std::string uptime_d_fmt;
     std::string uptime_h_fmt;
     std::string uptime_m_fmt;
     std::string uptime_s_fmt;
 
+    // [pkgs]
     std::vector<std::string> pkgs_managers;
     std::vector<std::string> pacman_dirs;
     std::vector<std::string> flatpak_dirs;
@@ -102,12 +107,37 @@ public:
     bool                     m_display_distro  = true;
     bool                     m_print_logo_only = false;
 
-    void                     loadConfigFile(const std::string_view filename, colors_t& colors);
-    std::string              getThemeValue(const std::string_view value, const std::string_view fallback) const;
-    void                     generateConfig(const std::string_view filename);
-    void                     addAliasColors(const std::string& str);
-    std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
+    /**
+     * Load config file and parse every config variables
+     * @param filename The config file path
+     * @param colors The colors struct where we'll put the default config colors.
+     *               It doesn't include the colors in config.alias-colors
+     */
+    void loadConfigFile(const std::string_view filename, colors_t& colors);
 
+    /**
+     * Generate a config file
+     * @param filename The config file path
+     */
+    void generateConfig(const std::string_view filename);
+    
+    /**
+     * Add alias values to colors_name and colors_value.
+     * @param str The alias color to add.
+     *            Must have a '=' for separating color name and value,
+     *            E.g "pink=!#FFC0CB"
+     */
+    void addAliasColors(const std::string& str);
+
+private:
+    // Parsed config from loadConfigFile()
+    toml::table tbl;
+
+    /**
+     * Get value of config variables
+     * @param value The config variable "path" (e.g "config.source-path")
+     * @param fallback Default value if couldn't retrive value
+     */
     template <typename T>
     T getValue(const std::string_view value, const T&& fallback) const
     {
@@ -118,10 +148,23 @@ public:
             return ret.value_or(fallback);
     }
 
-private:
-    toml::table tbl;
+    /**
+     * getValue() but don't want to specify the template, so it's std::string,
+     * and because of the name, only used when retriving the colors for terminal and GUI
+     * @param value The config variable "path" (e.g "config.gui-red")
+     * @param fallback Default value if couldn't retrive value
+     */
+    std::string getThemeValue(const std::string_view value, const std::string_view fallback) const;
+
+    /**
+     * Get value of config array of string variables
+     * @param value The config variable "path" (e.g "config.gui-red")
+     * @param fallback Default value if couldn't retrive value
+     */
+    std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
 };
 
+// default config
 inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # customfetch is designed with customizability in mind
 # here is how it works:
@@ -157,7 +200,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # The colors can be predefined such as: black, red, green, blue, cyan, yellow, magenta, white.
 # They can be configured in the config file.
 #
-# They can have hexcodes colors (e.g "#5522dd").
+# They can have hex codes colors (e.g "#5522dd").
 # You can apply special effects to colors by using the following symbols before the '#' in hex codes:
 #
 #     Terminal and GUI                          GUI Only
@@ -197,8 +240,8 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 #
 #    Read the manual customfetch.1 for more infos with $() tag
 #
-# Q: Can I run recursive tags?
-# A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>).disk>" works,
+# Q: Can I use recursive tags?
+# A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>)>" works,
 #    Then I guess yeah
 ################################################################
 
@@ -211,14 +254,22 @@ layout = [
     "${auto}Uptime: $<os.uptime>",
     "${auto}Terminal: $<user.terminal>",
     "${auto}Shell: $<user.shell>",
-    "${auto}Packages: $<os.pkgs>",
+    "${auto}Packages: $<os.pkgs>",)#"
+#if !ANDROID_APP
+    R"#(
     "${auto}Theme: $<theme-gtk-all.name>",
     "${auto}Icons: $<theme-gtk-all.icons>",
     "${auto}Font: $<theme-gtk-all.font>",
     "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name>",
     "${auto}DE: $<user.de_name>",
+    "${auto}Disk (/): $<disk(/)>",)#"
+#else
+    R"#(
     "${auto}Disk (/): $<disk(/)>",
+    "${auto}Disk (/sdcard): $<disk(/storage/emulated/0)>",)#"
+#endif
+    R"#(
     "${auto}Swap: $<swap>",
     "${auto}CPU: $<cpu>",
     "${auto}GPU: $<gpu>",
@@ -236,18 +287,30 @@ source-path = "os"
 
 # Path to where we'll take all the distros/OSs ascii arts.
 # note: it MUST contain an "ascii" subdirectory
-data-dir = "/usr/share/customfetch"
+)#"
+#if !ANDROID_APP
+R"#(data-dir = "/usr/share/customfetch")#"
+#else
+R"#(data-dir = "/data/user/0/org.toni.customfetch_android/files")#"
+#endif
+R"#(
 
 # The type of ASCII art to apply ("small", "old").
 # Basically will add "_<type>" to the logo filename.
 # It will return the regular linux ascii art if it doesn't exist.
 # Leave empty it for regular.
-ascii-logo-type = ""
+)#"
+#if !ANDROID_APP
+R"#(ascii-logo-type = "")#"
+#else
+R"#(ascii-logo-type = "small")#"
+#endif
+R"#(
 
 # A char (or string) to use in $<builtin.title_sep>
 title-sep = "-"
 
-# A separator (or string) that when ecountered, will automatically
+# A separator (or string) that when encountered, will automatically
 # reset color, aka. automatically add ${0} (only in layout)
 # Make it empty for disabling
 sep-reset = ":"
@@ -258,7 +321,7 @@ sep-reset = ":"
 sep-reset-after = false
 
 # Where the logo should be displayed.
-# Values: "top" or "left"
+# Values: "top" or "left" or "bottom"
 logo-position = "left"
 
 # Offset between the ascii art and the layout
@@ -283,9 +346,9 @@ magenta = "\e[1;35m"
 cyan    = "\e[1;36m"
 white   = "\e[1;37m"
 
-# Alias colors. Basically more color variables, but config depending (no shot).
+# Alias colors. Basically more color variables.
 # They can be used as like as the color tag.
-# This is as like as using the --color argument
+# This is as like as using the --add-color argument
 # Syntax must be "name=value", e.g "purple=magenta" or "orange=!#F08000"
 alias-colors = ["purple=magenta"]
 
@@ -297,16 +360,16 @@ use-SI-byte-unit = false
 
 # Colors to be used in percentage tag and modules members.
 # They are used as if you're using the color tag.
-# It's an array just for "convinience"
+# It's an array just for "convenience"
 # 1st color for good
 # 2nd color for normal
 # 3rd color for bad
 percentage-colors = ["green", "yellow", "red"]
 
 # Usually in neofetch/fastfetch, when your terminal size is too small,
-# to render some text in 1 line, they wrap those lines.
+# to render some text in 1 line, they don't wrap those lines, instead they truncate them.
 # Enable/Disable if you want this
-wrap-lines = true
+wrap-lines = false
 
 # Warn against tradeoffs between slower queries for availability
 # e.g. falling back to gsettings when we can't find the config file for GTK
@@ -327,18 +390,18 @@ secs  = " seconds"
 # remember to not enter the same name twice, else the world will finish
 # Choices: pacman, flatpak, dpkg, apk
 #
-# Pro-tip: if your package manager isnt listed here, yet,
+# Pro-tip: if your package manager isn't listed here, yet,
 # use the bash command tag in the layout
 # e.g "Packages: $(pacman -Q | wc -l) (pacman)"
 pkg-managers = ["pacman", "dpkg", "flatpak"]
 
 # Distros and package manager specific
 # package manager paths for getting the packages count from path.
-# They are arrayies so you can add multiple paths.
+# They are arrays so you can add multiple paths.
 #
 # If you don't know what these ares, leave them by default settings
 pacman-dirs  = ["/var/lib/pacman/local/"]
-dpkg-files   = ["/var/lib/dpkg/status"]
+dpkg-files   = ["/var/lib/dpkg/status", "/data/data/com.termux/files/usr/var/lib/dpkg/status"]
 flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 

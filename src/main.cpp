@@ -27,9 +27,11 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 
 #include "config.hpp"
 #include "display.hpp"
+#include "fmt/ranges.h"
 #include "gui.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -46,41 +48,57 @@
 
 using namespace std::string_view_literals;
 
-static void version()
-{
-    fmt::println("customfetch {} branch {}", VERSION, BRANCH);
-
-#ifdef GUI_MODE
-    fmt::print("GUI mode enabled\n\n");
+#if ANDROID_APP
+#define STRING_IF_ANDROID_APP_ELSE(x) std::string
+#define RETURN_OR_PRINT(x) return x
+#define RETURN_IF_ANDROID_APP return
+#define _true "true"
+#define _false "failed"
 #else
-    fmt::print("GUI mode IS NOT enabled\n\n");
+#define STRING_IF_ANDROID_APP_ELSE(x) x
+#define RETURN_OR_PRINT(x) fmt::print("{}\n", x)
+#define RETURN_IF_ANDROID_APP
+#define _true true
+#define _false false
+#endif
+
+static STRING_IF_ANDROID_APP_ELSE(void) version()
+{
+    std::string version{"customfetch " VERSION " branch " BRANCH "\n"};
+
+#if GUI_MODE
+    version += "GUI mode enabled\n\n";
+#else
+    version += "GUI mode IS NOT enabled\n\n";
 #endif
 
 #if !(USE_DCONF)
-    fmt::println("NO flags were set");
+    version += "NO flags were set\n";
 #else
-    fmt::println("set flags:");
+    version += "set flags:\n";
 #if USE_DCONF
-    fmt::println("USE_DCONF");
+    version += "USE_DCONF\n";
 #endif
 #endif
+
+    RETURN_OR_PRINT(version);
 
     // if only everyone would not return error when querying the program version :(
     std::exit(EXIT_SUCCESS);
 }
 
-static void help(bool invalid_opt = false)
+static STRING_IF_ANDROID_APP_ELSE(void) help(bool invalid_opt = false)
 {
-    fmt::println("Usage: customfetch [OPTIONS]...");
-    fmt::println(R"(
-A command-line system information tool (or neofetch like program), which its focus point is customizability and perfomance
+    constexpr std::string_view help(R"(Usage: customfetch [OPTIONS]...
+A command-line, GUI app, android widget system information tool (or neofetch like program), which its focus point is customizability and performance.
 
-    -n, --no-display		Do not display the logo
-    -N, --no-color              Do not output and parse colors. Useful for stdout or pipe operations
-    --enable-colors             Inverse of --no-color
-    -s, --source-path <path>	Path to the ascii art or image file to display
-    -C, --config <path>		Path to the config file to use
-    -a, --ascii-logo-type [<name>]
+NOTE: Arguments that takes [<bool>] values, the values can be either: true, 1, enable or leave it empty. Any other value will be treated as false.
+
+    -n, --no-logo [<bool>]      Do not display the logo
+    -N, --no-color [<bool>]     Do not output and parse colors. Useful for stdout or pipe operations
+    -s, --source-path <path>    Path to the ascii art or image file to display
+    -C, --config <path>         Path to the config file to use
+    -a, --ascii-logo-type [<type>]
                                 The type of ASCII art to apply ("small" or "old").
                                 Basically will add "_<type>" to the logo filename.
                                 It will return the regular linux ascii art if it doesn't exist.
@@ -91,51 +109,53 @@ A command-line system information tool (or neofetch like program), which its foc
     -f, --font <name>           The font to be used in GUI mode (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
                                 An example: [Liberation Mono] [Normal] [12], which can be "Liberation Mono Normal 12"
 
-    -i, --image-backend	<name>	(EXPERIMENTAL) Image backend tool for displaying images in terminal.
+    -i, --image-backend	<name>  (EXPERIMENTAL) Image backend tool for displaying images in terminal.
                                 Right now only 'kitty' and 'viu' are supported
-				It's recommended to use GUI mode for the moment if something doesn't work
+                                It's recommended to use GUI mode for the moment if something doesn't work
 
-    -m, --layout-line           Will replace the config layout, with a layout you specify in the arguments
-				Example: `customfetch -m "${{auto}}OS: $<os.name>" -m "${{auto}}CPU: $<cpu.cpu>"`
-				Will only print the logo (if not disabled), along side the parsed OS and CPU
+    -m, --layout-line <string>  Will replace the config layout, with a layout you specify in the arguments
+                                Example: `customfetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>"`
+                                Will only print the logo (if not disabled), along side the parsed OS and CPU
 
-    -g, --gui                   Use GUI mode instead of priting in the terminal (use --version to check if it was enabled)
-    -p, --logo-position <value> Position of the logo ("top" or "left")
+    -g, --gui                   Use GUI mode instead of printing in the terminal (use --version to check if it was enabled)
+    -p, --logo-position <value> Position of the logo ("top" or "left" or "bottom")
     -o, --offset <num>          Offset between the ascii art and the layout
-    -l. --list-modules  	Print the list of the modules and its members
-    -h, --help			Print this help menu
-    -L, --logo-only             Print only the logo
-    -V, --version		Print the version along with the git branch it was built
+    -l. --list-modules          Print the list of the modules and its members
+    -L, --logo-only [<bool>]    Print only the logo
+    -h, --help                  Print this help menu
+    -V, --version               Print the version along with the git branch it was built
 
     --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
-    --wrap-lines [<0,1>]	Disable (0) or Enable (1) wrapping lines when printing in terminal
-    --logo-padding-top	<num>	Padding of the logo from the top
-    --logo-padding-left	<num>	Padding of the logo from the left
+    --wrap-lines [<bool>]       Wrap lines when printing in terminal
+    --logo-padding-top  <num>   Padding of the logo from the top
+    --logo-padding-left <num>   Padding of the logo from the left
     --layout-padding-top <num>  Padding of the layout from the top
-    --title-sep <string>        A char (or string) to use in $<builtin.title_sep>
-    --sep-reset <string>        A separator (or string) that when ecountered, will automatically reset color
-    --sep-reset-after [<num>]   Reset color either before of after 'sep-reset' (1 = after && 0 = before)
+    --title-sep <string>        A character (or string) to use in $<builtin.title_sep>
+    --sep-reset <string>        A character (or string) that when encountered, will automatically reset color
+    --sep-reset-after [<bool>]  Reset color either before or after 'sep-reset'
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 
-    --color <string>            Replace instances of a color with another value.
-                                Syntax MUST be "name=value" with no space beetween "=", example: --color "foo=#444333".
-				Thus replaces any instance of foo with #444333. Can be done with multiple colors separetly.
+    --add-color <string>        Replace instances of a color with another value.
+                                Syntax MUST be "name=value" with no space between "=", example: --color "foo=#444333".
+                                Thus replaces any instance of foo with #444333. Can be done with multiple colors separately.
 
 Read the manual "customfetch.1" or the autogenerated config file for more infos about customfetch and how it works
-)"sv);
+)");
+
+    RETURN_OR_PRINT(help.data());
     std::exit(invalid_opt);
 }
 
-static void modules_list()
+static STRING_IF_ANDROID_APP_ELSE(void) modules_list()
 {
-    fmt::println(R"(
+    constexpr std::string_view list(R"(
 MODULE ONLY
-Should be used in the config as like as $<module>
+Should be used as like as $<module>
 Syntax:
 # maybe comments of the module
 module:
-  description [maybe example of what it prints]
+  description [example of what it prints]
 
 ram:
   used and total amount of RAM (auto) with used percentage [2.81 GiB / 15.88 GiB (5.34%)]
@@ -157,13 +177,13 @@ gpu:
   GPU shorter vendor name and model name [NVIDIA GeForce GTX 1650]
 
 cpu:
-  CPU model name with number of virtual proccessors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]
+  CPU model name with number of virtual processors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]
 
 title:
   user and hostname colored with ${{auto2}} [toni@arch2]
 
 title_sep:
-  separator between the title and the system infos (with the title lenght) [--------]
+  separator between the title and the system infos (with the title length) [--------]
 
 colors:
   color palette with background spaces
@@ -171,74 +191,73 @@ colors:
 colors_light:
   light color palette with background spaces
 
-# with `symb` I mean a symbol to be used for the
+# with `symbol` I mean a symbol to be used for the
 # view of the color palette
-colors_symbol(symb):
+colors_symbol(symbol):
   color palette with specific symbol
 
-# with `symb` I mean a symbol to be used for the
+# with `symbol` I mean a symbol to be used for the
 # view of the color palette
-colors_light_symbol(symb):
+colors_light_symbol(symbol):
   light color palette with specific symbol
 
 MODULE MEMBERS
+Should be used as like as $<module.member>
+NOTE: there are modules such as "user.de_version" that may slow down customfetch because of querying things like the DE version
+      customfetch is still fast tho :)
 Syntax:
 # maybe comments of the module
 module
-  member	: description [example of what it prints, maybe another]
-
-Should be used in the config as like as $<module.member>
-NOTE: there are modules such as "user.de_version" that may slow down customfetch because of querying things like the DE version
-      customfetch is still fast tho :)
+  member: description [example of what it prints; maybe another]
 
 os
-  name		: OS name (pretty name) [Ubuntu 22.04.4 LTS, Arch Linux]
-  name_id	: OS name id [ubuntu, arch]
-  kernel	: kernel name and version [Linux 6.9.3-zen1-1-zen]
-  kernel_name	: kernel name [Linux]
-  kernel_version: kernel version [6.9.3-zen1-1-zen]
-  version_id	: OS version id [22.04.4, 20240101.0.204074]
+  name:             OS name (pretty name) [Ubuntu 22.04.4 LTS; Arch Linux]
+  name_id:          OS name id [ubuntu, arch]
+  kernel:           kernel name and version [Linux 6.9.3-zen1-1-zen]
+  kernel_name:      kernel name [Linux]
+  kernel_version:   kernel version [6.9.3-zen1-1-zen]
+  version_id:       OS version id [22.04.4, 20240101.0.204074]
   version_codename: OS version codename [jammy]
-  pkgs		: the count of the installed packages by a package manager [1869 (pacman), 4 (flatpak)]
-  uptime	: (auto) uptime of the system [36 mins, 3 hours, 23 days]
-  uptime_secs	: uptime of the system in seconds (should be used along with others uptime_ members) [45]
-  uptime_mins   : uptime of the system in minutes (should be used along with others uptime_ members) [12]
-  uptime_hours  : uptime of the system in hours   (should be used along with others uptime_ members) [34]
-  uptime_days	: uptime of the system in days    (should be used along with others uptime_ members) [2]
-  hostname	: hostname of the OS [mymainPC]
-  initsys_name	: Init system name [systemd]
-  initsys_version: Init system version [256.5-1-arch]
+  pkgs:             count of the installed packages by a package manager [1869 (pacman), 4 (flatpak)]
+  uptime:           (auto) uptime of the system [36 mins, 3 hours, 23 days]
+  uptime_secs:      uptime of the system in seconds (should be used along with others uptime_ members) [45]
+  uptime_mins:      uptime of the system in minutes (should be used along with others uptime_ members) [12]
+  uptime_hours:     uptime of the system in hours   (should be used along with others uptime_ members) [34]
+  uptime_days:      uptime of the system in days    (should be used along with others uptime_ members) [2]
+  hostname:         hostname of the OS [myMainPC]
+  initsys_name:     Init system name [systemd]
+  initsys_version:  Init system version [256.5-1-arch]
 
 user
-  name		: name you are currently logged in (not real name) [toni69]
-  shell		: login shell name and version [zsh 5.9]
-  shell_name	: login shell [zsh]
-  shell_path	: login shell (with path) [/bin/zsh]
-  shell_version : login shell version (may be not correct) [5.9]
-  de_name	: Desktop Enviroment current session name [Plasma]
-  wm_name	: Window manager current session name [dwm, xfwm4]
-  wm_version	: Window manager version (may not working correctly) [6.2, 4.18.0]
-  terminal	: Terminal name and version [alacritty 0.13.2]
-  terminal_name	: Terminal name [alacritty]
-  terminal_version: Terminal version [0.13.2]
+  name:             name you are currently logged in (not real name) [toni69]
+  shell:            login shell name and version [zsh 5.9]
+  shell_name:       login shell [zsh]
+  shell_path:       login shell (with path) [/bin/zsh]
+  shell_version:    login shell version (may be not correct) [5.9]
+  de_name:          Desktop Environment current session name [Plasma]
+  wm_name:          Window Manager current session name [dwm; xfwm4]
+  wm_version:       Window Manager version (may not work correctly) [6.2; 4.18.0]
+  terminal:         terminal name and version [alacritty 0.13.2]
+  terminal_name:    terminal name [alacritty]
+  terminal_version: terminal version [0.13.2]
 
 # this module is just for generic theme stuff
 # such as indeed cursor
 # because it is not GTK-Qt specific
 theme
-  cursor	: cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
-  cursor_name	: cursor name [Bibata-Modern-Ice]
-  cursor_size	: cursor size [16]
+  cursor:      cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
+  cursor_name: cursor name [Bibata-Modern-Ice]
+  cursor_size: cursor size [16]
 
 # If USE_DCONF flag is set, then we're going to use
 # dconf, else backing up to gsettings
 theme-gsettings
-  name          : gsettings theme name [Decay-Green]
-  icons         : gsettings icons theme name [Papirus-Dark]
-  font          : gsettings font theme name [Cantarell 10]
-  cursor        : gsettings cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
-  cursor_name   : gsettings cursor name [Bibata-Modern-Ice]
-  cursor_size   : gsettings cursor size [16]
+  name:        gsettings theme name [Decay-Green]
+  icons:       gsettings icons theme name [Papirus-Dark]
+  font:        gsettings font theme name [Cantarell 10]
+  cursor:      gsettings cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
+  cursor_name: gsettings cursor name [Bibata-Modern-Ice]
+  cursor_size: gsettings cursor size [16]
 
 # the N stands for the gtk version number to query
 # so for example if you want to query the gtk3 theme name
@@ -246,18 +265,18 @@ theme-gsettings
 # note: may be slow because of calling "gsettings" if couldn't read from configs.
 #       Read theme-gsettings module comments
 theme-gtkN
-  name		: gtk theme name [Arc-Dark]
-  icons		: gtk icons theme name [Qogir-Dark]
-  font		: gtk font theme name [Noto Sans 10]
+  name:  gtk theme name [Arc-Dark]
+  icons: gtk icons theme name [Qogir-Dark]
+  font:  gtk font theme name [Noto Sans 10]
 
 # basically as like as the "theme-gtkN" module above
 # but with gtk{{2,3,4}} and auto format gkt version
 # note: may be slow because of calling "gsettings" if couldn't read from configs.
 # 	Read theme-gsettings module comments
 theme-gtk-all
-  name          : gtk theme name [Arc-Dark [GTK2/3/4]]
-  icons         : gtk icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]
-  font          : gtk font theme name [Hack Nerd Font 13 [GTK2], Noto Sans 10 [GTK3/4]]
+  name:  gtk theme name [Arc-Dark [GTK2/3/4]]
+  icons: gtk icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]
+  font:  gtk font theme name [Hack Nerd Font 13 [GTK2], Noto Sans 10 [GTK3/4]]
 
 # note: these members are auto displayed in from B to YB (depending if using SI byte unit or not(IEC)).
 # they all (except those that has the same name as the module or that ends with "_perc")
@@ -265,63 +284,74 @@ theme-gtk-all
 # example: if you want to show your 512MiB of used RAM in GiB
 # use the `used-GiB` variant (they don't print the unit tho)
 ram
-  used		: used amount of RAM (auto) [2.81 GiB]
-  free		: available amount of RAM (auto) [10.46 GiB]
-  total		: total amount of RAM (auto) [15.88 GiB]
-  used_perc	: percentage of used amount of RAM in total [17.69%]
-  free_perc	: percentage of available amount of RAM in total [82.31%]
+  used:      used amount of RAM (auto) [2.81 GiB]
+  free:      available amount of RAM (auto) [10.46 GiB]
+  total:     total amount of RAM (auto) [15.88 GiB]
+  used_perc: percentage of used amount of RAM in total [17.69%]
+  free_perc: percentage of available amount of RAM in total [82.31%]
 
 # same comments as RAM (above)
 swap
-  free		: available amount of the swapfile (auto) [34.32 MiB]
-  total		: total amount of the swapfile (auto) [512.00 MiB]
-  used		: used amount of the swapfile (auto) [477.68 MiB]
-  used_perc     : percentage of used amount of the swapfile in total [93.29%]
-  free_perc     : percentage of available amount of the swapfile in total [6.71%]
+  used:      used amount of the swapfile (auto) [477.68 MiB]
+  free:      available amount of the swapfile (auto) [34.32 MiB]
+  total:     total amount of the swapfile (auto) [512.00 MiB]
+  used_perc: percentage of used amount of the swapfile in total [93.29%]
+  free_perc: percentage of available amount of the swapfile in total [6.71%]
 
 # same comments as RAM (above)
 # note: the module can have either a device path
 #	or a filesystem path
 #	e.g disk(/) or disk(/dev/sda5)
 disk(/path/to/fs)
-  used          : used amount of disk space (auto) [360.02 GiB]
-  free          : available amount of disk space (auto) [438.08 GiB]
-  total         : total amount of disk space (auto) [100.08 GiB]
-  used_perc     : percentage of used amount of the disk in total [82.18%]
-  free_perc     : percentage of available amount of the disk in total [17.82%]
-  fs            : type of filesystem [ext4]
-  device	: path to device [/dev/sda5]
-  mountdir	: path to the device mount point [/]
+  used:      used amount of disk space (auto) [360.02 GiB]
+  free:      available amount of disk space (auto) [438.08 GiB]
+  total:     total amount of disk space (auto) [100.08 GiB]
+  used_perc: percentage of used amount of the disk in total [82.18%]
+  free_perc: percentage of available amount of the disk in total [17.82%]
+  fs:        type of filesystem [ext4]
+  device:    path to device [/dev/sda5]
+  mountdir:  path to the device mount point [/]
 
 # usually people have 1 GPU in their PC,
 # but if you got more than 1 and want to query it,
 # you should call gpu module with a number, e.g gpu1 (default gpu0).
 # Infos are gotten from `/sys/class/drm/` and on each cardN directory
 gpu
-  name		: GPU model name [GeForce GTX 1650]
-  vendor	: GPU short vendor name [NVIDIA]
-  vendor_long   : GPU vendor name [NVIDIA Corporation]
+  name:        GPU model name [GeForce GTX 1650]
+  vendor:      GPU short vendor name [NVIDIA]
+  vendor_long: GPU vendor name [NVIDIA Corporation]
 
-# cpu module has a memeber called "temp" and it has 3 variant units:
+# cpu module has a member called "temp" and it has 3 variant units:
 # "temp_C" (Celsius) "temp_F" (Fahrenheit) "temp_K" (Kelvin)
 cpu
-  name		: CPU model name [AMD Ryzen 5 5500]
-  temp		: CPU temperature (by the choosen unit) [40.62]
-  nproc         : CPU number of virtual proccessors [12]
+  name:     CPU model name [AMD Ryzen 5 5500]
+  temp:     CPU temperature (by the chosen unit) [40.62]
+  nproc:    CPU number of virtual processors [12]
+  freq_cur: CPU freq (current, in GHz) [3.42]
+  freq_min: CPU freq (minimum, in GHz) [2.45]
+  freq_max: CPU freq (maximum, in GHz) [4.90]
   freq_bios_limit: CPU freq (limited by bios, in GHz) [4.32]
-  freq_cur	: CPU freq (current, in GHz) [3.42]
-  freq_min	: CPU freq (mininum, in GHz) [2.45]
-  freq_max	: CPU freq (maxinum, in GHz) [4.90]
 
 system
-  host		: Host (aka. Motherboard) model name with vendor and version [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95) 1.0]
-  host_name	: Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
-  host_version	: Host (aka. Motherboard) model version [1.0]
-  host_vendor	: Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
-  arch          : the architecture of the machine [x86_64, aarch64]
+  host:         Host (aka. Motherboard) model name with vendor and version [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95) 1.0]
+  host_name:    Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
+  host_version: Host (aka. Motherboard) model version [1.0]
+  host_vendor:  Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
+  arch:         the architecture of the machine [x86_64, aarch64]
 
-)"sv);
+)");
+
+    RETURN_OR_PRINT(list.data());
     std::exit(EXIT_SUCCESS);
+
+}
+
+static bool str_to_bool(const std::string_view str)
+{
+    if (str == "true" || str == "1" || str == "enable")
+        return true;
+
+    return false;
 }
 
 // clang-format off
@@ -349,7 +379,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
 
             case 'C': 
                 if (!std::filesystem::exists(optarg))
-                    die("config file '{}' doesn't exist", optarg);
+                    die(_("config file '{}' doesn't exist"), optarg);
                 return optarg;
         }
     }
@@ -357,7 +387,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
     return configDir + "/config.toml";
 }
 
-static bool parseargs(int argc, char* argv[], Config& config, const std::string_view configFile)
+static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config& config, const std::string_view configFile)
 {
     int opt = 0;
     int option_index = 0;
@@ -366,11 +396,11 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
-        {"no-display",       no_argument,       0, 'n'},
         {"list-modules",     no_argument,       0, 'l'},
-        {"logo-only",        no_argument,       0, 'L'},
         {"gui",              no_argument,       0, 'g'},
-        {"no-color",         no_argument,       0, 'N'},
+        {"logo-only",        optional_argument, 0, 'L'},
+        {"no-logo",          optional_argument, 0, 'n'},
+        {"no-color",         optional_argument, 0, 'N'},
         {"ascii-logo-type",  optional_argument, 0, 'a'},
         {"offset",           required_argument, 0, 'o'},
         {"font",             required_argument, 0, 'f'},
@@ -381,18 +411,17 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"distro",           required_argument, 0, 'd'},
         {"source-path",      required_argument, 0, 's'},
         {"image-backend",    required_argument, 0, 'i'},
-        
-        {"enable-colors",      no_argument,       0, "enable-colors"_fnv1a16},
+
+        {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
         {"wrap-lines",         optional_argument, 0, "wrap-lines"_fnv1a16},
+        {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
         {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
-        {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
         {"logo-padding-top",   required_argument, 0, "logo-padding-top"_fnv1a16},
         {"logo-padding-left",  required_argument, 0, "logo-padding-left"_fnv1a16},
         {"layout-padding-top", required_argument, 0, "layout-padding-top"_fnv1a16},
         {"bg-image",           required_argument, 0, "bg-image"_fnv1a16},
-        {"color",              required_argument, 0, "color"_fnv1a16},
-        {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
+        {"add-color",          required_argument, 0, "add-color"_fnv1a16},
 
         {0,0,0,0}
     };
@@ -406,20 +435,16 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 0:
                 break;
             case '?':
-                help(EXIT_FAILURE); break;
+                RETURN_IF_ANDROID_APP help(EXIT_FAILURE); break;
 
             case 'V':
-                version(); break;
+                RETURN_IF_ANDROID_APP version(); break;
             case 'h':
-                help(); break;
-            case 'n':
-                config.m_disable_source = true; break;
+                RETURN_IF_ANDROID_APP help(); break;
             case 'l':
-                modules_list(); break;
+                RETURN_IF_ANDROID_APP modules_list(); break;
             case 'f':
                 config.font = optarg; break;
-            case 'L':
-                config.m_print_logo_only = true; break;
             case 'g':
                 config.gui = true; break;
             case 'o':
@@ -439,12 +464,28 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 'i':
                 config.m_image_backend = optarg; break;
             case 'N':
-                config.m_disable_colors = true; break;
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.m_disable_colors = str_to_bool(optarg);
+                else
+                    config.m_disable_colors = true;
+                break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
                     config.ascii_logo_type = optarg;
                 else
                     config.ascii_logo_type.clear();
+                break;
+            case 'n':
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.m_disable_source = str_to_bool(optarg);
+                else
+                    config.m_disable_source = true;
+                break;
+            case 'L':
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    config.m_print_logo_only = str_to_bool(optarg);
+                else
+                    config.m_print_logo_only = true;
                 break;
 
             case "logo-padding-top"_fnv1a16:
@@ -461,12 +502,12 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
             case "wrap-lines"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.wrap_lines = static_cast<bool>(std::stoi(optarg));
+                    config.wrap_lines = str_to_bool(optarg);
                 else
                     config.wrap_lines = true;
                 break;
 
-            case "color"_fnv1a16:
+            case "add-color"_fnv1a16:
                 config.addAliasColors(optarg); break;
 
             case "gen-config"_fnv1a16:
@@ -482,26 +523,54 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case "title-sep"_fnv1a16:
                 config.builtin_title_sep = optarg; break;
 
-            case "enable-colors"_fnv1a16:
-                config.m_disable_colors = false; break;
-
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.sep_reset_after = static_cast<bool>(std::stoi(optarg));
+                    config.sep_reset_after = str_to_bool(optarg);
                 else
                     config.sep_reset_after = true;
                 break;
 
             default:
-                return false;
+                return _false;
         }
     }
 
-    return true;
+    return _true;
 }
 
+static void enable_cursor()
+{
+    fmt::print("\x1B[?25h\x1B[?7h");
+}
+
+/** Sets up gettext localization. Safe to call multiple times.
+ */
+/* Inspired by the monotone function localize_monotone. */
+// taken from pacman
+static void localize(void)
+{
+#if ENABLE_NLS
+    static bool init = false;
+    if (!init)
+    {
+        setlocale(LC_ALL, "");
+        bindtextdomain("customfetch", LOCALEDIR);
+        textdomain("customfetch");
+        init = true;
+    }
+#endif
+}
+
+#if ANDROID_APP
+std::string mainAndroid_and_render(int argc, char *argv[], JNIEnv *env, jobject obj, bool do_not_load_config)
+{
+    jni_objs = {env, obj};
+    // reset option index
+    optind = 0;
+#else
 int main(int argc, char *argv[])
 {
+#endif
 
 #ifdef VENDOR_TEST
     // test
@@ -528,10 +597,23 @@ int main(int argc, char *argv[])
     const std::string& configDir  = getConfigDir();
     const std::string& configFile = parse_config_path(argc, argv, configDir);
 
-    Config config(configFile, configDir, colors);
+    localize();
 
+#if ANDROID_APP
+    Config config(configFile, configDir, colors, do_not_load_config);
+    const std::string& parseargs_ret = parseargs(argc, argv, config, configFile);
+    if (parseargs_ret != _true)
+        return parseargs_ret;
+
+    // since ANDROID_APP means that it will run as an android widget, so in GUI,
+    // then let's make it always true
+    config.gui = true;
+    config.wrap_lines = true;
+#else
+    Config config(configFile, configDir, colors, false);
     if (!parseargs(argc, argv, config, configFile))
         return 1;
+#endif // ANDROID_APP
 
     if (config.source_path.empty() || config.source_path == "off")
         config.m_disable_source = true;
@@ -557,9 +639,10 @@ int main(int argc, char *argv[])
     debug("{} path = {}", __PRETTY_FUNCTION__, path);
 
     if (!std::filesystem::exists(path) && !config.m_disable_source)
-        die("'{}' doesn't exist. Can't load image/text file", path);
+        die(_("'{}' doesn't exist. Can't load image/text file"), path);
 
-#ifdef GUI_MODE
+#if !ANDROID_APP
+#if GUI_MODE
     if (config.gui)
     {
         const auto  app = Gtk::Application::create("org.toni.customfetch");
@@ -568,24 +651,31 @@ int main(int argc, char *argv[])
     }
 #else
     if (config.gui)
-        die("Can't run in GUI mode because it got disabled at compile time\n"
-            "Compile customfetch with GUI_MODE=1 or contact your distro to enable it");
-#endif
+        die(_("Can't run in GUI mode because it got disabled at compile time\n"
+              "Compile customfetch with GUI_MODE=1 or contact your distro to enable it"));
+#endif // GUI_MODE
 
-    if (config.wrap_lines)
+    if (!config.wrap_lines)
     {
+        // https://en.cppreference.com/w/c/program/exit
+        // if something goes wrong like a segfault, then re-enable the cursor again
+        std::atexit(enable_cursor);
+        
         // hide cursor and disable line wrapping
         fmt::print("\x1B[?25l\x1B[?7l");
-        
+
         Display::display(Display::render(config, colors, false, path));
 
         // enable both of them again
-        fmt::print("\x1B[?25h\x1B[?7h");
+        enable_cursor();
     }
     else
     {
         Display::display(Display::render(config, colors, false, path));
     }
+#else
+    return fmt::format("{}", fmt::join(Display::render(config, colors, false, path), "<br>"));
+#endif // !ANDROID_APP
 
-    return 0;
+    return _false; // 0 or "false"
 }

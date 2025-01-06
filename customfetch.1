@@ -108,14 +108,11 @@ e.g "the number 50 is \\< than 100 \\& 98"
 
 .SH OPTIONS
 .TP
-\fB\-n\fR, \fB\-\-no\-display\fR
+\fB\-n\fR, \fB\-\-no\-logo\fR [<bool>]
 Do not display the logo
 .TP
-\fB\-N\fR, \fB\-\-no\-color\fR
+\fB\-N\fR, \fB\-\-no\-color\fR [<bool>]
 Do not output and parse colors. Useful for stdout or pipe operations
-.TP
-\fB\-\-enable\-colors\fR
-Inverse of --no-color
 .TP
 \fB\-s\fR, \fB\-\-source\-path\fR <path>
 Path to the ascii art file to display
@@ -123,7 +120,7 @@ Path to the ascii art file to display
 \fB\-C\fR, \fB\-\-config\fR <path>
 Path to the config file to use
 .TP
-\fB\-a\fR, \fB\-\-ascii-logo-type\fR [<name>]
+\fB\-a\fR, \fB\-\-ascii-logo-type\fR [<type>]
 The type of ASCII art to apply ("small" or "old").
 .br
 Basically will add "_<type>" to the logo filename.
@@ -148,7 +145,7 @@ An example: "[Liberation Mono] [Normal] [12]", which can be "Liberation Mono Nor
 .br
 It's recommended to use GUI mode for the moment if something doesn't work
 .TP
-\fB\-m\fR, \fB\-\-layout\-line\fR
+\fB\-m\fR, \fB\-\-layout\-line\fR <string>
 Will replace the config layout, with a layout you specify in the arguments
 .br
 Example: "customfetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>" "
@@ -159,7 +156,7 @@ Will only print the logo (if not disabled), along side the parsed OS and CPU
 Use GUI mode instead of priting in the terminal (use \fB\-V\fR to check if it's enabled)
 .TP
 \fB\-p\fR, \fB\-\-logo-position\fR <value>
-Position of the logo ("top" or "left")
+Position of the logo ("top" or "left" or "bottom")
 .TP
 \fB\-o\fR, \fB\-\-offset\fR <num>
 Offset between the ascii art and the system infos
@@ -170,7 +167,7 @@ Print the list of the tags and its members
 \fB\-h\fR, \fB\-\-help\fR
 Print this help menu
 .TP
-\fB\-L\fR, \fB\-\-logo\-only\fR
+\fB\-L\fR, \fB\-\-logo\-only\fR [<bool>]
 Print only the logo
 .TP
 \fB\-V\fR, \fB\-\-version\fR
@@ -179,8 +176,8 @@ Print the version along with the git branch it was built
 \fB\-\-bg\-image\fR <path>
 Path to image to be used in the background in GUI (put "disable" for disabling in the config)
 .TP
-\fB\-\-wrap\-lines\fR [<0,1>]
-Disable (0) or Enable (1) wrapping lines when printing in terminal
+\fB\-\-wrap\-lines\fR [<bool>]
+Wrap lines when printing in terminal
 .TP
 \fB\-\-logo\-padding\-top\fR <num>
 Padding of the logo from the top
@@ -188,21 +185,24 @@ Padding of the logo from the top
 \fB\-\-logo\-padding\-left\fR <num>
 Padding of the logo from the left
 .TP
+\fB\-\-layout\-padding\-top\fR <num>
+Padding of the layout from the top
+.TP
 \fB\-\-title\-sep\fR <string>
-A char (or string) to use in $<builtin.title_sep>
+A character (or string) to use in $<builtin.title_sep>
 .TP
 \fB\-\-sep\-reset\fR <string>
-A separator (or string) that when encountered, will automatically reset color
+A character (or string) that when encountered, will automatically reset color
 .TP
-\fB\-\-sep\-reset\-after\fR [<num>]
-Reset color either before of after 'sep-reset' (1 = after && 0 = before)
+\fB\-\-sep\-reset\-after\fR [<bool>]
+Reset color either before or after 'sep-reset'
 .TP
 \fB\-\-gen\-config\fR [<path>]
 Generate default config file to config folder (if path, it will generate to the path)
 .br
 Will ask for confirmation if file exists already
 .TP
-\fB\-\-color\fR <string>
+\fB\-\-add\-color\fR <string>
 Replace instances of a color with another value.
 .br
 Syntax MUST be "name=value" with no space between "=", example: --color "foo=#444333".

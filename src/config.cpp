@@ -32,21 +32,24 @@
 
 #include "util.hpp"
 
-Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors)
+Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors, bool do_not_load)
 {
     if (!std::filesystem::exists(configDir))
     {
-        warn("customfetch config folder was not found, Creating folders at {}!", configDir);
+#if !ANDROID_APP
+        warn(_("customfetch config folder was not found, Creating folders at {}!"), configDir);
+#endif
         std::filesystem::create_directories(configDir);
     }
 
     if (!std::filesystem::exists(configFile))
     {
-        warn("config file {} not found, generating new one", configFile);
+        warn(_("config file {} not found, generating new one"), configFile);
         this->generateConfig(configFile);
     }
 
-    this->loadConfigFile(configFile, colors);
+    if (!do_not_load)
+        this->loadConfigFile(configFile, colors);
 }
 
 void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
@@ -57,9 +60,11 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     }
     catch (const toml::parse_error& err)
     {
-        error("Parsing config file {} failed:", filename);
-        std::cerr << err << std::endl;
-        exit(-1);
+        die(_("Parsing config file '{}' failed:\n"
+              "{}\n"
+              "\t(error occurred at line {} column {})"),
+            filename, err.description(),
+            err.source().begin.line, err.source().begin.column);
     }
 
     // clang-format off
@@ -70,7 +75,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->slow_query_warnings = getValue<bool>("config.slow-query-warnings", false);
     this->sep_reset_after     = getValue<bool>("config.sep-reset-after", false);
     this->use_SI_unit         = getValue<bool>("config.use-SI-byte-unit", false);
-    this->wrap_lines          = getValue<bool>("config.wrap-lines", true);
+    this->wrap_lines          = getValue<bool>("config.wrap-lines", false);
     this->offset              = getValue<std::uint16_t>("config.offset", 5);
     this->logo_padding_left   = getValue<std::uint16_t>("config.logo-padding-left", 0);
     this->layout_padding_top  = getValue<std::uint16_t>("config.layout-padding-top", 0);
@@ -115,8 +120,8 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     if (this->percentage_colors.size() < 3)
     {
-        warn("the config array percentage-colors doesn't have 3 colors for being used in percentage tag and modules\n"
-             "backing up to green, yellow and red");
+        warn(_("the config array percentage-colors doesn't have 3 colors for being used in percentage tag and modules\n"
+               "backing up to green, yellow and red"));
         this->percentage_colors = {"green", "yellow", "red"};
     }
 
@@ -128,7 +133,6 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
         this->m_disable_colors = true;
 }
 
-// Config::getValue() but don't want to specify the template
 std::string Config::getThemeValue(const std::string_view value, const std::string_view fallback) const
 {
     return this->tbl.at_path(value).value<std::string>().value_or(fallback.data());
@@ -147,12 +151,9 @@ std::vector<std::string> Config::getValueArrayStr(const std::string_view        
             [&ret, value](auto&& el)
             {
                 if (const toml::value<std::string>* str_elem = el.as_string())
-                {
-                    const toml::value<std::string>& v = *str_elem;
-                    ret.push_back(v->data());
-                }
+                    ret.push_back((*str_elem)->data());
                 else
-                    warn("An element of the {} array variable is not a string", value);
+                    warn(_("An element of the '{}' array variable is not a string"), value);
             }
         );
     }
@@ -166,8 +167,8 @@ void Config::addAliasColors(const std::string& str)
 {
     const size_t pos = str.find('=');
     if (pos == std::string::npos)
-        die("alias color '{}' does NOT have an equal sign '=' for separiting color name and value.\n"
-            "for more check with --help", str);
+        die(_("alias color '{}' does NOT have an equal sign '=' for separating color name and value.\n"
+            "for more check with --help"), str);
 
     const std::string& name  = str.substr(0, pos);
     const std::string& value = str.substr(pos + 1);
@@ -178,11 +179,13 @@ void Config::addAliasColors(const std::string& str)
 
 void Config::generateConfig(const std::string_view filename)
 {
+#if !ANDROID_APP
     if (std::filesystem::exists(filename))
     {
         if (!askUserYorN(false, "WARNING: config file {} already exists. Do you want to overwrite it?", filename))
             std::exit(1);
     }
+#endif
 
     std::ofstream f(filename.data(), std::ios::trunc);
     f << AUTOCONFIG;

@@ -198,7 +198,7 @@ std::string get_mate_version()
     rapidxml::xml_node<>* root_node = doc.first_node("mate-version");
     if (!root_node)
     {
-        error("Root node <mate-version> not found");
+        error(_("Root node <mate-version> not found"));
         return UNKNOWN;
     }
 

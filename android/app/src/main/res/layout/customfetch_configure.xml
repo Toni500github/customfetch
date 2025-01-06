@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:labelFor="@id/arguments_configure"
+        android:text="@string/configure" />
+
+    <EditText
+        android:id="@+id/arguments_configure"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="EXAMPLE"
+        android:inputType="text" />
+
+    <CheckBox
+        android:id="@+id/disableWrapLinesCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:labelFor="@+id/arguments_configure"
+        android:text="@string/disable_wrap_lines" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:labelFor="@id/arguments_configure"
+        android:text="@string/additional_truncate" />
+
+    <EditText
+        android:id="@+id/additional_truncate_width"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="0.6"
+        android:inputType="text" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="30dp"
+        android:labelFor="@id/color_picker_hex"
+        android:text="@string/background_color" />
+
+    <RadioGroup
+        android:id="@+id/select_bg_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <RadioButton
+            android:id="@+id/radio_system_bg_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/use_system_theme_color" />
+
+        <RadioButton
+            android:id="@+id/radio_transparent_bg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transparent_background" />
+
+        <RadioButton
+            android:id="@+id/radio_custom_colors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/custom_color"/>
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/custom_color_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <EditText
+            android:id="@+id/color_picker_hex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Hex Color Code (#AARRGGBB)"
+            android:inputType="text" />
+
+        <com.skydoves.colorpickerview.ColorPickerView
+            android:id="@+id/colorPickerView"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            app:initialColor="@color/cardview_dark_background" />
+
+        <!-- padding separator -->
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
+
+        <com.skydoves.colorpickerview.sliders.AlphaSlideBar
+            android:id="@+id/alphaSlideBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:selector_AlphaSlideBar="@drawable/colorpickerview_wheel"
+            app:borderColor_AlphaSlideBar="@android:color/darker_gray"
+            app:borderSize_AlphaSlideBar="5"/>
+
+        <!-- padding separator -->
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="20dp" />
+
+        <com.skydoves.colorpickerview.sliders.BrightnessSlideBar
+            android:id="@+id/brightnessSlideBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:borderColor_BrightnessSlider="@android:color/darker_gray"
+            app:borderSize_BrightnessSlider="5"
+            app:selector_BrightnessSlider="@drawable/colorpickerview_wheel" />
+
+        <View
+            android:id="@+id/colorPreview"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:background="#FFFFFF" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/add_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/add_widget" />
+
+    <CheckBox
+        android:id="@+id/show_modules_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:labelFor="@+id/add_button"
+        android:text="@string/modules_list" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/args_help"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="monospace"
+            android:text="yooooloooooooooooooooooooooooooooooooooooooooooo" />
+
+    </HorizontalScrollView>
+
+</LinearLayout>
+</androidx.core.widget.NestedScrollView>

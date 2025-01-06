@@ -32,9 +32,11 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <ios>
 #include <optional>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "config.hpp"
@@ -114,10 +116,12 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 {
     const size_t first_m = str.rfind('m');
     if (first_m == std::string::npos)
-        die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
+        die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '{}'"), str);
 
     std::string col = str.data();
     col.erase(first_m);  // 1;42
+
+#if !ANDROID_APP
     std::string weight = hasStart(col, "1;") ? "bold" : "normal";
     std::string type   = "fgcolor";  // either fgcolor or bgcolor
 
@@ -133,6 +137,17 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 
     if ((n >= 100 && n <= 107) || (n >= 40 && n <= 47))
         type = "bgcolor";
+#else
+    std::string weight = hasStart(col, "1;") ? "<b>" : "";
+    std::string type   = "color";  // either color or background-color
+
+    if (hasStart(col, "1;") || hasStart(col, "0;"))
+        col.erase(0, 2);
+
+    const int n = std::stoi(col);
+    if ((n >= 100 && n <= 107) || (n >= 40 && n <= 47))
+        type = "background-color";
+#endif // !ANDROID_APP
 
     // last number
     // clang-format off
@@ -158,19 +173,19 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 {
     if (std::count(noesc_str.begin(), noesc_str.end(), ';') < 4)
-        die("ANSI escape code color '\\e[{}' should have an rgb type value\n"
-            "e.g \\e[38;2;255;255;255m",
+        die(_("ANSI escape code color '\\e[{}' should have an rgb type value\n"
+              "e.g \\e[38;2;255;255;255m"),
             noesc_str);
     if (noesc_str.rfind('m') == std::string::npos)
-        die("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code");
+        die(_("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code"));
 
     const std::vector<std::string>& rgb_str = split(noesc_str.substr(5), ';');
 
     const uint r = std::stoul(rgb_str.at(0));
     const uint g = std::stoul(rgb_str.at(1));
     const uint b = std::stoul(rgb_str.at(2));
-
-    const uint        result = (r << 16) | (g << 8) | (b);
+    const uint result = (r << 16) | (g << 8) | (b);
+    
     std::stringstream ss;
     ss << std::hex << result;
     return ss.str();
@@ -178,19 +193,19 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 
 std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
 {
-    return parse(input.data(), parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+    return parse(input.data(), parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
 std::string parse(const std::string_view input, parse_args_t& parse_args)
 {
-    return parse(input.data(), parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout);
+    return parse(input.data(), parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
                                             const bool invert = false)
 {
     const Config& config = parse_args.config;
-    const float   result = static_cast<float>(n1 / n2 * static_cast<float>(100));
+    const float   result = n1 / n2 * static_cast<float>(100);
 
     std::string color;
     if (!invert)
@@ -286,14 +301,25 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 
     if (!evaluate)
         return {};
-    
-    static std::vector<std::string> auto_colors;
 
-    std::string         output;
-    const Config&       config  = parse_args.config;
-    const colors_t&     colors  = parse_args.colors;
-    const size_t        taglen  = color.length() + "${}"_len;
-    const std::string   endspan = (!parse_args.firstrun_clr ? "</span>" : "");
+    std::string       output;
+    const Config&     config  = parse_args.config;
+    const colors_t&   colors  = parse_args.colors;
+    const size_t      taglen  = color.length() + "${}"_len;
+
+#if ANDROID_APP
+    std::string&      endspan = parse_args.endspan;
+    output += endspan;
+    endspan.clear();
+
+    const auto& append_endspan = [&endspan](const std::string_view tag) {
+            endspan += "</";
+            endspan += tag;
+            endspan += ">";
+    };
+#else
+    const std::string endspan = (!parse_args.firstrun_clr ? "</span>" : "");
+#endif
 
     if (config.m_disable_colors)
     {
@@ -341,6 +367,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     }
 
 jumpauto:
+#if !ANDROID_APP
     if (color == "1")
     {
         output += config.gui ? endspan + "<span weight='bold'>" : NOCOLOR_BOLD;
@@ -379,7 +406,7 @@ jumpauto:
                     {
                         const size_t closebrak = opt_clr.find(')', argmode_pos);
                         if (closebrak == std::string::npos)
-                            die("{} mode in color {} doesn't have close bracket", error, str_clr);
+                            die(_("{} mode in color {} doesn't have close bracket"), error, str_clr);
 
                         const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
                         tagfmt += fmt.data() + value + "' ";
@@ -464,6 +491,10 @@ jumpauto:
                     const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
                     output += fmt::format("{}<span {}gcolor='#{}'>", endspan, hasStart(noesc_str, "38") ? 'f' : 'b', hexclr);
                 }
+                else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
+                {
+                    die(_("256 true color '{}' works only in terminal"), noesc_str);
+                }
                 else
                 {
                     const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
@@ -476,7 +507,7 @@ jumpauto:
 
             else
             {
-                error("PARSER: failed to parse line with color '{}'", str_clr);
+                error(_("PARSER: failed to parse line with color '{}'"), str_clr);
                 if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
                     parse_args.pureOutput.erase(parser.dollar_pos, taglen);
                 return output;
@@ -570,17 +601,207 @@ jumpauto:
 
             else
             {
-                error("PARSER: failed to parse line with color '{}'", str_clr);
+                error(_("PARSER: failed to parse line with color '{}'"), str_clr);
                 if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
                     parse_args.pureOutput.erase(parser.dollar_pos, taglen);
                 return output;
             }
+        }
+        if (!parse_args.parsingLayout &&
+            std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
+            auto_colors.push_back(color);
+    }
+#else
+    if (color == "1")
+    {
+        output += "<b>";
+        append_endspan("b");
+    }
+    else if (color == "0")
+    {
+        output += "<span>";
+        append_endspan("span");
+    }
+    else
+    {
+        std::string str_clr;
+        switch (fnv1a16::hash(color))
+        {
+            case "black"_fnv1a16:   str_clr = colors.gui_black; break;
+            case "red"_fnv1a16:     str_clr = colors.gui_red; break;
+            case "blue"_fnv1a16:    str_clr = colors.gui_blue; break;
+            case "green"_fnv1a16:   str_clr = colors.gui_green; break;
+            case "cyan"_fnv1a16:    str_clr = colors.gui_cyan; break;
+            case "yellow"_fnv1a16:  str_clr = colors.gui_yellow; break;
+            case "magenta"_fnv1a16: str_clr = colors.gui_magenta; break;
+            case "white"_fnv1a16:   str_clr = colors.gui_white; break;
+            default:                str_clr = color; break;
+        }
+
+        const size_t pos = str_clr.rfind('#');
+        if (pos != std::string::npos)
+        {
+            std::string        tagfmt;
+            const std::string& opt_clr = str_clr.substr(0, pos);
+            const std::string& hexclr  = str_clr.substr(pos + 1);
+
+            size_t      argmode_pos       = 0;
+            /*const auto& get_argmode_value = [&](const std::string_view error) -> std::string {
+                if (opt_clr.at(argmode_pos + 1) == '(')
+                {
+                    const size_t closebrak = opt_clr.find(')', argmode_pos);
+                    if (closebrak == std::string::npos)
+                        die(_("{} mode in tag color {} doesn't have close bracket"), error, str_clr);
+
+                    const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
+                    return value;
+                }
+                return "";
+            };*/
+
+            const auto& append_argmode = [&](const std::string_view fmt, const std::string_view error) -> size_t {
+                if (opt_clr.at(argmode_pos + 1) == '(')
+                {
+                    const size_t closebrak = opt_clr.find(')', argmode_pos);
+                    if (closebrak == std::string::npos)
+                        die(_("{} mode in tag color {} doesn't have close bracket"), error, str_clr);
+
+                    const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
+                    tagfmt += fmt.data() + value + ";\">";
+
+                    return closebrak;
+                }
+                return 0;
+            };
+
+            const auto& skip_gui_argmode = [&](const size_t index) -> size_t {
+                if (opt_clr.at(index + 1) == '(')
+                {
+                    const size_t closebrak = opt_clr.find(')', index);
+                    if (closebrak == std::string::npos)
+                        return 0;
+
+                    return closebrak;
+                }
+                return 0;
+            };
+
+            bool bgcolor = false;
+            for (size_t i = 0; i < opt_clr.length(); ++i)
+            {
+                switch (opt_clr.at(i))
+                {
+                    case 'b':
+                        bgcolor = true;
+                        tagfmt += "<span style=\"background-color:" + str_clr.substr(pos) + ";\">";
+                        break;
+                    case '!': tagfmt += "<b>"; append_endspan("b"); break;
+                    case 'u': tagfmt += "<u>"; append_endspan("u"); break;
+                    case 'i': tagfmt += "<i>"; append_endspan("i"); break;
+                    case 's': tagfmt += "<s>"; append_endspan("s"); break;
+
+                    case 'B':
+                        argmode_pos = i;
+                        i += append_argmode("<span style=\"background-color:", "bgcolor");
+                        append_endspan("font");
+                        break;
+
+                    case 'S':
+                        argmode_pos = i;
+                        i += append_argmode("<span style=\"color:", "color of strikethrough line");
+                        tagfmt += "<s>";
+                        append_endspan("span");
+                        append_endspan("s");
+                        break;
+
+                    case 'a':
+                    case 'A':
+                    // alpha setting doesn't seem to work correctly no matter what. disabling for now.
+                    // if someone could help I would really really appreciate it
+                    /*{
+                        argmode_pos = i;
+                        std::string alpha_s = get_argmode_value("f/bgcolor alpha");
+                        std::uint16_t alpha = 0;
+                        const size_t perc_pos = alpha_s.find('%');
+                        if (perc_pos != alpha_s.npos)
+                        {
+                            alpha_s.erase(perc_pos);
+                            alpha = (std::stoi(alpha_s) * 0xf / 100);
+                        }
+                        else
+                        {
+                            alpha = std::stoi(alpha_s);
+                        }
+
+                        std::stringstream ss;
+                        ss << std::hex << alpha;
+                        if (hexclr.length() <= 6)
+                            str_clr.insert(pos + 1, ss.str());
+                        else
+                            str_clr.replace(pos + 1, 2, ss.str());
+
+                        i += skip_gui_argmode(i);
+                        break;
+                    }*/
+
+                    case 'L':
+                    case 'U':
+                    case 'w':
+                    case 'O':
+                    case 'o': i += skip_gui_argmode(i);
+
+                }
+            }
+
+            if (!bgcolor)
+                tagfmt += "<span style=\"color:" + str_clr.substr(pos) + ";\">";
+
+            append_endspan("span");
+            output += tagfmt;
+        }
+
+        // "\\e" is for checking in the ascii_art, \033 in the config
+        else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
+        {
+            const std::string& noesc_str = hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
+            debug("noesc_str = {}", noesc_str);
+
+            if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
+            {
+                const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
+                output += fmt::format("<span style=\"{}color:#{};\">", hasStart(noesc_str, "48") ? "background-" : "", hexclr);
+            }
+            else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
+            {
+                die(_("256 true color '{}' works only in terminal"), noesc_str);
+            }
+            else
+            {
+                const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
+                const std::string_view            color  = clrs.at(0);
+                const std::string_view            weight = clrs.at(1);
+                const std::string_view            type   = clrs.at(2);
+                output += fmt::format("{}<span style=\"{}:{};\">", weight, type, color);
+
+                if (weight == "<b>")
+                    append_endspan("b");
+            }
+            append_endspan("span");
+        }
+
+        else
+        {
+            error(_("PARSER: failed to parse line with color '{}'"), str_clr);
+            if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+                parse_args.pureOutput.erase(parser.dollar_pos, taglen);
+            return output;
         }
 
         if (!parse_args.parsingLayout &&
             std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
             auto_colors.push_back(color);
     }
+#endif // !ANDROID_APP
 
     if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
         parse_args.pureOutput.erase(parser.dollar_pos, taglen);
@@ -635,7 +856,7 @@ std::optional<std::string> parse_perc_tag(Parser& parser, parse_args_t& parse_ar
 
     const size_t comma_pos = command.find(',');
     if (comma_pos == std::string::npos)
-        die("percentage tag '{}' doesn't have a comma for separating the 2 numbers", command);
+        die(_("percentage tag '{}' doesn't have a comma for separating the 2 numbers"), command);
 
     const bool invert = (command.front() == '!');
 
@@ -680,7 +901,7 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
     {
         if (until != 0 && parser.is_eof())
         {
-            error("PARSER: Missing tag close bracket {} in string '{}'", until, parser.src);
+            error(_("PARSER: Missing tag close bracket {} in string '{}'"), until, parser.src);
             return result;
         }
 
@@ -702,14 +923,16 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
 }
 
 std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  const colors_t& colors, const bool parsingLayout)
+                  const colors_t& colors, const bool parsingLayout, bool& no_more_reset)
 {
-    if (!config.sep_reset.empty() && parsingLayout)
+    if (!config.sep_reset.empty() && parsingLayout && !no_more_reset)
     {
         if (config.sep_reset_after)
             replace_str(input, config.sep_reset, config.sep_reset + "${0}");
         else
             replace_str(input, config.sep_reset, "${0}" + config.sep_reset);
+
+        no_more_reset = true;
     }
 
     // escape pango markup
@@ -725,14 +948,25 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
         replace_str(input, "\\<", "<");
         replace_str(input, "\\&", "&");
     }
+#if ANDROID_APP
+    if (!parsingLayout)
+        replace_str(input, " ", "&nbsp;");
+#endif
 
-    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true };
+    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true, no_more_reset, "" };
     Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };
 
+#if ANDROID_APP
+    if (config.gui && !parse_args.firstrun_clr)
+        ret += parse_args.endspan;
+#else
     if (config.gui && !parse_args.firstrun_clr)
         ret += "</span>";
+#endif
+
+    replace_str(parse_args.pureOutput, "&nbsp;", " ");
 
     return ret;
 }
@@ -846,10 +1080,10 @@ static std::string prettify_de_name(const std::string_view de_name)
     return de_name.data();
 }
 
-std::vector<std::uint16_t> queried_gpus;
-std::vector<std::string>   queried_disks;
-std::vector<std::string>   queried_themes_names;
-systemInfo_t               queried_themes;
+systemInfo_t queried_gpus;
+systemInfo_t queried_disks;
+systemInfo_t queried_themes_names;
+systemInfo_t queried_themes;
 
 // clang-format on
 void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args)
@@ -1017,7 +1251,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
     else if (moduleName == "theme")
     {
-        Query::Theme query_theme(queried_themes, config, false);
+        Query::Theme query_theme(config, false);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1047,7 +1281,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         {
             if (hasStart(moduleMemberName, "cursor"))
             {
-                Query::Theme query_cursor(queried_themes, config, true);
+                Query::Theme query_cursor(config, true);
                 switch (moduleMember_hash)
                 {
                     case "cursor"_fnv1a16:
@@ -1062,7 +1296,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
             }
             else
             {
-                Query::Theme query_theme(0, queried_themes, queried_themes_names, "gsettings", config, true);
+                Query::Theme query_theme(0, queried_themes, "gsettings", config, true);
                 switch (moduleMember_hash)
                 {
                     case "name"_fnv1a16:  SYSINFO_INSERT(query_theme.gtk_theme()); break;
@@ -1076,9 +1310,9 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
     // clang-format off
     else if (moduleName == "theme-gtk-all")
     {
-        Query::Theme gtk2(2, queried_themes, queried_themes_names, "gtk2", config);
-        Query::Theme gtk3(3, queried_themes, queried_themes_names, "gtk3", config);
-        Query::Theme gtk4(4, queried_themes, queried_themes_names, "gtk4", config);
+        Query::Theme gtk2(2, queried_themes, "gtk2", config);
+        Query::Theme gtk3(3, queried_themes, "gtk3", config);
+        Query::Theme gtk4(4, queried_themes, "gtk4", config);
         
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1100,11 +1334,11 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
             static_cast<std::uint8_t>(moduleName.length() > 9 ? std::stoi(moduleName.substr(9)) : 0);
 
         if (ver <= 0)
-            die("seems theme-gtk module name '{}' doesn't have a version number to query.\n"
-                "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)",
+            die(_("seems theme-gtk module name '{}' doesn't have a version number to query.\n"
+                  "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to query (single number)"),
                 moduleName);
 
-        Query::Theme query_theme(ver, queried_themes, queried_themes_names, fmt::format("gtk{}", ver), config);
+        Query::Theme query_theme(ver, queried_themes, fmt::format("gtk{}", ver), config);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1153,8 +1387,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
     else if (hasStart(moduleName, "gpu"))
     {
-        const std::uint16_t id =
-            static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3)) : 0);
+        const std::string& id = moduleName.length() > 3 ? moduleName.substr(3) : "0";
 
         Query::GPU query_gpu(id, queried_gpus);
 
@@ -1175,7 +1408,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
     else if (hasStart(moduleName, "disk"))
     {
         if (moduleName.length() < "disk()"_len)
-            die("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)", moduleName);
+            die(_("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)"), moduleName);
 
         enum
         {
@@ -1183,7 +1416,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
             TOTAL,
             FREE
         };
-        std::string path = moduleName.data();
+        std::string path{moduleName.data()};
         path.erase(0, 5);  // disk(
         path.pop_back();   // )
         debug("disk path = {}", path);
@@ -1354,7 +1587,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
     }
 
     else
-        die("Invalid module name: {}", moduleName);
+        die(_("Invalid module name: {}"), moduleName);
 
 #undef SYSINFO_INSERT
 }
@@ -1418,8 +1651,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
     else if (hasStart(moduleName, "gpu"))
     {
-        const std::uint16_t id =
-            static_cast<std::uint16_t>(moduleName.length() > 3 ? std::stoi(std::string(moduleName).substr(3)) : 0);
+        const std::string& id = (moduleName.length() > 3 ? moduleName.substr(3) : "0");
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1434,7 +1666,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
     else if (hasStart(moduleName, "disk"))
     {
         if (moduleName.length() < "disk()"_len)
-            die("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)", moduleName);
+            die(_("invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)"), moduleName);
 
         enum
         {
@@ -1544,7 +1776,11 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
+#if !ANDROID_APP
             SYSINFO_INSERT(parse("${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   ${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}", _, parse_args));
+#else // bruh why the android HTML implementation gotta be so dumb
+            SYSINFO_INSERT(parse("${\033[40m}&nbsp;&nbsp;&nbsp;${\033[41m}&nbsp;&nbsp;&nbsp;${\033[42m}&nbsp;&nbsp;&nbsp;${\033[43m}&nbsp;&nbsp;&nbsp;${\033[44m}&nbsp;&nbsp;&nbsp;${\033[45m}&nbsp;&nbsp;&nbsp;${\033[46m}&nbsp;&nbsp;&nbsp;${\033[47m}&nbsp;&nbsp;&nbsp;${0}", _, parse_args));
+#endif
         }
     }
 
@@ -1555,7 +1791,11 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
+#if !ANDROID_APP
             SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", _, parse_args));
+#else
+            SYSINFO_INSERT(parse("${\033[100m}&nbsp;&nbsp;&nbsp;${\033[101m}&nbsp;&nbsp;&nbsp;${\033[102m}&nbsp;&nbsp;&nbsp;${\033[103m}&nbsp;&nbsp;&nbsp;${\033[104m}&nbsp;&nbsp;&nbsp;${\033[105m}&nbsp;&nbsp;&nbsp;${\033[106m}&nbsp;&nbsp;&nbsp;${\033[107m}&nbsp;&nbsp;&nbsp;${0}", _, parse_args));
+#endif
         }
     }
     
@@ -1569,9 +1809,9 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             if (moduleName.length() <= "colors_symbol()"_len)
-                die("color palette module member '{}' in invalid.\n"
-                    "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
-                    "e.g 'colors_symbol(@)' or 'colors_symbol(string)'",
+                die(_("color palette module member '{}' in invalid.\n"
+                      "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"
+                      "e.g 'colors_symbol(@)' or 'colors_symbol(string)'"),
                     moduleName);
 
             std::string symbol = moduleName;
@@ -1593,9 +1833,9 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             if (moduleName.length() <= "colors_light_symbol()"_len)
-                die("light color palette module member '{}' in invalid.\n"
-                    "Must be used like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
-                    "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'",
+                die(_("light color palette module member '{}' in invalid.\n"
+                      "Must be used like 'colors_light_symbol(`symbol for printing the color palette`)'.\n"
+                      "e.g 'colors_light_symbol(@)' or 'colors_light_symbol(string)'"),
                     moduleName);
 
             std::string symbol = moduleName;
@@ -1610,5 +1850,5 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
     }
 
     else
-        die("Invalid module name: {}", moduleName);
+        die(_("Invalid module name: {}"), moduleName);
 }

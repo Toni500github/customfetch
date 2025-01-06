@@ -23,6 +23,9 @@
  *
  */
 
+#include "platform.hpp"
+#if CF_UNIX
+
 #include <linux/limits.h>
 #include <unistd.h>
 
@@ -92,7 +95,7 @@ static System::System_t get_system_infos_lsb_releases()
     std::ifstream os_release_file(lsb_release_path, std::ios::in);
     if (!os_release_file.is_open())
     {
-        error("Failed to get OS infos", lsb_release_path);
+        error(_("Failed to get OS infos"), lsb_release_path);
         return ret;
     }
 
@@ -133,7 +136,7 @@ static System::System_t get_system_infos_os_releases()
     std::ifstream os_release_file(os_release_path, std::ios::in);
     if (!os_release_file.is_open())
     {
-        //error("Could not open '{}'\nFailed to get OS infos", os_release_path);
+        //error(_("Could not open '{}'\nFailed to get OS infos"), os_release_path);
         return ret;
     }
 
@@ -166,10 +169,10 @@ System::System()
     if (!m_bInit)
     {
         if (uname(&m_uname_infos) != 0)
-            die("uname() failed: {}\nCould not get system infos", strerror(errno));
+            die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
 
         if (sysinfo(&m_sysInfos) != 0)
-            die("sysinfo() failed: {}\nCould not get system infos", strerror(errno));
+            die(_("sysinfo() failed: {}\nCould not get system infos"), strerror(errno));
 
         m_system_infos = get_system_infos_os_releases();
         if (m_system_infos.os_name == UNKNOWN || m_system_infos.os_pretty_name == UNKNOWN)
@@ -230,7 +233,7 @@ std::string& System::os_initsys_name()
         // This will always succeed (because we are on linux)
         std::ifstream f_initsys("/proc/1/comm", std::ios::binary);
         if (!f_initsys.is_open())
-            die("/proc/1/comm doesn't exist! (what?)");
+            die(_("/proc/1/comm doesn't exist! (what?)"));
 
         std::string initsys;
         std::getline(f_initsys, initsys);
@@ -312,3 +315,5 @@ std::string& System::pkgs_installed(const Config& config)
 
     return m_system_infos.pkgs_installed;
 }
+
+#endif

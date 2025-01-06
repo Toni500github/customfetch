@@ -48,8 +48,8 @@
 #include "fmt/color.h"
 #include "fmt/ranges.h"
 #include "pci.ids.hpp"
+#include "platform.hpp"
 
-// https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
 bool hasEnding(const std::string_view fullString, const std::string_view ending)
 {
     if (ending.length() > fullString.length())
@@ -80,24 +80,21 @@ std::vector<std::string> split(const std::string_view text, const char delim)
 void ctrl_d_handler(const std::istream& cin)
 {
     if (cin.eof())
-        die("Exiting due to CTRL-D or EOF");
+        die(_("Exiting due to CTRL-D or EOF"));
 }
 
-/** Replace special symbols such as ~ and $ in std::strings
- * @param str The string
- * @return The modified string
- */
 std::string expandVar(std::string ret)
 {
     if (ret.empty())
         return ret;
 
+#if !ANDROID_APP
     const char* env;
     if (ret.front() == '~')
     {
         env = std::getenv("HOME");
         if (env == nullptr)
-            die("FATAL: $HOME enviroment variable is not set (how?)");
+            die(_("FATAL: $HOME enviroment variable is not set (how?)"));
 
         ret.replace(0, 1, env);  // replace ~ with the $HOME value
     }
@@ -115,11 +112,12 @@ std::string expandVar(std::string ret)
 
         env = std::getenv(ret.c_str());
         if (env == nullptr)
-            die("No such enviroment variable: {}", ret);
+            die(_("No such enviroment variable: {}"), ret);
 
         ret = env;
         ret += temp;
     }
+#endif
 
     return ret;
 }
@@ -129,7 +127,7 @@ std::string read_by_syspath(const std::string_view path)
     std::ifstream f(path.data());
     if (!f.is_open())
     {
-        error("Failed to open {}", path);
+        error(_("Failed to open {}"), path);
         return UNKNOWN;
     }
 
@@ -205,12 +203,6 @@ bool is_file_image(const unsigned char* bytes)
     // clang-format on
 }
 
-/**
- * remove all white spaces (' ', '\t', '\n') from start and end of input
- * inplace!
- * @param input
- * @Original https://github.com/lfreist/hwinfo/blob/main/include/hwinfo/utils/stringutils.h#L50
- */
 void strip(std::string& input)
 {
     if (input.empty())
@@ -238,12 +230,6 @@ void strip(std::string& input)
     input.erase(0, input.find_first_not_of(ws));
 }
 
-/* Get file value from a file and trim quotes and double-quotes
- * @param iterIndex The iteration index used for getting the necessary value only tot times
- * @param line The string used in std::getline
- * @param str The string to assign the trimmed value, inline
- * @param amount The amount to be used in the line.substr() (should be used with something like "foobar"_len)
- */
 void getFileValue(u_short& iterIndex, const std::string_view line, std::string& str, const size_t& amount)
 {
     str = line.substr(amount);
@@ -302,17 +288,17 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
     return false;
 }
 
-std::string get_relative_path(const std::string_view relative_path, const std::string_view _env, const long long mode)
+std::string get_relative_path(const std::string_view relative_path, const std::string_view env, const long long mode)
 {
-    const char *env = std::getenv(_env.data());
-    if (!env)
+    const char *_env = std::getenv(env.data());
+    if (!_env)
         return UNKNOWN;
 
     struct stat sb;
     std::string fullPath;
     fullPath.reserve(1024);
 
-    for (const std::string& dir : split(env, ':'))
+    for (const std::string& dir : split(_env, ':'))
     {
         // -300ns for not creating a string. stonks
         fullPath += dir;
@@ -342,7 +328,19 @@ std::string get_data_dir(const std::string_view dir)
     return get_relative_path(dir, "XDG_DATA_DIRS", S_IFDIR);
 }
 
-// https://gist.github.com/GenesisFR/cceaf433d5b42dcdddecdddee0657292
+#if CF_ANDROID
+#include <sys/system_properties.h>
+std::string get_android_property(const std::string_view name)
+{
+    char ret[PROP_VALUE_MAX];
+    const int len = __system_property_get(name.data(), ret);
+    if (len <= 0)
+        return "";
+
+    return ret;
+}
+#endif
+
 void replace_str(std::string& str, const std::string_view from, const std::string_view to)
 {
     size_t start_pos = 0;
@@ -359,7 +357,7 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     std::array<int, 2> pipeout;
 
     if (pipe(pipeout.data()) < 0)
-        die("pipe() failed: {}", strerror(errno));
+        die(_("pipe() failed: {}"), strerror(errno));
 
     const pid_t pid = fork();
 
@@ -388,7 +386,7 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
         else
         {
             if (!noerror_print)
-                error("Failed to execute the command: {}", fmt::join(cmd, " "));
+                error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
         }
     }
     else if (pid == 0)
@@ -401,13 +399,13 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
         cmd.push_back(nullptr);
         execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
 
-        die("An error has occurred with execvp: {}", strerror(errno));
+        die(_("An error has occurred with execvp: {}"), strerror(errno));
     }
     else
     {
         close(pipeout.at(0));
         close(pipeout.at(1));
-        die("fork() failed: {}", strerror(errno));
+        die(_("fork() failed: {}"), strerror(errno));
     }
 
     close(pipeout.at(0));
@@ -416,11 +414,6 @@ bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr
     return false;
 }
 
-/** Executes commands with execvp() and keep the program running without existing
- * @param cmd_str The command to execute
- * @param exitOnFailure Whether to call exit(1) on command failure.
- * @return true if the command successed, else false
- */
 bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_print)
 {
     std::vector<const char*> cmd;
@@ -431,7 +424,7 @@ bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_p
 
     if (pid < 0)
     {
-        die("fork() failed: {}", strerror(errno));
+        die(_("fork() failed: {}"), strerror(errno));
     }
 
     if (pid == 0)
@@ -441,7 +434,7 @@ bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_p
         execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
 
         // execvp() returns instead of exiting when failed
-        die("An error has occurred: {}: {}", cmd.at(0), strerror(errno));
+        die(_("An error has occurred: {}: {}"), cmd.at(0), strerror(errno));
     }
     else if (pid > 0)
     {  // we wait for the command to finish then start executing the rest
@@ -453,7 +446,7 @@ bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_p
         else
         {
             if (!noerror_print)
-                error("Failed to execute the command: {}", fmt::join(cmd, " "));
+                error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
         }
     }
 
@@ -475,7 +468,6 @@ std::string str_toupper(std::string str)
     return str;
 }
 
-// Function to perform binary search on the pci vendors array to find a device from a vendor.
 std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::string_view pci_id_s)
 {
     const std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
@@ -516,7 +508,6 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s, const std::
     return name_from_entry(device_location);
 }
 
-// Function to perform binary search on the pci vendors array to find a vendor.
 std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 {
     const std::string_view vendor_id = hasStart(vendor_id_s, "0x") ? vendor_id_s.substr(2) : vendor_id_s;
@@ -555,7 +546,6 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
     return vendor_from_entry(vendors_location, vendor_id);
 }
 
-// http://stackoverflow.com/questions/478898/ddg#478960
 std::string read_shell_exec(const std::string_view cmd)
 {
     std::array<char, 1024> buffer;
@@ -569,7 +559,7 @@ std::string read_shell_exec(const std::string_view cmd)
     });
 
     if (!pipe)
-        die("popen() failed: {}", std::strerror(errno));
+        die(_("popen() failed: {}"), std::strerror(errno));
 
     result.reserve(buffer.size());
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
@@ -596,7 +586,7 @@ std::string name_from_entry(size_t dev_entry_pos)
     return name;
 }
 
-std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_view vendor_id)
+std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_view vendor_id_s)
 {
     size_t end_line_pos = all_ids.find('\n', vendor_entry_pos);
     if (end_line_pos == std::string::npos)
@@ -604,7 +594,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 
     const std::string& line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
 
-    const size_t       after_id_pos = line.find(vendor_id) + 4;
+    const size_t       after_id_pos = line.find(vendor_id_s) + 4;
     const std::string& description  = line.substr(after_id_pos);
 
     const size_t first = description.find_first_not_of(' ');
@@ -617,34 +607,32 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 }
 
 // clang-format off
-/*
- * Get the user config directory
- * either from $XDG_CONFIG_HOME or from $HOME/.config/
- * @return user's config directory
- */
+#if ANDROID_APP
+std::string getHomeConfigDir()
+{
+    return "/storage/emulated/0/.config";
+}
+#else
 std::string getHomeConfigDir()
 {
     const char* dir = std::getenv("XDG_CONFIG_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
     {
         std::string str_dir(dir);
-        return str_dir.back() == '/' ? str_dir.substr(0, str_dir.rfind('/')) : str_dir;
+        if (str_dir.back() == '/')
+            str_dir.pop_back();
+        return str_dir;
     }
     else
     {
         const char* home = std::getenv("HOME");
         if (home == nullptr)
-            die("Failed to find $HOME, set it to your home directory!");
+            die(_("Failed to find $HOME, set it to your home directory!"));
 
         return std::string(home) + "/.config";
     }
 }
+#endif
 
-/*
- * Get the customfetch config directory
- * where we'll have "config.toml"
- * from getHomeConfigDir()
- * @return customfetch's config directory
- */
 std::string getConfigDir()
 { return getHomeConfigDir() + "/customfetch"; }

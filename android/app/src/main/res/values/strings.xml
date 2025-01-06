@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Customfetch Widget</string>
+    <!-- Settings Activity Title -->
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="configure">Configure (insert command line options)</string>
+    <string name="additional_truncate">Additional truncate text width (insert number bigger than 0.20, or smaller to ignore)</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">Neofetch like program, which its focus point is the performance and customizability</string>
+    <string name="modules_list">Display modules list</string>
+    <string name="disable_wrap_lines">Truncate text (may be unstable, use it only on phones)</string>
+    <string name="background_color">Background color</string>
+    <string name="use_system_theme_color">System theme color</string>
+    <string name="transparent_background">Transparent background</string>
+    <string name="custom_color">Custom color</string>
+    <string name="join_discord_server"><a href="https://discord.gg/dcD7d3Qfus">Join our discord server</a></string>
+    <string name="better_cpp_discord_server"><a href="https://discord.gg/uSzTjkXtAM/">Better C++ discord server</a></string>
+    <string name="burntranch_github"><a href="https://github.com/BurntRanch/">BurntRanch</a></string>
+    <string name="toni500_github"><a href="https://github.com/Toni500github/">Toni500github</a></string>
+    <string name="fmtlib_github"><a href="https://github.com/fmtlib/fmt">fmtlib</a></string>
+    <string name="tomlplusplus_github"><a href="https://github.com/marzer/tomlplusplus">tomlplusplus</a></string>
+    <string name="join_subreddit"><a href="https://reddit.com/r/customfetch">Join r/customfetch</a></string>
+</resources>

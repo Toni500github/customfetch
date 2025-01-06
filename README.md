@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-    A system information fetch tool (or neofetch like program), which its focus point is the perfomance and <b>customizability</b>
+    A system information fetch tool (or neofetch like program), which its focus point is the performance and <b>customizability</b>
 </p>
 <p align="center">
     <img src="https://img.shields.io/github/languages/top/Toni500github/customfetch?logo=cplusplusbuilder&label=" />
@@ -30,12 +30,20 @@
 </p>
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="1px" height="1px" align="left" />
 <img src="screenshots/pipeline-style.png" />
+<h2 align="center">
+  It's even an <b>android widget</b> and <b>GTK3 app</b>
+</h2>
+<img align=right width=54.4% src="screenshots/gui-example.png"/>
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="45%" height="14px" align="right" />
+<img align=right width=54.2% src="screenshots/android_widget2.png"/>
+<p align=left>
+  <img width=42.45% src="screenshots/android_widget.jpg" />
+</p>
 
 ## Key Features
-
-* **GUI mode (GTK3)**: Run customfetch even as a GUI application
+* Run customfetch as a **terminal** or **GTK3 application** or even as an **android widget**
 * Really easy customizable and fast, check [Config (with explanation)](#config-with-explanation) section
-* Super lightweight, 3.1MB max
+* Super lightweight, 3.1MB max (compiled as terminal and GTK3 app for desktop)
 
 ## Depends
 currently requires **C++20**, but it's possible to compile with C++17 too (not officially supported)
@@ -92,6 +100,14 @@ yay -S customfetch-git
 
 # or wiht GUI mode
 yay -S customfetch-gui-git
+```
+
+## Android app (source)
+```bash
+# need java 17 + gradle 8.9 installed.
+# It's suggested to build from android studio,
+# so you that you can install the NDK library
+./android/gradlew assembleDebug --project-dir=./android
 ```
 
 ### Compile from (source) (unstable)

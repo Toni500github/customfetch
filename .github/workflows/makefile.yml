@@ -2,9 +2,9 @@ name: Makefile CI (Test customfetch NOGUI)
 
 on:
   push:
-    branches: [ "main", "test", "windows" ]
+    branches: [ "main", "test", "android" ]
   pull_request:
-    branches: [ "main", "test", "windows" ]
+    branches: [ "main", "test", "android" ]
 
 jobs:
   build-deb:
@@ -20,7 +20,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install libwayland-dev libgtk-3-dev pkg-config libgtkmm-3.0-dev libdconf-dev libglib2.0-dev libarchive-tools
-        sudo apt-get install binutils lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
+        sudo apt-get install binutils gettext lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
 
     - name: Clean
       run: make clean
@@ -38,7 +38,7 @@ jobs:
       run: |
         cd /tmp/customfetch-0.10.2.orig
         sudo dpkg -i customfetch_0.10.2-1_amd64.deb
-        customfetch --wrap-lines=0
+        customfetch --wrap-lines
   
   build_ubuntu-latest:
 
@@ -48,7 +48,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install Packages
-      run: sudo apt-get update && sudo apt-get install build-essential cmake neofetch tree libgtk-3-dev pkg-config libgtkmm-3.0-dev -y
+      run: sudo apt-get update && sudo apt-get install build-essential gettext cmake neofetch tree libgtk-3-dev pkg-config libgtkmm-3.0-dev -y
     
     - name: Clean
       run: make clean
@@ -69,7 +69,7 @@ jobs:
         printf "getting 0x5353 hexcode\n" && grep -nri "5353" /sys/class/ || true
        
     - name: Test customfetch
-      run: ./build/debug/customfetch --wrap-lines=0
+      run: ./build/debug/customfetch --wrap-lines
 
   build_Arch-AUR:
   
@@ -82,11 +82,12 @@ jobs:
 
     - name: Install the packages
       run: pacman -Syyu git sudo base-devel fakeroot pkgconf tree neofetch --noconfirm --needed
-    
-    - name: get /etc/sudoers
+
+    - name: Create a dedicated build user
       run: |
-        sed -i "s#root ALL=(ALL:ALL) ALL#root ALL=(ALL:ALL) NOPASSWD: ALL\nnobody ALL=(ALL:ALL) NOPASSWD: ALL#g" /etc/sudoers
-        cat /etc/sudoers
+        useradd -m -s /bin/bash builduser
+        echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    
     - name: get /etc/makepkg.conf
       run: |
         sed -i "s#purge debug lto#purge debug lto#" /etc/makepkg.conf
@@ -95,9 +96,9 @@ jobs:
     - name: Build and install using makepkg
       run: |
         git clone https://aur.archlinux.org/customfetch-git.git
-        chown -R nobody customfetch-git
+        chown -R builduser customfetch-git
         cd customfetch-git
-        sudo -u nobody makepkg -si --noconfirm
+        sudo -u builduser makepkg -si --noconfirm
 
     #- name: Setup SSH session
     #  uses: mxschmitt/action-tmate@v3
@@ -106,7 +107,7 @@ jobs:
       run: neofetch
 
     - name: Test customfetch
-      run: customfetch --wrap-lines=0
+      run: customfetch --wrap-lines
 
   build_Arch:
   
@@ -150,7 +151,29 @@ jobs:
         printf "/etc/os-release\n" && cat /etc/os-release
 
     - name: Test customfetch
-      run: ./build/debug/customfetch --wrap-lines=0
+      run: ./build/debug/customfetch --wrap-lines
+
+  build-android-app:
+  
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x android/gradlew
+      
+      - name: Build with Gradle
+        run: make distclean && make android_app
+      
+      - name: Check files
+        run: tree android/app/build/outputs/apk
 
   test-all-ascii-art:
     runs-on: ubuntu-latest
@@ -159,7 +182,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install Packages
-      run: sudo apt-get update && sudo apt-get install build-essential tree pkg-config -y
+      run: sudo apt-get update && sudo apt-get install build-essential gettext tree pkg-config -y
     
     - name: Clean
       run: make clean
@@ -167,7 +190,5 @@ jobs:
     - name: Compile
       run: sudo make install DEBUG=0 VENDOR_TEST=0 GUI_MODE=0
 
-    # yes, i know too long
-    # the --color arguments are just for adding a missing color to the non done ascii
     - name: Test all the ascii art logos
-      run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" "$f" && customfetch --wrap-lines=0 -s "$f" -D assets --color "c1=!#fff111" --color "c2=!#00ff1a" --color "c3=!#faa311" --color "c4=!#343412" --color "c5=!#fff311" --color "c6=!#faa3aa" && sleep 1; done
+      run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" "$f" && customfetch --wrap-lines --source "$f" -D assets && sleep 1; done

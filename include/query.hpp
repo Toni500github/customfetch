@@ -31,7 +31,6 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
-#include <vector>
 
 #include "config.hpp"
 #include "util.hpp"
@@ -46,8 +45,10 @@ extern "C" {
 #include <unistd.h>
 }
 
+// Special variable for storing info modules values
 using systemInfo_t =
     std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, double>>>;
+// used in systemInfo_t most of the time
 using variant = std::variant<std::string, size_t, double>;
 
 namespace Query
@@ -107,7 +108,8 @@ class User
 public:
     struct User_t
     {
-        std::string shell_name{ UNKNOWN };
+        std::string shell_path{ MAGIC_LINE };
+        std::string shell_name{ MAGIC_LINE };
         std::string shell_version{ UNKNOWN };
         std::string wm_name{ MAGIC_LINE };
         std::string wm_version{ UNKNOWN };
@@ -152,23 +154,21 @@ public:
         std::string cursor_size{ UNKNOWN };
     };
 
-    Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
-          const std::string& theme_name_version, const Config& config, const bool gsettings_only = false);
+    Theme(const std::uint8_t ver, systemInfo_t& queried_themes, const std::string& theme_name_version,
+          const Config& config, const bool gsettings_only = false);
 
-    Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only = false);
+    Theme(const Config& config, const bool gsettings_only = false);
 
-    std::string  gtk_theme() noexcept;
-    std::string  gtk_icon_theme() noexcept;
-    std::string  gtk_font() noexcept;
+    std::string& gtk_theme() noexcept;
+    std::string& gtk_icon_theme() noexcept;
+    std::string& gtk_font() noexcept;
     std::string& cursor() noexcept;
     std::string& cursor_size() noexcept;
 
 private:
-    User              query_user;
-    static Theme_t    m_theme_infos;
-    systemInfo_t&     m_queried_themes;
-    const std::string m_theme_name_version;
-    std::string       m_wmde_name;
+    User           query_user;
+    std::string    m_wmde_name;
+    static Theme_t m_theme_infos;
 };
 
 class CPU
@@ -187,12 +187,19 @@ public:
 
         // private:
         double freq_max_cpuinfo = 0;
+        std::string modelname;
+        std::string vendor;
     };
 
     CPU() noexcept;
 
     std::string& name() noexcept;
     std::string& nproc() noexcept;
+
+    // only in Android
+    std::string& vendor() noexcept;
+    std::string& modelname() noexcept;
+
     double&      freq_max() noexcept;
     double&      freq_min() noexcept;
     double&      freq_cur() noexcept;
@@ -213,18 +220,18 @@ public:
         std::string vendor{ UNKNOWN };
     };
 
-    GPU(const std::uint16_t id, std::vector<std::uint16_t>& queried_gpus);
+    GPU(const std::string& id, systemInfo_t& queried_gpus);
 
     std::string& name() noexcept;
     std::string& vendor() noexcept;
 
 private:
-    uint16_t    m_vendor_id;
-    uint16_t    m_device_id;
-    std::string m_vendor_id_s;
-    std::string m_device_id_s;
+    uint16_t      m_vendor_id;
+    uint16_t      m_device_id;
+    std::string   m_vendor_id_s;
+    std::string   m_device_id_s;
 
-    static GPU_t m_gpu_infos;
+    static GPU_t  m_gpu_infos;
 };
 
 class Disk
@@ -240,7 +247,7 @@ public:
         std::string mountdir;
     };
 
-    Disk(const std::string_view path, std::vector<std::string>& paths);
+    Disk(const std::string& path, systemInfo_t& queried_paths);
 
     double&      total_amount() noexcept;
     double&      free_amount() noexcept;

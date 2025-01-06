@@ -23,6 +23,9 @@
  *
  */
 
+#include "platform.hpp"
+#if CF_UNIX
+
 #include <algorithm>
 #include <cstdint>
 
@@ -173,8 +176,8 @@ static bool get_cursor_gsettings(const std::string_view de_name, Theme::Theme_t&
 
     if (config.slow_query_warnings)
     {
-        warn("customfetch could not detect a gtk configuration file. customfetch will use the much-slower gsettings.");
-        warn("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub.");
+        warn(_("customfetch could not detect a gtk configuration file. customfetch will use the much-slower gsettings."));
+        warn(_("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub."));
         info("You can disable this warning by disabling slow-query-warnings in your config.toml file.");
     }
 
@@ -375,9 +378,9 @@ static void get_gtk_theme_gsettings(const std::string_view de_name, Theme::Theme
 
     if (config.slow_query_warnings)
     {
-        warn("customfetch could not detect a gtk configuration file. customfetch will use the much-slower gsettings.");
-        warn("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub.");
-        info("You can disable this warning by disabling slow-query-warnings in your config.toml file.");
+        warn(_("customfetch could not detect a gtk configuration file. customfetch will use the much-slower gsettings."));
+        warn(_("If there's a file in a standard location that we aren't detecting, please file an issue on our GitHub."));
+        info(_("You can disable this warning by disabling slow-query-warnings in your config.toml file."));
     }
 
     const char* interface;
@@ -473,16 +476,16 @@ static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, co
 }
 
 // clang-format off
-Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<std::string>& queried_themes_names,
+Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes,
              const std::string& theme_name_version, const Config& config, const bool gsettings_only)
-            : m_queried_themes(queried_themes),
-              m_theme_name_version(theme_name_version)
 {
-    if (std::find(queried_themes_names.begin(), queried_themes_names.end(), m_theme_name_version)
-        == queried_themes_names.end())
-        queried_themes_names.push_back(m_theme_name_version);
-    else
+    if (queried_themes.find(theme_name_version) != queried_themes.end())
+    {
+        m_theme_infos.gtk_theme_name = getInfoFromName(queried_themes, theme_name_version, "theme-name");
+        m_theme_infos.gtk_font       = getInfoFromName(queried_themes, theme_name_version, "icon-theme-name");
+        m_theme_infos.gtk_icon_theme = getInfoFromName(queried_themes, theme_name_version, "font-name");
         return;
+    }
 
     const std::string& wm_name = query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name());
     const std::string& de_name = query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(), wm_name);
@@ -504,8 +507,8 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
     if (m_theme_infos.gtk_icon_theme.empty())
         m_theme_infos.gtk_icon_theme = MAGIC_LINE;
 
-    m_queried_themes.insert(
-        {m_theme_name_version, {
+    queried_themes.insert(
+        {theme_name_version, {
             {"theme-name",      variant(m_theme_infos.gtk_theme_name)},
             {"icon-theme-name", variant(m_theme_infos.gtk_icon_theme)},
             {"font-name",       variant(m_theme_infos.gtk_font)},
@@ -514,7 +517,7 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, std::vector<s
 }
 
 // only use it for cursor
-Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only) : m_queried_themes(queried_themes)
+Theme::Theme(const Config& config, const bool gsettings_only)
 {
     const std::string& wm_name = query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name());
     const std::string& de_name = query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(), wm_name);
@@ -548,17 +551,19 @@ Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gset
 
 }
 
-std::string Theme::gtk_theme() noexcept
-{ return getInfoFromName(m_queried_themes, m_theme_name_version, "theme-name"); }
+std::string& Theme::gtk_theme() noexcept
+{ return m_theme_infos.gtk_theme_name; }
 
-std::string Theme::gtk_icon_theme() noexcept
-{ return getInfoFromName(m_queried_themes, m_theme_name_version, "icon-theme-name"); }
+std::string& Theme::gtk_icon_theme() noexcept
+{ return m_theme_infos.gtk_icon_theme; }
 
-std::string Theme::gtk_font() noexcept
-{ return getInfoFromName(m_queried_themes, m_theme_name_version, "font-name"); }
+std::string& Theme::gtk_font() noexcept
+{ return m_theme_infos.gtk_font; }
 
 std::string& Theme::cursor() noexcept
 { return m_theme_infos.cursor; }
 
 std::string& Theme::cursor_size() noexcept
 { return m_theme_infos.cursor_size; }
+
+#endif

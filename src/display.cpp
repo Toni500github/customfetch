@@ -71,11 +71,16 @@ std::string Display::detect_distro(const Config& config)
         format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()));
         if (std::filesystem::exists(format))
             return format;
-
-        return config.data_dir + "/ascii/linux.txt";
     }
+#if ANDROID_APP
+    return config.data_dir + "/ascii/android.txt";
+#else
+    return config.data_dir + "/ascii/linux.txt";
+#endif
+
 }
 
+#if !ANDROID_APP
 static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std::vector<std::string>& layout,
                                                   const Config& config, const colors_t& colors,
                                                   const std::string_view path, const std::uint16_t font_width,
@@ -87,17 +92,18 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     unsigned char* img = stbi_load(path.data(), &image_width, &image_height, &channels, 0);
 
     if (!img)
-        die("Unable to load image '{}'", path);
+        die(_("Unable to load image '{}'"), path);
     
     stbi_image_free(img);
 
     std::string _;
-    parse_args_t parse_args{ systemInfo, _, config, colors, true, true };
+    parse_args_t parse_args{ systemInfo, _, config, colors, true, true, false, "" };
     for (std::string& line : layout)
     {
         line = parse(line, parse_args);
         if (!config.m_disable_colors)
             line.insert(0, NOCOLOR);
+        parse_args.no_more_reset = false;
     }
 
     // erase each element for each instance of MAGIC_LINE
@@ -115,8 +121,8 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     else if (config.m_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
     else
-        die("The image backend '{}' isn't supported, only kitty and viu.\n"
-            "Please currently use the GUI mode for rendering the image/gif (use -h for more details)",
+        die(_("The image backend '{}' isn't supported, only kitty and viu.\n"
+            "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),
             config.m_image_backend);
 
     if (config.logo_position == "top")
@@ -127,9 +133,9 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
         return layout;
     }
 
-    for (size_t i = 0; i < layout.size(); ++i)
+    for (auto& str : layout)
         for (size_t _ = 0; _ < width + config.offset; ++_)
-            layout.at(i).insert(0, " ");
+            str.insert(0, " ");
 
     return layout;
 }
@@ -160,7 +166,7 @@ static bool get_pos(int& y, int& x)
         if (!ret)
         {
             tcsetattr(0, TCSANOW, &restore);
-            die("getpos: error reading response!");
+            die(_("getpos: error reading response!"));
         }
         buf.at(i) = ch;
     }
@@ -180,6 +186,7 @@ static bool get_pos(int& y, int& x)
     tcsetattr(0, TCSANOW, &restore);
     return true;
 }
+#endif
 
 std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
                                          const std::string_view path)
@@ -189,6 +196,12 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     debug("Display::render path = {}", path);
 
+#if ANDROID_APP
+    const std::string_view space = "&nbsp;";
+#else
+    const std::string_view space = " ";
+#endif
+
     bool          isImage = false;
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
@@ -197,7 +210,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         file.open(path.data(), std::ios::binary);
         fileToAnalyze.open(path.data(), std::ios::binary);
         if (!file.is_open() || !fileToAnalyze.is_open())
-            die("Could not open ascii art file \"{}\"", path);
+            die(_("Could not open logo file '{}'"), path);
 
         // first check if the file is an image
         // without even using the same library that "file" uses
@@ -230,15 +243,19 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         std::ifstream distro_file(distro_path);
         std::string   line, _;
 
-        parse_args_t parse_args{ systemInfo, _, config, colors, false, true };
+        parse_args_t parse_args{ systemInfo, _, config, colors, false, true, false, "" };
 
         while (std::getline(distro_file, line))
+        {
             parse(line, _, parse_args);
+            parse_args.no_more_reset = false;
+        }
     }
 
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
 
+#if !ANDROID_APP
     if (isImage)
     {
         // clear screen
@@ -257,14 +274,20 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         return render_with_image(systemInfo, layout, config, colors, path, font_width, font_height);
     }
+#else
+    if (isImage)
+    {
+        die(_("images are NOT allowed in the android widget at the moment"));
+    }
+#endif
 
-    for (int i = 0; i < config.logo_padding_top; i++)
+    for (uint i = 0; i < config.logo_padding_top; i++)
     {
         pureAsciiArtLens.push_back(0);
-        asciiArt.push_back("");
+        asciiArt.emplace_back("");
     }
 
-    for (int i = 0; i < config.layout_padding_top; i++)
+    for (uint i = 0; i < config.layout_padding_top; i++)
     {
         layout.insert(layout.begin(), "");
     }
@@ -273,16 +296,17 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     while (std::getline(file, line))
     {
         std::string pureOutput;
-        parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false, true };
+        parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false, true, false, "" };
 
         std::string asciiArt_s = parse(line, parse_args);
+        parse_args.no_more_reset = false;
         if (!config.m_disable_colors)
             asciiArt_s += config.gui ? "" : NOCOLOR;
 
         if (config.gui)
         {
             // check parse.cpp
-            const size_t pos = asciiArt_s.rfind("$ </span>");
+            const size_t pos = asciiArt_s.rfind("$ </");
             if (pos != std::string::npos)
                 asciiArt_s.replace(pos, 2, "$");
         }
@@ -301,22 +325,27 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         return asciiArt;
 
     std::string _;
-    parse_args_t parse_args{ systemInfo, _, config, colors, true, true };
+    parse_args_t parse_args{ systemInfo, _, config, colors, true, true, false, "" };
     for (std::string& line : layout)
     {
         line = parse(line, parse_args);
+        parse_args.no_more_reset = false;
         if (!config.gui && !config.m_disable_colors)
             line.insert(0, NOCOLOR);
     }
+    
+    auto_colors.clear();
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    if (config.logo_position == "top")
+    if (config.logo_position == "top" || config.logo_position == "bottom")
     {
-        Display::display(asciiArt);
+        if (!asciiArt.empty())
+            layout.insert(config.logo_position == "top" ? layout.begin() : layout.end(),
+                          asciiArt.begin(), asciiArt.end());
         return layout;
     }
 
@@ -327,7 +356,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         // The user-specified offset to be put before the logo
         for (size_t j = 0; j < config.logo_padding_left; j++)
-            layout.at(i).insert(0, " ");
+            layout.at(i).insert(0, space);
 
         if (i < asciiArt.size())
         {
@@ -341,10 +370,11 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         debug("spaces: {}", spaces);
 
         for (size_t j = 0; j < spaces; j++)
-            layout.at(i).insert(origin, " ");
+            layout.at(i).insert(origin, space);
 
         if (!config.m_disable_colors)
             layout.at(i) += config.gui ? "" : NOCOLOR;
+
     }
 
     for (; i < asciiArt.size(); i++)
@@ -353,7 +383,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         line.reserve(config.logo_padding_left + asciiArt.at(i).length());
 
         for (size_t j = 0; j < config.logo_padding_left; j++)
-            line += ' ';
+            line += space;
 
         line += asciiArt.at(i);
 
@@ -366,5 +396,5 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 void Display::display(const std::vector<std::string>& renderResult)
 {
     for (const std::string& str : renderResult)
-        fmt::println("{}", str);
+        fmt::print("{}\n", str);
 }

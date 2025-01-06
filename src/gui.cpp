@@ -23,7 +23,7 @@
  *
  */
 
-#ifdef GUI_MODE
+#if GUI_MODE && !ANDROID_APP
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "gui.hpp"
@@ -70,7 +70,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     unsigned char* img = stbi_load(config.source_path.c_str(), &image_width, &image_height, &channels, 0);
 
     if (!img)
-        die("Unable to load image '{}'", config.source_path);
+        die(_("Unable to load image '{}'"), config.source_path);
 
     stbi_image_free(img);
 
@@ -90,11 +90,17 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     parse_args_t parse_args{ systemInfo, _, config, colors, false, true };
 
     while (std::getline(file, line))
+    {
         parse(line, parse_args);
+        parse_args.no_more_reset = false;
+    }
 
     parse_args.parsingLayout = true;
     for (std::string& layout : layout)
+    {
         layout = parse(layout, parse_args);
+        parse_args.no_more_reset = false;
+    }
 
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
@@ -157,10 +163,12 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
         m_label.set_markup(fmt::format("{}", fmt::join(Display::render(config, colors, true, path), "\n")));
     }
 
+    auto_colors.clear();
+
     if (config.gui_bg_image != "disable")
     {
         if (!std::filesystem::exists(config.gui_bg_image))
-            die("Background image path '{}' doesn't exist", config.gui_bg_image);
+            die(_("Background image path '{}' doesn't exist"), config.gui_bg_image);
 
         m_bg_animation = Gdk::PixbufAnimation::create_from_file(config.gui_bg_image);
         if (m_bg_animation->is_static_image())
@@ -191,4 +199,4 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
 
 Window::~Window() {}
 
-#endif  // GUI_MODE
+#endif  // GUI_MODE && !ANDROID_APP

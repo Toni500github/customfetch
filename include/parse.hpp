@@ -26,11 +26,12 @@
 #ifndef _PARSE_HPP
 #define _PARSE_HPP
 
+#include <string>
 #include "config.hpp"
 #include "query.hpp"
 
-/* the additional args that parse() needs for getting the necessary infos/configs.
- * only used for making the argument passing more clear.
+/* The additional args that parse() needs for getting the necessary infos/configs.
+ * Only used for making the argument passing more clear.
  * Always pass it non-const and by reference
  */
 struct parse_args_t
@@ -40,7 +41,9 @@ struct parse_args_t
     const Config&   config;
     const colors_t& colors;
     bool            parsingLayout;
-    bool            firstrun_clr;
+    bool            firstrun_clr = true;
+    bool            no_more_reset = false;
+    std::string     endspan; // only if ANDROID_APP
 };
 
 /* Parse input, in-place, with data from systemInfo.
@@ -54,7 +57,7 @@ struct parse_args_t
  * @param is_image If the source path is an image (used for GUI mode only)
  */
 std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  const colors_t& colors, const bool parsingLayout);
+                  const colors_t& colors, const bool parsingLayout, bool& no_more_reset);
 
 // parse() for parse_args_t& arguments
 std::string parse(const std::string_view input, parse_args_t& parse_args);
@@ -81,6 +84,9 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
 /*
  * Return a module member value
+ * @param systemInfo The systemInfo_t map
+ * @param moduleName The module name
+ * @param moduleMemberName The module member name
  */
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
                             const std::string_view moduleMemberName);
@@ -91,5 +97,7 @@ void append_styles(fmt::text_style& current_style, Styles&&... styles)
 {
     current_style |= (styles | ...);
 }
+
+inline std::vector<std::string> auto_colors;
 
 #endif

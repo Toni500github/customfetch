@@ -23,6 +23,9 @@
  *
  */
 
+#include "platform.hpp"
+#if CF_UNIX
+
 #include <dlfcn.h>
 #include <unistd.h>
 
@@ -325,7 +328,7 @@ User::User() noexcept
         const uid_t uid = getuid();
 
         if (m_pPwd = getpwuid(uid), !m_pPwd)
-            die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
+            die(_("getpwent failed: {}\nCould not get user infos"), std::strerror(errno));
 
         m_bInit = true;
     }
@@ -532,3 +535,5 @@ std::string& User::term_version(const std::string_view term_name)
 
     return m_users_infos.term_version;
 }
+
+#endif

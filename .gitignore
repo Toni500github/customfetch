@@ -1,20 +1,21 @@
-build/
+build*/
 assets/distro_ascii_arts.json
 assets/distro_ascii_arts.txt
 cufetch
 test*.txt
 pci.ids
 output/
+useless_stuff/
 customfetch
 customfetch_r
 cufetch_r
-thinkpad-arch_logo.txt
-tanjiro_logo.txt
+locale/
 scripts/ascii_parser.py
 scripts/dict_to_files.py
 scripts/test*
 
 *.tar.*
+*.mo
 
 # Prerequisites
 *.d
@@ -49,3 +50,4 @@ scripts/test*
 *.out
 *.app
 .cache
+signing.properties
