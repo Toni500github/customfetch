@@ -550,21 +550,23 @@ static void enable_cursor()
 static void localize(void)
 {
 #if ENABLE_NLS
-    static int init = 0;
+    static bool init = false;
     if (!init)
     {
         setlocale(LC_ALL, "");
         bindtextdomain("customfetch", LOCALEDIR);
         textdomain("customfetch");
-        init = 1;
+        init = true;
     }
 #endif
 }
 
 #if ANDROID_APP
-std::string mainAndroid_and_render(int argc, char *argv[], JNIEnv *env, jobject obj)
+std::string mainAndroid_and_render(int argc, char *argv[], JNIEnv *env, jobject obj, bool do_not_load_config)
 {
     jni_objs = {env, obj};
+    // reset option index
+    optind = 0;
 #else
 int main(int argc, char *argv[])
 {
@@ -597,9 +599,8 @@ int main(int argc, char *argv[])
 
     localize();
 
-    Config config(configFile, configDir, colors);
-
 #if ANDROID_APP
+    Config config(configFile, configDir, colors, do_not_load_config);
     const std::string& parseargs_ret = parseargs(argc, argv, config, configFile);
     if (parseargs_ret != _true)
         return parseargs_ret;
@@ -608,10 +609,8 @@ int main(int argc, char *argv[])
     // then let's make it always true
     config.gui = true;
     config.wrap_lines = true;
-
-    // reset option index
-    optind = 0;
 #else
+    Config config(configFile, configDir, colors, false);
     if (!parseargs(argc, argv, config, configFile))
         return 1;
 #endif // ANDROID_APP

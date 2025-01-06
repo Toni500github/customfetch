@@ -25,7 +25,7 @@
         android:inputType="text" />
 
     <CheckBox
-        android:id="@+id/disable_wrap_lines"
+        android:id="@+id/disableWrapLinesCheck"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:labelFor="@+id/arguments_configure"
@@ -49,7 +49,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="30dp"
-        android:labelFor="@id/bg_color_hex"
+        android:labelFor="@id/color_picker_hex"
         android:text="@string/background_color" />
 
     <RadioGroup
@@ -78,21 +78,21 @@
     </RadioGroup>
 
     <LinearLayout
-        android:id="@+id/custom_colors_select"
+        android:id="@+id/custom_color_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:visibility="gone" >
 
         <EditText
-            android:id="@+id/bg_color_hex"
+            android:id="@+id/color_picker_hex"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Hex Color Code (#AARRGGBB)"
             android:inputType="text" />
 
         <com.skydoves.colorpickerview.ColorPickerView
-            android:id="@+id/bg_color"
+            android:id="@+id/colorPickerView"
             android:layout_width="match_parent"
             android:layout_height="250dp"
             app:initialColor="@color/cardview_dark_background" />
@@ -116,7 +116,7 @@
             android:layout_height="20dp" />
 
         <com.skydoves.colorpickerview.sliders.BrightnessSlideBar
-            android:id="@+id/brightnessSlide"
+            android:id="@+id/brightnessSlideBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:borderColor_BrightnessSlider="@android:color/darker_gray"

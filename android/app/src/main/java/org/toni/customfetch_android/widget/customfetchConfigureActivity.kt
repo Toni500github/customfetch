@@ -42,27 +42,16 @@ import kotlin.io.path.Path
  */
 class customfetchConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-    private lateinit var argumentsConfig: EditText
-    private lateinit var additionalTruncateWidth: EditText
-    private lateinit var argsHelp: TextView
-    private lateinit var showModulesList: CheckBox
-    private lateinit var disableWrapLinesCheck: CheckBox
-    private lateinit var selectBgColor: RadioGroup
-    private lateinit var colorPickerView: ColorPickerView
-    private lateinit var colorPickerHex: EditText
-    private lateinit var colorPreview: View
-    private lateinit var brightnessSlideBar: BrightnessSlideBar
-    private lateinit var alphaSlideBar: AlphaSlideBar
-    private lateinit var customColorSelect: LinearLayout
-    private var onClickListener = View.OnClickListener {
+    private lateinit var binding: CustomfetchConfigureBinding
+    private var onAddWidget = View.OnClickListener {
         val context = this@customfetchConfigureActivity
 
         // When the button is clicked, store the string locally
         saveConfigPrefs(
             context,
             appWidgetId,
-            argumentsConfig.text.toString(),
-            additionalTruncateWidth.text.toString(),
+            binding.argumentsConfigure.text.toString(),
+            binding.additionalTruncateWidth.text.toString(),
             disableLineWrap,
             bgColor)
 
@@ -80,7 +69,6 @@ class customfetchConfigureActivity : Activity() {
     // truncate text
     private var disableLineWrap = false
     private var bgColor = 0
-    private lateinit var binding: CustomfetchConfigureBinding
 
     @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     public override fun onCreate(icicle: Bundle?) {
@@ -93,19 +81,7 @@ class customfetchConfigureActivity : Activity() {
         binding = CustomfetchConfigureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        argumentsConfig = binding.argumentsConfigure
-        additionalTruncateWidth = binding.additionalTruncateWidth
-        argsHelp = binding.argsHelp
-        showModulesList = binding.showModulesList
-        disableWrapLinesCheck = binding.disableWrapLines
-        selectBgColor = binding.selectBgColor
-        colorPickerView = binding.bgColor
-        colorPreview = binding.colorPreview
-        colorPickerHex = binding.bgColorHex
-        brightnessSlideBar = binding.brightnessSlide
-        alphaSlideBar = binding.alphaSlideBar
-        customColorSelect = binding.customColorsSelect
-        binding.addButton.setOnClickListener(onClickListener)
+        binding.addButton.setOnClickListener(onAddWidget)
 
         // Find the widget id from the intent.
         val extras = intent.extras
@@ -121,36 +97,36 @@ class customfetchConfigureActivity : Activity() {
             return
         }
 
-        argumentsConfig.setText(getArgsPref(this@customfetchConfigureActivity, appWidgetId))
-        additionalTruncateWidth.setText("0.6")
-        argsHelp.text = customfetchRender.mainAndroid("customfetch --help")
+        binding.argumentsConfigure.setText(getArgsPref(this@customfetchConfigureActivity, appWidgetId))
+        binding.additionalTruncateWidth.setText("0.6")
+        binding.argsHelp.text = customfetchRender.mainAndroid("customfetch --help", true)
 
-        showModulesList.setOnCheckedChangeListener { _, isChecked ->
-            argsHelp.text = customfetchRender.mainAndroid("customfetch ${if (isChecked) "-l" else "-h"}")
+        binding.showModulesList.setOnCheckedChangeListener { _, isChecked ->
+            binding.argsHelp.text = customfetchRender.mainAndroid("customfetch ${if (isChecked) "-l" else "-h"}", true)
         }
 
-        disableWrapLinesCheck.setOnCheckedChangeListener { _, isChecked ->
+        binding.disableWrapLinesCheck.setOnCheckedChangeListener { _, isChecked ->
             disableLineWrap = isChecked
         }
 
-        selectBgColor.setOnCheckedChangeListener { _, checkedId ->
+        binding.selectBgColor.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.radio_system_bg_color -> {
-                    customColorSelect.visibility = View.GONE
+                    binding.customColorSelect.visibility = View.GONE
                     val typedValue = TypedValue()
                     this.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
                     bgColor = typedValue.data
                 }
 
                 R.id.radio_transparent_bg -> {
-                    customColorSelect.visibility = View.GONE
+                    binding.customColorSelect.visibility = View.GONE
                     bgColor = 0x00FFFFFF
                 }
 
                 R.id.radio_custom_colors -> {
-                    customColorSelect.visibility = View.VISIBLE
+                    binding.customColorSelect.visibility = View.VISIBLE
                     // disable scroll when interacting with the color picker
-                    colorPickerView.setOnTouchListener { view, _ ->
+                    binding.colorPickerView.setOnTouchListener { view, _ ->
                         view.parent.requestDisallowInterceptTouchEvent(true)
                         false // allow colorPickerView to handle the touch event
                     }
@@ -158,12 +134,12 @@ class customfetchConfigureActivity : Activity() {
                     // if modified edittext and it's valid, apply to the preview
                     // else if modified in the color picker, apply to the edittext
                     var hexColor = ""
-                    colorPickerHex.addTextChangedListener (object : TextWatcher {
+                    binding.colorPickerHex.addTextChangedListener (object : TextWatcher {
                         override fun afterTextChanged(s: Editable) {
                             val col = s.toString()
                             if (isValidHex(col)) {
-                                colorPreview.setBackgroundColor(Color.parseColor(col))
-                                colorPickerView.setInitialColor(col.toColorInt())
+                                binding.colorPreview.setBackgroundColor(Color.parseColor(col))
+                                binding.colorPickerView.setInitialColor(col.toColorInt())
                                 hexColor = col
                                 bgColor = col.toColorInt()
                             }
@@ -172,20 +148,20 @@ class customfetchConfigureActivity : Activity() {
                         override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
                     })
                     var firstRun = true
-                    colorPickerView.setColorListener(ColorEnvelopeListener { envelope, _ ->
+                    binding.colorPickerView.setColorListener(ColorEnvelopeListener { envelope, _ ->
                         if (firstRun)
                             hexColor = "#${envelope.hexCode}"
 
                         if (hexColor != "#${envelope.hexCode}") {
-                            colorPickerHex.setText("#${envelope.hexCode}")
+                            binding.colorPickerHex.setText("#${envelope.hexCode}")
                             hexColor = "#${envelope.hexCode}"
                         }
-                        colorPreview.setBackgroundColor(envelope.color)
+                        binding.colorPreview.setBackgroundColor(envelope.color)
                         bgColor = envelope.color
                         firstRun = false
                     })
-                    colorPickerView.attachAlphaSlider(alphaSlideBar)
-                    colorPickerView.attachBrightnessSlider(brightnessSlideBar)
+                    binding.colorPickerView.attachAlphaSlider(binding.alphaSlideBar)
+                    binding.colorPickerView.attachBrightnessSlider(binding.brightnessSlideBar)
                 }
             }
         }
@@ -203,16 +179,17 @@ class CustomfetchMainRender {
         disableLineWrap: Boolean,
         paint: TextPaint,
         otherArguments: String = "",
-        postToast: Boolean = true
+        postToast: Boolean = true,
+        doNotLoadConfig: Boolean = false
     ): SpannableStringBuilder {
         val parsedContent = SpannableStringBuilder()
         val arguments = otherArguments.ifEmpty {
             getArgsPref(context, appWidgetId)
         }
+        val htmlContent = mainAndroid("customfetch $arguments", doNotLoadConfig)
 
         val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
         val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
-        val htmlContent = mainAndroid("customfetch $arguments")
         if (Files.exists(Path(errorLock))) {
             val file = File(errorLock)
             val error = file.bufferedReader().use { it.readText() }
@@ -248,7 +225,7 @@ class CustomfetchMainRender {
         return parsedContent
     }
 
-    external fun mainAndroid(argv: String): String?
+    external fun mainAndroid(argv: String, doNotLoadConfig: Boolean): String?
     companion object {
         init {
             System.loadLibrary("customfetch")
@@ -260,7 +237,7 @@ val customfetchRender = CustomfetchMainRender()
 private const val PREFS_NAME = "org.toni.customfetch_android.customfetch"
 private const val PREF_PREFIX_KEY = "appwidget_"
 
-// Write the prefix to the SharedPreferences object for this widget
+// Save the preferences to the SharedPreferences object for this widget
 internal fun saveConfigPrefs(
     context: Context,
     appWidgetId: Int,
@@ -277,8 +254,6 @@ internal fun saveConfigPrefs(
     prefs.apply()
 }
 
-// Read the prefix from the SharedPreferences object for this widget.
-// If there is no preference saved, get the default from a resource
 internal fun getArgsPref(context: Context, appWidgetId: Int): String {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val args = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_args", null)
@@ -308,5 +283,6 @@ internal fun deleteConfigPrefs(context: Context, appWidgetId: Int) {
     prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_args")
     prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_disableLineWrap")
     prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_truncateWidth")
+    prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_bgColor")
     prefs.apply()
 }

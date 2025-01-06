@@ -32,7 +32,7 @@
 
 #include "util.hpp"
 
-Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors)
+Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors, bool do_not_load)
 {
     if (!std::filesystem::exists(configDir))
     {
@@ -48,7 +48,8 @@ Config::Config(const std::string_view configFile, const std::string_view configD
         this->generateConfig(configFile);
     }
 
-    this->loadConfigFile(configFile, colors);
+    if (!do_not_load)
+        this->loadConfigFile(configFile, colors);
 }
 
 void Config::loadConfigFile(const std::string_view filename, colors_t& colors)

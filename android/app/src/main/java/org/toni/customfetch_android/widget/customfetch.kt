@@ -15,15 +15,17 @@ import org.toni.customfetch_android.R
  * App Widget Configuration implemented in [customfetchConfigureActivity]
  */
 class customfetch : AppWidgetProvider() {
+    var firstFun = true
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
         // There may be multiple widgets active, so update all of them
-        for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
-        }
+        if (!firstFun)
+            for (appWidgetId in appWidgetIds)
+                updateAppWidget(context, appWidgetManager, appWidgetId)
+        firstFun = false
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
@@ -93,6 +95,7 @@ internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
+
 ) {
     val disableLineWrap = getDisableLineWrap(context, appWidgetId)
     val bgColor = getBgColor(context, appWidgetId)
@@ -110,7 +113,6 @@ internal fun updateAppWidget(
 
     Log.d("widthTesting", "textSizePx = $textSizePx")
     Log.d("widthTesting", "width = $width")
-    Log.d("wrappingTest", "disableLineWrap = $disableLineWrap")
 
     val parsedContent =
         customfetchRender.getParsedContent(
