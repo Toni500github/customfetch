@@ -27,7 +27,7 @@ msgstr ""
 msgid "config file {} not found, generating new one"
 msgstr ""
 
-#: src/config.cpp:60
+#: src/config.cpp:61
 #, c++-format
 msgid ""
 "Parsing config file '{}' failed:\n"
@@ -35,24 +35,24 @@ msgid ""
 "\t(error occurred at line {} column {})"
 msgstr ""
 
-#: src/config.cpp:120
+#: src/config.cpp:121
 msgid ""
 "the config array percentage-colors doesn't have 3 colors for being used in "
-"percentage tag and modules\n"
-"backing up to green, yellow and red"
+"percentage tag and modules.\n"
+"Backing up to green, yellow and red"
 msgstr ""
 
-#: src/config.cpp:153
+#: src/config.cpp:154
 #, c++-format
-msgid "An element of the '{}' array variable is not a string"
+msgid "an element of the array '{}' is not a string"
 msgstr ""
 
-#: src/config.cpp:167
+#: src/config.cpp:168
 #, c++-format
 msgid ""
 "alias color '{}' does NOT have an equal sign '=' for separating color name "
-"and value.\n"
-"for more check with --help"
+"and value\n"
+"For more check with --help"
 msgstr ""
 
 #: src/display.cpp:95 src/gui.cpp:73
@@ -63,7 +63,7 @@ msgstr ""
 #: src/display.cpp:124
 #, c++-format
 msgid ""
-"The image backend '{}' isn't supported, only kitty and viu.\n"
+"The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
 "Please currently use the GUI mode for rendering the image/gif (use -h for "
 "more details)"
 msgstr ""
@@ -81,22 +81,22 @@ msgstr ""
 msgid "images are NOT allowed in the android widget at the moment"
 msgstr ""
 
-#: src/gui.cpp:168
+#: src/gui.cpp:171
 #, c++-format
 msgid "Background image path '{}' doesn't exist"
 msgstr ""
 
-#: src/main.cpp:373
+#: src/main.cpp:382
 #, c++-format
 msgid "config file '{}' doesn't exist"
 msgstr ""
 
-#: src/main.cpp:626
+#: src/main.cpp:642
 #, c++-format
 msgid "'{}' doesn't exist. Can't load image/text file"
 msgstr ""
 
-#: src/main.cpp:638
+#: src/main.cpp:654
 msgid ""
 "Can't run in GUI mode because it got disabled at compile time\n"
 "Compile customfetch with GUI_MODE=1 or contact your distro to enable it"
@@ -117,14 +117,15 @@ msgid ""
 msgstr ""
 
 #: src/parse.cpp:180
+#, c++-format
 msgid ""
-"Parser: failed to parse layout/ascii art: missing m while using ANSI color "
-"escape code"
+"Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
+"escape code in '\\e[{}'"
 msgstr ""
 
 #: src/parse.cpp:409
 #, c++-format
-msgid "{} mode in color {} doesn't have close bracket"
+msgid "'{}' mode in color '{}' doesn't have close bracket"
 msgstr ""
 
 #: src/parse.cpp:496 src/parse.cpp:776
@@ -239,7 +240,7 @@ msgstr ""
 msgid "Failed to find $HOME, set it to your home directory!"
 msgstr ""
 
-#: src/query/unix/cpu.cpp:204
+#: src/query/unix/cpu.cpp:282
 #, c++-format
 msgid "Could not open {}"
 msgstr ""
@@ -303,8 +304,8 @@ msgstr ""
 
 #: src/query/unix/theme.cpp:383
 msgid ""
-"You can disable this warning by disabling slow-query-warnings in your config."
-"toml file."
+"You can disable this warning by disabling slow-query-warnings in your "
+"config.toml file."
 msgstr ""
 
 #: src/query/unix/user.cpp:331

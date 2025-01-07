@@ -8,7 +8,7 @@
 -DGUI_MODE=1
 -DUSE_DCONF=1
 -DDEBUG=1
--DANDROID_APP=1
+-DANDROID_APP=0
 -DENABLE_NLS=1
 -DLOCALEDIR="/usr/share/locale"
 -I./useless_stuff/

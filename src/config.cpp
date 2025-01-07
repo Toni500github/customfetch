@@ -118,8 +118,8 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     if (this->percentage_colors.size() < 3)
     {
-        warn(_("the config array percentage-colors doesn't have 3 colors for being used in percentage tag and modules\n"
-               "backing up to green, yellow and red"));
+        warn(_("the config array percentage-colors doesn't have 3 colors for being used in percentage tag and modules.\n"
+               "Backing up to green, yellow and red"));
         this->percentage_colors = {"green", "yellow", "red"};
     }
 
@@ -151,7 +151,7 @@ std::vector<std::string> Config::getValueArrayStr(const std::string_view        
                 if (const toml::value<std::string>* str_elem = el.as_string())
                     ret.push_back((*str_elem)->data());
                 else
-                    warn(_("An element of the '{}' array variable is not a string"), value);
+                    warn(_("an element of the array '{}' is not a string"), value);
             }
         );
     }
@@ -165,8 +165,8 @@ void Config::addAliasColors(const std::string& str)
 {
     const size_t pos = str.find('=');
     if (pos == std::string::npos)
-        die(_("alias color '{}' does NOT have an equal sign '=' for separating color name and value.\n"
-            "for more check with --help"), str);
+        die(_("alias color '{}' does NOT have an equal sign '=' for separating color name and value\n"
+            "For more check with --help"), str);
 
     const std::string& name  = str.substr(0, pos);
     const std::string& value = str.substr(pos + 1);

@@ -121,7 +121,7 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     else if (config.m_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
     else
-        die(_("The image backend '{}' isn't supported, only kitty and viu.\n"
+        die(_("The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
             "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),
             config.m_image_backend);
 

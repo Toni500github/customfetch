@@ -20,12 +20,12 @@ msgstr ""
 #: src/config.cpp:39
 #, c++-format
 msgid "customfetch config folder was not found, Creating folders at {}!"
-msgstr ""
+msgstr "cartella di configurazione di customfetch non è stata trovata, Creando la cartella in {}!"
 
 #: src/config.cpp:45
 #, c++-format
 msgid "config file {} not found, generating new one"
-msgstr ""
+msgstr "file di configurazione {} non trovato, generandone uno nuovo"
 
 #: src/config.cpp:60
 #, c++-format
@@ -34,39 +34,51 @@ msgid ""
 "{}\n"
 "\t(error occurred at line {} column {})"
 msgstr ""
+"Parsificazione del file '{}' fallito:\n"
+"{}"
+"\t(errore accaduto alla linea {} colonna {})"
 
 #: src/config.cpp:120
 msgid ""
 "the config array percentage-colors doesn't have 3 colors for being used in "
-"percentage tag and modules\n"
-"backing up to green, yellow and red"
+"percentage tag and modules.\n"
+"Backing up to green, yellow and red"
 msgstr ""
+"L'array di configurazione 'percentage-colors' non ha 3 colori per essere usati "
+"nel tag della percentuale e moduli.\n"
+"Utilizzeremo verde, giallo e rosso"
 
 #: src/config.cpp:153
 #, c++-format
-msgid "An element of the '{}' array variable is not a string"
-msgstr ""
+msgid "an element of the array '{}' is not a string"
+msgstr "un elemento dell'array '{}' non è una stringa"
 
 #: src/config.cpp:167
 #, c++-format
 msgid ""
 "alias color '{}' does NOT have an equal sign '=' for separating color name "
 "and value.\n"
-"for more check with --help"
+"For more check with --help"
 msgstr ""
+"alias color '{}' NON HA un segno uguale '=' per separare il nome del colore "
+"e valore.\n"
+"Per altro consulta con l'opzione --help"
 
 #: src/display.cpp:95 src/gui.cpp:73
 #, c++-format
 msgid "Unable to load image '{}'"
-msgstr ""
+msgstr "Impossibile caricare immagine '{}'"
 
 #: src/display.cpp:124
 #, c++-format
 msgid ""
-"The image backend '{}' isn't supported, only kitty and viu.\n"
+"The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
 "Please currently use the GUI mode for rendering the image/gif (use -h for "
 "more details)"
 msgstr ""
+"Il caricatore di imagine '{}' non è supportato, solo 'kitty' e 'viu'."
+"Al momento usate la modalità GUI per caricare immagine/gif (usare -h per "
+"più dettagli)"
 
 #: src/display.cpp:169
 msgid "getpos: error reading response!"
@@ -75,32 +87,34 @@ msgstr ""
 #: src/display.cpp:213
 #, c++-format
 msgid "Could not open logo file '{}'"
-msgstr ""
+msgstr "Non è possibile aprire il logo del file '{}'"
 
 #: src/display.cpp:280
 msgid "images are NOT allowed in the android widget at the moment"
-msgstr ""
+msgstr "le immagini NON sono consentite nel widget di android al momento"
 
 #: src/gui.cpp:168
 #, c++-format
 msgid "Background image path '{}' doesn't exist"
-msgstr ""
+msgstr "La posizione dell'immagine di sfondo '{}' non esiste"
 
 #: src/main.cpp:373
 #, c++-format
 msgid "config file '{}' doesn't exist"
-msgstr ""
+msgstr "file di configurazione '{}' non esiste"
 
 #: src/main.cpp:626
 #, c++-format
 msgid "'{}' doesn't exist. Can't load image/text file"
-msgstr ""
+msgstr "'{}' non esiste. Non posso caricare il file di immagine/testo"
 
 #: src/main.cpp:638
 msgid ""
 "Can't run in GUI mode because it got disabled at compile time\n"
 "Compile customfetch with GUI_MODE=1 or contact your distro to enable it"
 msgstr ""
+"Non posso eseguire in modalità GUI perché è stata disabilitata durante la compilazione\n"
+"Compila customfetch con GUI_MODE=1 oppure contatta la distro per abilitarla"
 
 #: src/parse.cpp:119
 #, c++-format
@@ -108,6 +122,8 @@ msgid ""
 "Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
 "escape code in '{}'"
 msgstr ""
+"Parser: parsificazione del layout/ascii art fallita: manca 'm' mentre usiamo codice ANSI escape "
+"a colori in '{}'"
 
 #: src/parse.cpp:176
 #, c++-format
@@ -115,27 +131,31 @@ msgid ""
 "ANSI escape code color '\\e[{}' should have an rgb type value\n"
 "e.g \\e[38;2;255;255;255m"
 msgstr ""
+"codice ANSI escape a colori '\\e[{}' deve avere un tipo di valore rgb\n"
+"es. \\e[38;2;255;255;255m"
 
 #: src/parse.cpp:180
 msgid ""
-"Parser: failed to parse layout/ascii art: missing m while using ANSI color "
-"escape code"
+"Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
+"escape code in '\\e[{}'"
 msgstr ""
+"Parser: parsificazione del layout/ascii art fallita: manca 'm' mentre usiamo codice ANSI escape "
+"a colori in '\\e[{}'"
 
 #: src/parse.cpp:409
 #, c++-format
-msgid "{} mode in color {} doesn't have close bracket"
-msgstr ""
+msgid "'{}' mode in color '{}' doesn't have close bracket"
+msgstr "modalità '{}' nel colore '{}' non ha la parentesi chiusa"
 
 #: src/parse.cpp:496 src/parse.cpp:776
 #, c++-format
 msgid "256 true color '{}' works only in terminal"
-msgstr ""
+msgstr "colore '{}' funziona solo sul terminale"
 
 #: src/parse.cpp:510 src/parse.cpp:604 src/parse.cpp:794
 #, c++-format
 msgid "PARSER: failed to parse line with color '{}'"
-msgstr ""
+msgstr "PARSER: parsificazzione della line con colore '{}' fallito"
 
 #: src/parse.cpp:667
 #, c++-format

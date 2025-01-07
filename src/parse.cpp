@@ -177,7 +177,7 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
               "e.g \\e[38;2;255;255;255m"),
             noesc_str);
     if (noesc_str.rfind('m') == std::string::npos)
-        die(_("Parser: failed to parse layout/ascii art: missing m while using ANSI color escape code"));
+        die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '\\e[{}'"), noesc_str);
 
     const std::vector<std::string>& rgb_str = split(noesc_str.substr(5), ';');
 
@@ -401,12 +401,12 @@ jumpauto:
                 const std::string& opt_clr = str_clr.substr(0, pos);
 
                 size_t      argmode_pos    = 0;
-                const auto& append_argmode = [&](const std::string_view fmt, const std::string_view error) -> size_t {
+                const auto& append_argmode = [&](const std::string_view fmt, const std::string_view mode) -> size_t {
                     if (opt_clr.at(argmode_pos + 1) == '(')
                     {
                         const size_t closebrak = opt_clr.find(')', argmode_pos);
                         if (closebrak == std::string::npos)
-                            die(_("{} mode in color {} doesn't have close bracket"), error, str_clr);
+                            die(_("'{}' mode in color '{}' doesn't have close bracket"), mode, str_clr);
 
                         const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
                         tagfmt += fmt.data() + value + "' ";
