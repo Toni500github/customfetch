@@ -30,6 +30,7 @@
 #include <sys/types.h>
 
 #include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <chrono>
 #include <string>
@@ -363,6 +364,8 @@ static void nativeAndFileLog(JNIEnv *env, int log_level, const std::string_view 
 
     env->ReleaseStringUTFChars(jMessage, cMessage);
 
+    if (!std::filesystem::exists(getConfigDir()))
+        std::filesystem::create_directories(getConfigDir());
     auto f = fmt::output_file(getConfigDir() + "/log.txt", fmt::file::CREATE | fmt::file::APPEND | fmt::file::WRONLY);
     auto now = std::chrono::system_clock::now();
     f.print("[{:%H:%M:%S}] ", now);
@@ -381,11 +384,14 @@ static void writeToErrorLog(const bool fatal, const std::string_view fmt, Args&&
 {
     const std::string& fmt_str = fmt::format(fmt::runtime(fmt), args...);
     const std::string_view title = fatal ? "FATAL" : "ERROR";
+
+    if (!std::filesystem::exists(getConfigDir()))
+        std::filesystem::create_directories(getConfigDir());
     auto f = fmt::output_file(getConfigDir() + "/error_log.txt", fmt::file::CREATE | fmt::file::APPEND | fmt::file::RDWR);
     auto lock = fmt::output_file(getConfigDir() + "/error.lock");
     auto now = std::chrono::system_clock::now();
     f.print("[{:%H:%M:%S}] {}: {}\n", now, title, fmt_str);
-    lock.print("{}: {}\n", title, fmt_str);
+    lock.print("[{:%H:%M:%S}] {}: {}\n", now, title, fmt_str);
 }
 
 template <typename... Args>

@@ -36,9 +36,7 @@ Config::Config(const std::string_view configFile, const std::string_view configD
 {
     if (!std::filesystem::exists(configDir))
     {
-#if !ANDROID_APP
         warn(_("customfetch config folder was not found, Creating folders at {}!"), configDir);
-#endif
         std::filesystem::create_directories(configDir);
     }
 
