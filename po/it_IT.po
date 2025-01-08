@@ -13,21 +13,23 @@ msgstr ""
 "Language-Team: none\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ASCII\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/config.cpp:39
 #, c++-format
 msgid "customfetch config folder was not found, Creating folders at {}!"
-msgstr "cartella di configurazione di customfetch non è stata trovata, Creando la cartella in {}!"
+msgstr ""
+"cartella di configurazione di customfetch non è stata trovata, Creando la "
+"cartella in {}!"
 
 #: src/config.cpp:45
 #, c++-format
 msgid "config file {} not found, generating new one"
 msgstr "file di configurazione {} non trovato, generandone uno nuovo"
 
-#: src/config.cpp:60
+#: src/config.cpp:61
 #, c++-format
 msgid ""
 "Parsing config file '{}' failed:\n"
@@ -35,29 +37,28 @@ msgid ""
 "\t(error occurred at line {} column {})"
 msgstr ""
 "Parsificazione del file '{}' fallito:\n"
-"{}"
-"\t(errore accaduto alla linea {} colonna {})"
+"{}\t(errore accaduto alla linea {} colonna {})"
 
-#: src/config.cpp:120
+#: src/config.cpp:121
 msgid ""
 "the config array percentage-colors doesn't have 3 colors for being used in "
 "percentage tag and modules.\n"
 "Backing up to green, yellow and red"
 msgstr ""
-"L'array di configurazione 'percentage-colors' non ha 3 colori per essere usati "
-"nel tag della percentuale e moduli.\n"
+"L'array di configurazione 'percentage-colors' non ha 3 colori per essere "
+"usati nel tag della percentuale e moduli.\n"
 "Utilizzeremo verde, giallo e rosso"
 
-#: src/config.cpp:153
+#: src/config.cpp:154
 #, c++-format
 msgid "an element of the array '{}' is not a string"
 msgstr "un elemento dell'array '{}' non è una stringa"
 
-#: src/config.cpp:167
-#, c++-format
+#: src/config.cpp:168
+#, fuzzy, c++-format
 msgid ""
 "alias color '{}' does NOT have an equal sign '=' for separating color name "
-"and value.\n"
+"and value\n"
 "For more check with --help"
 msgstr ""
 "alias color '{}' NON HA un segno uguale '=' per separare il nome del colore "
@@ -76,9 +77,9 @@ msgid ""
 "Please currently use the GUI mode for rendering the image/gif (use -h for "
 "more details)"
 msgstr ""
-"Il caricatore di imagine '{}' non è supportato, solo 'kitty' e 'viu'."
-"Al momento usate la modalità GUI per caricare immagine/gif (usare -h per "
-"più dettagli)"
+"Il caricatore di imagine '{}' non è supportato, solo 'kitty' e 'viu'.Al "
+"momento usate la modalità GUI per caricare immagine/gif (usare -h per più "
+"dettagli)"
 
 #: src/display.cpp:169
 msgid "getpos: error reading response!"
@@ -93,27 +94,28 @@ msgstr "Non è possibile aprire il logo del file '{}'"
 msgid "images are NOT allowed in the android widget at the moment"
 msgstr "le immagini NON sono consentite nel widget di android al momento"
 
-#: src/gui.cpp:168
+#: src/gui.cpp:171
 #, c++-format
 msgid "Background image path '{}' doesn't exist"
 msgstr "La posizione dell'immagine di sfondo '{}' non esiste"
 
-#: src/main.cpp:373
+#: src/main.cpp:382
 #, c++-format
 msgid "config file '{}' doesn't exist"
 msgstr "file di configurazione '{}' non esiste"
 
-#: src/main.cpp:626
+#: src/main.cpp:642
 #, c++-format
 msgid "'{}' doesn't exist. Can't load image/text file"
 msgstr "'{}' non esiste. Non posso caricare il file di immagine/testo"
 
-#: src/main.cpp:638
+#: src/main.cpp:654
 msgid ""
 "Can't run in GUI mode because it got disabled at compile time\n"
 "Compile customfetch with GUI_MODE=1 or contact your distro to enable it"
 msgstr ""
-"Non posso eseguire in modalità GUI perché è stata disabilitata durante la compilazione\n"
+"Non posso eseguire in modalità GUI perché è stata disabilitata durante la "
+"compilazione\n"
 "Compila customfetch con GUI_MODE=1 oppure contatta la distro per abilitarla"
 
 #: src/parse.cpp:119
@@ -122,8 +124,8 @@ msgid ""
 "Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
 "escape code in '{}'"
 msgstr ""
-"Parser: parsificazione del layout/ascii art fallita: manca 'm' mentre usiamo codice ANSI escape "
-"a colori in '{}'"
+"Parser: parsificazione del layout/ascii art fallita: manca 'm' mentre usiamo "
+"codice ANSI escape a colori in '{}'"
 
 #: src/parse.cpp:176
 #, c++-format
@@ -135,12 +137,13 @@ msgstr ""
 "es. \\e[38;2;255;255;255m"
 
 #: src/parse.cpp:180
+#, c++-format
 msgid ""
 "Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
 "escape code in '\\e[{}'"
 msgstr ""
-"Parser: parsificazione del layout/ascii art fallita: manca 'm' mentre usiamo codice ANSI escape "
-"a colori in '\\e[{}'"
+"Parser: parsificazione del layout/ascii art fallita: manca 'm' mentre usiamo "
+"codice ANSI escape a colori in '\\e[{}'"
 
 #: src/parse.cpp:409
 #, c++-format
@@ -259,7 +262,7 @@ msgstr ""
 msgid "Failed to find $HOME, set it to your home directory!"
 msgstr ""
 
-#: src/query/unix/cpu.cpp:204
+#: src/query/unix/cpu.cpp:282
 #, c++-format
 msgid "Could not open {}"
 msgstr ""
@@ -323,8 +326,8 @@ msgstr ""
 
 #: src/query/unix/theme.cpp:383
 msgid ""
-"You can disable this warning by disabling slow-query-warnings in your config."
-"toml file."
+"You can disable this warning by disabling slow-query-warnings in your "
+"config.toml file."
 msgstr ""
 
 #: src/query/unix/user.cpp:331
