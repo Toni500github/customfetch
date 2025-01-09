@@ -40,17 +40,14 @@ import org.toni.customfetch_android.R
  * App Widget Configuration implemented in [customfetchConfigureActivity]
  */
 class customfetch : AppWidgetProvider() {
-    var firstFun = true
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
         // There may be multiple widgets active, so update all of them
-        if (!firstFun)
-            for (appWidgetId in appWidgetIds)
-                updateAppWidget(context, appWidgetManager, appWidgetId)
-        firstFun = false
+        for (appWidgetId in appWidgetIds)
+            updateAppWidget(context, appWidgetManager, appWidgetId)
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {

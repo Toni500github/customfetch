@@ -27,6 +27,7 @@
 #define _UTILS_HPP
 
 #include <dlfcn.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 
 #include <cstdlib>
@@ -366,16 +367,31 @@ static void nativeAndFileLog(JNIEnv *env, int log_level, const std::string_view 
 
     if (!std::filesystem::exists(getConfigDir()))
         std::filesystem::create_directories(getConfigDir());
-    auto f = fmt::output_file(getConfigDir() + "/log.txt", fmt::file::CREATE | fmt::file::APPEND | fmt::file::WRONLY);
+    
+    const std::string& log_file = getConfigDir() + "/log.txt";
     auto now = std::chrono::system_clock::now();
+    // reset/delete log.txt if it's older than 5 days
+    // taken from https://github.com/BurntRanch/TabAUR/blob/main/src/util.cpp#L841
+    {
+        auto        timeout_duration = std::chrono::hours(24 * 5);
+        auto        timeout          = std::chrono::duration_cast<std::chrono::seconds>(timeout_duration).count();
+        std::time_t now_time_t       = std::chrono::system_clock::to_time_t(now);
+
+        struct stat file_stat;
+        if ((stat((log_file).c_str(), &file_stat) != 0)     || // failed to open file
+            (file_stat.st_mtim.tv_sec < now_time_t - timeout)) // file is older than 5 days
+            fmt::output_file(log_file, fmt::file::CREATE | fmt::file::TRUNC);
+    }
+
+    auto f = fmt::output_file(log_file, fmt::file::CREATE | fmt::file::APPEND | fmt::file::WRONLY);
     f.print("[{:%H:%M:%S}] ", now);
     switch(log_level)
     {
-        case ANDROID_LOG_FATAL: f.print("FATAL: {}\n", fmt_str);   break;
-        case ANDROID_LOG_ERROR: f.print("ERROR: {}\n", fmt_str);   break;
+        case ANDROID_LOG_FATAL: f.print("FATAL: {}\n",   fmt_str); break;
+        case ANDROID_LOG_ERROR: f.print("ERROR: {}\n",   fmt_str); break;
         case ANDROID_LOG_WARN:  f.print("WARNING: {}\n", fmt_str); break;
-        case ANDROID_LOG_INFO:  f.print("INFO: {}\n", fmt_str);    break;
-        //case ANDROID_LOG_DEBUG: f.print("[DEBUG]: {}\n", fmt_str); break;
+        case ANDROID_LOG_INFO:  f.print("INFO: {}\n",    fmt_str); break;
+        case ANDROID_LOG_DEBUG: f.print("[DEBUG]: {}\n", fmt_str); break;
     }
 }
 
@@ -387,6 +403,7 @@ static void writeToErrorLog(const bool fatal, const std::string_view fmt, Args&&
 
     if (!std::filesystem::exists(getConfigDir()))
         std::filesystem::create_directories(getConfigDir());
+
     auto f = fmt::output_file(getConfigDir() + "/error_log.txt", fmt::file::CREATE | fmt::file::APPEND | fmt::file::RDWR);
     auto lock = fmt::output_file(getConfigDir() + "/error.lock");
     auto now = std::chrono::system_clock::now();
