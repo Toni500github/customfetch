@@ -78,7 +78,8 @@ class customfetchConfigureActivity : Activity() {
             binding.argumentsConfigure.text.toString(),
             binding.additionalTruncateWidth.text.toString(),
             disableLineWrap,
-            bgColor)
+            bgColor
+        )
 
         // It is the responsibility of the configuration activity to update the app widget
         val appWidgetManager = AppWidgetManager.getInstance(context)

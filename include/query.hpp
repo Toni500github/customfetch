@@ -51,6 +51,12 @@ using systemInfo_t =
 // used in systemInfo_t most of the time
 using variant = std::variant<std::string, size_t, double>;
 
+#if !ANDROID_APP
+#define CHECK_INIT(x) if (x)
+#else
+#define CHECK_INIT(x) if (true)
+#endif
+
 namespace Query
 {
 
@@ -187,6 +193,7 @@ public:
 
         // private:
         double freq_max_cpuinfo = 0;
+        // only in Android
         std::string modelname;
         std::string vendor;
     };

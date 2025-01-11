@@ -141,8 +141,8 @@ static System::System_t get_system_infos_os_releases()
     }
 
     // get OS /etc/os-release infos
-    u_short iter_index = 0;
-    std::string    line;
+    std::uint16_t iter_index = 0;
+    std::string   line;
     while (std::getline(os_release_file, line) && iter_index < 5)
     {
         if (hasStart(line, "PRETTY_NAME="))
@@ -166,7 +166,7 @@ static System::System_t get_system_infos_os_releases()
 
 System::System()
 {
-    if (!m_bInit)
+    CHECK_INIT(!m_bInit)
     {
         if (uname(&m_uname_infos) != 0)
             die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));

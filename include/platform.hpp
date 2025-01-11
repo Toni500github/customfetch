@@ -1,7 +1,7 @@
 #ifndef _PLATFORM_H
 #define _PLATFORM_H
 
-#if (defined(__ANDROID__) || defined(ANDROID_API))
+#if (defined(__ANDROID__) || defined(ANDROID_API) || ANDROID_APP)
 # define CF_ANDROID 1
 #else
 # define CF_ANDROID 0

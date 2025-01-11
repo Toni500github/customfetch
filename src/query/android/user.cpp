@@ -58,7 +58,7 @@ static std::string get_shell_name(const std::string_view shell_path)
 
 User::User() noexcept
 {
-    if (!m_bInit)
+    CHECK_INIT(!m_bInit)
     {
         const uid_t uid = getuid();
 

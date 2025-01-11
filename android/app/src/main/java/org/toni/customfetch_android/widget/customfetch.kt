@@ -25,15 +25,19 @@
 
 package org.toni.customfetch_android.widget
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Bundle
 import android.text.TextPaint
 import android.util.Log
 import android.widget.RemoteViews
 import org.toni.customfetch_android.R
+
+const val WIDGET_CLICK_ACTION = "org.toni.customfetch_android.WIDGET_CLICK"
 
 /**
  * Implementation of App Widget functionality.
@@ -46,14 +50,31 @@ class customfetch : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         // There may be multiple widgets active, so update all of them
-        for (appWidgetId in appWidgetIds)
+        for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId)
+        }
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         // When the user deletes the widget, delete the preference associated with it.
         for (appWidgetId in appWidgetIds) {
             deleteConfigPrefs(context, appWidgetId)
+        }
+    }
+
+    override fun onReceive(context: Context?, intent: Intent?) {
+        super.onReceive(context, intent)
+        Log.d("onReceiveTest", "intent.action = ${intent?.action}")
+        if (context != null && intent?.action == WIDGET_CLICK_ACTION) {
+            val appWidgetId = intent.getIntExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID
+            )
+
+            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                Log.d("onReceiveTest", "Widget clicked!")
+                updateAppWidget(context, AppWidgetManager.getInstance(context), appWidgetId)
+            }
         }
     }
 
@@ -64,15 +85,6 @@ class customfetch : AppWidgetProvider() {
         newOptions: Bundle
     ) {
         updateAppWidget(context, appWidgetManager, appWidgetId)
-    }
-
-    override fun onEnabled(context: Context) {
-        // Enter relevant functionality for when the first widget is created
-
-    }
-
-    override fun onDisabled(context: Context) {
-        // Enter relevant functionality for when the last widget is disabled
     }
 }
 
@@ -117,7 +129,6 @@ internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
-
 ) {
     val disableLineWrap = getDisableLineWrap(context, appWidgetId)
     val bgColor = getBgColor(context, appWidgetId)
@@ -145,8 +156,22 @@ internal fun updateAppWidget(
             textPaint
         )
 
+    // needed for when touching the widget
+    val intent = Intent(context, customfetch::class.java).apply {
+        action = WIDGET_CLICK_ACTION
+        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+    }
+
+    val pendingIntent = PendingIntent.getBroadcast(
+        context,
+        appWidgetId,
+        intent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)
+    views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
     views.setTextViewText(R.id.customfetch_text, parsedContent)
     views.setInt(R.id.widget_root, "setBackgroundColor", bgColor);
 

@@ -323,7 +323,7 @@ static std::string get_term_version(std::string_view term_name)
 
 User::User() noexcept
 {
-    if (!m_bInit)
+    CHECK_INIT(!m_bInit)
     {
         const uid_t uid = getuid();
 

@@ -59,7 +59,7 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths)
     FILE* mountsFile = setmntent("/proc/mounts", "r");
     if (mountsFile == NULL)
     {
-        perror(_("setmntent"));
+        perror("setmntent");
         error(_("setmntent() failed. Could not get disk info"));
         return;
     }

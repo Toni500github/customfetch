@@ -73,7 +73,7 @@ static System::System_t get_system_infos()
 
 System::System()
 {
-    if (!m_bInit)
+    CHECK_INIT(!m_bInit)
     {
         if (uname(&m_uname_infos) != 0)
             die("uname() failed: {}\nCould not get system infos", strerror(errno));

@@ -255,7 +255,7 @@ layout = [
     "${auto}Terminal: $<user.terminal>",
     "${auto}Shell: $<user.shell>",
     "${auto}Packages: $<os.pkgs>",)#"
-#if !ANDROID_APP
+#if !CF_ANDROID
     R"#(
     "${auto}Theme: $<theme-gtk-all.name>",
     "${auto}Icons: $<theme-gtk-all.icons>",

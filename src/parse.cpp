@@ -1717,7 +1717,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            //                                                            idk, trick the diviser
+            //                                                            idk, trick the divider
             byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
             byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
 
@@ -1748,7 +1748,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            //                                                            idk, trick the diviser
+            //                                                            idk, trick the divider
             byte_units.at(USED)  = auto_devide_bytes(query_ram.swap_used_amount() * byte_unit, byte_unit);
             byte_units.at(TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * byte_unit, byte_unit);
 

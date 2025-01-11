@@ -429,7 +429,7 @@ static double get_cpu_temp()
 
 CPU::CPU() noexcept
 {
-    if (!m_bInit)
+    CHECK_INIT(!m_bInit)
     {
         m_cpu_infos = get_cpu_infos();
         m_bInit     = true;

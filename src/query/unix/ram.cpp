@@ -60,8 +60,8 @@ static RAM::RAM_t get_amount() noexcept
         return memory_infos;
     }
 
-    std::string    line;
-    static u_short iter_index = 0;
+    std::string   line;
+    std::uint16_t iter_index = 0;
     while (std::getline(file, line) && iter_index < 4)
     {
         if (hasStart(line, "MemAvailable:"))
@@ -107,7 +107,7 @@ static RAM::RAM_t get_amount() noexcept
 
 RAM::RAM() noexcept
 {
-    if (!m_bInit)
+    CHECK_INIT(!m_bInit)
     {
         m_memory_infos = get_amount();
         m_bInit        = true;
