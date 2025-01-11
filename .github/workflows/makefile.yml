@@ -1,4 +1,4 @@
-name: Makefile CI (Test customfetch NOGUI)
+name: Makefile CI (Test customfetch)
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-deb:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v4
@@ -18,8 +18,10 @@ jobs:
 
     - name: Install Packages
       run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get update
-        sudo apt-get install libwayland-dev libgtk-3-dev pkg-config libgtkmm-3.0-dev libdconf-dev libglib2.0-dev libarchive-tools
+        sudo apt-get upgrade -y
+        sudo apt-get install libwayland-dev g++-10 libgtk-3-dev pkg-config libgtkmm-3.0-dev libdconf-dev libglib2.0-dev libarchive-tools
         sudo apt-get install binutils gettext lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
 
     - name: Clean
@@ -32,6 +34,7 @@ jobs:
         mkdir -p Debian/Debhelper/Buildsystem/
         wget https://github.com/Debian/debhelper/raw/master/lib/Debian/Debhelper/Buildsystem/makefile.pm -O Debian/Debhelper/Buildsystem/make.pm
         sed -i "s#package Debian::Debhelper::Buildsystem::makefile#package Debian::Debhelper::Buildsystem::make#g" Debian/Debhelper/Buildsystem/make.pm
+        sed -i "s#DEBUG=0#DEBUG=0 CXX=x86_64-linux-gnu-g++-10#g" debian/rules
         dpkg-buildpackage -us -uc
 
     - name: Install test customfetch
@@ -39,22 +42,31 @@ jobs:
         cd /tmp/customfetch-0.10.2.orig
         sudo dpkg -i customfetch_0.10.2-1_amd64.deb
         customfetch --wrap-lines
-  
-  build_ubuntu-latest:
 
-    runs-on: ubuntu-latest
+    - name: Upload to github artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: customfetch_amd64
+        path: /tmp/customfetch-0.10.2.orig/customfetch_0.10.2-1_amd64.deb
+  
+  build_ubuntu-20_04:
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Install Packages
-      run: sudo apt-get update && sudo apt-get install build-essential gettext cmake neofetch tree libgtk-3-dev pkg-config libgtkmm-3.0-dev -y
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get update && sudo apt upgrade -y
+        sudo apt-get install neofetch tree build-essential g++-10 libwayland-dev gettext libgtk-3-dev pkg-config libdconf-dev libglib2.0-dev libgtkmm-3.0-dev libarchive-tools -y
     
     - name: Clean
       run: make clean
 
-    - name: Compile
-      run: sudo make install DEBUG=1 VENDOR_TEST=1 GUI_MODE=0
+    - name: Compile and install
+      run: make DEBUG=1 GUI_MODE=0 CXX=x86_64-linux-gnu-g++-10 && sudo make install
 
     - name: Test neofetch
       run: neofetch
@@ -71,8 +83,45 @@ jobs:
     - name: Test customfetch
       run: ./build/debug/customfetch --wrap-lines
 
-  build_Arch-AUR:
-  
+    - name: Upload to github artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: customfetch
+        path: ./build/debug/customfetch
+
+  build_ubuntu-20_04-GUI:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Packages
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get update && sudo apt upgrade -y
+        sudo apt-get install neofetch tree build-essential g++-10 libwayland-dev gettext libgtk-3-dev pkg-config libdconf-dev libglib2.0-dev libgtkmm-3.0-dev -y
+
+    - name: Clean
+      run: make clean
+
+    - name: Compile and install
+      run: make DEBUG=1 GUI_MODE=1 CXX=x86_64-linux-gnu-g++-10 && sudo make install GUI_MODE=1
+
+    - name: Test neofetch
+      run: neofetch
+       
+    - name: Test customfetch
+      run: ./build/debug/customfetch --wrap-lines
+
+    - name: Upload to github artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: customfetch-gui
+        path: ./build/debug/customfetch
+
+  build_Arch-AUR:  
     runs-on: ubuntu-latest
     container:
       image: archlinux
@@ -110,7 +159,6 @@ jobs:
       run: customfetch --wrap-lines
 
   build_Arch:
-  
     runs-on: ubuntu-latest
     container:
       image: archlinux
@@ -133,7 +181,7 @@ jobs:
     - name: Clean
       run: make clean
 
-    - name: Compile
+    - name: Compile and install
       run: make install DEBUG=1 VENDOR_TEST=1 GUI_MODE=0
 
     - name: Test neofetch
@@ -154,8 +202,8 @@ jobs:
       run: ./build/debug/customfetch --wrap-lines
 
   build-android-app:
-  
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v4
       
@@ -175,6 +223,13 @@ jobs:
       - name: Check files
         run: tree android/app/build/outputs/apk
 
+      - name: Upload to github artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: customfetch-android-app
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
   test-all-ascii-art:
     runs-on: ubuntu-latest
 
@@ -187,7 +242,7 @@ jobs:
     - name: Clean
       run: make clean
 
-    - name: Compile
+    - name: Compile and install
       run: sudo make install DEBUG=0 VENDOR_TEST=0 GUI_MODE=0
 
     - name: Test all the ascii art logos

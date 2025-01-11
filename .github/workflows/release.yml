@@ -243,7 +243,7 @@ jobs:
           asset_path: customfetch-gui-deb-pkg/customfetch-gui_amd64.deb
           asset_name: customfetch-gui_${{ needs.get-version.outputs.version }}_amd64.deb
           asset_content_type: application/vnd.debian.binary-package
-	  
+
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
