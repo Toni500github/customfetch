@@ -27,9 +27,8 @@
 
 #include <cstdlib>
 #include <filesystem>
-#include <fstream>
-#include <iostream>
 
+#include "fmt/os.h"
 #include "util.hpp"
 
 Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors, bool do_not_load)
@@ -47,7 +46,9 @@ Config::Config(const std::string_view configFile, const std::string_view configD
     }
 
     if (!do_not_load)
+    {
         this->loadConfigFile(configFile, colors);
+    }
 }
 
 void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
@@ -154,11 +155,11 @@ std::vector<std::string> Config::getValueArrayStr(const std::string_view        
                     warn(_("an element of the array '{}' is not a string"), value);
             }
         );
+
+        return ret;
     }
     else
         return fallback;
-
-    return ret;
 }
 
 void Config::addAliasColors(const std::string& str)
@@ -185,7 +186,6 @@ void Config::generateConfig(const std::string_view filename)
     }
 #endif
 
-    std::ofstream f(filename.data(), std::ios::trunc);
-    f << AUTOCONFIG;
-    f.close();
+    auto f = fmt::output_file(filename.data());
+    f.print("{}", AUTOCONFIG);
 }

@@ -85,7 +85,8 @@ public:
     bool                     wrap_lines          = false;
 
     // Variables of config file for 
-    // modules specific configs, e.g [uptime]
+    // modules specific configs
+    // [uptime]
     std::string uptime_d_fmt;
     std::string uptime_h_fmt;
     std::string uptime_m_fmt;

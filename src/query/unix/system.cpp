@@ -309,7 +309,6 @@ std::string& System::pkgs_installed(const Config& config)
     if (!done)
     {
         m_system_infos.pkgs_installed = get_all_pkgs(config);
-
         done = true;
     }
 

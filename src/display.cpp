@@ -72,6 +72,7 @@ std::string Display::detect_distro(const Config& config)
         if (std::filesystem::exists(format))
             return format;
     }
+
 #if ANDROID_APP
     return config.data_dir + "/ascii/android.txt";
 #else
@@ -97,7 +98,7 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     stbi_image_free(img);
 
     std::string _;
-    parse_args_t parse_args{ systemInfo, _, config, colors, true, true, false, "" };
+    parse_args_t parse_args{ systemInfo, _, config, colors, true };
     for (std::string& line : layout)
     {
         line = parse(line, parse_args);
@@ -242,8 +243,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         // this is just for parse() to auto add the distro colors
         std::ifstream distro_file(distro_path);
         std::string   line, _;
-
-        parse_args_t parse_args{ systemInfo, _, config, colors, false, true, false, "" };
+        parse_args_t  parse_args{ systemInfo, _, config, colors, false };
 
         while (std::getline(distro_file, line))
         {
@@ -296,7 +296,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     while (std::getline(file, line))
     {
         std::string pureOutput;
-        parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false, true, false, "" };
+        parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false };
 
         std::string asciiArt_s = parse(line, parse_args);
         parse_args.no_more_reset = false;
@@ -325,7 +325,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         return asciiArt;
 
     std::string _;
-    parse_args_t parse_args{ systemInfo, _, config, colors, true, true, false, "" };
+    parse_args_t parse_args{ systemInfo, _, config, colors, true };
     for (std::string& line : layout)
     {
         line = parse(line, parse_args);

@@ -156,7 +156,7 @@ internal fun updateAppWidget(
             textPaint
         )
 
-    // needed for when touching the widget
+    // both needed for when touching the widget
     val intent = Intent(context, customfetch::class.java).apply {
         action = WIDGET_CLICK_ACTION
         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)

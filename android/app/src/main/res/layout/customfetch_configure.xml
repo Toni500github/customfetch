@@ -42,8 +42,8 @@
         android:id="@+id/additional_truncate_width"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autofillHints="0.6"
-        android:inputType="text" />
+        android:text="0.6"
+        android:inputType="number" />
 
     <TextView
         android:layout_width="wrap_content"

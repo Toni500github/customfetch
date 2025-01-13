@@ -152,6 +152,7 @@ static STRING_IF_ANDROID_APP_ELSE(void) modules_list()
     constexpr std::string_view list(R"(
 MODULE ONLY
 Should be used as like as $<module>
+
 Syntax:
 # maybe comments of the module
 module:
@@ -201,10 +202,13 @@ colors_symbol(symbol):
 colors_light_symbol(symbol):
   light color palette with specific symbol
 
+--------------------------------------------------------------------------------------------------------------------------------
+
 MODULE MEMBERS
 Should be used as like as $<module.member>
 NOTE: there are modules such as "user.de_version" that may slow down customfetch because of querying things like the DE version
       customfetch is still fast tho :)
+
 Syntax:
 # maybe comments of the module
 module
@@ -327,10 +331,10 @@ cpu
   name:     CPU model name [AMD Ryzen 5 5500]
   temp:     CPU temperature (by the chosen unit) [40.62]
   nproc:    CPU number of virtual processors [12]
-  freq_cur: CPU freq (current, in GHz) [3.42]
-  freq_min: CPU freq (minimum, in GHz) [2.45]
-  freq_max: CPU freq (maximum, in GHz) [4.90]
-  freq_bios_limit: CPU freq (limited by bios, in GHz) [4.32]
+  freq_cur: CPU current freq (in GHz) [3.42]
+  freq_min: CPU minimum freq (in GHz) [2.45]
+  freq_max: CPU maximum freq (in GHz) [4.90]
+  freq_bios_limit: CPU freq limited by bios (in GHz) [4.32]
 
 system
   host:         Host (aka. Motherboard) model name with vendor and version [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95) 1.0]
@@ -639,7 +643,7 @@ int main(int argc, char *argv[])
     debug("{} path = {}", __PRETTY_FUNCTION__, path);
 
     if (!std::filesystem::exists(path) && !config.m_disable_source)
-        die(_("'{}' doesn't exist. Can't load image/text file"), path);
+        die(_("Path '{}' doesn't exist. Can't load logo"), path);
 
 #if !ANDROID_APP
 #if GUI_MODE
@@ -673,9 +677,12 @@ int main(int argc, char *argv[])
     {
         Display::display(Display::render(config, colors, false, path));
     }
+        
+    return 0;
 #else
+
     return fmt::format("{}", fmt::join(Display::render(config, colors, false, path), "<br>"));
+
 #endif // !ANDROID_APP
 
-    return _false; // 0 or "false"
 }
