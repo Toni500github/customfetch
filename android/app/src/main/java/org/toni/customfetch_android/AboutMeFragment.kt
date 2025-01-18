@@ -26,7 +26,6 @@
 package org.toni.customfetch_android
 
 import android.os.Bundle
-import androidx.core.text.HtmlCompat
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
@@ -46,7 +45,7 @@ class AboutMeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = AboutMeFragmentBinding.inflate(inflater, container, false)
-        binding.toolbar.apply {
+        binding.toolbarAboutMe.apply {
             setNavigationIcon(R.drawable.arrow_back)
             setNavigationOnClickListener { _ ->
                 requireActivity().supportFragmentManager.popBackStack()

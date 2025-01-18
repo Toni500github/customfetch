@@ -12,14 +12,15 @@
     android:orientation="vertical" >
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/toolbar_about_me"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:background="#4F4F4F"
         android:popupTheme="?attr/actionBarPopupTheme"
         app:title="About Me"
-        app:titleTextColor="#ffFFff" />
+        app:navigationIcon="@drawable/arrow_back"
+        app:titleTextColor="@color/white" />
 
     <!-- Developers/Contributors -->
     <TextView

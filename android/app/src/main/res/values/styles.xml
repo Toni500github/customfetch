@@ -10,6 +10,10 @@
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
+    <style name="PrefsTheme" parent="PreferenceThemeOverlay.v14.Material">
+        <item name="android:layout">@layout/settings_layout</item>
+    </style>
+
     <style name="ShapeAppearanceOverlay.Material3.Chip" parent="Theme.MaterialComponents">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>

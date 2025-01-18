@@ -49,6 +49,8 @@ import androidx.core.text.HtmlCompat
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import org.toni.customfetch_android.R
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
+import org.toni.customfetch_android.getAppSettingsPrefBool
+import org.toni.customfetch_android.getAppSettingsPrefString
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -116,7 +118,8 @@ class customfetchConfigureActivity : Activity() {
         }
 
         binding.argumentsConfigure.setText(getArgsPref(this@customfetchConfigureActivity, appWidgetId))
-        binding.additionalTruncateWidth.setText("0.6")
+        binding.additionalTruncateWidth.setText(getAppSettingsPrefString(this, "additional_truncate"))
+        binding.disableWrapLinesCheck.isChecked = getAppSettingsPrefBool(this, "always_truncate")
         binding.argsHelp.text = customfetchRender.mainAndroid("customfetch --help", true)
 
         binding.showModulesList.setOnCheckedChangeListener { _, isChecked ->
@@ -127,6 +130,7 @@ class customfetchConfigureActivity : Activity() {
             disableLineWrap = isChecked
         }
 
+        binding.colorPickerHex.setText(getAppSettingsPrefString(this, "default_custom_color"))
         binding.selectBgColor.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.radio_system_bg_color -> {
@@ -184,9 +188,6 @@ class customfetchConfigureActivity : Activity() {
             }
         }
     }
-
-    private fun isValidHex(color: String): Boolean =
-        color.matches("^#[0-9A-Fa-f]{8}$".toRegex())
 }
 
 class CustomfetchMainRender {
@@ -275,7 +276,7 @@ internal fun saveConfigPrefs(
 internal fun getArgsPref(context: Context, appWidgetId: Int): String {
     val prefs = context.getSharedPreferences(PREFS_NAME, 0)
     val args = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_args", null)
-    return args ?: "-D ${context.filesDir.absolutePath} -a small"
+    return args ?: getAppSettingsPrefString(context, "default_args")
 }
 
 internal fun getDisableLineWrap(context: Context, appWidgetId: Int): Boolean {
@@ -304,3 +305,6 @@ internal fun deleteConfigPrefs(context: Context, appWidgetId: Int) {
     prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_bgColor")
     prefs.apply()
 }
+
+internal fun isValidHex(color: String): Boolean =
+    color.matches("^#[0-9A-Fa-f]{8}$".toRegex())

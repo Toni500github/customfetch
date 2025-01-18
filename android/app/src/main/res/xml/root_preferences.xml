@@ -1,0 +1,41 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="Default Configuration">
+
+        <EditTextPreference
+            app:key="default_args"
+            app:title="Default command line options"
+            app:defaultValue="-D /data/user/0/org.toni.customfetch_android/files/ -a small"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            app:key="always_truncate"
+            app:title="Always truncate text" />
+
+        <EditTextPreference
+            app:key="additional_truncate"
+            app:title="Default additional truncate width"
+            app:defaultValue="0.6"
+            android:inputType="number"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="default_custom_color"
+            app:title="Default custom color (#AARRGGBB)"
+            app:defaultValue="#FF000000"
+            app:useSimpleSummaryProvider="true" />
+
+        <!--
+        <ListPreference
+            app:key="reply"
+            app:title="Default background color"
+            app:defaultValue="system_bg_color"
+            app:entries="@array/default_bg_colors"
+            app:entryValues="@array/default_bg_colors_values"
+            app:useSimpleSummaryProvider="true" />
+            -->
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
