@@ -138,8 +138,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setFragment(fragment: Fragment) {
-        supportFragmentManager
-            .beginTransaction()
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.animator.fade_in,  // enter
+                R.animator.fade_in,  // exit
+                android.R.animator.fade_out,   // popEnter
+                android.R.anim.slide_out_right  // popExit
+            )
             .replace(android.R.id.content, fragment)
             .addToBackStack(null).commit()
     }

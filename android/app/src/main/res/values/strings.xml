@@ -17,5 +17,6 @@
     <string name="toni500_github"><a href="https://github.com/Toni500github/">Toni500github</a></string>
     <string name="fmtlib_github"><a href="https://github.com/fmtlib/fmt">fmtlib</a></string>
     <string name="tomlplusplus_github"><a href="https://github.com/marzer/tomlplusplus">tomlplusplus</a></string>
+    <string name="colorpickerview_github"><a href="https://github.com/skydoves/ColorPickerView">ColorPickerView</a></string>
     <string name="join_subreddit"><a href="https://reddit.com/r/customfetch">Join r/customfetch</a></string>
 </resources>

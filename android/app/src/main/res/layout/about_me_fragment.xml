@@ -201,7 +201,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="5dp"
         android:gravity="center"
-        android:paddingHorizontal="10dp"
+        android:paddingHorizontal="18dp"
         android:text="Formatting library that provides a fast and safe alternative to C stdio and C++ iostreams."
         android:textColor="#BBBBBB" />
 
@@ -243,6 +243,46 @@
         android:gravity="center"
         android:paddingHorizontal="10dp"
         android:text="C++17 library for serializing and parsing TOML config files."
+        android:textColor="#BBBBBB" />
+
+    <!-- colorpickerview -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="35dp"
+        android:src="@drawable/colorpickerview_ss" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="1dp" >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/github_mark_white" />
+
+        <TextView
+            android:id="@+id/colorpickerview_github_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="4dp"
+            android:text="@string/colorpickerview_github"
+            android:textColor="#ffffff" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:paddingHorizontal="20dp"
+        android:text="Android colorpicker for getting colors from any images by tapping on the desired color."
         android:textColor="#BBBBBB" />
 
     <TextView

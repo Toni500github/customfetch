@@ -57,6 +57,7 @@ class AboutMeFragment : Fragment() {
         binding.bcppDiscordLink.movementMethod = LinkMovementMethod.getInstance()
         binding.fmtlibGithubLink.movementMethod = LinkMovementMethod.getInstance()
         binding.tomlLibGithubLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.colorpickerviewGithubLink.movementMethod = LinkMovementMethod.getInstance()
 
         return binding.root
     }
