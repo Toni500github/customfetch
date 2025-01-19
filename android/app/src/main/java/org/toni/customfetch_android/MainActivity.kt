@@ -28,7 +28,6 @@ package org.toni.customfetch_android
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.res.AssetManager
 import android.os.Build
 import android.os.Bundle
@@ -42,14 +41,11 @@ import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.preference.PreferenceManager
 import org.toni.customfetch_android.databinding.ActivityMainBinding
-import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStreamReader
 import java.nio.file.Files
 import kotlin.io.path.Path
 
@@ -138,10 +134,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setFragment(fragment: Fragment) {
+        var durationScale = Settings.Global.getFloat(
+            contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            0f
+        )
+        if (durationScale != 0.5f) {
+            try {
+                val c = Class.forName("android.animation.ValueAnimator")
+                val m = c.getMethod("setDurationScale", Float::class.javaPrimitiveType)
+                m.invoke(null, 0.5f)
+                durationScale = 0.5f
+            } catch (_: Throwable) {
+            }
+        }
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
-                R.animator.fade_in,  // enter
-                R.animator.fade_in,  // exit
+                android.R.animator.fade_in,  // enter
+                android.R.animator.fade_in,  // exit
                 android.R.animator.fade_out,   // popEnter
                 android.R.anim.slide_out_right  // popExit
             )
