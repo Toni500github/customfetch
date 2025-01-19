@@ -252,10 +252,13 @@ layout = [
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
-    "${auto}Uptime: $<os.uptime>",
+    "${auto}Uptime: $<os.uptime>",)#"
+#if !ANDROID_APP
+    R"#(
     "${auto}Terminal: $<user.terminal>",
     "${auto}Shell: $<user.shell>",
     "${auto}Packages: $<os.pkgs>",)#"
+#endif
 #if !CF_ANDROID
     R"#(
     "${auto}Theme: $<theme-gtk-all.name>",

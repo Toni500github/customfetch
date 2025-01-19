@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2D2D2D"
+    android:background="#2a2a2a"
     android:id="@+id/activity_main"
     style="@style/Theme.MainActivity"
     tools:context=".MainActivity">
@@ -14,7 +14,7 @@
         android:id="@+id/spacer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
+        android:textSize="15sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -83,7 +83,7 @@
 
     <LinearLayout
         android:id="@+id/aboutMe"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@drawable/round_border"

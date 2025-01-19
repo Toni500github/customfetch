@@ -140,15 +140,13 @@ class customfetchConfigureActivity : Activity() {
                 bgColor = 0x00FFFFFF
             }
             "custom_bg_color" -> {
-                binding.customColorSelect.visibility = View.VISIBLE
                 binding.selectBgColor.check(R.id.radio_custom_colors)
+                binding.customColorSelect.visibility = View.VISIBLE
                 val col = getAppSettingsPrefString(this, "default_custom_color")
                 bgColor = col.toColorInt()
                 binding.colorPickerHex.setText(col)
                 binding.colorPreview.setBackgroundColor(Color.parseColor(col))
                 binding.colorPickerView.setInitialColor(col.toColorInt())
-                binding.colorPickerView.attachAlphaSlider(binding.alphaSlideBar)
-                binding.colorPickerView.attachBrightnessSlider(binding.brightnessSlideBar)
             }
         }
 
@@ -208,11 +206,12 @@ class customfetchConfigureActivity : Activity() {
                         bgColor = envelope.color
                         firstRun = false
                     })
-                    binding.colorPickerView.attachAlphaSlider(binding.alphaSlideBar)
-                    binding.colorPickerView.attachBrightnessSlider(binding.brightnessSlideBar)
                 }
             }
         }
+
+        binding.colorPickerView.attachAlphaSlider(binding.alphaSlideBar)
+        binding.colorPickerView.attachBrightnessSlider(binding.brightnessSlideBar)
     }
 }
 

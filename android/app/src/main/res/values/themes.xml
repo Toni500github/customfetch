@@ -2,8 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.MainActivity" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/main_500</item>
-        <item name="colorPrimaryVariant">@color/main_dark_800</item>
+        <item name="colorPrimary">#2d2d2d</item>
+        <item name="colorPrimaryVariant">#2a2a2a</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>

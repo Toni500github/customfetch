@@ -25,10 +25,15 @@
 
 package org.toni.customfetch_android
 
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.AssetManager
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -125,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                         val fragment = TestConfigFragment().apply {
                             configFile = PathUtil.getPath(this@MainActivity, uri)
                         }
-                        setFragment(fragment)
+                        setFragment(fragment, android.R.anim.slide_in_left)
                     }
                     else -> {}
                 }
@@ -133,43 +138,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setFragment(fragment: Fragment) {
-        var durationScale = Settings.Global.getFloat(
-            contentResolver,
-            Settings.Global.ANIMATOR_DURATION_SCALE,
-            0f
-        )
-        if (durationScale != 0.5f) {
-            try {
-                val c = Class.forName("android.animation.ValueAnimator")
-                val m = c.getMethod("setDurationScale", Float::class.javaPrimitiveType)
-                m.invoke(null, 0.5f)
-                durationScale = 0.5f
-            } catch (_: Throwable) {
-            }
-        }
+    private fun setFragment(fragment: Fragment, slideInAnim: Int = R.anim.slide_in) {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
-                android.R.animator.fade_in,  // enter
-                android.R.animator.fade_in,  // exit
-                android.R.animator.fade_out,   // popEnter
-                android.R.anim.slide_out_right  // popExit
+                slideInAnim,  // enter
+                android.R.animator.fade_out,  // exit
+                android.R.animator.fade_in,   // popEnter
+                R.anim.slide_out  // popExit
             )
             .replace(android.R.id.content, fragment)
             .addToBackStack(null).commit()
     }
 
     private fun startAnimation(view: View, event: MotionEvent): Boolean {
+        val drawable = view.background as GradientDrawable
+        var colorAnimator = ValueAnimator()
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                val scaleDown = AnimationUtils.loadAnimation(this, R.anim.scale_down)
-                view.startAnimation(scaleDown)
+                colorAnimator =
+                    ValueAnimator.ofObject(ArgbEvaluator(), 0xFF3D3D3D.toInt(), 0xFF5A5A5A.toInt())
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                val scaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up)
-                view.startAnimation(scaleUp)
+                colorAnimator =
+                    ValueAnimator.ofObject(ArgbEvaluator(), 0xFF5A5A5A.toInt(), 0xFF3D3D3D.toInt())
             }
         }
+        colorAnimator.duration = 300
+        colorAnimator.addUpdateListener { animator ->
+            drawable.setColor(animator.animatedValue as Int)
+        }
+        colorAnimator.start()
         return false
     }
 }
