@@ -25,7 +25,7 @@
         android:inputType="text" />
 
     <CheckBox
-        android:id="@+id/disableWrapLinesCheck"
+        android:id="@+id/truncate_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:labelFor="@+id/arguments_configure"

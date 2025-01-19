@@ -20,21 +20,20 @@
             android:inputType="number"
             app:useSimpleSummaryProvider="true" />
 
-        <EditTextPreference
-            app:key="default_custom_color"
-            app:title="Default custom color (#AARRGGBB)"
-            app:defaultValue="#FF000000"
-            app:useSimpleSummaryProvider="true" />
-
-        <!--
         <ListPreference
-            app:key="reply"
+            app:key="default_bg_color"
             app:title="Default background color"
             app:defaultValue="system_bg_color"
             app:entries="@array/default_bg_colors"
             app:entryValues="@array/default_bg_colors_values"
             app:useSimpleSummaryProvider="true" />
-            -->
+
+        <EditTextPreference
+            app:key="default_custom_color"
+            app:title="Default custom color (#AARRGGBB)"
+            app:defaultValue="#FF000000"
+            android:enabled="false"
+            app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
 

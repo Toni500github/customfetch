@@ -130,7 +130,7 @@ internal fun updateAppWidget(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
-    val disableLineWrap = getDisableLineWrap(context, appWidgetId)
+    val truncateText = getTruncateText(context, appWidgetId)
     val bgColor = getBgColor(context, appWidgetId)
 
     // create a TextPaint to be used to measure text size
@@ -152,7 +152,7 @@ internal fun updateAppWidget(
             context,
             appWidgetId,
             width,
-            disableLineWrap,
+            truncateText,
             textPaint
         )
 

@@ -5,8 +5,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
-import org.toni.customfetch_android.databinding.SettingsLayoutBinding
 import org.toni.customfetch_android.widget.isValidHex
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -23,7 +23,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
-        findPreference<EditTextPreference>("default_custom_color")?.setOnPreferenceChangeListener { _, newValue ->
+
+        val defaultCustomColor = findPreference<EditTextPreference>("default_custom_color")
+        defaultCustomColor?.setOnPreferenceChangeListener { _, newValue ->
             if (!isValidHex(newValue.toString())) {
                 Toast.makeText(
                     context,
@@ -36,6 +38,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+            true
+        }
+
+        val defaultBgColor = findPreference<ListPreference>("default_bg_color")
+        defaultCustomColor?.isEnabled = (defaultBgColor?.findIndexOfValue(defaultBgColor.value.toString()) == 2)
+        defaultBgColor?.setOnPreferenceChangeListener { _, newValue ->
+            defaultCustomColor?.isEnabled = (defaultBgColor.findIndexOfValue(newValue.toString()) == 2)
             true
         }
     }
