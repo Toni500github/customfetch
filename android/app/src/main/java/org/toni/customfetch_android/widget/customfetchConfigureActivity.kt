@@ -88,7 +88,6 @@ class customfetchConfigureActivity : Activity() {
 
     private var bgColor = 0
 
-    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
 
@@ -125,15 +124,10 @@ class customfetchConfigureActivity : Activity() {
         }
 
         // set everything of the radio buttons at first configuration from the app.
-        // didn't want to do it because of duplicated code, but fuck it,
-        // ain't creating many function for just this.
-        // "Good" code is usually ugly, the important thing is the user experience/interface.
         when (getAppSettingsPrefString(this, "default_bg_color")) {
             "system_bg_color" -> {
                 binding.selectBgColor.check(R.id.radio_system_bg_color)
-                val typedValue = TypedValue()
-                this.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-                bgColor = typedValue.data
+                setSystemBgColor()
             }
             "transparent_bg" -> {
                 binding.selectBgColor.check(R.id.radio_transparent_bg)
@@ -141,12 +135,7 @@ class customfetchConfigureActivity : Activity() {
             }
             "custom_bg_color" -> {
                 binding.selectBgColor.check(R.id.radio_custom_colors)
-                binding.customColorSelect.visibility = View.VISIBLE
-                val col = getAppSettingsPrefString(this, "default_custom_color")
-                bgColor = col.toColorInt()
-                binding.colorPickerHex.setText(col)
-                binding.colorPreview.setBackgroundColor(Color.parseColor(col))
-                binding.colorPickerView.setInitialColor(col.toColorInt())
+                setColorPickerView()
             }
         }
 
@@ -154,9 +143,7 @@ class customfetchConfigureActivity : Activity() {
             when (checkedId) {
                 R.id.radio_system_bg_color -> {
                     binding.customColorSelect.visibility = View.GONE
-                    val typedValue = TypedValue()
-                    this.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-                    bgColor = typedValue.data
+                    setSystemBgColor()
                 }
 
                 R.id.radio_transparent_bg -> {
@@ -165,50 +152,49 @@ class customfetchConfigureActivity : Activity() {
                 }
 
                 R.id.radio_custom_colors -> {
-                    binding.customColorSelect.visibility = View.VISIBLE
-                    // disable scroll when interacting with the color picker
-                    binding.colorPickerView.setOnTouchListener { view, _ ->
-                        view.parent.requestDisallowInterceptTouchEvent(true)
-                        false // allow colorPickerView to handle the touch event
-                    }
-
-                    // if modified edittext and it's valid, apply to the preview
-                    // else if modified in the color picker, apply to the edittext
-                    var hexColor = getAppSettingsPrefString(this, "default_custom_color")
-                    binding.colorPickerHex.setText(hexColor)
-                    binding.colorPreview.setBackgroundColor(Color.parseColor(hexColor))
-                    binding.colorPickerView.setInitialColor(hexColor.toColorInt())
-
-                    binding.colorPickerHex.addTextChangedListener (object : TextWatcher {
-                        override fun afterTextChanged(s: Editable) {
-                            val col = s.toString()
-                            if (isValidHex(col)) {
-                                binding.colorPreview.setBackgroundColor(Color.parseColor(col))
-                                binding.colorPickerView.setInitialColor(col.toColorInt())
-                                hexColor = col
-                                bgColor = col.toColorInt()
-                            }
-                        }
-                        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-                        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-                    })
-
-                    var firstRun = true
-                    binding.colorPickerView.setColorListener(ColorEnvelopeListener { envelope, _ ->
-                        if (firstRun)
-                            hexColor = "#${envelope.hexCode}"
-
-                        if (hexColor != "#${envelope.hexCode}") {
-                            binding.colorPickerHex.setText("#${envelope.hexCode}")
-                            hexColor = "#${envelope.hexCode}"
-                        }
-                        binding.colorPreview.setBackgroundColor(envelope.color)
-                        bgColor = envelope.color
-                        firstRun = false
-                    })
+                    setColorPickerView()
                 }
             }
         }
+    }
+
+    private fun setSystemBgColor() {
+        val typedValue = TypedValue()
+        this.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+        bgColor = typedValue.data
+    }
+
+    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
+    private fun setColorPickerView() {
+        binding.customColorSelect.visibility = View.VISIBLE
+        // disable scroll when interacting with the color picker
+        binding.colorPickerView.setOnTouchListener { view, _ ->
+            view.parent.requestDisallowInterceptTouchEvent(true)
+            false // allow colorPickerView to handle the touch event
+        }
+
+        val defaultColor = getAppSettingsPrefString(this, "default_custom_color")
+        binding.colorPickerHex.setText(defaultColor)
+        binding.colorPreview.setBackgroundColor(defaultColor.toColorInt())
+        binding.colorPickerView.setInitialColor(defaultColor.toColorInt())
+
+        binding.colorPickerHex.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {
+                val col = s.toString()
+                if (isValidHex(col))
+                    binding.colorPickerView.setInitialColor(col.toColorInt())
+            }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        } )
+
+        binding.colorPickerView.setColorListener(ColorEnvelopeListener { envelope, fromUser ->
+            if (!binding.colorPickerHex.text.contentEquals("#${envelope.hexCode}") && fromUser)
+                binding.colorPickerHex.setText("#${envelope.hexCode}")
+
+            binding.colorPreview.setBackgroundColor(envelope.color)
+            bgColor = envelope.color
+        })
 
         binding.colorPickerView.attachAlphaSlider(binding.alphaSlideBar)
         binding.colorPickerView.attachBrightnessSlider(binding.brightnessSlideBar)
