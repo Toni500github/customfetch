@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2D2D2D">
+    android:background="@color/background">
 
 <LinearLayout
     android:layout_width="match_parent"
@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="#4F4F4F"
+        android:background="@color/toolBar"
         android:popupTheme="?attr/actionBarPopupTheme"
         app:title="About Me"
         app:navigationIcon="@drawable/arrow_back"
@@ -30,7 +30,7 @@
         android:layout_marginTop="40dp"
         android:gravity="center"
         android:text="Developers/Contributors"
-        android:textColor="#ffffff"
+        android:textColor="@color/text"
         android:textSize="25sp" />
 
     <!-- Toni's github -->
@@ -51,7 +51,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/github_mark_white" />
+            android:src="@drawable/github_mark" />
 
         <TextView
             android:id="@+id/toni_github_link"
@@ -60,7 +60,7 @@
             android:layout_gravity="center"
             android:layout_marginStart="4dp"
             android:text="@string/toni500_github"
-            android:textColor="#ffffff" />
+            android:textColor="@color/text" />
 
     </LinearLayout>
 
@@ -72,7 +72,7 @@
         android:gravity="center"
         android:paddingHorizontal="20dp"
         android:text="Creator and maintainer of customfetch.\nA system information fetch tool (or neofetch like program), which its focus point is the performance and customizability"
-        android:textColor="#BBBBBB" />
+        android:textColor="@color/subText" />
 
     <!-- Burnt's github -->
     <com.google.android.material.imageview.ShapeableImageView
@@ -92,7 +92,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/github_mark_white" />
+            android:src="@drawable/github_mark" />
 
         <TextView
             android:id="@+id/burnt_github_link"
@@ -113,7 +113,7 @@
         android:gravity="center"
         android:paddingHorizontal="10dp"
         android:text="BestFriend and collaborator of our projects.\nCreated the first prototype of the codebase/program and also helped a lot about anything in tecnical"
-        android:textColor="#BBBBBB" />
+        android:textColor="@color/subText" />
 
     <!-- BCPP discord server -->
     <com.google.android.material.imageview.ShapeableImageView
@@ -142,7 +142,7 @@
             android:layout_gravity="center"
             android:layout_marginStart="4dp"
             android:text="@string/better_cpp_discord_server"
-            android:textColor="#ffffff" />
+            android:textColor="@color/subText" />
 
     </LinearLayout>
 
@@ -154,7 +154,7 @@
         android:gravity="center"
         android:paddingHorizontal="20dp"
         android:text="They helped me improving the codebase and also helped me with any issues I got. Also they were really patient lol"
-        android:textColor="#BBBBBB" />
+        android:textColor="@color/subText" />
 
     <!-- Libraries -->
     <TextView
@@ -164,7 +164,7 @@
         android:layout_marginTop="80dp"
         android:gravity="center"
         android:text="Libraries"
-        android:textColor="#ffffff"
+        android:textColor="@color/text"
         android:textSize="33sp" />
 
     <!-- {fmt} -->
@@ -182,7 +182,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/github_mark_white" />
+            android:src="@drawable/github_mark" />
 
         <TextView
             android:id="@+id/fmtlib_github_link"
@@ -203,7 +203,7 @@
         android:gravity="center"
         android:paddingHorizontal="18dp"
         android:text="Formatting library that provides a fast and safe alternative to C stdio and C++ iostreams."
-        android:textColor="#BBBBBB" />
+        android:textColor="@color/subText" />
 
     <!-- toml++ -->
     <com.google.android.material.imageview.ShapeableImageView
@@ -222,7 +222,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/github_mark_white" />
+            android:src="@drawable/github_mark" />
 
         <TextView
             android:id="@+id/toml_lib_github_link"
@@ -243,7 +243,7 @@
         android:gravity="center"
         android:paddingHorizontal="10dp"
         android:text="C++17 library for serializing and parsing TOML config files."
-        android:textColor="#BBBBBB" />
+        android:textColor="@color/subText" />
 
     <!-- colorpickerview -->
     <com.google.android.material.imageview.ShapeableImageView
@@ -262,7 +262,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/github_mark_white" />
+            android:src="@drawable/github_mark" />
 
         <TextView
             android:id="@+id/colorpickerview_github_link"
@@ -283,7 +283,7 @@
         android:gravity="center"
         android:paddingHorizontal="20dp"
         android:text="Android colorpicker for getting colors from any images by tapping on the desired color."
-        android:textColor="#BBBBBB" />
+        android:textColor="@color/subText" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -294,7 +294,7 @@
         android:gravity="center"
         android:paddingHorizontal="10dp"
         android:text="Did you know that customfetch is the only neofetch like program that is both: terminal app, GUI app and android widget?\nAt least by now :)"
-        android:textColor="#ffffff" />
+        android:textColor="@color/text" />
 
 </LinearLayout>
 </androidx.core.widget.NestedScrollView>

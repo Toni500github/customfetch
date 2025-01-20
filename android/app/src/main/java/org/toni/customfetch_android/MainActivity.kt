@@ -34,6 +34,7 @@ import android.content.res.AssetManager
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -45,6 +46,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import org.toni.customfetch_android.databinding.ActivityMainBinding
@@ -91,9 +93,6 @@ class MainActivity : AppCompatActivity() {
         if (!Files.exists(Path(filesDir.absolutePath + "/ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
 
-        binding.discordLink.movementMethod = LinkMovementMethod.getInstance()
-        binding.redditLink.movementMethod = LinkMovementMethod.getInstance()
-
         binding.testConfigFile.setOnClickListener { _ ->
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
@@ -119,6 +118,14 @@ class MainActivity : AppCompatActivity() {
             startAnimation(binding.widgetSettings, event)
         }
 
+        setViewBgColor(binding.joinDiscordLink, 0XFF5865F2.toInt())
+        setViewBgColor(binding.joinCustomfetchReddit, 0XFFFF4500.toInt())
+        binding.joinDiscordLink.setOnClickListener { _ ->
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/dcD7d3Qfus")))
+        }
+        binding.joinCustomfetchReddit.setOnClickListener { _ ->
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://reddit.com/r/customfetch")))
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -150,17 +157,24 @@ class MainActivity : AppCompatActivity() {
             .addToBackStack(null).commit()
     }
 
+    private fun setViewBgColor(view: View, color: Int) {
+        val drawable = view.background as GradientDrawable
+        drawable.setColor(color)
+    }
+
     private fun startAnimation(view: View, event: MotionEvent): Boolean {
         val drawable = view.background as GradientDrawable
         var colorAnimator = ValueAnimator()
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 colorAnimator =
-                    ValueAnimator.ofObject(ArgbEvaluator(), 0xFF3D3D3D.toInt(), 0xFF5A5A5A.toInt())
+                    ValueAnimator.ofObject(ArgbEvaluator(), ContextCompat.getColor(this, R.color.buttonBg),
+                        ContextCompat.getColor(this, R.color.reverseButtonBg))
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 colorAnimator =
-                    ValueAnimator.ofObject(ArgbEvaluator(), 0xFF5A5A5A.toInt(), 0xFF3D3D3D.toInt())
+                    ValueAnimator.ofObject(ArgbEvaluator(), ContextCompat.getColor(this, R.color.reverseButtonBg),
+                        ContextCompat.getColor(this, R.color.buttonBg))
             }
         }
         colorAnimator.duration = 300

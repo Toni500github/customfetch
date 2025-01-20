@@ -4,13 +4,13 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2D2D2D" >
+    android:background="@color/background" >
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#4F4F4F"
+        android:background="@color/toolBar"
         android:popupTheme="?attr/actionBarPopupTheme"
         android:animateLayoutChanges="true"
         app:titleTextColor="#ffFFff"
@@ -35,7 +35,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_marginTop="10dp"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/text"
             android:fontFamily="monospace" />
 
     </LinearLayout>

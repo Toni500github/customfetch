@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="background">#E2E2E2</color>
+    <color name="buttonBg">#B8B8B8</color>
+    <color name="reverseButtonBg">#727272</color>
+    <color name="toolBar">#727272</color>
+    <color name="text">#121212</color>
+    <color name="textAlt">#121212</color>
+    <color name="subText">#505050</color>
+
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#FF2A2A2A</color>
+    <color name="buttonBg">#3D3D3D</color>
+    <color name="reverseButtonBg">#5A5A5A</color>
+    <color name="toolBar">#4F4F4F</color>
+    <color name="text">#FFFFFF</color>
+    <color name="subText">#BBBBBB</color>
+</resources>
