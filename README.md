@@ -31,7 +31,7 @@
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="1px" height="1px" align="left" />
 <img src="screenshots/pipeline-style.png" />
 <h2 align="center">
-  It's even an <b>android widget</b> and <b>GTK3 app</b>
+  It's even an <b>android widget (WIP)</b> and <b>GTK3 app</b>
 </h2>
 <img align=right width=54.4% src="screenshots/gui-example.png"/>
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="45%" height="14px" align="right" />
@@ -138,8 +138,8 @@ Here's an example using my config
 
 # The array for displaying the system infos
 layout = [
-    "$<builtin.title>",
-    "$<builtin.title_sep>",
+    "$<title>",
+    "$<title_sep>",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
@@ -153,13 +153,14 @@ layout = [
     "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name> $<user.wm_version>",
     "${auto}DE: $<user.de_name> $<user.de_version>",
-    "${auto}Disk(/): $<disk(/).disk>",
-    "${auto}CPU: $<cpu.cpu>",
-    "${auto}GPU: $<gpu.vendor> $<gpu.name>",
-    "${auto}RAM: $<ram.ram>",
+    "${auto}Disk (/): $<disk(/)>",
+    "${auto}Swap: $<swap>",
+    "${auto}CPU: $<cpu>",
+    "${auto}GPU: $<gpu>",
+    "${auto}RAM: $<ram>",
     "",
-    "$<builtin.colors>", # normal colors palette
-    "$<builtin.colors_light>" # light colors palette
+    "$<colors>", # normal colors palette
+    "$<colors_light>" # light colors palette
 ]
 
 
