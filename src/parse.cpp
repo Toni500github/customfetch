@@ -1587,6 +1587,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
     else if (moduleName == "battery")
     {
         Query::Battery query_battery;
+
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 

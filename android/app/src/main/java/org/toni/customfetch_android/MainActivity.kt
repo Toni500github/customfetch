@@ -88,37 +88,30 @@ class MainActivity : AppCompatActivity() {
         if (!Files.exists(Path(filesDir.absolutePath + "/ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
 
-        binding.testConfigFile.setOnClickListener { _ ->
+        binding.testConfigFile.setOnTouchListener { view, event -> startAnimation(view, event) }
+        binding.testConfigFile.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "*/*"
             }
             startActivityForResult(intent, TEST_CONFIG_FILE_RC)
         }
-        binding.testConfigFile.setOnTouchListener { _, event ->
-            startAnimation(binding.testConfigFile, event)
-        }
 
-        binding.aboutMe.setOnClickListener { _ ->
-            setFragment(AboutMeFragment())
-        }
-        binding.aboutMe.setOnTouchListener { _, event ->
-            startAnimation(binding.aboutMe, event)
-        }
+        binding.aboutMe.setOnTouchListener { view, event -> startAnimation(view, event) }
+        binding.aboutMe.setOnClickListener { setFragment(AboutMeFragment()) }
 
-        binding.widgetSettings.setOnClickListener { _ ->
-            setFragment(SettingsFragment())
-        }
-        binding.widgetSettings.setOnTouchListener { _, event ->
-            startAnimation(binding.widgetSettings, event)
-        }
+        binding.widgetSettings.setOnTouchListener { view, event -> startAnimation(view, event) }
+        binding.widgetSettings.setOnClickListener { setFragment(SettingsFragment()) }
 
         setViewBgColor(binding.joinDiscordLink, 0XFF5865F2.toInt())
-        setViewBgColor(binding.joinCustomfetchReddit, 0XFFFF4500.toInt())
-        binding.joinDiscordLink.setOnClickListener { _ ->
+        binding.joinDiscordLink.setOnTouchListener { view, event -> startAnimation(view, event, true)}
+        binding.joinDiscordLink.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/dcD7d3Qfus")))
         }
-        binding.joinCustomfetchReddit.setOnClickListener { _ ->
+
+        setViewBgColor(binding.joinCustomfetchReddit, 0XFFFF4500.toInt())
+        binding.joinCustomfetchReddit.setOnTouchListener { view, event -> startAnimation(view, event, true)}
+        binding.joinCustomfetchReddit.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://reddit.com/r/customfetch")))
         }
     }
@@ -167,22 +160,20 @@ class MainActivity : AppCompatActivity() {
 
             val animation = AnimationUtils.loadAnimation(this, animRes)
             view.startAnimation(animation)
-            return true
+            return false
         }
 
         val drawable = view.background as GradientDrawable
-        var colorAnimator = ValueAnimator()
-        when (event.action) {
+        val colorAnimator = when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                colorAnimator =
                     ValueAnimator.ofObject(ArgbEvaluator(), getColor(R.color.buttonBg),
                         getColor(R.color.reverseButtonBg))
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                colorAnimator =
                     ValueAnimator.ofObject(ArgbEvaluator(), getColor(R.color.reverseButtonBg),
                         getColor(R.color.buttonBg))
             }
+            else -> ValueAnimator()
         }
         colorAnimator.duration = 300
         colorAnimator.addUpdateListener { animator ->
