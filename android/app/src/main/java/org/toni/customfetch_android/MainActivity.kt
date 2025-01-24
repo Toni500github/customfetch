@@ -93,7 +93,6 @@ class MainActivity : AppCompatActivity() {
         if (!Files.exists(Path(filesDir.absolutePath + "/ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
 
-        binding.testConfigFile.setOnTouchListener { view, event -> startAnimation(view, event) }
         binding.testConfigFile.setOnClickListener { _ ->
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
@@ -101,22 +100,30 @@ class MainActivity : AppCompatActivity() {
             }
             startActivityForResult(intent, TEST_CONFIG_FILE_RC)
         }
-
-        binding.aboutMe.setOnTouchListener { view, event -> startAnimation(view, event) }
-        binding.aboutMe.setOnClickListener { setFragment(AboutMeFragment()) }
-
-        binding.widgetSettings.setOnTouchListener { view, event -> startAnimation(view, event) }
-        binding.widgetSettings.setOnClickListener { setFragment(SettingsFragment()) }
-
-        setViewBgColor(binding.joinDiscordLink, 0XFF5865F2.toInt())
-        binding.joinDiscordLink.setOnTouchListener { view, event -> startAnimation(view, event, true) }
-        binding.joinDiscordLink.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/dcD7d3Qfus")))
+        binding.testConfigFile.setOnTouchListener { _, event ->
+            startAnimation(binding.testConfigFile, event)
         }
 
+        binding.aboutMe.setOnClickListener { _ ->
+            setFragment(AboutMeFragment())
+        }
+        binding.aboutMe.setOnTouchListener { _, event ->
+            startAnimation(binding.aboutMe, event)
+        }
+
+        binding.widgetSettings.setOnClickListener { _ ->
+            setFragment(SettingsFragment())
+        }
+        binding.widgetSettings.setOnTouchListener { _, event ->
+            startAnimation(binding.widgetSettings, event)
+        }
+
+        setViewBgColor(binding.joinDiscordLink, 0XFF5865F2.toInt())
         setViewBgColor(binding.joinCustomfetchReddit, 0XFFFF4500.toInt())
-        binding.joinCustomfetchReddit.setOnTouchListener { view, event -> startAnimation(view, event, true) }
-        binding.joinCustomfetchReddit.setOnClickListener {
+        binding.joinDiscordLink.setOnClickListener { _ ->
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/dcD7d3Qfus")))
+        }
+        binding.joinCustomfetchReddit.setOnClickListener { _ ->
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://reddit.com/r/customfetch")))
         }
     }
@@ -187,7 +194,7 @@ class MainActivity : AppCompatActivity() {
             drawable.setColor(animator.animatedValue as Int)
         }
         colorAnimator.start()
-        return true
+        return false
     }
 }
 
