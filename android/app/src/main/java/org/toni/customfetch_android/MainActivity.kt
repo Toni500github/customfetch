@@ -31,22 +31,18 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.AssetManager
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import org.toni.customfetch_android.databinding.ActivityMainBinding
@@ -55,7 +51,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import kotlin.io.path.Path
-
 
 // kinda magic numbers
 const val TEST_CONFIG_FILE_RC = 6969

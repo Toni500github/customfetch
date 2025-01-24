@@ -180,6 +180,9 @@ gpu:
 cpu:
   CPU model name with number of virtual processors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]
 
+battery:
+  battery current capacity and status [50.00% [Discharging]]
+
 title:
   user and hostname colored with ${{auto2}} [toni@arch2]
 
@@ -331,10 +334,21 @@ cpu
   name:     CPU model name [AMD Ryzen 5 5500]
   temp:     CPU temperature (by the chosen unit) [40.62]
   nproc:    CPU number of virtual processors [12]
-  freq_cur: CPU current freq (in GHz) [3.42]
-  freq_min: CPU minimum freq (in GHz) [2.45]
-  freq_max: CPU maximum freq (in GHz) [4.90]
-  freq_bios_limit: CPU freq limited by bios (in GHz) [4.32]
+  freq_cur: CPU current frequency (in GHz) [3.42]
+  freq_min: CPU minimum frequency (in GHz) [2.45]
+  freq_max: CPU maximum frequency (in GHz) [4.90]
+  freq_bios_limit: CPU frequency limited by bios (in GHz) [4.32]
+
+# battery module has a member called "temp" and it has 3 variant units:
+# "temp_C" (Celsius) "temp_F" (Fahrenheit) "temp_K" (Kelvin)
+battery
+  name:           battery model name
+  temp:           battery temperature (by the chosen unit)
+  capacity:       battery current capacity
+  vendor:         battery manufacturer name
+  status:         battery current status [Discharging, AC Connected]
+  technology:     battery technology [Li-lion]
+  capacity_level: battery capacity level [Normal, Critical]
 
 system
   host:         Host (aka. Motherboard) model name with vendor and version [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95) 1.0]

@@ -243,10 +243,10 @@ void replace_str(std::string& str, const std::string_view from, const std::strin
 
 /* Executes commands with execvp() and read its output
  * either from stdout or stderr
- * @param cmd_str The command to execute
+ * @param cmd The command array to execute
  * @param output The string to use for appending the output
- * @param useStdErr Read from stderr instead of stdout
- * @param noerror_print Print errors
+ * @param useStdErr Read from stderr instead of stdout (default false)
+ * @param noerror_print Print errors (default true)
  * @return true if the command successed, else false
  */
 bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr = false, bool noerror_print = true);
@@ -268,10 +268,11 @@ std::string str_toupper(std::string str);
 void strip(std::string& input);
 
 /* Read file content (usually from /sys)
- * and return its first (and only) line
+ * and return its first (and only) line, else UNKNOWN
  * @param path The path of the file to read
+ * @param report_error Report error if any
  */
-std::string read_by_syspath(const std::string_view path);
+std::string read_by_syspath(const std::string_view path, bool report_error = false);
 
 /* Convert hex color (#255224) to a fmt::rgb
  * @param hexstr The hex color string (must have a '#' at the start)

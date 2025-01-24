@@ -241,6 +241,36 @@ private:
     static GPU_t  m_gpu_infos;
 };
 
+class Battery
+{
+public:
+    struct Battery_t
+    {
+        std::string modelname{ MAGIC_LINE };
+        std::string vendor{ MAGIC_LINE };
+        std::string status{ MAGIC_LINE };
+        std::string technology{ UNKNOWN };
+        std::string capacity_level{ UNKNOWN };
+        double temp{0};
+        double capacity{0};
+    };
+
+    Battery();
+
+    std::string& modelname() noexcept;
+    std::string& vendor() noexcept;
+    std::string& status() noexcept;
+    std::string& technology() noexcept;
+    std::string& capacity_level() noexcept;
+    double&      capacity() noexcept;
+    double&      temp() noexcept;
+
+
+private:
+    static bool      m_bInit;
+    static Battery_t m_battery_infos;
+};
+
 class Disk
 {
 public:

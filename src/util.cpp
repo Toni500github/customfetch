@@ -122,12 +122,14 @@ std::string expandVar(std::string ret)
     return ret;
 }
 
-std::string read_by_syspath(const std::string_view path)
+std::string read_by_syspath(const std::string_view path, bool report_error)
 {
     std::ifstream f(path.data());
     if (!f.is_open())
     {
-        error(_("Failed to open {}"), path);
+        if (report_error)
+            error(_("Failed to open {}"), path);
+        
         return UNKNOWN;
     }
 

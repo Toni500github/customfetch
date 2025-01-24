@@ -41,6 +41,7 @@
 
 #include "config.hpp"
 #include "fmt/color.h"
+#include "fmt/format.h"
 #include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -89,13 +90,14 @@ public:
 };
 
 // declarations of static members in query.hpp
-Query::System::System_t Query::System::m_system_infos;
-Query::Theme::Theme_t   Query::Theme::m_theme_infos;
-Query::User::User_t     Query::User::m_users_infos;
-Query::CPU::CPU_t       Query::CPU::m_cpu_infos;
-Query::RAM::RAM_t       Query::RAM::m_memory_infos;
-Query::GPU::GPU_t       Query::GPU::m_gpu_infos;
-Query::Disk::Disk_t     Query::Disk::m_disk_infos;
+Query::System::System_t   Query::System::m_system_infos;
+Query::Theme::Theme_t     Query::Theme::m_theme_infos;
+Query::User::User_t       Query::User::m_users_infos;
+Query::Battery::Battery_t Query::Battery::m_battery_infos;
+Query::CPU::CPU_t         Query::CPU::m_cpu_infos;
+Query::RAM::RAM_t         Query::RAM::m_memory_infos;
+Query::GPU::GPU_t         Query::GPU::m_gpu_infos;
+Query::Disk::Disk_t       Query::Disk::m_disk_infos;
 
 struct statvfs Query::Disk::m_statvfs;
 struct utsname Query::System::m_uname_infos;
@@ -106,6 +108,7 @@ bool Query::System::m_bInit          = false;
 bool Query::RAM::m_bInit             = false;
 bool Query::CPU::m_bInit             = false;
 bool Query::User::m_bInit            = false;
+bool Query::Battery::m_bInit         = false;
 bool Query::User::m_bDont_query_dewm = false;
 
 // useless useful tmp string for parse() without using the original
@@ -1366,17 +1369,12 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         {
             switch (moduleMember_hash)
             {
-                case "name"_fnv1a16: SYSINFO_INSERT(query_cpu.name()); break;
-
-                case "nproc"_fnv1a16: SYSINFO_INSERT(query_cpu.nproc()); break;
-
-                case "freq_bios_limit"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_bios_limit()); break;
-
+                case "name"_fnv1a16:     SYSINFO_INSERT(query_cpu.name()); break;
+                case "nproc"_fnv1a16:    SYSINFO_INSERT(query_cpu.nproc()); break;
                 case "freq_cur"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_cur()); break;
-
                 case "freq_max"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_max()); break;
-
                 case "freq_min"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_min()); break;
+                case "freq_bios_limit"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_bios_limit()); break;
 
                 case "temp_C"_fnv1a16: SYSINFO_INSERT(query_cpu.temp()); break;
                 case "temp_F"_fnv1a16: SYSINFO_INSERT(query_cpu.temp() * 1.8 + 34); break;
@@ -1586,6 +1584,34 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         }
     }
 
+    else if (moduleName == "battery")
+    {
+        Query::Battery query_battery;
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            switch (moduleMember_hash)
+            {
+                case "capacity"_fnv1a16:
+                    SYSINFO_INSERT(get_and_color_percentage(query_battery.capacity(), 100, parse_args));
+                    break;
+
+                case "vendor"_fnv1a16:
+                case "manufacturer"_fnv1a16: SYSINFO_INSERT(query_battery.vendor()); break;
+                case "technology"_fnv1a16:   SYSINFO_INSERT(query_battery.technology()); break;
+                case "name"_fnv1a16:         SYSINFO_INSERT(query_battery.modelname()); break;
+                case "status"_fnv1a16:       SYSINFO_INSERT(query_battery.status()); break;
+                case "capacity_level"_fnv1a16: SYSINFO_INSERT(query_battery.capacity_level()); break;
+                
+                case "temp_C"_fnv1a16:       SYSINFO_INSERT(query_battery.temp()); break;
+                case "temp_F"_fnv1a16:       SYSINFO_INSERT(query_battery.temp() * 1.8 + 34); break;
+                case "temp_K"_fnv1a16:       SYSINFO_INSERT(query_battery.temp() + 273.15); break;
+            }
+        }
+    }
+
     else
         die(_("Invalid module name: {}"), moduleName);
 
@@ -1766,6 +1792,19 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
                                             parse("${0}(" + perc + ")", _, parse_args)));
             }
             // clang-format on
+        }
+    }
+
+    else if (moduleName == "battery")
+    {
+        Query::Battery query_battery;
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            SYSINFO_INSERT(fmt::format("{} [{}]", get_and_color_percentage(query_battery.capacity(), 100, parse_args),
+                                       query_battery.status()));
         }
     }
 
