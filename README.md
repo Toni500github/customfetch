@@ -102,7 +102,11 @@ yay -S customfetch-git
 yay -S customfetch-gui-git
 ```
 
-## Android app (source)
+## Android widget app (unstable)
+Download the latest apk build from the [GitHub actions](https://github.com/Toni500github/customfetch/actions/workflows/makefile.yml) artifacts
+
+
+## Android widget app (source)
 ```bash
 # need java 17 + gradle 8.9 installed.
 # It's suggested to build from android studio,
