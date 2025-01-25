@@ -219,7 +219,7 @@ class MainActivity : AppCompatActivity() {
             view.layoutParams.height = value
             view.requestLayout()
         }
-        animator.duration = 250
+        animator.duration = 300
         animator.interpolator = AccelerateDecelerateInterpolator()
         animator.start()
     }
@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity() {
             if (value == 0)
                 view.visibility = View.GONE
         }
-        animator.duration = 250
+        animator.duration = 300
         animator.interpolator = AccelerateDecelerateInterpolator()
         animator.start()
     }
