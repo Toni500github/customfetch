@@ -138,7 +138,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Chat with us on how\nwe can improve customfetch"
-            android:textColor="#BBBBBB"
+            android:textColor="#CCCCCC"
             android:textSize="14sp"
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/_text_discord" />
@@ -180,7 +180,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Share your screenshots\nand feedback about customfetch"
-            android:textColor="#BBBBBB"
+            android:textColor="#CCCCCC"
             android:textSize="14sp"
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/_text_reddit" />

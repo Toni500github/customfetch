@@ -6,7 +6,7 @@
         <EditTextPreference
             app:key="default_args"
             app:title="Default command line options"
-            app:defaultValue="-D /data/user/0/org.toni.customfetch_android/files/ -a small"
+            app:defaultValue="-D /data/user/0/org.toni.customfetch_android/files -a small"
             app:useSimpleSummaryProvider="true" />
 
         <SwitchPreferenceCompat

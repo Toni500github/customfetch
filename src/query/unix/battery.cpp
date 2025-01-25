@@ -27,7 +27,7 @@
 #if CF_UNIX
 
 #include <cstdlib>
-#include <cstring>
+#include <string>
 #include <filesystem>
 
 #include "query.hpp"
@@ -74,6 +74,10 @@ static Battery::Battery_t get_battery_infos()
         else
             continue;
 
+        read_strip_syspath(tmp, path + "temp");
+        if (tmp != UNKNOWN)
+            infos.temp = std::stod(tmp) / 10;
+
         read_strip_syspath(tmp, path + "manufacturer");
         if (tmp != UNKNOWN)
             infos.vendor = tmp;
@@ -103,8 +107,9 @@ Battery::Battery()
     CHECK_INIT(!m_bInit)
     {
         m_battery_infos = get_battery_infos();
-        m_bInit = true;
     }
+
+    m_bInit = true;
 }
 
 // clang-format off
@@ -129,4 +134,4 @@ double& Battery::capacity() noexcept
 double& Battery::temp() noexcept
 { return m_battery_infos.temp; }
 
-#endif
+#endif // CF_UNIX
