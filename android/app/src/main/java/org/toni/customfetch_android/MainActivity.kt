@@ -40,7 +40,10 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageView
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AnimationUtils
+import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -114,6 +117,24 @@ class MainActivity : AppCompatActivity() {
         binding.joinCustomfetchReddit.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://reddit.com/r/customfetch")))
         }
+
+        setViewBgColor(binding.starGithubRepo, 0XFF010409.toInt())
+        binding.starGithubRepo.setOnTouchListener { view, event -> startAnimation(view, event, true)}
+        binding.starGithubRepo.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Toni500github/customfetch")))
+        }
+
+        var isExpanded = false
+        binding.collapseSocialsBar.setOnClickListener {
+            isExpanded = !isExpanded
+            if (isExpanded) {
+                expandView(binding.collapseSocialsLayout)
+                binding.arrowIcon.animate().rotation(180f).setInterpolator(AccelerateDecelerateInterpolator()).start()
+            } else {
+                collapseView(binding.collapseSocialsLayout)
+                binding.arrowIcon.animate().rotation(0f).setInterpolator(AccelerateDecelerateInterpolator()).start()
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -181,6 +202,42 @@ class MainActivity : AppCompatActivity() {
         }
         colorAnimator.start()
         return false
+    }
+
+    private fun expandView(view: View) {
+        view.measure(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        val targetedHeight = view.measuredHeight
+        view.layoutParams.height = 0
+        view.visibility = View.VISIBLE
+
+        val animator = ValueAnimator.ofInt(0, targetedHeight)
+        animator.addUpdateListener { animation ->
+            val value = animation.animatedValue as Int
+            view.layoutParams.height = value
+            view.requestLayout()
+        }
+        animator.duration = 250
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.start()
+    }
+
+    private fun collapseView(view: View) {
+        val initialHeight = view.measuredHeight
+
+        val animator = ValueAnimator.ofInt(initialHeight, 0)
+        animator.addUpdateListener { animation ->
+            val value = animation.animatedValue as Int
+            view.layoutParams.height = value
+            view.requestLayout()
+            if (value == 0)
+                view.visibility = View.GONE
+        }
+        animator.duration = 250
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.start()
     }
 }
 
