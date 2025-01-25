@@ -41,7 +41,7 @@ static Battery::Battery_t get_battery_infos_termux()
 {
     Battery::Battery_t infos;
     std::string result, _;
-    if (!read_exec({PREFIX "/libexec/termux-api", "BatteryStatus"}, result))
+    if (!read_exec({"/data/data/com.termux/files/usr/libexec/termux-api", "BatteryStatus"}, result))
         return infos;
 
     const auto& doc = json::jobject::parse(result);

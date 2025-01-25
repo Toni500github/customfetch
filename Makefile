@@ -57,7 +57,7 @@ SRC 	   	= $(wildcard src/*.cpp src/query/unix/*.cpp src/query/android/*.cpp src
 OBJ 	   	= $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\" -DPREFIX=\"$(PREFIX)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
+CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
 
 all: fmt toml $(TARGET)
 
