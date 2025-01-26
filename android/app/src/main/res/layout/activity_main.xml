@@ -281,7 +281,7 @@
                 <ImageView
                     android:layout_width="70dp"
                     android:layout_height="70dp"
-                    android:src="@drawable/github_mark"
+                    android:src="@drawable/github_white_mark"
                     android:layout_gravity="end"
                     app:layout_constraintEnd_toEndOf="parent" />
 
