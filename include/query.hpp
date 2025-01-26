@@ -207,11 +207,11 @@ public:
     std::string& vendor() noexcept;
     std::string& modelname() noexcept;
 
-    double&      freq_max() noexcept;
-    double&      freq_min() noexcept;
-    double&      freq_cur() noexcept;
-    double&      freq_bios_limit() noexcept;
-    double&      temp() noexcept;
+    double& freq_max() noexcept;
+    double& freq_min() noexcept;
+    double& freq_cur() noexcept;
+    double& freq_bios_limit() noexcept;
+    double& temp() noexcept;
 
 private:
     static bool  m_bInit;
@@ -233,12 +233,12 @@ public:
     std::string& vendor() noexcept;
 
 private:
-    uint16_t      m_vendor_id;
-    uint16_t      m_device_id;
-    std::string   m_vendor_id_s;
-    std::string   m_device_id_s;
+    uint16_t    m_vendor_id;
+    uint16_t    m_device_id;
+    std::string m_vendor_id_s;
+    std::string m_device_id_s;
 
-    static GPU_t  m_gpu_infos;
+    static GPU_t m_gpu_infos;
 };
 
 class Battery
@@ -251,8 +251,8 @@ public:
         std::string status{ MAGIC_LINE };
         std::string technology{ UNKNOWN };
         std::string capacity_level{ UNKNOWN };
-        double temp{0};
-        double capacity{0};
+        double      temp{ 0 };
+        double      capacity{ 0 };
     };
 
     Battery();
@@ -264,7 +264,6 @@ public:
     std::string& capacity_level() noexcept;
     double&      capacity() noexcept;
     double&      temp() noexcept;
-
 
 private:
     static bool      m_bInit;

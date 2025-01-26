@@ -78,7 +78,6 @@ std::string Display::detect_distro(const Config& config)
 #else
     return config.data_dir + "/ascii/linux.txt";
 #endif
-
 }
 
 #if !ANDROID_APP
@@ -94,10 +93,10 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
 
     if (!img)
         die(_("Unable to load image '{}'"), path);
-    
+
     stbi_image_free(img);
 
-    std::string _;
+    std::string  _;
     parse_args_t parse_args{ systemInfo, _, config, colors, true };
     for (std::string& line : layout)
     {
@@ -111,19 +110,20 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
-        
+
     // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
     const size_t width  = image_width / font_width;
     const size_t height = image_height / font_height;
 
     if (config.m_image_backend == "kitty")
-        taur_exec({ "kitty", "+kitten", "icat", "--align", (config.logo_position == "top" ? "center" : config.logo_position), "--place", fmt::format("{}x{}@0x0", width, height),
-                    path });
+        taur_exec({ "kitty", "+kitten", "icat", "--align",
+                    (config.logo_position == "top" ? "center" : config.logo_position), "--place",
+                    fmt::format("{}x{}@0x0", width, height), path });
     else if (config.m_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
     else
         die(_("The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
-            "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),
+              "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),
             config.m_image_backend);
 
     if (config.logo_position == "top")
@@ -295,10 +295,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     std::string line;
     while (std::getline(file, line))
     {
-        std::string pureOutput;
+        std::string  pureOutput;
         parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false };
 
-        std::string asciiArt_s = parse(line, parse_args);
+        std::string asciiArt_s   = parse(line, parse_args);
         parse_args.no_more_reset = false;
         if (!config.m_disable_colors)
             asciiArt_s += config.gui ? "" : NOCOLOR;
@@ -324,16 +324,16 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     if (config.m_print_logo_only)
         return asciiArt;
 
-    std::string _;
+    std::string  _;
     parse_args_t parse_args{ systemInfo, _, config, colors, true };
     for (std::string& line : layout)
     {
-        line = parse(line, parse_args);
+        line                     = parse(line, parse_args);
         parse_args.no_more_reset = false;
         if (!config.gui && !config.m_disable_colors)
             line.insert(0, NOCOLOR);
     }
-    
+
     auto_colors.clear();
 
     // erase each element for each instance of MAGIC_LINE
@@ -374,7 +374,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         if (!config.m_disable_colors)
             layout.at(i) += config.gui ? "" : NOCOLOR;
-
     }
 
     for (; i < asciiArt.size(); i++)

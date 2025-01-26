@@ -60,7 +60,8 @@ class Config
 {
 public:
     // Create .config directories and files and load the config file (args or default)
-    Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors, bool do_not_load = false);
+    Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors,
+           bool do_not_load = false);
 
     // Variables of config file in [config] table
     std::vector<std::string> layout;
@@ -84,7 +85,7 @@ public:
     bool                     use_SI_unit         = false;
     bool                     wrap_lines          = false;
 
-    // Variables of config file for 
+    // Variables of config file for
     // modules specific configs
     // [uptime]
     std::string uptime_d_fmt;
@@ -121,7 +122,7 @@ public:
      * @param filename The config file path
      */
     void generateConfig(const std::string_view filename);
-    
+
     /**
      * Add alias values to colors_name and colors_value.
      * @param str The alias color to add.

@@ -64,7 +64,7 @@ using namespace std::string_view_literals;
 
 static STRING_IF_ANDROID_APP_ELSE(void) version()
 {
-    std::string version{"customfetch " VERSION " branch " BRANCH "\n"};
+    std::string version{ "customfetch " VERSION " branch " BRANCH "\n" };
 
 #if GUI_MODE
     version += "GUI mode enabled\n\n";
@@ -361,7 +361,6 @@ system
 
     RETURN_OR_PRINT(list.data());
     std::exit(EXIT_SUCCESS);
-
 }
 
 static bool str_to_bool(const std::string_view str)
@@ -625,13 +624,13 @@ int main(int argc, char *argv[])
 
     // since ANDROID_APP means that it will run as an android widget, so in GUI,
     // then let's make it always true
-    config.gui = true;
+    config.gui        = true;
     config.wrap_lines = true;
 #else
     Config config(configFile, configDir, colors, false);
     if (!parseargs(argc, argv, config, configFile))
         return 1;
-#endif // ANDROID_APP
+#endif  // ANDROID_APP
 
     if (config.source_path.empty() || config.source_path == "off")
         config.m_disable_source = true;
@@ -642,7 +641,7 @@ int main(int argc, char *argv[])
 
     if (!config.ascii_logo_type.empty() && config.m_display_distro)
     {
-        std::string logo_type_path{path};
+        std::string  logo_type_path{ path };
         const size_t pos = path.rfind('.');
 
         if (pos != std::string::npos)
@@ -669,16 +668,17 @@ int main(int argc, char *argv[])
     }
 #else
     if (config.gui)
-        die(_("Can't run in GUI mode because it got disabled at compile time\n"
+        die(
+            _("Can't run in GUI mode because it got disabled at compile time\n"
               "Compile customfetch with GUI_MODE=1 or contact your distro to enable it"));
-#endif // GUI_MODE
+#endif  // GUI_MODE
 
     if (!config.wrap_lines)
     {
         // https://en.cppreference.com/w/c/program/exit
         // if something goes wrong like a segfault, then re-enable the cursor again
         std::atexit(enable_cursor);
-        
+
         // hide cursor and disable line wrapping
         fmt::print("\x1B[?25l\x1B[?7l");
 
@@ -691,12 +691,11 @@ int main(int argc, char *argv[])
     {
         Display::display(Display::render(config, colors, false, path));
     }
-        
+
     return 0;
 #else
 
     return fmt::format("{}", fmt::join(Display::render(config, colors, false, path), "<br>"));
 
-#endif // !ANDROID_APP
-
+#endif  // !ANDROID_APP
 }

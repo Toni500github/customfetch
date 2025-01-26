@@ -39,8 +39,7 @@ static size_t get_num_count_dir(const std::string_view path)
 
     const auto& dirIter = std::filesystem::directory_iterator{ path };
 
-    return std::count_if(begin(dirIter), end(dirIter),
-                        [](const auto& entry) { return entry.is_directory(); });
+    return std::count_if(begin(dirIter), end(dirIter), [](const auto& entry) { return entry.is_directory(); });
 }
 
 static size_t get_num_string_file(const std::string_view path, const std::string_view str)
@@ -62,7 +61,7 @@ static size_t get_num_string_file(const std::string_view path, const std::string
 
 std::string get_all_pkgs(const Config& config)
 {
-    std::string ret;
+    std::string           ret;
     pkgs_managers_count_t pkgs_count;
 
 #define ADD_PKGS_COUNT(pkgman) \

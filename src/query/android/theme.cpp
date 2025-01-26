@@ -31,8 +31,8 @@
 
 using namespace Query;
 
-Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes,
-             const std::string& theme_name_version, const Config& config, const bool gsettings_only)
+Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, const std::string& theme_name_version,
+             const Config& config, const bool gsettings_only)
 {
     m_theme_infos.cursor = m_theme_infos.gtk_font = m_theme_infos.cursor_size = m_theme_infos.gtk_theme_name =
         m_theme_infos.gtk_icon_theme                                          = MAGIC_LINE;

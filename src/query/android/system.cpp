@@ -48,10 +48,10 @@ static System::System_t get_system_infos()
     ret.os_version_codename = get_android_property("ro.build.version.codename");
     ret.os_pretty_name      = "Android " + ret.os_version_codename + " " + ret.os_version_id;
 
-    constexpr std::array<std::string_view, 8> properties_name = { "ro.product.marketname",   "ro.vendor.product.display",
-                                                                  "ro.config.devicename",    "ro.config.marketing_name",
-                                                                  "ro.product.vendor.model", "ro.product.oppo_model",
-                                                                  "ro.oppo.market.name",     "ro.product.brand" };
+    constexpr std::array<std::string_view, 8> properties_name = {
+        "ro.product.marketname",   "ro.vendor.product.display", "ro.config.devicename", "ro.config.marketing_name",
+        "ro.product.vendor.model", "ro.product.oppo_model",     "ro.oppo.market.name",  "ro.product.brand"
+    };
     for (const std::string_view name : properties_name)
     {
         if (ret.host_modelname.empty() || ret.host_modelname == UNKNOWN)

@@ -39097,6 +39097,6 @@ inline const std::string&                           all_ids                    =
 inline constexpr std::array<std::string_view, 2405> pci_vendors_array          = {};
 inline constexpr std::array<int, 2405>              pci_vendors_location_array = {};
 
-#endif // !CF_ANDROID
+#endif  // !CF_ANDROID
 
 #endif  // _PCI_IDS_HPP

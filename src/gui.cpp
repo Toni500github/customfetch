@@ -36,8 +36,8 @@
 #include "display.hpp"
 #include "fmt/ranges.h"
 #include "gdkmm/pixbufanimation.h"
-#include "gtkmm/enums.h"
 #include "glibmm/main.h"
+#include "gtkmm/enums.h"
 #include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
@@ -87,7 +87,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     // this is just for parse() to auto add the distro colors
     std::ifstream file(path, std::ios::binary);
     std::string   line, _;
-    parse_args_t parse_args{ systemInfo, _, config, colors, false, true };
+    parse_args_t  parse_args{ systemInfo, _, config, colors, false, true };
 
     while (std::getline(file, line))
     {
@@ -96,9 +96,9 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     }
 
     parse_args.parsingLayout = true;
-    for (std::string& layout : layout)
+    for (std::string& line : layout)
     {
-        layout = parse(layout, parse_args);
+        line = parse(line, parse_args);
         parse_args.no_more_reset = false;
     }
 

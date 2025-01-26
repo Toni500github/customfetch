@@ -129,7 +129,7 @@ std::string read_by_syspath(const std::string_view path, bool report_error)
     {
         if (report_error)
             error(_("Failed to open {}"), path);
-        
+
         return UNKNOWN;
     }
 
@@ -292,7 +292,7 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
 
 std::string get_relative_path(const std::string_view relative_path, const std::string_view env, const long long mode)
 {
-    const char *_env = std::getenv(env.data());
+    const char* _env = std::getenv(env.data());
     if (!_env)
         return UNKNOWN;
 
@@ -334,7 +334,7 @@ std::string get_data_dir(const std::string_view dir)
 #include <sys/system_properties.h>
 std::string get_android_property(const std::string_view name)
 {
-    char ret[PROP_VALUE_MAX];
+    char      ret[PROP_VALUE_MAX];
     const int len = __system_property_get(name.data(), ret);
     if (len <= 0)
         return "";

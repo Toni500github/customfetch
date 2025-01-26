@@ -49,7 +49,7 @@
 class Parser
 {
 public:
-    Parser(const std::string_view src, std::string& pureOutput) : src{src}, pureOutput{pureOutput} {}
+    Parser(const std::string_view src, std::string& pureOutput) : src{ src }, pureOutput{ pureOutput } {}
 
     bool try_read(const char c)
     {
@@ -150,7 +150,7 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     const int n = std::stoi(col);
     if ((n >= 100 && n <= 107) || (n >= 40 && n <= 47))
         type = "background-color";
-#endif // !ANDROID_APP
+#endif  // !ANDROID_APP
 
     // last number
     // clang-format off
@@ -180,15 +180,16 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
               "e.g \\e[38;2;255;255;255m"),
             noesc_str);
     if (noesc_str.rfind('m') == std::string::npos)
-        die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '\\e[{}'"), noesc_str);
+        die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '\\e[{}'"),
+            noesc_str);
 
     const std::vector<std::string>& rgb_str = split(noesc_str.substr(5), ';');
 
-    const uint r = std::stoul(rgb_str.at(0));
-    const uint g = std::stoul(rgb_str.at(1));
-    const uint b = std::stoul(rgb_str.at(2));
+    const uint r      = std::stoul(rgb_str.at(0));
+    const uint g      = std::stoul(rgb_str.at(1));
+    const uint b      = std::stoul(rgb_str.at(2));
     const uint result = (r << 16) | (g << 8) | (b);
-    
+
     std::stringstream ss;
     ss << std::hex << result;
     return ss.str();
@@ -196,12 +197,14 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 
 std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
 {
-    return parse(input.data(), parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
+    return parse(input.data(), parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout,
+                 parse_args.no_more_reset);
 }
 
 std::string parse(const std::string_view input, parse_args_t& parse_args)
 {
-    return parse(input.data(), parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
+    return parse(input.data(), parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors,
+                 parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
 static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
@@ -305,20 +308,20 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     if (!evaluate)
         return {};
 
-    std::string       output;
-    const Config&     config  = parse_args.config;
-    const colors_t&   colors  = parse_args.colors;
-    const size_t      taglen  = color.length() + "${}"_len;
+    std::string     output;
+    const Config&   config = parse_args.config;
+    const colors_t& colors = parse_args.colors;
+    const size_t    taglen = color.length() + "${}"_len;
 
 #if ANDROID_APP
-    std::string&      endspan = parse_args.endspan;
+    std::string& endspan = parse_args.endspan;
     output += endspan;
     endspan.clear();
 
     const auto& append_endspan = [&endspan](const std::string_view tag) {
-            endspan += "</";
-            endspan += tag;
-            endspan += ">";
+        endspan += "</";
+        endspan += tag;
+        endspan += ">";
     };
 #else
     const std::string endspan = (!parse_args.firstrun_clr ? "</span>" : "");
@@ -492,7 +495,8 @@ jumpauto:
                 if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
                 {
                     const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
-                    output += fmt::format("{}<span {}gcolor='#{}'>", endspan, hasStart(noesc_str, "38") ? 'f' : 'b', hexclr);
+                    output +=
+                        fmt::format("{}<span {}gcolor='#{}'>", endspan, hasStart(noesc_str, "38") ? 'f' : 'b', hexclr);
                 }
                 else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
                 {
@@ -648,7 +652,7 @@ jumpauto:
             const std::string& opt_clr = str_clr.substr(0, pos);
             const std::string& hexclr  = str_clr.substr(pos + 1);
 
-            size_t      argmode_pos       = 0;
+            size_t argmode_pos = 0;
             /*const auto& get_argmode_value = [&](const std::string_view error) -> std::string {
                 if (opt_clr.at(argmode_pos + 1) == '(')
                 {
@@ -752,7 +756,6 @@ jumpauto:
                     case 'w':
                     case 'O':
                     case 'o': i += skip_gui_argmode(i);
-
                 }
             }
 
@@ -772,7 +775,8 @@ jumpauto:
             if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
             {
                 const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
-                output += fmt::format("<span style=\"{}color:#{};\">", hasStart(noesc_str, "48") ? "background-" : "", hexclr);
+                output += fmt::format("<span style=\"{}color:#{};\">", hasStart(noesc_str, "48") ? "background-" : "",
+                                      hexclr);
             }
             else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
             {
@@ -804,7 +808,7 @@ jumpauto:
             std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
             auto_colors.push_back(color);
     }
-#endif // !ANDROID_APP
+#endif  // !ANDROID_APP
 
     if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
         parse_args.pureOutput.erase(parser.dollar_pos, taglen);
@@ -1042,12 +1046,10 @@ static std::string prettify_term_name(const std::string_view term_name)
     switch (fnv1a16::hash(str_tolower(term_name.data())))
     {
         case "gnome-terminal"_fnv1a16:
-        case "gnome terminal"_fnv1a16:
-            return "GNOME Terminal";
+        case "gnome terminal"_fnv1a16: return "GNOME Terminal";
 
         case "gnome-console"_fnv1a16:
-        case "gnome console"_fnv1a16:
-            return "GNOME console";
+        case "gnome console"_fnv1a16: return "GNOME console";
     }
     return term_name.data();
 }
@@ -1059,25 +1061,20 @@ static std::string prettify_de_name(const std::string_view de_name)
         case "kde"_fnv1a16:
         case "plasma"_fnv1a16:
         case "plasmashell"_fnv1a16:
-        case "plasmawayland"_fnv1a16:
-            return "KDE Plasma";
+        case "plasmawayland"_fnv1a16: return "KDE Plasma";
 
         case "gnome"_fnv1a16:
-        case "gnome-shell"_fnv1a16:
-            return "GNOME";
+        case "gnome-shell"_fnv1a16: return "GNOME";
 
         case "xfce"_fnv1a16:
         case "xfce4"_fnv1a16:
-        case "xfce4-session"_fnv1a16:
-            return "Xfce4";
+        case "xfce4-session"_fnv1a16: return "Xfce4";
 
         case "mate"_fnv1a16:
-        case "mate-session"_fnv1a16:
-            return "Mate";
+        case "mate-session"_fnv1a16: return "Mate";
 
         case "lxqt"_fnv1a16:
-        case "lxqt-session"_fnv1a16: 
-            return "LXQt";
+        case "lxqt-session"_fnv1a16: return "LXQt";
     }
 
     return de_name.data();
@@ -1089,7 +1086,8 @@ systemInfo_t queried_themes_names;
 systemInfo_t queried_themes;
 
 // clang-format on
-void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args)
+void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName,
+                              parse_args_t& parse_args)
 {
 #define SYSINFO_INSERT(x) sysInfo.at(moduleName).insert({ moduleMemberName, variant(x) })
 
@@ -1097,8 +1095,8 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
     const Config& config  = parse_args.config;
     systemInfo_t& sysInfo = parse_args.systemInfo;
 
-    const auto&                                moduleMember_hash = fnv1a16::hash(moduleMemberName);
-    const std::uint16_t                        byte_unit = config.use_SI_unit ? 1000 : 1024;
+    const auto&                                moduleMember_hash     = fnv1a16::hash(moduleMemberName);
+    const std::uint16_t                        byte_unit             = config.use_SI_unit ? 1000 : 1024;
     constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
                                                                          "KiB", "MB", "MiB", "PB", "PiB", "TB",
                                                                          "TiB", "YB", "YiB", "ZB", "ZiB" };
@@ -1130,7 +1128,6 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
             switch (moduleMember_hash)
             {
                 case "name"_fnv1a16: SYSINFO_INSERT(query_system.os_pretty_name()); break;
-
                 case "name_id"_fnv1a16: SYSINFO_INSERT(query_system.os_id()); break;
 
                 case "uptime"_fnv1a16:
@@ -1139,11 +1136,8 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     break;
 
                 case "uptime_secs"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;
-
                 case "uptime_mins"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_mins.count() % 60)); break;
-
                 case "uptime_hours"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_hours.count()) % 24); break;
-
                 case "uptime_days"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_days)); break;
 
                 case "kernel"_fnv1a16:
@@ -1151,19 +1145,12 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     break;
 
                 case "kernel_name"_fnv1a16: SYSINFO_INSERT(query_system.kernel_name()); break;
-
                 case "kernel_version"_fnv1a16: SYSINFO_INSERT(query_system.kernel_version()); break;
-
                 case "pkgs"_fnv1a16: SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
-
                 case "initsys_name"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_name()); break;
-
                 case "initsys_version"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_version()); break;
-
                 case "hostname"_fnv1a16: SYSINFO_INSERT(query_system.hostname()); break;
-
                 case "version_codename"_fnv1a16: SYSINFO_INSERT(query_system.os_version_codename()); break;
-
                 case "version_id"_fnv1a16: SYSINFO_INSERT(query_system.os_versionid()); break;
             }
         }
@@ -1186,11 +1173,8 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     break;
 
                 case "host_name"_fnv1a16: SYSINFO_INSERT(query_system.host_modelname()); break;
-
                 case "host_vendor"_fnv1a16: SYSINFO_INSERT(query_system.host_vendor()); break;
-
                 case "host_version"_fnv1a16: SYSINFO_INSERT(query_system.host_version()); break;
-
                 case "arch"_fnv1a16: SYSINFO_INSERT(query_system.arch()); break;
             }
         }
@@ -1215,9 +1199,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     break;
 
                 case "shell_name"_fnv1a16: SYSINFO_INSERT(query_user.shell_name()); break;
-
                 case "shell_path"_fnv1a16: SYSINFO_INSERT(query_user.shell_path()); break;
-
                 case "shell_version"_fnv1a16: SYSINFO_INSERT(query_user.shell_version(query_user.shell_name())); break;
 
                 case "de_name"_fnv1a16:
@@ -1246,7 +1228,6 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     break;
 
                 case "terminal_name"_fnv1a16: SYSINFO_INSERT(prettify_term_name(query_user.term_name())); break;
-
                 case "terminal_version"_fnv1a16: SYSINFO_INSERT(query_user.term_version(query_user.term_name())); break;
             }
         }
@@ -1269,6 +1250,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     else
                         SYSINFO_INSERT(fmt::format("{} ({}px)", query_theme.cursor(), query_theme.cursor_size()));
                     break;
+
                 case "cursor_name"_fnv1a16: SYSINFO_INSERT(query_theme.cursor()); break;
                 case "cursor_size"_fnv1a16: SYSINFO_INSERT(query_theme.cursor_size()); break;
             }
@@ -1369,11 +1351,11 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         {
             switch (moduleMember_hash)
             {
-                case "name"_fnv1a16:     SYSINFO_INSERT(query_cpu.name()); break;
-                case "nproc"_fnv1a16:    SYSINFO_INSERT(query_cpu.nproc()); break;
-                case "freq_cur"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_cur()); break;
-                case "freq_max"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_max()); break;
-                case "freq_min"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_min()); break;
+                case "name"_fnv1a16:            SYSINFO_INSERT(query_cpu.name()); break;
+                case "nproc"_fnv1a16:           SYSINFO_INSERT(query_cpu.nproc()); break;
+                case "freq_cur"_fnv1a16:        SYSINFO_INSERT(query_cpu.freq_cur()); break;
+                case "freq_max"_fnv1a16:        SYSINFO_INSERT(query_cpu.freq_max()); break;
+                case "freq_min"_fnv1a16:        SYSINFO_INSERT(query_cpu.freq_min()); break;
                 case "freq_bios_limit"_fnv1a16: SYSINFO_INSERT(query_cpu.freq_bios_limit()); break;
 
                 case "temp_C"_fnv1a16: SYSINFO_INSERT(query_cpu.temp()); break;
@@ -1414,7 +1396,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
             TOTAL,
             FREE
         };
-        std::string path{moduleName.data()};
+        std::string path{ moduleName.data() };
         path.erase(0, 5);  // disk(
         path.pop_back();   // )
         debug("disk path = {}", path);
@@ -1433,11 +1415,9 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
             switch (moduleMember_hash)
             {
-                case "fs"_fnv1a16:     SYSINFO_INSERT(query_disk.typefs()); break;
-                case "device"_fnv1a16: SYSINFO_INSERT(query_disk.device()); break;
-                case "mountdir"_fnv1a16:
-                    SYSINFO_INSERT(query_disk.mountdir());
-                    break;
+                case "fs"_fnv1a16:       SYSINFO_INSERT(query_disk.typefs()); break;
+                case "device"_fnv1a16:   SYSINFO_INSERT(query_disk.device()); break;
+                case "mountdir"_fnv1a16: SYSINFO_INSERT(query_disk.mountdir()); break;
 
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
@@ -1600,15 +1580,15 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     break;
 
                 case "vendor"_fnv1a16:
-                case "manufacturer"_fnv1a16: SYSINFO_INSERT(query_battery.vendor()); break;
-                case "technology"_fnv1a16:   SYSINFO_INSERT(query_battery.technology()); break;
-                case "name"_fnv1a16:         SYSINFO_INSERT(query_battery.modelname()); break;
-                case "status"_fnv1a16:       SYSINFO_INSERT(query_battery.status()); break;
+                case "manufacturer"_fnv1a16:   SYSINFO_INSERT(query_battery.vendor()); break;
+                case "technology"_fnv1a16:     SYSINFO_INSERT(query_battery.technology()); break;
+                case "name"_fnv1a16:           SYSINFO_INSERT(query_battery.modelname()); break;
+                case "status"_fnv1a16:         SYSINFO_INSERT(query_battery.status()); break;
                 case "capacity_level"_fnv1a16: SYSINFO_INSERT(query_battery.capacity_level()); break;
-                
-                case "temp_C"_fnv1a16:       SYSINFO_INSERT(query_battery.temp()); break;
-                case "temp_F"_fnv1a16:       SYSINFO_INSERT(query_battery.temp() * 1.8 + 34); break;
-                case "temp_K"_fnv1a16:       SYSINFO_INSERT(query_battery.temp() + 273.15); break;
+
+                case "temp_C"_fnv1a16: SYSINFO_INSERT(query_battery.temp()); break;
+                case "temp_F"_fnv1a16: SYSINFO_INSERT(query_battery.temp() * 1.8 + 34); break;
+                case "temp_K"_fnv1a16: SYSINFO_INSERT(query_battery.temp() + 273.15); break;
             }
         }
     }
@@ -1634,7 +1614,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
     {
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
-        
+
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             SYSINFO_INSERT(parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", _, parse_args));
@@ -1645,7 +1625,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
     {
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
-        
+
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             // no need to parse anything
@@ -1667,7 +1647,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
     {
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
-        
+
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             Query::CPU query_cpu;
@@ -1716,8 +1696,8 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
             byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount(), byte_unit);
             byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount(), byte_unit);
 
-            const std::string& perc = get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), 
-                                                                parse_args);
+            const std::string& perc =
+                get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), parse_args);
 
             // clang-format off
             SYSINFO_INSERT (fmt::format("{:.2f} {} / {:.2f} {} {} - {}", 

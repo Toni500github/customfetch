@@ -26,13 +26,13 @@
 #include "platform.hpp"
 #if CF_ANDROID
 
-#include <vector>
-#include <string>
 #include <cctype>
-#include "json.h"
+#include <string>
+#include <vector>
 
-#include "switch_fnv1a.hpp"
+#include "json.h"
 #include "query.hpp"
+#include "switch_fnv1a.hpp"
 #include "util.hpp"
 
 using namespace Query;
@@ -40,8 +40,8 @@ using namespace Query;
 static Battery::Battery_t get_battery_infos_termux()
 {
     Battery::Battery_t infos;
-    std::string result, _;
-    if (!read_exec({"/data/data/com.termux/files/usr/libexec/termux-api", "BatteryStatus"}, result))
+    std::string        result, _;
+    if (!read_exec({ "/data/data/com.termux/files/usr/libexec/termux-api", "BatteryStatus" }, result))
         return infos;
 
     const auto& doc = json::jobject::parse(result);
@@ -52,14 +52,14 @@ static Battery::Battery_t get_battery_infos_termux()
 
     switch (fnv1a16::hash(infos.status))
     {
-        case "PLUGGED_AC"_fnv1a16: infos.status = "AC Connected, "; break;
-        case "PLUGGED_USB"_fnv1a16: infos.status = "USB Connected, "; break;
+        case "PLUGGED_AC"_fnv1a16:       infos.status = "AC Connected, "; break;
+        case "PLUGGED_USB"_fnv1a16:      infos.status = "USB Connected, "; break;
         case "PLUGGED_WIRELESS"_fnv1a16: infos.status = "Wireless Connected, "; break;
-        default: infos.status.clear();
+        default:                         infos.status.clear();
     }
 
     // CHARGING or DISCHARGING
-    std::string charge_status{str_tolower(doc["status"].as_string())};
+    std::string charge_status{ str_tolower(doc["status"].as_string()) };
     charge_status.at(0) = toupper(charge_status.at(0));
     infos.status += charge_status;
 
@@ -69,8 +69,8 @@ static Battery::Battery_t get_battery_infos_termux()
 static Battery::Battery_t get_battery_infos_dumpsys()
 {
     Battery::Battery_t infos;
-    std::string result, _;
-    if (!read_exec({"/system/bin/dumpsys", "battery"}, result))
+    std::string        result, _;
+    if (!read_exec({ "/system/bin/dumpsys", "battery" }, result))
         return infos;
 
     const std::vector<std::string>& vec = split(result, '\n');
@@ -80,16 +80,14 @@ static Battery::Battery_t get_battery_infos_dumpsys()
     double level = 0, scale = 0;
     for (size_t i = 1; i < vec.size(); ++i)
     {
-        const size_t pos         = vec.at(i).rfind(':');
+        const size_t       pos   = vec.at(i).rfind(':');
         const std::string& key   = vec.at(i).substr(2, pos);
         const std::string& value = vec.at(i).substr(pos + 2);
 
         switch (fnv1a16::hash(key))
         {
-            case "level"_fnv1a16:
-                level = std::stod(value); break;
-            case "scale"_fnv1a16:
-                scale = std::stod(value); break;
+            case "level"_fnv1a16: level = std::stod(value); break;
+            case "scale"_fnv1a16: scale = std::stod(value); break;
 
             case "AC powered"_fnv1a16:
             case "USB powered"_fnv1a16:
@@ -99,10 +97,8 @@ static Battery::Battery_t get_battery_infos_dumpsys()
                     infos.status = key;
                 break;
 
-            case "temperature"_fnv1a16:
-                infos.temp = std::stod(value) / 10; break;
-            case "technology"_fnv1a16:
-                infos.technology = value;
+            case "temperature"_fnv1a16: infos.temp = std::stod(value) / 10; break;
+            case "technology"_fnv1a16:  infos.technology = value;
         }
     }
 

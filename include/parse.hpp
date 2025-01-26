@@ -27,6 +27,7 @@
 #define _PARSE_HPP
 
 #include <string>
+
 #include "config.hpp"
 #include "query.hpp"
 
@@ -41,9 +42,9 @@ struct parse_args_t
     const Config&   config;
     const colors_t& colors;
     bool            parsingLayout;
-    bool            firstrun_clr = true;
+    bool            firstrun_clr  = true;
     bool            no_more_reset = false;
-    std::string     endspan = ""; // only for ANDROID_APP
+    std::string     endspan       = "";  // only for ANDROID_APP
 };
 
 /* Parse input, in-place, with data from systemInfo.
@@ -72,7 +73,8 @@ std::string parse(const std::string_view input, std::string& _, parse_args_t& pa
  * @param moduleMemberName The module member name
  * @param parse_args The parse() like arguments
  */
-void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName, parse_args_t& parse_args);
+void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName,
+                              parse_args_t& parse_args);
 
 /* Set module only values to a systemInfo_t map.
  * If the name of said module matches any module name, it will be added

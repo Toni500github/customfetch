@@ -30,16 +30,16 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <chrono>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
-#include <chrono>
 #include <string>
 #include <vector>
 
+#include "fmt/base.h"
 #include "fmt/chrono.h"
 #include "fmt/color.h"
-#include "fmt/base.h"
 #include "fmt/os.h"
 #include "platform.hpp"
 
@@ -345,8 +345,8 @@ void info(const std::string_view fmt, Args&&... args) noexcept
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 #else
-#include "jni.h"
 #include "android/log.h"
+#include "jni.h"
 
 inline struct jni_objects
 {
