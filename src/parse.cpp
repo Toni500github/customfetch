@@ -1235,7 +1235,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
     else if (moduleName == "theme")
     {
-        Query::Theme query_theme(config, false);
+        Query::Theme query_theme(queried_themes, config, false);
 
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
@@ -1266,7 +1266,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         {
             if (hasStart(moduleMemberName, "cursor"))
             {
-                Query::Theme query_cursor(config, true);
+                Query::Theme query_cursor(queried_themes, config, true);
                 switch (moduleMember_hash)
                 {
                     case "cursor"_fnv1a16:
@@ -1306,9 +1306,9 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         {
             switch (moduleMember_hash)
             {
-                case "name"_fnv1a16:   SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_theme(),      gtk3.gtk_theme(),      gtk4.gtk_theme())); break;
-                case "icons"_fnv1a16:  SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_icon_theme(), gtk3.gtk_icon_theme(), gtk4.gtk_icon_theme())); break;
-                case "font"_fnv1a16:   SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_font(),       gtk3.gtk_font(),       gtk4.gtk_font())); break;
+                case "name"_fnv1a16:  SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_theme(),      gtk3.gtk_theme(),      gtk4.gtk_theme())); break;
+                case "icons"_fnv1a16: SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_icon_theme(), gtk3.gtk_icon_theme(), gtk4.gtk_icon_theme())); break;
+                case "font"_fnv1a16:  SYSINFO_INSERT(get_auto_gtk_format(gtk2.gtk_font(),       gtk3.gtk_font(),       gtk4.gtk_font())); break;
             }
         }
     }

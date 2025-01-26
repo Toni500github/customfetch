@@ -163,17 +163,19 @@ public:
     Theme(const std::uint8_t ver, systemInfo_t& queried_themes, const std::string& theme_name_version,
           const Config& config, const bool gsettings_only = false);
 
-    Theme(const Config& config, const bool gsettings_only = false);
+    Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only = false);
 
-    std::string& gtk_theme() noexcept;
-    std::string& gtk_icon_theme() noexcept;
-    std::string& gtk_font() noexcept;
+    std::string  gtk_theme() noexcept;
+    std::string  gtk_icon_theme() noexcept;
+    std::string  gtk_font() noexcept;
     std::string& cursor() noexcept;
     std::string& cursor_size() noexcept;
 
 private:
     User           query_user;
     std::string    m_wmde_name;
+    std::string    m_theme_name;
+    systemInfo_t&  m_queried_themes;
     static Theme_t m_theme_infos;
 };
 

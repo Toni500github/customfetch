@@ -33,25 +33,26 @@ using namespace Query;
 
 Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, const std::string& theme_name_version,
              const Config& config, const bool gsettings_only)
+            : m_queried_themes(queried_themes)
 {
-    m_theme_infos.cursor = m_theme_infos.gtk_font = m_theme_infos.cursor_size = m_theme_infos.gtk_theme_name =
-        m_theme_infos.gtk_icon_theme                                          = MAGIC_LINE;
+    m_theme_infos.cursor = m_theme_infos.gtk_font = m_theme_infos.cursor_size = m_theme_infos.gtk_theme_name = m_theme_infos.gtk_icon_theme 
+        = MAGIC_LINE;
 }
 
-Theme::Theme(const Config& config, const bool gsettings_only)
+Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only) : m_queried_themes(queried_themes)
 {
-    m_theme_infos.cursor = m_theme_infos.gtk_font = m_theme_infos.cursor_size = m_theme_infos.gtk_theme_name =
-        m_theme_infos.gtk_icon_theme                                          = MAGIC_LINE;
+    m_theme_infos.cursor = m_theme_infos.gtk_font = m_theme_infos.cursor_size = m_theme_infos.gtk_theme_name = m_theme_infos.gtk_icon_theme 
+        = MAGIC_LINE;
 }
 
 // clang-format off
-std::string& Theme::gtk_theme() noexcept
+std::string Theme::gtk_theme() noexcept
 { return m_theme_infos.gtk_theme_name; }
 
-std::string& Theme::gtk_icon_theme() noexcept
+std::string Theme::gtk_icon_theme() noexcept
 { return m_theme_infos.gtk_icon_theme; }
 
-std::string& Theme::gtk_font() noexcept
+std::string Theme::gtk_font() noexcept
 { return m_theme_infos.gtk_font; }
 
 std::string& Theme::cursor() noexcept
