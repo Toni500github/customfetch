@@ -1577,7 +1577,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
             switch (moduleMember_hash)
             {
                 case "perc"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(query_battery.perc(), 100, parse_args));
+                    SYSINFO_INSERT(get_and_color_percentage(query_battery.perc(), 100, parse_args, true));
                     break;
 
                 case "vendor"_fnv1a16:
@@ -1807,7 +1807,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            SYSINFO_INSERT(fmt::format("{} [{}]", get_and_color_percentage(query_battery.perc(), 100, parse_args),
+            SYSINFO_INSERT(fmt::format("{} [{}]", get_and_color_percentage(query_battery.perc(), 100, parse_args, true),
                                        query_battery.status()));
         }
     }
