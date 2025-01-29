@@ -88,6 +88,8 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->font                = getValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
 
+    this->auto_disks_fmt = getValue<std::string>("auto.disk-fmt", "${auto}Disk (%1): $<disk(%1)>", true);
+
     this->uptime_d_fmt = getValue<std::string>("os.uptime.days", " days");
     this->uptime_h_fmt = getValue<std::string>("os.uptime.hours", " hours");
     this->uptime_m_fmt = getValue<std::string>("os.uptime.mins", " mins");

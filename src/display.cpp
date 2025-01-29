@@ -26,6 +26,7 @@
 // Implementation of the system behind displaying/rendering the information
 
 #include "display.hpp"
+#include <cstddef>
 
 #ifndef GUI_MODE
 # define STB_IMAGE_IMPLEMENTATION
@@ -97,13 +98,23 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     stbi_image_free(img);
 
     std::string  _;
-    parse_args_t parse_args{ systemInfo, _, config, colors, true };
-    for (std::string& line : layout)
+    std::vector<std::string> tmp_layout;
+    parse_args_t parse_args{ systemInfo, _, layout, tmp_layout, config, colors, true };
+    for (size_t i = 0; i < layout.size(); ++i)
     {
-        line = parse(line, parse_args);
-        if (!config.m_disable_colors)
-            line.insert(0, NOCOLOR);
+        layout[i] = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
+        if (!config.gui && !config.m_disable_colors)
+        {
+            layout[i].insert(0, NOCOLOR);
+        }
+
+        if (!tmp_layout.empty())
+        {
+            layout.erase(layout.begin()+i);
+            layout.insert(layout.begin()+i, tmp_layout.begin(), tmp_layout.end());
+            tmp_layout.clear();
+        }
     }
 
     // erase each element for each instance of MAGIC_LINE
@@ -116,9 +127,9 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     const size_t height = image_height / font_height;
 
     if (config.m_image_backend == "kitty")
-        taur_exec({ "kitty", "+kitten", "icat", "--align",
-                    (config.logo_position == "top" ? "center" : config.logo_position), "--place",
-                    fmt::format("{}x{}@0x0", width, height), path });
+        taur_exec({ "kitty", "+kitten", "icat",
+                    "--align", (config.logo_position == "top" ? "center" : config.logo_position),
+                    "--place", fmt::format("{}x{}@0x0", width, height), path });
     else if (config.m_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
     else
@@ -243,7 +254,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         // this is just for parse() to auto add the distro colors
         std::ifstream distro_file(distro_path);
         std::string   line, _;
-        parse_args_t  parse_args{ systemInfo, _, config, colors, false };
+        std::vector<std::string> tmp_layout;
+        parse_args_t  parse_args{ systemInfo, _, layout, tmp_layout, config, colors, false };
 
         while (std::getline(distro_file, line))
         {
@@ -296,7 +308,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     while (std::getline(file, line))
     {
         std::string  pureOutput;
-        parse_args_t parse_args{ systemInfo, pureOutput, config, colors, false };
+        std::vector<std::string> tmp_layout;
+        parse_args_t parse_args{ systemInfo, pureOutput, layout, tmp_layout, config, colors, false };
 
         std::string asciiArt_s   = parse(line, parse_args);
         parse_args.no_more_reset = false;
@@ -325,13 +338,23 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         return asciiArt;
 
     std::string  _;
-    parse_args_t parse_args{ systemInfo, _, config, colors, true };
-    for (std::string& line : layout)
+    std::vector<std::string> tmp_layout;
+    parse_args_t parse_args{ systemInfo, _, layout, tmp_layout, config, colors, true };
+    for (size_t i = 0; i < layout.size(); ++i)
     {
-        line                     = parse(line, parse_args);
+        layout[i] = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
         if (!config.gui && !config.m_disable_colors)
-            line.insert(0, NOCOLOR);
+        {
+            layout[i].insert(0, NOCOLOR);
+        }
+
+        if (!tmp_layout.empty())
+        {
+            layout.erase(layout.begin()+i);
+            layout.insert(layout.begin()+i, tmp_layout.begin(), tmp_layout.end());
+            tmp_layout.clear();
+        }
     }
 
     auto_colors.clear();

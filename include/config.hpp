@@ -87,13 +87,16 @@ public:
 
     // Variables of config file for
     // modules specific configs
-    // [uptime]
+    // [auto]
+    std::string auto_disks_fmt;
+
+    // [os.uptime]
     std::string uptime_d_fmt;
     std::string uptime_h_fmt;
     std::string uptime_m_fmt;
     std::string uptime_s_fmt;
 
-    // [pkgs]
+    // [os.pkgs]
     std::vector<std::string> pkgs_managers;
     std::vector<std::string> pacman_dirs;
     std::vector<std::string> flatpak_dirs;
@@ -141,11 +144,11 @@ private:
      * @param fallback Default value if couldn't retrive value
      */
     template <typename T>
-    T getValue(const std::string_view value, const T&& fallback) const
+    T getValue(const std::string_view value, const T&& fallback, bool dont_expand_var = false) const
     {
         std::optional<T> ret = this->tbl.at_path(value).value<T>();
         if constexpr (toml::is_string<T>)  // if we want to get a value that's a string
-            return ret ? expandVar(ret.value()) : expandVar(fallback);
+            return ret ? expandVar(ret.value(), dont_expand_var) : expandVar(fallback, dont_expand_var);
         else
             return ret.value_or(fallback);
     }
@@ -267,14 +270,10 @@ layout = [
     "${auto}Font: $<theme-gtk-all.font>",
     "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name>",
-    "${auto}DE: $<user.de_name>",
-    "${auto}Disk (/): $<disk(/)>",)#"
-#else
-    R"#(
-    "${auto}Disk (/): $<disk(/)>",
-    "${auto}Disk (/sdcard): $<disk(/storage/emulated/0)>",)#"
+    "${auto}DE: $<user.de_name>",)#"
 #endif
     R"#(
+    "$<auto.disk>",
     "${auto}Swap: $<swap>",
     "${auto}CPU: $<cpu>",
     "${auto}GPU: $<gpu>",
@@ -379,6 +378,19 @@ wrap-lines = false
 # Warn against tradeoffs between slower queries for availability
 # e.g. falling back to gsettings when we can't find the config file for GTK
 slow-query-warnings = false
+
+# $<auto> config
+[auto]
+# Format for displaying the auto detected disks infos
+# %1 = mount directory
+# %2 = device path
+# %3 = type of filesystem
+# %4 = total amount of storage
+# %5 = free amount of storage
+# %6 = used amount of storage
+# %7 = percentage of used storage
+# %8 = percentage of free storage
+disk-fmt = "${auto}Disk (%1): $<disk(%1)>"
 
 # $<os.uptime> config
 [os.uptime]

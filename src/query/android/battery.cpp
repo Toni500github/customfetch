@@ -47,7 +47,7 @@ static Battery::Battery_t get_battery_infos_termux()
     const auto& doc = json::jobject::parse(result);
 
     infos.status   = doc["plugged"].as_string();
-    infos.capacity = doc["percentage"];
+    infos.perc     = doc["percentage"];
     infos.temp     = doc["temperature"];
 
     switch (fnv1a16::hash(infos.status))
@@ -103,7 +103,7 @@ static Battery::Battery_t get_battery_infos_dumpsys()
     }
 
     if (level > 0 && scale > 0)
-        infos.capacity = level * 100 / scale;
+        infos.perc = level * 100 / scale;
 
     return infos;
 }
@@ -140,8 +140,8 @@ std::string& Battery::technology() noexcept
 std::string& Battery::capacity_level() noexcept
 { return m_battery_infos.capacity_level; }
 
-double& Battery::capacity() noexcept
-{ return m_battery_infos.capacity; }
+double& Battery::perc() noexcept
+{ return m_battery_infos.perc; }
 
 double& Battery::temp() noexcept
 { return m_battery_infos.temp; }

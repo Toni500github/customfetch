@@ -87,8 +87,8 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     // this is just for parse() to auto add the distro colors
     std::ifstream file(path, std::ios::binary);
     std::string   line, _;
-    parse_args_t  parse_args{ systemInfo, _, config, colors, false, true };
-
+    std::vector<std::string> tmp_layout;
+    parse_args_t  parse_args{ systemInfo, _, layout, tmp_layout, config, colors, false };
     while (std::getline(file, line))
     {
         parse(line, parse_args);
@@ -96,10 +96,21 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     }
 
     parse_args.parsingLayout = true;
-    for (std::string& line : layout)
+    for (size_t i = 0; i < layout.size(); ++i)
     {
-        line = parse(line, parse_args);
+        layout[i] = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
+        if (!config.gui && !config.m_disable_colors)
+        {
+            layout[i].insert(0, NOCOLOR);
+        }
+
+        if (!tmp_layout.empty())
+        {
+            layout.erase(layout.begin()+i);
+            layout.insert(layout.begin()+i, tmp_layout.begin(), tmp_layout.end());
+            tmp_layout.clear();
+        }
     }
 
     // erase each element for each instance of MAGIC_LINE

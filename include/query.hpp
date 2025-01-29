@@ -31,8 +31,10 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
+#include <vector>
 
 #include "config.hpp"
+#include "parse.hpp"
 #include "util.hpp"
 
 extern "C" {
@@ -254,7 +256,7 @@ public:
         std::string technology{ UNKNOWN };
         std::string capacity_level{ UNKNOWN };
         double      temp{ 0 };
-        double      capacity{ 0 };
+        double      perc{ 0 };
     };
 
     Battery();
@@ -264,7 +266,7 @@ public:
     std::string& status() noexcept;
     std::string& technology() noexcept;
     std::string& capacity_level() noexcept;
-    double&      capacity() noexcept;
+    double&      perc() noexcept;
     double&      temp() noexcept;
 
 private:
@@ -285,7 +287,8 @@ public:
         std::string mountdir;
     };
 
-    Disk(const std::string& path, systemInfo_t& queried_paths);
+    Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args,
+         const bool auto_module = false);
 
     double&      total_amount() noexcept;
     double&      free_amount() noexcept;
@@ -294,7 +297,11 @@ public:
     std::string& device() noexcept;
     std::string& mountdir() noexcept;
 
+    std::vector<std::string>& disks_formats() noexcept
+    { return m_disks_formats; }
+
 private:
+    std::vector<std::string> m_disks_formats;
     static struct statvfs m_statvfs;
     static Disk_t         m_disk_infos;
 };

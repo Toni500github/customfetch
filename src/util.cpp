@@ -83,9 +83,9 @@ void ctrl_d_handler(const std::istream& cin)
         die(_("Exiting due to CTRL-D or EOF"));
 }
 
-std::string expandVar(std::string ret)
+std::string expandVar(std::string ret, bool dont)
 {
-    if (ret.empty())
+    if (ret.empty() || dont)
         return ret;
 
 #if !ANDROID_APP

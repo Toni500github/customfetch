@@ -176,9 +176,10 @@ void ctrl_d_handler(const std::istream& cin);
 
 /* Replace special symbols such as ~ and $ (at the begging) in std::string
  * @param str The string
+ * @param dont Don't do it
  * @return The modified string
  */
-std::string expandVar(std::string ret);
+std::string expandVar(std::string ret, bool dont = false);
 
 /* Executes commands with execvp() and keep the program running without existing
  * @param cmd_str The command to execute

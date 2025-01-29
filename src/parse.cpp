@@ -42,6 +42,7 @@
 #include "config.hpp"
 #include "fmt/color.h"
 #include "fmt/format.h"
+#include "fmt/ranges.h"
 #include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -195,20 +196,20 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
     return ss.str();
 }
 
-std::string parse(const std::string_view input, std::string& _, parse_args_t& parse_args)
+std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args)
 {
-    return parse(input.data(), parse_args.systemInfo, _, parse_args.config, parse_args.colors, parse_args.parsingLayout,
-                 parse_args.no_more_reset);
+    return parse(input, parse_args.systemInfo, _, parse_args.layout, parse_args.tmp_layout,
+                 parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
-std::string parse(const std::string_view input, parse_args_t& parse_args)
+std::string parse(const std::string& input, parse_args_t& parse_args)
 {
-    return parse(input.data(), parse_args.systemInfo, parse_args.pureOutput, parse_args.config, parse_args.colors,
-                 parse_args.parsingLayout, parse_args.no_more_reset);
+    return parse(input, parse_args.systemInfo, parse_args.pureOutput, parse_args.layout, parse_args.tmp_layout,
+                 parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
-static std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
-                                            const bool invert = false)
+std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
+                                     const bool invert)
 {
     const Config& config = parse_args.config;
     const float   result = n1 / n2 * static_cast<float>(100);
@@ -224,7 +225,7 @@ static std::string get_and_color_percentage(const float& n1, const float& n2, pa
             color = "${" + config.percentage_colors.at(2) + "}";
     }
     else
-    {
+{
         if (result <= 45)
             color = "${" + config.percentage_colors.at(2) + "}";
         else if (result <= 80)
@@ -929,8 +930,8 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
     return result;
 }
 
-std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, const Config& config,
-                  const colors_t& colors, const bool parsingLayout, bool& no_more_reset)
+std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, std::vector<std::string>& layout,
+                  std::vector<std::string>& tmp_layout, const Config& config, const colors_t& colors, const bool parsingLayout, bool& no_more_reset)
 {
     if (!config.sep_reset.empty() && parsingLayout && !no_more_reset)
     {
@@ -960,7 +961,7 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
         replace_str(input, " ", "&nbsp;");
 #endif
 
-    parse_args_t parse_args{ systemInfo, pureOutput, config, colors, parsingLayout, true, no_more_reset, "" };
+    parse_args_t parse_args{ systemInfo, pureOutput, layout, tmp_layout, config, colors, parsingLayout, true, no_more_reset, "" };
     Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };
@@ -1401,7 +1402,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         path.pop_back();   // )
         debug("disk path = {}", path);
 
-        Query::Disk                 query_disk(path, queried_disks);
+        Query::Disk                 query_disk(path, queried_disks, parse_args);
         std::array<byte_units_t, 3> byte_units;
 
         if (sysInfo.find(moduleName) == sysInfo.end())
@@ -1575,8 +1576,8 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         {
             switch (moduleMember_hash)
             {
-                case "capacity"_fnv1a16:
-                    SYSINFO_INSERT(get_and_color_percentage(query_battery.capacity(), 100, parse_args));
+                case "perc"_fnv1a16:
+                    SYSINFO_INSERT(get_and_color_percentage(query_battery.perc(), 100, parse_args));
                     break;
 
                 case "vendor"_fnv1a16:
@@ -1589,6 +1590,28 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                 case "temp_C"_fnv1a16: SYSINFO_INSERT(query_battery.temp()); break;
                 case "temp_F"_fnv1a16: SYSINFO_INSERT(query_battery.temp() * 1.8 + 34); break;
                 case "temp_K"_fnv1a16: SYSINFO_INSERT(query_battery.temp() + 273.15); break;
+            }
+        }
+    }
+
+    else if (moduleName == "auto")
+    {
+        if (sysInfo.find(moduleName) == sysInfo.end())
+            sysInfo.insert({ moduleName, {} });
+
+        if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
+        {
+            switch (moduleMember_hash)
+            {
+                case "disk"_fnv1a16:
+                    Query::Disk query_disks("", queried_disks, parse_args, true);
+                    for (const std::string& str : query_disks.disks_formats())
+                    {
+                        parse_args.tmp_layout.push_back(str);
+                        debug("tmp_layout = {}", parse_args.tmp_layout);
+                        SYSINFO_INSERT(str);
+                    }
+                break;
             }
         }
     }
@@ -1685,7 +1708,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
         path.pop_back();   // )
         debug("disk path = {}", path);
 
-        Query::Disk                 query_disk(path, queried_disks);
+        Query::Disk                 query_disk(path, queried_disks, parse_args);
         std::array<byte_units_t, 2> byte_units;
 
         if (sysInfo.find(moduleName) == sysInfo.end())
@@ -1784,7 +1807,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            SYSINFO_INSERT(fmt::format("{} [{}]", get_and_color_percentage(query_battery.capacity(), 100, parse_args),
+            SYSINFO_INSERT(fmt::format("{} [{}]", get_and_color_percentage(query_battery.perc(), 100, parse_args),
                                        query_battery.status()));
         }
     }

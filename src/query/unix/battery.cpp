@@ -70,7 +70,7 @@ static Battery::Battery_t get_battery_infos()
         debug("battery found yeappyy");
         read_strip_syspath(tmp, path + "capacity");
         if (tmp != UNKNOWN)
-            infos.capacity = std::stod(tmp);
+            infos.perc = std::stod(tmp);
         else
             continue;
 
@@ -128,8 +128,8 @@ std::string& Battery::technology() noexcept
 std::string& Battery::capacity_level() noexcept
 { return m_battery_infos.capacity_level; }
 
-double& Battery::capacity() noexcept
-{ return m_battery_infos.capacity; }
+double& Battery::perc() noexcept
+{ return m_battery_infos.perc; }
 
 double& Battery::temp() noexcept
 { return m_battery_infos.temp; }

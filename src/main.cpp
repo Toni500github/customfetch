@@ -181,7 +181,7 @@ cpu:
   CPU model name with number of virtual processors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]
 
 battery:
-  battery current capacity and status [50.00% [Discharging]]
+  battery current percentage and status [50.00% [Discharging]]
 
 title:
   user and hostname colored with ${{auto2}} [toni@arch2]
@@ -344,7 +344,7 @@ cpu
 battery
   name:           battery model name
   temp:           battery temperature (by the chosen unit)
-  capacity:       battery current capacity
+  perc:           battery current percentage
   vendor:         battery manufacturer name
   status:         battery current status [Discharging, AC Connected]
   technology:     battery technology [Li-lion]
@@ -365,10 +365,7 @@ system
 
 static bool str_to_bool(const std::string_view str)
 {
-    if (str == "true" || str == "1" || str == "enable")
-        return true;
-
-    return false;
+    return (str == "true" || str == "1" || str == "enable");
 }
 
 // clang-format off
