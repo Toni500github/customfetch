@@ -26,7 +26,7 @@
 #include <mntent.h>
 #include <cstdio>
 #include <cstring>
-#include <filesystem>
+#include <unistd.h>
 #include <string_view>
 
 #include "config.hpp"
@@ -128,7 +128,7 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
         return;
     }
 
-    if (!std::filesystem::exists(path) && !auto_module)
+    if (access(path.data(), F_OK) != 0 && !auto_module)
     {
         // if user is using $<disk(path)> or $<disk(path).fs>
         // then let's just "try" to remove it
