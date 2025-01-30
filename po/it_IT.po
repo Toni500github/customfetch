@@ -262,81 +262,81 @@ msgstr ""
 msgid "Failed to find $HOME, set it to your home directory!"
 msgstr ""
 
-#: src/query/unix/cpu.cpp:282
+#: src/query/linux/cpu.cpp:282
 #, c++-format
 msgid "Could not open {}"
 msgstr ""
 
-#: src/query/unix/disk.cpp:62
+#: src/query/linux/disk.cpp:62
 msgid "setmntent"
 msgstr ""
 
-#: src/query/unix/disk.cpp:63
+#: src/query/linux/disk.cpp:63
 msgid "setmntent() failed. Could not get disk info"
 msgstr ""
 
-#: src/query/unix/disk.cpp:85
+#: src/query/linux/disk.cpp:85
 msgid "Failed to get disk info"
 msgstr ""
 
-#: src/query/unix/gpu.cpp:104
+#: src/query/linux/gpu.cpp:104
 msgid "Failed to parse GPU infos on the path /sys/class/drm/"
 msgstr ""
 
-#: src/query/unix/ram.cpp:59
+#: src/query/linux/ram.cpp:59
 #, c++-format
 msgid ""
 "Could not open {}\n"
 "Failed to get RAM infos"
 msgstr ""
 
-#: src/query/unix/system.cpp:98
+#: src/query/linux/system.cpp:98
 msgid "Failed to get OS infos"
 msgstr ""
 
-#: src/query/unix/system.cpp:172
+#: src/query/linux/system.cpp:172
 #, c++-format
 msgid ""
 "uname() failed: {}\n"
 "Could not get system infos"
 msgstr ""
 
-#: src/query/unix/system.cpp:175
+#: src/query/linux/system.cpp:175
 #, c++-format
 msgid ""
 "sysinfo() failed: {}\n"
 "Could not get system infos"
 msgstr ""
 
-#: src/query/unix/system.cpp:236
+#: src/query/linux/system.cpp:236
 msgid "/proc/1/comm doesn't exist! (what?)"
 msgstr ""
 
-#: src/query/unix/theme.cpp:179 src/query/unix/theme.cpp:381
+#: src/query/linux/theme.cpp:179 src/query/linux/theme.cpp:381
 msgid ""
 "customfetch could not detect a gtk configuration file. customfetch will use "
 "the much-slower gsettings."
 msgstr ""
 
-#: src/query/unix/theme.cpp:180 src/query/unix/theme.cpp:382
+#: src/query/linux/theme.cpp:180 src/query/linux/theme.cpp:382
 msgid ""
 "If there's a file in a standard location that we aren't detecting, please "
 "file an issue on our GitHub."
 msgstr ""
 
-#: src/query/unix/theme.cpp:383
+#: src/query/linux/theme.cpp:383
 msgid ""
 "You can disable this warning by disabling slow-query-warnings in your "
 "config.toml file."
 msgstr ""
 
-#: src/query/unix/user.cpp:331
+#: src/query/linux/user.cpp:331
 #, c++-format
 msgid ""
 "getpwent failed: {}\n"
 "Could not get user infos"
 msgstr ""
 
-#: src/query/unix/utils/dewm.cpp:201
+#: src/query/linux/utils/dewm.cpp:201
 msgid "Root node <mate-version> not found"
 msgstr ""

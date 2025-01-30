@@ -53,7 +53,7 @@ TARGET		= $(NAME)
 OLDVERSION	= 0.10.1
 VERSION    	= 0.10.2
 BRANCH     	= $(shell git rev-parse --abbrev-ref HEAD)
-SRC 	   	= $(wildcard src/*.cpp src/query/unix/*.cpp src/query/android/*.cpp src/query/unix/utils/*.cpp)
+SRC 	   	= $(wildcard src/*.cpp src/query/linux/*.cpp src/query/android/*.cpp src/query/linux/utils/*.cpp)
 OBJ 	   	= $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native

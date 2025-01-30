@@ -23,17 +23,17 @@
  *
  */
 
-#include "fmt/format.h"
-#include "parse.hpp"
 #include "platform.hpp"
-#if CF_UNIX
+#if CF_LINUX
 
 #include <cstdint>
 #include <filesystem>
 #include <string>
+#include "fmt/format.h"
 
 #include "query.hpp"
 #include "util.hpp"
+#include "parse.hpp"
 
 using namespace Query;
 

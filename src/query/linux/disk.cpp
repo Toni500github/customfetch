@@ -23,6 +23,29 @@
  *
  */
 
+/*
+ * Copyright (c) 2021-2023 Linus Dierheimer
+ * Copyright (c) 2022-2024 Carter Li
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#include "platform.hpp"
+#if CF_ANDROID || CF_LINUX
+
 #include <mntent.h>
 #include <cstdio>
 #include <cstring>
@@ -30,7 +53,6 @@
 #include <string_view>
 
 #include "config.hpp"
-#include "platform.hpp"
 #include "query.hpp"
 #include "util.hpp"
 #include "parse.hpp"
@@ -40,7 +62,7 @@ using namespace Query;
 // https://github.com/fastfetch-cli/fastfetch/blob/dev/src/detection/disk/disk_linux.c#L21
 static bool is_physical_device(const struct mntent* device)
 {
-    #if !CF_ANDROID //On Android, `/dev` is not accessible, so that the following checks always fail
+    #if !CF_ANDROID // On Android, `/dev` is not accessible, so that the following checks always fail
 
     //Always show the root path
     if (strcmp(device->mnt_dir, "/") == 0)
@@ -110,7 +132,7 @@ static std::string format_auto_query_string(std::string str, const struct mntent
     replace_str(str, "%5", "$<disk(%1).free>");
     replace_str(str, "%6", "$<disk(%1).used>");
     replace_str(str, "%7", "$<disk(%1).used_perc>");
-    replace_str(str, "%7", "$<disk(%1).free_perc>");
+    replace_str(str, "%8", "$<disk(%1).free_perc>");
 
     return str;
 }
@@ -223,3 +245,5 @@ std::string& Disk::mountdir() noexcept
 
 std::string& Disk::device() noexcept
 { return m_disk_infos.device; }
+
+#endif // CF_ANDROID || CF_LINUX

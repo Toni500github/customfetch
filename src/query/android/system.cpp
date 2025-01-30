@@ -32,7 +32,7 @@
 #include <array>
 #include <string_view>
 
-#include "../unix/utils/packages.hpp"
+#include "../linux/utils/packages.hpp"
 #include "query.hpp"
 #include "util.hpp"
 
@@ -48,11 +48,11 @@ static System::System_t get_system_infos()
     ret.os_version_codename = get_android_property("ro.build.version.codename");
     ret.os_pretty_name      = "Android " + ret.os_version_codename + " " + ret.os_version_id;
 
-    constexpr std::array<std::string_view, 8> properties_name = {
+    constexpr std::array<std::string_view, 8> vendors_prop_names = {
         "ro.product.marketname",   "ro.vendor.product.display", "ro.config.devicename", "ro.config.marketing_name",
         "ro.product.vendor.model", "ro.product.oppo_model",     "ro.oppo.market.name",  "ro.product.brand"
     };
-    for (const std::string_view name : properties_name)
+    for (const std::string_view name : vendors_prop_names)
     {
         if (ret.host_modelname.empty() || ret.host_modelname == UNKNOWN)
             ret.host_modelname = get_android_property(name);

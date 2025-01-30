@@ -7,10 +7,10 @@
 # define CF_ANDROID 0
 #endif
 
-#if (defined(unix) || defined(__unix) || defined(__unix__)) && !CF_ANDROID
-# define CF_UNIX 1
+#if (defined(__linux) || defined(__linux__) || defined(__gnu_linux__)) && !CF_ANDROID
+# define CF_LINUX 1
 #else
-# define CF_UNIX 0
+# define CF_LINUX 0
 #endif
 
 #if (defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
@@ -19,8 +19,8 @@
 # define CF_WINDOWS 0
 #endif
 
-#if !(CF_UNIX || CF_ANDROID) || CF_WINDOWS
-# error "Platform currently not supported, only Unix and Android"
+#if !(CF_LINUX || CF_ANDROID) || CF_WINDOWS
+# warning "Platform currently may not be supported, only Linux and Android"
 #endif
 
 #endif // _PLATFORM_H

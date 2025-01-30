@@ -24,7 +24,7 @@
  */
 
 #include "platform.hpp"
-#if CF_UNIX
+#if CF_LINUX
 
 #include <linux/limits.h>
 #include <unistd.h>

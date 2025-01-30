@@ -23,8 +23,9 @@
  *
  */
 
-#ifndef _WM_HPP
-#define _WM_HPP
+#ifndef _DEWM_HPP
+#define _DEWM_HPP
+
 
 #include <string>
 #include <string_view>
@@ -37,4 +38,4 @@ std::string get_cinnamon_version();
 std::string get_kwin_version();
 bool get_fast_xfwm4_version(std::string& ret, const std::string& exec_path);
 
-#endif
+#endif // _DEWM_HPP

@@ -12,9 +12,9 @@ include_directories(include)
 file(GLOB
 	SRC
 	"src/*.cpp"
-	"src/query/unix/*.cpp"
+	"src/query/linux/*.cpp"
 	"src/query/android/*.cpp"
-	"src/query/unix/utils/*.cpp"
+	"src/query/linux/utils/*.cpp"
 	"src/toml++/toml.cpp")
 
 add_executable(customfetch ${SRC})

@@ -24,7 +24,7 @@
  */
 
 #include "platform.hpp"
-#if CF_UNIX
+#if CF_LINUX
 
 #include <algorithm>
 #include <cstdint>
@@ -563,4 +563,4 @@ std::string& Theme::cursor() noexcept
 std::string& Theme::cursor_size() noexcept
 { return m_theme_infos.cursor_size; }
 
-#endif
+#endif // CF_LINUX

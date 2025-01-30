@@ -10,4 +10,4 @@ xgettext \
 	--package-version="$(awk -F '= ' '/^VERSION/ {print $2}' Makefile | sed 's/\"//g')" \
 	-k_ \
 	-o po/customfetch.pot \
-	src/*.cpp src/query/android/*.cpp src/query/unix/*.cpp src/query/unix/utils/*.cpp --c++
+	src/*.cpp src/query/android/*.cpp src/query/linux/*.cpp src/query/linux/utils/*.cpp --c++

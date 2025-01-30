@@ -11,9 +11,9 @@ include_directories(${CMAKE_SOURCE_DIR}/../include)
 file(GLOB
 		SRC
 		"${CMAKE_SOURCE_DIR}/../src/*.cpp"
-		"${CMAKE_SOURCE_DIR}/../src/query/unix/*.cpp"
+		"${CMAKE_SOURCE_DIR}/../src/query/linux/*.cpp"
 		"${CMAKE_SOURCE_DIR}/../src/query/android/*.cpp"
-		"${CMAKE_SOURCE_DIR}/../src/query/unix/utils/*.cpp"
+		"${CMAKE_SOURCE_DIR}/../src/query/linux/utils/*.cpp"
 		"${CMAKE_SOURCE_DIR}/../src/toml++/toml.cpp"
 		"app/src/main/cpp/customfetch_android.cpp"
 )

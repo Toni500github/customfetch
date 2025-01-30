@@ -43,6 +43,7 @@
  * SOFTWARE.
  */
 
+
 #include "dewm.hpp"
 
 #include <cstdlib>

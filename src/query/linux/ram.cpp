@@ -23,6 +23,9 @@
  *
  */
 
+#include "platform.hpp"
+#if CF_LINUX || CF_ANDROID
+
 #include <fstream>
 
 #include "query.hpp"
@@ -132,3 +135,5 @@ double& RAM::swap_used_amount() noexcept
 
 double& RAM::swap_free_amount() noexcept
 { return m_memory_infos.swap_free_amount; }
+
+#endif // CF_LINUX || CF_ANDROID

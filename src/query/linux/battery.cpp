@@ -24,7 +24,7 @@
  */
 
 #include "platform.hpp"
-#if CF_UNIX
+#if CF_LINUX
 
 #include <cstdlib>
 #include <string>
@@ -134,4 +134,4 @@ double& Battery::perc() noexcept
 double& Battery::temp() noexcept
 { return m_battery_infos.temp; }
 
-#endif // CF_UNIX
+#endif // CF_LINUX

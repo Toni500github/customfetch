@@ -23,6 +23,9 @@
  *
  */
 
+#include "platform.hpp"
+#if CF_ANDROID || CF_LINUX
+
 #include <sys/types.h>
 
 #include <array>
@@ -33,7 +36,6 @@
 #include <string_view>
 
 #include "fmt/format.h"
-#include "platform.hpp"
 #include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -262,7 +264,7 @@ static std::string detect_exynos(const std::string& model_name)
 
     return model_name;
 }
-#endif
+#endif // CF_ANDROID
 
 static std::string get_from_text(std::string& line)
 {
@@ -470,3 +472,5 @@ double& CPU::temp() noexcept
 
     return m_cpu_infos.temp;
 }
+
+#endif // CF_ANDROID || CF_LINUX
