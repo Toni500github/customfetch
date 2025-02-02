@@ -62,6 +62,13 @@ using variant = std::variant<std::string, size_t, double>;
 namespace Query
 {
 
+enum {
+    DISK_VOLUME_TYPE_HIDDEN    = 1 << 2,
+    DISK_VOLUME_TYPE_REGULAR   = 1 << 3,
+    DISK_VOLUME_TYPE_EXTERNAL  = 1 << 4,
+    DISK_VOLUME_TYPE_READ_ONLY = 1 << 5,
+};
+
 class System
 {
 public:
@@ -282,9 +289,10 @@ public:
         double      total_amount = 0;
         double      free_amount  = 0;
         double      used_amount  = 0;
-        std::string typefs;
-        std::string device;
-        std::string mountdir;
+        int         types_disk   = 0;
+        std::string typefs { MAGIC_LINE };
+        std::string device { MAGIC_LINE };
+        std::string mountdir{ MAGIC_LINE };
     };
 
     Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args,
@@ -293,6 +301,7 @@ public:
     double&      total_amount() noexcept;
     double&      free_amount() noexcept;
     double&      used_amount() noexcept;
+    int&         types_disk() noexcept;         
     std::string& typefs() noexcept;
     std::string& device() noexcept;
     std::string& mountdir() noexcept;

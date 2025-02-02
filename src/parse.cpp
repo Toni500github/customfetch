@@ -1128,7 +1128,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         {
             switch (moduleMember_hash)
             {
-                case "name"_fnv1a16: SYSINFO_INSERT(query_system.os_pretty_name()); break;
+                case "name"_fnv1a16:    SYSINFO_INSERT(query_system.os_pretty_name()); break;
                 case "name_id"_fnv1a16: SYSINFO_INSERT(query_system.os_id()); break;
 
                 case "uptime"_fnv1a16:
@@ -1136,23 +1136,23 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                                                    uptime_secs.count() % 60, config));
                     break;
 
-                case "uptime_secs"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;
-                case "uptime_mins"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_mins.count() % 60)); break;
+                case "uptime_secs"_fnv1a16:  SYSINFO_INSERT(static_cast<size_t>(uptime_secs.count() % 60)); break;
+                case "uptime_mins"_fnv1a16:  SYSINFO_INSERT(static_cast<size_t>(uptime_mins.count() % 60)); break;
                 case "uptime_hours"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_hours.count()) % 24); break;
-                case "uptime_days"_fnv1a16: SYSINFO_INSERT(static_cast<size_t>(uptime_days)); break;
+                case "uptime_days"_fnv1a16:  SYSINFO_INSERT(static_cast<size_t>(uptime_days)); break;
 
                 case "kernel"_fnv1a16:
                     SYSINFO_INSERT(query_system.kernel_name() + ' ' + query_system.kernel_version());
                     break;
 
-                case "kernel_name"_fnv1a16: SYSINFO_INSERT(query_system.kernel_name()); break;
-                case "kernel_version"_fnv1a16: SYSINFO_INSERT(query_system.kernel_version()); break;
-                case "pkgs"_fnv1a16: SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
-                case "initsys_name"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_name()); break;
-                case "initsys_version"_fnv1a16: SYSINFO_INSERT(query_system.os_initsys_version()); break;
-                case "hostname"_fnv1a16: SYSINFO_INSERT(query_system.hostname()); break;
+                case "kernel_name"_fnv1a16:      SYSINFO_INSERT(query_system.kernel_name()); break;
+                case "kernel_version"_fnv1a16:   SYSINFO_INSERT(query_system.kernel_version()); break;
+                case "pkgs"_fnv1a16:             SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
+                case "initsys_name"_fnv1a16:     SYSINFO_INSERT(query_system.os_initsys_name()); break;
+                case "initsys_version"_fnv1a16:  SYSINFO_INSERT(query_system.os_initsys_version()); break;
+                case "hostname"_fnv1a16:         SYSINFO_INSERT(query_system.hostname()); break;
                 case "version_codename"_fnv1a16: SYSINFO_INSERT(query_system.os_version_codename()); break;
-                case "version_id"_fnv1a16: SYSINFO_INSERT(query_system.os_versionid()); break;
+                case "version_id"_fnv1a16:       SYSINFO_INSERT(query_system.os_versionid()); break;
             }
         }
     }
@@ -1173,10 +1173,10 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                                    query_system.host_version());
                     break;
 
-                case "host_name"_fnv1a16: SYSINFO_INSERT(query_system.host_modelname()); break;
-                case "host_vendor"_fnv1a16: SYSINFO_INSERT(query_system.host_vendor()); break;
+                case "host_name"_fnv1a16:    SYSINFO_INSERT(query_system.host_modelname()); break;
+                case "host_vendor"_fnv1a16:  SYSINFO_INSERT(query_system.host_vendor()); break;
                 case "host_version"_fnv1a16: SYSINFO_INSERT(query_system.host_version()); break;
-                case "arch"_fnv1a16: SYSINFO_INSERT(query_system.arch()); break;
+                case "arch"_fnv1a16:         SYSINFO_INSERT(query_system.arch()); break;
             }
         }
     }
@@ -1199,8 +1199,8 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     SYSINFO_INSERT(query_user.shell_name() + ' ' + query_user.shell_version(query_user.shell_name()));
                     break;
 
-                case "shell_name"_fnv1a16: SYSINFO_INSERT(query_user.shell_name()); break;
-                case "shell_path"_fnv1a16: SYSINFO_INSERT(query_user.shell_path()); break;
+                case "shell_name"_fnv1a16:    SYSINFO_INSERT(query_user.shell_name()); break;
+                case "shell_path"_fnv1a16:    SYSINFO_INSERT(query_user.shell_path()); break;
                 case "shell_version"_fnv1a16: SYSINFO_INSERT(query_user.shell_version(query_user.shell_name())); break;
 
                 case "de_name"_fnv1a16:
@@ -1228,7 +1228,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                                    query_user.term_version(query_user.term_name()));
                     break;
 
-                case "terminal_name"_fnv1a16: SYSINFO_INSERT(prettify_term_name(query_user.term_name())); break;
+                case "terminal_name"_fnv1a16:    SYSINFO_INSERT(prettify_term_name(query_user.term_name())); break;
                 case "terminal_version"_fnv1a16: SYSINFO_INSERT(query_user.term_version(query_user.term_name())); break;
             }
         }
@@ -1420,6 +1420,21 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                 case "device"_fnv1a16:   SYSINFO_INSERT(query_disk.device()); break;
                 case "mountdir"_fnv1a16: SYSINFO_INSERT(query_disk.mountdir()); break;
 
+                case "types"_fnv1a16:
+                {
+                    std::string str;
+                    if (query_disk.types_disk() & Query::DISK_VOLUME_TYPE_EXTERNAL)
+                        str += "External, ";
+                    if (query_disk.types_disk() & Query::DISK_VOLUME_TYPE_HIDDEN)
+                        str += "Hidden, ";
+                    if (query_disk.types_disk() & Query::DISK_VOLUME_TYPE_READ_ONLY)
+                        str += "Read-only, ";
+                    
+                    if (!str.empty())
+                        str.erase(str.length() - 2);
+                    SYSINFO_INSERT(str);
+
+                } break;
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
@@ -1608,7 +1623,6 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     for (const std::string& str : query_disks.disks_formats())
                     {
                         parse_args.tmp_layout.push_back(str);
-                        debug("tmp_layout = {}", parse_args.tmp_layout);
                         SYSINFO_INSERT(str);
                     }
                 break;
@@ -1723,12 +1737,31 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
                 get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), parse_args);
 
             // clang-format off
-            SYSINFO_INSERT (fmt::format("{:.2f} {} / {:.2f} {} {} - {}", 
-                            byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
-                            byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
-                            parse("${0}(" + perc + ")", _, parse_args),
-			    query_disk.typefs()));
+            std::string result {fmt::format("{:.2f} {} / {:.2f} {} {}",
+                                byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
+                                byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit, 
+                                parse("${0}(" + perc + ")", _, parse_args)
+                                )};
             // clang-format on
+            if (query_disk.typefs() != MAGIC_LINE)
+                result += " - " + query_disk.typefs();
+            
+            std::string types_disk {"["};
+            if (query_disk.types_disk() & Query::DISK_VOLUME_TYPE_EXTERNAL)
+                types_disk += "External, ";
+            if (query_disk.types_disk() & Query::DISK_VOLUME_TYPE_HIDDEN)
+                types_disk += "Hidden, ";
+            if (query_disk.types_disk() & Query::DISK_VOLUME_TYPE_READ_ONLY)
+                types_disk += "Read-only, ";
+
+            if (types_disk.size() > 3)
+            {
+                // ", "
+                types_disk.erase(types_disk.size() - 2);
+                result += " " + types_disk + "]";
+            }
+
+            SYSINFO_INSERT(result);
         }
     }
 

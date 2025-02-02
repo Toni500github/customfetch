@@ -133,9 +133,13 @@ std::string read_by_syspath(const std::string_view path, bool report_error)
         return UNKNOWN;
     }
 
-    std::string ret;
-    std::getline(f, ret);
-    return ret;
+    std::string result;
+    std::getline(f, result);
+    
+    if (!result.empty() && result.back() == '\n')
+        result.pop_back();
+
+    return result;
 }
 
 byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const std::string_view maxprefix)

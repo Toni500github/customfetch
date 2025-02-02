@@ -70,10 +70,6 @@ static void get_host_paths(System::System_t& paths)
         else
             paths.host_version = read_by_syspath(syspath + "/product_version");
     }
-
-    // idfk why it has a newline
-    if (paths.host_version.back() == '\n')
-        paths.host_version.pop_back();
 }
 
 static System::System_t get_system_infos_lsb_releases()

@@ -87,8 +87,9 @@ public:
 
     // Variables of config file for
     // modules specific configs
-    // [auto]
+    // [auto.disk]
     std::string auto_disks_fmt;
+    int         auto_disks_types = 0;
 
     // [os.uptime]
     std::string uptime_d_fmt;
@@ -379,8 +380,8 @@ wrap-lines = false
 # e.g. falling back to gsettings when we can't find the config file for GTK
 slow-query-warnings = false
 
-# $<auto> config
-[auto]
+# $<auto.disk> config
+[auto.disk]
 # Format for displaying the auto detected disks infos
 # %1 = mount directory
 # %2 = device path
@@ -390,7 +391,15 @@ slow-query-warnings = false
 # %6 = used amount of storage
 # %7 = percentage of used storage
 # %8 = percentage of free storage
-disk-fmt = "${auto}Disk (%1): $<disk(%1)>"
+fmt = "${auto}Disk (%1): $<disk(%1)>"
+
+# Only print disks that matches the description
+# of the following types:
+# regular   = Regular disks (internel M.2 SSD, ...) (won't be specified)
+# removable = External disks (USB, SATA, ...)
+# read-only = Disks with read-only filesystems
+# hidden    = Disks that are not really mounted by the user
+display-types = ["regular", "removable", "read-only"]
 
 # $<os.uptime> config
 [os.uptime]

@@ -29,6 +29,8 @@
 #include <filesystem>
 
 #include "fmt/os.h"
+#include "query.hpp"
+#include "switch_fnv1a.hpp"
 #include "util.hpp"
 
 Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors, bool do_not_load)
@@ -88,7 +90,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->font                = getValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
 
-    this->auto_disks_fmt = getValue<std::string>("auto.disk-fmt", "${auto}Disk (%1): $<disk(%1)>", true);
+    this->auto_disks_fmt = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>", true);
 
     this->uptime_d_fmt = getValue<std::string>("os.uptime.days", " days");
     this->uptime_h_fmt = getValue<std::string>("os.uptime.hours", " hours");
@@ -124,6 +126,21 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
         warn(_("the config array percentage-colors doesn't have 3 colors for being used in percentage tag and modules.\n"
                "Backing up to green, yellow and red"));
         this->percentage_colors = {"green", "yellow", "red"};
+    }
+
+    for (const std::string& str : this->getValueArrayStr("auto.disk.display-types", {"removable", "regular", "read-only"}))
+    {
+        switch (fnv1a16::hash(str))
+        {
+            case "removable"_fnv1a16:
+                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_EXTERNAL; break;
+            case "regular"_fnv1a16:
+                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_REGULAR; break;
+            case "read-only"_fnv1a16:
+                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_READ_ONLY; break;
+            case "hidden"_fnv1a16:
+                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_HIDDEN; break;
+        }
     }
 
     for (const std::string& str : this->getValueArrayStr("config.alias-colors", {}))

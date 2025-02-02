@@ -44,7 +44,7 @@
  */
 
 #include "platform.hpp"
-#if CF_ANDROID || CF_LINUX
+#if CF_LINUX || CF_ANDROID
 
 #include <mntent.h>
 #include <cstdio>
@@ -59,8 +59,8 @@
 
 using namespace Query;
 
-// https://github.com/fastfetch-cli/fastfetch/blob/dev/src/detection/disk/disk_linux.c#L21
-static bool is_physical_device(const struct mntent* device)
+// https://github.com/fastfetch-cli/fastfetch/blob/dev/src/detection/disk/disk_linux.c
+static bool is_physical_device(const mntent* device)
 {
     #if !CF_ANDROID // On Android, `/dev` is not accessible, so that the following checks always fail
 
@@ -122,6 +122,43 @@ static bool is_physical_device(const struct mntent* device)
     return true;
 }
 
+static bool is_removable(const mntent* device)
+{
+    if (!hasStart(device->mnt_fsname, "/dev/"))
+        return false;
+
+    //                                                                          like str.substr(5);
+    const std::string& sys_block_partition = fmt::format("/sys/class/block/{}", (device->mnt_fsname + "/dev/"_len));
+    return read_by_syspath(sys_block_partition + "/removable") == "1";
+}
+
+static int get_disk_type(const mntent* device)
+{
+#if CF_LINUX
+    int ret = 0;
+
+    if (hasStart(device->mnt_dir, "/boot") || hasStart(device->mnt_dir, "/efi"))
+        ret = DISK_VOLUME_TYPE_HIDDEN;
+    else if (is_removable(device))
+        ret = DISK_VOLUME_TYPE_EXTERNAL;
+    else
+        ret = DISK_VOLUME_TYPE_REGULAR;
+
+    if (hasmntopt(device, MNTOPT_RO))
+        ret |= DISK_VOLUME_TYPE_READ_ONLY;
+
+    return ret;
+#else // CF_ANDROID
+    if (strcmp(device->mnt_dir, "/") == 0 || strcmp(device->mnt_dir, "/storage/emulated") == 0)
+        return DISK_VOLUME_TYPE_REGULAR;
+
+    if (hasStart(device->mnt_dir, "/mnt/media_rw/"))
+        return DISK_VOLUME_TYPE_EXTERNAL;
+
+    return DISK_VOLUME_TYPE_HIDDEN;
+#endif
+}
+
 static std::string format_auto_query_string(std::string str, const struct mntent *device)
 {
     replace_str(str, "%1", device->mnt_dir);
@@ -139,6 +176,8 @@ static std::string format_auto_query_string(std::string str, const struct mntent
 
 Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args, const bool auto_module)
 {
+    const Config& config = parse_args.config;
+
     if (queried_paths.find(path) != queried_paths.end())
     {
         m_disk_infos.device       = getInfoFromName(queried_paths, path, "device");
@@ -168,7 +207,6 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
         return;
     }
 
-    // ugly double code but I don't want to overengineer ts rn 
     if (auto_module)
     {
         struct mntent* pDevice;
@@ -177,10 +215,14 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
             if (!is_physical_device(pDevice))
                 continue;
 
+            m_disk_infos.types_disk = get_disk_type(pDevice);
+            if (!(config.auto_disks_types & m_disk_infos.types_disk))
+                continue;
+
             parse_args.no_more_reset = false;
             debug("pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
             m_disks_formats.push_back(
-                parse(format_auto_query_string(parse_args.config.auto_disks_fmt, pDevice), parse_args)
+                parse(format_auto_query_string(config.auto_disks_fmt, pDevice), parse_args)
             );
         }
 
@@ -237,6 +279,9 @@ double& Disk::used_amount() noexcept
 double& Disk::free_amount() noexcept
 { return m_disk_infos.free_amount; }
 
+int& Disk::types_disk() noexcept
+{ return m_disk_infos.types_disk; }
+
 std::string& Disk::typefs() noexcept
 { return m_disk_infos.typefs; }
 
@@ -246,4 +291,4 @@ std::string& Disk::mountdir() noexcept
 std::string& Disk::device() noexcept
 { return m_disk_infos.device; }
 
-#endif // CF_ANDROID || CF_LINUX
+#endif // CF_LINUX || CF_ANDROID

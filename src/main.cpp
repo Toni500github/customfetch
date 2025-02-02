@@ -317,6 +317,7 @@ disk(/path/to/fs)
   free_perc: percentage of available amount of the disk in total [17.82%]
   fs:        type of filesystem [ext4]
   device:    path to device [/dev/sda5]
+  types:     an array of type options (pretty format) [Regular, External]
   mountdir:  path to the device mount point [/]
 
 # usually people have 1 GPU in their PC,
