@@ -30,7 +30,6 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -54,7 +53,6 @@ import org.toni.customfetch_android.getAppSettingsPrefString
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
-
 
 /**
  * The configuration screen for the [customfetch] AppWidget.
@@ -135,6 +133,7 @@ class customfetchConfigureActivity : Activity() {
             }
             "custom_bg_color" -> {
                 binding.selectBgColor.check(R.id.radio_custom_colors)
+                binding.customColorSelect.visibility = View.VISIBLE
                 setColorPickerView()
             }
         }
@@ -152,6 +151,7 @@ class customfetchConfigureActivity : Activity() {
                 }
 
                 R.id.radio_custom_colors -> {
+                    binding.customColorSelect.visibility = View.VISIBLE
                     setColorPickerView()
                 }
             }
@@ -161,16 +161,20 @@ class customfetchConfigureActivity : Activity() {
     private fun setSystemBgColor() {
         val typedValue = TypedValue()
         this.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-        bgColor = typedValue.data
+        this.bgColor = typedValue.data
     }
 
     @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     private fun setColorPickerView() {
-        binding.customColorSelect.visibility = View.VISIBLE
-        // disable scroll when interacting with the color picker
+        // disable scrolling when interacting with the color picker
         binding.colorPickerView.setOnTouchListener { view, _ ->
-            view.parent.requestDisallowInterceptTouchEvent(true)
-            false // allow colorPickerView to handle the touch event
+            view.parent.requestDisallowInterceptTouchEvent(true); false
+        }
+        binding.alphaSlideBar.setOnTouchListener { view, _, ->
+            view.parent.requestDisallowInterceptTouchEvent(true); false
+        }
+        binding.brightnessSlideBar.setOnTouchListener { view, _, ->
+            view.parent.requestDisallowInterceptTouchEvent(true); false
         }
 
         val defaultColor = getAppSettingsPrefString(this, "default_custom_color")

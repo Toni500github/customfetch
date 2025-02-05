@@ -40,7 +40,6 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.ImageView
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
