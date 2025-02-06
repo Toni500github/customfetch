@@ -73,6 +73,7 @@ android {
 
 dependencies {
     implementation(libs.colorpickerview)
+    implementation(libs.colorpickerpref)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

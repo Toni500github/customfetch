@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.2"
+colorpickerpref = "1.1.0"
 colorpickerview = "2.3.0"
 htmlspanner = "0.4"
 kotlin = "1.9.24"
@@ -17,6 +18,7 @@ preference = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+colorpickerpref = { module = "com.jaredrummler:colorpicker", version.ref = "colorpickerpref" }
 colorpickerview = { module = "com.github.skydoves:colorpickerview", version.ref = "colorpickerview" }
 htmlspanner = { module = "com.github.NightWhistler:HtmlSpanner", version.ref = "htmlspanner" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

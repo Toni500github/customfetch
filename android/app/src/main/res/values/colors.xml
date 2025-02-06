@@ -19,4 +19,8 @@
     <color name="light_blue_200">#FF81D4FA</color>
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
+
+    <array name="default_colors_widget_text">
+        <item>#FF8F9099</item> <!-- default text view color for the widget, found by debugging some things -->
+    </array>
 </resources>

@@ -49,6 +49,7 @@ import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import org.toni.customfetch_android.R
 import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import org.toni.customfetch_android.getAppSettingsPrefBool
+import org.toni.customfetch_android.getAppSettingsPrefInt
 import org.toni.customfetch_android.getAppSettingsPrefString
 import java.io.File
 import java.nio.file.Files
@@ -177,10 +178,10 @@ class customfetchConfigureActivity : Activity() {
             view.parent.requestDisallowInterceptTouchEvent(true); false
         }
 
-        val defaultColor = getAppSettingsPrefString(this, "default_custom_color")
-        binding.colorPickerHex.setText(defaultColor)
-        binding.colorPreview.setBackgroundColor(defaultColor.toColorInt())
-        binding.colorPickerView.setInitialColor(defaultColor.toColorInt())
+        val defaultColor = getAppSettingsPrefInt(this, "default_custom_color")
+        binding.colorPickerHex.setText("#"+ Integer.toHexString(defaultColor).uppercase())
+        binding.colorPreview.setBackgroundColor(defaultColor)
+        binding.colorPickerView.setInitialColor(defaultColor)
 
         binding.colorPickerHex.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {

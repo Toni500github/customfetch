@@ -36,6 +36,7 @@ import android.text.TextPaint
 import android.util.Log
 import android.widget.RemoteViews
 import org.toni.customfetch_android.R
+import org.toni.customfetch_android.getAppSettingsPrefInt
 
 const val WIDGET_CLICK_ACTION = "org.toni.customfetch_android.WIDGET_CLICK"
 
@@ -172,8 +173,9 @@ internal fun updateAppWidget(
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)
     views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+    views.setTextColor(R.id.customfetch_text, getAppSettingsPrefInt(context, "default_widget_text_color"))
     views.setTextViewText(R.id.customfetch_text, parsedContent)
-    views.setInt(R.id.widget_root, "setBackgroundColor", bgColor);
+    views.setInt(R.id.widget_root, "setBackgroundColor", bgColor)
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)

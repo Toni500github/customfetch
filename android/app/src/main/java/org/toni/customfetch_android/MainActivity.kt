@@ -255,6 +255,11 @@ internal fun getAppSettingsPrefString(context: Context, name: String): String {
     return str
 }
 
+internal fun getAppSettingsPrefInt(context: Context, name: String): Int {
+    val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
+    return sharedPref.getInt(name, 0)
+}
+
 internal fun getAppSettingsPrefBool(context: Context, name: String): Boolean {
     val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
     return sharedPref.getBoolean(name, false)
