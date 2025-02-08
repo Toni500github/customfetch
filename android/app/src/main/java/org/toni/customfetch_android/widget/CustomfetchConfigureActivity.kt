@@ -48,8 +48,8 @@ import androidx.core.graphics.toColorInt
 import androidx.core.text.HtmlCompat
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import org.toni.customfetch_android.R
-import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import org.toni.customfetch_android.databinding.ColorpickerviewLayoutBinding
+import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import org.toni.customfetch_android.getAppSettingsPrefBool
 import org.toni.customfetch_android.getAppSettingsPrefInt
 import org.toni.customfetch_android.getAppSettingsPrefString
@@ -57,15 +57,14 @@ import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
 
-
 /**
- * The configuration screen for the [customfetch] AppWidget.
+ * The configuration screen for the [Customfetch] AppWidget.
  */
-class customfetchConfigureActivity : Activity() {
+class CustomfetchConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var binding: CustomfetchConfigureBinding
     private var onAddWidget = View.OnClickListener {
-        val context = this@customfetchConfigureActivity
+        val context = this@CustomfetchConfigureActivity
 
         // When the button is clicked, store the string locally
         saveConfigPrefs(
@@ -118,7 +117,7 @@ class customfetchConfigureActivity : Activity() {
             return
         }
 
-        binding.argumentsConfigure.setText(getArgsPref(this@customfetchConfigureActivity, appWidgetId))
+        binding.argumentsConfigure.setText(getArgsPref(this@CustomfetchConfigureActivity, appWidgetId))
         binding.additionalTruncateWidth.setText(getAppSettingsPrefString(this, "additional_truncate"))
         binding.truncateText.isChecked = getAppSettingsPrefBool(this, "always_truncate")
         binding.argsHelp.text = customfetchRender.mainAndroid("customfetch --help", true)
@@ -173,6 +172,8 @@ class customfetchConfigureActivity : Activity() {
                 }
             }
         }
+
+        markWidgetConfigured(this, appWidgetId)
     }
 
     private fun setSystemBgColor() {
@@ -352,6 +353,16 @@ internal fun deleteConfigPrefs(context: Context, appWidgetId: Int) {
     prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_bgColor")
     prefs.remove(PREF_PREFIX_KEY + appWidgetId + "_widgetTextColor")
     prefs.apply()
+}
+
+fun markWidgetConfigured(context: Context, appWidgetId: Int) {
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    prefs.edit().putBoolean(PREF_PREFIX_KEY + appWidgetId + "_configuring", true).apply()
+}
+
+fun isWidgetConfigured(context: Context, appWidgetId: Int): Boolean {
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    return prefs.getBoolean(PREF_PREFIX_KEY + appWidgetId + "_configuring", false)
 }
 
 internal fun isValidHex(color: String): Boolean =

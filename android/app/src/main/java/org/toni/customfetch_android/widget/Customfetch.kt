@@ -36,15 +36,14 @@ import android.text.TextPaint
 import android.util.Log
 import android.widget.RemoteViews
 import org.toni.customfetch_android.R
-import org.toni.customfetch_android.getAppSettingsPrefInt
 
 const val WIDGET_CLICK_ACTION = "org.toni.customfetch_android.WIDGET_CLICK"
 
 /**
  * Implementation of App Widget functionality.
- * App Widget Configuration implemented in [customfetchConfigureActivity]
+ * App Widget Configuration implemented in [CustomfetchConfigureActivity]
  */
-class customfetch : AppWidgetProvider() {
+class Customfetch : AppWidgetProvider() {
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -131,6 +130,10 @@ internal fun updateAppWidget(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
+    // if we are configuring the widget, then don't update the non existent widget
+    if (!isWidgetConfigured(context, appWidgetId))
+        return
+
     val truncateText = getTruncateText(context, appWidgetId)
     val bgColor = getBgColor(context, appWidgetId)
     val widgetTextColor = getWidgetTextColor(context, appWidgetId)
@@ -159,7 +162,7 @@ internal fun updateAppWidget(
         )
 
     // both needed for when touching the widget
-    val intent = Intent(context, customfetch::class.java).apply {
+    val intent = Intent(context, Customfetch::class.java).apply {
         action = WIDGET_CLICK_ACTION
         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
     }
