@@ -1,8 +1,22 @@
+import java.io.ByteArrayOutputStream
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+}
+
+fun getGitCommitHash(): String {
+    return try {
+        val stdout = ByteArrayOutputStream()
+        exec {
+            commandLine("git", "rev-parse", "--short", "HEAD")
+            standardOutput = stdout
+        }
+        stdout.toString().trim()
+    } catch (e: Exception) {
+        "unknown"
+    }
 }
 
 android {
@@ -41,6 +55,12 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
+        }
+        getByName("release") {
+            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
+        }
         release {
             getByName("release") {
                 signingConfig = signingConfigs.getByName("release")
@@ -62,6 +82,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     externalNativeBuild {
         cmake {

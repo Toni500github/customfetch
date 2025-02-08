@@ -30,6 +30,7 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
 import android.content.res.AssetManager
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
@@ -54,13 +55,14 @@ import java.io.IOException
 import java.nio.file.Files
 import kotlin.io.path.Path
 
+
 // kinda magic numbers
 const val TEST_CONFIG_FILE_RC = 6969
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -130,6 +132,8 @@ class MainActivity : AppCompatActivity() {
         binding.starGithubRepo.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Toni500github/customfetch")))
         }
+
+        binding.appVersion.text = "customfetch v${BuildConfig.VERSION_NAME} (${BuildConfig.GIT_COMMIT_HASH}) (${BuildConfig.BUILD_TYPE})"
 
         var isExpanded = false
         binding.collapseSocialsBar.setOnClickListener {
