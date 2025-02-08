@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <EditText
+        android:id="@+id/color_picker_hex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Hex Color Code (#AARRGGBB)"
+        android:inputType="text" />
+
+    <com.skydoves.colorpickerview.ColorPickerView
+        android:id="@+id/colorPickerView"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        app:initialColor="@color/cardview_dark_background" />
+
+    <!-- padding separator -->
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="20dp" />
+
+    <com.skydoves.colorpickerview.sliders.AlphaSlideBar
+        android:id="@+id/alphaSlideBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:selector_AlphaSlideBar="@drawable/colorpickerview_wheel"
+        app:borderColor_AlphaSlideBar="@android:color/darker_gray"
+        app:borderSize_AlphaSlideBar="5"/>
+
+    <!-- padding separator -->
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="20dp" />
+
+    <com.skydoves.colorpickerview.sliders.BrightnessSlideBar
+        android:id="@+id/brightnessSlideBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:borderColor_BrightnessSlider="@android:color/darker_gray"
+        app:borderSize_BrightnessSlider="5"
+        app:selector_BrightnessSlider="@drawable/colorpickerview_wheel" />
+
+    <View
+        android:id="@+id/colorPreview"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:background="#FFFFFF" />
+
+</LinearLayout>

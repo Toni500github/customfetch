@@ -22,7 +22,7 @@
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="default_widget_text_color"
-            app:title="Default widget text color"
+            app:title="Default widget text custom color"
             android:defaultValue="0xFF8F9099"
             app:cpv_colorPresets="@array/default_colors_widget_text"
             app:cpv_previewSize="large"
@@ -37,8 +37,8 @@
             app:useSimpleSummaryProvider="true" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:key="default_custom_color"
-            app:title="Default custom color"
+            app:key="default_bg_custom_color"
+            app:title="Default background custom color"
             android:defaultValue="0x890099CC"
             android:enabled="false"
             app:cpv_previewSize="large"

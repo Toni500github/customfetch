@@ -133,6 +133,7 @@ internal fun updateAppWidget(
 ) {
     val truncateText = getTruncateText(context, appWidgetId)
     val bgColor = getBgColor(context, appWidgetId)
+    val widgetTextColor = getWidgetTextColor(context, appWidgetId)
 
     // create a TextPaint to be used to measure text size
     val textPaint = TextPaint()
@@ -173,7 +174,7 @@ internal fun updateAppWidget(
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.customfetch)
     views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
-    views.setTextColor(R.id.customfetch_text, getAppSettingsPrefInt(context, "default_widget_text_color"))
+    views.setTextColor(R.id.customfetch_text, widgetTextColor)
     views.setTextViewText(R.id.customfetch_text, parsedContent)
     views.setInt(R.id.widget_root, "setBackgroundColor", bgColor)
 

@@ -90,6 +90,11 @@ class MainActivity : AppCompatActivity() {
         if (!Files.exists(Path(filesDir.absolutePath + "/ascii")))
             copyToAssetFolder(assets, filesDir.absolutePath, "ascii")
 
+        // warn to user to generate the default widget configs
+        // else during the widget configuration, it will kinda fuckup some things
+        if (!Files.exists(Path(filesDir.absolutePath + "/../shared_prefs/org.toni.customfetch_android_preferences.xml")))
+            binding.clickMeSettings.visibility = View.VISIBLE
+
         binding.testConfigFile.setOnTouchListener { view, event -> startAnimation(view, event) }
         binding.testConfigFile.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -103,7 +108,10 @@ class MainActivity : AppCompatActivity() {
         binding.aboutMe.setOnClickListener { setFragment(AboutMeFragment()) }
 
         binding.widgetSettings.setOnTouchListener { view, event -> startAnimation(view, event) }
-        binding.widgetSettings.setOnClickListener { setFragment(SettingsFragment()) }
+        binding.widgetSettings.setOnClickListener {
+            setFragment(SettingsFragment())
+            binding.clickMeSettings.visibility = View.GONE
+        }
 
         setViewBgColor(binding.joinDiscordLink, 0XFF5865F2.toInt())
         binding.joinDiscordLink.setOnTouchListener { view, event -> startAnimation(view, event, true)}
