@@ -202,8 +202,9 @@ static std::string detect_exynos(const std::string& model_name)
         case "S5E8535"_fnv1a16: return "Exynos 1330";
         case "S5E8835"_fnv1a16: return "Exynos 1380";
         case "S5E8845"_fnv1a16: return "Exynos 1480";
-        case "S5E8855"_fnv1a16: return "Exynos 1580";
-        /* TODO: alot of SoCs with no ID mentioned on Wikipedia.. */
+        case "S5E8855"_fnv1a16:
+            return "Exynos 1580";
+            /* TODO: alot of SoCs with no ID mentioned on Wikipedia.. */
 
         case "S5E9840"_fnv1a16: return "Exynos 2100";
         case "S5E9925"_fnv1a16: return "Exynos 2200";
@@ -220,9 +221,10 @@ static std::string detect_exynos(const std::string& model_name)
         case "S5E4212"_fnv1a16: return "Exynos 4 Dual 4212";
 
         case "S55E4210"_fnv1a16:
-        case "S5PC220"_fnv1a16: return "Exynos 4 Quad 4412";
+        case "S5PC220"_fnv1a16:
+            return "Exynos 4 Quad 4412";
 
-        /* TODO: Exynos 4 Quad 4415 */
+            /* TODO: Exynos 4 Quad 4415 */
 
         case "S5E5250"_fnv1a16:
         case "S5PC520"_fnv1a16: return "Exynos 5 Dual 5250";
@@ -238,8 +240,9 @@ static std::string detect_exynos(const std::string& model_name)
         case "S5E5433"_fnv1a16: return "Exynos 7 Octa 5433";
         case "SC57270"_fnv1a16: return "Exynos 7 Dual 7270";
         case "S5E7420"_fnv1a16: return "Exynos 7 Octa 7420";
-        case "S5E7570"_fnv1a16: return "Exynos 7 Quad 7570";
-        /* TODO: Exynos 7 Quad/Octa 7578/7580 */
+        case "S5E7570"_fnv1a16:
+            return "Exynos 7 Quad 7570";
+            /* TODO: Exynos 7 Quad/Octa 7578/7580 */
 
         case "S5E7870"_fnv1a16: return "Exynos 7 Octa 7870";
         case "S5E7872"_fnv1a16: return "Exynos 5 7872";
@@ -253,8 +256,9 @@ static std::string detect_exynos(const std::string& model_name)
         case "S5E9611"_fnv1a16: return "Exynos 9611";
         case "S5E9810"_fnv1a16: return "Exynos 9810";
         case "S5E9820"_fnv1a16: return "Exynos 9820";
-        case "S5E9825"_fnv1a16: return "Exynos 9825";
-        /* TODO: Exynos 3 Dual 3250 */
+        case "S5E9825"_fnv1a16:
+            return "Exynos 9825";
+            /* TODO: Exynos 3 Dual 3250 */
 
         case "SC59110XSC"_fnv1a16: return "Exynos 9110";
         case "SC55515XBD"_fnv1a16: return "Exynos W920";
@@ -264,7 +268,227 @@ static std::string detect_exynos(const std::string& model_name)
 
     return model_name;
 }
-#endif // CF_ANDROID
+
+// https://en.wikipedia.org/wiki/List_of_MediaTek_systems_on_chips
+// by Toni500git
+// i need some coffee.....
+// wayland crashed and had to restart from Dimensity 1000 series.........
+static std::string detect_mediatek(const std::string& model_name)
+{
+    switch (fnv1a16::hash(model_name))
+    {
+        // Helio series
+        // Helio X series
+        case "MT6795"_fnv1a16:
+        case "MT6795M"_fnv1a16:
+        case "MT6795T"_fnv1a16: return "Helio X10";
+
+        case "MT6797"_fnv1a16:  return "Helio X20";
+        case "MT6797D"_fnv1a16: return "Helio X23";
+        case "MT6797X"_fnv1a16: return "Helio X27";
+        case "MT6799"_fnv1a16:  return "Helio X30";
+
+        // Helio A series
+        case "MT6761V/WE"_fnv1a16:  return "Helio A20";
+        case "MT6761V/WBB"_fnv1a16:
+        case "MT6761V/WAB"_fnv1a16: return "Helio A22";
+        case "MT6762V/WD"_fnv1a16:
+        case "MT6762V/WB"_fnv1a16:  return "Helio A25";
+
+        // Helio P series
+        case "MT6755"_fnv1a16:
+        case "MT6755M"_fnv1a16:    return "Helio P10";
+        case "MT6755T"_fnv1a16:    return "Helio P15";
+        case "MT6755S"_fnv1a16:    return "Helio P18";
+        case "MT6757"_fnv1a16:     return "Helio P20";
+        case "MT6762"_fnv1a16:     return "Helio P22";
+        case "MT6763"_fnv1a16:     return "Helio P23";
+        case "MT6763T"_fnv1a16:    return "Helio P23T";
+        case "MT6757CD"_fnv1a16:   return "Helio P25";
+        case "MT6757T"_fnv1a16:    return "Helio P25T";
+        case "MT6758"_fnv1a16:     return "Helio P30";
+        case "MT6765"_fnv1a16:     return "Helio P35";
+        case "MT6771"_fnv1a16:     return "Helio P60";
+        case "MT6768"_fnv1a16:     return "Helio P65";
+        case "MT6771V/CT"_fnv1a16: return "Helio P70";
+        case "MT6779V/CU"_fnv1a16: return "Helio P90";
+        case "MT6779V/CV"_fnv1a16: return "Helio P95";
+
+        // Helio G series
+        case "MT6762G"_fnv1a16:     return "Helio G25";
+        case "MT6765G"_fnv1a16:     return "Helio G35";
+        case "MT6765V/XAA"_fnv1a16: return "Helio G36";
+        case "MT6765V/XBA"_fnv1a16: return "Helio G36";
+        case "MT6765H"_fnv1a16:     return "Helio G37";
+        case "MT6765V"_fnv1a16:     return "Helio G50";
+        case "MT6769V/CB"_fnv1a16:  return "Helio G70";
+
+        case "MT6769T"_fnv1a16:
+        case "MT6769V/CT"_fnv1a16:
+        case "MT6769V/CU"_fnv1a16: return "Helio G80";
+
+        case "MT6769J"_fnv1a16:    return "Helio G81";
+        case "MT6769Z"_fnv1a16:    return "Helio G85";
+        case "MT6769V/CZ"_fnv1a16: return "Helio G85";
+        case "MT6769H"_fnv1a16:    return "Helio G88";
+        case "MT6785V/CC"_fnv1a16: return "Helio G90T";
+        case "MT6769G"_fnv1a16:    return "Helio G91";
+        case "MT6769I"_fnv1a16:    return "Helio G92";
+        case "MT6785V/CD"_fnv1a16: return "Helio G95";
+        case "MT6781"_fnv1a16:     return "Helio G96";
+        case "MT6781V/CD"_fnv1a16: return "Helio G96";
+        case "MT6789H"_fnv1a16:    return "Helio G100";
+
+        case "MT6789"_fnv1a16:
+        case "MT6789G"_fnv1a16:
+        case "MT6789U"_fnv1a16:
+        case "MT6789V/CD"_fnv1a16:
+        case "MT8781"_fnv1a16:
+        case "MT8781V/CA"_fnv1a16:
+        case "MT8781V/NB"_fnv1a16: return "Helio G99";
+
+        // Dimensity Series
+        // Dimensity 700 Series
+        case "MT6833"_fnv1a16:
+        case "MT6833G"_fnv1a16:
+        case "MT6833V/ZA"_fnv1a16:
+        case "MT6833V/NZA"_fnv1a16: return "Dimensity 700";
+
+        case "MT6853V/ZA"_fnv1a16:
+        case "MT6853V/NZA"_fnv1a16: return "Dimensity 720";
+
+        // Dimensity 800 Series
+        case "MT6873"_fnv1a16:       return "Dimensity 800";
+        case "MT6853T"_fnv1a16:      return "Dimensity 800U";
+        case "MT6853V/TNZA"_fnv1a16: return "Dimensity 800U";
+        case "MT6875"_fnv1a16:       return "Dimensity 820";
+
+        case "MT6833P"_fnv1a16:
+        case "MT6833GP"_fnv1a16:
+        case "MT6833V/PNZA"_fnv1a16: return "Dimensity 810";
+
+        // Dimensity 900 Series
+        case "MT6877V/ZA"_fnv1a16:  return "Dimensity 900";
+        case "MT6855"_fnv1a16:
+        case "MT6855V/AZA"_fnv1a16: return "Dimensity 930";
+
+        // case "MT6877"_fnv1a16:
+        case "MT6877T"_fnv1a16:
+        case "MT6877V/TZA"_fnv1a16: return "Dimensity 920";
+
+        // Dimensity 1000 Series
+        case "MT6883Z/CZA"_fnv1a16: return "Dimensity 1000C";
+        case "MT6885Z/CZA"_fnv1a16: return "Dimensity 1000L";
+        case "MT6889"_fnv1a16:      return "Dimensity 1000";
+        case "MT6889Z/CZA"_fnv1a16: return "Dimensity 1000+";
+
+        case "MT6879"_fnv1a16:
+        case "MT6879V/ZA"_fnv1a16:
+        case "MT6879V_T/ZA"_fnv1a16: return "Dimensity 1050";
+
+        case "MT6877"_fnv1a16:         return "Dimensity 1080 / Dimensity 920";
+        case "MT6877V/TTZA"_fnv1a16:
+        case "MT6877V_T/TTZA"_fnv1a16: return "Dimensity 1080";
+
+        case "MT6891"_fnv1a16:
+        case "MT6891Z/CZA"_fnv1a16:
+        case "MT6891Z_Z/CZA"_fnv1a16:
+        case "MT6891Z_T/CZA"_fnv1a16: return "Dimensity 1100";
+
+        case "MT6893"_fnv1a16:
+        case "MT6893Z/CZA"_fnv1a16:
+        case "MT6893Z_A/CZA"_fnv1a16: return "Dimensity 1200";
+
+        case "MT6893Z_Z/CZA"_fnv1a16:
+        case "MT6893Z_T/CZA"_fnv1a16: return "Dimensity 1300";
+
+        // Dimensity 6000 Series
+        // note: Dimensity 6020 == Dimensity 700
+        //       Dimensity 6080 == Dimensity 810
+        case "MT6835"_fnv1a16:
+        case "MT6835V/ZA"_fnv1a16:
+        case "MT8755V/TZB"_fnv1a16: return "Dimensity 6100+";
+        case "MT6835T"_fnv1a16:     return "Dimensity 6300";
+
+        // Dimensity 7000 Series
+        // note: Dimensity 7020 == Dimensity 930
+        //       Dimensity 7030 == Dimensity 1050
+        //       Dimensity 7050 == Dimensity 1080
+        //       Dimensity 7300 == Dimensity 7300X
+        case "MT6855V/ATZA"_fnv1a16: return "Dimensity 7025";
+        case "MT6886V/TCZA"_fnv1a16: return "Dimensity 7350";
+
+        case "MT6886"_fnv1a16:
+        case "MT6886V_A/CZA"_fnv1a16:
+        case "MT6886V_B/CZA"_fnv1a16: return "Dimensity 7200";
+
+        case "MT6878"_fnv1a16:
+        case "MT6878V/ZA"_fnv1a16:
+        case "MT6878V_A/ZA"_fnv1a16: return "Dimensity 7300";
+
+        // Dimensity 8000 Series
+        // note: Dimensity 8020 == Dimensity 1100
+        //       Dimensity 8050 == Dimensity 1300
+        case "MT6895"_fnv1a16:      return "Dimensity 8000 / Dimensity 8100";
+        case "MT6895Z/CZA"_fnv1a16: return "Dimensity 8000";
+
+        // case "MT6895"_fnv1a16:
+        case "MT6895Z/TCZA"_fnv1a16:
+        case "MT6895Z_A/TCZA"_fnv1a16:
+        case "MT6895Z_B/TCZA"_fnv1a16:
+        case "MT6895ZB"_fnv1a16:
+        case "MT8795"_fnv1a16:
+        case "MT8795Z/TNZA"_fnv1a16:   return "Dimensity 8100";
+
+        // case "MT6896"_fnv1a16:
+        case "MT6896Z/CZA"_fnv1a16:
+        case "MT6896Z_B/CZA"_fnv1a16: return "Dimensity 8200";
+
+        case "MT6896"_fnv1a16:        return "Dimensity 8200 / Dimensity 8250";
+        case "MT6896Z_C/CZA"_fnv1a16: return "Dimensity 8250";
+
+        // case "MT6897"_fnv1a16:
+        case "MT8792Z/NB"_fnv1a16: return "Dimensity 8300";
+
+        case "MT6897"_fnv1a16:       return "Dimensity 8300 / Dimensity 8350";
+        case "MT6897Z_A/ZA"_fnv1a16: return "Dimensity 8350";
+
+        case "MT6899"_fnv1a16:
+        case "MT6899Z_A/ZA"_fnv1a16: return "Dimensity 8400";
+
+        // Dimensity 9000 Series
+        case "MT6983"_fnv1a16:
+        case "MT6983Z/CZA"_fnv1a16:
+        case "MT8798"_fnv1a16:
+        case "MT8798Z/CNZA"_fnv1a16: return "Dimensity 9000";
+
+        // case "MT6983"_fnv1a16:
+        // case "MT8798"_fnv1a16:
+        case "MT6983W/CZA"_fnv1a16:
+        case "MT8798Z/TNZA"_fnv1a16: return "Dimensity 9000+";
+
+        case "MT6985"_fnv1a16:
+        case "MT6985W/CZA"_fnv1a16: return "Dimensity 9200";
+
+        // case "MT6985"_fnv1a16:
+        case "MT6985W/TCZA"_fnv1a16: return "Dimensity 9200+";
+
+        case "MT6989"_fnv1a16:
+        case "MT6989W/CZA"_fnv1a16:
+        case "MT8796"_fnv1a16:
+        case "MT8796W/CNZA"_fnv1a16: return "Dimensity 9300";
+
+        // case "MT6989"_fnv1a16:
+        case "MT6989W/TCZA"_fnv1a16: return "Dimensity 9300+";
+
+        case "MT6991"_fnv1a16:
+        case "MT6991Z/CZA"_fnv1a16:
+        case "MT6991W/CZA"_fnv1a16: return "Dimensity 9400";
+    }
+
+    return model_name;
+}
+#endif  // CF_ANDROID
 
 static std::string get_from_text(std::string& line)
 {
@@ -325,6 +549,8 @@ static CPU::CPU_t get_cpu_infos()
             ret.name = fmt::format("Qualcomm {} [{}]", detect_qualcomm(ret.modelname), ret.modelname);
         else if (ret.vendor == "Samsung")
             ret.name = fmt::format("Samsung {} [{}]", detect_exynos(ret.modelname), ret.modelname);
+        else if (ret.vendor == "MTK")
+            ret.name = fmt::format("Mediatek {} [{}]", detect_mediatek(ret.modelname), ret.modelname);
         else
             ret.name = ret.vendor + " " + ret.modelname;
     }
@@ -395,7 +621,7 @@ static double get_cpu_temp()
     };
     for (const std::string_view path : temp_paths)
     {
-	debug("checking {}", path);
+        debug("checking {}", path);
         if (!std::filesystem::exists(path))
             continue;
 
