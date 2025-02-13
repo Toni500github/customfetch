@@ -128,7 +128,11 @@ static bool is_removable(const mntent* device)
         return false;
 
     //                                                                          like str.substr(5);
-    const std::string& sys_block_partition = fmt::format("/sys/class/block/{}", (device->mnt_fsname + "/dev/"_len));
+    std::string sys_block_partition {fmt::format("/sys/class/block/{}", (device->mnt_fsname + "/dev/"_len))};
+    // check if it's like /dev/sda1
+    if (sys_block_partition.back() >= '0' && sys_block_partition.back() <= '9')
+        sys_block_partition.pop_back();
+
     return read_by_syspath(sys_block_partition + "/removable") == "1";
 }
 
@@ -215,10 +219,6 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
             if (!is_physical_device(pDevice))
                 continue;
 
-            m_disk_infos.types_disk = get_disk_type(pDevice);
-            if (!(config.auto_disks_types & m_disk_infos.types_disk))
-                continue;
-
             parse_args.no_more_reset = false;
             debug("pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
             m_disks_formats.push_back(
@@ -236,6 +236,10 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
         debug("pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
         if (path == pDevice->mnt_dir || path == pDevice->mnt_fsname)
         {
+            m_disk_infos.types_disk = get_disk_type(pDevice);
+            if (!(config.auto_disks_types & m_disk_infos.types_disk))
+                continue;
+
             m_disk_infos.typefs   = pDevice->mnt_type;
             m_disk_infos.device   = pDevice->mnt_fsname;
             m_disk_infos.mountdir = pDevice->mnt_dir;
@@ -243,7 +247,7 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
         }
     }
 
-    const std::string& statpath = (hasStart(path, "/dev") ? pDevice->mnt_dir : path);
+    const std::string& statpath = (hasStart(path, "/dev") && pDevice) ? pDevice->mnt_dir : path;
 
     if (statvfs(statpath.c_str(), &m_statvfs) != 0)
     {
