@@ -79,6 +79,7 @@ public:
     std::uint16_t            logo_padding_left   = 0;
     std::uint16_t            logo_padding_top    = 0;
     std::uint16_t            layout_padding_top  = 0;
+    std::uint32_t            loop_ms             = 0;
     bool                     gui                 = false;
     bool                     sep_reset_after     = false;
     bool                     slow_query_warnings = false;
@@ -341,6 +342,21 @@ logo-padding-top = 0
 # Padding of the layout from the top
 layout-padding-top = 0
 
+# Usually in neofetch/fastfetch, when your terminal size is too small,
+# to render some text in 1 line, they don't wrap those lines, instead they truncate them.
+# Enable/Disable if you want this
+wrap-lines = false
+
+# Used in disk, ram and swap modules.
+# If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)
+# Else if false, we using the IEC byte unit (1KiB == 1024 bibytes)
+# Really nerdy stuff
+use-SI-byte-unit = false
+
+# Warn against tradeoffs between slower queries for availability
+# e.g. falling back to gsettings when we can't find the config file for GTK
+slow-query-warnings = false
+
 # Colors in the terminal
 black   = "\e[1;30m"
 red     = "\e[1;31m"
@@ -357,12 +373,6 @@ white   = "\e[1;37m"
 # Syntax must be "name=value", e.g "purple=magenta" or "orange=!#F08000"
 alias-colors = ["purple=magenta"]
 
-# Used in disk, ram and swap modules.
-# If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)
-# Else if false, we using the IEC byte unit (1KiB == 1024 bibytes)
-# Really nerdy stuff
-use-SI-byte-unit = false
-
 # Colors to be used in percentage tag and modules members.
 # They are used as if you're using the color tag.
 # It's an array just for "convenience"
@@ -370,15 +380,6 @@ use-SI-byte-unit = false
 # 2nd color for normal
 # 3rd color for bad
 percentage-colors = ["green", "yellow", "red"]
-
-# Usually in neofetch/fastfetch, when your terminal size is too small,
-# to render some text in 1 line, they don't wrap those lines, instead they truncate them.
-# Enable/Disable if you want this
-wrap-lines = false
-
-# Warn against tradeoffs between slower queries for availability
-# e.g. falling back to gsettings when we can't find the config file for GTK
-slow-query-warnings = false
 
 # $<auto.disk> config
 [auto.disk]

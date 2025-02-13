@@ -173,6 +173,15 @@ Print only the logo
 \fB\-V\fR, \fB\-\-version\fR
 Print the version along with the git branch it was built
 .TP
+\fB\-\-loop-ms\fR <num>
+Execute customfetch in a loop (live mode) every <num> milliseconds.
+.br
+Put 0 or minor than 50 to disable and just print once.
+.br
+It won't parse the config every time and will you only notice RAM, uptime etc. changes
+.br
+Not availabile in the android widget app.
+.TP
 \fB\-\-bg\-image\fR <path>
 Path to image to be used in the background in GUI (put "disable" for disabling in the config)
 .TP

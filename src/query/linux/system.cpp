@@ -223,28 +223,28 @@ std::string& System::host_version() noexcept
 std::string& System::os_initsys_name()
 {
     static bool done = false;
-    if (!done)
-    {
-        // there's no way PID 1 doesn't exist.
-        // This will always succeed (because we are on linux)
-        std::ifstream f_initsys("/proc/1/comm", std::ios::binary);
-        if (!f_initsys.is_open())
-            die(_("/proc/1/comm doesn't exist! (what?)"));
+    if (done && !is_live_mode)
+        return m_system_infos.os_initsys_name;
+    
+    // there's no way PID 1 doesn't exist.
+    // This will always succeed (because we are on linux)
+    std::ifstream f_initsys("/proc/1/comm", std::ios::binary);
+    if (!f_initsys.is_open())
+        die(_("/proc/1/comm doesn't exist! (what?)"));
 
-        std::string initsys;
-        std::getline(f_initsys, initsys);
-        size_t pos = 0;
+    std::string initsys;
+    std::getline(f_initsys, initsys);
+    size_t pos = 0;
 
-        if ((pos = initsys.find('\0')) != std::string::npos)
-            initsys.erase(pos);
+    if ((pos = initsys.find('\0')) != std::string::npos)
+        initsys.erase(pos);
 
-        if ((pos = initsys.rfind('/')) != std::string::npos)
-            initsys.erase(0, pos + 1);
+    if ((pos = initsys.rfind('/')) != std::string::npos)
+        initsys.erase(0, pos + 1);
 
-        m_system_infos.os_initsys_name = initsys;
+    m_system_infos.os_initsys_name = initsys;
 
-        done = true;
-    }
+    done = true;
 
     return m_system_infos.os_initsys_name;
 }
@@ -252,9 +252,9 @@ std::string& System::os_initsys_name()
 std::string& System::os_initsys_version()
 {
     static bool done = false;
-    if (done)
+    if (done && !is_live_mode)
         return m_system_infos.os_initsys_version;
-    
+
     std::string path;
     char buf[PATH_MAX];
     if (realpath(which("init").c_str(), buf))
@@ -302,7 +302,7 @@ std::string& System::os_initsys_version()
 std::string& System::pkgs_installed(const Config& config)
 {
     static bool done = false;
-    if (!done)
+    if (!done || is_live_mode)
     {
         m_system_infos.pkgs_installed = get_all_pkgs(config);
         done = true;

@@ -182,7 +182,7 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
 {
     const Config& config = parse_args.config;
 
-    if (queried_paths.find(path) != queried_paths.end())
+    if (queried_paths.find(path) != queried_paths.end() && !is_live_mode)
     {
         m_disk_infos.device       = getInfoFromName(queried_paths, path, "device");
         m_disk_infos.mountdir     = getInfoFromName(queried_paths, path, "mountdir");

@@ -497,20 +497,20 @@ std::string& User::de_version(const std::string_view de_name)
 std::string& User::term_name()
 {
     static bool done = false;
-    if (!done)
-    {
-        Query::System query_sys;
-        m_users_infos.term_name = get_term_name(m_users_infos.term_version, query_sys.os_name());
-        if (hasStart(str_tolower(m_users_infos.term_name), "login") || hasStart(m_users_infos.term_name, "init") ||
-            hasStart(m_users_infos.term_name, "(init)"))
-        {
-            m_users_infos.term_name    = ttyname(STDIN_FILENO);
-            m_users_infos.term_version = "NO VERSIONS ABOSULETY";  // lets not make it unknown
-            m_bDont_query_dewm         = true;
-        }
+    if (done || is_live_mode)
+        return m_users_infos.term_name;
 
-        done = true;
+    Query::System query_sys;
+    m_users_infos.term_name = get_term_name(m_users_infos.term_version, query_sys.os_name());
+    if (hasStart(str_tolower(m_users_infos.term_name), "login") || hasStart(m_users_infos.term_name, "init") ||
+        hasStart(m_users_infos.term_name, "(init)"))
+    {
+        m_users_infos.term_name    = ttyname(STDIN_FILENO);
+        m_users_infos.term_version = "NO VERSIONS ABOSULETY";  // lets not make it unknown
+        m_bDont_query_dewm         = true;
     }
+
+    done = true;
 
     return m_users_infos.term_name;
 }
@@ -518,20 +518,20 @@ std::string& User::term_name()
 std::string& User::term_version(const std::string_view term_name)
 {
     static bool done = false;
-    if (!done)
-    {
-        if (m_users_infos.term_version == "NO VERSIONS ABOSULETY")
-        {
-            m_users_infos.term_version.clear();
-            goto done;
-        }
-        else if (m_users_infos.term_version != MAGIC_LINE)
-            goto done;
+    if (done || is_live_mode)
+        return m_users_infos.term_version;
 
-        m_users_infos.term_version = get_term_version(term_name);
-    done:
-        done                       = true;
+    if (m_users_infos.term_version == "NO VERSIONS ABOSULETY")
+    {
+        m_users_infos.term_version.clear();
+        goto done;
     }
+    else if (m_users_infos.term_version != MAGIC_LINE)
+        goto done;
+
+    m_users_infos.term_version = get_term_version(term_name);
+done:
+    done = true;
 
     return m_users_infos.term_version;
 }

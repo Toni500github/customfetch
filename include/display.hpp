@@ -45,7 +45,7 @@ std::vector<std::string> render(const Config& config, const colors_t& colors, co
                                 const std::string_view path);
 
 /*
- * Display the rendered result (or just display a normal vector of strings)
+ * Display the rendered result (or just display a normal vector of string
  * @param renderResult The rendered vector usually by Display::render()
  */
 void display(const std::vector<std::string>& renderResult);

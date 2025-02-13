@@ -53,8 +53,10 @@ using systemInfo_t =
 // used in systemInfo_t most of the time
 using variant = std::variant<std::string, size_t, double>;
 
+inline bool is_live_mode = false;
+
 #if !ANDROID_APP
-#define CHECK_INIT(x) if (x)
+#define CHECK_INIT(x) if (x || is_live_mode)
 #else
 #define CHECK_INIT(x) if (true)
 #endif
@@ -62,7 +64,8 @@ using variant = std::variant<std::string, size_t, double>;
 namespace Query
 {
 
-enum {
+enum
+{
     DISK_VOLUME_TYPE_HIDDEN    = 1 << 2,
     DISK_VOLUME_TYPE_REGULAR   = 1 << 3,
     DISK_VOLUME_TYPE_EXTERNAL  = 1 << 4,

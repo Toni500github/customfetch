@@ -28,11 +28,14 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <string>
+#include <thread>
 
 #include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
 #include "gui.hpp"
+#include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
@@ -124,6 +127,11 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: true, 1, e
     -L, --logo-only [<bool>]    Print only the logo
     -h, --help                  Print this help menu
     -V, --version               Print the version along with the git branch it was built
+
+    --loop-ms <num>             Execute customfetch in a loop (live mode) every <num> milliseconds.
+                                It won't parse the config every time and will you only notice RAM, uptime etc. changes
+                                Put 0 or a <num> minor than 50 to disable and just print once.
+                                Not availabile in the android widget app.
 
     --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
     --wrap-lines [<bool>]       Wrap lines when printing in terminal
@@ -435,6 +443,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
         {"logo-padding-top",   required_argument, 0, "logo-padding-top"_fnv1a16},
         {"logo-padding-left",  required_argument, 0, "logo-padding-left"_fnv1a16},
         {"layout-padding-top", required_argument, 0, "layout-padding-top"_fnv1a16},
+        {"loop-ms",            required_argument, 0, "loop-ms"_fnv1a16},
         {"bg-image",           required_argument, 0, "bg-image"_fnv1a16},
         {"add-color",          required_argument, 0, "add-color"_fnv1a16},
 
@@ -511,6 +520,9 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
 
             case "layout-padding-top"_fnv1a16:
                 config.layout_padding_top = std::stoi(optarg); break;
+
+            case "loop-ms"_fnv1a16:
+                config.loop_ms = std::stoul(optarg); break;
 
             case "bg-image"_fnv1a16:
                 config.gui_bg_image = optarg; break;
@@ -679,16 +691,31 @@ int main(int argc, char *argv[])
 
         // hide cursor and disable line wrapping
         fmt::print("\x1B[?25l\x1B[?7l");
+    }
 
-        Display::display(Display::render(config, colors, false, path));
+    if (config.loop_ms > 50)
+    {
+        const std::chrono::milliseconds sleep_ms {config.loop_ms};
+        is_live_mode = true;
 
-        // enable both of them again
-        enable_cursor();
+        while (true)
+        {
+            // clear screen and go to position 0, 0
+            write(1, "\33[H\33[2J", 7);
+            fmt::print("\033[0;0H");
+
+            Display::display(Display::render(config, colors, false, path));
+            std::this_thread::sleep_for(sleep_ms);
+        }
     }
     else
     {
         Display::display(Display::render(config, colors, false, path));
     }
+
+    // enable both of them again
+    if (!config.wrap_lines)
+        enable_cursor();
 
     return 0;
 #else
