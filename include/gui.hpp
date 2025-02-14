@@ -56,6 +56,11 @@ public:
     virtual ~Window();
 
 private:
+    const Config& m_config;
+    const colors_t& m_colors;
+    const std::string_view m_path;
+    bool isImage;
+
     Gtk::Overlay                           m_overlay;
     Gtk::Box                               m_box;
     Gtk::Alignment                         m_alignment;
@@ -65,6 +70,8 @@ private:
     Glib::RefPtr<Gdk::PixbufAnimation>     m_bg_animation;
     Glib::RefPtr<Gdk::Pixbuf>              m_bg_static_image;
     int                                    m_width, m_height;
+
+    bool set_layout_markup();
 
     // Update background image size (gif or static)
     // on window resize

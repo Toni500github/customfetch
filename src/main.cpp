@@ -642,6 +642,8 @@ int main(int argc, char *argv[])
         return 1;
 #endif  // ANDROID_APP
 
+    is_live_mode = (config.loop_ms > 50);
+
     if (config.source_path.empty() || config.source_path == "off")
         config.m_disable_source = true;
 
@@ -693,10 +695,9 @@ int main(int argc, char *argv[])
         fmt::print("\x1B[?25l\x1B[?7l");
     }
 
-    if (config.loop_ms > 50)
+    if (is_live_mode)
     {
         const std::chrono::milliseconds sleep_ms {config.loop_ms};
-        is_live_mode = true;
 
         while (true)
         {

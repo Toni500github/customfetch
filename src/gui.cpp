@@ -125,23 +125,39 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     return layout;
 }
 
-Window::Window(const Config& config, const colors_t& colors, const std::string_view path)
+bool Window::set_layout_markup()
+{
+    if (isImage)
+    {
+        if (!m_config.m_print_logo_only)
+            m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(m_config, m_colors), "\n")));
+    }
+    else
+    {
+        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(m_config, m_colors, true, m_path), "\n")));
+    }
+    return true;
+}
+
+Window::Window(const Config& config, const colors_t& colors, const std::string_view path) :
+    m_config(config),
+    m_colors(colors),
+    m_path(path),
+    isImage(false)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(1000, 600);
     set_position(Gtk::WIN_POS_CENTER_ALWAYS);
-
-    bool useImage = false;
 
     debug("Window::Window analyzing file");
     std::ifstream                 f(path.data());
     std::array<unsigned char, 32> buffer;
     f.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
     if (is_file_image(buffer.data()))
-        useImage = true;
+        isImage = true;
 
     // useImage can be either a gif or an image
-    if (useImage && !config.m_disable_source)
+    if (isImage && !config.m_disable_source)
     {
         const auto& img = Gdk::PixbufAnimation::create_from_file(path.data());
         m_img           = Gtk::manage(new Gtk::Image(img));
@@ -164,17 +180,11 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     style_context->lookup_color("theme_fg_color", fg_color);
     std::string fg_color_str = rgba_to_hexstr(fg_color);*/
 
-    if (useImage)
-    {
-        if (!config.m_print_logo_only)
-            m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(config, colors), "\n")));
-    }
-    else
-    {
-        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(config, colors, true, path), "\n")));
-    }
-
     auto_colors.clear();
+    set_layout_markup();
+    if (is_live_mode)
+        Glib::signal_timeout().connect(sigc::mem_fun(*this, &Window::set_layout_markup), config.loop_ms);
+
 
     if (config.gui_bg_image != "disable")
     {
