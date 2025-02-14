@@ -91,12 +91,25 @@ endif
 locale:
 	scripts/make_mo.sh locale/
 
-dist: locale
+dist: $(TARGET) locale
 ifeq ($(GUI_MODE), 1)
 	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).desktop locale/ $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
 else
 	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).1 locale/ assets/ascii/ -C $(BUILDDIR) $(TARGET)
 endif
+
+usr-dist: $(TARGET) locale
+	mkdir -p ./usr/bin usr/share/man/man1 ./usr/share/$(NAME) ./usr/share/locale ./usr/share/licenses/$(NAME)
+	cp -f $(BUILDDIR)/$(TARGET) ./usr/bin/
+	cp -f LICENSE ./usr/share/licenses/$(NAME)/
+	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(TARGET).1 > ./usr/share/man/man1/$(TARGET).1
+	cp -rf locale/* ./usr/share/locale/
+	cp -rf assets/ascii/ ./usr/share/$(NAME)/
+ifeq ($(GUI_MODE), 1)
+        mkdir -p ./usr/share/applications
+        cp -f $(TARGET).desktop ./usr/share/applications/$(TARGET).desktop
+endif
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz usr/
 
 clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/libcustomfetch.a $(OBJ)
