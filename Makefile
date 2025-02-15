@@ -106,8 +106,8 @@ usr-dist: $(TARGET) locale
 	cp -rf locale/* ./usr/share/locale/
 	cp -rf assets/ascii/ ./usr/share/$(NAME)/
 ifeq ($(GUI_MODE), 1)
-        mkdir -p ./usr/share/applications
-        cp -f $(TARGET).desktop ./usr/share/applications/$(TARGET).desktop
+	mkdir -p ./usr/share/applications
+	cp -f $(TARGET).desktop ./usr/share/applications/$(TARGET).desktop
 endif
 	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz usr/
 
