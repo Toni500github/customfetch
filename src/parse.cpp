@@ -1147,6 +1147,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
                 case "kernel_name"_fnv1a16:      SYSINFO_INSERT(query_system.kernel_name()); break;
                 case "kernel_version"_fnv1a16:   SYSINFO_INSERT(query_system.kernel_version()); break;
+                case "packages"_fnv1a16:
                 case "pkgs"_fnv1a16:             SYSINFO_INSERT(query_system.pkgs_installed(config)); break;
                 case "initsys_name"_fnv1a16:     SYSINFO_INSERT(query_system.os_initsys_name()); break;
                 case "initsys_version"_fnv1a16:  SYSINFO_INSERT(query_system.os_initsys_version()); break;
@@ -1435,6 +1436,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     SYSINFO_INSERT(str);
 
                 } break;
+
                 case "used"_fnv1a16:
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
@@ -1447,11 +1449,13 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
                     break;
 
+                case "free_percentage"_fnv1a16:
                 case "free_perc"_fnv1a16:
                     SYSINFO_INSERT(get_and_color_percentage(query_disk.free_amount(), query_disk.total_amount(),
                                                             parse_args, true));
                     break;
 
+                case "used_percentage"_fnv1a16:
                 case "used_perc"_fnv1a16:
                     SYSINFO_INSERT(
                         get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), parse_args));
@@ -1503,11 +1507,13 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(USED).num_bytes, byte_units.at(USED).unit));
                     break;
 
+                case "free_percentage"_fnv1a16:
                 case "free_perc"_fnv1a16:
                     SYSINFO_INSERT(get_and_color_percentage(query_ram.swap_free_amount(), query_ram.swap_total_amount(),
                                                             parse_args, true));
                     break;
 
+                case "used_percentage"_fnv1a16:
                 case "used_perc"_fnv1a16:
                     SYSINFO_INSERT(get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(),
                                                             parse_args));
@@ -1559,11 +1565,13 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                     SYSINFO_INSERT(fmt::format("{:.2f} {}", byte_units.at(FREE).num_bytes, byte_units.at(FREE).unit));
                     break;
 
+                case "free_percentage"_fnv1a16:
                 case "free_perc"_fnv1a16:
                     SYSINFO_INSERT(
                         get_and_color_percentage(query_ram.free_amount(), query_ram.total_amount(), parse_args, true));
                     break;
 
+                case "used_percentage"_fnv1a16:
                 case "used_perc"_fnv1a16:
                     SYSINFO_INSERT(
                         get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args));
@@ -1591,6 +1599,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         {
             switch (moduleMember_hash)
             {
+                case "percentage"_fnv1a16:
                 case "perc"_fnv1a16:
                     SYSINFO_INSERT(get_and_color_percentage(query_battery.perc(), 100, parse_args, true));
                     break;
@@ -1658,7 +1667,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
         }
     }
 
-    else if (moduleName == "title_sep")
+    else if (moduleName == "title_sep" || moduleName == "title_separator")
     {
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
