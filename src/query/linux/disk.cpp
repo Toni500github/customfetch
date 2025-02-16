@@ -180,8 +180,6 @@ static std::string format_auto_query_string(std::string str, const struct mntent
 
 Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args, const bool auto_module)
 {
-    const Config& config = parse_args.config;
-
     if (queried_paths.find(path) != queried_paths.end() && !is_live_mode)
     {
         m_disk_infos.device       = getInfoFromName(queried_paths, path, "device");
@@ -219,10 +217,14 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
             if (!is_physical_device(pDevice))
                 continue;
 
+            m_disk_infos.types_disk = get_disk_type(pDevice);
+            if (!(parse_args.config.auto_disks_types & m_disk_infos.types_disk))
+                continue;
+
             parse_args.no_more_reset = false;
             debug("pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
             m_disks_formats.push_back(
-                parse(format_auto_query_string(config.auto_disks_fmt, pDevice), parse_args)
+                parse(format_auto_query_string(parse_args.config.auto_disks_fmt, pDevice), parse_args)
             );
         }
 
@@ -237,7 +239,7 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
         if (path == pDevice->mnt_dir || path == pDevice->mnt_fsname)
         {
             m_disk_infos.types_disk = get_disk_type(pDevice);
-            if (!(config.auto_disks_types & m_disk_infos.types_disk))
+            if (!(parse_args.config.auto_disks_types & m_disk_infos.types_disk))
                 continue;
 
             m_disk_infos.typefs   = pDevice->mnt_type;

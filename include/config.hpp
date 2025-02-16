@@ -345,7 +345,13 @@ layout-padding-top = 0
 # Usually in neofetch/fastfetch, when your terminal size is too small,
 # to render some text in 1 line, they don't wrap those lines, instead they truncate them.
 # Enable/Disable if you want this
-wrap-lines = false
+)#"
+#if !ANDROID_APP
+R"#(wrap-lines = false)#"
+#else
+R"#(wrap-lines = true)#"
+#endif
+R"#(
 
 # Used in disk, ram and swap modules.
 # If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)
