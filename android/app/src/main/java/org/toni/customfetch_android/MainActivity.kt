@@ -30,7 +30,6 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInfo
 import android.content.res.AssetManager
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
@@ -54,7 +53,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import kotlin.io.path.Path
-
 
 // kinda magic numbers
 const val TEST_CONFIG_FILE_RC = 6969

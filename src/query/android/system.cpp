@@ -59,9 +59,9 @@ static System::System_t get_system_infos()
         else
             break;
     }
-
     ret.host_vendor  = get_android_property("ro.product.manufacturer");
     ret.host_version = get_android_property("ro.product.model");
+
     if (access("/system/bin/init", F_OK) == 0)
     {
         ret.os_initsys_name = "init";
