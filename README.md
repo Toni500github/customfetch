@@ -103,7 +103,8 @@ yay -S customfetch-gui-git
 ```
 
 ## Android widget app (unstable)
-Download the latest apk build from the [GitHub actions](https://github.com/Toni500github/customfetch/actions/workflows/makefile.yml) artifacts
+Download the latest apk build from the [GitHub actions](https://github.com/Toni500github/customfetch/actions/workflows/makefile.yml) artifacts\
+If you can't download or you are not logged in GitHub, use this link: https://nightly.link/Toni500github/customfetch/workflows/makefile/main/customfetch-android-app.zip
 
 
 ## Android widget app (source)
