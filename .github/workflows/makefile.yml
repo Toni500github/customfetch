@@ -84,10 +84,9 @@ jobs:
     - name: Upload to github artifacts
       uses: actions/upload-artifact@v4
       with:
-	if-no-files-found: error
-        name: customfetch-gui-deb-pkg
+        if-no-files-found: error
+        name: customfetch-gui_amd64
         path: /tmp/customfetch-0.10.2.orig/customfetch_0.10.2-1_amd64.deb
-
   
   build_ubuntu-20_04:
     runs-on: ubuntu-20.04
