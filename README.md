@@ -50,7 +50,7 @@ currently requires **C++20**, but it's possible to compile with C++17 too (not o
 
 * `libdl` (should come already installed in almost every distro)
 
-If you want to install with GUI mode install from your package manager:
+If you want to install with the GUI app install from your package manager:
 * `gtk3`
 * `gtkmm3`
 
@@ -62,19 +62,15 @@ The name can vary depending on the package manager or distro
 
 ## Installation
 
->[!NOTE]
->installing with GUI mode may slow down customfetch a bit because it needs to load the GUI libraries at runtime.\
->To check if it's enabled or not, run "customfetch --version"
-
 ### Debian/Ubuntu and based
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
 
 ### Arch and based (AUR)
 ```bash
-# either
+# Terminal only
 yay -S customfetch-bin
 
-# or wiht GUI mode
+# GUI app only
 yay -S customfetch-gui-bin
 ```
 
@@ -82,32 +78,32 @@ yay -S customfetch-gui-bin
 Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni500github/customfetch/releases/latest) \
 It contains the binary `customfetch` and the manual `customfetch.1` with the `LICENSE`.\
 Togheter with the directory `assets/ascii` with the distro ascii art logos.\
-If installing the GUI mode version, there's `customfetch.desktop`
+If installing the GUI app, there's `customfetch.desktop`
 
 ### Arch and based (AUR) (source)
 ```bash
-# either
+# Terminal only
 yay -S customfetch
 
-# or wiht GUI mode
+# GUI app only
 yay -S customfetch-gui
 ```
 
 ### Arch and based (unstable) (AUR) (source)
 ```bash
-# either
+# Terminal only
 yay -S customfetch-git
 
-# or wiht GUI mode
+# GUI app only
 yay -S customfetch-gui-git
 ```
 
-## Android widget app (unstable)
+### Android widget app (unstable)
 Download the latest apk build from the [GitHub actions](https://github.com/Toni500github/customfetch/actions/workflows/makefile.yml) artifacts\
 If you can't download or you are not logged in GitHub, use this link: https://nightly.link/Toni500github/customfetch/workflows/makefile/main/customfetch-android-app.zip
 
 
-## Android widget app (source)
+### Android widget app (source)
 ```bash
 # need java 17 + gradle 8.9 installed.
 # It's suggested to build from android studio,
@@ -122,8 +118,8 @@ git clone https://github.com/Toni500github/customfetch
 cd customfetch
 
 # DEBUG=0 for release build
-# GUI_MODE=0 for disabling GUI mode, or =1 for enable it (will slow down a bit if run in terminal)
-make install DEBUG=0 GUI_MODE=0
+# GUI_APP=0 or =1 for compiling either the terminal version or the GUI app
+make install DEBUG=0 GUI_APP=0
 
 # automatically generates a config and prints the infos
 customfetch
@@ -227,7 +223,7 @@ They can be used in the ascii art text file and layout, but how to use them?
  For auto coloring, depending on the ascii logo colors, use `${auto}`.\
  They can be used for different colors too. So for getting the 2nd color of the ascii logo,\
  use `${auto2}`, for the 4th one use `${auto4}` and so on.\
- If you're in GUI mode and the source path is an image, all the auto colors will be the same colors as distro ascii art.
+ If you're using the GUI app and the source path is an image, all the auto colors will be the same colors as the distro ascii art.
 
 * **The Percentage tag (`$%%`)** is used for displaying the percentage between 2 numbers.\
   It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
@@ -235,7 +231,7 @@ They can be used in the ascii art text file and layout, but how to use them?
   For inverting colors of bad and great (red and green), before the first `%` a put `!`
 
 Any `$` or brackets can be escaped with a backslash `\`. You need to escape backslashes too :(\
-**NOTE:** For having compatibility with GUI mode, you need to escape `<` (EXCEPT if you are using in a info tag, like `$<os.name>`) and `&`\
+**NOTE:** For having compatibility with the GUI app, you need to escape `<` (EXCEPT if you are using in a info tag, like `$<os.name>`) and `&`\
 e.g `the number 50 is \< than 100 \& 98`
 Won't affect the printing in terminal
 

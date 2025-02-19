@@ -96,12 +96,6 @@ msgstr ""
 msgid "'{}' doesn't exist. Can't load image/text file"
 msgstr ""
 
-#: src/main.cpp:654
-msgid ""
-"Can't run in GUI mode because it got disabled at compile time\n"
-"Compile customfetch with GUI_MODE=1 or contact your distro to enable it"
-msgstr ""
-
 #: src/parse.cpp:119
 #, c++-format
 msgid ""

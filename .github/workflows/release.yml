@@ -35,7 +35,7 @@ jobs:
       run: make clean
 
     - name: Compile
-      run: make DEBUG=0 GUI_MODE=0 CXX=x86_64-linux-gnu-g++-10
+      run: make DEBUG=0 GUI_APP=0 CXX=x86_64-linux-gnu-g++-10
 
     - name: Make Release
       run: make dist DEBUG=0 && mv ./customfetch-*.tar.gz ./customfetch.tar.gz
@@ -62,10 +62,10 @@ jobs:
       run: make clean
 
     - name: Compile
-      run: make DEBUG=0 GUI_MODE=1 CXX=x86_64-linux-gnu-g++-10
+      run: make DEBUG=0 GUI_APP=1 CXX=x86_64-linux-gnu-g++-10
 
     - name: Make Release
-      run: make dist DEBUG=0 GUI_MODE=1 && mv ./customfetch-*.tar.gz ./customfetch-gui.tar.gz
+      run: make dist DEBUG=0 GUI_APP=1 && mv ./customfetch-*.tar.gz ./customfetch-gui.tar.gz
 
     - name: Upload to github artifacts
       uses: actions/upload-artifact@v4
@@ -137,7 +137,7 @@ jobs:
         mkdir -p Debian/Debhelper/Buildsystem/
         wget https://github.com/Debian/debhelper/raw/master/lib/Debian/Debhelper/Buildsystem/makefile.pm -O Debian/Debhelper/Buildsystem/make.pm
         sed -i "s#package Debian::Debhelper::Buildsystem::makefile#package Debian::Debhelper::Buildsystem::make#g" Debian/Debhelper/Buildsystem/make.pm
-        sed -i "s#GUI_MODE=0#GUI_MODE=1 CXX=x86_64-linux-gnu-g++-10#g" debian/rules
+        sed -i "s#GUI_APP=0#GUI_APP=1 CXX=x86_64-linux-gnu-g++-10#g" debian/rules
         sed -i "/^Build-Depends:/a Depends: libgtkmm-3.0-1v5,libgtk-3-0" debian/control
         dpkg-buildpackage -us -uc
         mv ../customfetch_0.10.2-1_amd64.deb ../customfetch-gui_amd64.deb

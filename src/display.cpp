@@ -28,7 +28,7 @@
 #include "display.hpp"
 #include <cstddef>
 
-#ifndef GUI_MODE
+#ifndef GUI_APP
 # define STB_IMAGE_IMPLEMENTATION
 #endif
 

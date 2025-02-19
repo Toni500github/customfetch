@@ -69,12 +69,6 @@ static STRING_IF_ANDROID_APP_ELSE(void) version()
 {
     std::string version{ "customfetch " VERSION " branch " BRANCH "\n" };
 
-#if GUI_MODE
-    version += "GUI mode enabled\n\n";
-#else
-    version += "GUI mode IS NOT enabled\n\n";
-#endif
-
 #if !(USE_DCONF)
     version += "NO flags were set\n";
 #else
@@ -109,18 +103,17 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: true, 1, e
 
     -D, --data-dir <path>       Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
     -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
-    -f, --font <name>           The font to be used in GUI mode (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
+    -f, --font <name>           The font to be used in the GUI app (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
                                 An example: [Liberation Mono] [Normal] [12], which can be "Liberation Mono Normal 12"
 
     -i, --image-backend	<name>  (EXPERIMENTAL) Image backend tool for displaying images in terminal.
                                 Right now only 'kitty' and 'viu' are supported
-                                It's recommended to use GUI mode for the moment if something doesn't work
+                                It's recommended to use the GUI app for the moment if something doesn't work
 
     -m, --layout-line <string>  Will replace the config layout, with a layout you specify in the arguments
                                 Example: `customfetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>"`
                                 Will only print the logo (if not disabled), along side the parsed OS and CPU
 
-    -g, --gui                   Use GUI mode instead of printing in the terminal (use --version to check if it was enabled)
     -p, --logo-position <value> Position of the logo ("top" or "left" or "bottom")
     -o, --offset <num>          Offset between the ascii art and the layout
     -l. --list-modules          Print the list of the modules and its members
@@ -133,7 +126,7 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: true, 1, e
                                 Put 0 or a <num> minor than 50 to disable and just print once.
                                 Not availabile in the android widget app.
 
-    --bg-image <path>           Path to image to be used in the background in GUI (put "disable" for disabling in the config)
+    --bg-image <path>           Path to image to be used in the background in the GUI app (put "disable" for disabling in the config)
     --wrap-lines [<bool>]       Wrap lines when printing in terminal
     --logo-padding-top  <num>   Padding of the logo from the top
     --logo-padding-left <num>   Padding of the logo from the left
@@ -416,12 +409,11 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlgNa::f:o:C:i:d:D:p:s:m:";
+    const char *optstring = "-VhnLlNa::f:o:C:i:d:D:p:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
         {"list-modules",     no_argument,       0, 'l'},
-        {"gui",              no_argument,       0, 'g'},
         {"logo-only",        optional_argument, 0, 'L'},
         {"no-logo",          optional_argument, 0, 'n'},
         {"no-color",         optional_argument, 0, 'N'},
@@ -470,8 +462,6 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 RETURN_IF_ANDROID_APP modules_list(); break;
             case 'f':
                 config.font = optarg; break;
-            case 'g':
-                config.gui = true; break;
             case 'o':
                 config.offset = std::stoi(optarg); break;
             case 'C': // we have already did it in parse_config_path()
@@ -672,19 +662,12 @@ int main(int argc, char *argv[])
         die(_("Path '{}' doesn't exist. Can't load logo"), path);
 
 #if !ANDROID_APP
-#if GUI_MODE
-    if (config.gui)
-    {
-        const auto  app = Gtk::Application::create("org.toni.customfetch");
-        GUI::Window window(config, colors, path);
-        return app->run(window);
-    }
-#else
-    if (config.gui)
-        die(
-            _("Can't run in GUI mode because it got disabled at compile time\n"
-              "Compile customfetch with GUI_MODE=1 or contact your distro to enable it"));
-#endif  // GUI_MODE
+#if GUI_APP
+    config.gui = true;
+    const auto& app = Gtk::Application::create("org.toni.customfetch");
+    GUI::Window window(config, colors, path);
+    return app->run(window);
+#endif  // GUI_APP
 
     if (!config.wrap_lines)
     {

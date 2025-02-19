@@ -226,7 +226,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # To reset colors, use ${0} for a normal reset or ${1} for a bold reset.
 #
 # To use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
-# If you're using GUI mode and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
+# If you're using the GUI app and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
 
 # The Percentage tag $%% is used for displaying the percentage between 2 numbers.\
 # It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
@@ -236,7 +236,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 
 ################################################################
 # Little FAQ
-# Q: Why when I use & or < in the config or ASCII art, it won't work on GUI mode?
+# Q: Why when I use & or < in the config or ASCII art, it won't work on the GUI app?
 # A: replace "<" with "\\<" in the config, or "\<" in the ascii art. Same goes for &
 #    It won't affect the printing in terminal
 #
@@ -439,9 +439,7 @@ flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_MODE=1 (check with "customfetch --version" if GUI mode was enabled)
 [gui]
-enable = false
 
 # Font to be used
 # syntax must be [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]

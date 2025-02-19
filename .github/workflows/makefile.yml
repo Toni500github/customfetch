@@ -21,7 +21,7 @@ jobs:
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get update
         sudo apt-get upgrade -y
-        sudo apt-get install libwayland-dev g++-10 libgtk-3-dev pkg-config libgtkmm-3.0-dev libdconf-dev libglib2.0-dev libarchive-tools
+        sudo apt-get install libwayland-dev g++-10 pkg-config libdconf-dev libglib2.0-dev libarchive-tools
         sudo apt-get install binutils gettext lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
 
     - name: Clean
@@ -49,6 +49,45 @@ jobs:
         if-no-files-found: error
         name: customfetch_amd64
         path: /tmp/customfetch-0.10.2.orig/customfetch_0.10.2-1_amd64.deb
+
+  build-deb-gui:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: create tmp directory
+      run: mkdir /tmp/customfetch-0.10.2.orig
+
+    - name: Install Packages
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get update
+        sudo apt-get upgrade -y
+        sudo apt-get install libwayland-dev g++-10 libgtk-3-dev pkg-config libgtkmm-3.0-dev libdconf-dev libglib2.0-dev libarchive-tools
+        sudo apt-get install binutils lintian debhelper gettext devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
+
+    - name: Clean
+      run: make clean
+
+    - name: Create deb
+      run: |
+        cp -r $GITHUB_WORKSPACE /tmp/customfetch-0.10.2.orig
+        cd /tmp/customfetch-0.10.2.orig/customfetch
+        mkdir -p Debian/Debhelper/Buildsystem/
+        wget https://github.com/Debian/debhelper/raw/master/lib/Debian/Debhelper/Buildsystem/makefile.pm -O Debian/Debhelper/Buildsystem/make.pm
+        sed -i "s#package Debian::Debhelper::Buildsystem::makefile#package Debian::Debhelper::Buildsystem::make#g" Debian/Debhelper/Buildsystem/make.pm
+        sed -i "s#GUI_APP=0#GUI_APP=1 CXX=x86_64-linux-gnu-g++-10#g" debian/rules
+        sed -i "/^Build-Depends:/a Depends: libgtkmm-3.0-1v5,libgtk-3-0" debian/control
+        dpkg-buildpackage -us -uc
+
+    - name: Upload to github artifacts
+      uses: actions/upload-artifact@v4
+      with:
+	if-no-files-found: error
+        name: customfetch-gui-deb-pkg
+        path: /tmp/customfetch-0.10.2.orig/customfetch_0.10.2-1_amd64.deb
+
   
   build_ubuntu-20_04:
     runs-on: ubuntu-20.04
@@ -66,7 +105,7 @@ jobs:
       run: make clean
 
     - name: Compile and install
-      run: make DEBUG=1 GUI_MODE=0 CXX=x86_64-linux-gnu-g++-10 && sudo make install
+      run: make DEBUG=1 GUI_APP=0 CXX=x86_64-linux-gnu-g++-10 && sudo make install
 
     - name: Test neofetch
       run: neofetch
@@ -106,22 +145,22 @@ jobs:
       run: make clean
 
     - name: Compile and install
-      run: make DEBUG=1 GUI_MODE=1 CXX=x86_64-linux-gnu-g++-10 && sudo make install GUI_MODE=1
+      run: make DEBUG=1 GUI_APP=1 CXX=x86_64-linux-gnu-g++-10 && sudo make install GUI_APP=1
 
     - name: Test neofetch
       run: neofetch
        
     - name: Test customfetch
-      run: ./build/debug/customfetch --wrap-lines
+      run: ./build/debug/customfetch-gui --version
 
     - name: Upload to github artifacts
       uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
         name: customfetch-gui
-        path: ./build/debug/customfetch
+        path: ./build/debug/customfetch-gui
 
-  build_Arch-AUR:  
+  build_Arch-AUR:
     runs-on: ubuntu-latest
     container:
       image: archlinux
@@ -182,7 +221,7 @@ jobs:
       run: make clean
 
     - name: Compile and install
-      run: make install DEBUG=1 VENDOR_TEST=1 GUI_MODE=0
+      run: make install DEBUG=1 VENDOR_TEST=1 GUI_APP=0
 
     - name: Test neofetch
       run: neofetch
@@ -243,7 +282,7 @@ jobs:
       run: make clean
 
     - name: Compile and install
-      run: sudo make install DEBUG=0 VENDOR_TEST=0 GUI_MODE=0
+      run: sudo make install DEBUG=0 VENDOR_TEST=0 GUI_APP=0
 
     - name: Test all the ascii art logos
       run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" "$f" && customfetch --wrap-lines --source "$f" -D assets && sleep 1; done

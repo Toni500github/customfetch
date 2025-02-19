@@ -72,7 +72,6 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     // Idk but with `this->` looks more readable
     this->layout              = getValueArrayStr("config.layout", {});
     this->percentage_colors   = getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
-    this->gui                 = getValue<bool>("gui.enable", false);
     this->slow_query_warnings = getValue<bool>("config.slow-query-warnings", false);
     this->sep_reset_after     = getValue<bool>("config.sep-reset-after", false);
     this->use_SI_unit         = getValue<bool>("config.use-SI-byte-unit", false);

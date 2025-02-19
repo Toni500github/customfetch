@@ -18,10 +18,10 @@ export DH_VERBOSE = 1
 	dh $@ --buildsystem=make
 
 override_dh_auto_build:
-	dh_auto_build -- all DEBUG=0 GUI_MODE=0
+	dh_auto_build -- all DEBUG=0 GUI_APP=0
 
 override_dh_auto_install:
-	dh_auto_install -- all DEBUG=0 GUI_MODE=0
+	dh_auto_install -- all DEBUG=0 GUI_APP=0
 
 # dh_make generated override targets
 # This is example for Cmake (See https://bugs.debian.org/641051 )

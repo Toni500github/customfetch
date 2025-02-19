@@ -69,7 +69,7 @@ layout = [
 .PP
   To use the colors that the ascii art logo uses, use \fB${auto}\fR for getting the 1st color, \fB${auto4}\fR for the 4th one and so on.
 .br
-  If you're using GUI mode and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
+  If you're using the GUI app and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
 .PP
 * The \fBConditional tag $[]\fR is used to display different outputs based on the comparison.
 .br
@@ -102,7 +102,7 @@ layout = [
 .PP
 .nf
 Any `$` or brackets can be escaped with a backslash \\. You need to escape backslashes too :(
-\fBNOTE\fR: For having compatibility with GUI mode, you need to escape `<` (EXCEPT if you are using in a info tag, like $<os.name>) and `&`
+\fBNOTE\fR: For having compatibility with the GUI app, you need to escape `<` (EXCEPT if you are using in a info tag, like $<os.name>) and `&`
 e.g "the number 50 is \\< than 100 \\& 98"
 .fi
 
@@ -136,14 +136,14 @@ Path to the data dir where we'll taking the distros ascii arts (must contain sub
 Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
 .TP
 \fB\-f\fR, \fB\-\-font\fR <name>
-The font to be used in GUI mode (syntax must be "[FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]" without the square brackets [])
+The font to be used in the GUI app (syntax must be "[FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]" without the square brackets [])
 .br
 An example: "[Liberation Mono] [Normal] [12]", which can be "Liberation Mono Normal 12"
 .TP
 \fB\-i\fR, \fB\-\-image\-backend\fR <name>
 \fB\fI(EXPERIMENTAL)\fR Image backend tool for displaying images in terminal. Right now only kitty and viu are supported
 .br
-It's recommended to use GUI mode for the moment if something doesn't work
+It's recommended to use the GUI app for the moment if something doesn't work
 .TP
 \fB\-m\fR, \fB\-\-layout\-line\fR <string>
 Will replace the config layout, with a layout you specify in the arguments
@@ -151,9 +151,6 @@ Will replace the config layout, with a layout you specify in the arguments
 Example: "customfetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>" "
 .br
 Will only print the logo (if not disabled), along side the parsed OS and CPU
-.TP
-\fB\-g\fR, \fB\-\-gui\fR
-Use GUI mode instead of priting in the terminal (use \fB\-V\fR to check if it's enabled)
 .TP
 \fB\-p\fR, \fB\-\-logo-position\fR <value>
 Position of the logo ("top" or "left" or "bottom")
@@ -183,7 +180,7 @@ It won't parse the config every time and will you only notice RAM, uptime etc. c
 Not availabile in the android widget app.
 .TP
 \fB\-\-bg\-image\fR <path>
-Path to image to be used in the background in GUI (put "disable" for disabling in the config)
+Path to image to be used in the background in the GUI app (put "disable" for disabling in the config)
 .TP
 \fB\-\-wrap\-lines\fR [<bool>]
 Wrap lines when printing in terminal

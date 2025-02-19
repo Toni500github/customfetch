@@ -224,9 +224,7 @@ flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 
 # GUI options
-# note: customfetch needs to be compiled with GUI_MODE=1 (check with "customfetch --version")
 [gui]
-enable = false
 
 # Font to be used
 # syntax must be [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]

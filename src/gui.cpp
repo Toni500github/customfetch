@@ -23,7 +23,7 @@
  *
  */
 
-#if GUI_MODE && !ANDROID_APP
+#if GUI_APP && !ANDROID_APP
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "gui.hpp"
@@ -100,10 +100,6 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     {
         layout[i] = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
-        if (!config.gui && !config.m_disable_colors)
-        {
-            layout[i].insert(0, NOCOLOR);
-        }
 
         if (!tmp_layout.empty())
         {
@@ -220,4 +216,4 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
 
 Window::~Window() {}
 
-#endif  // GUI_MODE && !ANDROID_APP
+#endif  // GUI_APP && !ANDROID_APP

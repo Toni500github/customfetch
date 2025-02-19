@@ -2,7 +2,7 @@
 Name=Customfetch
 Comment=Highly customizable and fast fetch program
 Type=Application
-Exec=customfetch --gui
+Exec=customfetch-gui
 Terminal=false
 Categories=Viewer;GTK;
 Icon=lookswitcher

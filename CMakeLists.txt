@@ -17,7 +17,13 @@ file(GLOB
 	"src/query/linux/utils/*.cpp"
 	"src/toml++/toml.cpp")
 
-add_executable(customfetch ${SRC})
+if(GUI_APP)
+set(TARGET_NAME customfetch-gui)
+else()
+set(TARGET_NAME customfetch)
+endif()
+
+add_executable(${TARGET_NAME} ${SRC})
 
 # get git branch
 execute_process(
@@ -27,7 +33,7 @@ execute_process(
 )
 
 set(VERSION "0.10.2")
-target_compile_definitions(customfetch PRIVATE
+target_compile_definitions(${TARGET_NAME} PRIVATE
     VERSION="${VERSION}"
     BRANCH="${GIT_BRANCH}"
 )
@@ -47,25 +53,25 @@ endmacro()
 
 message(STATUS "Set flags:")
 message(STATUS "=================")
-add_option(GUI_MODE "Enable GTK3 GUI mode" 0)
+add_option(GUI_APP "Build GTK3 application" 0)
 add_option(USE_DCONF "Compile customfetch with dconf support" 1)
-#add_option(VARS "Add additional flags at CXXFLAGS" )
+add_option(VARS "Add additional flags at CXXFLAGS" "")
 message(STATUS "=================")
 
-if(GUI_MODE)
+if(GUI_APP)
 	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(GTKMM REQUIRED gtkmm-3.0 gdkmm-3.0)
-	target_link_libraries(customfetch PUBLIC ${GTKMM_LIBRARIES})
-	target_include_directories(customfetch PUBLIC ${GTKMM_INCLUDE_DIRS})
-	target_compile_options(customfetch PUBLIC ${GTKMM_CFLAGS_OTHER})
+	target_link_libraries(${TARGET_NAME} PUBLIC ${GTKMM_LIBRARIES})
+	target_include_directories(${TARGET_NAME} PUBLIC ${GTKMM_INCLUDE_DIRS})
+	target_compile_options(${TARGET_NAME} PUBLIC ${GTKMM_CFLAGS_OTHER})
 endif()
 
 if(USE_DCONF)
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(DCONF dconf)
-        target_link_libraries(customfetch PUBLIC ${DCONF_LIBRARIES})
-        target_include_directories(customfetch PUBLIC ${DCONF_INCLUDE_DIRS})
-        target_compile_options(customfetch PUBLIC ${DCONF_CFLAGS_OTHER})
+        target_link_libraries(${TARGET_NAME} PUBLIC ${DCONF_LIBRARIES})
+        target_include_directories(${TARGET_NAME} PUBLIC ${DCONF_INCLUDE_DIRS})
+        target_compile_options(${TARGET_NAME} PUBLIC ${DCONF_CFLAGS_OTHER})
 endif()
 
 
@@ -74,4 +80,4 @@ add_library(fmt STATIC
 	"src/fmt/os.cc"
 	"src/fmt/format.cc")
 
-target_link_libraries(customfetch PUBLIC fmt)
+target_link_libraries(${TARGET_NAME} PUBLIC fmt)

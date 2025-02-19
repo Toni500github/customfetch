@@ -6,7 +6,7 @@ LOCALEDIR	?= $(PREFIX)/share/locale
 VARS  	  	?= -DENABLE_NLS=1
 
 DEBUG 		?= 1
-GUI_MODE        ?= 0
+GUI_APP         ?= 0
 VENDOR_TEST 	?= 0
 DEVICE_TEST     ?= 0
 
@@ -34,8 +34,9 @@ ifeq ($(DEVICE_TEST), 1)
 	VARS += -DDEVICE_TEST=1
 endif
 
-ifeq ($(GUI_MODE), 1)
-        VARS 	 += -DGUI_MODE=1
+ifeq ($(GUI_APP), 1)
+	TARGET	  = $(NAME)-gui
+	VARS 	 += -DGUI_APP=1
 	LDFLAGS	 += `pkg-config --libs gtkmm-3.0`
 	CXXFLAGS += `pkg-config --cflags gtkmm-3.0`
 endif
@@ -48,13 +49,13 @@ ifeq ($(USE_DCONF), 1)
         endif
 endif
 
-NAME		= customfetch
-TARGET		= $(NAME)
-OLDVERSION	= 0.10.1
-VERSION    	= 0.10.2
-BRANCH     	= $(shell git rev-parse --abbrev-ref HEAD)
-SRC 	   	= $(wildcard src/*.cpp src/query/linux/*.cpp src/query/android/*.cpp src/query/linux/utils/*.cpp)
-OBJ 	   	= $(SRC:.cpp=.o)
+NAME		 = customfetch
+TARGET		?= $(NAME)
+OLDVERSION	 = 0.10.1
+VERSION    	 = 0.10.2
+BRANCH     	 = $(shell git rev-parse --abbrev-ref HEAD)
+SRC 	   	 = $(wildcard src/*.cpp src/query/linux/*.cpp src/query/android/*.cpp src/query/linux/utils/*.cpp)
+OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
@@ -92,22 +93,22 @@ locale:
 	scripts/make_mo.sh locale/
 
 dist: $(TARGET) locale
-ifeq ($(GUI_MODE), 1)
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).desktop locale/ $(TARGET).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+ifeq ($(GUI_APP), 1)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).desktop locale/ $(NAME).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
 else
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(TARGET).1 locale/ assets/ascii/ -C $(BUILDDIR) $(TARGET)
+	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).1 locale/ assets/ascii/ -C $(BUILDDIR) $(TARGET)
 endif
 
 usr-dist: $(TARGET) locale
 	mkdir -p ./usr/bin usr/share/man/man1 ./usr/share/$(NAME) ./usr/share/locale ./usr/share/licenses/$(NAME)
 	cp -f $(BUILDDIR)/$(TARGET) ./usr/bin/
 	cp -f LICENSE ./usr/share/licenses/$(NAME)/
-	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(TARGET).1 > ./usr/share/man/man1/$(TARGET).1
+	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > ./usr/share/man/man1/$(NAME).1
 	cp -rf locale/* ./usr/share/locale/
 	cp -rf assets/ascii/ ./usr/share/$(NAME)/
-ifeq ($(GUI_MODE), 1)
+ifeq ($(GUI_APP), 1)
 	mkdir -p ./usr/share/applications
-	cp -f $(TARGET).desktop ./usr/share/applications/$(TARGET).desktop
+	cp -f $(NAME).desktop ./usr/share/applications/$(NAME).desktop
 endif
 	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz usr/
 
@@ -124,19 +125,19 @@ install: $(TARGET) locale
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 	cd $(DESTDIR)$(PREFIX)/bin/ && ln -sf $(TARGET) cufetch
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
-	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(TARGET).1 > $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
-	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
+	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
+	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
 	find locale/ -type f -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
-ifeq ($(GUI_MODE), 1)
+ifeq ($(GUI_APP), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
-	cp -f $(TARGET).desktop $(DESTDIR)$(APPPREFIX)/$(TARGET).desktop
+	cp -f $(NAME).desktop $(DESTDIR)$(APPPREFIX)/$(NAME).desktop
 endif
 
 uninstall:
 	rm -f  $(DESTDIR)$(PREFIX)/bin/$(TARGET) $(DESTDIR)$(PREFIX)/bin/cufetch
-	rm -f  $(DESTDIR)$(MANPREFIX)/man1/$(TARGET).1
-	rm -f  $(DESTDIR)$(APPPREFIX)/$(TARGET).desktop
+	rm -f  $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
+	rm -f  $(DESTDIR)$(APPPREFIX)/$(NAME).desktop
 	rm -rf $(DESTDIR)$(PREFIX)/share/customfetch/
 
 remove: uninstall
@@ -144,5 +145,6 @@ delete: uninstall
 
 updatever:
 	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
+	sed -i "s#set(VERSION \"$(OLDVERSION)\")#set(VERSION \"$(VERSION)\")#g" CMakeLists.txt android/CMakeLists.txt
 
 .PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all locale

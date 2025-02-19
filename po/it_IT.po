@@ -109,15 +109,6 @@ msgstr "file di configurazione '{}' non esiste"
 msgid "'{}' doesn't exist. Can't load image/text file"
 msgstr "'{}' non esiste. Non posso caricare il file di immagine/testo"
 
-#: src/main.cpp:654
-msgid ""
-"Can't run in GUI mode because it got disabled at compile time\n"
-"Compile customfetch with GUI_MODE=1 or contact your distro to enable it"
-msgstr ""
-"Non posso eseguire in modalità GUI perché è stata disabilitata durante la "
-"compilazione\n"
-"Compila customfetch con GUI_MODE=1 oppure contatta la distro per abilitarla"
-
 #: src/parse.cpp:119
 #, c++-format
 msgid ""
