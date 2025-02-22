@@ -120,10 +120,16 @@ class CustomfetchConfigureActivity : Activity() {
         binding.argumentsConfigure.setText(getArgsPref(this@CustomfetchConfigureActivity, appWidgetId))
         binding.additionalTruncateWidth.setText(getAppSettingsPrefString(this, "additional_truncate"))
         binding.truncateText.isChecked = getAppSettingsPrefBool(this, "always_truncate")
-        binding.argsHelp.text = customfetchRender.mainAndroid("customfetch --help", true)
+        binding.docsHelp.text = customfetchRender.mainAndroid("customfetch --help", true)
 
-        binding.showModulesList.setOnCheckedChangeListener { _, isChecked ->
-            binding.argsHelp.text = customfetchRender.mainAndroid("customfetch ${if (isChecked) "-l" else "-h"}", true)
+        binding.btnArgsHelp.setOnClickListener {
+            binding.docsHelp.text = customfetchRender.mainAndroid("customfetch --help", true)
+        }
+        binding.btnConfigHelp.setOnClickListener {
+            binding.docsHelp.text = customfetchRender.mainAndroid("customfetch --how-it-works", true)
+        }
+        binding.btnModulesHelp.setOnClickListener {
+            binding.docsHelp.text = customfetchRender.mainAndroid("customfetch --list-modules", true)
         }
 
         // set everything of the radio buttons at first configuration from the app.

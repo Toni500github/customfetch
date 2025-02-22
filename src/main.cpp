@@ -86,13 +86,15 @@ static STRING_IF_ANDROID_APP_ELSE(void) version()
 
 static STRING_IF_ANDROID_APP_ELSE(void) help(bool invalid_opt = false)
 {
-    constexpr std::string_view help(R"(Usage: customfetch [OPTIONS]...
+    constexpr std::string_view help(
+R"(Usage: customfetch [OPTIONS]...
 A command-line, GUI app, android widget system information tool (or neofetch like program), which its focus point is customizability and performance.
 
-NOTE: Arguments that takes [<bool>] values, the values can be either: true, 1, enable or leave it empty. Any other value will be treated as false.
+NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1, "enable" or leave it empty. Any other value will be treated as false.
 
     -n, --no-logo [<bool>]      Do not display the logo
     -N, --no-color [<bool>]     Do not output and parse colors. Useful for stdout or pipe operations
+    -L, --logo-only [<bool>]    Print only the logo
     -s, --source-path <path>    Path to the ascii art or image file to display
     -C, --config <path>         Path to the config file to use
     -a, --ascii-logo-type [<type>]
@@ -117,8 +119,8 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: true, 1, e
     -p, --logo-position <value> Position of the logo ("top" or "left" or "bottom")
     -o, --offset <num>          Offset between the ascii art and the layout
     -l. --list-modules          Print the list of the modules and its members
-    -L, --logo-only [<bool>]    Print only the logo
     -h, --help                  Print this help menu
+    -w, --how-it-works          Print how customfetch and the layout variable works
     -V, --version               Print the version along with the git branch it was built
 
     --loop-ms <num>             Execute customfetch in a loop (live mode) every <num> milliseconds.
@@ -279,7 +281,7 @@ theme-gtkN
   font:  gtk font theme name [Noto Sans 10]
 
 # basically as like as the "theme-gtkN" module above
-# but with gtk{{2,3,4}} and auto format gkt version
+# but with gtk{2,3,4} and auto format gkt version
 # note: may be slow because of calling "gsettings" if couldn't read from configs.
 # 	Read theme-gsettings module comments
 theme-gtk-all
@@ -366,6 +368,94 @@ system
     std::exit(EXIT_SUCCESS);
 }
 
+static STRING_IF_ANDROID_APP_ELSE(void) explain_how_this_works()
+{
+    constexpr std::string_view str(
+R"(
+customfetch is designed with customizability in mind
+here is how it works:
+the variable "layout" is used for showing the infos as like as the user want, no limitation.
+inside here there are 5 "tags": $<> $() ${} $[] $%%
+
+The Info tag $<> lets you print the value of a member of a module.
+e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
+
+There are variants who you only need the module name,
+such as $<ram> or $<title>
+All the modules and their members are listed in the `--list-modules` argument
+
+The Bash command tag $() will execute bash commands and print the output.
+e.g $(echo \"hello world\") will indeed echo out hello world.
+you can even use pipes
+e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
+
+The Conditional tag $[] is used to display different outputs based on the comparison.
+syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse]
+note: putting spaces between commas, could change the expected result
+
+Each part can have a tag or anything else.
+e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
+
+This is useful when on some terminal or WM the detection can be different than others
+Or maybe even on holidays for printing special texts
+e.g $[$(date +%d-%m),25-12,${red}Happy ${white}Christmas!,]
+
+The Color tag ${} is used for printing the text of a certain color.
+e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
+The colors can be predefined such as: black, red, green, blue, cyan, yellow, magenta, white.
+They can be configured in the config file.
+
+They can have hex codes colors (e.g "#5522dd").
+You can apply special effects to colors by using the following symbols before the '#' in hex codes:
+
+    Terminal and GUI app                  GUI app only
+* b - for background color.     * o        - for overline
+* u - to  underline the text    * a(value) - for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
+* ! - for bold text             * L(value) - to  underline the text with a style (`none`, `single`, `double`, `low`, `error`)
+* i - for italic text           * U(value) - for choosing the underline color (hexcode color)
+* s - for strikethrough text    * B(value) - for bg color text (hexcode color)
+                                * S(value) - for strikethrough color (hexcode color)
+    Terminal Only               * O(value) - for overline color (hexcode color)
+* l - for blinking text         * A(value) - for bg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
+                                * w(value) - for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
+
+Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[38;2;34;255;11m}.
+
+To reset colors, use ${0} for a normal reset or ${1} for a bold reset.
+
+To use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
+If you're using the GUI app and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
+
+The Percentage tag $%% is used for displaying the percentage between 2 numbers.\
+It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
+For example: $%50,100%
+For inverting colors of bad and great (red and green), before the first '%' put '!'
+without quotes ofc
+
+################################################################
+# Little FAQ
+# Q: Why when I use & or < in the config or ASCII art, it won't work on the GUI app?
+# A: replace "<" with "\\<" in the config, or "\<" in the ascii art. Same goes for &
+#    It won't affect the printing in terminal
+#
+# Q: I want to use `cbonsai` as ASCII art, how do I use it?
+# A: First off, create a text file and there put only `$(!cbonsai -p)`
+#    Save the file and use `-s "/path/to/text/file"`.
+#    Use `--offset` (`-o`) for aligning and put it under the bonsai.
+#
+#    Read the manual customfetch.1 for more infos with $() tag
+#
+# Q: Can I use recursive tags?
+# A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>)>" works,
+#    Then I guess yeah
+################################################################
+
+)");
+
+    RETURN_OR_PRINT(str.data());
+    std::exit(EXIT_SUCCESS);
+}
+
 static bool str_to_bool(const std::string_view str)
 {
     return (str == "true" || str == "1" || str == "enable");
@@ -409,11 +499,12 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhnLlNa::f:o:C:i:d:D:p:s:m:";
+    const char *optstring = "-VhwnLlNa::f:o:C:i:d:D:p:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
         {"list-modules",     no_argument,       0, 'l'},
+        {"how-it-works",     no_argument,       0, 'w'},
         {"logo-only",        optional_argument, 0, 'L'},
         {"no-logo",          optional_argument, 0, 'n'},
         {"no-color",         optional_argument, 0, 'N'},
@@ -460,6 +551,8 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 RETURN_IF_ANDROID_APP help(); break;
             case 'l':
                 RETURN_IF_ANDROID_APP modules_list(); break;
+            case 'w':
+                RETURN_IF_ANDROID_APP explain_how_this_works(); break;
             case 'f':
                 config.font = optarg; break;
             case 'o':
