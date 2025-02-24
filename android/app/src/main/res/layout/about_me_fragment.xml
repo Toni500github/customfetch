@@ -71,7 +71,7 @@
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:paddingHorizontal="20dp"
-        android:text="Creator and maintainer of customfetch.\nA system information fetch tool (or neofetch like program), which its focus point is the performance and customizability"
+        android:text="Creator and maintainer of customfetch.\n(The application and widget you are currently using)"
         android:textColor="@color/subText" />
 
     <!-- Burnt's github -->
@@ -154,6 +154,67 @@
         android:gravity="center"
         android:paddingHorizontal="20dp"
         android:text="They helped me improving the codebase and also helped me with any issues I got. Also they were really patient lol"
+        android:textColor="@color/subText" />
+
+    <!-- Quartzitechunk github and discord -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/quartzitechunk_discord_pfp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/github_mark" />
+
+        <TextView
+            android:id="@+id/quartzitechunk_github_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="4dp"
+            android:text="@string/quartzitechunk_github"
+            android:textColor="#ffffff" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp" >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/discord_mark_blue" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="4dp"
+            android:text="lonewolf_3333"
+            android:textColor="@color/text" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:paddingHorizontal="20dp"
+        android:text="Tested customfetch for android and widget and reportd bugs that could've been CyberPunk 2077 worthy of note before v1.0.0"
         android:textColor="@color/subText" />
 
     <!-- Libraries -->

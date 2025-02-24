@@ -58,6 +58,7 @@ class AboutMeFragment : Fragment() {
         binding.fmtlibGithubLink.movementMethod = LinkMovementMethod.getInstance()
         binding.tomlLibGithubLink.movementMethod = LinkMovementMethod.getInstance()
         binding.colorpickerviewGithubLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.quartzitechunkGithubLink.movementMethod = LinkMovementMethod.getInstance()
 
         return binding.root
     }
