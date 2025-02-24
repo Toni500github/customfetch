@@ -113,7 +113,7 @@
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:paddingHorizontal="10dp"
-        android:text="BestFriend and collaborator of our projects.\nCreated the first prototype of the codebase/program and also helped a lot about anything in tecnical"
+        android:text="BestFriend and collaborator of our projects.\nCreated the first prototype of the codebase/program and also helped a lot about anything in technical"
         android:textColor="@color/subText" />
 
     <!-- BCPP discord server -->
@@ -215,7 +215,7 @@
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:paddingHorizontal="20dp"
-        android:text="Tested customfetch for android and widget and reportd bugs that could've been CyberPunk 2077 worthy of note before v1.0.0"
+        android:text="Tested customfetch for android and widget and reported bugs that could've been CyberPunk 2077 worthy of note before v1.0.0"
         android:textColor="@color/subText" />
 
     <!-- Libraries -->
