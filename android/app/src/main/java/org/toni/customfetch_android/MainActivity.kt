@@ -133,15 +133,13 @@ class MainActivity : AppCompatActivity() {
 
         binding.appVersion.text = "customfetch v${BuildConfig.VERSION_NAME} (${BuildConfig.GIT_COMMIT_HASH}) (${BuildConfig.BUILD_TYPE})"
 
-        var isExpanded = false
-        binding.collapseSocialsBar.setOnClickListener {
-            isExpanded = !isExpanded
-            if (isExpanded) {
-                expandView(binding.collapseSocialsLayout)
-                binding.arrowIcon.animate().rotation(180f).setInterpolator(AccelerateDecelerateInterpolator()).start()
-            } else {
-                collapseView(binding.collapseSocialsLayout)
+        binding.collapseSocialsTitle.setOnClickListener {
+            if (binding.collapseSocialsLayout.isExpanded) {
                 binding.arrowIcon.animate().rotation(0f).setInterpolator(AccelerateDecelerateInterpolator()).start()
+                binding.collapseSocialsLayout.collapse()
+            } else {
+                binding.arrowIcon.animate().rotation(180f).setInterpolator(AccelerateDecelerateInterpolator()).start()
+                binding.collapseSocialsLayout.expand()
             }
         }
     }
@@ -211,42 +209,6 @@ class MainActivity : AppCompatActivity() {
         }
         colorAnimator.start()
         return false
-    }
-
-    private fun expandView(view: View) {
-        view.measure(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        val targetedHeight = view.measuredHeight
-        view.layoutParams.height = 0
-        view.visibility = View.VISIBLE
-
-        val animator = ValueAnimator.ofInt(0, targetedHeight)
-        animator.addUpdateListener { animation ->
-            val value = animation.animatedValue as Int
-            view.layoutParams.height = value
-            view.requestLayout()
-        }
-        animator.duration = 300
-        animator.interpolator = AccelerateDecelerateInterpolator()
-        animator.start()
-    }
-
-    private fun collapseView(view: View) {
-        val initialHeight = view.measuredHeight
-
-        val animator = ValueAnimator.ofInt(initialHeight, 0)
-        animator.addUpdateListener { animation ->
-            val value = animation.animatedValue as Int
-            view.layoutParams.height = value
-            view.requestLayout()
-            if (value == 0)
-                view.visibility = View.GONE
-        }
-        animator.duration = 300
-        animator.interpolator = AccelerateDecelerateInterpolator()
-        animator.start()
     }
 }
 

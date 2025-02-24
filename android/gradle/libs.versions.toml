@@ -2,6 +2,7 @@
 agp = "8.7.2"
 colorpickerpref = "1.1.0"
 colorpickerview = "2.3.0"
+expandablelayout = "2.9.2"
 htmlspanner = "0.4"
 kotlin = "1.9.24"
 coreKtx = "1.15.0"
@@ -20,6 +21,7 @@ preference = "1.2.1"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 colorpickerpref = { module = "com.jaredrummler:colorpicker", version.ref = "colorpickerpref" }
 colorpickerview = { module = "com.github.skydoves:colorpickerview", version.ref = "colorpickerview" }
+expandablelayout = { module = "com.github.cachapa:ExpandableLayout", version.ref = "expandablelayout" }
 htmlspanner = { module = "com.github.NightWhistler:HtmlSpanner", version.ref = "htmlspanner" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
