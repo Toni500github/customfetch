@@ -91,6 +91,7 @@ public:
     // [auto.disk]
     std::string auto_disks_fmt;
     int         auto_disks_types = 0;
+    bool        auto_disks_show_dupl = false;
 
     // [os.uptime]
     std::string uptime_d_fmt;
@@ -334,6 +335,11 @@ fmt = "${auto}Disk (%1): $<disk(%1)>"
 # read-only = Disks with read-only filesystems
 # hidden    = Disks that are not really mounted by the user
 display-types = ["regular", "removable", "read-only"]
+
+# In some OSes such as NixOS or Android, there might be some directories that are bind mounted.
+# Bind mounted directories create an additional view of an existing directory,
+# and `statfs()` on the mount point will return the filesystem statistics of the original directory.
+show-duplicated = false
 
 # $<os.uptime> config
 [os.uptime]

@@ -313,7 +313,7 @@ public:
     { return m_disks_formats; }
 
 private:
-    std::vector<std::string> m_disks_formats;
+    std::vector<std::string> m_disks_formats, m_queried_devices;
     static struct statvfs m_statvfs;
     static Disk_t         m_disk_infos;
 };

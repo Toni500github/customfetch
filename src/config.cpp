@@ -90,6 +90,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
 
     this->auto_disks_fmt = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>", true);
+    this->auto_disks_show_dupl= getValue<bool>("auto.disk.show-duplicated", false); 
 
     this->uptime_d_fmt = getValue<std::string>("os.uptime.days", " days");
     this->uptime_h_fmt = getValue<std::string>("os.uptime.hours", " hours");

@@ -325,7 +325,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
         endspan += ">";
     };
 #else
-    const std::string endspan = (!parse_args.firstrun_clr ? "</span>" : "");
+    const std::string endspan {!parse_args.firstrun_clr ? "</span>" : ""};
 #endif
 
     if (config.m_disable_colors)

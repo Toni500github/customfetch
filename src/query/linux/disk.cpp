@@ -50,6 +50,7 @@
 #include <cstdio>
 #include <cstring>
 #include <unistd.h>
+#include <algorithm>
 #include <string_view>
 
 #include "config.hpp"
@@ -220,6 +221,15 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
             m_disk_infos.types_disk = get_disk_type(pDevice);
             if (!(parse_args.config.auto_disks_types & m_disk_infos.types_disk))
                 continue;
+
+            if (!parse_args.config.auto_disks_show_dupl)
+            {
+                const auto& it = std::find(m_queried_devices.begin(), m_queried_devices.end(), pDevice->mnt_fsname);
+                if (it != m_queried_devices.end())
+                    continue;
+
+                m_queried_devices.push_back(pDevice->mnt_fsname);
+            }
 
             parse_args.no_more_reset = false;
             debug("pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
