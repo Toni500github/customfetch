@@ -166,6 +166,14 @@
                 android:text="Help info tag modules list"
                 android:layout_marginStart="10dp" />
 
+            <Button
+                android:id="@+id/btn_logos_list"
+                style="@style/Widget.AppCompat.Button.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="List of ascii logos"
+                android:layout_marginStart="10dp" />
+
         </LinearLayout>
     </HorizontalScrollView>
 

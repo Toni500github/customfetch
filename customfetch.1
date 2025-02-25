@@ -130,15 +130,15 @@ It will return the regular linux ascii art if it doesn't exist.
 Leave it empty for regular.
 .TP
 \fB\-D\fR, \fB\-\-data\-dir\fR <path>
-Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
+Path to the data directory where we'll take the distros ascii arts and logos (must contain subdirectory called "ascii")
 .TP
 \fB\-d\fR, \fB\-\-distro\fR <name>
-Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
+Print a custom logo from the given \fIdata-dir\fR (uppercase or lowercase, e.g "windows 11" or "ArCh")
 .TP
 \fB\-f\fR, \fB\-\-font\fR <name>
 The font to be used in the GUI app (syntax must be "[FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]" without the square brackets [])
 .br
-An example: "[Liberation Mono] [Normal] [12]", which can be "Liberation Mono Normal 12"
+An example: "[Liberation Mono] [Normal] [12]", which will be "Liberation Mono Normal 12"
 .TP
 \fB\-i\fR, \fB\-\-image\-backend\fR <name>
 \fB\fI(EXPERIMENTAL)\fR Image backend tool for displaying images in terminal. Right now only kitty and viu are supported
@@ -159,7 +159,10 @@ Position of the logo ("top" or "left" or "bottom")
 Offset between the ascii art and the system infos
 .TP
 \fB\-l\fR. \fB\-\-list\-modules\fR
-Print the list of the tags and its members
+Print the list of the info tag modules and its members
+.TP
+\fB\-\-list\-logos\fR
+Print the sorted list of the ascii logos you can you use by the given \fIdata-dir\fR
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 Print this help menu

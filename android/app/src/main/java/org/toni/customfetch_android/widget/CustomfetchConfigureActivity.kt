@@ -131,6 +131,9 @@ class CustomfetchConfigureActivity : Activity() {
         binding.btnModulesHelp.setOnClickListener {
             binding.docsHelp.text = customfetchRender.mainAndroid("customfetch --list-modules", true)
         }
+        binding.btnLogosList.setOnClickListener {
+            binding.docsHelp.text = customfetchRender.mainAndroid("customfetch ${binding.argumentsConfigure.text} --list-logos", true)
+        }
 
         // set everything of the radio buttons at first configuration from the app.
         when (getAppSettingsPrefString(this, "default_bg_color")) {

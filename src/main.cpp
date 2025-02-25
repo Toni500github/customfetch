@@ -24,6 +24,7 @@
  */
 
 #include <getopt.h>
+#include <unistd.h>
 
 #include <cstdlib>
 #include <filesystem>
@@ -104,7 +105,7 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1,
                                 Leave it empty for regular.
 
     -D, --data-dir <path>       Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
-    -d, --distro <name>         Print a custom distro logo (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
+    -d, --distro <name>         Print a custom logo from the given `data-dir` (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
     -f, --font <name>           The font to be used in the GUI app (syntax must be "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" without the double quotes and [])
                                 An example: [Liberation Mono] [Normal] [12], which can be "Liberation Mono Normal 12"
 
@@ -118,7 +119,8 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1,
 
     -p, --logo-position <value> Position of the logo ("top" or "left" or "bottom")
     -o, --offset <num>          Offset between the ascii art and the layout
-    -l. --list-modules          Print the list of the modules and its members
+    -l, --list-modules          Print the list of the info tag modules and its members
+        --list-logos            Print the sorted list of the ascii logos you can you use by the given `data-dir`
     -h, --help                  Print this help menu
     -w, --how-it-works          Print how customfetch and the layout variable works
     -V, --version               Print the version along with the git branch it was built
@@ -456,6 +458,30 @@ without quotes ofc
     std::exit(EXIT_SUCCESS);
 }
 
+static STRING_IF_ANDROID_APP_ELSE(void) list_logos(const Config& config)
+{
+    if (access(config.data_dir.c_str(), F_OK) != 0)
+    {
+#if ANDROID_APP
+        return fmt::format("failed to access data directory {}", config.data_dir);
+#else
+        die("failed to access data directory {}", config.data_dir);
+#endif
+    }
+
+    std::vector<std::string> list;
+    for (const auto& logo : std::filesystem::directory_iterator{config.data_dir+"/ascii"})
+    {
+        if (logo.is_regular_file())
+            list.push_back(logo.path().stem());
+    }
+
+    std::sort(list.begin(), list.end());
+
+    RETURN_OR_PRINT(fmt::format("{}", fmt::join(list, "\n")));
+    std::exit(EXIT_SUCCESS);
+}
+
 static bool str_to_bool(const std::string_view str)
 {
     return (str == "true" || str == "1" || str == "enable");
@@ -519,6 +545,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
         {"source-path",      required_argument, 0, 's'},
         {"image-backend",    required_argument, 0, 'i'},
 
+        {"list-logos",         no_argument,       0, "list-logos"_fnv1a16},
         {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
         {"wrap-lines",         optional_argument, 0, "wrap-lines"_fnv1a16},
         {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
@@ -553,6 +580,8 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 RETURN_IF_ANDROID_APP modules_list(); break;
             case 'w':
                 RETURN_IF_ANDROID_APP explain_how_this_works(); break;
+            case "list-logos"_fnv1a16:
+                RETURN_IF_ANDROID_APP list_logos(config); break;
             case 'f':
                 config.font = optarg; break;
             case 'o':
