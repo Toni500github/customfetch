@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: customfetch 0.10.2\n"
 "Report-Msgid-Bugs-To: https://github.com/Toni500github/customfetch\n"
-"POT-Creation-Date: 2025-01-02 20:18+0100\n"
+"POT-Creation-Date: 2025-02-26 19:00+0100\n"
 "PO-Revision-Date: 2025-01-02 20:18+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/config.cpp:39
+#: src/config.cpp:40
 #, c++-format
 msgid "customfetch config folder was not found, Creating folders at {}!"
 msgstr ""
 "cartella di configurazione di customfetch non è stata trovata, Creando la "
 "cartella in {}!"
 
-#: src/config.cpp:45
+#: src/config.cpp:46
 #, c++-format
 msgid "config file {} not found, generating new one"
 msgstr "file di configurazione {} non trovato, generandone uno nuovo"
 
-#: src/config.cpp:61
+#: src/config.cpp:64
 #, c++-format
 msgid ""
 "Parsing config file '{}' failed:\n"
@@ -39,7 +39,7 @@ msgstr ""
 "Parsificazione del file '{}' fallito:\n"
 "{}\t(errore accaduto alla linea {} colonna {})"
 
-#: src/config.cpp:121
+#: src/config.cpp:126
 msgid ""
 "the config array percentage-colors doesn't have 3 colors for being used in "
 "percentage tag and modules.\n"
@@ -49,12 +49,12 @@ msgstr ""
 "usati nel tag della percentuale e moduli.\n"
 "Utilizzeremo verde, giallo e rosso"
 
-#: src/config.cpp:154
+#: src/config.cpp:174
 #, c++-format
 msgid "an element of the array '{}' is not a string"
 msgstr "un elemento dell'array '{}' non è una stringa"
 
-#: src/config.cpp:168
+#: src/config.cpp:188
 #, fuzzy, c++-format
 msgid ""
 "alias color '{}' does NOT have an equal sign '=' for separating color name "
@@ -65,12 +65,12 @@ msgstr ""
 "e valore.\n"
 "Per altro consulta con l'opzione --help"
 
-#: src/display.cpp:95 src/gui.cpp:73
+#: src/display.cpp:96 src/gui.cpp:73
 #, c++-format
 msgid "Unable to load image '{}'"
 msgstr "Impossibile caricare immagine '{}'"
 
-#: src/display.cpp:124
+#: src/display.cpp:136
 #, c++-format
 msgid ""
 "The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
@@ -81,35 +81,35 @@ msgstr ""
 "momento usate la modalità GUI per caricare immagine/gif (usare -h per più "
 "dettagli)"
 
-#: src/display.cpp:169
+#: src/display.cpp:181
 msgid "getpos: error reading response!"
 msgstr ""
 
-#: src/display.cpp:213
+#: src/display.cpp:225
 #, c++-format
 msgid "Could not open logo file '{}'"
 msgstr "Non è possibile aprire il logo del file '{}'"
 
-#: src/display.cpp:280
+#: src/display.cpp:292
 msgid "images are NOT allowed in the android widget at the moment"
 msgstr "le immagini NON sono consentite nel widget di android al momento"
 
-#: src/gui.cpp:171
+#: src/gui.cpp:188
 #, c++-format
 msgid "Background image path '{}' doesn't exist"
 msgstr "La posizione dell'immagine di sfondo '{}' non esiste"
 
-#: src/main.cpp:382
+#: src/main.cpp:515
 #, c++-format
 msgid "config file '{}' doesn't exist"
 msgstr "file di configurazione '{}' non esiste"
 
-#: src/main.cpp:642
-#, c++-format
-msgid "'{}' doesn't exist. Can't load image/text file"
+#: src/main.cpp:784
+#, fuzzy, c++-format
+msgid "Path '{}' doesn't exist. Can't load logo"
 msgstr "'{}' non esiste. Non posso caricare il file di immagine/testo"
 
-#: src/parse.cpp:119
+#: src/parse.cpp:123
 #, c++-format
 msgid ""
 "Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
@@ -118,7 +118,7 @@ msgstr ""
 "Parser: parsificazione del layout/ascii art fallita: manca 'm' mentre usiamo "
 "codice ANSI escape a colori in '{}'"
 
-#: src/parse.cpp:176
+#: src/parse.cpp:180
 #, c++-format
 msgid ""
 "ANSI escape code color '\\e[{}' should have an rgb type value\n"
@@ -127,7 +127,7 @@ msgstr ""
 "codice ANSI escape a colori '\\e[{}' deve avere un tipo di valore rgb\n"
 "es. \\e[38;2;255;255;255m"
 
-#: src/parse.cpp:180
+#: src/parse.cpp:184
 #, c++-format
 msgid ""
 "Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
@@ -136,55 +136,58 @@ msgstr ""
 "Parser: parsificazione del layout/ascii art fallita: manca 'm' mentre usiamo "
 "codice ANSI escape a colori in '\\e[{}'"
 
-#: src/parse.cpp:409
+#: src/parse.cpp:416
 #, c++-format
 msgid "'{}' mode in color '{}' doesn't have close bracket"
 msgstr "modalità '{}' nel colore '{}' non ha la parentesi chiusa"
 
-#: src/parse.cpp:496 src/parse.cpp:776
+#: src/parse.cpp:504 src/parse.cpp:784
 #, c++-format
 msgid "256 true color '{}' works only in terminal"
 msgstr "colore '{}' funziona solo sul terminale"
 
-#: src/parse.cpp:510 src/parse.cpp:604 src/parse.cpp:794
+#: src/parse.cpp:518 src/parse.cpp:612 src/parse.cpp:802
 #, c++-format
 msgid "PARSER: failed to parse line with color '{}'"
 msgstr "PARSER: parsificazzione della line con colore '{}' fallito"
 
-#: src/parse.cpp:667
+#: src/parse.cpp:675
 #, c++-format
 msgid "{} mode in tag color {} doesn't have close bracket"
-msgstr ""
+msgstr "la modalità {} nel tag del colore {} non ha un chiudi parentesi"
 
-#: src/parse.cpp:859
+#: src/parse.cpp:867
 #, c++-format
 msgid "percentage tag '{}' doesn't have a comma for separating the 2 numbers"
-msgstr ""
+msgstr "il tag percentuale '{}' non tiene una virgola per separare i 2 numeri"
 
-#: src/parse.cpp:904
+#: src/parse.cpp:912
 #, c++-format
 msgid "PARSER: Missing tag close bracket {} in string '{}'"
-msgstr ""
+msgstr "PARSER: tag chiudi parentesi {} mancate nella stringa '{}'"
 
-#: src/parse.cpp:1337
+#: src/parse.cpp:1324
 #, c++-format
 msgid ""
 "seems theme-gtk module name '{}' doesn't have a version number to query.\n"
 "Syntax should be like 'theme_gtkN' which N stands for the version of gtk to "
 "query (single number)"
 msgstr ""
+"sembra che il modulo theme-gtk con nome '{}' non contiene una versione per fare la query.\n"
+"La sintassi deve essere come 'theme_gtkN' dove N è la versione di gtk per fare la "
+"query (numero a singola cifra)"
 
-#: src/parse.cpp:1411 src/parse.cpp:1669
+#: src/parse.cpp:1393 src/parse.cpp:1722
 #, c++-format
 msgid "invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)"
-msgstr ""
+msgstr "invalido nome del modulo disco '{}', deve essere come disk(/path/to/fs) e.g: disk(/)"
 
-#: src/parse.cpp:1590 src/parse.cpp:1853
+#: src/parse.cpp:1643 src/parse.cpp:1938
 #, c++-format
 msgid "Invalid module name: {}"
-msgstr ""
+msgstr "Nome modulo invalido: {}"
 
-#: src/parse.cpp:1812
+#: src/parse.cpp:1897
 #, c++-format
 msgid ""
 "color palette module member '{}' in invalid.\n"
@@ -192,7 +195,7 @@ msgid ""
 "e.g 'colors_symbol(@)' or 'colors_symbol(string)'"
 msgstr ""
 
-#: src/parse.cpp:1836
+#: src/parse.cpp:1921
 #, c++-format
 msgid ""
 "light color palette module member '{}' in invalid.\n"
@@ -207,99 +210,102 @@ msgstr ""
 
 #: src/util.cpp:97
 msgid "FATAL: $HOME enviroment variable is not set (how?)"
-msgstr ""
+msgstr "FATAL: la variabile di ambiente $HOME non è stata imposta (come?)"
 
 #: src/util.cpp:115
 #, c++-format
 msgid "No such enviroment variable: {}"
-msgstr ""
+msgstr "Variabile di ambiente non esistente: {}"
 
-#: src/util.cpp:130
+#: src/util.cpp:131
 #, c++-format
 msgid "Failed to open {}"
-msgstr ""
+msgstr "Non si è riusciti ad aprite {}"
 
-#: src/util.cpp:360
+#: src/util.cpp:366
 #, c++-format
 msgid "pipe() failed: {}"
 msgstr ""
 
-#: src/util.cpp:389 src/util.cpp:449
+#: src/util.cpp:395 src/util.cpp:455
 #, c++-format
 msgid "Failed to execute the command: {}"
-msgstr ""
+msgstr "Non si è riusciti ad eseguire il commando: {}"
 
-#: src/util.cpp:402
+#: src/util.cpp:408
 #, c++-format
 msgid "An error has occurred with execvp: {}"
 msgstr ""
 
-#: src/util.cpp:408 src/util.cpp:427
+#: src/util.cpp:414 src/util.cpp:433
 #, c++-format
 msgid "fork() failed: {}"
 msgstr ""
 
-#: src/util.cpp:437
+#: src/util.cpp:443
 #, c++-format
 msgid "An error has occurred: {}: {}"
 msgstr ""
 
-#: src/util.cpp:562
+#: src/util.cpp:568
 #, c++-format
 msgid "popen() failed: {}"
 msgstr ""
 
-#: src/util.cpp:630
+#: src/util.cpp:636
 msgid "Failed to find $HOME, set it to your home directory!"
-msgstr ""
+msgstr "Non si è riusciti a trovare la variabile di ambiente $HOME, impostala nella cartella della tua /home!"
 
-#: src/query/linux/cpu.cpp:282
+#: src/query/linux/cpu.cpp:508
 #, c++-format
 msgid "Could not open {}"
-msgstr ""
+msgstr "Non si è riusciti ad aprire {}"
 
-#: src/query/linux/disk.cpp:62
-msgid "setmntent"
-msgstr ""
-
-#: src/query/linux/disk.cpp:63
+#: src/query/linux/disk.cpp:209
 msgid "setmntent() failed. Could not get disk info"
-msgstr ""
+msgstr "setmntent() failed. Non si è riusciti ad avere le informazioni del disco"
 
-#: src/query/linux/disk.cpp:85
-msgid "Failed to get disk info"
-msgstr ""
+#: src/query/linux/disk.cpp:267
+#, c++-format
+msgid "Failed to get disk info at {}"
+msgstr "Non si è riusciti ad avere le informazioni del disco in {}"
 
 #: src/query/linux/gpu.cpp:104
 msgid "Failed to parse GPU infos on the path /sys/class/drm/"
-msgstr ""
+msgstr "Non si è riusciti ad esaminare le info della GPU nelle cartelle di /sys/class/drm/"
 
-#: src/query/linux/ram.cpp:59
+#: src/query/linux/ram.cpp:62
 #, c++-format
 msgid ""
 "Could not open {}\n"
 "Failed to get RAM infos"
 msgstr ""
+"Non si è riusciti ad aprire {}\n"
+"Non si è riusciti ad avere le informazioni della RAM"
 
-#: src/query/linux/system.cpp:98
+#: src/query/linux/system.cpp:94
 msgid "Failed to get OS infos"
-msgstr ""
+msgstr "Non si è riusciti ad avere le informazioni dell'OS"
 
-#: src/query/linux/system.cpp:172
+#: src/query/linux/system.cpp:168
 #, c++-format
 msgid ""
 "uname() failed: {}\n"
 "Could not get system infos"
 msgstr ""
+"uname() failed: {}\n"
+"Non si è riusciti ad avere le informazioni del sistema"
 
-#: src/query/linux/system.cpp:175
+#: src/query/linux/system.cpp:171
 #, c++-format
 msgid ""
 "sysinfo() failed: {}\n"
 "Could not get system infos"
 msgstr ""
+"sysinfo() failed: {}\n"
+"Non si è riusciti ad avere le informazioni del sistema"
 
-#: src/query/linux/system.cpp:236
+#: src/query/linux/system.cpp:233
 msgid "/proc/1/comm doesn't exist! (what?)"
 msgstr ""
 
@@ -308,18 +314,24 @@ msgid ""
 "customfetch could not detect a gtk configuration file. customfetch will use "
 "the much-slower gsettings."
 msgstr ""
+"customfetch non è riuscito ad identificare il file di configurazione gtk. utilizzeremo "
+"il comando lento gsettings."
 
 #: src/query/linux/theme.cpp:180 src/query/linux/theme.cpp:382
 msgid ""
 "If there's a file in a standard location that we aren't detecting, please "
 "file an issue on our GitHub."
 msgstr ""
+"Se c'è un file in una luogo standard che non siamo riusciti ad identificare, per favore "
+"compilare un issue sul nostro Github"
 
 #: src/query/linux/theme.cpp:383
 msgid ""
 "You can disable this warning by disabling slow-query-warnings in your "
 "config.toml file."
 msgstr ""
+"Puoi disabilitare questo avvertimento disabilitando 'slow-query-warnings' nel tuo "
+"file di configurazione"
 
 #: src/query/linux/user.cpp:331
 #, c++-format
@@ -327,7 +339,9 @@ msgid ""
 "getpwent failed: {}\n"
 "Could not get user infos"
 msgstr ""
+"getpwent() failed: {}\n"
+"Non si è riusciti ad avere le informazioni dell'utente"
 
-#: src/query/linux/utils/dewm.cpp:201
+#: src/query/linux/utils/dewm.cpp:202
 msgid "Root node <mate-version> not found"
 msgstr ""

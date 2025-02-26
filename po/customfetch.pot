@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: customfetch 0.10.2\n"
 "Report-Msgid-Bugs-To: https://github.com/Toni500github/customfetch\n"
-"POT-Creation-Date: 2025-01-02 20:18+0100\n"
+"POT-Creation-Date: 2025-02-26 19:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,17 +17,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/config.cpp:39
+#: src/config.cpp:40
 #, c++-format
 msgid "customfetch config folder was not found, Creating folders at {}!"
 msgstr ""
 
-#: src/config.cpp:45
+#: src/config.cpp:46
 #, c++-format
 msgid "config file {} not found, generating new one"
 msgstr ""
 
-#: src/config.cpp:61
+#: src/config.cpp:64
 #, c++-format
 msgid ""
 "Parsing config file '{}' failed:\n"
@@ -35,19 +35,19 @@ msgid ""
 "\t(error occurred at line {} column {})"
 msgstr ""
 
-#: src/config.cpp:121
+#: src/config.cpp:126
 msgid ""
 "the config array percentage-colors doesn't have 3 colors for being used in "
 "percentage tag and modules.\n"
 "Backing up to green, yellow and red"
 msgstr ""
 
-#: src/config.cpp:154
+#: src/config.cpp:174
 #, c++-format
 msgid "an element of the array '{}' is not a string"
 msgstr ""
 
-#: src/config.cpp:168
+#: src/config.cpp:188
 #, c++-format
 msgid ""
 "alias color '{}' does NOT have an equal sign '=' for separating color name "
@@ -55,12 +55,12 @@ msgid ""
 "For more check with --help"
 msgstr ""
 
-#: src/display.cpp:95 src/gui.cpp:73
+#: src/display.cpp:96 src/gui.cpp:73
 #, c++-format
 msgid "Unable to load image '{}'"
 msgstr ""
 
-#: src/display.cpp:124
+#: src/display.cpp:136
 #, c++-format
 msgid ""
 "The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
@@ -68,86 +68,86 @@ msgid ""
 "more details)"
 msgstr ""
 
-#: src/display.cpp:169
+#: src/display.cpp:181
 msgid "getpos: error reading response!"
 msgstr ""
 
-#: src/display.cpp:213
+#: src/display.cpp:225
 #, c++-format
 msgid "Could not open logo file '{}'"
 msgstr ""
 
-#: src/display.cpp:280
+#: src/display.cpp:292
 msgid "images are NOT allowed in the android widget at the moment"
 msgstr ""
 
-#: src/gui.cpp:171
+#: src/gui.cpp:188
 #, c++-format
 msgid "Background image path '{}' doesn't exist"
 msgstr ""
 
-#: src/main.cpp:382
+#: src/main.cpp:515
 #, c++-format
 msgid "config file '{}' doesn't exist"
 msgstr ""
 
-#: src/main.cpp:642
+#: src/main.cpp:784
 #, c++-format
-msgid "'{}' doesn't exist. Can't load image/text file"
+msgid "Path '{}' doesn't exist. Can't load logo"
 msgstr ""
 
-#: src/parse.cpp:119
+#: src/parse.cpp:123
 #, c++-format
 msgid ""
 "Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
 "escape code in '{}'"
 msgstr ""
 
-#: src/parse.cpp:176
+#: src/parse.cpp:180
 #, c++-format
 msgid ""
 "ANSI escape code color '\\e[{}' should have an rgb type value\n"
 "e.g \\e[38;2;255;255;255m"
 msgstr ""
 
-#: src/parse.cpp:180
+#: src/parse.cpp:184
 #, c++-format
 msgid ""
 "Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color "
 "escape code in '\\e[{}'"
 msgstr ""
 
-#: src/parse.cpp:409
+#: src/parse.cpp:416
 #, c++-format
 msgid "'{}' mode in color '{}' doesn't have close bracket"
 msgstr ""
 
-#: src/parse.cpp:496 src/parse.cpp:776
+#: src/parse.cpp:504 src/parse.cpp:784
 #, c++-format
 msgid "256 true color '{}' works only in terminal"
 msgstr ""
 
-#: src/parse.cpp:510 src/parse.cpp:604 src/parse.cpp:794
+#: src/parse.cpp:518 src/parse.cpp:612 src/parse.cpp:802
 #, c++-format
 msgid "PARSER: failed to parse line with color '{}'"
 msgstr ""
 
-#: src/parse.cpp:667
+#: src/parse.cpp:675
 #, c++-format
 msgid "{} mode in tag color {} doesn't have close bracket"
 msgstr ""
 
-#: src/parse.cpp:859
+#: src/parse.cpp:867
 #, c++-format
 msgid "percentage tag '{}' doesn't have a comma for separating the 2 numbers"
 msgstr ""
 
-#: src/parse.cpp:904
+#: src/parse.cpp:912
 #, c++-format
 msgid "PARSER: Missing tag close bracket {} in string '{}'"
 msgstr ""
 
-#: src/parse.cpp:1337
+#: src/parse.cpp:1324
 #, c++-format
 msgid ""
 "seems theme-gtk module name '{}' doesn't have a version number to query.\n"
@@ -155,17 +155,17 @@ msgid ""
 "query (single number)"
 msgstr ""
 
-#: src/parse.cpp:1411 src/parse.cpp:1669
+#: src/parse.cpp:1393 src/parse.cpp:1722
 #, c++-format
 msgid "invalid disk module name '{}', must be disk(/path/to/fs) e.g: disk(/)"
 msgstr ""
 
-#: src/parse.cpp:1590 src/parse.cpp:1853
+#: src/parse.cpp:1643 src/parse.cpp:1938
 #, c++-format
 msgid "Invalid module name: {}"
 msgstr ""
 
-#: src/parse.cpp:1812
+#: src/parse.cpp:1897
 #, c++-format
 msgid ""
 "color palette module member '{}' in invalid.\n"
@@ -173,7 +173,7 @@ msgid ""
 "e.g 'colors_symbol(@)' or 'colors_symbol(string)'"
 msgstr ""
 
-#: src/parse.cpp:1836
+#: src/parse.cpp:1921
 #, c++-format
 msgid ""
 "light color palette module member '{}' in invalid.\n"
@@ -195,92 +195,89 @@ msgstr ""
 msgid "No such enviroment variable: {}"
 msgstr ""
 
-#: src/util.cpp:130
+#: src/util.cpp:131
 #, c++-format
 msgid "Failed to open {}"
 msgstr ""
 
-#: src/util.cpp:360
+#: src/util.cpp:366
 #, c++-format
 msgid "pipe() failed: {}"
 msgstr ""
 
-#: src/util.cpp:389 src/util.cpp:449
+#: src/util.cpp:395 src/util.cpp:455
 #, c++-format
 msgid "Failed to execute the command: {}"
 msgstr ""
 
-#: src/util.cpp:402
+#: src/util.cpp:408
 #, c++-format
 msgid "An error has occurred with execvp: {}"
 msgstr ""
 
-#: src/util.cpp:408 src/util.cpp:427
+#: src/util.cpp:414 src/util.cpp:433
 #, c++-format
 msgid "fork() failed: {}"
 msgstr ""
 
-#: src/util.cpp:437
+#: src/util.cpp:443
 #, c++-format
 msgid "An error has occurred: {}: {}"
 msgstr ""
 
-#: src/util.cpp:562
+#: src/util.cpp:568
 #, c++-format
 msgid "popen() failed: {}"
 msgstr ""
 
-#: src/util.cpp:630
+#: src/util.cpp:636
 msgid "Failed to find $HOME, set it to your home directory!"
 msgstr ""
 
-#: src/query/linux/cpu.cpp:282
+#: src/query/linux/cpu.cpp:508
 #, c++-format
 msgid "Could not open {}"
 msgstr ""
 
-#: src/query/linux/disk.cpp:62
-msgid "setmntent"
-msgstr ""
-
-#: src/query/linux/disk.cpp:63
+#: src/query/linux/disk.cpp:209
 msgid "setmntent() failed. Could not get disk info"
 msgstr ""
 
-#: src/query/linux/disk.cpp:85
-msgid "Failed to get disk info"
+#: src/query/linux/disk.cpp:267
+#, c++-format
+msgid "Failed to get disk info at {}"
 msgstr ""
 
 #: src/query/linux/gpu.cpp:104
 msgid "Failed to parse GPU infos on the path /sys/class/drm/"
 msgstr ""
 
-#: src/query/linux/ram.cpp:59
+#: src/query/linux/ram.cpp:62
 #, c++-format
 msgid ""
 "Could not open {}\n"
 "Failed to get RAM infos"
 msgstr ""
 
-#: src/query/linux/system.cpp:98
+#: src/query/linux/system.cpp:94
 msgid "Failed to get OS infos"
 msgstr ""
 
-#: src/query/linux/system.cpp:172
+#: src/query/linux/system.cpp:168
 #, c++-format
 msgid ""
 "uname() failed: {}\n"
 "Could not get system infos"
 msgstr ""
 
-#: src/query/linux/system.cpp:175
+#: src/query/linux/system.cpp:171
 #, c++-format
 msgid ""
 "sysinfo() failed: {}\n"
 "Could not get system infos"
 msgstr ""
 
-#: src/query/linux/system.cpp:236
+#: src/query/linux/system.cpp:233
 msgid "/proc/1/comm doesn't exist! (what?)"
 msgstr ""
 
@@ -309,6 +306,6 @@ msgid ""
 "Could not get user infos"
 msgstr ""
 
-#: src/query/linux/utils/dewm.cpp:201
+#: src/query/linux/utils/dewm.cpp:202
 msgid "Root node <mate-version> not found"
 msgstr ""
