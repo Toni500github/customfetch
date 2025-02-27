@@ -1,47 +1,126 @@
 customfetch (0.10.2-1) unstable; urgency=medium
 
-  * bump version to 0.10.2-1 (bugfix)
+  * project: rename references `cufetch` -> `customfetch`
+  * parse: add `$<os.name_id>`
+  * main: fix `ascii-logo-type`
+  * assets: fix debian_small.txt
+  * makefile: fix make dist GUI_MODE=1
+  * assets: move the config-examples and screenshots in root directory
+  * misc: update screenshots/cbonsai.png and configs
 
- -- toni500 <toni500minecraft@gmail.com> Wed, 6 Nov 16:43:21 +0100
+ -- toni500 <tonino512@linuxmail.org> Wed, 6 Nov 16:43:21 +0100
 
 customfetch (0.10.1-1) unstable; urgency=medium
 
-  * bump version to 0.10.1-1 (bugfix)
+  * display: fully fix alignment with all unicode logos
+  * parse: fix regression about `$()` and other tags
+  * misc: add license notice in source files
+  * assets: add cachyos
+  * parse: make GUI only hexcolor options accept the hashtag `#`
+  * libs: update pci.ids.hpp and {fmt}
 
- -- toni500 <toni500minecraft@gmail.com> Sat, 2 Nov 22:31:43 +0100
+ -- toni500 <tonino512@linuxmail.org> Sat, 2 Nov 22:31:43 +0100
 
 customfetch (0.10.0-1) unstable; urgency=medium
 
-  * bump version to 0.10.0-1
+  * assets: fix ALL current ascii arts
+  * parse: add recursive tags support
+  * display: add no-line wrapping
+  * display: add image as logo support in terminal
+  * makefile: add `USE_DCONF`
+  * parse (args): add `--no-color` and `--layout-line`
+  * query: theme: add new info tag module name `$<theme-gsettings>`
+  * query: theme: add new info tag module member `$<theme.cursor>`
+  * query: user: add new info tag module member `$<user.wm_version>`
+  * parse: add SI and IEC byte units
+  * config: add `percentage-color`
+  * gui: make config `bg-image` accept gifs too
+  * config: add `--color` as a config setting (similiar to `alias-colors`)
+  * parse: add more color option modes in color tags
+  * parse (gui): add `\e[38` and `\e[48` ANSI code color converter (only in rgb way)
+  * query: user: fast detect konsole version
+  * query: theme: add support for `gtkrc-v.0-kde` and `gtkrc-v.0-kde4` (thanks @BurntRanch)
+  * display: parse the distro ASCII art colors when using `--source-path` and specify `--distro`
+  * config: add `NO_COLOR` eviroment variable support
+  * util: add `get_data_path()` for looking the data dirs instead of hardcode `/usr/share`
+  * config and args: add `logo-position`
+  * query: user: fix/improve terminal version detection
+  * query: user: some little changes and fixes to terminal query
+  * query: user: workaround for terminals on NixOS that doesn't have "wrapped" at the end
+  * parse (gui): fix color parsing by closing the `<span>` tag before a new one
+  * parse: fix aligning if failed to parse color tag
+  * gui: fix resizing of window when `bg-image` or logo is image
+  * rename info modules names `$<user.term>` to `$<user.terminal>` and `$<theme.cursor>` to `$<theme.cursor_name>`
+  * `$<theme.cursor>` auto displaies `$<theme.cursor_size>` if not (unknow)
+  * query: convert `float` values to `double`
+  * misc: update LICENSE from GPLv3 to BSD-3 Clause
+  * query: gpu: separate vendor from `$<gpu.name>` + add $<gpu.vendor_long>
+  * parse: refactor the parser (thanks you @lapinozz)
+  * libs: update pci.ids.hpp and {fmt}
 
- -- toni500 <toni500minecraft@gmail.com> Mon, 28 Oct 17:39:14 +0100
+ -- toni500 <tonino512@linuxmail.org> Mon, 28 Oct 17:39:14 +0100
 
 customfetch (0.9.3-1) unstable; urgency=medium
 
-  * bump version to 0.9.3-1
+  * parse (ascii art): fully fix alignment and GUI mode with escaping in some ascii arts
+  * parse: fix ASCII arts that has commands such as cbonsai
+  * assets: fix most ascii arts
+  * make customfetch compilable in C++17
 
- -- toni500 <toni500minecraft@gmail.com>  Sat, 14 Sep 16:01:56 +0100
+ -- toni500 <tonino512@linuxmail.org>  Sat, 14 Sep 16:01:56 +0100
 
 customfetch (0.9.2-1) unstable; urgency=medium
 
-  * bump version to 0.9.2-1
+  * doc: renamed components ($<> $() etc.) -> tags
+  * doc: renamed submodule -> module members ($<module.member>)
+  * changed "vocabulary" and improved documentation
+  * add conditional tag $[]
+  * add percentage tag $%%
+  * add new config `sep-reset-after`
+  * add new info module tag `$<disk().mountdir>` and `$<disk().device>`
+  * add `builtin` module
+  * add `_perc` modules members for disk, ram and swap
+  * gui: parse distro ascii art for getting auto colors instead of using always white
+  * query lsb-release as backup in `os` module members
+  * detect st terminal version from binary
+  * fix path with config `ascii-logo-type`
+  * libs: update {fmt}
+  * makefile: don't add optimization flag if already set
+  * separate `$<ram.swap>` members modules into it's own info tag module `swap`
+  * rename `sep_title` to `title_sep`
 
- -- toni500 <toni500minecraft@gmail.com>  Wed, 11 Sep 12:46:54 +0100
+ -- toni500 <tonino512@linuxmail.org>  Wed, 11 Sep 12:46:54 +0100
 
 customfetch (0.9.0-1) unstable; urgency=medium
 
-  * bump version to 0.9.0-1
+  * fix the bug of the color components `${0}` and `${1}` from previous release for the layout too
+  * fix aligning ascii art and layout
+  * fix bug for gui mode where span tags would be replaced like &lt;span>
+  * add multiple color options in hexcodes colors
+  * install cufetch.desktop (only if compiled with GUI_MODE=1)
+  * add `--sep-reset` and `--sep-title`
+  * add new info component module `$<user.sep_title>`
+  * add `uninstall` to Makefile
+  * fix prettify_wm_name()
 
- -- toni500 <toni500minecraft@gmail.com>  Sun, 1 Sep 2024 17:05:08 +0100
+ -- toni500 <tonino512@linuxmail.org>  Sun, 1 Sep 2024 17:05:08 +0100
 
 customfetch (0.8.8-1) unstable; urgency=medium
 
-  * bump version to 0.8.8-1
+  * fix bug when the source logo has ${1} or ${0} at start in GUI mode
+  * add new info component module `$<os.initsys_version>`
+  * add new config `logo-padding-left`
+  * add new config `ascii-logo-type`
+  * add new config `layout-padding-top`
+  * add pkg managers specific paths
+  * prettify DE names
+  * add -KiB variants for RAM and Disk info component modules
+  * improve info component module `$<user.wm_name>` query
 
- -- toni500 <toni500minecraft@gmail.com>  Mon, 26 Aug 2024 19:36:26 +0100
+ -- toni500 <tonino512@linuxmail.org>  Mon, 26 Aug 2024 19:36:26 +0100
 
 customfetch (0.8.6-1) unstable; urgency=medium
 
   * Initial release
 
- -- toni500 <toni500minecraft@gmail.com>  Wed, 21 Aug 2024 11:46:42 +0100
+ -- toni500 <tonino512@linuxmail.org>  Wed, 21 Aug 2024 11:46:42 +0100
