@@ -1,4 +1,5 @@
 CXX       	?= g++
+TAR		?= bsdtar
 PREFIX	  	?= /usr
 MANPREFIX	?= $(PREFIX)/share/man
 APPPREFIX 	?= $(PREFIX)/share/applications
@@ -94,23 +95,16 @@ locale:
 
 dist: $(TARGET) locale
 ifeq ($(GUI_APP), 1)
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).desktop locale/ $(NAME).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+	$(TAR) -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).desktop locale/ $(NAME).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
 else
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).1 locale/ assets/ascii/ -C $(BUILDDIR) $(TARGET)
+	$(TAR) -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).1 locale/ assets/ascii/ -C $(BUILDDIR) $(TARGET)
 endif
 
 usr-dist: $(TARGET) locale
-	mkdir -p ./usr/bin usr/share/man/man1 ./usr/share/$(NAME) ./usr/share/locale ./usr/share/licenses/$(NAME)
-	cp -f $(BUILDDIR)/$(TARGET) ./usr/bin/
-	cp -f LICENSE ./usr/share/licenses/$(NAME)/
-	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > ./usr/share/man/man1/$(NAME).1
-	cp -rf locale/* ./usr/share/locale/
-	cp -rf assets/ascii/ ./usr/share/$(NAME)/
-ifeq ($(GUI_APP), 1)
-	mkdir -p ./usr/share/applications
-	cp -f $(NAME).desktop ./usr/share/applications/$(NAME).desktop
-endif
-	bsdtar -zcf $(NAME)-v$(VERSION).tar.gz usr/
+	mkdir -p $(PWD)/usr
+	make install DESTDIR=$(PWD) PREFIX=/usr
+	$(TAR) -zcf $(NAME)-v$(VERSION).tar.gz usr/
+	rm -rf usr/
 
 clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/libcustomfetch.a $(OBJ)
@@ -127,6 +121,7 @@ install: $(TARGET) locale
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
+	install LICENSE -Dm 644 $(DESTDIR)$(PREFIX)/share/licenses/$(NAME)/LICENSE
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
 	find locale/ -type f -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
 ifeq ($(GUI_APP), 1)
