@@ -170,11 +170,11 @@ static std::string format_auto_query_string(std::string str, const struct mntent
     replace_str(str, "%2", device->mnt_fsname);
     replace_str(str, "%3", device->mnt_type);
 
-    replace_str(str, "%4", "$<disk(%1).total>");
-    replace_str(str, "%5", "$<disk(%1).free>");
-    replace_str(str, "%6", "$<disk(%1).used>");
-    replace_str(str, "%7", "$<disk(%1).used_perc>");
-    replace_str(str, "%8", "$<disk(%1).free_perc>");
+    replace_str(str, "%4", fmt::format("$<disk({}).total>", device->mnt_dir));
+    replace_str(str, "%5", fmt::format("$<disk({}).free>", device->mnt_dir));
+    replace_str(str, "%6", fmt::format("$<disk({}).used>", device->mnt_dir));
+    replace_str(str, "%7", fmt::format("$<disk({}).used_perc>", device->mnt_dir));
+    replace_str(str, "%8", fmt::format("$<disk({}).free_perc>", device->mnt_dir));
 
     return str;
 }
@@ -232,7 +232,7 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
             }
 
             parse_args.no_more_reset = false;
-            debug("pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
+            debug("AUTO: pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
             m_disks_formats.push_back(
                 parse(format_auto_query_string(parse_args.config.auto_disks_fmt, pDevice), parse_args)
             );

@@ -1,80 +1,10 @@
 [config]
-# customfetch is designed with customizability in mind
-# here is how it works:
-# the variable "layout" is used for showing the infos
-# as like as the user want, no limitation.
-# inside here there are 5 "tags": $<> $() ${} $[] $%%
 
-# The Info tag $<> lets you print the value of a member of a module.
-# e.g $<user.name> will print the username, $<os.kernel_version> will print the kernel version and so on.
-# All the modules and their members are listed in the `--list-modules` argument
-
-# The Bash command tag $() will execute bash commands and print the output.
-# e.g $(echo \"hello world\") will indeed echo out hello world.
-# you can even use pipes
-# e.g $(echo \"hello world\" | cut -d' ' -f2) will only print world
-
-# The Conditional tag $[] is used to display different outputs based on the comparison.
-# syntax MUST be $[something,equalToSomethingElse,iftrue,ifalse]
-# note: putting spaces between commas, could change the expected result
-#
-# Each part can have a tag or anything else.
-# e.g $[$<user.name>,$(echo $USER),the name is correct,the name is NOT correct]
-#
-# This is useful when on some terminal or WM the detection can be different than others
-# Or maybe even on holidays for printing special texts
-# e.g $[$(date +%d-%m),25-12,${red}Happy ${white}Christmas!,]
-
-# The Color tag ${} is used for printing the text of a certain color.
-# e.g "${red}hello world" will indeed print "hello world" in red (or the color you set in the variable)
-# The colors can be predefined such as: black, red, green, blue, cyan, yellow, magenta, white.
-# They can be configured in the config file.
-#
-# They can have hexcodes colors (e.g "#5522dd").
-# You can apply special effects to colors by using the following symbols before the '#' in hex codes:
-#
-#     Terminal and GUI                          GUI Only
-# * b - for background color.     * o        - for overline
-# * u - to  underline the text    * a(value) - for fg alpha (either a plain integer between 1 and 65536 or a percentage value like `50%`)
-# * ! - for bold text             * L(value) - to  underline the text with a style (`none`, `single`, `double`, `low`, `error`)
-# * i - for italic text           * U(value) - for choosing the underline color (hexcode without #)
-# * s - for strikethrough text    * B(value) - for bg color text (same value as above)
-#                                 * S(value) - for strikethrough color (same value as above)
-#     Terminal Only               * O(value) - for overline color (same value as above)
-# * l - for blinking text         * A(value) - for bg alpha (same value as a(value))
-#                                 * w(value) - for specify font weight (`ultralight`, `light`, `normal`, `bold`, `ultrabold`, `heavy`, or a numeric weight)
-#
-# Alternatively, ANSI escape codes can be used, e.g ${\e[1;32m} or ${\e[38;2;34;255;11m}.
-#
-# To reset colors, use ${0} for a normal reset or ${1} for a bold reset.
-#
-# To use the colors that the ascii art logo uses, use ${auto} for getting the 1st color, ${auto4} for the 4th one and so on.
-# If you're using GUI mode and wants to display a custom source that's an image, all the auto colors will be the same colors as the distro ones
-
-# The Percentage tag $%% is used for displaying the percentage between 2 numbers.\
-# It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
-# For example: $%50,100%
-# For inverting colors of bad and great (red and green), before the first '%' put '!'
-# without quotes ofc
-
-################################################################
-# Little FAQ
-# Q: Why when I use & or < in the config or ASCII art, it won't work on GUI mode?
-# A: replace "<" with "\\<" in the config, or "\<" in the ascii art. Same goes for &
-#    It won't affect the printing in terminal
-#
-# Q: I want to use `cbonsai` as ASCII art, how do I use it?
-# A: First off, create a text file and there put only `$(!cbonsai -p)`
-#    Save the file and use `-s "/path/to/text/file"`.
-#    Use `--offset` (`-o`) for aligning and put it under the bonsai.
-#
-#    Read the manual customfetch.1 for more infos with $() tag
-#
-# Q: Can I run recursive tags?
-# A: If "$<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>).disk>" works,
-#    Then I guess yeah
-################################################################
-
+# For more information on how customfetch works and the layout,
+# Read either:
+# * -w or --how-it-works
+# * the manual customfetch.1
+# * if on the android app, click the button "how it works" during widget configuration
 
 # Inspired by nitch default config
 # and this reddit post https://www.reddit.com/r/unixporn/comments/1eedqnm/gnome_clean_daily_driver/
@@ -88,10 +18,10 @@ layout = [
 	"│${red}   ${0}shell  │ ${red} $<user.shell>",
 	"│${!#FF5F1F} 󰏖  ${0}pkgs   │ ${!#FF5F1F} $<os.pkgs>",
 	"│${yellow}  ${0} CPU    │ ${yellow} $<cpu.name>",
-	"│${green}  ${0} GPU    │ ${green} $<gpu.vendor> $<gpu.name>",
+	"│${green}  ${0} GPU    │ ${green} $<gpu>",
 	"│${magenta} 󰍛 ${0} memory │ ${magenta} $<ram.used> / $<ram.total>",
 	"├───────────┤",
-	"│ 󰏘 colors  │  $<builtin.colors_symbol( )>",
+	"│ 󰏘 colors  │  $<colors_symbol( )>",
 	"╰───────────╯"
 ]
 
@@ -111,7 +41,7 @@ data-dir = "/usr/share/customfetch"
 # Leave empty it for regular.
 ascii-logo-type = "small"
 
-# A char (or string) to use in $<builtin.title_sep>
+# A char (or string) to use in $<title_sep>
 title-sep = "-"
 
 # A separator (or string) that when ecountered, will automatically
@@ -124,10 +54,6 @@ sep-reset = ""
 # false = before ("test ${0}-> ")
 sep-reset-after = false
 
-# Warn against tradeoffs between slower queries for availability
-# e.g. falling back to gsettings when we can't find the config file for GTK
-slow-query-warnings = false
-
 # Offset between the ascii art and the layout
 offset = 5
 
@@ -139,6 +65,16 @@ logo-padding-top = 0
 
 # Padding of the layout from the top
 layout-padding-top = 0
+
+# Used in disk, ram and swap modules.
+# If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)
+# Else if false, we using the IEC byte unit (1KiB == 1024 bibytes)
+# Really nerdy stuff
+use-SI-byte-unit = false
+
+# Warn against tradeoffs between slower queries for availability
+# e.g. falling back to gsettings when we can't find the config file for GTK
+slow-query-warnings = false
 
 # Colors in terminal
 black   = "\e[1;30m"
@@ -156,12 +92,6 @@ white   = "\e[1;37m"
 # Syntax must be "name=value", e.g "purple=magenta" or "orange=!#F08000"
 alias-colors = ["purple=magenta"]
 
-# Used in disk, ram and swap modules.
-# If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)
-# Else if false, we using the IEC byte unit (1KiB == 1024 bibytes)
-# Really nerdy stuff
-use-SI-byte-unit = false
-
 # Colors to be used in percentage tag and modules members.
 # They are used as if you're using the color tag.
 # It's an array just for "convinience"
@@ -174,6 +104,32 @@ percentage-colors = ["green", "yellow", "red"]
 # to render some text in 1 line, they don't wrap those lines, instead they truncate them.
 # Enable/Disable if you want this
 wrap-lines = false
+
+# $<auto.disk> config
+[auto.disk]
+# Format for displaying the auto detected disks infos
+# %1 = mount directory
+# %2 = device path
+# %3 = type of filesystem
+# %4 = total amount of storage
+# %5 = free amount of storage
+# %6 = used amount of storage
+# %7 = percentage of used storage
+# %8 = percentage of free storage
+fmt = "${auto}Disk (%1): $<disk(%1)>"
+
+# Only print disks that matches the description
+# of the following types:
+# regular   = Regular disks (internel M.2 SSD, ...) (won't be specified)
+# removable = External disks (USB, SATA, ...)
+# read-only = Disks with read-only filesystems
+# hidden    = Disks that are not really mounted by the user
+display-types = ["regular", "removable", "read-only"]
+
+# In some OSes such as NixOS or Android, there might be some directories that are bind mounted.
+# Bind mounted directories create an additional view of an existing directory,
+# and `statfs()` on the mount point will return the filesystem statistics of the original directory.
+show-duplicated = false
 
 # $<os.uptime> config
 [os.uptime]
@@ -205,7 +161,7 @@ dpkg-files   = ["/var/lib/dpkg/status"]
 flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 
-# GUI options
+# GUI app options
 [gui]
 
 # Font to be used

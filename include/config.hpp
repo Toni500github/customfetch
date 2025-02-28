@@ -71,7 +71,7 @@ public:
     std::string              font;
     std::string              data_dir;
     std::string              sep_reset;
-    std::string              builtin_title_sep;
+    std::string              title_sep;
     std::string              gui_bg_image;
     std::string              ascii_logo_type;
     std::string              logo_position;
@@ -241,7 +241,7 @@ R"#(ascii-logo-type = "small")#"
 #endif
 R"#(
 
-# A char (or string) to use in $<builtin.title_sep>
+# A char (or string) to use in $<title_sep>
 title-sep = "-"
 
 # A separator (or string) that when encountered, will automatically
@@ -371,7 +371,7 @@ dpkg-files   = ["/var/lib/dpkg/status", "/data/data/com.termux/files/usr/var/lib
 flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 
-# GUI options
+# GUI app options
 [gui]
 
 # Font to be used

@@ -85,7 +85,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->source_path         = getValue<std::string>("config.source-path", "os");
     this->logo_position       = getValue<std::string>("config.logo-position", "left");
     this->data_dir            = getValue<std::string>("config.data-dir", get_data_dir("customfetch"));
-    this->builtin_title_sep   = getValue<std::string>("config.title-sep", "-");
+    this->title_sep           = getValue<std::string>("config.title-sep", "-");
     this->font                = getValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
 

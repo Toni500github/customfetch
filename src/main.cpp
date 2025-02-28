@@ -661,7 +661,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 config.sep_reset = optarg; break;
 
             case "title-sep"_fnv1a16:
-                config.builtin_title_sep = optarg; break;
+                config.title_sep = optarg; break;
 
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)

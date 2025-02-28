@@ -1681,9 +1681,9 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
                 std::string_view(query_user.name() + '@' + query_system.hostname()).length();
 
             std::string str;
-            str.reserve(config.builtin_title_sep.length() * title_len);
+            str.reserve(config.title_sep.length() * title_len);
             for (size_t i = 0; i < title_len; i++)
-                str += config.builtin_title_sep;
+                str += config.title_sep;
 
             SYSINFO_INSERT(str);
         }
