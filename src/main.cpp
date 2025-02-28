@@ -146,7 +146,7 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1,
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
                                 Will ask for confirmation if file exists already
 
-    --add-color <string>        Replace instances of a color with another value.
+    --color <string>            Replace instances of a color with another value.
                                 Syntax MUST be "name=value" with no space between "=", example: --color "foo=#444333".
                                 Thus replaces any instance of foo with #444333. Can be done with multiple colors separately.
 
@@ -562,7 +562,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
         {"layout-padding-top", required_argument, 0, "layout-padding-top"_fnv1a16},
         {"loop-ms",            required_argument, 0, "loop-ms"_fnv1a16},
         {"bg-image",           required_argument, 0, "bg-image"_fnv1a16},
-        {"add-color",          required_argument, 0, "add-color"_fnv1a16},
+        {"color",              required_argument, 0, "color"_fnv1a16},
 
         {0,0,0,0}
     };
@@ -655,7 +655,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                     config.overrides["config.wrap-lines"] = {.value_type = BOOL, .bool_value = true};
                 break;
 
-            case "add-color"_fnv1a16:
+            case "color"_fnv1a16:
                 config.addAliasColors(optarg); break;
 
             case "gen-config"_fnv1a16:
