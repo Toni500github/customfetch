@@ -27,13 +27,14 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <string>
 
 #include "fmt/os.h"
 #include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors, bool do_not_load)
+Config::Config(const std::string_view configFile, const std::string_view configDir)
 {
     if (!std::filesystem::exists(configDir))
     {
@@ -45,11 +46,6 @@ Config::Config(const std::string_view configFile, const std::string_view configD
     {
         warn(_("config file {} not found, generating new one"), configFile);
         this->generateConfig(configFile);
-    }
-
-    if (!do_not_load)
-    {
-        this->loadConfigFile(configFile, colors);
     }
 }
 
@@ -195,12 +191,50 @@ void Config::addAliasColors(const std::string& str)
     this->colors_value.push_back(value);
 }
 
+static bool is_str_digital(const std::string& str)
+{
+    for (size_t i = 0; i < str.size(); ++i)
+        if (!(str[i] >= '0' && str[i] <= '9'))
+            return false;
+
+    return true;
+}
+
+void Config::overrideOption(const std::string& opt)
+{
+    const size_t pos = opt.find('=');
+    if (pos == std::string::npos)
+        die(_("alias color '{}' does NOT have an equal sign '=' for separating color name and value\n"
+            "For more check with --help"), opt);
+
+    std::string name {opt.substr(0, pos)};
+    const std::string& value = opt.substr(pos + 1);
+
+    // usually the user finds incovinient to write "config.foo"
+    // for general config options
+    if (name.find('.') == name.npos)
+        name.insert(0, "config.");
+
+    if (value == "true")
+        overrides[name] = {.value_type = BOOL, .bool_value = true};
+    else if (value == "false")
+        overrides[name] = {.value_type = BOOL, .bool_value = false};
+    else if ((value[0] == '"' && value.back() == '"') ||
+             (value[0] == '\'' && value.back() == '\''))
+        overrides[name] = {.value_type = STR, .string_value = value.substr(1, value.size()-2)};
+    else if (is_str_digital(value))
+        overrides[name] = {.value_type = INT, .int_value = std::stoi(value)};
+    else
+        die(_("looks like override value '{}' from '{}' is neither a bool, int or string value"), 
+            value, name);
+}
+
 void Config::generateConfig(const std::string_view filename)
 {
 #if !ANDROID_APP
     if (std::filesystem::exists(filename))
     {
-        if (!askUserYorN(false, "WARNING: config file {} already exists. Do you want to overwrite it?", filename))
+        if (!askUserYorN(false, "WARNING: config file '{}' already exists. Do you want to overwrite it?", filename))
             std::exit(1);
     }
 #endif

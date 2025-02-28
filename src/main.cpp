@@ -117,6 +117,11 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1,
                                 Example: `customfetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>"`
                                 Will only print the logo (if not disabled), along side the parsed OS and CPU
 
+    -O, --override <string>     Overrides a config value, but NOT arrays.
+                                Syntax must be "name=value" E.g "auto.disk.fmt='Disk(%1): %6'".
+                                For convinience purpose, names that doesn't have a dot for telling the table, will automatically be considered under the [config] table
+                                E.g "sep-reset-after=true" works as "config.sep-reset-after=true"
+
     -p, --logo-position <value> Position of the logo ("top" or "left" or "bottom")
     -o, --offset <num>          Offset between the ascii art and the layout
     -l, --list-modules          Print the list of the info tag modules and its members
@@ -525,7 +530,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhwnLlNa::f:o:C:i:d:D:p:s:m:";
+    const char *optstring = "-VhwnLlNa::f:o:C:O:i:d:D:p:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
@@ -536,6 +541,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
         {"no-color",         optional_argument, 0, 'N'},
         {"ascii-logo-type",  optional_argument, 0, 'a'},
         {"offset",           required_argument, 0, 'o'},
+        {"override",         required_argument, 0, 'O'},
         {"font",             required_argument, 0, 'f'},
         {"config",           required_argument, 0, 'C'},
         {"layout-line",      required_argument, 0, 'm'},
@@ -583,23 +589,25 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
             case "list-logos"_fnv1a16:
                 RETURN_IF_ANDROID_APP list_logos(config); break;
             case 'f':
-                config.font = optarg; break;
+                config.overrides["gui.font"] = {.value_type = STR, .string_value = optarg}; break;
             case 'o':
-                config.offset = std::stoi(optarg); break;
+                config.overrides["config.offset"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
             case 'C': // we have already did it in parse_config_path()
                 break;
             case 'D':
-                config.data_dir = optarg; break;
+                config.overrides["config.data-dir"] = {.value_type = STR, .string_value = optarg}; break;
             case 'd':
                 config.m_custom_distro = str_tolower(optarg); break;
             case 'm':
                 config.m_args_layout.push_back(optarg); break;
             case 'p':
-                config.logo_position = optarg; break;
+                config.overrides["config.logo-position"] = {.value_type = STR, .string_value = optarg}; break;
             case 's':
-                config.source_path = optarg; break;
+                config.overrides["config.source-path"] = {.value_type = STR, .string_value = optarg}; break;
             case 'i':
                 config.m_image_backend = optarg; break;
+            case 'O':
+                config.overrideOption(optarg); break;
             case 'N':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
                     config.m_disable_colors = str_to_bool(optarg);
@@ -608,9 +616,9 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.ascii_logo_type = optarg;
+                    config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = optarg};
                 else
-                    config.ascii_logo_type.clear();
+                    config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = ""};
                 break;
             case 'n':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
@@ -626,25 +634,25 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 break;
 
             case "logo-padding-top"_fnv1a16:
-                config.logo_padding_top = std::stoi(optarg); break;
+                config.overrides["config.logo-padding-top"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
 
             case "logo-padding-left"_fnv1a16:
-                config.logo_padding_left = std::stoi(optarg); break;
+                config.overrides["config.logo-padding-left"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
 
             case "layout-padding-top"_fnv1a16:
-                config.layout_padding_top = std::stoi(optarg); break;
+                config.overrides["config.layout-padding-top"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
 
             case "loop-ms"_fnv1a16:
                 config.loop_ms = std::stoul(optarg); break;
 
             case "bg-image"_fnv1a16:
-                config.gui_bg_image = optarg; break;
+                config.overrides["gui.bg-image"] = {.value_type = STR, .string_value = optarg}; break;
 
             case "wrap-lines"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.wrap_lines = str_to_bool(optarg);
+                    config.overrides["config.wrap-lines"] = {.value_type = BOOL, .bool_value = str_to_bool(optarg)};
                 else
-                    config.wrap_lines = true;
+                    config.overrides["config.wrap-lines"] = {.value_type = BOOL, .bool_value = true};
                 break;
 
             case "add-color"_fnv1a16:
@@ -658,16 +666,16 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 exit(EXIT_SUCCESS);
 
             case "sep-reset"_fnv1a16:
-                config.sep_reset = optarg; break;
+                config.overrides["config.sep-reset"] = {.value_type = STR, .string_value = optarg}; break;
 
             case "title-sep"_fnv1a16:
-                config.title_sep = optarg; break;
+                config.overrides["config.title-sep"] = {.value_type = STR, .string_value = optarg}; break;
 
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.sep_reset_after = str_to_bool(optarg);
+                    config.overrides["config.sep-reset-after"] = {.value_type = BOOL, .bool_value = str_to_bool(optarg)};
                 else
-                    config.sep_reset_after = true;
+                    config.overrides["config.sep-reset-after"] = {.value_type = BOOL, .bool_value = true};
                 break;
 
             default:
@@ -740,19 +748,24 @@ int main(int argc, char *argv[])
     localize();
 
 #if ANDROID_APP
-    Config config(configFile, configDir, colors, do_not_load_config);
+    Config config(configFile, configDir);
     const std::string& parseargs_ret = parseargs(argc, argv, config, configFile);
     if (parseargs_ret != _true)
         return parseargs_ret;
+
+    if (!do_not_load_config)
+        config.loadConfigFile(configFile, colors);
 
     // since ANDROID_APP means that it will run as an android widget, so in GUI,
     // then let's make it always true
     config.gui        = true;
     config.wrap_lines = true;
 #else
-    Config config(configFile, configDir, colors, false);
+    Config config(configFile, configDir);
     if (!parseargs(argc, argv, config, configFile))
         return 1;
+
+    config.loadConfigFile(configFile, colors);
 #endif  // ANDROID_APP
 
     is_live_mode = (config.loop_ms > 50);

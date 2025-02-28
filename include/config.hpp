@@ -29,9 +29,26 @@
 #define TOML_HEADER_ONLY 0
 
 #include <cstdint>
+#include <type_traits>
+#include <unordered_map>
 
 #include "toml++/toml.hpp"
 #include "util.hpp"
+
+enum types
+{
+    STR,
+    BOOL,
+    INT
+};
+
+struct override_configs_types
+{
+    types value_type;
+    std::string string_value = "";
+    bool bool_value = false;
+    int int_value = 0;
+};
 
 // config colors
 // those without gui_ prefix are for the terminal
@@ -60,8 +77,7 @@ class Config
 {
 public:
     // Create .config directories and files and load the config file (args or default)
-    Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors,
-           bool do_not_load = false);
+    Config(const std::string_view configFile, const std::string_view configDir);
 
     // Variables of config file in [config] table
     std::vector<std::string> layout;
@@ -115,6 +131,8 @@ public:
     bool                     m_display_distro  = true;
     bool                     m_print_logo_only = false;
 
+    std::unordered_map<std::string, override_configs_types> overrides;
+
     /**
      * Load config file and parse every config variables
      * @param filename The config file path
@@ -137,6 +155,14 @@ public:
      */
     void addAliasColors(const std::string& str);
 
+    /**
+     * Override a config value from --override
+     * @param str The value to override.
+     *            Must have a '=' for separating the name and value to override.
+     *            NO spaces between
+     */ 
+    void overrideOption(const std::string& opt);
+
 private:
     // Parsed config from loadConfigFile()
     toml::table tbl;
@@ -149,7 +175,23 @@ private:
     template <typename T>
     T getValue(const std::string_view value, const T&& fallback, bool dont_expand_var = false) const
     {
-        std::optional<T> ret = this->tbl.at_path(value).value<T>();
+        const auto& overridePos = overrides.find(value.data());
+
+        // user wants a bool (overridable), we found an override matching the name, and the override is a bool.
+        if constexpr (std::is_same<T, bool>())
+            if (overridePos != overrides.end() && overrides.at(value.data()).value_type == BOOL)
+                return overrides.at(value.data()).bool_value;
+
+        // user wants a str (overridable), we found an override matching the name, and the override is a str.
+        if constexpr (std::is_same<T, std::string>())
+            if (overridePos != overrides.end() && overrides.at(value.data()).value_type == STR)
+                return overrides.at(value.data()).string_value;
+
+        if constexpr (std::is_same<T, std::uint16_t>())
+            if (overridePos != overrides.end() && overrides.at(value.data()).value_type == INT)
+                return overrides.at(value.data()).int_value;
+
+        const std::optional<T> ret = this->tbl.at_path(value).value<T>();
         if constexpr (toml::is_string<T>)  // if we want to get a value that's a string
             return ret ? expandVar(ret.value(), dont_expand_var) : expandVar(fallback, dont_expand_var);
         else

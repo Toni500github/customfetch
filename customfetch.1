@@ -152,6 +152,15 @@ Example: "customfetch -m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu.cpu>" "
 .br
 Will only print the logo (if not disabled), along side the parsed OS and CPU
 .TP
+\fB\-O\fR, \fB\-\-override\fR <string>
+Overrides a config value, but NOT arrays.
+.br
+Syntax must be "name=value" E.g "auto.disk.fmt='Disk(%1): %6'".
+.br
+For convinience purpose, names that doesn't have a dot for telling the table, will automatically be considered under the [config] table
+.br
+E.g "sep-reset-after=true" works as "config.sep-reset-after=true"
+.TP
 \fB\-p\fR, \fB\-\-logo-position\fR <value>
 Position of the logo ("top" or "left" or "bottom")
 .TP
