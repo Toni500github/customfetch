@@ -161,6 +161,16 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Create signing.properties
+        run: |
+          echo -n ${{ secrets.KEYSTORE_SIGNING_KEY }} > /tmp/keystore.txt && base64 -d /tmp/keystore.txt > /tmp/keystore.key
+          cat << EOF > android/signing.properties
+          storeFilePath=/tmp/keystore.key
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.KEYSTORE_ALIAS }}
+          EOF
+
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
 
