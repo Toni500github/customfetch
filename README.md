@@ -31,7 +31,7 @@
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="1px" height="1px" align="left" />
 <img src="screenshots/pipeline-style.png" />
 <h2 align="center">
-  It's even an <b>android widget (WIP)</b> and <b>GTK3 app</b>
+  It's even an <b>android widget</b> and <b>GTK3 app</b>
 </h2>
 <img align=right width=54.4% src="screenshots/gui-example.png"/>
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="45%" height="14px" align="right" />
@@ -65,6 +65,10 @@ The name can vary depending on the package manager or distro
 ### Debian/Ubuntu and based
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
 
+### Android widget
+Download the latest `.apk` file in the [releases](https://github.com/Toni500github/customfetch/releases/latest) \
+AFAIK The google play protect doesn't detect any malware. If your antivirus does, please open an [issue here](https://github.com/Toni500github/customfetch/issues)
+
 ### Arch and based (AUR)
 ```bash
 # Terminal only
@@ -76,9 +80,7 @@ yay -S customfetch-gui-bin
 
 ### General Distros (Manual installation)
 Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni500github/customfetch/releases/latest) \
-It contains the binary `customfetch` and the manual `customfetch.1` with the `LICENSE`.\
-Togheter with the directory `assets/ascii` with the distro ascii art logos.\
-If installing the GUI app, there's `customfetch.desktop`
+It contains the `/usr` directory where you'll install it in your distro. Useful for package managers too
 
 ### Arch and based (AUR) (source)
 ```bash
@@ -101,7 +103,6 @@ yay -S customfetch-gui-git
 ### Android widget app (unstable)
 Download the latest apk build from the [GitHub actions](https://github.com/Toni500github/customfetch/actions/workflows/makefile.yml) artifacts\
 If you can't download or you are not logged in GitHub, use this link: https://nightly.link/Toni500github/customfetch/workflows/makefile/main/customfetch-android-app.zip
-
 
 ### Android widget app (source)
 ```bash
@@ -127,7 +128,7 @@ customfetch
 
 ## Config (with explanation)
 
-Read the manual `customfetch.1` or the comments in the default generated config for knowing more about the configuration in customfetch.\
+Read the manual `customfetch.1` or execute customfetch with the arg `-w` for knowing more about the configuration in customfetch.\
 This is only an explaination about tags and preview, that can be always found in the documentation.
 
 Here's an example using my config
@@ -154,7 +155,7 @@ layout = [
     "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm_name> $<user.wm_version>",
     "${auto}DE: $<user.de_name> $<user.de_version>",
-    "${auto}Disk (/): $<disk(/)>",
+    "$<auto.disk>",
     "${auto}Swap: $<swap>",
     "${auto}CPU: $<cpu>",
     "${auto}GPU: $<gpu>",
@@ -169,7 +170,7 @@ layout = [
 
 In the config we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
 There are 5 tags:
-* `$<module.member>` - Used for printing the value of a member of a module.
+* `$<module.member>` - Used for printing the system info value of a member of a module.
 * `${color}` - Used for displaying text in a specific color.
 * `$(bash command)` - Used to execute bash commands and print the output.
 * `$[something,equalToSomethingElse,iftrue,ifalse]` - Conditional tag to display different outputs based on the comparison.
@@ -236,7 +237,7 @@ e.g `the number 50 is \< than 100 \& 98`
 Won't affect the printing in terminal
 
 # TODOs
-* tell me
+* release v1.0.0
 
 # Thanks
 I would like to thanks:

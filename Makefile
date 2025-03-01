@@ -141,6 +141,8 @@ delete: uninstall
 
 updatever:
 	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
+	sed -i "s#versionName = \"$(OLDVERSION)\"#versionName = \"$(VERSION)\"#g" android/app/build.gradle.kts
 	sed -i "s#set(VERSION \"$(OLDVERSION)\")#set(VERSION \"$(VERSION)\")#g" CMakeLists.txt android/CMakeLists.txt
+	sed -i "s#Project-Id-Version: customfetch $(OLDVERSION)#Project-Id-Version: customfetch $(VERSION)#g" po/*
 
 .PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all locale
