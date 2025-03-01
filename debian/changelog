@@ -1,3 +1,34 @@
+customfetch (1.0.0-1) unstable; urgency=medium
+
+  * project: add stable support for android.
+  * project: add new android app widget.
+  * project: rename unix references (e.g., CF_UNIX) to linux.
+  * project: separate GUI mode into its own binary, customfetch-gui.
+  * parse: support module-only variants in info tags (e.g., $<ram>).
+  * parse: remove "builtin" info tag module name.
+  * parse: add extended module member names (e.g., $<title_separator>).
+  * query: cpu: add $<cpu.temp> and variants.
+  * query: battery: add new battery info module.
+  * query: theme: fix theme queries because of code static members.
+  * query: auto: add new auto module name.
+  * query: use systemInfo_t for multiple disk, gpu, and theme queries.
+  * build: add cmake as the new build system.
+  * build: add usr-dist target in the makefile.
+  * args: change some argument names and add boolean support (e.g., true).
+  * args: add --loop-ms and --list-logos options.
+  * args: add --override for configuration.
+  * libs: update fmt and toml++ libraries.
+  * libs: remove unused headers (printf.h and xchar.h) from fmt.
+  * libs: update pci.ids.hpp.
+  * doc: move configuration explanation to --how-it-works.
+  * doc: fix wrap-lines behavior.
+  * misc: re-enable cursor if program dies (when wrap-lines is disabled).
+  * misc: add translations support.
+  * misc: install configuration examples.
+  * debian: add and reformat actual changelog.
+
+ -- toni500 <tonino512@linuxmail.org>  Sat, 01 Mar 2025 19:49:36 +0100
+
 customfetch (0.10.2-1) unstable; urgency=medium
 
   * project: rename references `cufetch` -> `customfetch`
