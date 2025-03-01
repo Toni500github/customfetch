@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: customfetch 0.10.2\n"
+"Project-Id-Version: customfetch 1.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Toni500github/customfetch\n"
 "POT-Creation-Date: 2025-02-26 19:00+0100\n"
 "PO-Revision-Date: 2025-01-02 20:18+0100\n"

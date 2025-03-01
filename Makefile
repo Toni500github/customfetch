@@ -52,8 +52,8 @@ endif
 
 NAME		 = customfetch
 TARGET		?= $(NAME)
-OLDVERSION	 = 0.10.1
-VERSION    	 = 0.10.2
+OLDVERSION	 = 0.10.2
+VERSION    	 = 1.0.0
 BRANCH     	 = $(shell git rev-parse --abbrev-ref HEAD)
 SRC 	   	 = $(wildcard src/*.cpp src/query/linux/*.cpp src/query/android/*.cpp src/query/linux/utils/*.cpp)
 OBJ 	   	 = $(SRC:.cpp=.o)

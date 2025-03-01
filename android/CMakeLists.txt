@@ -27,7 +27,7 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-set(VERSION "0.10.2")
+set(VERSION "1.0.0")
 target_compile_definitions(customfetch PRIVATE
     VERSION="${VERSION}"
     BRANCH="${GIT_BRANCH}"
