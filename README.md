@@ -43,33 +43,32 @@
 ## Key Features
 * Run customfetch as a **terminal** or **GTK3 application** or even as an **android widget**
 * Really easy customizable and fast, check [Config (with explanation)](#config-with-explanation) section
-* Super lightweight, 3.1MB max (compiled as terminal and GTK3 app for desktop)
+* Super lightweight, 3.3MB max
 
-## Depends
-currently requires **C++20**, but it's possible to compile with C++17 too (not officially supported)
+# Depends
+Customfetch only requires the standard C++ library from `gcc-libs`, which should come already pre-installed in almost all distros. Other than that, customfetch requires **no mandatory** dependencies.\
+Currently requires **C++20**, but it's possible to compile with C++17 too (may not be always supported)\
+The names of the packages can vary depending on the package manager or distro.
 
-* `libdl` (should come already installed in almost every distro)
-
-If you want to install with the GUI app install from your package manager:
+If you want to install the GUI app install from your package manager:
 * `gtk3`
 * `gtkmm3`
 
 optional dependencies that will make customfetch faster.
-The name can vary depending on the package manager or distro
 * `dconf`: Alternative to the slow `gsettings` command
 * `libxfce4util`: Query XFCE4 version faster
 * `wayland-client`: Library for getting the Wayland compositor faster
 
-## Installation
+# Installation
 
-### Debian/Ubuntu and based
+## Debian/Ubuntu and based
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
 
-### Android widget
+## Android widget
 Download the latest `.apk` file in the [releases](https://github.com/Toni500github/customfetch/releases/latest) \
 AFAIK The google play protect doesn't detect any malware. If your antivirus does, please open an [issue here](https://github.com/Toni500github/customfetch/issues)
 
-### Arch and based (AUR)
+## Arch and based (AUR)
 ```bash
 # Terminal only
 yay -S customfetch-bin
@@ -78,11 +77,11 @@ yay -S customfetch-bin
 yay -S customfetch-gui-bin
 ```
 
-### General Distros (Manual installation)
+## General Distros (Manual installation)
 Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni500github/customfetch/releases/latest) \
 It contains the `/usr` directory where you'll install it in your distro. Useful for package managers too
 
-### Arch and based (AUR) (source)
+## Arch and based (AUR) (source)
 ```bash
 # Terminal only
 yay -S customfetch
@@ -91,7 +90,7 @@ yay -S customfetch
 yay -S customfetch-gui
 ```
 
-### Arch and based (unstable) (AUR) (source)
+## Arch and based (unstable) (AUR) (source)
 ```bash
 # Terminal only
 yay -S customfetch-git
@@ -100,11 +99,11 @@ yay -S customfetch-git
 yay -S customfetch-gui-git
 ```
 
-### Android widget app (unstable)
+## Android widget app (unstable)
 Download the latest apk build from the [GitHub actions](https://github.com/Toni500github/customfetch/actions/workflows/makefile.yml) artifacts\
 If you can't download or you are not logged in GitHub, use this link: https://nightly.link/Toni500github/customfetch/workflows/makefile/main/customfetch-android-app.zip
 
-### Android widget app (source)
+## Android widget app (source)
 ```bash
 # need java 17 + gradle 8.9 installed.
 # It's suggested to build from android studio,
@@ -112,7 +111,7 @@ If you can't download or you are not logged in GitHub, use this link: https://ni
 ./android/gradlew assembleDebug --project-dir=./android
 ```
 
-### Compile from (source) (unstable)
+## Compile from (source) (unstable)
 ```bash
 # clone the git dir
 git clone https://github.com/Toni500github/customfetch
