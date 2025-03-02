@@ -236,7 +236,8 @@ e.g `the number 50 is \< than 100 \& 98`
 Won't affect the printing in terminal
 
 # TODOs
-* release v1.0.0
+* ~~release v1.0.0~~
+Empty so far!
 
 # Thanks
 I would like to thanks:
