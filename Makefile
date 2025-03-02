@@ -115,9 +115,11 @@ distclean:
 	find . -type f -name "*.o" -exec rm -rf "{}" \;
 	find . -type f -name "*.a" -exec rm -rf "{}" \;
 
-install: $(TARGET) locale
+install: install-common $(TARGET)
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 	cd $(DESTDIR)$(PREFIX)/bin/ && ln -sf $(TARGET) cufetch
+
+install-common: locale
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
