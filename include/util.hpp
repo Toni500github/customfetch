@@ -30,18 +30,21 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <chrono>
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
 
 #include "fmt/base.h"
-#include "fmt/chrono.h"
 #include "fmt/color.h"
-#include "fmt/os.h"
 #include "platform.hpp"
+
+#if ANDROID_APP
+# include <chrono>
+# include <filesystem>
+# include "fmt/chrono.h"
+# include "fmt/os.h"
+#endif
 
 // clang-format off
 // Get string literal length
@@ -57,7 +60,7 @@ struct byte_units_t
     double      num_bytes;
 };
 
-#if ENABLE_NLS
+#if ENABLE_NLS && !CF_MACOS
 /* here so it doesn't need to be included elsewhere */
 #include <libintl.h>
 #include <locale.h>
@@ -311,14 +314,14 @@ std::string get_android_property(const std::string_view name);
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "ERROR: {}\n",
+    fmt::print(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "ERROR: {}\033[0m\n",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void die(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "FATAL: {}\n",
+    fmt::print(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "FATAL: {}\033[0m\n",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
     std::exit(1);
 }
@@ -327,7 +330,7 @@ template <typename... Args>
 void debug(const std::string_view fmt, Args&&... args) noexcept
 {
 #if DEBUG
-    fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::hot_pink))), "[DEBUG]: {}\n",
+    fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::hot_pink))), "[DEBUG]:\033[0m {}\n",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 #endif
 }
@@ -335,14 +338,14 @@ void debug(const std::string_view fmt, Args&&... args) noexcept
 template <typename... Args>
 void warn(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))), "WARNING: {}\n",
+    fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))), "WARNING: {}\033[0m\n",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void info(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::cyan))), "INFO: {}\n",
+    fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::cyan))), "INFO: {}\033[0m\n",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 #else

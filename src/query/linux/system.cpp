@@ -29,12 +29,14 @@
 #include <linux/limits.h>
 #include <unistd.h>
 
+#include <ctime>
 #include <array>
 #include <cerrno>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <string>
 
 #include "config.hpp"
 #include "query.hpp"
@@ -160,6 +162,19 @@ static System::System_t get_system_infos_os_releases()
     return ret;
 }
 
+static unsigned long get_uptime()
+{
+    const std::string& buf = read_by_syspath("/proc/uptime");
+    if (buf != UNKNOWN)
+        return std::stoul(buf.substr(0,buf.find('.'))); // 19065.18 190952.06
+
+    struct std::timespec uptime;
+    if (clock_gettime(CLOCK_BOOTTIME, &uptime) != 0)
+        return 0;
+
+    return (uint64_t)uptime.tv_sec * 1000 + (uint64_t)uptime.tv_nsec / 1000000;
+}
+
 System::System()
 {
     CHECK_INIT(!m_bInit)
@@ -167,16 +182,14 @@ System::System()
         if (uname(&m_uname_infos) != 0)
             die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
 
-        if (sysinfo(&m_sysInfos) != 0)
-            die(_("sysinfo() failed: {}\nCould not get system infos"), strerror(errno));
-
+        m_uptime = get_uptime();
         m_system_infos = get_system_infos_os_releases();
         if (m_system_infos.os_name == UNKNOWN || m_system_infos.os_pretty_name == UNKNOWN)
             m_system_infos = get_system_infos_lsb_releases();
 
         get_host_paths(m_system_infos);
-        m_bInit = true;
     }
+    m_bInit = true;
 }
 
 // clang-format off
@@ -192,8 +205,8 @@ std::string System::hostname() noexcept
 std::string System::arch() noexcept
 { return m_uname_infos.machine; }
 
-long& System::uptime() noexcept
-{ return m_sysInfos.uptime; }
+unsigned long& System::uptime() noexcept
+{ return m_uptime; }
 
 std::string& System::os_pretty_name() noexcept
 { return m_system_infos.os_pretty_name; }

@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <ctime>
 #include <array>
 #include <string_view>
 
@@ -71,6 +72,15 @@ static System::System_t get_system_infos()
     return ret;
 }
 
+static unsigned long get_uptime()
+{
+    struct std::timespec uptime;
+    if (clock_gettime(CLOCK_BOOTTIME, &uptime) != 0)
+        return 0;
+
+    return (uint64_t)uptime.tv_sec * 1000 + (uint64_t)uptime.tv_nsec / 1000000;
+}
+
 System::System()
 {
     CHECK_INIT(!m_bInit)
@@ -78,9 +88,7 @@ System::System()
         if (uname(&m_uname_infos) != 0)
             die("uname() failed: {}\nCould not get system infos", strerror(errno));
 
-        if (sysinfo(&m_sysInfos) != 0)
-            die("sysinfo() failed: {}\nCould not get system infos", strerror(errno));
-
+        m_uptime = get_uptime();
         m_system_infos = get_system_infos();
     }
     m_bInit = true;
@@ -99,8 +107,8 @@ std::string System::hostname() noexcept
 std::string System::arch() noexcept
 { return m_uname_infos.machine; }
 
-long& System::uptime() noexcept
-{ return m_sysInfos.uptime; }
+unsigned long& System::uptime() noexcept
+{ return m_uptime; }
 
 std::string& System::os_pretty_name() noexcept
 { return m_system_infos.os_pretty_name; }

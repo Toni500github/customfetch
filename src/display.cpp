@@ -26,13 +26,20 @@
 // Implementation of the system behind displaying/rendering the information
 
 #include "display.hpp"
+#include "platform.hpp"
 #include <cstddef>
 
 #ifndef GUI_APP
 # define STB_IMAGE_IMPLEMENTATION
 #endif
 
+#if CF_MACOS
+#include <util.h>
+#else
 #include <pty.h>
+#endif
+
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -47,6 +54,7 @@
 #include "fmt/core.h"
 #include "fmt/format.h"
 #include "parse.hpp"
+#include "platform.hpp"
 #include "query.hpp"
 #include "stb_image.h"
 #include "utf8/checked.h"
@@ -54,7 +62,7 @@
 
 std::string Display::detect_distro(const Config& config)
 {
-    debug("/etc/os-release = \n{}", read_shell_exec("cat /etc/os-release 2> /dev/null"));
+    //debug("/etc/os-release = \n{}", read_shell_exec("cat /etc/os-release 2> /dev/null"));
 
     if (!config.m_custom_distro.empty())
     {
@@ -76,6 +84,8 @@ std::string Display::detect_distro(const Config& config)
 
 #if ANDROID_APP
     return config.data_dir + "/ascii/android.txt";
+#elif CF_MACOS
+    return config.data_dir + "/ascii/mac.txt";
 #else
     return config.data_dir + "/ascii/linux.txt";
 #endif

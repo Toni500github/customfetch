@@ -26,6 +26,7 @@
 #include <getopt.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -37,6 +38,7 @@
 #include "fmt/ranges.h"
 #include "gui.hpp"
 #include "query.hpp"
+#include "platform.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
@@ -697,7 +699,7 @@ static void enable_cursor()
 // taken from pacman
 static void localize(void)
 {
-#if ENABLE_NLS
+#if ENABLE_NLS && !CF_MACOS
     static bool init = false;
     if (!init)
     {

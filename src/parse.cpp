@@ -100,10 +100,9 @@ Query::RAM::RAM_t         Query::RAM::m_memory_infos;
 Query::GPU::GPU_t         Query::GPU::m_gpu_infos;
 Query::Disk::Disk_t       Query::Disk::m_disk_infos;
 
-struct statvfs Query::Disk::m_statvfs;
 struct utsname Query::System::m_uname_infos;
-struct sysinfo Query::System::m_sysInfos;
 struct passwd* Query::User::m_pPwd;
+unsigned long  Query::System::m_uptime;
 
 bool Query::System::m_bInit          = false;
 bool Query::RAM::m_bInit             = false;
@@ -208,7 +207,7 @@ std::string parse(const std::string& input, parse_args_t& parse_args)
                  parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
-std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
+std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args,
                                      const bool invert)
 {
     const Config& config = parse_args.config;

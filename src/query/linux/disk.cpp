@@ -261,15 +261,16 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
 
     const std::string& statpath = (hasStart(path, "/dev") && pDevice) ? pDevice->mnt_dir : path;
 
-    if (statvfs(statpath.c_str(), &m_statvfs) != 0)
+    struct statvfs fs;
+    if (statvfs(statpath.c_str(), &fs) != 0)
     {
         perror("statvfs");
         error(_("Failed to get disk info at {}"), statpath);
         return;
     }
 
-    m_disk_infos.total_amount = static_cast<double>(m_statvfs.f_blocks * m_statvfs.f_frsize);    
-    m_disk_infos.free_amount  = static_cast<double>(m_statvfs.f_bfree  * m_statvfs.f_frsize);    
+    m_disk_infos.total_amount = static_cast<double>(fs.f_blocks * fs.f_frsize);    
+    m_disk_infos.free_amount  = static_cast<double>(fs.f_bfree  * fs.f_frsize);    
     m_disk_infos.used_amount  = m_disk_infos.total_amount - m_disk_infos.free_amount;
 
     endmntent(mountsFile);

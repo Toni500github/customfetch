@@ -24,7 +24,7 @@
  */
 
 #include "platform.hpp"
-#if CF_LINUX
+#if CF_LINUX || CF_MACOS
 
 #include <dlfcn.h>
 #include <unistd.h>
@@ -194,7 +194,7 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
     // customfetch -> shell -> terminal
     const pid_t   ppid = getppid();
     std::ifstream ppid_f(fmt::format("/proc/{}/status", ppid), std::ios::in);
-    std::string   line, term_pid;
+    std::string   line, term_pid{"0"};
     while (std::getline(ppid_f, line))
     {
         if (hasStart(line, "PPid:"))
@@ -375,7 +375,7 @@ std::string& User::shell_version(const std::string_view shell_name)
 
 std::string& User::wm_name(bool dont_query_dewm, const std::string_view term_name)
 {
-    if (dont_query_dewm || hasStart(term_name, "/dev"))
+    if (dont_query_dewm || hasStart(term_name, "/dev") || CF_MACOS)
     {
         m_users_infos.wm_name = MAGIC_LINE;
         return m_users_infos.wm_name;
@@ -404,7 +404,7 @@ std::string& User::wm_name(bool dont_query_dewm, const std::string_view term_nam
 
 std::string& User::wm_version(bool dont_query_dewm, const std::string_view term_name)
 {
-    if (dont_query_dewm || hasStart(term_name, "/dev"))
+    if (dont_query_dewm || hasStart(term_name, "/dev") || CF_MACOS)
     {
         m_users_infos.wm_name = MAGIC_LINE;
         return m_users_infos.wm_name;
@@ -446,7 +446,7 @@ std::string& User::de_name(bool dont_query_dewm, const std::string_view term_nam
     // first let's see if we are not in a tty or if the user doesn't want to
     // if so don't even try to get the DE or WM names
     // they waste times
-    if (dont_query_dewm || hasStart(term_name, "/dev"))
+    if (dont_query_dewm || hasStart(term_name, "/dev") || CF_MACOS)
     {
         m_users_infos.de_name = MAGIC_LINE;
         return m_users_infos.de_name;
@@ -478,7 +478,7 @@ std::string& User::de_name(bool dont_query_dewm, const std::string_view term_nam
 
 std::string& User::de_version(const std::string_view de_name)
 {
-    if (m_bDont_query_dewm || de_name == UNKNOWN || de_name == MAGIC_LINE || de_name.empty())
+    if (m_bDont_query_dewm || de_name == UNKNOWN || de_name == MAGIC_LINE || de_name.empty() || CF_MACOS)
     {
         m_users_infos.de_version = UNKNOWN;
         return m_users_infos.de_version;

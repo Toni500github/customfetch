@@ -38,11 +38,16 @@
 #include "util.hpp"
 
 extern "C" {
-#include <mntent.h>
+#if !CF_MACOS
+# include <mntent.h>
+# include <sys/statfs.h>
+#else
+# include <sys/param.h>
+# include <sys/mount.h>
+#endif
 #include <pwd.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
-#include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #include <unistd.h>
 }
@@ -105,7 +110,7 @@ public:
     std::string& os_initsys_version();
     std::string& os_versionid() noexcept;
     std::string& os_version_codename() noexcept;
-    long&        uptime() noexcept;
+    unsigned long&   uptime() noexcept;
 
     // motherboard (host)
     std::string& host_modelname() noexcept;
@@ -118,7 +123,7 @@ private:
     static System_t       m_system_infos;
     static bool           m_bInit;
     static struct utsname m_uname_infos;
-    static struct sysinfo m_sysInfos;
+    static unsigned long  m_uptime;
 };
 
 class User
@@ -314,8 +319,7 @@ public:
 
 private:
     std::vector<std::string> m_disks_formats, m_queried_devices;
-    static struct statvfs m_statvfs;
-    static Disk_t         m_disk_infos;
+    static Disk_t            m_disk_infos;
 };
 
 class RAM

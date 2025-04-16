@@ -105,10 +105,9 @@ std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_vi
                             const std::string_view moduleMemberName);
 
 
-std::string get_and_color_percentage(const float& n1, const float& n2, parse_args_t& parse_args,
+std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args,
                                             const bool invert = false);
 
-// Function to combine multiple fmt::text_style arguments
 template <typename... Styles>
 void append_styles(fmt::text_style& current_style, Styles&&... styles)
 {
