@@ -219,13 +219,11 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
 
     // either gnome-console or "gnome-terminal-"
     // I hope this is not super stupid
-    else if (hasStart(term_name, "gnome"))
-    {
-        if (hasStart(term_name, "gnome-console"))
-            term_name.erase("gnome-console"_len + 1);
-        else if (hasStart(term_name, "gnome-terminal"))
-            term_name.erase("gnome-terminal"_len + 1);
-    }
+    if (hasStart(term_name, "gnome-console"))
+        term_name.erase("gnome-console"_len + 1);
+    else if (hasStart(term_name, "gnome-terminal"))
+        term_name.erase("gnome-terminal"_len + 1);
+
     
     // let's try to get the real terminal name
     // on NixOS, instead of returning the -wrapped name.
@@ -254,19 +252,32 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
         term_name = tmp_name;
     }
 
+    // sometimes may happen that the terminal name from /comm
+    // at the end has some letfover characters from /cmdline
+    if (!std::isalnum(term_name.back()))
+    {
+        size_t i = term_name.size();
+        while (i > 0)
+        {
+            char ch = term_name[i - 1];
+            // stop when we find an a num or alpha char
+            // example  with "gnome-terminal-"
+            if (std::isalnum(static_cast<unsigned char>(ch)))
+                break;
+            term_name.erase(--i, 1);
+        }
+    }
+
     return term_name;
 }
 
-static std::string get_term_version(std::string_view term_name)
+static std::string get_term_version(const std::string_view term_name)
 {
     if (term_name.empty())
         return UNKNOWN;
 
     bool remove_term_name = true;
     std::string ret;
-
-    if (hasStart(term_name, "kitty"))
-        term_name = "kitten";
 
     switch (fnv1a16::hash(str_tolower(term_name.data())))
     {
