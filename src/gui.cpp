@@ -28,6 +28,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "gui.hpp"
 
+#include <unistd.h>
+
 #include <array>
 #include <filesystem>
 #include <fstream>
@@ -177,7 +179,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     std::string fg_color_str = rgba_to_hexstr(fg_color);*/
 
     auto_colors.clear();
-    set_layout_markup();
+    this->set_layout_markup();
     if (is_live_mode)
         Glib::signal_timeout().connect(sigc::mem_fun(*this, &Window::set_layout_markup), config.loop_ms);
 
@@ -201,6 +203,12 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
             Glib::signal_timeout().connect(sigc::mem_fun(*this, &Window::on_update_animation), duration);
         }
         m_overlay.add_overlay(m_bg_image);
+    }
+
+    if (Display::ascii_logo_fd != 9669)
+    {
+        ::remove(path.data());
+        ::close(Display::ascii_logo_fd);
     }
 
     m_box.pack_start(m_label, Gtk::PACK_SHRINK);

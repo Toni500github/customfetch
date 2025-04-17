@@ -30,6 +30,53 @@
 #include <vector>
 
 #include "config.hpp"
+#include "platform.hpp"
+
+#if CF_MACOS
+constexpr std::string_view ascii_logo =
+R"(${green}                    c.'
+${green}                 ,xNMM.
+${green}               .OMMMMo
+${green}               lMM"
+${green}     .;loddo:.  .olloddol;.
+${green}   cKMMMMMMMMMMNWMMMMMMMMMM0:
+${yellow} .KMMMMMMMMMMMMMMMMMMMMMMMWd.
+${yellow} XMMMMMMMMMMMMMMMMMMMMMMMX.
+${red};MMMMMMMMMMMMMMMMMMMMMMMM:
+${red}:MMMMMMMMMMMMMMMMMMMMMMMM:
+${red}.MMMMMMMMMMMMMMMMMMMMMMMMX.
+${red} kMMMMMMMMMMMMMMMMMMMMMMMMWd.
+${magenta} 'XMMMMMMMMMMMMMMMMMMMMMMMMMMk
+${magenta}  'XMMMMMMMMMMMMMMMMMMMMMMMMK.
+    ${blue}kMMMMMMMMMMMMMMMMMMMMMMd
+     ${blue};KMMMMMMMWXXWMMMMMMMk.
+       ${blue}"cooc*"    "*coo'"
+)";
+#elif CF_ANDROID
+constexpr std::string_view ascii_logo =
+R"(${green}  ;,           ,;
+${green}   ';,.-----.,;'
+${green}  ,'           ',
+${green} /    O     O    \\
+${green}|                 |
+${green}'-----------------'
+)";
+#else
+constexpr std::string_view ascii_logo =
+R"(${black}        #####
+${black}       #######
+${black}       ##${1}O${black}#${1}O${black}##
+${black}       #${yellow}#####${black}#
+${black}     ##${1}##${yellow}###${1}##${black}##
+${black}    #${1}##########${black}##
+${black}   #${1}############${black}##
+${black}   #${1}############${black}###
+${yellow}  ##${black}#${1}###########${black}##${yellow}#
+${yellow}######${black}#${1}#######${black}#${yellow}######
+${yellow}#######${black}#${1}#####${black}#${yellow}#######
+${yellow}  #####${black}#######${yellow}#####
+)";
+#endif
 
 namespace Display
 {
@@ -56,6 +103,8 @@ void display(const std::vector<std::string>& renderResult);
  */
 std::string detect_distro(const Config& config);
 
+// 
+inline int ascii_logo_fd = 9669;
 }  // namespace Display
 
 #endif

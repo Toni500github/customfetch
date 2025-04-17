@@ -27,7 +27,9 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -796,7 +798,13 @@ int main(int argc, char *argv[])
     debug("{} path = {}", __PRETTY_FUNCTION__, path);
 
     if (!std::filesystem::exists(path) && !config.m_disable_source)
-        die(_("Path '{}' doesn't exist. Can't load logo"), path);
+    {
+        path = std::filesystem::temp_directory_path() / "customfetch_ascii_logo-XXXXXX";
+        Display::ascii_logo_fd = mkstemp(path.data());
+        if (Display::ascii_logo_fd < 0)
+            die("Failed to create temp path at {}: {}", path, strerror(errno));
+        write(Display::ascii_logo_fd, ascii_logo.data(), ascii_logo.size());
+    }
 
 #if !ANDROID_APP
 #if GUI_APP
@@ -823,7 +831,7 @@ int main(int argc, char *argv[])
         while (true)
         {
             // clear screen and go to position 0, 0
-            write(1, "\33[H\33[2J", 7);
+            write(STDOUT_FILENO, "\33[H\33[2J", 7);
             fmt::print("\033[0;0H");
 
             Display::display(Display::render(config, colors, false, path));

@@ -28,6 +28,7 @@
 #include "display.hpp"
 #include "platform.hpp"
 #include <cstddef>
+#include <cstdio>
 
 #ifndef GUI_APP
 # define STB_IMAGE_IMPLEMENTATION
@@ -106,6 +107,11 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
         die(_("Unable to load image '{}'"), path);
 
     stbi_image_free(img);
+    if (Display::ascii_logo_fd != 9669)
+    {
+        remove(path.data());
+        close(Display::ascii_logo_fd);
+    }
 
     std::string  _;
     std::vector<std::string> tmp_layout;
@@ -281,7 +287,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     if (isImage)
     {
         // clear screen
-        write(1, "\33[H\33[2J", 7);
+        write(STDOUT_FILENO, "\33[H\33[2J", 7);
 
         struct winsize win;
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
@@ -302,6 +308,12 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         die(_("images are NOT allowed in the android widget at the moment"));
     }
 #endif
+
+    if (Display::ascii_logo_fd != 9669)
+    {
+        remove(path.data());
+        close(Display::ascii_logo_fd);
+    }
 
     for (uint i = 0; i < config.logo_padding_top; i++)
     {
