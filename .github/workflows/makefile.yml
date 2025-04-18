@@ -176,6 +176,11 @@ jobs:
 
     - name: Build and install using makepkg
       run: |
+        git clone https://aur.archlinux.org/customfetch-common-git.git
+        chown -R builduser customfetch-common-git
+        cd customfetch-common-git
+        sudo -u builduser makepkg -si --noconfirm
+        cd ..
         git clone https://aur.archlinux.org/customfetch-git.git
         chown -R builduser customfetch-git
         cd customfetch-git
