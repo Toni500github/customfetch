@@ -104,12 +104,9 @@ static Battery::Battery_t get_battery_infos()
 
 Battery::Battery()
 {
-    CHECK_INIT(!m_bInit)
-    {
-        m_battery_infos = get_battery_infos();
-    }
+    CHECK_INIT(m_bInit);
 
-    m_bInit = true;
+    m_battery_infos = get_battery_infos();
 }
 
 // clang-format off

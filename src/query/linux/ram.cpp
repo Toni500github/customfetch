@@ -110,11 +110,9 @@ static RAM::RAM_t get_amount() noexcept
 
 RAM::RAM() noexcept
 {
-    CHECK_INIT(!m_bInit)
-    {
-        m_memory_infos = get_amount();
-        m_bInit        = true;
-    }
+    CHECK_INIT(m_bInit);
+    
+    m_memory_infos = get_amount();
 }
 
 // clang-format off

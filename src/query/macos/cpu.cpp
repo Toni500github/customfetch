@@ -81,11 +81,9 @@ static CPU::CPU_t get_cpu_infos()
 
 CPU::CPU() noexcept
 {
-    CHECK_INIT(!m_bInit)
-    {
-        m_cpu_infos = get_cpu_infos();
-        m_bInit     = true;
-    }
+    CHECK_INIT(m_bInit);
+
+    m_cpu_infos = get_cpu_infos();
 }
 
 // clang-format off

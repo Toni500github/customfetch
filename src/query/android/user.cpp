@@ -58,31 +58,27 @@ static std::string get_shell_name(const std::string_view shell_path)
 
 User::User() noexcept
 {
-    CHECK_INIT(!m_bInit)
+    CHECK_INIT(m_bInit);
+    
+    if (m_pPwd = getpwuid(getuid()), !m_pPwd)
+        die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
+
+    char buf[PATH_MAX];
+    if (getenv("TERMUX_VERSION") || getenv("TERMUX_MAIN_PACKAGE_FORMAT"))
     {
-        const uid_t uid = getuid();
-
-        if (m_pPwd = getpwuid(uid), !m_pPwd)
-            die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
-
-        char buf[PATH_MAX];
-        if (getenv("TERMUX_VERSION") || getenv("TERMUX_MAIN_PACKAGE_FORMAT"))
-        {
-            m_users_infos.shell_path    = realpath(fmt::format("/proc/{}/exe", getppid()).c_str(), buf);
-            m_users_infos.shell_name    = get_shell_name(m_users_infos.shell_path);
-            m_users_infos.shell_version = get_shell_version(m_users_infos.shell_name);
-            m_users_infos.term_name     = "Termux";
-            m_users_infos.term_version  = getenv("TERMUX_VERSION");
-        }
-        else
-        {
-            m_users_infos.shell_path = m_pPwd->pw_shell;
-        }
-
-        m_users_infos.wm_name = m_users_infos.wm_version = m_users_infos.de_name = m_users_infos.de_version =
-            m_users_infos.m_wm_path                                              = MAGIC_LINE;
+        m_users_infos.shell_path    = realpath(fmt::format("/proc/{}/exe", getppid()).c_str(), buf);
+        m_users_infos.shell_name    = get_shell_name(m_users_infos.shell_path);
+        m_users_infos.shell_version = get_shell_version(m_users_infos.shell_name);
+        m_users_infos.term_name     = "Termux";
+        m_users_infos.term_version  = getenv("TERMUX_VERSION");
     }
-    m_bInit = true;
+    else
+    {
+        m_users_infos.shell_path = m_pPwd->pw_shell;
+    }
+
+    m_users_infos.wm_name = m_users_infos.wm_version = m_users_infos.de_name = m_users_infos.de_version =
+        m_users_infos.m_wm_path                                              = MAGIC_LINE;
 }
 
 // clang-format off

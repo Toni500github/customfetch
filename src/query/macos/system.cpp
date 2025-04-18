@@ -121,22 +121,19 @@ static System::System_t get_os_infos()
 
 System::System()
 {
-    CHECK_INIT(!m_bInit)
-    {
-        if (uname(&m_uname_infos) != 0)
-            die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
+    CHECK_INIT(m_bInit);
 
-        struct timeval boot_time;
-        size_t size = sizeof(boot_time);
-        int name[] = {CTL_KERN, KERN_BOOTTIME};
-        if(sysctl(name, 2, &boot_time, &size, NULL, 0) != 0)
-            die(_("failed to get uptime"));
+    if (uname(&m_uname_infos) != 0)
+        die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
 
-        m_uptime = time(NULL) - boot_time.tv_sec;
+    struct timeval boot_time;
+    size_t size = sizeof(boot_time);
+    int name[] = {CTL_KERN, KERN_BOOTTIME};
+    if(sysctl(name, 2, &boot_time, &size, NULL, 0) != 0)
+        die(_("failed to get uptime"));
 
-        m_system_infos = get_os_infos();
-    }
-    m_bInit = true;
+    m_uptime = time(NULL) - boot_time.tv_sec;
+    m_system_infos = get_os_infos();
 }
 
 // clang-format off

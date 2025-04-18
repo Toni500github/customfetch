@@ -31,11 +31,7 @@ using namespace Query;
 
 Battery::Battery()
 {
-    CHECK_INIT(!m_bInit)
-    {
-    }
-
-    m_bInit = true;
+    CHECK_INIT(m_bInit);
 }
 
 // clang-format off
