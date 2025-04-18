@@ -19,6 +19,7 @@ file(GLOB
 )
 
 add_library(customfetch SHARED ${SRC})
+add_link_options("-Wl,--build-id=none")
 
 # get git branch
 execute_process(
