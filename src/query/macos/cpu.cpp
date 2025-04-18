@@ -26,23 +26,56 @@
 #include "platform.hpp"
 #if CF_MACOS
 
+#include <ratio>
+#include <string>
 #include <sys/sysctl.h>
 #include <unistd.h>
+
 #include "query.hpp"
+#include "util.hpp"
+
 using namespace Query;
 
-#define LEN(x) sizeof(x)/sizeof(x[0])
-
-static long get_sysctl_info(int *name, void *ret, size_t *oldlenp)
+static bool get_sysctl(int name[2], void *ret, size_t *oldlenp)
 {
-    if (sysctl(name, LEN(name), &ret, oldlenp, NULL, 0) != 0)
-        return -1;
+    return (sysctl(name, 2, ret, oldlenp, NULL, 0) == 0);
+}
+
+static bool get_sysctl(const char *name, void *ret, size_t *oldlenp)
+{
+    return (sysctlbyname(name, ret, oldlenp, NULL, 0) == 0);
 }
 
 static CPU::CPU_t get_cpu_infos()
 {
     CPU::CPU_t ret;
     debug("calling in CPU {}", __PRETTY_FUNCTION__);
+    char buf[1024]; 
+    size_t len = sizeof(buf);
+
+    get_sysctl("machdep.cpu.brand_string", &buf, &len);
+    ret.name = buf;
+
+    if (!(get_sysctl("machdep.cpu.vendor", &buf, &len)) && hasStart(ret.name, "Apple"))
+        ret.vendor = "Apple";
+    else
+        ret.vendor = buf;
+
+    if (!get_sysctl("hw.logicalcpu_max", &buf, &len))
+        get_sysctl("hw.ncpu", &buf, &len);
+    ret.nproc = buf;
+
+    uint64_t freq_cur = 0, freq_max = 0, freq_min;
+    size_t length = sizeof(freq_cur);
+    get_sysctl("hw.cpufrequency_max", &freq_max, &length);
+    get_sysctl("hw.cpufrequency_min", &freq_min, &length);
+
+    if (!get_sysctl("hw.cpufrequency", &freq_cur, &length))
+        get_sysctl((int[]){ CTL_HW, HW_CPU_FREQ }, &freq_cur, &length);
+
+    ret.freq_cur = static_cast<double>(freq_cur) / std::giga().num;
+    ret.freq_max = static_cast<double>(freq_max) / std::giga().num;
+    ret.freq_min = static_cast<double>(freq_min) / std::giga().num;
     return ret;
 }
 

@@ -201,8 +201,8 @@ class CPU
 public:
     struct CPU_t
     {
-        std::string name{ UNKNOWN };
-        std::string nproc{ UNKNOWN };
+        std::string name{ MAGIC_LINE };
+        std::string nproc{ MAGIC_LINE };
 
         double freq_max        = 0;
         double freq_min        = 0;
@@ -242,8 +242,8 @@ class GPU
 public:
     struct GPU_t
     {
-        std::string name{ UNKNOWN };
-        std::string vendor{ UNKNOWN };
+        std::string name{ MAGIC_LINE };
+        std::string vendor{ MAGIC_LINE };
     };
 
     GPU(const std::string& id, systemInfo_t& queried_gpus);
@@ -270,8 +270,8 @@ public:
         std::string status{ MAGIC_LINE };
         std::string technology{ UNKNOWN };
         std::string capacity_level{ UNKNOWN };
-        double      temp{ 0 };
-        double      perc{ 0 };
+        double      temp = 0;
+        double      perc = 0;
     };
 
     Battery();
@@ -294,13 +294,13 @@ class Disk
 public:
     struct Disk_t
     {
+        std::string typefs { MAGIC_LINE };
+        std::string device { MAGIC_LINE };
+        std::string mountdir{ MAGIC_LINE };
         double      total_amount = 0;
         double      free_amount  = 0;
         double      used_amount  = 0;
         int         types_disk   = 0;
-        std::string typefs { MAGIC_LINE };
-        std::string device { MAGIC_LINE };
-        std::string mountdir{ MAGIC_LINE };
     };
 
     Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args,

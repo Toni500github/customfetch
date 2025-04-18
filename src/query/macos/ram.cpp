@@ -26,6 +26,7 @@
 #include "platform.hpp"
 #if CF_MACOS
 
+#include <cstdint>
 #include <mach/mach.h>
 #include <sys/sysctl.h>
 #include <unistd.h>
@@ -40,11 +41,14 @@ static RAM::RAM_t get_amount()
 {
     RAM::RAM_t ret;
     uint64_t total = 0, used = 0, page_size = 0;
+    int name[2] = { CTL_HW, HW_MEMSIZE };
     size_t length = sizeof(total);
-    if (sysctl((int[]){ CTL_HW, HW_MEMSIZE }, 2, &total, &length, NULL, 0))
+    if (sysctl(name, 2, &total, &length, NULL, 0))
         die(_("Failed to get RAM infos"));
 
-    sysctl((int[]){ CTL_HW, HW_PAGESIZE }, 2, &page_size, &length, NULL, 0);
+    name[0] = CTL_HW;
+    name[1] = HW_PAGESIZE;
+    sysctl(name, 2, &page_size, &length, NULL, 0);
     mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
     vm_statistics64_data_t vmstat;
     if(host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info64_t) (&vmstat), &count) != KERN_SUCCESS)
@@ -66,6 +70,17 @@ static RAM::RAM_t get_amount()
     // I have just now saw fastfetch doesn't have a way to know free memory
     // why??
     ret.free_amount = ret.total_amount - ret.used_amount;
+
+    struct xsw_usage xsw;
+    length = sizeof(xsw);
+    name[0] = CTL_VM;
+    name[1] = VM_SWAPUSAGE;
+    if(sysctl(name, 2, &xsw, &length, NULL, 0) != 0)
+        return ret;
+
+    ret.swap_total_amount = static_cast<double>(xsw.xsu_total);
+    ret.swap_used_amount = static_cast<double>(xsw.xsu_used);
+    ret.swap_free_amount = static_cast<double>(xsw.xsu_avail);
 
     return ret;
 }
