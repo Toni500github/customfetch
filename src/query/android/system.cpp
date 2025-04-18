@@ -83,15 +83,13 @@ static unsigned long get_uptime()
 
 System::System()
 {
-    CHECK_INIT(!m_bInit)
-    {
-        if (uname(&m_uname_infos) != 0)
-            die("uname() failed: {}\nCould not get system infos", strerror(errno));
+    CHECK_INIT(m_bInit);
 
-        m_uptime = get_uptime();
-        m_system_infos = get_system_infos();
-    }
-    m_bInit = true;
+    if (uname(&m_uname_infos) != 0)
+        die("uname() failed: {}\nCould not get system infos", strerror(errno));
+
+    m_uptime = get_uptime();
+    m_system_infos = get_system_infos();
 }
 
 // clang-format off

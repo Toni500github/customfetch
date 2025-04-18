@@ -334,15 +334,10 @@ static std::string get_term_version(const std::string_view term_name)
 
 User::User() noexcept
 {
-    CHECK_INIT(!m_bInit)
-    {
-        const uid_t uid = getuid();
+    CHECK_INIT(m_bInit);
 
-        if (m_pPwd = getpwuid(uid), !m_pPwd)
-            die(_("getpwent failed: {}\nCould not get user infos"), std::strerror(errno));
-
-        m_bInit = true;
-    }
+    if (m_pPwd = getpwuid(getuid()), !m_pPwd)
+        die(_("getpwent failed: {}\nCould not get user infos"), std::strerror(errno));
 }
 
 // clang-format off

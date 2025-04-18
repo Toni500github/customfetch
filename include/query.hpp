@@ -60,10 +60,14 @@ using variant = std::variant<std::string, size_t, double>;
 
 inline bool is_live_mode = false;
 
-#if !ANDROID_APP
-#define CHECK_INIT(x) if (x || is_live_mode)
+#if ANDROID_APP
+#define CHECK_INIT(x) if (false) return
 #else
-#define CHECK_INIT(x) if (true)
+#define CHECK_INIT(x) \
+if (!x || is_live_mode) \
+    x = true; \
+else \
+    return
 #endif
 
 namespace Query

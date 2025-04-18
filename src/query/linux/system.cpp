@@ -177,19 +177,17 @@ static unsigned long get_uptime()
 
 System::System()
 {
-    CHECK_INIT(!m_bInit)
-    {
-        if (uname(&m_uname_infos) != 0)
-            die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
+    CHECK_INIT(m_bInit);
 
-        m_uptime = get_uptime();
-        m_system_infos = get_system_infos_os_releases();
-        if (m_system_infos.os_name == UNKNOWN || m_system_infos.os_pretty_name == UNKNOWN)
-            m_system_infos = get_system_infos_lsb_releases();
+    if (uname(&m_uname_infos) != 0)
+        die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
 
-        get_host_paths(m_system_infos);
-    }
-    m_bInit = true;
+    m_uptime = get_uptime();
+    m_system_infos = get_system_infos_os_releases();
+    if (m_system_infos.os_name == UNKNOWN || m_system_infos.os_pretty_name == UNKNOWN)
+        m_system_infos = get_system_infos_lsb_releases();
+
+    get_host_paths(m_system_infos);
 }
 
 // clang-format off
