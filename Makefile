@@ -54,12 +54,11 @@ NAME		 = customfetch
 TARGET		?= $(NAME)
 OLDVERSION	 = 0.10.2
 VERSION    	 = 1.0.0
-BRANCH     	 = $(shell git rev-parse --abbrev-ref HEAD)
 SRC 	   	 = $(wildcard src/*.cpp src/query/linux/*.cpp src/query/android/*.cpp src/query/macos/*.cpp src/query/linux/utils/*.cpp)
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DBRANCH=\"$(BRANCH)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
+CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
 
 all: fmt toml $(TARGET)
 
@@ -77,6 +76,7 @@ endif
 
 $(TARGET): fmt toml $(OBJ)
 	mkdir -p $(BUILDDIR)
+	sh ./scripts/generateVersion.sh
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
@@ -147,4 +147,4 @@ updatever:
 	sed -i "s#set(VERSION \"$(OLDVERSION)\")#set(VERSION \"$(VERSION)\")#g" CMakeLists.txt android/CMakeLists.txt
 	sed -i "s#Project-Id-Version: customfetch $(OLDVERSION)#Project-Id-Version: customfetch $(VERSION)#g" po/*
 
-.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all locale
+.PHONY: $(TARGET) android_app updatever remove uninstall delete dist distclean fmt toml install all locale

@@ -44,6 +44,12 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
+#if (__has_include("version.h"))
+# include "version.h"
+#else
+# include "version.h.in"
+#endif
+
 // clang-format off
 // https://cfengine.com/blog/2021/optional-arguments-with-getopt-long/
 // because "--opt-arg arg" won't work
@@ -72,7 +78,14 @@ using namespace std::string_view_literals;
 
 static STRING_IF_ANDROID_APP_ELSE(void) version()
 {
-    std::string version{ "customfetch " VERSION " branch " BRANCH "\n" };
+#if ANDROID_APP
+    std::string version{ "customfetch " VERSION " for android app" };
+#else
+    std::string version{ fmt::format("customfetch {} built from branch {} at {} commit {} ({}).\n"
+                                    "Date: {}\n"
+                                    "Tag: {}\n\n",
+                                    VERSION, GIT_BRANCH, GIT_DIRTY, GIT_COMMIT_HASH, GIT_COMMIT_MESSAGE, GIT_COMMIT_DATE, GIT_TAG) };
+#endif
 
 #if !(USE_DCONF)
     version += "NO flags were set\n";
