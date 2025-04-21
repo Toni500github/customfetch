@@ -205,7 +205,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
         m_overlay.add_overlay(m_bg_image);
     }
 
-    if (Display::ascii_logo_fd != 9669)
+    if (Display::ascii_logo_fd != -1)
     {
         ::remove(path.data());
         ::close(Display::ascii_logo_fd);

@@ -44,9 +44,9 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-#if !(__has_include("version.h"))
+#if (!__has_include("version.h") && !ANDROID_APP)
 # error "version.h not found, please generate it with ./scripts/generateVersion.sh"
-#else
+#elif !ANDROID_APP
 # include "version.h"
 #endif
 

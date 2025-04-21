@@ -554,7 +554,7 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 
 std::string read_shell_exec(const std::string_view cmd)
 {
-    std::array<char, 1024> buffer;
+    std::array<char, 4096> buffer;
     std::string            result;
     std::unique_ptr<FILE, void(*)(FILE*)> pipe(popen(cmd.data(), "r"),
     [](FILE *f) -> void

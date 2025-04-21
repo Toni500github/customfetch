@@ -107,7 +107,7 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
         die(_("Unable to load image '{}'"), path);
 
     stbi_image_free(img);
-    if (Display::ascii_logo_fd != 9669)
+    if (Display::ascii_logo_fd != -1)
     {
         remove(path.data());
         close(Display::ascii_logo_fd);
@@ -309,7 +309,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     }
 #endif
 
-    if (Display::ascii_logo_fd != 9669)
+    if (Display::ascii_logo_fd != -1)
     {
         remove(path.data());
         close(Display::ascii_logo_fd);

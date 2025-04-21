@@ -104,7 +104,7 @@ void display(const std::vector<std::string>& renderResult);
 std::string detect_distro(const Config& config);
 
 // 
-inline int ascii_logo_fd = 9669;
+inline int ascii_logo_fd = -1;
 }  // namespace Display
 
 #endif
