@@ -189,6 +189,42 @@ static std::string get_shell_name(const std::string_view shell_path)
     return shell_path.substr(shell_path.rfind('/') + 1).data();
 }
 
+static std::string get_term_name_env()
+{
+    if (getenv("SSH_TTY") != NULL)
+        return getenv("SSH_TTY");
+
+    if (getenv("KITTY_PID") != NULL              ||
+        getenv("KITTY_INSTALLATION_DIR") != NULL ||
+        getenv("KITTY_PUBLIC_KEY") != NULL       ||
+        getenv("KITTY_WINDOW_ID") != NULL)
+        return "kitty";
+    
+    if (getenv("ALACRITTY_SOCKET") != NULL ||
+        getenv("ALACRITTY_LOG") != NULL ||
+        getenv("ALACRITTY_WINDOW_ID") != NULL)
+        return "alacritty";
+
+    if (getenv("TERMUX_VERSION") != NULL ||
+        getenv("TERMUX_MAIN_PACKAGE_FORMAT") != NULL)
+        return "com.termux";
+
+    if(getenv("KONSOLE_VERSION") != NULL)
+        return "konsole";
+
+    if (getenv("GNOME_TERMINAL_SCREEN") != NULL ||
+        getenv("GNOME_TERMINAL_SERVICE") != NULL) 
+        return "gnome-terminal";
+
+    if (getenv("TERM_PROGRAM") != NULL)
+        return getenv("TERM_PROGRAM");
+
+    if (getenv("TERM") != NULL)
+        return getenv("TERM");
+
+    return UNKNOWN;
+}
+
 #if CF_LINUX
 static std::string get_term_name(std::string& term_ver, const std::string_view osname)
 {
@@ -288,6 +324,10 @@ pid_t get_ppid(pid_t pid)
 
 static std::string get_term_name(std::string& term_ver, const std::string_view osname)
 {
+    std::string term{get_term_name_env()};
+    if (term != UNKNOWN)
+        return term;
+
     // customfetch -> shell -> terminal
     pid_t terminal_pid = 0;
     pid_t current = getpid();
