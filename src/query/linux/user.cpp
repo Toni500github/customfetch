@@ -46,6 +46,9 @@
 // #endif
 
 #include "query.hpp"
+#if CF_MACOS
+# include "rapidxml-1.13/rapidxml.hpp"
+#endif
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 #include "utils/dewm.hpp"
@@ -189,7 +192,7 @@ static std::string get_shell_name(const std::string_view shell_path)
     return shell_path.substr(shell_path.rfind('/') + 1).data();
 }
 
-static std::string get_term_name_env()
+static std::string get_term_name_env(bool get_default = false)
 {
     if (getenv("SSH_TTY") != NULL)
         return getenv("SSH_TTY");
@@ -216,11 +219,21 @@ static std::string get_term_name_env()
         getenv("GNOME_TERMINAL_SERVICE") != NULL) 
         return "gnome-terminal";
 
-    if (getenv("TERM_PROGRAM") != NULL)
-        return getenv("TERM_PROGRAM");
+    if (get_default)
+    {
+        char *env = getenv("TERM_PROGRAM");
+        if (env != NULL)
+        {
+            if (hasStart(env, "Apple"))
+                return "Apple Terminal";
 
-    if (getenv("TERM") != NULL)
-        return getenv("TERM");
+            return env;
+        }
+
+        env = getenv("TERM");
+        if (env != NULL)
+            return env;
+    }
 
     return UNKNOWN;
 }
@@ -360,6 +373,33 @@ static std::string get_term_version(const std::string_view term_name)
 
     bool remove_term_name = true;
     std::string ret;
+
+#if CF_MACOS
+    if (term_name == "Apple Terminal")
+    {
+        std::ifstream f("/System/Applications/Utilities/Terminal.app/Content/version.plist", std::ios::in);
+        if (!f.is_open())
+            goto skip;
+
+        std::string buffer((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+        buffer.push_back('\0');
+
+        rapidxml::xml_document<> doc;
+        doc.parse<0>(&buffer[0]);
+        rapidxml::xml_node<>* root_node = doc.first_node("plist")->first_node("dict")->first_node("key");
+
+        for (; root_node; root_node = root_node->next_sibling())
+        {
+            const std::string_view key = root_node->value(); // <key>ProductName</key>
+            root_node = root_node->next_sibling();
+            const std::string_view value = root_node->value(); // <string>macOS</string>
+            if (key == "CFBundleVersion")
+                return value.data();
+        }
+    }
+
+skip:
+#endif
 
     switch (fnv1a16::hash(str_tolower(term_name.data())))
     {
