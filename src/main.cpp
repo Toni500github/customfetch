@@ -44,10 +44,10 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-#if (__has_include("version.h"))
-# include "version.h"
+#if !(__has_include("version.h"))
+# error "version.h not found, please generate it with ./scripts/generateVersion.sh"
 #else
-# include "version.h.in"
+# include "version.h"
 #endif
 
 // clang-format off
@@ -83,14 +83,14 @@ static STRING_IF_ANDROID_APP_ELSE(void) version()
 #else
     std::string version{ fmt::format("customfetch {} built from branch {} at {} commit {} ({}).\n"
                                     "Date: {}\n"
-                                    "Tag: {}\n\n",
+                                    "Tag: {}",
                                     VERSION, GIT_BRANCH, GIT_DIRTY, GIT_COMMIT_HASH, GIT_COMMIT_MESSAGE, GIT_COMMIT_DATE, GIT_TAG) };
 #endif
 
 #if !(USE_DCONF)
-    version += "NO flags were set\n";
+    version += "\n\nNO flags were set\n";
 #else
-    version += "set flags:\n";
+    version += "\n\nset flags:\n";
 #if USE_DCONF
     version += "USE_DCONF\n";
 #endif

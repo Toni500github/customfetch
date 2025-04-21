@@ -29,7 +29,10 @@ add_executable(${TARGET_NAME} ${SRC})
 execute_process(COMMAND ./scripts/generateVersion.sh
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-set(VERSION "1.0.0")
+target_compile_definitions(${TARGET_NAME} PRIVATE
+        VERSION="1.0.0"
+)
+
 # https://github.com/libcpr/cpr/blob/5f475522597b8f3721e2440daddeced7a969f24c/CMakeLists.txt#L39
 macro(add_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
     option(${OPTION_NAME} ${OPTION_TEXT} ${OPTION_DEFAULT})
