@@ -235,6 +235,16 @@ Any `$` or brackets can be escaped with a backslash `\`. You need to escape back
 e.g `the number 50 is \< than 100 \& 98`
 Won't affect the printing in terminal
 
+## Star History
+
+<a href="https://www.star-history.com/#Toni500github/customfetch&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Toni500github/customfetch&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Toni500github/customfetch&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Toni500github/customfetch&type=Date" />
+ </picture>
+</a>
+
 # TODOs
 * ~~release v1.0.0~~
 Empty so far!

@@ -37,6 +37,8 @@ android {
                 targets("customfetch")
             }
         }
+        // disable generating PNGs from vector drawables
+        //vectorDrawables.generatedDensities = []
     }
 
     signingConfigs {
@@ -70,6 +72,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // disable PNG crunching
+            isCrunchPngs = false
         }
     }
 
