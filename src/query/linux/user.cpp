@@ -377,7 +377,7 @@ static std::string get_term_version(const std::string_view term_name)
 #if CF_MACOS
     if (term_name == "Apple Terminal")
     {
-        std::ifstream f("/System/Applications/Utilities/Terminal.app/Content/version.plist", std::ios::in);
+        std::ifstream f("/System/Applications/Utilities/Terminal.app/Contents/version.plist", std::ios::in);
         if (!f.is_open())
             goto skip;
 
