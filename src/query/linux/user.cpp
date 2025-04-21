@@ -189,6 +189,7 @@ static std::string get_shell_name(const std::string_view shell_path)
     return shell_path.substr(shell_path.rfind('/') + 1).data();
 }
 
+#if CF_LINUX
 static std::string get_term_name(std::string& term_ver, const std::string_view osname)
 {
     // customfetch -> shell -> terminal
@@ -270,6 +271,27 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
 
     return term_name;
 }
+#elif CF_MACOS
+#include <sys/proc_info.h>
+#include <libproc.h>
+static std::string get_term_name(std::string& term_ver, const std::string_view osname)
+{
+    // customfetch -> shell -> terminal
+    struct proc_bsdinfo info;
+    if (proc_pidinfo(getppid(), PROC_PIDTBSDINFO, 0, &info, sizeof(info)) <= 0)
+        return UNKNOWN;
+
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+    if (!proc_pidpath(info.pbi_ppid, pathbuf, sizeof(pathbuf)) <= 0)
+        return UNKNOWN;
+
+    std::string path{pathbuf};
+    if ((size_t pos = path.rfind('/')) != path.npos)
+        path.erase(0, pos+1);
+
+    return path;
+}
+#endif
 
 static std::string get_term_version(const std::string_view term_name)
 {
