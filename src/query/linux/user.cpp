@@ -273,6 +273,7 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
 }
 #elif CF_MACOS
 #include <sys/proc_info.h>
+#include <sys/sysctl.h>
 #include <libproc.h>
 
 pid_t get_ppid(pid_t pid)
@@ -297,14 +298,15 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
     }
 
     char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-    if (!proc_pidpath(terminal_pid, pathbuf, sizeof(pathbuf)) <= 0)
+    if (proc_pidpath(terminal_pid, pathbuf, sizeof(pathbuf)) <= 0)
         return UNKNOWN;
 
     std::string path{pathbuf};
     if (hasEnding(path, "Terminal.app/Contents/MacOS/Terminal"))
         return "Apple Terminal";
 
-    if ((size_t pos = path.rfind('/')) != path.npos)
+    size_t pos = path.rfind('/');
+    if (pos != path.npos)
         path.erase(0, pos+1);
 
     return path;
