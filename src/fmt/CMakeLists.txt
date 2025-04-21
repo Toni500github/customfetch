@@ -5,6 +5,9 @@ if (${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif ()
 
+# https://github.com/Toni500github/customfetch/issues/3
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--build-id=none")
+
 # Determine if fmt is built as a subproject (using add_subdirectory)
 # or if it is the master project.
 if (NOT DEFINED FMT_MASTER_PROJECT)

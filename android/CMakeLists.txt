@@ -6,6 +6,11 @@ project(customfetch)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3 -O0 -DDEBUG=1 -Wall -Wextra -Wpedantic -Wno-unused-parameter")
 
+# Make the application reproducible consistently
+# https://github.com/Toni500github/customfetch/issues/3
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--build-id=none")
+target_link_options(customfetch PUBLIC "-Wl,--build-id=none")
+
 include_directories(${CMAKE_SOURCE_DIR}/../include)
 
 file(GLOB
@@ -19,7 +24,6 @@ file(GLOB
 )
 
 add_library(customfetch SHARED ${SRC})
-add_link_options("-Wl,--build-id=none")
 
 # get git branch
 execute_process(
