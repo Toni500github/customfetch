@@ -46,6 +46,9 @@
 // #endif
 
 #include "query.hpp"
+#if CF_MACOS
+#include "rapidxml-1.13/rapidxml.hpp"
+#endif
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 #include "utils/dewm.hpp"
@@ -58,7 +61,7 @@ static std::string get_de_name()
     std::string ret = parse_de_env();
     debug("get_de_name = {}", ret);
     if (hasStart(ret, "X-"))
-        ret.erase(0,2);
+        ret.erase(0, 2);
 
     return ret;
 }
@@ -160,7 +163,7 @@ static std::string get_wm_wayland_name(std::string& wm_path_exec)
     f >> ret;
     wl_display_disconnect(display);
 
-    char buf[PATH_MAX];    
+    char buf[PATH_MAX];
     wm_path_exec = realpath(fmt::format("/proc/{}/exe", ucred.pid).c_str(), buf);
 
     UNLOAD_LIBRARY()
@@ -189,12 +192,61 @@ static std::string get_shell_name(const std::string_view shell_path)
     return shell_path.substr(shell_path.rfind('/') + 1).data();
 }
 
+// clang-format off
+static std::string get_term_name_env(bool get_default = false)
+{
+    if (getenv("SSH_TTY") != NULL)
+        return getenv("SSH_TTY");
+
+    if (getenv("KITTY_PID") != NULL              ||
+        getenv("KITTY_INSTALLATION_DIR") != NULL ||
+        getenv("KITTY_PUBLIC_KEY") != NULL       ||
+        getenv("KITTY_WINDOW_ID") != NULL)
+        return "kitty";
+    
+    if (getenv("ALACRITTY_SOCKET")      != NULL ||
+        getenv("ALACRITTY_LOG")         != NULL ||
+        getenv("ALACRITTY_WINDOW_ID")   != NULL)
+        return "alacritty";
+
+    if (getenv("TERMUX_VERSION")             != NULL ||
+        getenv("TERMUX_MAIN_PACKAGE_FORMAT") != NULL)
+        return "com.termux";
+
+    if(getenv("KONSOLE_VERSION") != NULL)
+        return "konsole";
+
+    if (getenv("GNOME_TERMINAL_SCREEN")  != NULL ||
+        getenv("GNOME_TERMINAL_SERVICE") != NULL) 
+        return "gnome-terminal";
+
+    if (get_default)
+    {
+        char *env = getenv("TERM_PROGRAM");
+        if (env != NULL)
+        {
+            if (hasStart(env, "Apple"))
+                return "Apple Terminal";
+
+            return env;
+        }
+
+        env = getenv("TERM");
+        if (env != NULL)
+            return env;
+    }
+
+    return UNKNOWN;
+}
+// clang-format on
+
+#if CF_LINUX
 static std::string get_term_name(std::string& term_ver, const std::string_view osname)
 {
     // customfetch -> shell -> terminal
     const pid_t   ppid = getppid();
     std::ifstream ppid_f(fmt::format("/proc/{}/status", ppid), std::ios::in);
-    std::string   line, term_pid{"0"};
+    std::string   line, term_pid{ "0" };
     while (std::getline(ppid_f, line))
     {
         if (hasStart(line, "PPid:"))
@@ -211,7 +263,10 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
 
     std::ifstream f("/proc/" + term_pid + "/comm", std::ios::in);
     std::string   term_name;
-    std::getline(f, term_name);
+    if (f.is_open())
+        std::getline(f, term_name);
+    else
+        term_name = get_term_name_env(true);
 
     // st (suckless terminal)
     if (term_name == "exe")
@@ -245,7 +300,7 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
 
         if ((pos = tmp_name.rfind('-')) != std::string::npos)
         {
-            term_ver = tmp_name.substr(pos+1);
+            term_ver = tmp_name.substr(pos + 1);
             tmp_name.erase(pos);  // gnome-console  EZ
         }
 
@@ -270,14 +325,86 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
 
     return term_name;
 }
+#elif CF_MACOS
+#include <libproc.h>
+#include <sys/proc_info.h>
+#include <sys/sysctl.h>
+
+pid_t get_ppid(pid_t pid)
+{
+    struct kinfo_proc info;
+    size_t            len    = sizeof(info);
+    int               mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, pid };
+    if (sysctl(mib, 4, &info, &len, NULL, 0) == -1)
+        return -1;
+    return info.kp_eproc.e_ppid;
+}
+
+static std::string get_term_name(std::string& term_ver, const std::string_view osname)
+{
+    std::string term{ get_term_name_env() };
+    if (term != UNKNOWN)
+        return term;
+
+    // customfetch -> shell -> terminal
+    pid_t terminal_pid = 0;
+    pid_t current      = getpid();
+    while ((current = get_ppid(current)) > 1)
+    {
+        terminal_pid = current;
+        debug("Terminal PID: {}", terminal_pid);
+    }
+
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+    if (proc_pidpath(terminal_pid, pathbuf, sizeof(pathbuf)) <= 0)
+        return UNKNOWN;
+
+    std::string path{ pathbuf };
+    if (hasEnding(path, "Terminal.app/Contents/MacOS/Terminal"))
+        return "Apple Terminal";
+
+    size_t pos = path.rfind('/');
+    if (pos != path.npos)
+        path.erase(0, pos + 1);
+
+    return path;
+}
+#endif
 
 static std::string get_term_version(const std::string_view term_name)
 {
     if (term_name.empty())
         return UNKNOWN;
 
-    bool remove_term_name = true;
+    bool        remove_term_name = true;
     std::string ret;
+
+#if CF_MACOS
+    if (term_name == "Apple Terminal")
+    {
+        std::ifstream f("/System/Applications/Utilities/Terminal.app/Contents/version.plist", std::ios::in);
+        if (!f.is_open())
+            goto skip;
+
+        std::string buffer((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+        buffer.push_back('\0');
+
+        rapidxml::xml_document<> doc;
+        doc.parse<0>(&buffer[0]);
+        rapidxml::xml_node<>* root_node = doc.first_node("plist")->first_node("dict")->first_node("key");
+
+        for (; root_node; root_node = root_node->next_sibling())
+        {
+            const std::string_view key   = root_node->value();  // <key>ProductName</key>
+            root_node                    = root_node->next_sibling();
+            const std::string_view value = root_node->value();  // <string>macOS</string>
+            if (key == "CFBundleVersion")
+                return value.data();
+        }
+    }
+
+skip:
+#endif
 
     switch (fnv1a16::hash(str_tolower(term_name.data())))
     {
@@ -285,19 +412,16 @@ static std::string get_term_version(const std::string_view term_name)
             if (fast_detect_st_ver(ret))
                 remove_term_name = false;
             break;
-        
+
         case "konsole"_fnv1a16:
             if (fast_detect_konsole_ver(ret))
                 remove_term_name = false;
             break;
-        
-        case "xterm"_fnv1a16:
-            get_term_version_exec(term_name, ret, true); break;
 
-        default:
-            get_term_version_exec(term_name, ret);
+        case "xterm"_fnv1a16: get_term_version_exec(term_name, ret, true); break;
+
+        default: get_term_version_exec(term_name, ret);
     }
-
 
     debug("get_term_version ret = {}", ret);
 
@@ -323,7 +447,7 @@ static std::string get_term_version(const std::string_view term_name)
 
     if (remove_term_name)
         ret.erase(0, term_name.length() + 1);
-    
+
     const size_t pos = ret.find(' ');
     if (pos != std::string::npos)
         ret.erase(pos);
@@ -415,24 +539,25 @@ std::string& User::wm_version(bool dont_query_dewm, const std::string_view term_
         m_users_infos.wm_name = MAGIC_LINE;
         return m_users_infos.wm_name;
     }
-    
+
     static bool done = false;
     if (!done)
     {
         m_users_infos.wm_version.clear();
-        if (m_users_infos.wm_name == "Xfwm4" && get_fast_xfwm4_version(m_users_infos.wm_version, m_users_infos.m_wm_path))
+        if (m_users_infos.wm_name == "Xfwm4" &&
+            get_fast_xfwm4_version(m_users_infos.wm_version, m_users_infos.m_wm_path))
         {
             done = true;
             goto _return;
         }
 
         if (m_users_infos.wm_name == "dwm")
-            read_exec({m_users_infos.m_wm_path.c_str(), "-v"}, m_users_infos.wm_version, true);
+            read_exec({ m_users_infos.m_wm_path.c_str(), "-v" }, m_users_infos.wm_version, true);
         else
-            read_exec({m_users_infos.m_wm_path.c_str(), "--version"}, m_users_infos.wm_version);
+            read_exec({ m_users_infos.m_wm_path.c_str(), "--version" }, m_users_infos.wm_version);
 
         if (m_users_infos.wm_name == "Xfwm4")
-            m_users_infos.wm_version.erase(0, "\tThis is xfwm4 version "_len); // saying only "xfwm4 4.18.2 etc." no?
+            m_users_infos.wm_version.erase(0, "\tThis is xfwm4 version "_len);  // saying only "xfwm4 4.18.2 etc." no?
         else
             m_users_infos.wm_version.erase(0, m_users_infos.wm_name.length() + 1);
 
@@ -443,7 +568,7 @@ std::string& User::wm_version(bool dont_query_dewm, const std::string_view term_
         done = true;
     }
 
-    _return:
+_return:
     return m_users_infos.wm_version;
 }
 
@@ -464,11 +589,10 @@ std::string& User::de_name(bool dont_query_dewm, const std::string_view term_nam
 
     if (!done)
     {
-        if ((m_users_infos.de_name != MAGIC_LINE && wm_name != MAGIC_LINE) &&
-            m_users_infos.de_name == wm_name)
+        if ((m_users_infos.de_name != MAGIC_LINE && wm_name != MAGIC_LINE) && m_users_infos.de_name == wm_name)
         {
             m_users_infos.de_name = MAGIC_LINE;
-            done = true;
+            done                  = true;
             return m_users_infos.de_name;
         }
 
@@ -542,4 +666,4 @@ done:
     return m_users_infos.term_version;
 }
 
-#endif // CF_LINUX
+#endif  // CF_LINUX
