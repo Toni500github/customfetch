@@ -60,7 +60,7 @@ LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
 
-all: fmt toml $(TARGET)
+all: genver fmt toml $(TARGET)
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
@@ -74,7 +74,12 @@ ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
 	make -C src/toml++ BUILDDIR=$(BUILDDIR)/toml++
 endif
 
-$(TARGET): fmt toml $(OBJ)
+genver: ./scripts/generateVersion.sh
+ifeq ($(wildcard include/version.h),)
+	./scripts/generateVersion.sh
+endif
+
+$(TARGET): genver fmt toml $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
