@@ -2,9 +2,9 @@ name: Makefile CI (Test customfetch)
 
 on:
   push:
-    branches: [ "main", "test", "android" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "test", "android" ]
+    branches: [ "main" ]
 
 jobs:
   build-deb:
@@ -23,7 +23,7 @@ jobs:
         sudo apt-get install binutils gettext lintian debhelper devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
 
     - name: Clean
-      run: make clean
+      run: make distclean
 
     - name: Create deb
       run: |
@@ -64,7 +64,7 @@ jobs:
         sudo apt-get install binutils lintian debhelper gettext devscripts debmake autoconf automake autotools-dev dh-make fakeroot xutils pbuilder -y
 
     - name: Clean
-      run: make clean
+      run: make distclean
 
     - name: Create deb
       run: |
@@ -96,7 +96,7 @@ jobs:
         sudo apt-get install neofetch tree build-essential g++-11 libwayland-dev gettext libgtk-3-dev pkg-config libdconf-dev libglib2.0-dev libgtkmm-3.0-dev libarchive-tools -y
     
     - name: Clean
-      run: make clean
+      run: make distclean
 
     - name: Compile and install
       run: make DEBUG=1 GUI_APP=0 CXX=x86_64-linux-gnu-g++-11 && sudo make install
@@ -135,7 +135,7 @@ jobs:
         sudo apt-get install neofetch tree build-essential g++-11 libwayland-dev gettext libgtk-3-dev pkg-config libdconf-dev libglib2.0-dev libgtkmm-3.0-dev -y
 
     - name: Clean
-      run: make clean
+      run: make distclean
 
     - name: Compile and install
       run: make DEBUG=1 GUI_APP=1 CXX=x86_64-linux-gnu-g++-11 && sudo make install GUI_APP=1
@@ -216,7 +216,7 @@ jobs:
         cat /etc/makepkg.conf
 
     - name: Clean
-      run: make clean
+      run: make distclean
 
     - name: Compile and install
       run: make install DEBUG=1 VENDOR_TEST=1 GUI_APP=0
@@ -267,6 +267,39 @@ jobs:
           name: customfetch-android-app
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the packages
+        run: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install --overwrite fastfetch neofetch tree llvm@19
+
+      - name: uname -a && clang++ --version
+        run: uname -a && echo "\n" && $(brew --prefix llvm@19)/bin/clang++ --version
+        
+      - name: Clean
+        run: make distclean
+
+      - name: Compile
+        run: make DEBUG=1 GUI_APP=0 CXX=$(brew --prefix llvm@19)/bin/clang++
+
+      - name: Test neofetch
+        run: neofetch
+
+      - name: Test fastfetch
+        run: fastfetch
+
+      - name: Test customfetch
+        run: ./build/debug/customfetch -D assets
+
+      - name: Upload to github artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: customfetch-macos
+          path: ./build/debug/customfetch
+
   test-all-ascii-art:
     runs-on: ubuntu-latest
 
@@ -277,7 +310,7 @@ jobs:
       run: sudo apt-get update && sudo apt-get install build-essential gettext tree pkg-config -y
     
     - name: Clean
-      run: make clean
+      run: make distclean
 
     - name: Compile and install
       run: sudo make install DEBUG=0 VENDOR_TEST=0 GUI_APP=0
