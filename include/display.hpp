@@ -103,8 +103,17 @@ void display(const std::vector<std::string>& renderResult);
  */
 std::string detect_distro(const Config& config);
 
-// 
+inline unsigned int calc_perc(const float perc, const int width, const int len)
+{
+    const int ret = (perc / 100 * width) - (perc / 100 * len);
+    debug("maxLineLength = {}", len);
+    debug("calc_perc ret = {}", ret);
+    return ret > 0 ? ret : 0;
+}
+
+// default ascii logo fd
 inline int ascii_logo_fd = -1;
+
 }  // namespace Display
 
 #endif

@@ -116,8 +116,11 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
+    const unsigned int offset = (config.offset.back() == '%') ? Display::calc_perc(std::stof(config.offset.substr(0,config.offset.size()-1)), image_width, 0) :
+                                                                std::stoi(config.offset);
+
     for (size_t i = 0; i < layout.size(); i++)
-        for (size_t _ = 0; _ < config.offset; _++)  // I use _ because we don't need it
+        for (size_t _ = 0; _ < offset; _++)  // I use _ because we don't need it
             layout.at(i).insert(0, " ");
 
     return layout;

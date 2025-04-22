@@ -608,7 +608,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
             case 'f':
                 config.overrides["gui.font"] = {.value_type = STR, .string_value = optarg}; break;
             case 'o':
-                config.overrides["config.offset"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
+                config.overrides["config.offset"] = {.value_type = STR, .string_value = optarg}; break;
             case 'C': // we have already did it in parse_config_path()
                 break;
             case 'D':

@@ -161,8 +161,11 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
         return layout;
     }
 
-    for (auto& str : layout)
-        for (size_t _ = 0; _ < width + config.offset; ++_)
+    const unsigned int offset = (config.offset.back() == '%') ? Display::calc_perc(std::stof(config.offset.substr(0,config.offset.size()-1)), width, 0) :
+                                                                std::stoi(config.offset);
+
+    for (std::string& str : layout)
+        for (size_t _ = 0; _ < width + offset; ++_)
             str.insert(0, " ");
 
     return layout;
@@ -282,15 +285,15 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
+    
+    struct winsize win;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
 
 #if !ANDROID_APP
     if (isImage)
     {
         // clear screen
         write(STDOUT_FILENO, "\33[H\33[2J", 7);
-
-        struct winsize win;
-        ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
 
         const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
         const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
@@ -395,6 +398,9 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         return layout;
     }
 
+    const unsigned int offset = (config.offset.back() == '%') ? calc_perc(std::stof(config.offset.substr(0,config.offset.size()-1)), win.ws_col, maxLineLength) :
+                                                                std::stoi(config.offset);
+
     size_t i;
     for (i = 0; i < layout.size(); i++)
     {
@@ -410,7 +416,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             origin += asciiArt.at(i).length();
         }
 
-        const size_t spaces = (maxLineLength + (config.args_disable_source ? 1 : config.offset)) -
+        const size_t spaces = (maxLineLength + (config.args_disable_source ? 1 : offset)) -
                               (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
 
         debug("spaces: {}", spaces);

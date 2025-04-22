@@ -91,7 +91,7 @@ public:
     std::string              gui_bg_image;
     std::string              ascii_logo_type;
     std::string              logo_position;
-    std::uint16_t            offset              = 0;
+    std::string              offset;
     std::uint16_t            logo_padding_left   = 0;
     std::uint16_t            logo_padding_top    = 0;
     std::uint16_t            layout_padding_top  = 0;
@@ -126,6 +126,7 @@ public:
     std::vector<std::string> args_layout;
     std::string              args_custom_distro;
     std::string              args_image_backend;
+    std::uint16_t            m_offset_calc        = 0;
     bool                     args_disable_source  = false;
     bool                     args_disable_colors  = false;
     bool                     m_display_distro     = true;
@@ -191,7 +192,7 @@ private:
             if (overridePos != overrides.end() && overrides.at(value.data()).value_type == INT)
                 return overrides.at(value.data()).int_value;
 
-        const std::optional<T> ret = this->tbl.at_path(value).value<T>();
+        const std::optional<T>& ret = this->tbl.at_path(value).value<T>();
         if constexpr (toml::is_string<T>)  // if we want to get a value that's a string
             return ret ? expandVar(ret.value(), dont_expand_var) : expandVar(fallback, dont_expand_var);
         else
@@ -301,7 +302,8 @@ sep-reset-after = false
 logo-position = "left"
 
 # Offset between the ascii art and the layout
-offset = 5
+# Can also be rapresented as a %, but super unstable sometimes.
+offset = "5"
 
 # Padding between the start and the ascii art
 logo-padding-left = 0
