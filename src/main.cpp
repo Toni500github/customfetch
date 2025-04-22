@@ -614,22 +614,22 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
             case 'D':
                 config.overrides["config.data-dir"] = {.value_type = STR, .string_value = optarg}; break;
             case 'd':
-                config.m_custom_distro = str_tolower(optarg); break;
+                config.args_custom_distro = str_tolower(optarg); break;
             case 'm':
-                config.m_args_layout.push_back(optarg); break;
+                config.args_layout.push_back(optarg); break;
             case 'p':
                 config.overrides["config.logo-position"] = {.value_type = STR, .string_value = optarg}; break;
             case 's':
                 config.overrides["config.source-path"] = {.value_type = STR, .string_value = optarg}; break;
             case 'i':
-                config.m_image_backend = optarg; break;
+                config.args_image_backend = optarg; break;
             case 'O':
                 config.overrideOption(optarg); break;
             case 'N':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.m_disable_colors = str_to_bool(optarg);
+                    config.args_disable_colors = str_to_bool(optarg);
                 else
-                    config.m_disable_colors = true;
+                    config.args_disable_colors = true;
                 break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
@@ -639,15 +639,15 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 break;
             case 'n':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.m_disable_source = str_to_bool(optarg);
+                    config.args_disable_source = str_to_bool(optarg);
                 else
-                    config.m_disable_source = true;
+                    config.args_disable_source = true;
                 break;
             case 'L':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.m_print_logo_only = str_to_bool(optarg);
+                    config.args_print_logo_only = str_to_bool(optarg);
                 else
-                    config.m_print_logo_only = true;
+                    config.args_print_logo_only = true;
                 break;
 
             case "logo-padding-top"_fnv1a16:
@@ -788,7 +788,7 @@ int main(int argc, char *argv[])
     is_live_mode = (config.loop_ms > 50);
 
     if (config.source_path.empty() || config.source_path == "off")
-        config.m_disable_source = true;
+        config.args_disable_source = true;
 
     config.m_display_distro = (config.source_path == "os");
 
@@ -810,7 +810,7 @@ int main(int argc, char *argv[])
 
     debug("{} path = {}", __PRETTY_FUNCTION__, path);
 
-    if (!std::filesystem::exists(path) && !config.m_disable_source)
+    if (!std::filesystem::exists(path) && !config.args_disable_source)
     {
         path = std::filesystem::temp_directory_path() / "customfetch_ascii_logo-XXXXXX";
         Display::ascii_logo_fd = mkstemp(path.data());

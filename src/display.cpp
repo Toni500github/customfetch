@@ -65,9 +65,9 @@ std::string Display::detect_distro(const Config& config)
 {
     //debug("/etc/os-release = \n{}", read_shell_exec("cat /etc/os-release 2> /dev/null"));
 
-    if (!config.m_custom_distro.empty())
+    if (!config.args_custom_distro.empty())
     {
-        return fmt::format("{}/ascii/{}.txt", config.data_dir, config.m_custom_distro);
+        return fmt::format("{}/ascii/{}.txt", config.data_dir, config.args_custom_distro);
     }
     else
     {
@@ -120,7 +120,7 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     {
         layout[i] = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
-        if (!config.gui && !config.m_disable_colors)
+        if (!config.gui && !config.args_disable_colors)
         {
             layout[i].insert(0, NOCOLOR);
         }
@@ -142,16 +142,16 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     const size_t width  = image_width / font_width;
     const size_t height = image_height / font_height;
 
-    if (config.m_image_backend == "kitty")
+    if (config.args_image_backend == "kitty")
         taur_exec({ "kitty", "+kitten", "icat",
                     "--align", (config.logo_position == "top" ? "center" : config.logo_position),
                     "--place", fmt::format("{}x{}@0x0", width, height), path });
-    else if (config.m_image_backend == "viu")
+    else if (config.args_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
     else
         die(_("The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
               "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),
-            config.m_image_backend);
+            config.args_image_backend);
 
     if (config.logo_position == "top")
     {
@@ -220,7 +220,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
                                          const std::string_view path)
 {
     systemInfo_t             systemInfo{};
-    std::vector<std::string> asciiArt{}, layout{ config.m_args_layout.empty() ? config.layout : config.m_args_layout };
+    std::vector<std::string> asciiArt{}, layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
     debug("Display::render path = {}", path);
 
@@ -233,7 +233,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     bool          isImage = false;
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
-    if (!config.m_disable_source)
+    if (!config.args_disable_source)
     {
         file.open(path.data(), std::ios::binary);
         fileToAnalyze.open(path.data(), std::ios::binary);
@@ -335,7 +335,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         std::string asciiArt_s   = parse(line, parse_args);
         parse_args.no_more_reset = false;
-        if (!config.m_disable_colors)
+        if (!config.args_disable_colors)
             asciiArt_s += config.gui ? "" : NOCOLOR;
 
         if (config.gui)
@@ -356,7 +356,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         debug("asciiArt_s = {}", asciiArt_s);
     }
 
-    if (config.m_print_logo_only)
+    if (config.args_print_logo_only)
         return asciiArt;
 
     std::string  _;
@@ -366,7 +366,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         layout[i] = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
-        if (!config.gui && !config.m_disable_colors)
+        if (!config.gui && !config.args_disable_colors)
         {
             layout[i].insert(0, NOCOLOR);
         }
@@ -410,7 +410,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
             origin += asciiArt.at(i).length();
         }
 
-        const size_t spaces = (maxLineLength + (config.m_disable_source ? 1 : config.offset)) -
+        const size_t spaces = (maxLineLength + (config.args_disable_source ? 1 : config.offset)) -
                               (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
 
         debug("spaces: {}", spaces);
@@ -418,7 +418,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         for (size_t j = 0; j < spaces; j++)
             layout.at(i).insert(origin, space);
 
-        if (!config.m_disable_colors)
+        if (!config.args_disable_colors)
             layout.at(i) += config.gui ? "" : NOCOLOR;
     }
 

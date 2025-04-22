@@ -327,7 +327,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     const std::string endspan {!parse_args.firstrun_clr ? "</span>" : ""};
 #endif
 
-    if (config.m_disable_colors)
+    if (config.args_disable_colors)
     {
         if (parser.dollar_pos != std::string::npos)
             parse_args.pureOutput.erase(parser.dollar_pos, taglen);

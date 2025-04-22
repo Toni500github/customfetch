@@ -64,7 +64,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
 {
     std::string              path{ Display::detect_distro(config) };
     systemInfo_t             systemInfo{};
-    std::vector<std::string> layout{ config.m_args_layout.empty() ? config.layout : config.m_args_layout };
+    std::vector<std::string> layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
     int image_width, image_height, channels;
 
@@ -127,7 +127,7 @@ bool Window::set_layout_markup()
 {
     if (isImage)
     {
-        if (!m_config.m_print_logo_only)
+        if (!m_config.args_print_logo_only)
             m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(m_config, m_colors), "\n")));
     }
     else
@@ -155,7 +155,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
         isImage = true;
 
     // useImage can be either a gif or an image
-    if (isImage && !config.m_disable_source)
+    if (isImage && !config.args_disable_source)
     {
         const auto& img = Gdk::PixbufAnimation::create_from_file(path.data());
         m_img           = Gtk::manage(new Gtk::Image(img));

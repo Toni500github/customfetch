@@ -144,7 +144,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
 
     const char *no_color = std::getenv("NO_COLOR");
     if (no_color != NULL && no_color[0] != '\0')
-        this->m_disable_colors = true;
+        this->args_disable_colors = true;
 }
 
 std::string Config::getThemeValue(const std::string_view value, const std::string_view fallback) const
