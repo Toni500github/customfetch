@@ -4,6 +4,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    kotlin("plugin.serialization") version "1.9.24"
 }
 
 fun getGitCommitHash(): String {
@@ -20,25 +21,23 @@ fun getGitCommitHash(): String {
 }
 
 android {
-    namespace = "org.toni.customfetch_android"
+    namespace = "org.toni.customfetch_android_app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "org.toni.customfetch_android"
+        applicationId = "org.toni.customfetch_android_app"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
+        /*externalNativeBuild {
             cmake {
                 cppFlags += "-I${rootDir}/../include -DANDROID_APP=1"
                 targets("customfetch")
             }
-        }
-        // disable generating PNGs from vector drawables
-        //vectorDrawables.generatedDensities = []
+        }*/
     }
 
     signingConfigs {
@@ -88,18 +87,19 @@ android {
         viewBinding = true
         buildConfig = true
     }
-    externalNativeBuild {
+    /*externalNativeBuild {
         cmake {
             path = file("../CMakeLists.txt")
             version = "3.22.1"
         }
-    }
+    }*/
 }
 
 dependencies {
     implementation(libs.colorpickerview)
     implementation(libs.colorpickerpref)
     implementation(libs.expandablelayout)
+    implementation("net.peanuuutz.tomlkt:tomlkt:0.3.7")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

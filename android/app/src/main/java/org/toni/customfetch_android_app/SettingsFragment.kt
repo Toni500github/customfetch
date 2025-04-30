@@ -23,48 +23,37 @@
  *
  */
 
-package org.toni.customfetch_android
+package org.toni.customfetch_android_app
 
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import org.toni.customfetch_android.databinding.AboutMeFragmentBinding
+import androidx.appcompat.widget.Toolbar
+import androidx.preference.ListPreference
+import androidx.preference.PreferenceFragmentCompat
+import com.jaredrummler.android.colorpicker.ColorPreferenceCompat
 
-class AboutMeFragment : Fragment() {
+class SettingsFragment : PreferenceFragmentCompat() {
 
-    private var _binding: AboutMeFragmentBinding? = null
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = AboutMeFragmentBinding.inflate(inflater, container, false)
-        binding.toolbarAboutMe.apply {
-            setNavigationIcon(R.drawable.arrow_back)
-            setNavigationOnClickListener { _ ->
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.findViewById<Toolbar>(R.id.toolbar_settings)?.let {
+            it.setNavigationIcon(R.drawable.arrow_back)
+            it.setNavigationOnClickListener {
                 requireActivity().supportFragmentManager.popBackStack()
             }
         }
-
-        binding.burntGithubLink.movementMethod = LinkMovementMethod.getInstance()
-        binding.toniGithubLink.movementMethod = LinkMovementMethod.getInstance()
-        binding.bcppDiscordLink.movementMethod = LinkMovementMethod.getInstance()
-        binding.fmtlibGithubLink.movementMethod = LinkMovementMethod.getInstance()
-        binding.tomlLibGithubLink.movementMethod = LinkMovementMethod.getInstance()
-        binding.colorpickerviewGithubLink.movementMethod = LinkMovementMethod.getInstance()
-        binding.quartzitechunkGithubLink.movementMethod = LinkMovementMethod.getInstance()
-
-        return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(R.xml.root_preferences, rootKey)
+
+        val defaultCustomColor = findPreference<ColorPreferenceCompat>("default_custom_color")
+
+        val defaultBgColor = findPreference<ListPreference>("default_bg_color")
+        defaultCustomColor?.isEnabled = (defaultBgColor?.findIndexOfValue(defaultBgColor.value.toString()) == 2)
+        defaultBgColor?.setOnPreferenceChangeListener { _, newValue ->
+            defaultCustomColor?.isEnabled = (defaultBgColor.findIndexOfValue(newValue.toString()) == 2)
+            true
+        }
     }
 }

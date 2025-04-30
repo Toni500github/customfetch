@@ -366,7 +366,7 @@ static void nativeAndFileLog(JNIEnv *env, int log_level, const std::string_view 
     jstring jMessage = env->NewStringUTF(fmt_str.c_str());
     const char *cMessage = env->GetStringUTFChars(jMessage, nullptr);
 
-    __android_log_print(log_level, "customfetch_android", "%s", cMessage);
+    __android_log_print(log_level, "customfetch_android_app", "%s", cMessage);
 
     env->ReleaseStringUTFChars(jMessage, cMessage);
 

@@ -268,7 +268,7 @@ source-path = "os"
 #if !ANDROID_APP
 R"#(data-dir = "/usr/share/customfetch")#"
 #else
-R"#(data-dir = "/data/user/0/org.toni.customfetch_android/files")#"
+R"#(data-dir = "/data/user/0/org.toni.customfetch_android_app/files")#"
 #endif
 R"#(
 

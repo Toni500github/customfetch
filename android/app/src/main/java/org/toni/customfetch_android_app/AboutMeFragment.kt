@@ -23,60 +23,42 @@
  *
  */
 
-package org.toni.customfetch_android
+package org.toni.customfetch_android_app
 
-import android.graphics.Color
 import android.os.Bundle
-import android.text.TextPaint
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import org.toni.customfetch_android.databinding.TestConfigFragmentBinding
-import org.toni.customfetch_android.widget.customfetchRender
+import org.toni.customfetch_android_app.databinding.AboutMeFragmentBinding
 
+class AboutMeFragment : Fragment() {
 
-class TestConfigFragment : Fragment() {
-
-    private var _binding: TestConfigFragmentBinding? = null
+    private var _binding: AboutMeFragmentBinding? = null
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
-    var configFile = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = TestConfigFragmentBinding.inflate(inflater, container, false)
-        binding.toolbar.apply {
+        _binding = AboutMeFragmentBinding.inflate(inflater, container, false)
+        binding.toolbarAboutMe.apply {
             setNavigationIcon(R.drawable.arrow_back)
             setNavigationOnClickListener { _ ->
                 requireActivity().supportFragmentManager.popBackStack()
             }
         }
 
-        val result = customfetchRender.getParsedContent(
-            AppCompatActivity(),
-            0,
-            0f,
-            false,
-            TextPaint(),
-            "-C $configFile -Nnm \$<os.name_id>", // this is the important thing
-            false
-        )
-
-        if (result.contentEquals("android")) {
-            binding.titleResult.setTextColor(Color.GREEN)
-            binding.titleResult.text = "SUCCESS"
-            binding.testConfigResult.text = "config file '$configFile' works!!"
-        } else {
-            binding.titleResult.setTextColor(Color.RED)
-            binding.titleResult.text = "FAILURE"
-            binding.testConfigResult.text = result
-        }
+        binding.burntGithubLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.toniGithubLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.bcppDiscordLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.fmtlibGithubLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.tomlLibGithubLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.colorpickerviewGithubLink.movementMethod = LinkMovementMethod.getInstance()
+        binding.quartzitechunkGithubLink.movementMethod = LinkMovementMethod.getInstance()
 
         return binding.root
     }

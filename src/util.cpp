@@ -296,15 +296,15 @@ bool read_binary_file(std::ifstream& f, std::string& ret)
 
 std::string get_relative_path(const std::string_view relative_path, const std::string_view env, const long long mode)
 {
-    const char* _env = std::getenv(env.data());
-    if (!_env)
+    const char* c_env = std::getenv(env.data());
+    if (!c_env)
         return UNKNOWN;
 
     struct stat sb;
     std::string fullPath;
     fullPath.reserve(1024);
 
-    for (const std::string& dir : split(_env, ':'))
+    for (const std::string& dir : split(c_env, ':'))
     {
         // -300ns for not creating a string. stonks
         fullPath += dir;

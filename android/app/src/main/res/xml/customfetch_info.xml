@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:configure="org.toni.customfetch_android.widget.CustomfetchConfigureActivity"
+    android:configure="org.toni.customfetch_android_app.widget.CustomfetchConfigureActivity"
     android:description="@string/app_widget_description"
     android:initialKeyguardLayout="@layout/customfetch"
     android:initialLayout="@layout/customfetch"

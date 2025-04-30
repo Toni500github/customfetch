@@ -23,7 +23,7 @@
  *
  */
 
-package org.toni.customfetch_android.widget
+package org.toni.customfetch_android_app.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -35,9 +35,9 @@ import android.os.Bundle
 import android.text.TextPaint
 import android.util.Log
 import android.widget.RemoteViews
-import org.toni.customfetch_android.R
+import org.toni.customfetch_android_app.R
 
-const val WIDGET_CLICK_ACTION = "org.toni.customfetch_android.WIDGET_CLICK"
+const val WIDGET_CLICK_ACTION = "org.toni.customfetch_android_app.WIDGET_CLICK"
 
 /**
  * Implementation of App Widget functionality.

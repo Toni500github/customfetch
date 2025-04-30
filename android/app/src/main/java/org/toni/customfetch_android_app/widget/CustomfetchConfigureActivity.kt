@@ -23,7 +23,7 @@
  *
  */
 
-package org.toni.customfetch_android.widget
+package org.toni.customfetch_android_app.widget
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -47,12 +47,12 @@ import android.widget.Toast
 import androidx.core.graphics.toColorInt
 import androidx.core.text.HtmlCompat
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
-import org.toni.customfetch_android.R
-import org.toni.customfetch_android.databinding.ColorpickerviewLayoutBinding
-import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
-import org.toni.customfetch_android.getAppSettingsPrefBool
-import org.toni.customfetch_android.getAppSettingsPrefInt
-import org.toni.customfetch_android.getAppSettingsPrefString
+import org.toni.customfetch_android_app.R
+import org.toni.customfetch_android_app.databinding.ColorpickerviewLayoutBinding
+import org.toni.customfetch_android_app.databinding.CustomfetchConfigureBinding
+import org.toni.customfetch_android_app.getAppSettingsPrefBool
+import org.toni.customfetch_android_app.getAppSettingsPrefInt
+import org.toni.customfetch_android_app.getAppSettingsPrefString
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -305,7 +305,7 @@ class CustomfetchMainRender {
 }
 val customfetchRender = CustomfetchMainRender()
 
-private const val PREFS_NAME = "org.toni.customfetch_android.customfetch"
+private const val PREFS_NAME = "org.toni.customfetch_android_app.customfetch"
 private const val PREF_PREFIX_KEY = "appwidget_"
 
 // Save the preferences to the SharedPreferences object for this widget

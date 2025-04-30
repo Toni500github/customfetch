@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "customfetch_android"
+rootProject.name = "customfetch_android_app"
 include(":app")
