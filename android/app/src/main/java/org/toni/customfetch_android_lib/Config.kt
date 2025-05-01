@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Config(
+data class ConfigTable(
     @SerialName("layout") val layout: List<String> = emptyList(),
     @SerialName("source-path") val sourcePath: String = "os",
     @SerialName("data-dir") val dataDir: String = "/data/user/0/org.toni.customfetch_android_app/files",
@@ -31,14 +31,8 @@ data class Config(
     @SerialName("cyan") val cyan: String = "\u001B[1;36m",
     @SerialName("white") val white: String = "\u001B[1;37m",
 
-    @SerialName("alias-colors") val aliasColors: List<String> = listOf("purple=magenta"),
-    @SerialName("percentage-colors") val percentageColors: List<String> = listOf("green", "yellow", "red"),
-
-    // Nested tables
-    @SerialName("auto.disk") val autoDisk: AutoDiskConfig = AutoDiskConfig(),
-    @SerialName("os.uptime") val osUptime: OsUptimeConfig = OsUptimeConfig(),
-    @SerialName("os.pkgs") val osPkgs: OsPkgsConfig = OsPkgsConfig(),
-    @SerialName("gui") val gui: GuiConfig = GuiConfig(),
+    @SerialName("alias-colors") val aliasColors: List<String> = arrayListOf("purple=magenta"),
+    @SerialName("percentage-colors") val percentageColors: List<String> = arrayListOf("green", "yellow", "red"),
 )
 
 // Sub-tables (nested configurations)
@@ -78,4 +72,14 @@ data class GuiConfig(
     @SerialName("magenta") val magenta: String = "!#FF00FF",
     @SerialName("white") val white: String = "!#FFFFFF",
     @SerialName("bg-image") val bgImage: String = "none"
+)
+
+@Serializable
+data class Config(
+    // Nested tables
+    @SerialName("config") val t: ConfigTable = ConfigTable(),
+    @SerialName("auto.disk") val autoDisk: AutoDiskConfig = AutoDiskConfig(),
+    @SerialName("os.uptime") val osUptime: OsUptimeConfig = OsUptimeConfig(),
+    @SerialName("os.pkgs") val osPkgs: OsPkgsConfig = OsPkgsConfig(),
+    @SerialName("gui") val gui: GuiConfig = GuiConfig(),
 )

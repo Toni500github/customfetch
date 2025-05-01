@@ -60,7 +60,7 @@ class Parser(val src: String, val pureOutput: StringBuilder) {
 }
 
 object ParserFunctions {
-    fun parseConditionalTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): String? {
+    private fun parseConditionalTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): String? {
         if (!parser.tryRead('[')) return null
 
         val condA = parse(parser, parseArgs, evaluate, ',')
@@ -74,7 +74,7 @@ object ParserFunctions {
         return if (cond) condTrue else condFalse
     }
 
-    fun parseInfoTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): String? {
+    private fun parseInfoTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): String? {
         if (!parser.tryRead('<')) return null
 
         val module = parse(parser, parseArgs, evaluate, '>')
@@ -89,7 +89,7 @@ object ParserFunctions {
             if (parser.dollarPos != -1) {
                 parseArgs.pureOutput.replace(
                     parser.dollarPos,
-                    parser.dollarPos + module.length + 3, // "$<>".length = 3
+                    parser.dollarPos + module.length + "$<>".length,
                     info
                 )
             }
@@ -106,14 +106,14 @@ object ParserFunctions {
         if (parser.dollarPos != -1) {
             parseArgs.pureOutput.replace(
                 parser.dollarPos,
-                parser.dollarPos + module.length + 3, // "$<>".length = 3
+                parser.dollarPos + module.length + "$<>".length,
                 info
             )
         }
         return info
     }
 
-    fun parseTags(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): String? {
+    private fun parseTags(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): String? {
         if (!parser.tryRead('$')) return null
 
         if (parser.dollarPos != -1) {
@@ -121,6 +121,9 @@ object ParserFunctions {
         }
 
         parseConditionalTag(parser, parseArgs, evaluate)?.let {
+            return it
+        }
+        parseInfoTag(parser, parseArgs, evaluate)?.let {
             return it
         }
 
@@ -131,7 +134,7 @@ object ParserFunctions {
     fun parse(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true, until: Char = 0.toChar()): String {
         val result = StringBuilder()
 
-        while ((until == 0.toChar()) == !parser.isEof()) {
+        while (if (until == 0.toChar()) !parser.isEof() else !parser.tryRead(until)) {
             if (until != 0.toChar() && parser.isEof()) {
                 error("PARSER: Missing tag close bracket $until in string '${parser.src}'")
                 return result.toString()
@@ -169,18 +172,18 @@ object ParserFunctions {
     ): String {
         var modifiedInput = input
 
-        if (config.sepReset.isNotEmpty() && parsingLayout && !noMoreReset.value) {
-            modifiedInput = if (config.sepResetAfter) {
-                modifiedInput.replace(config.sepReset, "${config.sepReset}\${0}")
+        if (config.t.sepReset.isNotEmpty() && parsingLayout && !noMoreReset.value) {
+            modifiedInput = if (config.t.sepResetAfter) {
+                modifiedInput.replace(config.t.sepReset, "${config.t.sepReset}\${0}")
             } else {
-                modifiedInput.replace(config.sepReset, "\${0}${config.sepReset}")
+                modifiedInput.replace(config.t.sepReset, "\${0}${config.t.sepReset}")
             }
             noMoreReset.value = true
         }
 
-        if (!parsingLayout) {
+        /*if (!parsingLayout) {
             modifiedInput = modifiedInput.replace(" ", "&nbsp;")
-        }
+        }*/
 
         val parseArgs = ParseArgs(
             systemInfo,
@@ -196,7 +199,7 @@ object ParserFunctions {
 
         val result = parse(Parser(modifiedInput, pureOutput), parseArgs)
 
-        val pureOutputStr = pureOutput.toString().replace("&nbsp;", " ")
+        val pureOutputStr = pureOutput.toString()//.replace("&nbsp;", " ")
         pureOutput.clear()
         pureOutput.append(pureOutputStr)
 
@@ -238,7 +241,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
         }
     }
 
-    val byteUnit = if (config.useSIByteUnit) 1000 else 1024
+    val byteUnit = if (config.t.useSIByteUnit) 1000 else 1024
     val sortedValidPrefixes = arrayOf("B", "EB", "EiB", "GB", "GiB", "kB",
         "KiB", "MB", "MiB", "PB", "PiB", "TB",
         "TiB", "YB", "YiB", "ZB", "ZiB")
