@@ -57,7 +57,7 @@ fun render(config: Config, file: File): List<String> {
         i++
     }
 
-    layout.removeAll { str -> str.contains("(cut this line NOW!! RAHH)") }
+    layout.removeAll { str -> str.contains(MAGIC_LINE) }
 
     if (config.t.logoPosition == "top" || config.t.logoPosition == "bottom") {
         if (asciiArt.isNotEmpty()) {

@@ -1,12 +1,25 @@
 package org.toni.customfetch_android_lib
 
 import org.toni.customfetch_android_lib.ParserFunctions.parse
+import org.toni.customfetch_android_lib.query.CPU
+import org.toni.customfetch_android_lib.query.Disk
+import org.toni.customfetch_android_lib.query.System
+import org.toni.customfetch_android_lib.query.User
 
 typealias SystemInfo = MutableMap<String, MutableMap<String, Variant>>
 
 // useless useful tmp string for parse() without using the original
 // pureOutput
 var s = StringBuilder()
+
+const val UNKNOWN = "(unknown)"
+// Usually in neofetch/fastfetch when some infos couldn't be queried,
+// they remove it from the display. With customfetch is kinda difficult to know when to remove
+// the info to display, since it's all modular with tags, so I have created
+// magic line to be sure that I don't cut the wrong line.
+//
+// Every instance of this string in a layout line, the whole line will be erased.
+const val MAGIC_LINE = "(cut this line NOW!! RAHHH)";
 
 sealed class Variant {
     data class StringVal(val value: String) : Variant()
@@ -227,6 +240,34 @@ fun getInfoFromName(
     return "(unknown/invalid module)"
 }
 
+private fun getAutoUptime(uptimeSecs: Long, config: Config): String {
+    val uptimeMins = uptimeSecs / 60
+    val uptimeHours = uptimeSecs / 3600
+    val uptimeDays = uptimeSecs / (3600 * 24)
+
+    val remainingSecs = (uptimeSecs % 60)
+    val remainingMins = (uptimeMins % 60)
+    val remainingHours = (uptimeHours % 24)
+    val days = uptimeDays
+
+    if (days == 0L && remainingHours == 0L && remainingMins == 0L) {
+        return "$remainingSecs${config.osUptime.secondsFormat}"
+    }
+
+    val parts = mutableListOf<String>()
+    if (days > 0L) parts.add("$days${config.osUptime.daysFormat}")
+    if (remainingHours > 0L) parts.add("$remainingHours${config.osUptime.hoursFormat}")
+    if (remainingMins > 0L) parts.add("$remainingMins${config.osUptime.minutesFormat}")
+
+    return parts.joinToString(", ")
+}
+
+// C enums-like because I ain't writing MemoryMetrics.FREE.index
+const val USED = 0
+const val FREE = 1
+const val TOTAL = 2
+
+val queriedPaths: SystemInfo = mutableMapOf()
 fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parseArgs: ParseArgs) {
     // Aliases for convention
     val config = parseArgs.config
@@ -256,16 +297,132 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
     }
 
     if (moduleName == "os") {
+        val querySystem = System.getInstance()
+
         if (!sysInfo.containsKey(moduleName)) {
             sysInfo[moduleName] = mutableMapOf()
         }
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
             when (moduleMemberName) {
-                "name" -> sysInfoInsert("Arch Linux")
-                "name_id" -> sysInfoInsert("arch")
+                "name" -> sysInfoInsert(querySystem.osPrettyName)
+                "name_id" -> sysInfoInsert(querySystem.osId)
+
+                "uptime" -> sysInfoInsert(getAutoUptime(querySystem.uptime, config))
+                "uptime_secs" -> sysInfoInsert((querySystem.uptime % 60).toULong())
+                "uptime_mins" -> sysInfoInsert((querySystem.uptime / 60 % 60).toULong())
+                "uptime_hours" -> sysInfoInsert((querySystem.uptime / 3600 % 24).toULong())
+                "uptime_days" -> sysInfoInsert((querySystem.uptime / (3600 * 24)).toULong())
+
+                "kernel" -> sysInfoInsert(querySystem.kernelName + " " + querySystem.kernelVersion)
+                "kernel_name" -> sysInfoInsert(querySystem.kernelName)
+                "kernel_version" -> sysInfoInsert(querySystem.kernelVersion)
+                "packages", "pkgs" -> sysInfoInsert(querySystem.pkgsInstalled(config))
+                "initsys_name" -> sysInfoInsert(querySystem.osInitsysName)
+                "initsys_version" -> sysInfoInsert(querySystem.osInitsysVersion)
+                "hostname" -> sysInfoInsert(querySystem.hostname)
+                "version_codename" -> sysInfoInsert(querySystem.osVersionCodename)
+                "version_id" -> sysInfoInsert(querySystem.osVersionId)
             }
         }
+    }
+    else if (moduleName == "system") {
+        val querySystem = System.getInstance()
+
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            when (moduleMemberName) {
+                "host" -> sysInfoInsert(
+                    "${querySystem.hostVendor} ${querySystem.hostModelname} ${querySystem.hostVersion}"
+                )
+                "host_name" -> sysInfoInsert(querySystem.hostModelname)
+                "host_vendor" -> sysInfoInsert(querySystem.hostVendor)
+                "host_version" -> sysInfoInsert(querySystem.hostVersion)
+                "arch" -> sysInfoInsert(querySystem.arch)
+            }
+        }
+    }
+    else if (moduleName == "user") {
+        val queryUser = User.getInstance()
+
+        if (!sysInfo.containsKey(moduleName))
+            sysInfo[moduleName] = mutableMapOf()
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            when (moduleMemberName) {
+                "name" -> sysInfoInsert(queryUser.name)
+
+                "shell", "shell_name", "shell_path", "shell_version",
+                "de_name", "de_version", "wm_name", "wm_version",
+                "terminal", "terminal_name", "terminal_version" -> sysInfoInsert(MAGIC_LINE)
+            }
+        }
+    }
+    else if (moduleName == "cpu") {
+        val queryCPU = CPU.getInstance()
+
+        if (!sysInfo.containsKey(moduleName))
+            sysInfo[moduleName] = mutableMapOf()
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            when (moduleMemberName) {
+                "name" -> sysInfoInsert(queryCPU.name)
+                "nproc" -> sysInfoInsert(queryCPU.nproc)
+                "freq_cur" -> sysInfoInsert(queryCPU.freqCurrent)
+                "freq_max" -> sysInfoInsert(queryCPU.freqMax)
+                "freq_min" -> sysInfoInsert(queryCPU.freqMin)
+                "freq_bios_limit" -> sysInfoInsert(MAGIC_LINE)
+
+                "temp_C" -> sysInfoInsert(queryCPU.temp)
+                "temp_F" -> sysInfoInsert((queryCPU.temp * 1.8 + 34))
+                "temp_K" -> sysInfoInsert((queryCPU.temp + 273.15))
+            }
+        }
+    }
+    else if (moduleName.startsWith("disk")) {
+        if (moduleName.length < "disk()".length)
+            throw IllegalArgumentException("invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
+
+        val path = moduleName.substring(6, moduleName.length-1)
+        val queryDisk = Disk.getInstance(path, queriedPaths, parseArgs)
+
+        if (!sysInfo.containsKey(moduleName))
+            sysInfo[moduleName] = mutableMapOf()
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val byteUnits = arrayOf(
+                autoDivideBytes(queryDisk.usedAmount, byteUnit),
+                autoDivideBytes(queryDisk.freeAmount, byteUnit),
+                autoDivideBytes(queryDisk.totalAmount, byteUnit)
+            )
+            when (moduleMemberName) {
+                "fs" -> sysInfoInsert(queryDisk.typesDisk)
+                "device" -> sysInfoInsert(queryDisk.device)
+                "mountdir" -> sysInfoInsert(queryDisk.mountdir)
+
+                "used" -> sysInfoInsert("%.2f %s".format(byteUnits[USED].numBytes, byteUnits[USED].unit))
+                "free" -> sysInfoInsert("%.2f %s".format(byteUnits[FREE].numBytes, byteUnits[FREE].unit))
+                "total" -> sysInfoInsert("%.2f %s".format(byteUnits[TOTAL].numBytes, byteUnits[TOTAL].unit))
+
+                else -> {
+                    if (moduleMemberName.startsWith("free-"))
+                        sysInfoInsert(returnDividedBytes(queryDisk.freeAmount))
+                    else if (moduleMemberName.startsWith("used-"))
+                        sysInfoInsert(returnDividedBytes(queryDisk.usedAmount))
+                    else if (moduleMemberName.startsWith("total-"))
+                        sysInfoInsert(returnDividedBytes(queryDisk.totalAmount))
+                }
+            }
+        }
+    }
+    else if (moduleName.startsWith("theme")) {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+        sysInfoInsert(MAGIC_LINE)
     }
 }
 

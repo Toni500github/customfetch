@@ -39,7 +39,7 @@ data class ConfigTable(
 @Serializable
 data class AutoDiskConfig(
     @SerialName("fmt") val format: String = "\${auto}Disk (%1): $<disk(%1)>",
-    @SerialName("display-types") val displayTypes: List<String> = listOf("regular"),
+    @SerialName("display-types") val displayTypes: List<String> = listOf("regular", "removable"),
     @SerialName("show-duplicated") val showDuplicated: Boolean = false
 )
 
