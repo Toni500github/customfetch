@@ -1,25 +1,130 @@
 package org.toni.customfetch_android_lib
 
+import gnu.getopt.Getopt
+import gnu.getopt.LongOpt
 import net.peanuuutz.tomlkt.Toml
+import org.toni.customfetch_android_app.BuildConfig
 import java.io.File
-import kotlinx.serialization.decodeFromString
+import java.io.FileNotFoundException
 import java.nio.file.Paths
 import kotlin.io.path.readText
+
+fun version(): String =
+    "customfetch v${BuildConfig.VERSION_NAME} (${BuildConfig.GIT_COMMIT_HASH}) (${BuildConfig.BUILD_TYPE})"
+
+fun strToBool(string: String): Boolean =
+    (string == "true" || string == "1" || string == "enable")
+
+fun handleOptional(optarg: String?, fallback: String): String =
+    optarg ?: fallback
+
+fun parseConfigArg(args: Array<String>): String {
+    val longOpts = arrayOf(
+        LongOpt("config", LongOpt.REQUIRED_ARGUMENT, null, 'C'.code)
+    )
+    val g = Getopt(args[0], args, "-C:", longOpts)
+    g.setOpterr(false)
+
+    var c: Int
+    while ((g.getopt().also { c = it }) != -1) {
+        when (c) {
+            'C'.code -> {
+                if (!File(g.optarg).exists())
+                    throw FileNotFoundException()
+                return g.optarg
+            }
+        }
+    }
+
+    return "/storage/emulated/0/.config/config.toml"
+}
+
+fun parseArgs(args: Array<String>, config: Config): String {
+    val longOpts = arrayOf(
+        LongOpt("version", LongOpt.NO_ARGUMENT, null, 'V'.code),
+        LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h'.code),
+        LongOpt("list-modules", LongOpt.NO_ARGUMENT, null, 'l'.code),
+        LongOpt("how-it-works", LongOpt.NO_ARGUMENT, null, 'w'.code),
+        LongOpt("logo-only", LongOpt.OPTIONAL_ARGUMENT, null, 'L'.code),
+        LongOpt("no-logo", LongOpt.OPTIONAL_ARGUMENT, null, 'n'.code),
+        LongOpt("no-color", LongOpt.OPTIONAL_ARGUMENT, null, 'N'.code),
+        LongOpt("ascii-logo-type", LongOpt.OPTIONAL_ARGUMENT, null, 'a'.code),
+        LongOpt("offset", LongOpt.REQUIRED_ARGUMENT, null, 'o'.code),
+        LongOpt("override", LongOpt.REQUIRED_ARGUMENT, null, 'O'.code),
+        LongOpt("font", LongOpt.REQUIRED_ARGUMENT, null, 'f'.code),
+        LongOpt("config", LongOpt.REQUIRED_ARGUMENT, null, 'C'.code),
+        LongOpt("layout-line", LongOpt.REQUIRED_ARGUMENT, null, 'm'.code),
+        LongOpt("logo-position", LongOpt.REQUIRED_ARGUMENT, null, 'p'.code),
+        LongOpt("data-dir", LongOpt.REQUIRED_ARGUMENT, null, 'D'.code),
+        LongOpt("distro", LongOpt.REQUIRED_ARGUMENT, null, 'd'.code),
+        LongOpt("source-path", LongOpt.REQUIRED_ARGUMENT, null, 's'.code),
+
+        LongOpt("list-logos", LongOpt.NO_ARGUMENT, null, 1000),
+        LongOpt("sep-reset-after", LongOpt.OPTIONAL_ARGUMENT, null, 1001),
+        LongOpt("wrap-lines", LongOpt.OPTIONAL_ARGUMENT, null, 1002),
+        LongOpt("gen-config", LongOpt.OPTIONAL_ARGUMENT, null, 1003),
+        LongOpt("sep-reset", LongOpt.REQUIRED_ARGUMENT, null, 1004),
+        LongOpt("title-sep", LongOpt.REQUIRED_ARGUMENT, null, 1005),
+        LongOpt("logo-padding-top", LongOpt.REQUIRED_ARGUMENT, null, 1006),
+        LongOpt("logo-padding-left", LongOpt.REQUIRED_ARGUMENT, null, 1007),
+        LongOpt("layout-padding-top", LongOpt.REQUIRED_ARGUMENT, null, 1008),
+        //LongOpt("loop-ms", LongOpt.REQUIRED_ARGUMENT, null, 1009),
+        //LongOpt("bg-image", LongOpt.REQUIRED_ARGUMENT, null, 1010),
+        LongOpt("color", LongOpt.REQUIRED_ARGUMENT, null, 1011),
+
+        LongOpt(null, 0, null, 0)
+    )
+
+    val g = Getopt(args[0], args, "-VhlwL::n::N::a::o:O:f:C:m:p:D:d:s:i:", longOpts)
+    g.setOpterr(true)
+
+    var c: Int
+    while ((g.getopt().also { c = it }) != -1) {
+        when (c) {
+            '?'.code, 'h'.code -> return help()
+            'V'.code -> return version()
+            'l'.code -> return modulesList()
+            'w'.code -> return howItWorks()
+            'f'.code -> config.gui.font = g.optarg
+            'o'.code -> config.t.offset = g.optarg.toInt()
+            'O'.code -> overrideOption(g.optarg, config)
+            'D'.code -> config.t.dataDir = g.optarg
+            'd'.code -> config.args.customDistro = g.optarg.lowercase()
+            'm'.code -> config.args.layout.add(g.optarg)
+            'p'.code -> config.t.logoPosition = g.optarg
+            's'.code -> config.t.sourcePath = g.optarg
+            'N'.code -> config.args.disableColors = strToBool(handleOptional(g.optarg, "true"))
+            'a'.code -> config.t.asciiLogoType = handleOptional(g.optarg, "")
+            'n'.code -> config.args.disableSource = strToBool(handleOptional(g.optarg, "true"))
+            'L'.code -> config.args.printLogoOnly = strToBool(handleOptional(g.optarg, "true"))
+
+            1001 -> config.t.sepResetAfter = strToBool(handleOptional(g.optarg, "true"))
+            1002 -> config.t.wrapLines = strToBool(handleOptional(g.optarg, "true"))
+            1003 -> generateConfig(File(g.optarg))
+            1004 -> config.t.sepReset = g.optarg
+            1005 -> config.t.titleSep = g.optarg
+            1006 -> config.t.logoPaddingTop = g.optarg.toInt()
+            1007 -> config.t.logoPaddingLeft = g.optarg.toInt()
+            1008 -> config.t.layoutPaddingTop = g.optarg.toInt()
+            1011 -> config.t.aliasColors.add(g.optarg)
+        }
+    }
+
+    return "success"
+}
 
 fun main(args: Array<String>) {
     val toml = Toml {
         ignoreUnknownKeys = true
     }
-    val tomlConfig = Paths.get("/tmp/taur/config.toml").readText()
-            .replace("\\e", "\\u001B") // Escape ANSI codes
+    val tomlConfig = Paths.get(parseConfigArg(args)).readText()
+            .replace("\\e[", "\\u001B[") // Escape ANSI codes
     val config = toml.decodeFromString(Config.serializer(), tomlConfig)
+    parseArgs(args, config)
 
-    println("Config source-path: ${config.t.sourcePath}")
+    println("Config (args modified) source-path: ${config.t.sourcePath}")
     println("Config offset: ${config.t.offset}")
-    println("Disk display types: ${config.autoDisk.displayTypes}")
-    println("Uptime days format: ${config.osUptime.daysFormat}")
-    println("Package managers: ${config.osPkgs.pkgManagers}")
-    println("GUI font: ${config.gui.font}")
+    println("Config alias-colors by args: ${config.t.aliasColors}")
 
     File("/tmp/taur/te.txt").writeText(render(
         config, File("/usr/share/customfetch/ascii/arch.txt")).joinToString(separator = "\n"))

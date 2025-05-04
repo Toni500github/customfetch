@@ -335,7 +335,7 @@ use-SI-byte-unit = false
 # e.g. falling back to gsettings when we can't find the config file for GTK
 slow-query-warnings = false
 
-# Colors in the terminal
+# Colors in the terminal (for Desktop/Android app, use the ones under [gui])
 black   = "\e[1;30m"
 red     = "\e[1;31m"
 green   = "\e[1;32m"
@@ -415,7 +415,7 @@ dpkg-files   = ["/var/lib/dpkg/status", "/data/data/com.termux/files/usr/var/lib
 flatpak-dirs = ["/var/lib/flatpak/app/", "~/.local/share/flatpak/app/"]
 apk-files    = ["/var/lib/apk/db/installed"]
 
-# GUI app options
+# Desktop/Android app options
 [gui]
 
 # Font to be used

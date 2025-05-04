@@ -547,7 +547,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhwnLlNa::f:o:C:O:i:d:D:p:s:m:";
+    const char *optstring = "-VhlwL::n::N::a::o:O:f:C:m:p:D:d:s:i:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},

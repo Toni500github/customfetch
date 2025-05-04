@@ -74,9 +74,9 @@ class CPU private constructor() {
         // n. of processors (also the name of CPU but we then need to use System.getProperty)
         Files.readAllLines(File("/proc/cpuinfo").toPath()).forEach { line ->
             if (line.startsWith("model name"))
-                ret.name = line.substring(line.indexOf(':'+1)).strip()
+                ret.name = line.substring(line.indexOf(':'+1)).trim()
             else if (line.startsWith("processor"))
-                ret.nproc = line.substring(line.indexOf(':'+1)).strip()
+                ret.nproc = line.substring(line.indexOf(':'+1)).trim()
         }
         ret.nproc = (ret.nproc.toInt()+1).toString()
 

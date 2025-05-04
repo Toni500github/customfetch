@@ -6,8 +6,6 @@ import org.toni.customfetch_android_lib.query.Disk
 import org.toni.customfetch_android_lib.query.System
 import org.toni.customfetch_android_lib.query.User
 
-typealias SystemInfo = MutableMap<String, MutableMap<String, Variant>>
-
 // useless useful tmp string for parse() without using the original
 // pureOutput
 var s = StringBuilder()
@@ -21,6 +19,7 @@ const val UNKNOWN = "(unknown)"
 // Every instance of this string in a layout line, the whole line will be erased.
 const val MAGIC_LINE = "(cut this line NOW!! RAHHH)";
 
+typealias SystemInfo = MutableMap<String, MutableMap<String, Variant>>
 sealed class Variant {
     data class StringVal(val value: String) : Variant()
     data class SizeT(val value: ULong) : Variant()
@@ -248,14 +247,12 @@ private fun getAutoUptime(uptimeSecs: Long, config: Config): String {
     val remainingSecs = (uptimeSecs % 60)
     val remainingMins = (uptimeMins % 60)
     val remainingHours = (uptimeHours % 24)
-    val days = uptimeDays
 
-    if (days == 0L && remainingHours == 0L && remainingMins == 0L) {
+    if (uptimeDays == 0L && remainingHours == 0L && remainingMins == 0L)
         return "$remainingSecs${config.osUptime.secondsFormat}"
-    }
 
     val parts = mutableListOf<String>()
-    if (days > 0L) parts.add("$days${config.osUptime.daysFormat}")
+    if (uptimeDays > 0L) parts.add("$uptimeDays${config.osUptime.daysFormat}")
     if (remainingHours > 0L) parts.add("$remainingHours${config.osUptime.hoursFormat}")
     if (remainingMins > 0L) parts.add("$remainingMins${config.osUptime.minutesFormat}")
 

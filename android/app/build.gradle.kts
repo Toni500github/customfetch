@@ -95,6 +95,10 @@ android {
     }*/
 }
 
+/*kotlin {
+    compilerOptions.freeCompilerArgs.add("-Xlint:deprecation")
+}*/
+
 dependencies {
     implementation(libs.colorpickerview)
     implementation(libs.colorpickerpref)
