@@ -1,4 +1,4 @@
-package org.toni.customfetch_android_app;
+package org.toni.customfetch_android;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;

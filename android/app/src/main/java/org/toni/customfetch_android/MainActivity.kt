@@ -23,7 +23,7 @@
  *
  */
 
-package org.toni.customfetch_android_app
+package org.toni.customfetch_android
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
@@ -46,7 +46,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import org.toni.customfetch_android_app.databinding.ActivityMainBinding
+import org.toni.customfetch_android.databinding.ActivityMainBinding
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

@@ -9,7 +9,7 @@ import java.io.File
 data class ConfigTable(
     @SerialName("layout") var layout: ArrayList<String> = arrayListOf(),
     @SerialName("source-path") var sourcePath: String = "os",
-    @SerialName("data-dir") var dataDir: String = "/data/user/0/org.toni.customfetch_android_app/files",
+    @SerialName("data-dir") var dataDir: String = "/data/user/0/org.toni.customfetch_android/files",
     @SerialName("ascii-logo-type") var asciiLogoType: String = "small",
     @SerialName("title-sep") var titleSep: String = "-",
     @SerialName("sep-reset") var sepReset: String = ":",

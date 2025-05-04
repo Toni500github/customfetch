@@ -402,7 +402,7 @@ source-path = "os"
 
 # Path to where we'll take all the distros/OSs ascii arts.
 # note: it MUST contain an "ascii" subdirectory
-data-dir = "/data/user/0/org.toni.customfetch_android_app/files"
+data-dir = "/data/user/0/org.toni.customfetch_android/files"
 
 # The type of ASCII art to apply ("small", "old").
 # Basically will add "_<type>" to the logo filename.

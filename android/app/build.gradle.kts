@@ -21,11 +21,11 @@ fun getGitCommitHash(): String {
 }
 
 android {
-    namespace = "org.toni.customfetch_android_app"
+    namespace = "org.toni.customfetch_android"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "org.toni.customfetch_android_app"
+        applicationId = "org.toni.customfetch_android"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

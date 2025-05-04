@@ -3,7 +3,7 @@ package org.toni.customfetch_android_lib
 import gnu.getopt.Getopt
 import gnu.getopt.LongOpt
 import net.peanuuutz.tomlkt.Toml
-import org.toni.customfetch_android_app.BuildConfig
+import org.toni.customfetch_android.BuildConfig
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Paths
