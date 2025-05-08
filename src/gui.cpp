@@ -23,7 +23,7 @@
  *
  */
 
-#if GUI_APP && !ANDROID_APP
+#if GUI_APP
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "gui.hpp"
@@ -227,4 +227,4 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
 
 Window::~Window() {}
 
-#endif  // GUI_APP && !ANDROID_APP
+#endif  // GUI_APP

@@ -88,7 +88,6 @@ std::string expandVar(std::string ret, bool dont)
     if (ret.empty() || dont)
         return ret;
 
-#if !ANDROID_APP
     const char* env;
     if (ret.front() == '~')
     {
@@ -117,7 +116,6 @@ std::string expandVar(std::string ret, bool dont)
         ret = env;
         ret += temp;
     }
-#endif
 
     return ret;
 }
@@ -613,12 +611,6 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 }
 
 // clang-format off
-#if ANDROID_APP
-std::string getHomeConfigDir()
-{
-    return "/storage/emulated/0/.config";
-}
-#else
 std::string getHomeConfigDir()
 {
     const char* dir = std::getenv("XDG_CONFIG_HOME");
@@ -638,7 +630,6 @@ std::string getHomeConfigDir()
         return std::string(home) + "/.config";
     }
 }
-#endif
 
 std::string getConfigDir()
 { return getHomeConfigDir() + "/customfetch"; }

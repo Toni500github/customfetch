@@ -39,13 +39,6 @@
 #include "fmt/color.h"
 #include "platform.hpp"
 
-#if ANDROID_APP
-# include <chrono>
-# include <filesystem>
-# include "fmt/chrono.h"
-# include "fmt/os.h"
-#endif
-
 // clang-format off
 // Get string literal length
 constexpr std::size_t operator""_len(const char*, std::size_t ln) noexcept
@@ -310,7 +303,6 @@ std::string getConfigDir();
 std::string get_android_property(const std::string_view name);
 #endif
 
-#if !ANDROID_APP
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
 {
@@ -348,110 +340,6 @@ void info(const std::string_view fmt, Args&&... args) noexcept
     fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::cyan))), "INFO: {}\033[0m\n",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
-#else
-#include "android/log.h"
-#include "jni.h"
-
-inline struct jni_objects
-{
-    JNIEnv *env;
-    jobject obj;
-} jni_objs;
-
-
-template <typename... Args>
-static void nativeAndFileLog(JNIEnv *env, int log_level, const std::string_view fmt, Args&&... args)
-{
-    const std::string& fmt_str = fmt::format(fmt::runtime(fmt), args...);
-    jstring jMessage = env->NewStringUTF(fmt_str.c_str());
-    const char *cMessage = env->GetStringUTFChars(jMessage, nullptr);
-
-    __android_log_print(log_level, "customfetch_android_app", "%s", cMessage);
-
-    env->ReleaseStringUTFChars(jMessage, cMessage);
-
-    if (!std::filesystem::exists(getConfigDir()))
-        std::filesystem::create_directories(getConfigDir());
-    
-    const std::string& log_file = getConfigDir() + "/log.txt";
-    auto now = std::chrono::system_clock::now();
-    // reset/delete log.txt if it's older than 5 days
-    // taken from https://github.com/BurntRanch/TabAUR/blob/main/src/util.cpp#L841
-    {
-        auto        timeout_duration = std::chrono::hours(24 * 5);
-        auto        timeout          = std::chrono::duration_cast<std::chrono::seconds>(timeout_duration).count();
-        std::time_t now_time_t       = std::chrono::system_clock::to_time_t(now);
-
-        struct stat file_stat;
-        if ((stat((log_file).c_str(), &file_stat) != 0)     || // failed to open file
-            (file_stat.st_mtim.tv_sec < now_time_t - timeout)) // file is older than 5 days
-            fmt::output_file(log_file, fmt::file::CREATE | fmt::file::TRUNC);
-    }
-
-    auto f = fmt::output_file(log_file, fmt::file::CREATE | fmt::file::APPEND | fmt::file::WRONLY);
-    f.print("[{:%H:%M:%S}] ", now);
-    switch(log_level)
-    {
-        case ANDROID_LOG_FATAL: f.print("FATAL: {}\n",   fmt_str); break;
-        case ANDROID_LOG_ERROR: f.print("ERROR: {}\n",   fmt_str); break;
-        case ANDROID_LOG_WARN:  f.print("WARNING: {}\n", fmt_str); break;
-        case ANDROID_LOG_INFO:  f.print("INFO: {}\n",    fmt_str); break;
-        case ANDROID_LOG_DEBUG: f.print("[DEBUG]: {}\n", fmt_str); break;
-    }
-}
-
-template <typename... Args>
-static void writeToErrorLog(const bool fatal, const std::string_view fmt, Args&&... args)
-{
-    const std::string& fmt_str = fmt::format(fmt::runtime(fmt), args...);
-    const std::string_view title = fatal ? "FATAL" : "ERROR";
-
-    if (!std::filesystem::exists(getConfigDir()))
-        std::filesystem::create_directories(getConfigDir());
-
-    auto f = fmt::output_file(getConfigDir() + "/error_log.txt", fmt::file::CREATE | fmt::file::APPEND | fmt::file::RDWR);
-    auto lock = fmt::output_file(getConfigDir() + "/error.lock");
-    auto now = std::chrono::system_clock::now();
-    f.print("[{:%H:%M:%S}] {}: {}\n", now, title, fmt_str);
-    lock.print("[{:%H:%M:%S}] {}: {}\n", now, title, fmt_str);
-}
-
-template <typename... Args>
-void error(const std::string_view fmt, Args&&... args) noexcept
-{
-    nativeAndFileLog(jni_objs.env, ANDROID_LOG_ERROR, fmt, std::forward<Args>(args)...);
-    writeToErrorLog(false, fmt, std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-void die(const std::string_view fmt, Args&&... args) noexcept
-{
-    nativeAndFileLog(jni_objs.env, ANDROID_LOG_FATAL, fmt, std::forward<Args>(args)...);
-    writeToErrorLog(true, fmt, std::forward<Args>(args)...);
-    //exit(1);
-}
-
-template <typename... Args>
-void debug(const std::string_view fmt, Args&&... args) noexcept
-{
-#if DEBUG
-    nativeAndFileLog(jni_objs.env, ANDROID_LOG_DEBUG, fmt, std::forward<Args>(args)...);
-#endif
-}
-
-template <typename... Args>
-void warn(const std::string_view fmt, Args&&... args) noexcept
-{
-    nativeAndFileLog(jni_objs.env, ANDROID_LOG_WARN, fmt, std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-void info(const std::string_view fmt, Args&&... args) noexcept
-{
-    nativeAndFileLog(jni_objs.env, ANDROID_LOG_INFO, fmt, std::forward<Args>(args)...);
-}
-
-#endif // !ANDROID_APP
 
 /** Ask the user a yes or no question.
  * @param def The default result

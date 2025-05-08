@@ -231,13 +231,11 @@ void Config::overrideOption(const std::string& opt)
 
 void Config::generateConfig(const std::string_view filename)
 {
-#if !ANDROID_APP
     if (std::filesystem::exists(filename))
     {
         if (!askUserYorN(false, "WARNING: config file '{}' already exists. Do you want to overwrite it?", filename))
             std::exit(1);
     }
-#endif
 
     auto f = fmt::output_file(filename.data());
     f.print("{}", AUTOCONFIG);

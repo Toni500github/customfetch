@@ -112,13 +112,9 @@ Battery::Battery()
 {
     CHECK_INIT(m_bInit);
 
-// can't execute commands in android app
-// also this is a widget, you can see the percentage in your topbar
-#if !ANDROID_APP
     m_battery_infos = get_battery_infos_termux();
     if (m_battery_infos.status == MAGIC_LINE || m_battery_infos.temp <= 0)
         m_battery_infos = get_battery_infos_dumpsys();
-#endif
 }
 
 // clang-format off

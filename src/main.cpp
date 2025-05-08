@@ -31,7 +31,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
-#include <fstream>
 #include <string>
 #include <thread>
 
@@ -44,9 +43,9 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-#if (!__has_include("version.h") && !ANDROID_APP)
+#if (!__has_include("version.h"))
 # error "version.h not found, please generate it with ./scripts/generateVersion.sh"
-#elif !ANDROID_APP
+#else
 # include "version.h"
 #endif
 
@@ -62,30 +61,13 @@
 
 using namespace std::string_view_literals;
 
-#if ANDROID_APP
-#define STRING_IF_ANDROID_APP_ELSE(x) std::string
-#define RETURN_OR_PRINT(x) return x
-#define RETURN_IF_ANDROID_APP return
-#define _true "true"
-#define _false "failed"
-#else
-#define STRING_IF_ANDROID_APP_ELSE(x) x
-#define RETURN_OR_PRINT(x) fmt::print("{}\n", x)
-#define RETURN_IF_ANDROID_APP
-#define _true true
-#define _false false
-#endif
 
-static STRING_IF_ANDROID_APP_ELSE(void) version()
+static void version()
 {
-#if ANDROID_APP
-    std::string version{ "customfetch " VERSION " for android app" };
-#else
     std::string version{ fmt::format("customfetch {} built from branch {} at {} commit {} ({}).\n"
                                     "Date: {}\n"
                                     "Tag: {}",
                                     VERSION, GIT_BRANCH, GIT_DIRTY, GIT_COMMIT_HASH, GIT_COMMIT_MESSAGE, GIT_COMMIT_DATE, GIT_TAG) };
-#endif
 
 #if !(USE_DCONF)
     version += "\n\nNO flags were set\n";
@@ -96,13 +78,13 @@ static STRING_IF_ANDROID_APP_ELSE(void) version()
 #endif
 #endif
 
-    RETURN_OR_PRINT(version);
+    fmt::print("{}\n", version);
 
     // if only everyone would not return error when querying the program version :(
     std::exit(EXIT_SUCCESS);
 }
 
-static STRING_IF_ANDROID_APP_ELSE(void) help(bool invalid_opt = false)
+static void help(bool invalid_opt = false)
 {
     constexpr std::string_view help(
 R"(Usage: customfetch [OPTIONS]...
@@ -170,11 +152,11 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1,
 Read the manual "customfetch.1" or --how-it-works for more infos about customfetch and how it works
 )");
 
-    RETURN_OR_PRINT(help.data());
+    fmt::print("{}\n", help);
     std::exit(invalid_opt);
 }
 
-static STRING_IF_ANDROID_APP_ELSE(void) modules_list()
+static void modules_list()
 {
     constexpr std::string_view list(R"(
 --------------------------------------------------------[ MODULE ONLY ]------------------------------------------------------------------------
@@ -388,11 +370,11 @@ system
 
 )");
 
-    RETURN_OR_PRINT(list.data());
+    fmt::print("{}\n", list);
     std::exit(EXIT_SUCCESS);
 }
 
-static STRING_IF_ANDROID_APP_ELSE(void) explain_how_this_works()
+static void explain_how_this_works()
 {
     constexpr std::string_view str(
 R"(
@@ -476,20 +458,15 @@ without quotes ofc
 
 )");
 
-    RETURN_OR_PRINT(str.data());
+    fmt::print("{}\n", str);
     std::exit(EXIT_SUCCESS);
 }
 
-static STRING_IF_ANDROID_APP_ELSE(void) list_logos(const Config& config)
+static void list_logos(const Config& config)
 {
+    debug("data = {}", config.data_dir);
     if (access(config.data_dir.c_str(), F_OK) != 0)
-    {
-#if ANDROID_APP
-        return fmt::format("failed to access data directory {}", config.data_dir);
-#else
         die("failed to access data directory {}", config.data_dir);
-#endif
-    }
 
     std::vector<std::string> list;
     for (const auto& logo : std::filesystem::directory_iterator{config.data_dir+"/ascii"})
@@ -500,7 +477,7 @@ static STRING_IF_ANDROID_APP_ELSE(void) list_logos(const Config& config)
 
     std::sort(list.begin(), list.end());
 
-    RETURN_OR_PRINT(fmt::format("{}", fmt::join(list, "\n")));
+    fmt::print("{}\n", fmt::join(list, "\n"));
     std::exit(EXIT_SUCCESS);
 }
 
@@ -542,7 +519,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
     return configDir + "/config.toml";
 }
 
-static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config& config, const std::string_view configFile)
+static bool parseargs(int argc, char* argv[], Config& config, const std::string_view configFile)
 {
     int opt = 0;
     int option_index = 0;
@@ -593,18 +570,18 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
             case 0:
                 break;
             case '?':
-                RETURN_IF_ANDROID_APP help(EXIT_FAILURE); break;
+                help(EXIT_FAILURE); break;
 
             case 'V':
-                RETURN_IF_ANDROID_APP version(); break;
+                version(); break;
             case 'h':
-                RETURN_IF_ANDROID_APP help(); break;
+                help(); break;
             case 'l':
-                RETURN_IF_ANDROID_APP modules_list(); break;
+                modules_list(); break;
             case 'w':
-                RETURN_IF_ANDROID_APP explain_how_this_works(); break;
+                explain_how_this_works(); break;
             case "list-logos"_fnv1a16:
-                RETURN_IF_ANDROID_APP list_logos(config); break;
+                list_logos(config); break;
             case 'f':
                 config.overrides["gui.font"] = {.value_type = STR, .string_value = optarg}; break;
             case 'o':
@@ -684,11 +661,11 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                 break;
 
             default:
-                return _false;
+                return false;
         }
     }
 
-    return _true;
+    return true;
 }
 
 static void enable_cursor()
@@ -714,16 +691,8 @@ static void localize(void)
 #endif
 }
 
-#if ANDROID_APP
-std::string mainAndroid_and_render(int argc, char *argv[], JNIEnv *env, jobject obj, bool do_not_load_config)
-{
-    jni_objs = {env, obj};
-    // reset option index
-    optind = 0;
-#else
 int main(int argc, char *argv[])
 {
-#endif
 
 #ifdef VENDOR_TEST
     // test
@@ -752,26 +721,11 @@ int main(int argc, char *argv[])
 
     localize();
 
-#if ANDROID_APP
-    Config config(configFile, configDir);
-    const std::string& parseargs_ret = parseargs(argc, argv, config, configFile);
-    if (parseargs_ret != _true)
-        return parseargs_ret;
-
-    if (!do_not_load_config)
-        config.loadConfigFile(configFile, colors);
-
-    // since ANDROID_APP means that it will run as an android widget, so in GUI,
-    // then let's make it always true
-    config.gui        = true;
-    config.wrap_lines = true;
-#else
     Config config(configFile, configDir);
     if (!parseargs(argc, argv, config, configFile))
         return 1;
 
     config.loadConfigFile(configFile, colors);
-#endif  // ANDROID_APP
 
     is_live_mode = (config.loop_ms > 50);
 
@@ -807,7 +761,6 @@ int main(int argc, char *argv[])
         write(Display::ascii_logo_fd, ascii_logo.data(), ascii_logo.size());
     }
 
-#if !ANDROID_APP
 #if GUI_APP
     config.gui = true;
     const auto& app = Gtk::Application::create("org.toni.customfetch");
@@ -849,9 +802,4 @@ int main(int argc, char *argv[])
         enable_cursor();
 
     return 0;
-#else
-
-    return fmt::format("{}", fmt::join(Display::render(config, colors, false, path), "<br>"));
-
-#endif  // !ANDROID_APP
 }

@@ -230,12 +230,6 @@ layout = [
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
     "${auto}Uptime: $<os.uptime>",)#"
-#if !ANDROID_APP
-    R"#(
-    "${auto}Terminal: $<user.terminal>",
-    "${auto}Shell: $<user.shell>",
-    "${auto}Packages: $<os.pkgs>",)#"
-#endif
 #if !CF_ANDROID
     R"#(
     "${auto}Theme: $<theme-gtk-all.name>",
@@ -264,25 +258,13 @@ source-path = "os"
 
 # Path to where we'll take all the distros/OSs ascii arts.
 # note: it MUST contain an "ascii" subdirectory
-)#"
-#if !ANDROID_APP
-R"#(data-dir = "/usr/share/customfetch")#"
-#else
-R"#(data-dir = "/data/user/0/org.toni.customfetch_android_app/files")#"
-#endif
-R"#(
+data-dir = "/usr/share/customfetch"
 
 # The type of ASCII art to apply ("small", "old").
 # Basically will add "_<type>" to the logo filename.
 # It will return the regular linux ascii art if it doesn't exist.
 # Leave empty it for regular.
-)#"
-#if !ANDROID_APP
-R"#(ascii-logo-type = "")#"
-#else
-R"#(ascii-logo-type = "small")#"
-#endif
-R"#(
+ascii-logo-type = ""
 
 # A char (or string) to use in $<title_sep>
 title-sep = "-"
@@ -317,13 +299,7 @@ layout-padding-top = 0
 # Usually in neofetch/fastfetch, when your terminal size is too small,
 # to render some text in 1 line, they don't wrap those lines, instead they truncate them.
 # Enable/Disable if you want this
-)#"
-#if !ANDROID_APP
-R"#(wrap-lines = false)#"
-#else
-R"#(wrap-lines = true)#"
-#endif
-R"#(
+wrap-lines = false
 
 # Used in disk, ram and swap modules.
 # If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)

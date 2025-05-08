@@ -83,7 +83,7 @@ std::string Display::detect_distro(const Config& config)
             return format;
     }
 
-#if ANDROID_APP
+#if CF_ANDROID
     return config.data_dir + "/ascii/android.txt";
 #elif CF_MACOS
     return config.data_dir + "/ascii/mac.txt";
@@ -92,7 +92,6 @@ std::string Display::detect_distro(const Config& config)
 #endif
 }
 
-#if !ANDROID_APP
 static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std::vector<std::string>& layout,
                                                   const Config& config, const colors_t& colors,
                                                   const std::string_view path, const std::uint16_t font_width,
@@ -217,7 +216,6 @@ static bool get_pos(int& y, int& x)
     tcsetattr(0, TCSANOW, &restore);
     return true;
 }
-#endif
 
 std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
                                          const std::string_view path)
@@ -226,12 +224,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     std::vector<std::string> asciiArt{}, layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
     debug("Display::render path = {}", path);
-
-#if ANDROID_APP
-    const std::string_view space = "&nbsp;";
-#else
-    const std::string_view space = " ";
-#endif
 
     bool          isImage = false;
     std::ifstream file;
@@ -289,7 +281,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     struct winsize win;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
 
-#if !ANDROID_APP
     if (isImage)
     {
         // clear screen
@@ -305,12 +296,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         return render_with_image(systemInfo, layout, config, colors, path, font_width, font_height);
     }
-#else
-    if (isImage)
-    {
-        die(_("images are NOT allowed in the android widget at the moment"));
-    }
-#endif
 
     if (Display::ascii_logo_fd != -1)
     {
@@ -408,7 +393,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         // The user-specified offset to be put before the logo
         for (size_t j = 0; j < config.logo_padding_left; j++)
-            layout.at(i).insert(0, space);
+            layout.at(i).insert(0, " ");
 
         if (i < asciiArt.size())
         {
@@ -422,7 +407,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         debug("spaces: {}", spaces);
 
         for (size_t j = 0; j < spaces; j++)
-            layout.at(i).insert(origin, space);
+            layout.at(i).insert(origin, " ");
 
         if (!config.args_disable_colors)
             layout.at(i) += config.gui ? "" : NOCOLOR;
@@ -434,7 +419,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         line.reserve(config.logo_padding_left + asciiArt.at(i).length());
 
         for (size_t j = 0; j < config.logo_padding_left; j++)
-            line += space;
+            line += " ";
 
         line += asciiArt.at(i);
 

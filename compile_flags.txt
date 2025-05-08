@@ -7,7 +7,6 @@
 -DGUI_APP=1
 -DUSE_DCONF=1
 -DDEBUG=1
--DANDROID_APP=0
 -DENABLE_NLS=1
 -DPREFIX="/usr"
 -DLOCALEDIR="/usr/share/locale"

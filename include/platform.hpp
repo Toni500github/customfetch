@@ -7,7 +7,7 @@
 # define __is_target_environment(x) 0
 #endif
 
-#if (defined(__ANDROID__) || defined(ANDROID_API) || __is_target_environment(Android) || ANDROID_APP)
+#if (defined(__ANDROID__) || defined(ANDROID_API) || __is_target_environment(Android))
 # define CF_ANDROID 1
 #else
 # define CF_ANDROID 0
