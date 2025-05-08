@@ -24,6 +24,11 @@ data class ConfigTable(
     @SerialName("slow-query-warnings") var slowQueryWarnings: Boolean = false,
     @SerialName("alias-colors") var aliasColors: ArrayList<String> = arrayListOf("purple=magenta"),
     @SerialName("percentage-colors") var percentageColors: ArrayList<String> = arrayListOf("green", "yellow", "red"),
+
+    @Contextual
+    var colorsName: ArrayList<String> = arrayListOf(),
+    @Contextual
+    var colorsValue: ArrayList<String> = arrayListOf()
 )
 
 // Sub-tables (nested configurations)
@@ -90,10 +95,22 @@ fun generateConfig(file: File) {
     file.writeText(AUTOCONFIG)
 }
 
+fun addAliasColor(str: String, config: Config) {
+    val pos = str.indexOf('=')
+    if (pos == -1)
+        throw IllegalArgumentException("alias color '{}' does NOT have an equal sign '=' for separating config name and value\n" +
+                "For more check with --help")
+    val name = str.substring(0, pos)
+    val value = str.substring(pos + 1)
+
+    config.t.colorsName.add(name)
+    config.t.colorsValue.add(value)
+}
+
 fun overrideOption(opt: String, config: Config) {
     val pos = opt.indexOf('=')
     if (pos == -1)
-        throw IllegalArgumentException("alias color '{}' does NOT have an equal sign '=' for separating color name and value\n" +
+        throw IllegalArgumentException("override option '{}' does NOT have an equal sign '=' for separating config name and value\n" +
                 "For more check with --help")
     var name = opt.substring(0, pos)
     val value = opt.substring(pos + 1)

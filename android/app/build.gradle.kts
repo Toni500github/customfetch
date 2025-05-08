@@ -104,6 +104,7 @@ dependencies {
     implementation(libs.colorpickerpref)
     implementation(libs.expandablelayout)
     implementation("net.peanuuutz.tomlkt:tomlkt:0.3.7")
+    implementation("me.gujun.android:span:1.7")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

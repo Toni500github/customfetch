@@ -1,14 +1,29 @@
 package org.toni.customfetch_android_lib
 
+import android.content.Context
+import android.graphics.Typeface
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.BackgroundColorSpan
+import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
+import android.util.Log
+import androidx.core.graphics.toColorInt
 import org.toni.customfetch_android_lib.ParserFunctions.parse
 import org.toni.customfetch_android_lib.query.CPU
 import org.toni.customfetch_android_lib.query.Disk
 import org.toni.customfetch_android_lib.query.System
 import org.toni.customfetch_android_lib.query.User
+import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 // useless useful tmp string for parse() without using the original
 // pureOutput
 var s = StringBuilder()
+
+val autoColors = arrayListOf<String>()
 
 const val UNKNOWN = "(unknown)"
 // Usually in neofetch/fastfetch when some infos couldn't be queried,
@@ -27,20 +42,23 @@ sealed class Variant {
 }
 
 data class ParseArgs(
+    val context: Context,
+    val appWidgetId: Int,
     val systemInfo: SystemInfo,
     val pureOutput: StringBuilder,
-    val layout: MutableList<String>,
-    val tmpLayout: MutableList<String>,
+    val layout: MutableList<SpannableStringBuilder>,
+    val tmpLayout: MutableList<SpannableStringBuilder>,
     val config: Config,
     var parsingLayout: Boolean,
     var firstrunClr: Boolean = true,
     var noMoreReset: Boolean = false,
-    var endspan: String = ""
+
+    var spansDisabled: Boolean = false
 )
 
 class Parser(val src: String, val pureOutput: StringBuilder) {
     var dollarPos: Int = 0
-    private var pos: Int = 0
+    var pos: Int = 0
 
     fun tryRead(c: Char): Boolean {
         if (isEof()) return false
@@ -72,7 +90,16 @@ class Parser(val src: String, val pureOutput: StringBuilder) {
 }
 
 object ParserFunctions {
-    private fun parseConditionalTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): String? {
+
+    // converts pango numbers (1..65536) to color hex numbers (0x0..0FF)
+    // also supports percentages
+    private fun parsePangoValue(value: String): Int {
+        if (value.endsWith('%'))
+            return ((value.substringBefore('%').toFloat() / 100f) * 255f).roundToInt()+1
+        return ((value.toInt() - 1) * 255) / 65535
+    }
+
+    private fun parseConditionalTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
         if (!parser.tryRead('[')) return null
 
         val condA = parse(parser, parseArgs, evaluate, ',')
@@ -86,10 +113,10 @@ object ParserFunctions {
         return if (cond) condTrue else condFalse
     }
 
-    private fun parseInfoTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): String? {
+    private fun parseInfoTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
         if (!parser.tryRead('<')) return null
 
-        val module = parse(parser, parseArgs, evaluate, '>')
+        val module = parse(parser, parseArgs, evaluate, '>').toString()
 
         if (!evaluate) return null
 
@@ -106,7 +133,7 @@ object ParserFunctions {
                 )
             }
 
-            return info
+            return SpannableStringBuilder(info)
         }
 
         val moduleName = module.substring(0, dotPos)
@@ -122,15 +149,142 @@ object ParserFunctions {
                 info
             )
         }
-        return info
+        return SpannableStringBuilder(info)
     }
 
-    private fun parseTags(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): String? {
+    private var currentSpans: ArrayList<Any>? = arrayListOf()
+    private var lastColorIndex = -1
+    private fun parseColorTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
+        if (!parser.tryRead('{')) return null
+
+        var color = parse(parser, parseArgs, evaluate, '}').toString()
+
+        if (!evaluate) return null
+
+        val output = SpannableStringBuilder()
+        val config = parseArgs.config
+        val tagLen = color.length + "\${}".length
+
+        if (config.args.disableColors) {
+            if (parser.dollarPos != -1)
+                parseArgs.pureOutput.delete(parser.dollarPos, tagLen)
+            return output
+        }
+
+        lastColorIndex = parser.pos - tagLen
+        Log.d("lastColorIndex", "parseColorTag: lastColorIndex = $lastColorIndex")
+
+        val index = config.t.colorsName.indexOf(color)
+        if (index != -1)
+            color = config.t.colorsValue[index]
+
+        if (color.startsWith("auto")) {
+            var ver = if (color.length > 4)
+                color.substring(4).toInt().minus(1) else 0
+
+            if (autoColors.isEmpty())
+                autoColors.add("bold")
+
+            if (ver < 0 || ver >= autoColors.size)
+                ver = 0
+
+            color = autoColors[ver]
+        }
+
+        if (color == "1") {
+            parseArgs.spansDisabled = true
+            currentSpans = null
+        }
+        else if (color == "0") {
+            parseArgs.spansDisabled = true
+            currentSpans = null
+        }
+        else {
+            parseArgs.spansDisabled = false
+            if (currentSpans.isNullOrEmpty())
+                currentSpans = arrayListOf()
+
+            val strColor = when (color) {
+                "black" -> config.gui.black
+                "red" -> config.gui.red
+                "blue" -> config.gui.blue
+                "green" -> config.gui.green
+                "yellow" -> config.gui.yellow
+                "cyan" -> config.gui.cyan
+                "magenta" -> config.gui.magenta
+                "white" -> config.gui.white
+                else -> color
+            }
+
+            val hashPos = strColor.lastIndexOf('#')
+            var argModePos = 0
+            if (hashPos != -1) {
+                val optColor = strColor.substring(0, hashPos)
+                fun appendArgMode(mode: String): Pair<String, Int> {
+                    if (optColor[argModePos + 1] == '(') {
+                        val closeBracket = optColor.indexOf(')', argModePos)
+                        if (closeBracket != -1)
+                            throw IllegalArgumentException("mode '$mode' in color '$color' doesn't have a closet bracket")
+
+                        val value = optColor.substring(argModePos+2, closeBracket - argModePos - 2)
+                        return Pair(value, closeBracket)
+                    }
+                    return Pair("", 0)
+                }
+
+                var bgColor = false
+                var i = 0
+                while (i < optColor.length) {
+                    when (optColor[i]) {
+                        'b' -> {
+                            bgColor = true
+                            currentSpans?.add(BackgroundColorSpan(strColor.substring(hashPos).toColorInt()))
+                        }
+                        '!' -> currentSpans?.add(StyleSpan(Typeface.BOLD))
+                        'u' -> currentSpans?.add(UnderlineSpan())
+                        'i' -> currentSpans?.add(StyleSpan(Typeface.ITALIC))
+                        's' -> currentSpans?.add(StrikethroughSpan())
+
+                        /*'a' -> {
+                            argModePos = i
+                            val pairs = appendArgMode("fgalpha")
+                            if (pairs.second != 0) {
+                                tempStyle.addSpan(
+                                    TextAppearanceSpan(null, 0,0,
+                                        ColorStateList.valueOf(parsePangoValue(pairs.first)), null
+                                    )
+                                )
+                                i += pairs.second
+                            }
+                        }*/
+                    }
+                    i++
+                }
+                if (!bgColor)
+                    currentSpans?.add(ForegroundColorSpan(strColor.substring(hashPos).toColorInt()))
+            }
+            else {
+                Log.e("customfetch", "PARSER: failed to parse line with color '$color'")
+                if (!parseArgs.parsingLayout && parser.dollarPos != -1)
+                    parseArgs.pureOutput.delete(parser.dollarPos, tagLen)
+                return output
+            }
+            if (!parseArgs.parsingLayout && autoColors.indexOf(color) == -1)
+                autoColors.add(color)
+        }
+
+        if (!parseArgs.parsingLayout && parser.dollarPos != -1)
+            parseArgs.pureOutput.delete(parser.dollarPos, tagLen)
+
+        parseArgs.firstrunClr = false
+        return output
+    }
+
+    private fun parseTags(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
         if (!parser.tryRead('$')) return null
 
-        if (parser.dollarPos != -1) {
+        if (parser.dollarPos != -1)
             parser.dollarPos = parser.pureOutput.indexOf('$', parser.dollarPos)
-        }
 
         parseConditionalTag(parser, parseArgs, evaluate)?.let {
             return it
@@ -138,19 +292,27 @@ object ParserFunctions {
         parseInfoTag(parser, parseArgs, evaluate)?.let {
             return it
         }
+        parseColorTag(parser, parseArgs, evaluate)?.let {
+            return it
+        }
 
         parser.rewind()
         return null
     }
 
-    fun parse(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true, until: Char = 0.toChar()): String {
-        val result = StringBuilder()
+    private fun parse(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true, until: Char = 0.toChar()): SpannableStringBuilder {
+        val result = SpannableStringBuilder()
+        var spanStart = -1
+        var lastActiveSpan: Any? = null
 
         while (if (until == 0.toChar()) !parser.isEof() else !parser.tryRead(until)) {
             if (until != 0.toChar() && parser.isEof()) {
                 error("PARSER: Missing tag close bracket $until in string '${parser.src}'")
-                return result.toString()
+                return result
             }
+
+            val start = result.length
+            val spanChanged = (currentSpans != lastActiveSpan)
 
             if (parser.tryRead('\\')) {
                 result.append(parser.readChar(until == 0.toChar()))
@@ -161,27 +323,48 @@ object ParserFunctions {
                     result.append(parser.readChar(until == 0.toChar()))
                 }
             }
+
+            // Update span tracking when:
+            // 1. New color tag detected (spanChanged)
+            // 2. After reset (spansDisabled just became false)
+            if (spanChanged || (parseArgs.spansDisabled && currentSpans != null)) {
+                spanStart = start
+                lastActiveSpan = currentSpans
+            }
+
+            if (!parseArgs.spansDisabled && currentSpans != null && spanStart != -1 && spanStart < result.length) {
+                currentSpans?.forEach {
+                    result.setSpan(
+                        it,
+                        spanStart,
+                        result.length,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
         }
 
-        return result.toString()
+        return result
     }
 
-    fun parse(input: String, parseArgs: ParseArgs): String =
-        parse(input, parseArgs.systemInfo, parseArgs.pureOutput, parseArgs.layout, parseArgs.tmpLayout, parseArgs.config, parseArgs.parsingLayout, BooleanWrapper(parseArgs.noMoreReset))
+    fun parse(input: String, parseArgs: ParseArgs): SpannableStringBuilder =
+        parse(input, parseArgs.context, parseArgs.appWidgetId, parseArgs.systemInfo, parseArgs.pureOutput, parseArgs.layout, parseArgs.tmpLayout, parseArgs.config, parseArgs.parsingLayout, BooleanWrapper(parseArgs.noMoreReset))
 
-    fun parse(input: String, s: StringBuilder, parseArgs: ParseArgs): String =
-        parse(input, parseArgs.systemInfo, s, parseArgs.layout, parseArgs.tmpLayout, parseArgs.config, parseArgs.parsingLayout, BooleanWrapper(parseArgs.noMoreReset))
+    fun parse(input: String, s: StringBuilder, parseArgs: ParseArgs): SpannableStringBuilder =
+        parse(input, parseArgs.context, parseArgs.appWidgetId, parseArgs.systemInfo, s, parseArgs.layout, parseArgs.tmpLayout, parseArgs.config, parseArgs.parsingLayout, BooleanWrapper(parseArgs.noMoreReset))
 
     fun parse(
         input: String,
+        context: Context,
+        appWidgetId: Int,
         systemInfo: SystemInfo,
         pureOutput: StringBuilder,
-        layout: MutableList<String>,
-        tmpLayout: MutableList<String>,
+        layout: MutableList<SpannableStringBuilder>,
+        tmpLayout: MutableList<SpannableStringBuilder>,
         config: Config,
         parsingLayout: Boolean,
         noMoreReset: BooleanWrapper // Using wrapper for mutable boolean reference
-    ): String {
+    ): SpannableStringBuilder {
         var modifiedInput = input
 
         if (config.t.sepReset.isNotEmpty() && parsingLayout && !noMoreReset.value) {
@@ -193,11 +376,9 @@ object ParserFunctions {
             noMoreReset.value = true
         }
 
-        /*if (!parsingLayout) {
-            modifiedInput = modifiedInput.replace(" ", "&nbsp;")
-        }*/
-
         val parseArgs = ParseArgs(
+            context,
+            appWidgetId,
             systemInfo,
             pureOutput,
             layout,
@@ -206,16 +387,9 @@ object ParserFunctions {
             parsingLayout,
             true,
             noMoreReset.value,
-            ""
         )
 
-        val result = parse(Parser(modifiedInput, pureOutput), parseArgs)
-
-        val pureOutputStr = pureOutput.toString()//.replace("&nbsp;", " ")
-        pureOutput.clear()
-        pureOutput.append(pureOutputStr)
-
-        return if (parseArgs.firstrunClr) result else result + parseArgs.endspan
+        return parse(Parser(modifiedInput, pureOutput), parseArgs)
     }
 
     // Helper class for mutable boolean reference
@@ -240,19 +414,16 @@ fun getInfoFromName(
 }
 
 private fun getAutoUptime(uptimeSecs: Long, config: Config): String {
-    val uptimeMins = uptimeSecs / 60
-    val uptimeHours = uptimeSecs / 3600
-    val uptimeDays = uptimeSecs / (3600 * 24)
+    val remainingSecs = (TimeUnit.SECONDS.toSeconds(uptimeSecs) % 60)
+    val remainingMins = (TimeUnit.SECONDS.toMinutes(uptimeSecs) % 60)
+    val remainingHours = (TimeUnit.SECONDS.toHours(uptimeSecs) % 24)
+    val remainingDays = (TimeUnit.SECONDS.toDays(uptimeSecs))
 
-    val remainingSecs = (uptimeSecs % 60)
-    val remainingMins = (uptimeMins % 60)
-    val remainingHours = (uptimeHours % 24)
-
-    if (uptimeDays == 0L && remainingHours == 0L && remainingMins == 0L)
+    if (remainingDays == 0L && remainingHours == 0L && remainingMins == 0L)
         return "$remainingSecs${config.osUptime.secondsFormat}"
 
     val parts = mutableListOf<String>()
-    if (uptimeDays > 0L) parts.add("$uptimeDays${config.osUptime.daysFormat}")
+    if (remainingDays > 0L) parts.add("$remainingDays${config.osUptime.daysFormat}")
     if (remainingHours > 0L) parts.add("$remainingHours${config.osUptime.hoursFormat}")
     if (remainingMins > 0L) parts.add("$remainingMins${config.osUptime.minutesFormat}")
 
@@ -286,11 +457,10 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
 
     val returnDividedBytes = { amount: Double ->
         val prefix = moduleMemberName.substringAfter('-')
-        if (sortedValidPrefixes.binarySearch(prefix) >= 0) {
+        if (sortedValidPrefixes.binarySearch(prefix) >= 0)
             divideBytes(amount, prefix).numBytes
-        } else {
+        else
             0.0
-        }
     }
 
     if (moduleName == "os") {
@@ -445,7 +615,7 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
         }
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            sysInfoInsert(parse("\${auto2}$<user.name>${0}@\${auto2}$<os.hostname>", s, parseArgs))
+            sysInfoInsert(parse("\${auto2}$<user.name>\${0}@\${auto2}$<os.hostname>", s, parseArgs).toString())
         }
     }
 }

@@ -76,7 +76,7 @@ class System private constructor() {
             kernelVersion = java.lang.System.getProperty("os.version", UNKNOWN),
             hostname = "localhost",
             arch = Build.SUPPORTED_ABIS[0],
-            uptime = SystemClock.elapsedRealtime(),
+            uptime = SystemClock.uptimeMillis() / 1000,
             osVersionId = Build.VERSION.SDK_INT.toString(),
             osVersionCodename = Build.VERSION.CODENAME,
             osPrettyName = "Android " + Build.VERSION.CODENAME + " " + Build.VERSION.SDK_INT,

@@ -1,11 +1,14 @@
 package org.toni.customfetch_android_lib
 
+import android.content.Context
+import android.text.SpannableStringBuilder
 import gnu.getopt.Getopt
 import gnu.getopt.LongOpt
 import net.peanuuutz.tomlkt.Toml
 import org.toni.customfetch_android.BuildConfig
 import java.io.File
 import java.io.FileNotFoundException
+import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.io.path.readText
 
@@ -36,7 +39,20 @@ fun parseConfigArg(args: Array<String>): String {
         }
     }
 
-    return "/storage/emulated/0/.config/config.toml"
+    return "/storage/emulated/0/.config/customfetch/config.toml"
+}
+
+fun listLogos(dataDir: String): String {
+    val asciiDir = File(dataDir, "ascii")
+    if (!asciiDir.isDirectory)
+        return ""
+
+    return asciiDir.listFiles()
+        ?.filter { it.isFile }
+        ?.map { it.nameWithoutExtension }
+        ?.sorted()
+        ?.joinToString("\n")
+        ?: ""
 }
 
 fun parseArgs(args: Array<String>, config: Config): String {
@@ -75,7 +91,7 @@ fun parseArgs(args: Array<String>, config: Config): String {
         LongOpt(null, 0, null, 0)
     )
 
-    val g = Getopt(args[0], args, "-VhlwL::n::N::a::o:O:f:C:m:p:D:d:s:i:", longOpts)
+    val g = Getopt(args[0], args, "-VhlwLnNa::o:O:f:C:m:p:D:d:s:i:", longOpts)
     g.setOpterr(true)
 
     var c: Int
@@ -93,11 +109,12 @@ fun parseArgs(args: Array<String>, config: Config): String {
             'm'.code -> config.args.layout.add(g.optarg)
             'p'.code -> config.t.logoPosition = g.optarg
             's'.code -> config.t.sourcePath = g.optarg
-            'N'.code -> config.args.disableColors = strToBool(handleOptional(g.optarg, "true"))
+            'N'.code -> config.args.disableColors = true
             'a'.code -> config.t.asciiLogoType = handleOptional(g.optarg, "")
-            'n'.code -> config.args.disableSource = strToBool(handleOptional(g.optarg, "true"))
-            'L'.code -> config.args.printLogoOnly = strToBool(handleOptional(g.optarg, "true"))
+            'n'.code -> config.args.disableSource = true
+            'L'.code -> config.args.printLogoOnly = true
 
+            1000 -> return listLogos(config.t.dataDir)
             1001 -> config.t.sepResetAfter = strToBool(handleOptional(g.optarg, "true"))
             1002 -> config.t.wrapLines = strToBool(handleOptional(g.optarg, "true"))
             1003 -> generateConfig(File(g.optarg))
@@ -113,19 +130,38 @@ fun parseArgs(args: Array<String>, config: Config): String {
     return "success"
 }
 
-fun main(args: Array<String>) {
+fun mainRenderStr(context: Context, argsStr: String): String {
+    val args = argsStr.split(' ').toTypedArray()
+    val toml = Toml {
+        ignoreUnknownKeys = true
+    }
+    val tomlConfig = Paths.get(parseConfigArg(args)).readText()
+        .replace("\\e[", "\\u001B[") // Escape ANSI codes
+    val config = toml.decodeFromString(Config.serializer(), tomlConfig)
+    return parseArgs(args, config)
+}
+
+fun mainRender(context: Context, appWidgetId: Int, argsStr: String): List<SpannableStringBuilder> {
+    val args = argsStr.split(' ').toTypedArray()
+//fun main(args: Array<String>) {
     val toml = Toml {
         ignoreUnknownKeys = true
     }
     val tomlConfig = Paths.get(parseConfigArg(args)).readText()
             .replace("\\e[", "\\u001B[") // Escape ANSI codes
     val config = toml.decodeFromString(Config.serializer(), tomlConfig)
-    parseArgs(args, config)
+    parseArgs(args, config).let {
+        if (it != "success")
+            return listOf(SpannableStringBuilder(it))
+    }
+
+    for (str in config.t.aliasColors)
+        addAliasColor(str, config)
 
     println("Config (args modified) source-path: ${config.t.sourcePath}")
     println("Config offset: ${config.t.offset}")
     println("Config alias-colors by args: ${config.t.aliasColors}")
 
-    File("/tmp/taur/te.txt").writeText(render(
-        config, File("/usr/share/customfetch/ascii/arch.txt")).joinToString(separator = "\n"))
+    //File("/tmp/taur/te.txt").writeText(render(config, File("/usr/share/customfetch/ascii/arch.txt")).joinToString(separator = "\n"))
+    return render(context,  appWidgetId, config, File("${config.t.dataDir}/ascii/arch_small.txt"))
 }

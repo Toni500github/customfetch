@@ -344,35 +344,24 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
         const auto& it_name = std::find(config.colors_name.begin(), config.colors_name.end(), color);
         if (it_name != config.colors_name.end())
         {
-            const auto& it_value = std::distance(config.colors_name.begin(), it_name);
-
-            if (hasStart(color, "auto"))
-            {
-                // "ehhmmm why goto and double code? that's ugly and unconvienient :nerd:"
-                // I don't care, it does the work and well
-                if (color == *it_name)
-                    color = config.colors_value.at(it_value);
-                goto jumpauto;
-            }
-
-            if (color == *it_name)
-                color = config.colors_value.at(it_value);
+            const size_t index = std::distance(config.colors_name.begin(), it_name);
+            color = config.colors_value.at(index);
         }
     }
 
     if (hasStart(color, "auto"))
     {
         int ver = color.length() > 4 ? std::stoi(color.substr(4)) - 1 : 0;
-        if (ver < 1 || static_cast<size_t>(ver) >= auto_colors.size())
-            ver = 0;
 
         if (auto_colors.empty())
             auto_colors.push_back(NOCOLOR_BOLD);
 
+        if (ver < 0 || static_cast<size_t>(ver) >= auto_colors.size())
+            ver = 0;
+
         color = auto_colors.at(ver);
     }
 
-jumpauto:
 #if !ANDROID_APP
     if (color == "1")
     {

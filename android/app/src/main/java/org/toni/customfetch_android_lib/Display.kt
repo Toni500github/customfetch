@@ -1,51 +1,68 @@
 package org.toni.customfetch_android_lib
 
+import android.content.Context
+import android.text.SpannableStringBuilder
+import android.util.Log
 import org.toni.customfetch_android_lib.ParserFunctions.parse
 import java.io.File
 import java.nio.file.Files
 
-fun render(config: Config, file: File): List<String> {
+fun joinSpannableBuilders(list: List<SpannableStringBuilder>): SpannableStringBuilder {
+    return SpannableStringBuilder().apply {
+        list.forEach { spannable ->
+            append(spannable)
+            append("\n")
+        }
+    }
+}
+
+fun render(context: Context, appWidgetId: Int, config: Config, asciiFile: File): List<SpannableStringBuilder> {
     val systemInfo: SystemInfo = mutableMapOf()
-    val asciiArt: ArrayList<String> = arrayListOf("")
-    val pureAsciiArtLens: ArrayList<UInt> = arrayListOf(0U)
-    val layout = config.t.layout as MutableList<String>
+    val asciiArt: ArrayList<SpannableStringBuilder> = arrayListOf()
+    val pureAsciiArtLens: ArrayList<UInt> = arrayListOf()
+    val layout: MutableList<SpannableStringBuilder> = if (config.args.layout.isEmpty())
+        config.t.layout.map { SpannableStringBuilder(it) }.toMutableList()
+        else config.args.layout.map { SpannableStringBuilder(it) }.toMutableList()
     var maxLineLength = -1
 
-    val mimeType = Files.probeContentType(file.toPath())
-    if (mimeType.startsWith("image/"))
+    val mimeType = Files.probeContentType(asciiFile.toPath())
+    if (!mimeType.startsWith("text/"))
         throw IllegalArgumentException("Customfetch android app does not support images as logos")
 
-    for (i in 0..config.t.logoPaddingTop) {
+    for (i in 1..config.t.logoPaddingTop) {
         pureAsciiArtLens.add(0U)
-        asciiArt.add("")
+        asciiArt.add(SpannableStringBuilder(""))
     }
 
-    for (i in 0..config.t.layoutPaddingTop) {
-        layout.add(0, "")
+    for (i in 1..config.t.layoutPaddingTop) {
+        layout.add(0, SpannableStringBuilder(""))
     }
 
-    Files.readAllLines(file.toPath()).forEach { line ->
-        val pureOutput = StringBuilder()
-        val tmpLayout = arrayListOf("")
-        val parseArgs = ParseArgs(systemInfo, pureOutput, layout, tmpLayout, config, false)
+    if (!config.args.disableSource) {
+        Files.readAllLines(asciiFile.toPath()).forEach { line ->
+            val pureOutput = StringBuilder()
+            val tmpLayout = arrayListOf<SpannableStringBuilder>()
+            val parseArgs = ParseArgs(context, appWidgetId, systemInfo, pureOutput, layout, tmpLayout, config, false)
 
-        val asciiArtStr = parse(line, parseArgs)
-        parseArgs.noMoreReset = false
-        asciiArt.add(asciiArtStr)
+            val asciiArtStr = parse(line, parseArgs)
+            parseArgs.noMoreReset = false
+            asciiArt.add(asciiArtStr)
 
-        val pureOutputLen = asciiArtStr.codePoints().count()
-        if (pureOutputLen > maxLineLength)
-            maxLineLength = pureOutputLen.toInt()
+            val pureOutputLen = asciiArtStr.length
+            if (pureOutputLen > maxLineLength)
+                maxLineLength = pureOutputLen
 
-        pureAsciiArtLens.add(pureOutputLen.toUInt())
+            pureAsciiArtLens.add(pureOutputLen.toUInt())
+        }
     }
 
+    Log.d("testingLmao", "render: maxLineLength = $maxLineLength")
     val s = StringBuilder()
-    val tmpLayout = arrayListOf("")
-    val parseArgs = ParseArgs(systemInfo, s, layout, tmpLayout, config, false)
+    val tmpLayout = arrayListOf<SpannableStringBuilder>()
+    val parseArgs = ParseArgs(context, appWidgetId, systemInfo, s, layout, tmpLayout, config, true)
     var i = 0
     while (i < layout.size) {
-        layout[i] = parse(layout[i], parseArgs)
+        layout[i] = parse(layout[i].toString(), parseArgs)
         parseArgs.noMoreReset = false
 
         if (tmpLayout.isNotEmpty()) {
@@ -69,27 +86,28 @@ fun render(config: Config, file: File): List<String> {
 
     i = 0
     while (i < layout.size) {
-        var currentLine = layout[i]
+        val currentLine = layout[i]
         var origin = config.t.logoPaddingLeft
 
         // The user-specified offset to be put before the logo
-        currentLine = " ".repeat(config.t.logoPaddingLeft) + currentLine
+        currentLine.insert(0, " ".repeat(config.t.logoPaddingLeft))
 
         if (i < asciiArt.size) {
-            currentLine = currentLine.substring(0, origin) + asciiArt[i] + currentLine.substring(origin)
+            currentLine.insert(origin, asciiArt[i])
             origin += asciiArt[i].length
         }
 
-        val spaces = (maxLineLength + config.t.offset) -
+        val spaces = (maxLineLength + if (config.args.disableSource) 1 else config.t.offset) -
                      (if (i < asciiArt.size) pureAsciiArtLens[i].toInt() else 0)
 
-        currentLine = currentLine.substring(0, origin) + " ".repeat(spaces) + currentLine.substring(origin)
+        currentLine.insert(origin, " ".repeat(spaces))
         layout[i] = currentLine
         i++
     }
     while (i < asciiArt.size) {
-        val line = " ".repeat(config.t.logoPaddingLeft) + asciiArt[i]
+        val line = SpannableStringBuilder(" ".repeat(config.t.logoPaddingLeft))
         layout.add(line)
+        layout.add(asciiArt[i])
         i++
     }
 

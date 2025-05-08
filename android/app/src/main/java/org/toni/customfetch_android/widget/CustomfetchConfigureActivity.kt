@@ -46,6 +46,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.graphics.toColorInt
 import androidx.core.text.HtmlCompat
+import androidx.core.text.toSpanned
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import org.toni.customfetch_android.R
 import org.toni.customfetch_android.databinding.ColorpickerviewLayoutBinding
@@ -53,6 +54,9 @@ import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import org.toni.customfetch_android.getAppSettingsPrefBool
 import org.toni.customfetch_android.getAppSettingsPrefInt
 import org.toni.customfetch_android.getAppSettingsPrefString
+import org.toni.customfetch_android_lib.joinSpannableBuilders
+import org.toni.customfetch_android_lib.mainRender
+import org.toni.customfetch_android_lib.mainRenderStr
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -120,19 +124,20 @@ class CustomfetchConfigureActivity : Activity() {
         binding.argumentsConfigure.setText(getArgsPref(this@CustomfetchConfigureActivity, appWidgetId))
         binding.additionalTruncateWidth.setText(getAppSettingsPrefString(this, "additional_truncate"))
         binding.truncateText.isChecked = getAppSettingsPrefBool(this, "always_truncate")
-        binding.docsHelp.text = customfetchRender.mainAndroid("customfetch --help", true)
+        binding.docsHelp.text = mainRenderStr(this, "customfetch --help")
 
         binding.btnArgsHelp.setOnClickListener {
-            binding.docsHelp.text = customfetchRender.mainAndroid("customfetch --help", true)
+            binding.docsHelp.text = mainRenderStr(this, "customfetch --help")
         }
         binding.btnConfigHelp.setOnClickListener {
-            binding.docsHelp.text = customfetchRender.mainAndroid("customfetch --how-it-works", true)
+            binding.docsHelp.text = mainRenderStr(this, "customfetch --how-it-works")
         }
         binding.btnModulesHelp.setOnClickListener {
-            binding.docsHelp.text = customfetchRender.mainAndroid("customfetch --list-modules", true)
+            binding.docsHelp.text = mainRenderStr(this, "customfetch --list-modules")
         }
         binding.btnLogosList.setOnClickListener {
-            binding.docsHelp.text = customfetchRender.mainAndroid("customfetch ${binding.argumentsConfigure.text} --list-logos", true)
+            binding.docsHelp.text =
+                mainRenderStr(this, "customfetch ${binding.argumentsConfigure.text} --list-logos")
         }
 
         // set everything of the radio buttons at first configuration from the app.
@@ -257,13 +262,14 @@ class CustomfetchMainRender {
         val arguments = otherArguments.ifEmpty {
             getArgsPref(context, appWidgetId)
         }
-        val htmlContent = mainAndroid("customfetch $arguments", doNotLoadConfig)
+        val htmlContent = mainRender(context, appWidgetId, "customfetch $arguments")
+        //val htmlContent = mainAndroid("customfetch $arguments", doNotLoadConfig)
 
         val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
         val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
         if (Files.exists(Path(errorLock))) {
             val file = File(errorLock)
-            val error = file.bufferedReader().use { it.readText() }
+            val error = file.bufferedReader().readText()
             if (postToast) {
                 val handler = Handler(Looper.getMainLooper())
                 handler.post {
@@ -279,7 +285,7 @@ class CustomfetchMainRender {
             return parsedContent
         }
 
-        if (truncateText) {
+        /*if (truncateText) {
             val eachLine = htmlContent!!.split("<br>").map { it.trim() }
             for (line in eachLine) {
                 var parsedLine = HtmlCompat.fromHtml(line, HtmlCompat.FROM_HTML_MODE_COMPACT)
@@ -291,17 +297,24 @@ class CustomfetchMainRender {
             parsedContent.append(htmlContent?.let {
                 HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_COMPACT)
             })
+        }*/
+        for (line in htmlContent) {
+            if (truncateText) {
+                parsedContent.append(ellipsize(line, paint, width, TruncateAt.END).toSpanned())
+                parsedContent.append("\n")
+            }else
+                parsedContent.append(line)
         }
 
         return parsedContent
     }
 
-    external fun mainAndroid(argv: String, doNotLoadConfig: Boolean): String?
+    /*external fun mainAndroid(argv: String, doNotLoadConfig: Boolean): String?
     companion object {
         init {
             System.loadLibrary("customfetch")
         }
-    }
+    }*/
 }
 val customfetchRender = CustomfetchMainRender()
 

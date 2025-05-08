@@ -110,9 +110,9 @@ A command-line, GUI app, android widget system information tool (or neofetch lik
 
 NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1, "enable" or leave it empty. Any other value will be treated as false.
 
-    -n, --no-logo [<bool>]      Do not display the logo
-    -N, --no-color [<bool>]     Do not output and parse colors. Useful for stdout or pipe operations
-    -L, --logo-only [<bool>]    Print only the logo
+    -n, --no-logo               Do not display the logo
+    -N, --no-color              Do not output and parse colors. Useful for stdout or pipe operations
+    -L, --logo-only             Print only the logo
     -s, --source-path <path>    Path to the ascii art or image file to display
     -C, --config <path>         Path to the config file to use
     -a, --ascii-logo-type [<type>]
@@ -547,15 +547,15 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhlwL::n::N::a::o:O:f:C:m:p:D:d:s:i:";
+    const char *optstring = "-VhwnLlNa::f:o:C:O:i:d:D:p:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
         {"list-modules",     no_argument,       0, 'l'},
         {"how-it-works",     no_argument,       0, 'w'},
-        {"logo-only",        optional_argument, 0, 'L'},
-        {"no-logo",          optional_argument, 0, 'n'},
-        {"no-color",         optional_argument, 0, 'N'},
+        {"logo-only",        no_argument,       0, 'L'},
+        {"no-logo",          no_argument,       0, 'n'},
+        {"no-color",         no_argument,       0, 'N'},
         {"ascii-logo-type",  optional_argument, 0, 'a'},
         {"offset",           required_argument, 0, 'o'},
         {"override",         required_argument, 0, 'O'},
@@ -626,11 +626,7 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
             case 'O':
                 config.overrideOption(optarg); break;
             case 'N':
-                if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.args_disable_colors = str_to_bool(optarg);
-                else
-                    config.args_disable_colors = true;
-                break;
+                config.args_disable_colors = true; break;
             case 'a':
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
                     config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = optarg};
@@ -638,17 +634,9 @@ static STRING_IF_ANDROID_APP_ELSE(bool) parseargs(int argc, char* argv[], Config
                     config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = ""};
                 break;
             case 'n':
-                if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.args_disable_source = str_to_bool(optarg);
-                else
-                    config.args_disable_source = true;
-                break;
+                config.args_disable_source = true; break;
             case 'L':
-                if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.args_print_logo_only = str_to_bool(optarg);
-                else
-                    config.args_print_logo_only = true;
-                break;
+                config.args_print_logo_only = true; break;
 
             case "logo-padding-top"_fnv1a16:
                 config.overrides["config.logo-padding-top"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;

@@ -121,7 +121,7 @@ class Disk private constructor(
 
                 parseArgs.noMoreReset = false
                 mDisksFormats.add(
-                    parse(formatAutoQueryString(parseArgs.config.autoDisk.format, store, mntDir), parseArgs)
+                    parse(formatAutoQueryString(parseArgs.config.autoDisk.format, store, mntDir), parseArgs).toString()
                 )
             }
             return
