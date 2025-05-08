@@ -7,15 +7,6 @@ import org.toni.customfetch_android_lib.ParserFunctions.parse
 import java.io.File
 import java.nio.file.Files
 
-fun joinSpannableBuilders(list: List<SpannableStringBuilder>): SpannableStringBuilder {
-    return SpannableStringBuilder().apply {
-        list.forEach { spannable ->
-            append(spannable)
-            append("\n")
-        }
-    }
-}
-
 fun render(context: Context, appWidgetId: Int, config: Config, asciiFile: File): List<SpannableStringBuilder> {
     val systemInfo: SystemInfo = mutableMapOf()
     val asciiArt: ArrayList<SpannableStringBuilder> = arrayListOf()

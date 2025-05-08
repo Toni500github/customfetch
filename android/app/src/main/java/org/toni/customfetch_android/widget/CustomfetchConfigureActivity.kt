@@ -35,7 +35,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.SpannableStringBuilder
-import android.text.Spanned
 import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
 import android.text.TextUtils.ellipsize
@@ -45,7 +44,6 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.graphics.toColorInt
-import androidx.core.text.HtmlCompat
 import androidx.core.text.toSpanned
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import org.toni.customfetch_android.R
@@ -54,7 +52,6 @@ import org.toni.customfetch_android.databinding.CustomfetchConfigureBinding
 import org.toni.customfetch_android.getAppSettingsPrefBool
 import org.toni.customfetch_android.getAppSettingsPrefInt
 import org.toni.customfetch_android.getAppSettingsPrefString
-import org.toni.customfetch_android_lib.joinSpannableBuilders
 import org.toni.customfetch_android_lib.mainRender
 import org.toni.customfetch_android_lib.mainRenderStr
 import java.io.File
@@ -247,8 +244,7 @@ class CustomfetchConfigureActivity : Activity() {
     }
 }
 
-class CustomfetchMainRender {
-    fun getParsedContent(
+fun getParsedContent(
         context: Context,
         appWidgetId: Int,
         width: Float,
@@ -257,66 +253,43 @@ class CustomfetchMainRender {
         otherArguments: String = "",
         postToast: Boolean = true,
         doNotLoadConfig: Boolean = false
-    ): SpannableStringBuilder {
-        val parsedContent = SpannableStringBuilder()
-        val arguments = otherArguments.ifEmpty {
-            getArgsPref(context, appWidgetId)
-        }
-        val htmlContent = mainRender(context, appWidgetId, "customfetch $arguments")
-        //val htmlContent = mainAndroid("customfetch $arguments", doNotLoadConfig)
+): SpannableStringBuilder {
+    val parsedContent = SpannableStringBuilder()
+    val arguments = otherArguments.ifEmpty {
+        getArgsPref(context, appWidgetId)
+    }
+    val content = mainRender(context, appWidgetId, "customfetch $arguments")
 
-        val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
-        val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
-        if (Files.exists(Path(errorLock))) {
-            val file = File(errorLock)
-            val error = file.bufferedReader().readText()
-            if (postToast) {
-                val handler = Handler(Looper.getMainLooper())
-                handler.post {
-                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                }
-                handler.post {
-                    Toast.makeText(context, "read error logs at $errorFile", Toast.LENGTH_LONG)
-                        .show()
-                }
+    val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
+    val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
+    if (Files.exists(Path(errorLock))) {
+        val file = File(errorLock)
+        val error = file.bufferedReader().readText()
+        if (postToast) {
+            val handler = Handler(Looper.getMainLooper())
+            handler.post {
+                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
             }
-            file.delete()
-            parsedContent.append("read error logs at $errorFile\n\n$error")
-            return parsedContent
-        }
-
-        /*if (truncateText) {
-            val eachLine = htmlContent!!.split("<br>").map { it.trim() }
-            for (line in eachLine) {
-                var parsedLine = HtmlCompat.fromHtml(line, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                parsedLine =
-                    ellipsize(parsedLine, paint, width, TruncateAt.END) as Spanned
-                parsedContent.appendLine(parsedLine)
+            handler.post {
+                Toast.makeText(context, "read error logs at $errorFile", Toast.LENGTH_LONG)
+                    .show()
             }
-        } else {
-            parsedContent.append(htmlContent?.let {
-                HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_COMPACT)
-            })
-        }*/
-        for (line in htmlContent) {
-            if (truncateText) {
-                parsedContent.append(ellipsize(line, paint, width, TruncateAt.END).toSpanned())
-                parsedContent.append("\n")
-            }else
-                parsedContent.append(line)
         }
-
+        file.delete()
+        parsedContent.append("read error logs at $errorFile\n\n$error")
         return parsedContent
     }
 
-    /*external fun mainAndroid(argv: String, doNotLoadConfig: Boolean): String?
-    companion object {
-        init {
-            System.loadLibrary("customfetch")
-        }
-    }*/
+    for (line in content) {
+        if (truncateText) {
+            parsedContent.append(ellipsize(line, paint, width, TruncateAt.END).toSpanned())
+            parsedContent.append("\n")
+        } else
+            parsedContent.append(line)
+    }
+
+    return parsedContent
 }
-val customfetchRender = CustomfetchMainRender()
 
 private const val PREFS_NAME = "org.toni.customfetch_android.customfetch"
 private const val PREF_PREFIX_KEY = "appwidget_"

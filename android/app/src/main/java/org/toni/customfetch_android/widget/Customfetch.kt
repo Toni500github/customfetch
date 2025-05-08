@@ -153,7 +153,7 @@ internal fun updateAppWidget(
     Log.d("widthTesting", "width = $width")
 
     val parsedContent =
-        customfetchRender.getParsedContent(
+        getParsedContent(
             context,
             appWidgetId,
             width,

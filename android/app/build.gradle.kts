@@ -32,12 +32,6 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        /*externalNativeBuild {
-            cmake {
-                cppFlags += "-I${rootDir}/../include -DANDROID_APP=1"
-                targets("customfetch")
-            }
-        }*/
     }
 
     signingConfigs {
@@ -87,12 +81,6 @@ android {
         viewBinding = true
         buildConfig = true
     }
-    /*externalNativeBuild {
-        cmake {
-            path = file("../CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }*/
 }
 
 /*kotlin {

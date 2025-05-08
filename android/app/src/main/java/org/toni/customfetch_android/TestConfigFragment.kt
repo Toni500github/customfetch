@@ -34,8 +34,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import org.toni.customfetch_android.databinding.TestConfigFragmentBinding
-import org.toni.customfetch_android.widget.customfetchRender
-
+import org.toni.customfetch_android.widget.getParsedContent
 
 class TestConfigFragment : Fragment() {
 
@@ -58,7 +57,7 @@ class TestConfigFragment : Fragment() {
             }
         }
 
-        val result = customfetchRender.getParsedContent(
+        val result = getParsedContent(
             AppCompatActivity(),
             0,
             0f,
