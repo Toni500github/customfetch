@@ -77,7 +77,7 @@ class Config
 {
 public:
     // Create .config directories and files and load the config file (args or default)
-    Config(const std::string_view configFile, const std::string_view configDir);
+    Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
 
     // Variables of config file in [config] table
     std::vector<std::string> layout;

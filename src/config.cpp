@@ -34,7 +34,7 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-Config::Config(const std::string_view configFile, const std::string_view configDir)
+Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors)
 {
     if (!std::filesystem::exists(configDir))
     {
@@ -47,6 +47,8 @@ Config::Config(const std::string_view configFile, const std::string_view configD
         warn(_("config file {} not found, generating new one"), configFile);
         this->generateConfig(configFile);
     }
+
+    this->loadConfigFile(configFile, colors);
 }
 
 void Config::loadConfigFile(const std::string_view filename, colors_t& colors)

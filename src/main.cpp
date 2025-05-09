@@ -194,7 +194,7 @@ battery:
   battery current percentage and status [50.00% [Discharging]]
 
 title:
-  user and hostname colored with ${{auto2}} [toni@arch2]
+  user and hostname colored with ${auto2} [toni@arch2]
 
 title_sep:
   separator between the title and the system infos (with the title length) [--------]
@@ -462,14 +462,14 @@ without quotes ofc
     std::exit(EXIT_SUCCESS);
 }
 
-static void list_logos(const Config& config)
+static void list_logos(const std::string& data_dir)
 {
-    debug("data = {}", config.data_dir);
-    if (access(config.data_dir.c_str(), F_OK) != 0)
-        die("failed to access data directory {}", config.data_dir);
+    debug("data = {}", data_dir);
+    if (access(data_dir.c_str(), F_OK) != 0)
+        die("failed to access data directory '{}'", data_dir);
 
     std::vector<std::string> list;
-    for (const auto& logo : std::filesystem::directory_iterator{config.data_dir+"/ascii"})
+    for (const auto& logo : std::filesystem::directory_iterator{data_dir})
     {
         if (logo.is_regular_file())
             list.push_back(logo.path().stem());
@@ -509,7 +509,7 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
             case '?':
                 break;
 
-            case 'C': 
+            case 'C':
                 if (!std::filesystem::exists(optarg))
                     die(_("config file '{}' doesn't exist"), optarg);
                 return optarg;
@@ -581,7 +581,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 'w':
                 explain_how_this_works(); break;
             case "list-logos"_fnv1a16:
-                list_logos(config); break;
+                list_logos(config.data_dir+"/ascii"); break;
             case 'f':
                 config.overrides["gui.font"] = {.value_type = STR, .string_value = optarg}; break;
             case 'o':
@@ -721,11 +721,9 @@ int main(int argc, char *argv[])
 
     localize();
 
-    Config config(configFile, configDir);
+    Config config(configFile, configDir, colors);
     if (!parseargs(argc, argv, config, configFile))
         return 1;
-
-    config.loadConfigFile(configFile, colors);
 
     is_live_mode = (config.loop_ms > 50);
 
