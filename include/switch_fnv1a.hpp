@@ -164,19 +164,19 @@ using fnv1a64 = fnv1a<64>;
 // we ain't gonna use this, so change to 16 bits instead
 using fnv1a128 = fnv1a<16>;
 
-constexpr fnv1a16::Type operator"" _fnv1a16(const char* s, const std::size_t l)
+constexpr fnv1a16::Type operator""_fnv1a16(const char* s, const std::size_t l)
 {
     return fnv1a16::hash(s, l);
 }
-constexpr fnv1a32::Type operator"" _fnv1a32(const char* s, const std::size_t l)
+constexpr fnv1a32::Type operator""_fnv1a32(const char* s, const std::size_t l)
 {
     return fnv1a32::hash(s, l);
 }
-constexpr fnv1a64::Type operator"" _fnv1a64(const char* s, const std::size_t l)
+constexpr fnv1a64::Type operator""_fnv1a64(const char* s, const std::size_t l)
 {
     return fnv1a64::hash(s, l);
 }
-constexpr fnv1a128::Type operator"" _fnv1a128(const char* s, const std::size_t l)
+constexpr fnv1a128::Type operator""_fnv1a128(const char* s, const std::size_t l)
 {
     return fnv1a128::hash(s, l);
 }
@@ -187,7 +187,7 @@ constexpr fnv1a128::Type operator"" _fnv1a128(const char* s, const std::size_t l
 //static_assert("hello"_fnv1a128 == Pack128(0xe3e1efd54283d94f, 0x7081314b599d31b3));
 
 using strhash = fnv1a128;
-constexpr strhash::Type operator"" _strhash(const char* s, const std::size_t l)
+constexpr strhash::Type operator""_strhash(const char* s, const std::size_t l)
 {
     return strhash::hash(s, l);
 }
@@ -245,7 +245,7 @@ static constexpr strhash::Type hash(const std::basic_string_view<C>& str)
 } // namespace strhash_lower
 
 // Case-insensitive version
-constexpr strhash::Type operator"" _strhash_lower(const char* s, const std::size_t l)
+constexpr strhash::Type operator""_strhash_lower(const char* s, const std::size_t l)
 {
     return strhash_lower::hash(s, l);
 }
