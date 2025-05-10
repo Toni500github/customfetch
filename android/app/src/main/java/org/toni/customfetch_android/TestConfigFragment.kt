@@ -35,6 +35,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import org.toni.customfetch_android.databinding.TestConfigFragmentBinding
 import org.toni.customfetch_android.widget.getParsedContent
+import org.toni.customfetch_android_lib.mainRender
+import org.toni.customfetch_android_lib.mainRenderStr
 
 class TestConfigFragment : Fragment() {
 
@@ -57,16 +59,7 @@ class TestConfigFragment : Fragment() {
             }
         }
 
-        val result = getParsedContent(
-            AppCompatActivity(),
-            0,
-            0f,
-            false,
-            TextPaint(),
-            "-C $configFile -Nnm \$<os.name_id>", // this is the important thing
-            false
-        )
-
+        val result = mainRender(requireContext(), 0, "-C $configFile -Nnm \$<os.name_id>")[0]
         if (result.contentEquals("android")) {
             binding.titleResult.setTextColor(Color.GREEN)
             binding.titleResult.text = "SUCCESS"

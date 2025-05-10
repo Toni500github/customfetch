@@ -367,23 +367,7 @@ layout = [
     "${'$'}{auto}OS: ${'$'}<os.name> ${'$'}<system.arch>",
     "${'$'}{auto}Host: ${'$'}<system.host>",
     "${'$'}{auto}Kernel: ${'$'}<os.kernel>",
-    "${'$'}{auto}Uptime: ${'$'}<os.uptime>",)#"
-#if !ANDROID_APP
-    R"#(
-    "${'$'}{auto}Terminal: ${'$'}<user.terminal>",
-    "${'$'}{auto}Shell: ${'$'}<user.shell>",
-    "${'$'}{auto}Packages: ${'$'}<os.pkgs>",)#"
-#endif
-#if !CF_ANDROID
-    R"#(
-    "${'$'}{auto}Theme: ${'$'}<theme-gtk-all.name>",
-    "${'$'}{auto}Icons: ${'$'}<theme-gtk-all.icons>",
-    "${'$'}{auto}Font: ${'$'}<theme-gtk-all.font>",
-    "${'$'}{auto}Cursor: ${'$'}<theme.cursor>",
-    "${'$'}{auto}WM: ${'$'}<user.wm_name>",
-    "${'$'}{auto}DE: ${'$'}<user.de_name>",)#"
-#endif
-    R"#(
+    "${'$'}{auto}Uptime: ${'$'}<os.uptime>",
     "${'$'}<auto.disk>",
     "${'$'}{auto}Swap: ${'$'}<swap>",
     "${'$'}{auto}CPU: ${'$'}<cpu>",

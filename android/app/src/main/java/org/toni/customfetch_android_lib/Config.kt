@@ -36,7 +36,8 @@ data class ConfigTable(
 data class AutoDiskConfig(
     @SerialName("fmt") var format: String = "\${auto}Disk (%1): $<disk(%1)>",
     @SerialName("display-types") var displayTypes: ArrayList<String> = arrayListOf("regular", "removable"),
-    @SerialName("show-duplicated") var showDuplicated: Boolean = false
+    @SerialName("show-duplicated") var showDuplicated: Boolean = false,
+    @Contextual var displayTypesInt: Int = 0
 )
 
 @Serializable

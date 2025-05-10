@@ -97,11 +97,11 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1,
     -L, --logo-only             Print only the logo
     -s, --source-path <path>    Path to the ascii art or image file to display
     -C, --config <path>         Path to the config file to use
-    -a, --ascii-logo-type [<type>]
+    -a, --ascii-logo-type <type>
                                 The type of ASCII art to apply ("small" or "old").
                                 Basically will add "_<type>" to the logo filename.
-                                It will return the regular linux ascii art if it doesn't exist.
-                                Leave it empty for regular.
+                                It will return the regular OS ascii art if it doesn't exist.
+                                Make it empty for regular.
 
     -D, --data-dir <path>       Path to the data dir where we'll taking the distros ascii arts (must contain subdirectory called "ascii")
     -d, --distro <name>         Print a custom logo from the given `data-dir` (must be the same name, uppercase or lowercase, e.g "windows 11" or "ArCh")
@@ -524,7 +524,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
     int opt = 0;
     int option_index = 0;
     opterr = 1; // re-enable since before we disabled for "invalid option" error
-    const char *optstring = "-VhwnLlNa::f:o:C:O:i:d:D:p:s:m:";
+    const char *optstring = "-VhwnLlNa:f:o:C:O:i:d:D:p:s:m:";
     static const struct option opts[] = {
         {"version",          no_argument,       0, 'V'},
         {"help",             no_argument,       0, 'h'},
@@ -533,7 +533,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"logo-only",        no_argument,       0, 'L'},
         {"no-logo",          no_argument,       0, 'n'},
         {"no-color",         no_argument,       0, 'N'},
-        {"ascii-logo-type",  optional_argument, 0, 'a'},
+        {"ascii-logo-type",  required_argument, 0, 'a'},
         {"offset",           required_argument, 0, 'o'},
         {"override",         required_argument, 0, 'O'},
         {"font",             required_argument, 0, 'f'},
@@ -605,11 +605,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 'N':
                 config.args_disable_colors = true; break;
             case 'a':
-                if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = optarg};
-                else
-                    config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = ""};
-                break;
+                config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = optarg};
             case 'n':
                 config.args_disable_source = true; break;
             case 'L':

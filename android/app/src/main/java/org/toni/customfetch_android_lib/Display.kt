@@ -2,7 +2,6 @@ package org.toni.customfetch_android_lib
 
 import android.content.Context
 import android.text.SpannableStringBuilder
-import android.util.Log
 import org.toni.customfetch_android_lib.ParserFunctions.parse
 import java.io.File
 import java.nio.file.Files
@@ -10,7 +9,7 @@ import java.nio.file.Files
 fun render(context: Context, appWidgetId: Int, config: Config, asciiFile: File): List<SpannableStringBuilder> {
     val systemInfo: SystemInfo = mutableMapOf()
     val asciiArt: ArrayList<SpannableStringBuilder> = arrayListOf()
-    val pureAsciiArtLens: ArrayList<UInt> = arrayListOf()
+    val pureAsciiArtLens: ArrayList<Int> = arrayListOf()
     val layout: MutableList<SpannableStringBuilder> = if (config.args.layout.isEmpty())
         config.t.layout.map { SpannableStringBuilder(it) }.toMutableList()
         else config.args.layout.map { SpannableStringBuilder(it) }.toMutableList()
@@ -21,7 +20,7 @@ fun render(context: Context, appWidgetId: Int, config: Config, asciiFile: File):
         throw IllegalArgumentException("Customfetch android app does not support images as logos")
 
     for (i in 1..config.t.logoPaddingTop) {
-        pureAsciiArtLens.add(0U)
+        pureAsciiArtLens.add(0)
         asciiArt.add(SpannableStringBuilder(""))
     }
 
@@ -43,12 +42,13 @@ fun render(context: Context, appWidgetId: Int, config: Config, asciiFile: File):
             if (pureOutputLen > maxLineLength)
                 maxLineLength = pureOutputLen
 
-            pureAsciiArtLens.add(pureOutputLen.toUInt())
+            pureAsciiArtLens.add(pureOutputLen)
         }
     }
 
-    Log.d("testingLmao", "render: maxLineLength = $maxLineLength")
-    val s = StringBuilder()
+    if (config.args.printLogoOnly)
+        return asciiArt
+
     val tmpLayout = arrayListOf<SpannableStringBuilder>()
     val parseArgs = ParseArgs(context, appWidgetId, systemInfo, s, layout, tmpLayout, config, true)
     var i = 0
@@ -65,7 +65,7 @@ fun render(context: Context, appWidgetId: Int, config: Config, asciiFile: File):
         i++
     }
 
-    layout.removeAll { str -> str.contains(MAGIC_LINE) }
+    layout.removeAll { it.contains(MAGIC_LINE) }
 
     if (config.t.logoPosition == "top" || config.t.logoPosition == "bottom") {
         if (asciiArt.isNotEmpty()) {
@@ -77,22 +77,20 @@ fun render(context: Context, appWidgetId: Int, config: Config, asciiFile: File):
 
     i = 0
     while (i < layout.size) {
-        val currentLine = layout[i]
         var origin = config.t.logoPaddingLeft
 
         // The user-specified offset to be put before the logo
-        currentLine.insert(0, " ".repeat(config.t.logoPaddingLeft))
+        layout[i].insert(0, " ".repeat(config.t.logoPaddingLeft))
 
         if (i < asciiArt.size) {
-            currentLine.insert(origin, asciiArt[i])
+            layout[i].insert(origin, asciiArt[i])
             origin += asciiArt[i].length
         }
 
-        val spaces = (maxLineLength + if (config.args.disableSource) 1 else config.t.offset) -
+        val spaces = (maxLineLength + (if (config.args.disableSource) 1 else config.t.offset)) -
                      (if (i < asciiArt.size) pureAsciiArtLens[i].toInt() else 0)
 
-        currentLine.insert(origin, " ".repeat(spaces))
-        layout[i] = currentLine
+        layout[i].insert(origin, " ".repeat(spaces))
         i++
     }
     while (i < asciiArt.size) {

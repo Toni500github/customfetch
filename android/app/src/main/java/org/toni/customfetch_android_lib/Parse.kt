@@ -1,7 +1,9 @@
 package org.toni.customfetch_android_lib
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Typeface
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.BackgroundColorSpan
@@ -14,6 +16,8 @@ import androidx.core.graphics.toColorInt
 import org.toni.customfetch_android_lib.ParserFunctions.parse
 import org.toni.customfetch_android_lib.query.CPU
 import org.toni.customfetch_android_lib.query.Disk
+import org.toni.customfetch_android_lib.query.DiskVolumeType
+import org.toni.customfetch_android_lib.query.Ram
 import org.toni.customfetch_android_lib.query.System
 import org.toni.customfetch_android_lib.query.User
 import java.util.concurrent.TimeUnit
@@ -37,6 +41,7 @@ const val MAGIC_LINE = "(cut this line NOW!! RAHHH)";
 typealias SystemInfo = MutableMap<String, MutableMap<String, Variant>>
 sealed class Variant {
     data class StringVal(val value: String) : Variant()
+    data class SSBVal(val value: SpannableStringBuilder) : Variant()
     data class SizeT(val value: ULong) : Variant()
     data class DoubleVal(val value: Double) : Variant()
 }
@@ -99,6 +104,68 @@ object ParserFunctions {
         return ((value.toInt() - 1) * 255) / 65535
     }
 
+    private fun getAnsiColor(str: String, config: Config, currentSpans: ArrayList<Any>?) {
+        var color = StringBuilder(str.removeSuffix("m"))
+        if (color.startsWith("1;")) {
+            currentSpans?.add(StyleSpan(Typeface.BOLD))
+            color.delete(0, 2)
+        } else if (color.startsWith("0;")) {
+            color.delete(0, 2)
+        }
+
+        val n = color.toString().toInt()
+        color = StringBuilder(when (color.last()) {
+            '0' -> config.gui.black
+            '1' -> config.gui.red
+            '2' -> config.gui.green
+            '3' -> config.gui.yellow
+            '4' -> config.gui.blue
+            '5' -> config.gui.magenta
+            '6' -> config.gui.cyan
+            '7' -> config.gui.white
+            else -> color
+        })
+        if (color[0] != '#')
+            color.delete(0, color.indexOf('#'))
+
+        if ((n in 100..107) || (n in 40..47))
+            currentSpans?.add(BackgroundColorSpan(Color.parseColor(color.toString())))
+        else
+            currentSpans?.add(ForegroundColorSpan(Color.parseColor(color.toString())))
+    }
+
+    private fun convertAnsiEscapeRgb(noescStr: String): String {
+        // Validate input format
+        if (noescStr.count { it == ';' } < 4) {
+            throw IllegalArgumentException(
+                "ANSI escape code color '\\e[$noescStr' should have an rgb type value\n" +
+                        "e.g \\e[38;2;255;255;255m"
+            )
+        }
+
+        if (!noescStr.endsWith('m')) {
+            throw IllegalArgumentException(
+                "Parser: failed to parse layout/ascii art: missing 'm' while using " +
+                        "ANSI color escape code in '\\e[$noescStr'"
+            )
+        }
+
+        val rgbComponents = noescStr
+            .substring(5) // Skip "38;2;"
+            .removeSuffix("m")
+            .split(';')
+            .take(3)
+
+        val r = rgbComponents[0].toUInt()
+        val g = rgbComponents[1].toUInt()
+        val b = rgbComponents[2].toUInt()
+
+        val result = (r shl 16) or (g shl 8) or b
+
+        // Convert to 6-digit hex string (pad with leading zeros if needed)
+        return result.toString(16).padStart(6, '0')
+    }
+
     private fun parseConditionalTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
         if (!parser.tryRead('[')) return null
 
@@ -116,24 +183,24 @@ object ParserFunctions {
     private fun parseInfoTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
         if (!parser.tryRead('<')) return null
 
-        val module = parse(parser, parseArgs, evaluate, '>').toString()
+        val module = parse(parser, parseArgs, evaluate, '>')
 
         if (!evaluate) return null
 
         val dotPos = module.indexOf('.')
         if (dotPos == -1) {
-            addValueFromModule(module, parseArgs)
-            val info = getInfoFromName(parseArgs.systemInfo, module, "module-$module")
+            addValueFromModule(module.toString(), parseArgs)
+            val info = getInfoFromName(parseArgs.systemInfo, module.toString(), "module-$module")
 
             if (parser.dollarPos != -1) {
                 parseArgs.pureOutput.replace(
                     parser.dollarPos,
                     parser.dollarPos + module.length + "$<>".length,
-                    info
+                    info.toString()
                 )
             }
 
-            return SpannableStringBuilder(info)
+            return info
         }
 
         val moduleName = module.substring(0, dotPos)
@@ -146,10 +213,10 @@ object ParserFunctions {
             parseArgs.pureOutput.replace(
                 parser.dollarPos,
                 parser.dollarPos + module.length + "$<>".length,
-                info
+                info.toString()
             )
         }
-        return SpannableStringBuilder(info)
+        return info
     }
 
     private var currentSpans: ArrayList<Any>? = arrayListOf()
@@ -191,11 +258,11 @@ object ParserFunctions {
             color = autoColors[ver]
         }
 
-        if (color == "1") {
+        if (color == "0") {
             parseArgs.spansDisabled = true
-            currentSpans = null
+            currentSpans?.clear()
         }
-        else if (color == "0") {
+        else if (color == "1") {
             parseArgs.spansDisabled = true
             currentSpans = null
         }
@@ -263,6 +330,21 @@ object ParserFunctions {
                 if (!bgColor)
                     currentSpans?.add(ForegroundColorSpan(strColor.substring(hashPos).toColorInt()))
             }
+            else if (strColor.startsWith("\\e") || strColor.startsWith("\u001B")) {
+                val noEscapeStr = if (strColor.startsWith("\\e")) strColor.substring(3) else strColor.substring(4)
+                if (noEscapeStr.startsWith("38;2;")){
+                    val hexColor = convertAnsiEscapeRgb(noEscapeStr)
+                    currentSpans?.add(ForegroundColorSpan(Color.parseColor(hexColor)))
+                }
+                else if (noEscapeStr.startsWith("48;2;")) {
+                    val hexColor = convertAnsiEscapeRgb(noEscapeStr)
+                    currentSpans?.add(BackgroundColorSpan(Color.parseColor(hexColor)))
+                }
+                else if (noEscapeStr.startsWith("38;5;") || noEscapeStr.startsWith("48;5;"))
+                    throw IllegalArgumentException("256 true color '$noEscapeStr' works only in terminal")
+                else
+                    getAnsiColor(noEscapeStr, config, currentSpans)
+            }
             else {
                 Log.e("customfetch", "PARSER: failed to parse line with color '$color'")
                 if (!parseArgs.parsingLayout && parser.dollarPos != -1)
@@ -302,17 +384,15 @@ object ParserFunctions {
 
     private fun parse(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true, until: Char = 0.toChar()): SpannableStringBuilder {
         val result = SpannableStringBuilder()
-        var spanStart = -1
-        var lastActiveSpan: Any? = null
+        val spanStartPositions = mutableMapOf<Any, Int>() // Tracks start position for each span type
 
         while (if (until == 0.toChar()) !parser.isEof() else !parser.tryRead(until)) {
             if (until != 0.toChar() && parser.isEof()) {
-                error("PARSER: Missing tag close bracket $until in string '${parser.src}'")
+                Log.e("PARSER", "Missing tag close bracket $until in string '${parser.src}'")
                 return result
             }
 
             val start = result.length
-            val spanChanged = (currentSpans != lastActiveSpan)
 
             if (parser.tryRead('\\')) {
                 result.append(parser.readChar(until == 0.toChar()))
@@ -324,22 +404,26 @@ object ParserFunctions {
                 }
             }
 
-            // Update span tracking when:
-            // 1. New color tag detected (spanChanged)
-            // 2. After reset (spansDisabled just became false)
-            if (spanChanged || (parseArgs.spansDisabled && currentSpans != null)) {
-                spanStart = start
-                lastActiveSpan = currentSpans
-            }
+            if (!parseArgs.spansDisabled) {
+                // update start positions for new spans
+                currentSpans?.forEach { span ->
+                    if (!spanStartPositions.containsKey(span)) {
+                        spanStartPositions[span] = start
+                    }
+                }
 
-            if (!parseArgs.spansDisabled && currentSpans != null && spanStart != -1 && spanStart < result.length) {
-                currentSpans?.forEach {
-                    result.setSpan(
-                        it,
-                        spanStart,
-                        result.length,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
+                // apply all active spans to the new content
+                currentSpans?.forEach { span ->
+                    spanStartPositions[span]?.let { spanStart ->
+                        if (spanStart < result.length) {
+                            result.setSpan(
+                                span,
+                                spanStart,
+                                result.length,
+                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -400,6 +484,24 @@ fun getInfoFromName(
     systemInfo: SystemInfo,
     moduleName: String,
     moduleMemberName: String
+): SpannableStringBuilder {
+    systemInfo[moduleName]?.let { moduleInfo ->
+        moduleInfo[moduleMemberName]?.let { result ->
+            return when (result) {
+                is Variant.StringVal -> SpannableStringBuilder(result.value)
+                is Variant.DoubleVal -> SpannableStringBuilder("%.2f".format(result.value))
+                is Variant.SizeT -> SpannableStringBuilder(result.value.toString())
+                is Variant.SSBVal -> result.value
+            }
+        }
+    }
+    return SpannableStringBuilder("(unknown/invalid module)")
+}
+
+fun getInfoFromNameStr(
+    systemInfo: SystemInfo,
+    moduleName: String,
+    moduleMemberName: String
 ): String {
     systemInfo[moduleName]?.let { moduleInfo ->
         moduleInfo[moduleMemberName]?.let { result ->
@@ -407,6 +509,7 @@ fun getInfoFromName(
                 is Variant.StringVal -> result.value
                 is Variant.DoubleVal -> "%.2f".format(result.value)
                 is Variant.SizeT -> result.value.toString()
+                is Variant.SSBVal -> result.value.toString()
             }
         }
     }
@@ -435,6 +538,8 @@ const val USED = 0
 const val FREE = 1
 const val TOTAL = 2
 
+infix fun Int.has(flag: DiskVolumeType): Boolean = this and flag.value != 0
+
 val queriedPaths: SystemInfo = mutableMapOf()
 fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parseArgs: ParseArgs) {
     // Aliases for convention
@@ -446,6 +551,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
             is String -> Variant.StringVal(value)
             is Double -> Variant.DoubleVal(value)
             is ULong -> Variant.SizeT(value)
+            is SpannableStringBuilder -> Variant.SSBVal(value)
             else -> throw IllegalArgumentException("Unsupported variant type")
         }
     }
@@ -585,6 +691,51 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
             }
         }
     }
+    else if (moduleName == "ram") {
+        if (!sysInfo.containsKey(moduleName))
+            sysInfo[moduleName] = mutableMapOf()
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val queryRam = Ram.getInstance(parseArgs.context)
+            val byteUnits = listOf(
+                autoDivideBytes(queryRam.usedAmount, byteUnit),
+                autoDivideBytes(queryRam.freeAmount, byteUnit),
+                autoDivideBytes(queryRam.totalAmount, byteUnit)
+            )
+
+            when (moduleMemberName) {
+                "used" -> sysInfoInsert("%.2f %s".format(byteUnits[USED].numBytes, byteUnits[USED].unit))
+                "total" -> sysInfoInsert("%.2f %s".format(byteUnits[TOTAL].numBytes, byteUnits[TOTAL].unit))
+                "free" -> sysInfoInsert("%.2f %s".format(byteUnits[FREE].numBytes, byteUnits[FREE].unit))
+
+                else -> {
+                    if (moduleMemberName.startsWith("free-"))
+                        sysInfoInsert(returnDividedBytes(queryRam.freeAmount))
+                    else if (moduleMemberName.startsWith("used-"))
+                        sysInfoInsert(returnDividedBytes(queryRam.usedAmount))
+                    else if (moduleMemberName.startsWith("total-"))
+                        sysInfoInsert(returnDividedBytes(queryRam.totalAmount))
+                }
+            }
+        }
+    }
+    else if (moduleName == "auto") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            when (moduleMemberName) {
+                "disk" -> {
+                    val queryDisk = Disk.getInstance("", queriedPaths, parseArgs, true)
+                    for (str in queryDisk.disksFormats) {
+                        parseArgs.tmpLayout.add(str)
+                        sysInfoInsert(str.toString())
+                    }
+                }
+            }
+        }
+    }
     else if (moduleName.startsWith("theme")) {
         if (!sysInfo.containsKey(moduleName)) {
             sysInfo[moduleName] = mutableMapOf()
@@ -599,12 +750,14 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
     // Aliases for convention
     val config = parseArgs.config
     val sysInfo = parseArgs.systemInfo
+    val byteUnit = if (config.t.useSIByteUnit) 1000 else 1024
 
     fun sysInfoInsert(value: Any) {
         sysInfo.getOrPut(moduleName) { mutableMapOf() }[moduleMemberName] = when (value) {
             is String -> Variant.StringVal(value)
             is Double -> Variant.DoubleVal(value)
             is ULong -> Variant.SizeT(value)
+            is SpannableStringBuilder -> Variant.SSBVal(value)
             else -> throw IllegalArgumentException("Unsupported variant type")
         }
     }
@@ -616,6 +769,122 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
             sysInfoInsert(parse("\${auto2}$<user.name>\${0}@\${auto2}$<os.hostname>", s, parseArgs).toString())
+        }
+    }
+
+    else if (moduleName == "title_sep" || moduleName == "title_separator") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val queryUser = User.getInstance()
+            val querySystem = System.getInstance()
+            val titleLen = (queryUser.name + "@" + querySystem.hostname).length
+
+            val str = config.t.titleSep.repeat(titleLen)
+            sysInfoInsert(str)
+        }
+    }
+
+    else if (moduleName == "colors") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            sysInfoInsert(parse("\${\\\\e[40m}   \${\\\\e[41m}   \${\\\\e[42m}   \${\\\\e[43m}   \${\\\\e[44m}   \${\\\\e[45m}   \${\\\\e[46m}   \${\\\\e[47m}   \${0}", s, parseArgs))
+        }
+    }
+
+    else if (moduleName == "colors_light") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            sysInfoInsert(parse("\${\\\\e[100m}   \${\\\\e[101m}   \${\\\\e[102m}   \${\\\\e[103m}   \${\\\\e[104m}   \${\\\\e[105m}   \${\\\\e[106m}   \${\\\\e[107m}   \${0}", s, parseArgs))
+        }
+    }
+
+    else if (moduleName == "cpu") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val queryCPU = CPU.getInstance()
+            sysInfoInsert("%s (%s) @ %.2f GHz".format(queryCPU.name, queryCPU.nproc, queryCPU.freqMax))
+        }
+    }
+
+    else if (moduleName == "gpu") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            sysInfoInsert(MAGIC_LINE)
+        }
+    }
+
+    else if (moduleName == "ram") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val queryRam = Ram.getInstance(parseArgs.context)
+            val byteUnits = listOf(
+                autoDivideBytes(queryRam.usedAmount, byteUnit),
+                autoDivideBytes(queryRam.totalAmount, byteUnit)
+            )
+            sysInfoInsert("%.2f %s / %.2f %s".format(
+                byteUnits[0].numBytes, byteUnits[0].unit,
+                byteUnits[1].numBytes, byteUnits[1].unit
+            ))
+        }
+    }
+
+    else if (moduleName.startsWith("disk")) {
+        if (moduleName.length < "disk()".length)
+            throw IllegalArgumentException("invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
+
+        val path = moduleName.substring(5, moduleName.length-1)
+        val queryDisk = Disk.getInstance(path, queriedPaths, parseArgs)
+
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val byteUnits = listOf(
+                autoDivideBytes(queryDisk.usedAmount, byteUnit),
+                autoDivideBytes(queryDisk.totalAmount, byteUnit)
+            )
+
+            var result = "%.2f %s / %.2f %s".format(
+                byteUnits[0].numBytes, byteUnits[0].unit,
+                byteUnits[1].numBytes, byteUnits[1].unit
+            )
+
+            if (queryDisk.typefs != MAGIC_LINE)
+                result += " - ${queryDisk.typefs}"
+
+            var typesDisksStr = "["
+            if (queryDisk.typesDisk has DiskVolumeType.EXTERNAL)
+                typesDisksStr += "External, "
+            if (queryDisk.typesDisk has DiskVolumeType.HIDDEN)
+                typesDisksStr += "Hidden, "
+            if (queryDisk.typesDisk has DiskVolumeType.READ_ONLY)
+                typesDisksStr += "Read-only, "
+
+            if (typesDisksStr.length > 3) {
+                typesDisksStr = typesDisksStr.removeRange(typesDisksStr.length - 2, typesDisksStr.length)
+                result += " $typesDisksStr]"
+            }
+
+            sysInfoInsert(result)
         }
     }
 }

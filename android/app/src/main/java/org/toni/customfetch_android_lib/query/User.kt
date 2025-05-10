@@ -1,24 +1,10 @@
 package org.toni.customfetch_android_lib.query
 
+import android.os.Process
 import org.toni.customfetch_android_lib.UNKNOWN
-import java.lang.reflect.Field
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
-// https://stackoverflow.com/a/28057167
-fun getNameForUid(id: Int): Any? {
-    try {
-        val clazz = Class.forName("libcore.io.Libcore")
-        val field: Field = clazz.getDeclaredField("os").apply{ isAccessible = true }
-        val os: Any? = field.get(null)
-        val getpwuid = os!!.javaClass.getMethod("getpwuid", Int::class.javaPrimitiveType).apply{ isAccessible = true }
-        val passwd = getpwuid.invoke(os, id)
-        if (passwd != null) {
-            val pw_name: Field = passwd.javaClass.getDeclaredField("pw_name").apply{ isAccessible = true }
-            return pw_name.get(passwd)
-        }
-    } catch (ignored: Exception) {
-    }
-    return null
-}
 
 class User private constructor() {
     data class UserInfos(
@@ -39,9 +25,21 @@ class User private constructor() {
     init {
         if (!mBInit) {
             mUserInfos.apply {
-                name = getNameForUid(1000).toString()
+                name = getUsernameFromUid(Process.myUid()).toString()
             }
         }
         mBInit = true
+    }
+}
+
+fun getUsernameFromUid(uid: Int): String? {
+    try {
+        val process: java.lang.Process? = Runtime.getRuntime().exec("id -nu $uid")
+        val reader = BufferedReader(
+            InputStreamReader(process?.inputStream)
+        )
+        return reader.readLine()
+    } catch (e: Exception) {
+        return null
     }
 }
