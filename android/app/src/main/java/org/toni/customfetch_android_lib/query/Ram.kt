@@ -1,10 +1,9 @@
 package org.toni.customfetch_android_lib.query
 
-import android.app.ActivityManager
-import android.content.Context
-import android.content.Context.ACTIVITY_SERVICE
+import java.io.File
+import java.nio.file.Files
 
-class Ram private constructor(context: Context) {
+class Ram private constructor() {
     data class RamInfo(
         var totalAmount: Double = 0.0,
         var freeAmount: Double = 0.0,
@@ -16,9 +15,9 @@ class Ram private constructor(context: Context) {
         private var mBInit = false
 
         // Singleton instance
-        fun getInstance(context: Context): Ram {
-            return Ram(context).apply {
-                getRamInfos(context)
+        fun getInstance(): Ram {
+            return Ram().apply {
+                getRamInfos()
             }
         }
     }
@@ -29,18 +28,19 @@ class Ram private constructor(context: Context) {
 
     init {
         if (!mBInit)
-            mRamInfos = getRamInfos(context)
+            mRamInfos = getRamInfos()
         mBInit = true
     }
 
-    private fun getRamInfos(context: Context): RamInfo {
-        val memoryInfo = ActivityManager.MemoryInfo()
-        val activityManager =  context.getSystemService(ACTIVITY_SERVICE) as ActivityManager?
-        activityManager!!.getMemoryInfo(memoryInfo)
-        return RamInfo(
-            totalAmount = memoryInfo.totalMem.toDouble(),
-            freeAmount = memoryInfo.availMem.toDouble(),
-            usedAmount = totalAmount - freeAmount
-        )
+    private fun getRamInfos(): RamInfo {
+        val ret = RamInfo()
+        Files.readAllLines(File("/proc/meminfo").toPath()).forEach { line ->
+            if (line.startsWith("MemAvailable:"))
+                ret.freeAmount = line.substring("MemAvailable: ".length, line.lastIndexOf(' ')).trim().toDouble()
+            else if (line.startsWith("MemTotal:"))
+                ret.totalAmount = line.substring("MemTotal: ".length, line.lastIndexOf(' ')).trim().toDouble()
+        }
+        ret.usedAmount = ret.totalAmount - ret.freeAmount
+        return ret
     }
 }

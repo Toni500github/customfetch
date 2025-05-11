@@ -121,20 +121,20 @@ class CustomfetchConfigureActivity : Activity() {
         binding.argumentsConfigure.setText(getArgsPref(this@CustomfetchConfigureActivity, appWidgetId))
         binding.additionalTruncateWidth.setText(getAppSettingsPrefString(this, "additional_truncate"))
         binding.truncateText.isChecked = getAppSettingsPrefBool(this, "always_truncate")
-        binding.docsHelp.text = mainRenderStr("customfetch --help")
+        binding.docsHelp.text = mainRenderStr(this, "customfetch --help")
 
         binding.btnArgsHelp.setOnClickListener {
-            binding.docsHelp.text = mainRenderStr("customfetch --help")
+            binding.docsHelp.text = mainRenderStr(this, "customfetch --help")
         }
         binding.btnConfigHelp.setOnClickListener {
-            binding.docsHelp.text = mainRenderStr("customfetch --how-it-works")
+            binding.docsHelp.text = mainRenderStr(this, "customfetch --how-it-works")
         }
         binding.btnModulesHelp.setOnClickListener {
-            binding.docsHelp.text = mainRenderStr("customfetch --list-modules")
+            binding.docsHelp.text = mainRenderStr(this, "customfetch --list-modules")
         }
         binding.btnLogosList.setOnClickListener {
             binding.docsHelp.text =
-                mainRenderStr("customfetch ${binding.argumentsConfigure.text} --list-logos")
+                mainRenderStr(this, "customfetch ${binding.argumentsConfigure.text} --list-logos")
         }
 
         // set everything of the radio buttons at first configuration from the app.

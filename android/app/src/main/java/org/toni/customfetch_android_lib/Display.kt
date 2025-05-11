@@ -17,7 +17,7 @@ fun render(context: Context, appWidgetId: Int, config: Config, asciiFile: File):
 
     val mimeType = Files.probeContentType(asciiFile.toPath())
     if (!mimeType.startsWith("text/"))
-        throw IllegalArgumentException("Customfetch android app does not support images as logos")
+        die(context, "Customfetch android app does not support images as logos")
 
     for (i in 1..config.t.logoPaddingTop) {
         pureAsciiArtLens.add(0)

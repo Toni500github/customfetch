@@ -47,6 +47,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import org.toni.customfetch_android.databinding.ActivityMainBinding
+import org.toni.customfetch_android_lib.info
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -214,7 +215,7 @@ class MainActivity : AppCompatActivity() {
 internal fun copyToAssetFolder(assets: AssetManager, absolutePath: String, assetSubFolder: String) {
     try {
         copyDirectory(assets, assetSubFolder, absolutePath)
-        Log.d("AssetCopy", "All files copied to: $absolutePath")
+        info("All files copied to: $absolutePath")
     } catch (e: IOException) {
         Log.e("AssetCopy", "Failed to copy asset folder: $assetSubFolder", e)
     }

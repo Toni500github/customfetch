@@ -22,7 +22,7 @@ fun strToBool(string: String): Boolean =
 private fun handleOptional(optarg: String?, fallback: String): String =
     optarg ?: fallback
 
-private fun parseConfigArg(args: Array<String>): String {
+private fun parseConfigArg(context: Context, args: Array<String>): String {
     val longOpts = arrayOf(
         LongOpt("config", LongOpt.REQUIRED_ARGUMENT, null, 'C'.code)
     )
@@ -34,7 +34,7 @@ private fun parseConfigArg(args: Array<String>): String {
         when (c) {
             'C'.code -> {
                 if (!File(g.optarg).exists())
-                    throw FileNotFoundException()
+                    die(context, "No such config file ${g.optarg}")
                 return g.optarg
             }
         }
@@ -56,7 +56,7 @@ private fun listLogos(dataDir: String): String {
         ?: ""
 }
 
-private fun parseArgs(args: Array<String>, config: Config): String {
+private fun parseArgs(context: Context, args: Array<String>, config: Config): String {
     val longOpts = arrayOf(
         LongOpt("version", LongOpt.NO_ARGUMENT, null, 'V'.code),
         LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h'.code),
@@ -105,7 +105,7 @@ private fun parseArgs(args: Array<String>, config: Config): String {
                 'w'.code -> return howItWorks()
                 'f'.code -> config.gui.font = g.optarg
                 'o'.code -> config.t.offset = g.optarg.toInt()
-                'O'.code -> overrideOption(g.optarg, config)
+                'O'.code -> overrideOption(context, g.optarg, config)
                 'D'.code -> config.t.dataDir = g.optarg
                 'd'.code -> config.args.customDistro = g.optarg.lowercase()
                 'm'.code -> config.args.layout.add(g.optarg)
@@ -135,13 +135,13 @@ private fun parseArgs(args: Array<String>, config: Config): String {
     return "success"
 }
 
-private fun manageConfigStuff(config: Config) {
+private fun manageConfigStuff(context: Context, config: Config) {
     File("/storage/emulated/0/.config/").mkdirs()
     if (!File("/storage/emulated/0/.config/config.toml").exists())
         generateConfig(File("/storage/emulated/0/.config/config.toml"))
 
     for (str in config.t.aliasColors)
-        addAliasColor(str, config)
+        addAliasColor(context, str, config)
 
     config.autoDisk.displayTypes.let {
         if (it.contains("regular"))
@@ -162,12 +162,12 @@ private fun detectDistroFile(config: Config): String {
     return "${config.t.dataDir}/ascii/android.txt"
 }
 
-fun mainRenderStr(argsStr: String): String {
+fun mainRenderStr(context: Context, argsStr: String): String {
     val args = argsStr.split(' ').toTypedArray()
     val toml = Toml {
         ignoreUnknownKeys = true
     }
-    val tomlConfig = Paths.get(parseConfigArg(args)).readText()
+    val tomlConfig = Paths.get(parseConfigArg(context, args)).readText()
         .replace("\\e[", "\\u001B[") // Escape ANSI codes
     val config: Config
     try {
@@ -175,7 +175,7 @@ fun mainRenderStr(argsStr: String): String {
     } catch (e: SerializationException) {
         return e.message.toString()
     }
-    return parseArgs(args, config)
+    return parseArgs(context, args, config)
 }
 
 fun mainRender(context: Context, appWidgetId: Int, argsStr: String): List<SpannableStringBuilder> {
@@ -183,7 +183,7 @@ fun mainRender(context: Context, appWidgetId: Int, argsStr: String): List<Spanna
     val toml = Toml {
         ignoreUnknownKeys = true
     }
-    val tomlConfig = Paths.get(parseConfigArg(args)).readText()
+    val tomlConfig = Paths.get(parseConfigArg(context, args)).readText()
             .replace("\\e[", "\\u001B[") // Escape ANSI codes
     val config: Config
     try {
@@ -192,12 +192,12 @@ fun mainRender(context: Context, appWidgetId: Int, argsStr: String): List<Spanna
         return listOf(SpannableStringBuilder(e.toString()))
     }
 
-    parseArgs(args, config).let {
+    parseArgs(context, args, config).let {
         if (it != "success")
             return listOf(SpannableStringBuilder(it))
     }
 
-    manageConfigStuff(config)
+    manageConfigStuff(context, config)
 
     var path = if (config.t.sourcePath == "os") detectDistroFile(config) else config.t.sourcePath
     if (config.t.asciiLogoType.isNotEmpty() && (config.t.sourcePath == "os")) {

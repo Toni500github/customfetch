@@ -353,8 +353,7 @@ without quotes ofc
 ################################################################
 """
 
-const val AUTOCONFIG = """
-[config]
+const val AUTOCONFIG = """[config]
 
 # For more information on how customfetch works and the layout,
 # Read either:

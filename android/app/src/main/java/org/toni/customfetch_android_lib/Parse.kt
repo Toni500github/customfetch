@@ -3,7 +3,6 @@ package org.toni.customfetch_android_lib
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.BackgroundColorSpan
@@ -13,11 +12,14 @@ import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.util.Log
 import androidx.core.graphics.toColorInt
+import org.toni.customfetch_android_lib.ParserFunctions.getAndColorPercentage
 import org.toni.customfetch_android_lib.ParserFunctions.parse
+import org.toni.customfetch_android_lib.query.Battery
 import org.toni.customfetch_android_lib.query.CPU
 import org.toni.customfetch_android_lib.query.Disk
 import org.toni.customfetch_android_lib.query.DiskVolumeType
 import org.toni.customfetch_android_lib.query.Ram
+import org.toni.customfetch_android_lib.query.Swap
 import org.toni.customfetch_android_lib.query.System
 import org.toni.customfetch_android_lib.query.User
 import java.util.concurrent.TimeUnit
@@ -36,7 +38,7 @@ const val UNKNOWN = "(unknown)"
 // magic line to be sure that I don't cut the wrong line.
 //
 // Every instance of this string in a layout line, the whole line will be erased.
-const val MAGIC_LINE = "(cut this line NOW!! RAHHH)";
+const val MAGIC_LINE = "(cut this line NOW!! RAHHH)"
 
 typealias SystemInfo = MutableMap<String, MutableMap<String, Variant>>
 sealed class Variant {
@@ -94,6 +96,10 @@ class Parser(val src: String, val pureOutput: StringBuilder) {
     }
 }
 
+fun Double.roundTo(numFractionDigits: Int): Float {
+    return "%.${numFractionDigits}f".format(this).toFloat()
+}
+
 object ParserFunctions {
 
     // converts pango numbers (1..65536) to color hex numbers (0x0..0FF)
@@ -134,17 +140,17 @@ object ParserFunctions {
             currentSpans?.add(ForegroundColorSpan(Color.parseColor(color.toString())))
     }
 
-    private fun convertAnsiEscapeRgb(noescStr: String): String {
+    private fun convertAnsiEscapeRgb(parseArgs: ParseArgs, noescStr: String): String {
         // Validate input format
         if (noescStr.count { it == ';' } < 4) {
-            throw IllegalArgumentException(
+            die(parseArgs.context, 
                 "ANSI escape code color '\\e[$noescStr' should have an rgb type value\n" +
                         "e.g \\e[38;2;255;255;255m"
             )
         }
 
         if (!noescStr.endsWith('m')) {
-            throw IllegalArgumentException(
+            die(parseArgs.context, 
                 "Parser: failed to parse layout/ascii art: missing 'm' while using " +
                         "ANSI color escape code in '\\e[$noescStr'"
             )
@@ -166,6 +172,27 @@ object ParserFunctions {
         return result.toString(16).padStart(6, '0')
     }
 
+    fun getAndColorPercentage(n1: Double, n2: Double, parseArgs: ParseArgs, invert: Boolean = false): SpannableStringBuilder {
+        val config = parseArgs.config
+        val result = n1 / n2 * 100.0
+
+        val color = if (!invert) {
+            when {
+                result <= 45 -> "\${${config.t.percentageColors[0]}}"
+                result <= 80 -> "\${${config.t.percentageColors[1]}}"
+                else -> "\${${config.t.percentageColors[2]}}"
+            }
+        } else {
+            when {
+                result <= 45 -> "\${${config.t.percentageColors[2]}}"
+                result <= 80 -> "\${${config.t.percentageColors[1]}}"
+                else -> "\${${config.t.percentageColors[0]}}"
+            }
+        }
+
+        return parse("$color${result.roundTo(2)}%\${0}", s, parseArgs)
+    }
+
     private fun parseConditionalTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
         if (!parser.tryRead('[')) return null
 
@@ -178,6 +205,23 @@ object ParserFunctions {
         val condFalse = parse(parser, parseArgs, !cond, ']')
 
         return if (cond) condTrue else condFalse
+    }
+
+    private fun parsePercTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
+        if (!parser.tryRead('%')) return null
+
+        val command = parse(parser, parseArgs, evaluate, '%')
+
+        if (!evaluate) return null
+
+        val commaPos = command.indexOf(',')
+        if (commaPos == -1)
+            die(parseArgs.context, "percentage tag '$command' doesn't have a comma for separating the 2 numbers")
+
+        val invert = command[0] == '!'
+        val n1 = parse(command.substring(if (invert) 1 else 0, commaPos), s, parseArgs).toString().toDouble()
+        val n2 = parse(command.substring(commaPos + 1), s, parseArgs).toString().toDouble()
+        return getAndColorPercentage(n1, n2, parseArgs, invert)
     }
 
     private fun parseInfoTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
@@ -291,7 +335,7 @@ object ParserFunctions {
                     if (optColor[argModePos + 1] == '(') {
                         val closeBracket = optColor.indexOf(')', argModePos)
                         if (closeBracket != -1)
-                            throw IllegalArgumentException("mode '$mode' in color '$color' doesn't have a closet bracket")
+                            die(parseArgs.context, "mode '$mode' in color '$color' doesn't have a closet bracket")
 
                         val value = optColor.substring(argModePos+2, closeBracket - argModePos - 2)
                         return Pair(value, closeBracket)
@@ -333,20 +377,20 @@ object ParserFunctions {
             else if (strColor.startsWith("\\e") || strColor.startsWith("\u001B")) {
                 val noEscapeStr = if (strColor.startsWith("\\e")) strColor.substring(3) else strColor.substring(4)
                 if (noEscapeStr.startsWith("38;2;")){
-                    val hexColor = convertAnsiEscapeRgb(noEscapeStr)
+                    val hexColor = convertAnsiEscapeRgb(parseArgs, noEscapeStr)
                     currentSpans?.add(ForegroundColorSpan(Color.parseColor(hexColor)))
                 }
                 else if (noEscapeStr.startsWith("48;2;")) {
-                    val hexColor = convertAnsiEscapeRgb(noEscapeStr)
+                    val hexColor = convertAnsiEscapeRgb(parseArgs, noEscapeStr)
                     currentSpans?.add(BackgroundColorSpan(Color.parseColor(hexColor)))
                 }
                 else if (noEscapeStr.startsWith("38;5;") || noEscapeStr.startsWith("48;5;"))
-                    throw IllegalArgumentException("256 true color '$noEscapeStr' works only in terminal")
+                    die(parseArgs.context, "256 true color '$noEscapeStr' works only in terminal")
                 else
                     getAnsiColor(noEscapeStr, config, currentSpans)
             }
             else {
-                Log.e("customfetch", "PARSER: failed to parse line with color '$color'")
+                error(parseArgs.context, "PARSER: failed to parse line with color '$color'")
                 if (!parseArgs.parsingLayout && parser.dollarPos != -1)
                     parseArgs.pureOutput.delete(parser.dollarPos, tagLen)
                 return output
@@ -377,6 +421,9 @@ object ParserFunctions {
         parseColorTag(parser, parseArgs, evaluate)?.let {
             return it
         }
+        parsePercTag(parser, parseArgs, evaluate)?.let {
+            return it
+        }
 
         parser.rewind()
         return null
@@ -388,7 +435,7 @@ object ParserFunctions {
 
         while (if (until == 0.toChar()) !parser.isEof() else !parser.tryRead(until)) {
             if (until != 0.toChar() && parser.isEof()) {
-                Log.e("PARSER", "Missing tag close bracket $until in string '${parser.src}'")
+                error(parseArgs.context, "Missing tag close bracket '$until' in string '${parser.src}'")
                 return result
             }
 
@@ -657,7 +704,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
     }
     else if (moduleName.startsWith("disk")) {
         if (moduleName.length < "disk()".length)
-            throw IllegalArgumentException("invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
+            die(parseArgs.context, "invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
 
         val path = moduleName.substring(6, moduleName.length-1)
         val queryDisk = Disk.getInstance(path, queriedPaths, parseArgs)
@@ -676,9 +723,26 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
                 "device" -> sysInfoInsert(queryDisk.device)
                 "mountdir" -> sysInfoInsert(queryDisk.mountdir)
 
+                "types" -> {
+                    var typesDisksStr = "["
+                    if (queryDisk.typesDisk has DiskVolumeType.EXTERNAL)
+                        typesDisksStr += "External, "
+                    if (queryDisk.typesDisk has DiskVolumeType.HIDDEN)
+                        typesDisksStr += "Hidden, "
+                    if (queryDisk.typesDisk has DiskVolumeType.READ_ONLY)
+                        typesDisksStr += "Read-only, "
+
+                    if (typesDisksStr.isNotEmpty())
+                        typesDisksStr = typesDisksStr.removeRange(typesDisksStr.length - 2, typesDisksStr.length)
+                    sysInfoInsert(typesDisksStr)
+                }
+
                 "used" -> sysInfoInsert("%.2f %s".format(byteUnits[USED].numBytes, byteUnits[USED].unit))
                 "free" -> sysInfoInsert("%.2f %s".format(byteUnits[FREE].numBytes, byteUnits[FREE].unit))
                 "total" -> sysInfoInsert("%.2f %s".format(byteUnits[TOTAL].numBytes, byteUnits[TOTAL].unit))
+
+                "free_perc", "free_percentage" -> sysInfoInsert(getAndColorPercentage(queryDisk.freeAmount, queryDisk.totalAmount, parseArgs))
+                "used_perc", "used_percentage" -> sysInfoInsert(getAndColorPercentage(queryDisk.usedAmount, queryDisk.totalAmount, parseArgs))
 
                 else -> {
                     if (moduleMemberName.startsWith("free-"))
@@ -696,17 +760,20 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
             sysInfo[moduleName] = mutableMapOf()
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            val queryRam = Ram.getInstance(parseArgs.context)
+            val queryRam = Ram.getInstance()
             val byteUnits = listOf(
-                autoDivideBytes(queryRam.usedAmount, byteUnit),
-                autoDivideBytes(queryRam.freeAmount, byteUnit),
-                autoDivideBytes(queryRam.totalAmount, byteUnit)
+                autoDivideBytes(queryRam.usedAmount * byteUnit, byteUnit),
+                autoDivideBytes(queryRam.freeAmount * byteUnit, byteUnit),
+                autoDivideBytes(queryRam.totalAmount * byteUnit, byteUnit)
             )
 
             when (moduleMemberName) {
                 "used" -> sysInfoInsert("%.2f %s".format(byteUnits[USED].numBytes, byteUnits[USED].unit))
                 "total" -> sysInfoInsert("%.2f %s".format(byteUnits[TOTAL].numBytes, byteUnits[TOTAL].unit))
                 "free" -> sysInfoInsert("%.2f %s".format(byteUnits[FREE].numBytes, byteUnits[FREE].unit))
+
+                "free_perc", "free_percentage" -> sysInfoInsert(getAndColorPercentage(queryRam.freeAmount, queryRam.totalAmount, parseArgs))
+                "used_perc", "used_percentage" -> sysInfoInsert(getAndColorPercentage(queryRam.usedAmount, queryRam.totalAmount, parseArgs))
 
                 else -> {
                     if (moduleMemberName.startsWith("free-"))
@@ -716,6 +783,55 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
                     else if (moduleMemberName.startsWith("total-"))
                         sysInfoInsert(returnDividedBytes(queryRam.totalAmount))
                 }
+            }
+        }
+    }
+    else if (moduleName == "swap") {
+        if (!sysInfo.containsKey(moduleName))
+            sysInfo[moduleName] = mutableMapOf()
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val querySwap = Swap.getInstance()
+            val byteUnits = listOf(
+                autoDivideBytes(querySwap.usedAmount * byteUnit, byteUnit),
+                autoDivideBytes(querySwap.freeAmount * byteUnit, byteUnit),
+                autoDivideBytes(querySwap.totalAmount * byteUnit, byteUnit)
+            )
+
+            when (moduleMemberName) {
+                "used" -> sysInfoInsert("%.2f %s".format(byteUnits[USED].numBytes, byteUnits[USED].unit))
+                "total" -> sysInfoInsert("%.2f %s".format(byteUnits[TOTAL].numBytes, byteUnits[TOTAL].unit))
+                "free" -> sysInfoInsert("%.2f %s".format(byteUnits[FREE].numBytes, byteUnits[FREE].unit))
+
+                "free_perc", "free_percentage" -> sysInfoInsert(getAndColorPercentage(querySwap.freeAmount, querySwap.totalAmount, parseArgs))
+                "used_perc", "used_percentage" -> sysInfoInsert(getAndColorPercentage(querySwap.usedAmount, querySwap.totalAmount, parseArgs))
+
+                else -> {
+                    if (moduleMemberName.startsWith("free-"))
+                        sysInfoInsert(returnDividedBytes(querySwap.freeAmount))
+                    else if (moduleMemberName.startsWith("used-"))
+                        sysInfoInsert(returnDividedBytes(querySwap.usedAmount))
+                    else if (moduleMemberName.startsWith("total-"))
+                        sysInfoInsert(returnDividedBytes(querySwap.totalAmount))
+                }
+            }
+        }
+    }
+    else if (moduleName == "battery") {
+        if (!sysInfo.containsKey(moduleName))
+            sysInfo[moduleName] = mutableMapOf()
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val queryBattery = Battery.getInstance(parseArgs.context)
+            when (moduleMemberName) {
+                "vendor", "manufacturer", "name" -> sysInfoInsert(MAGIC_LINE)
+                "percentage", "perc" -> sysInfoInsert(getAndColorPercentage(queryBattery.perc, 100.0, parseArgs, true))
+                "technology" -> sysInfoInsert(queryBattery.technology)
+                "status" -> sysInfoInsert(queryBattery.status)
+
+                "temp_C" -> sysInfoInsert(queryBattery.temp)
+                "temp_F" -> sysInfoInsert(queryBattery.temp * 1.8 + 32)
+                "temp_K" -> sysInfoInsert(queryBattery.temp + 273.15)
             }
         }
     }
@@ -807,6 +923,38 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
         }
     }
 
+    else if (moduleName == "colors_symbol") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            if (moduleName.length <= "colors_symbol()".length)
+                die(parseArgs.context, "color palette module member '$moduleName' in invalid.\n"+
+                        "Must be used like 'colors_symbol(`symbol for printing the color palette`)'.\n"+
+                        "e.g 'colors_symbol(@)' or 'colors_symbol(string)'")
+
+            val sym = moduleName.substring("colors_symbol(".length, moduleName.length-1)
+            sysInfoInsert(parse("\${\\\\e[30m} $sym \${\\\\e[31m} $sym \${{\\\\e[32m}} $sym \${{\\\\e[33m}} $sym \${{\\\\e[34m}} $sym \${{\\\\e[35m}} $sym \${{\\\\e[36m}} $sym \${{\\\\e[37m}} $sym \${0}", s, parseArgs))
+        }
+    }
+
+    else if (moduleName == "colors_symbol_light") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            if (moduleName.length <= "colors_symbol_light()".length)
+                die(parseArgs.context, "light color palette module member '$moduleName' in invalid.\n"+
+                        "Must be used like 'colors_symbol_light(`symbol for printing the color palette`)'.\n"+
+                        "e.g 'colors_symbol_light(@)' or 'colors_symbol_light(string)'")
+
+            val sym = moduleName.substring("colors_symbol_light(".length, moduleName.length-1)
+            sysInfoInsert(parse("\${\\\\e[90m} $sym \${\\\\e[91m} $sym \${{\\\\e[92m}} $sym \${{\\\\e[93m}} $sym \${{\\\\e[94m}} $sym \${{\\\\e[95m}} $sym \${{\\\\e[96m}} $sym \${{\\\\e[97m}} $sym \${0}", s, parseArgs))
+        }
+    }
+
     else if (moduleName == "cpu") {
         if (!sysInfo.containsKey(moduleName)) {
             sysInfo[moduleName] = mutableMapOf()
@@ -834,21 +982,45 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
         }
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            val queryRam = Ram.getInstance(parseArgs.context)
+            val queryRam = Ram.getInstance()
             val byteUnits = listOf(
-                autoDivideBytes(queryRam.usedAmount, byteUnit),
-                autoDivideBytes(queryRam.totalAmount, byteUnit)
+                autoDivideBytes(queryRam.usedAmount * byteUnit, byteUnit),
+                autoDivideBytes(queryRam.totalAmount * byteUnit, byteUnit)
             )
-            sysInfoInsert("%.2f %s / %.2f %s".format(
+            val perc = getAndColorPercentage(queryRam.usedAmount, queryRam.totalAmount, parseArgs)
+            val str = parse("%.2f %s / %.2f %s \${0}()".format(
                 byteUnits[0].numBytes, byteUnits[0].unit,
                 byteUnits[1].numBytes, byteUnits[1].unit
-            ))
+            ), s, parseArgs)
+            str.insert(str.length-1, perc)
+            sysInfoInsert(str)
+        }
+    }
+
+    else if (moduleName == "swap") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val querySwap = Swap.getInstance()
+            val byteUnits = listOf(
+                autoDivideBytes(querySwap.usedAmount * byteUnit, byteUnit),
+                autoDivideBytes(querySwap.totalAmount * byteUnit, byteUnit)
+            )
+            val perc = getAndColorPercentage(querySwap.usedAmount, querySwap.totalAmount, parseArgs)
+            val str = parse("%.2f %s / %.2f %s \${0}()".format(
+                byteUnits[0].numBytes, byteUnits[0].unit,
+                byteUnits[1].numBytes, byteUnits[1].unit
+            ), s, parseArgs)
+            str.insert(str.length-1, perc)
+            sysInfoInsert(str)
         }
     }
 
     else if (moduleName.startsWith("disk")) {
         if (moduleName.length < "disk()".length)
-            throw IllegalArgumentException("invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
+            die(parseArgs.context, "invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
 
         val path = moduleName.substring(5, moduleName.length-1)
         val queryDisk = Disk.getInstance(path, queriedPaths, parseArgs)
@@ -863,13 +1035,15 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
                 autoDivideBytes(queryDisk.totalAmount, byteUnit)
             )
 
-            var result = "%.2f %s / %.2f %s".format(
+            val perc = getAndColorPercentage(queryDisk.usedAmount, queryDisk.totalAmount, parseArgs)
+            val result = parse("%.2f %s / %.2f %s \${0}()".format(
                 byteUnits[0].numBytes, byteUnits[0].unit,
                 byteUnits[1].numBytes, byteUnits[1].unit
-            )
+            ), s, parseArgs)
+            result.insert(result.length-1, perc)
 
             if (queryDisk.typefs != MAGIC_LINE)
-                result += " - ${queryDisk.typefs}"
+                result.append(" - ${queryDisk.typefs}")
 
             var typesDisksStr = "["
             if (queryDisk.typesDisk has DiskVolumeType.EXTERNAL)
@@ -881,10 +1055,26 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
 
             if (typesDisksStr.length > 3) {
                 typesDisksStr = typesDisksStr.removeRange(typesDisksStr.length - 2, typesDisksStr.length)
-                result += " $typesDisksStr]"
+                result.append(" $typesDisksStr]")
             }
 
             sysInfoInsert(result)
         }
     }
+
+    else if (moduleName == "battery") {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val queryBattery = Battery.getInstance(parseArgs.context)
+            val perc = getAndColorPercentage(queryBattery.perc, 100.0, parseArgs, true)
+            perc.append(" [${queryBattery.status}]")
+            sysInfoInsert(perc)
+        }
+    }
+
+    else
+        die(parseArgs.context, "Invalid module name: $moduleName")
 }

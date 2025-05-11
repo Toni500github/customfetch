@@ -1,5 +1,6 @@
 package org.toni.customfetch_android_lib
 
+import android.content.Context
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -96,10 +97,10 @@ fun generateConfig(file: File) {
     file.writeText(AUTOCONFIG)
 }
 
-fun addAliasColor(str: String, config: Config) {
+fun addAliasColor(context: Context, str: String, config: Config) {
     val pos = str.indexOf('=')
     if (pos == -1)
-        throw IllegalArgumentException("alias color '{}' does NOT have an equal sign '=' for separating config name and value\n" +
+        die(context, "alias color '{}' does NOT have an equal sign '=' for separating config name and value\n" +
                 "For more check with --help")
     val name = str.substring(0, pos)
     val value = str.substring(pos + 1)
@@ -108,10 +109,10 @@ fun addAliasColor(str: String, config: Config) {
     config.t.colorsValue.add(value)
 }
 
-fun overrideOption(opt: String, config: Config) {
+fun overrideOption(context: Context, opt: String, config: Config) {
     val pos = opt.indexOf('=')
     if (pos == -1)
-        throw IllegalArgumentException("override option '{}' does NOT have an equal sign '=' for separating config name and value\n" +
+        die(context, "override option '{}' does NOT have an equal sign '=' for separating config name and value\n" +
                 "For more check with --help")
     var name = opt.substring(0, pos)
     val value = opt.substring(pos + 1)
@@ -155,6 +156,6 @@ fun overrideOption(opt: String, config: Config) {
         "gui.white" -> config.gui.white = value
         "gui.bg-image" -> config.gui.bgImage = value
 
-        else -> throw IllegalArgumentException("Unknown config property: $name")
+        else -> die(context, "Unknown config property: $name")
     }
 }
