@@ -53,9 +53,8 @@ private fun getFileStore(path: String): FileStore {
     return FileSystems.getDefault().fileStores.first()
 }
 
-class Disk (
+class Disk(
     path: String,
-    queriedPaths: SystemInfo,
     parseArgs: ParseArgs,
     autoModule: Boolean = false
 ) {
@@ -71,17 +70,20 @@ class Disk (
 
     companion object {
         private var mDiskInfos = DiskInfo()
+        private var mQueriedPaths: SystemInfo = mutableMapOf()
         private val mDisksFormats = mutableListOf<SpannableStringBuilder>()
         private val mQueriedDevices = mutableListOf<String>()
 
         fun clearCache() {
+            mDiskInfos = DiskInfo()
             mDisksFormats.clear()
             mQueriedDevices.clear()
+            mQueriedPaths.clear()
         }
     }
 
     init {
-        initialize(path, queriedPaths, parseArgs, autoModule)
+        initialize(path, parseArgs, autoModule)
     }
 
     // Properties (public getters)
@@ -96,22 +98,21 @@ class Disk (
 
     private fun initialize(
         path: String,
-        queriedPaths: SystemInfo,
         parseArgs: ParseArgs,
         autoModule: Boolean
     ) {
         // Check if already queried
-        if (queriedPaths.containsKey(path)) {
+        if (mQueriedPaths.containsKey(path)) {
             mDiskInfos.apply {
-                device = getInfoFromNameStr(queriedPaths, path, "device")
-                mountdir = getInfoFromNameStr(queriedPaths, path, "mountdir")
-                typefs = getInfoFromNameStr(queriedPaths, path, "typefs")
+                device = getInfoFromNameStr(mQueriedPaths, path, "device")
+                mountdir = getInfoFromNameStr(mQueriedPaths, path, "mountdir")
+                typefs = getInfoFromNameStr(mQueriedPaths, path, "typefs")
                 totalAmount =
-                    getInfoFromNameStr(queriedPaths, path, "total_amount").toDoubleOrNull() ?: 0.0
+                    getInfoFromNameStr(mQueriedPaths, path, "total_amount").toDoubleOrNull() ?: 0.0
                 usedAmount =
-                    getInfoFromNameStr(queriedPaths, path, "used_amount").toDoubleOrNull() ?: 0.0
+                    getInfoFromNameStr(mQueriedPaths, path, "used_amount").toDoubleOrNull() ?: 0.0
                 freeAmount =
-                    getInfoFromNameStr(queriedPaths, path, "free_amount").toDoubleOrNull() ?: 0.0
+                    getInfoFromNameStr(mQueriedPaths, path, "free_amount").toDoubleOrNull() ?: 0.0
             }
             return
         }
@@ -163,7 +164,7 @@ class Disk (
         }
 
         // Cache results
-        queriedPaths[path] = mutableMapOf(
+        mQueriedPaths[path] = mutableMapOf(
             "total_amount" to Variant.DoubleVal(mDiskInfos.totalAmount),
             "used_amount" to Variant.DoubleVal(mDiskInfos.usedAmount),
             "free_amount" to Variant.DoubleVal(mDiskInfos.freeAmount),

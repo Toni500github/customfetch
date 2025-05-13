@@ -46,7 +46,7 @@ private fun parseConfigArg(context: Context, args: Array<String>): String {
         }
     }
 
-    return "/storage/emulated/0/.config/customfetch/config.toml"
+    return "$CONFIG_DIR/config.toml"
 }
 
 private fun listLogos(dataDir: String): String {
@@ -142,9 +142,9 @@ private fun parseArgs(context: Context, args: Array<String>, config: Config): St
 }
 
 private fun manageConfigStuff(context: Context, config: Config) {
-    File("/storage/emulated/0/.config/").mkdirs()
-    if (!File("/storage/emulated/0/.config/config.toml").exists())
-        generateConfig(File("/storage/emulated/0/.config/config.toml"))
+    File(CONFIG_DIR).mkdirs()
+    if (!File("$CONFIG_DIR/config.toml").exists())
+        generateConfig(File("$CONFIG_DIR/config.toml"))
 
     for (str in config.t.aliasColors)
         addAliasColor(context, str, config)

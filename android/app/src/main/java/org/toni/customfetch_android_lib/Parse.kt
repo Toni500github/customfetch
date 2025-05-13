@@ -97,8 +97,8 @@ class Parser(val src: String, val pureOutput: StringBuilder) {
     }
 }
 
-fun Double.roundTo(numFractionDigits: Int): Float {
-    return "%.${numFractionDigits}f".format(this).toFloat()
+fun Double.roundTo(num: Int): Float {
+    return "%.${num}f".format(this).replace(',', '.').toFloat()
 }
 
 object ParserFunctions {
@@ -588,7 +588,6 @@ const val TOTAL = 2
 
 infix fun Int.has(flag: DiskVolumeType): Boolean = this and flag.value != 0
 
-val queriedPaths: SystemInfo = mutableMapOf()
 fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parseArgs: ParseArgs) {
     // Aliases for convention
     val config = parseArgs.config
@@ -708,7 +707,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
             die(parseArgs.context, "invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
 
         val path = moduleName.substring(6, moduleName.length-1)
-        val queryDisk = Disk(path, queriedPaths, parseArgs)
+        val queryDisk = Disk(path, parseArgs)
 
         if (!sysInfo.containsKey(moduleName))
             sysInfo[moduleName] = mutableMapOf()
@@ -857,7 +856,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
             when (moduleMemberName) {
                 "disk" -> {
-                    val queryDisk = Disk("", queriedPaths, parseArgs, true)
+                    val queryDisk = Disk("", parseArgs, true)
                     for (str in queryDisk.disksFormats) {
                         parseArgs.tmpLayout.add(str)
                         sysInfoInsert(str.toString())
@@ -1038,7 +1037,7 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
             die(parseArgs.context, "invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
 
         val path = moduleName.substring(5, moduleName.length-1)
-        val queryDisk = Disk(path, queriedPaths, parseArgs)
+        val queryDisk = Disk(path, parseArgs)
 
         if (!sysInfo.containsKey(moduleName)) {
             sysInfo[moduleName] = mutableMapOf()

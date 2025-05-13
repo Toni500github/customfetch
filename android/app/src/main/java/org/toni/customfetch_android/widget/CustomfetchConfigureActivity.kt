@@ -251,33 +251,12 @@ fun getParsedContent(
         truncateText: Boolean,
         paint: TextPaint,
         otherArguments: String = "",
-        postToast: Boolean = true,
 ): SpannableStringBuilder {
     val parsedContent = SpannableStringBuilder()
     val arguments = otherArguments.ifEmpty {
         getArgsPref(context, appWidgetId)
     }
     val content = mainRender(context, appWidgetId, "customfetch $arguments")
-
-    val errorFile = "/storage/emulated/0/.config/customfetch/error_log.txt"
-    val errorLock = "/storage/emulated/0/.config/customfetch/error.lock"
-    if (Files.exists(Path(errorLock))) {
-        val file = File(errorLock)
-        val error = file.bufferedReader().readText()
-        if (postToast) {
-            val handler = Handler(Looper.getMainLooper())
-            handler.post {
-                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-            }
-            handler.post {
-                Toast.makeText(context, "read error logs at $errorFile", Toast.LENGTH_LONG)
-                    .show()
-            }
-        }
-        file.delete()
-        parsedContent.append("read error logs at $errorFile\n\n$error")
-        return parsedContent
-    }
 
     for (line in content) {
         if (truncateText)

@@ -9,10 +9,13 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import kotlin.system.exitProcess
 
+
 data class ByteUnits(val unit: String, val numBytes: Double)
 
+const val CONFIG_DIR = "/storage/emulated/0/.config/customfetch"
+
 private fun writeToFile(fmt: String) {
-    val log = File("/storage/emulated/0/.config/customfetch/log.txt")
+    val log = File("$CONFIG_DIR/log.txt")
     val diff: Long = Date().time - log.lastModified()
     if (diff > (10 * 24 * 60 * 60 * 1000L)) // 10 days in milliseconds
         log.delete()
@@ -47,6 +50,17 @@ fun die(context: Context, fmt: String) {
     Toast.makeText(context, "FATAL: $fmt", Toast.LENGTH_LONG).show()
     writeToFile("FATAL: $fmt")
     exitProcess(-1)
+}
+
+fun getSystemProperty(key: String, def: String?): String? {
+    try {
+        val systemPropertiesClass = Class.forName("android.os.SystemProperties")
+        val getMethod = systemPropertiesClass.getMethod("get", String::class.java)
+        return getMethod.invoke(systemPropertiesClass, key) as String
+    } catch (e: Exception) {
+        e.printStackTrace()
+        return def
+    }
 }
 
 fun autoDivideBytes(num: Double, base: Int, maxPrefix: String = ""): ByteUnits {

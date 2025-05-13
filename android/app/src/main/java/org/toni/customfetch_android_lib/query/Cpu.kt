@@ -2,7 +2,7 @@ package org.toni.customfetch_android_lib.query
 
 import android.os.Build
 import org.toni.customfetch_android_lib.UNKNOWN
-import java.lang.System
+import org.toni.customfetch_android_lib.getSystemProperty
 import java.io.File
 import java.nio.file.Files
 
@@ -17,6 +17,7 @@ class Cpu {
 
         // private
         var modelName: String = "",
+        var vendor: String = ""
     )
 
     val name: String get() = mCpuInfos.name
@@ -65,7 +66,7 @@ class Cpu {
             }
         } catch (_: Exception){}
 
-        // n. of processors (also the name of CPU but we then need to use System.getProperty)
+        // n. of processors (also the name of CPU but we then need to use getSystemProperty)
         Files.readAllLines(File("/proc/cpuinfo").toPath()).forEach { line ->
             if (line.startsWith("model name"))
                 ret.name = line.substring(line.indexOf(':')+1).trim()
@@ -76,10 +77,17 @@ class Cpu {
 
         // the name of CPU by the modelName
         if (ret.name == UNKNOWN) {
-            ret.modelName = System.getProperty("ro.soc.model", "no")
-            if (ret.modelName == "no")
-                ret.modelName = System.getProperty("ro.mediatek.platform", "no")
-            ret.name = when (Build.MANUFACTURER) {
+            ret.modelName = getSystemProperty("ro.soc.model", null) ?: "no"
+            if (ret.modelName == "no") {
+                ret.vendor = "MTK"
+                ret.modelName = getSystemProperty("ro.mediatek.platform", null) ?: "no"
+            }
+            if (ret.vendor.isEmpty()) {
+                ret.vendor = getSystemProperty("ro.soc.manufacturer", null) ?: "no"
+                if (ret.vendor == "no")
+                    ret.vendor = getSystemProperty("ro.product.product.manufacturer", null) ?: "no"
+            }
+            ret.name = when (ret.vendor) {
                 "QTI", "QUALCOMM" -> "Qualcomm ${detectQualcomm(ret.modelName)} [${ret.modelName}]"
                 "Samsung" -> "Samsung ${detectExynos(ret.modelName)} [${ret.modelName}]"
                 "MTK" -> "Mediatek ${detectMediaTek(ret.modelName)} [${ret.modelName}]"
