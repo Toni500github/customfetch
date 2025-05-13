@@ -141,11 +141,13 @@ private fun parseArgs(context: Context, args: Array<String>, config: Config): St
     return "success"
 }
 
-private fun manageConfigStuff(context: Context, config: Config) {
+private fun createConfig() {
     File(CONFIG_DIR).mkdirs()
     if (!File("$CONFIG_DIR/config.toml").exists())
         generateConfig(File("$CONFIG_DIR/config.toml"))
+}
 
+private fun manageConfigStuff(context: Context, config: Config) {
     for (str in config.t.aliasColors)
         addAliasColor(context, str, config)
 
@@ -169,6 +171,7 @@ private fun detectDistroFile(config: Config): String {
 }
 
 fun mainRenderStr(context: Context, argsStr: String): String {
+    createConfig()
     val args = argsStr.split(' ').toTypedArray()
     val toml = Toml {
         ignoreUnknownKeys = true
@@ -185,6 +188,7 @@ fun mainRenderStr(context: Context, argsStr: String): String {
 }
 
 fun mainRender(context: Context, appWidgetId: Int, argsStr: String): List<SpannableStringBuilder> {
+    createConfig()
     val args = argsStr.split(' ').toTypedArray()
     val toml = Toml {
         ignoreUnknownKeys = true
