@@ -2,10 +2,11 @@ package org.toni.customfetch_android_lib.query
 
 import android.os.Build
 import android.os.SystemClock
+import java.lang.System.getProperty
 import org.toni.customfetch_android_lib.Config
 import org.toni.customfetch_android_lib.UNKNOWN
 
-class System private constructor() {
+class System {
     // DO NOT GET CONFUSED WITH "typealias SystemInfo"
     data class SystemInfo(
         var kernelName: String = UNKNOWN,
@@ -31,9 +32,7 @@ class System private constructor() {
         private var mSystemInfos = SystemInfo()
         private var mBInit = false
 
-        // Singleton instance
-        private val _instance by lazy { System() }
-        fun getInstance(): System = _instance
+        fun clearCache() { mBInit = false }
     }
 
     // System information
@@ -72,8 +71,8 @@ class System private constructor() {
         SystemInfo(
             osName = "Android",
             osId = "android",
-            kernelName = java.lang.System.getProperty("os.name", UNKNOWN),
-            kernelVersion = java.lang.System.getProperty("os.version", UNKNOWN),
+            kernelName = getProperty("os.name", null) ?: UNKNOWN,
+            kernelVersion = getProperty("os.version", null) ?: UNKNOWN,
             hostname = "localhost",
             arch = Build.SUPPORTED_ABIS[0],
             uptime = SystemClock.uptimeMillis() / 1000,

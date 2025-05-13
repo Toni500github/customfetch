@@ -6,7 +6,7 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import org.toni.customfetch_android_lib.MAGIC_LINE
 
-class Battery private constructor(context: Context) {
+class Battery(context: Context) {
     data class BatteryInfo(
         var status: String = MAGIC_LINE,
         var technology: String = MAGIC_LINE,
@@ -18,12 +18,7 @@ class Battery private constructor(context: Context) {
         private var mBatteryInfos = BatteryInfo()
         private var mBInit = false
 
-        // Singleton instance
-        fun getInstance(context: Context): Battery {
-            return Battery(context).apply {
-                getBatteryInfos(context)
-            }
-        }
+        fun clearCache() { mBInit = false }
     }
 
     val status: String get() = mBatteryInfos.status

@@ -3,7 +3,7 @@ package org.toni.customfetch_android_lib.query
 import java.io.File
 import java.nio.file.Files
 
-class Ram private constructor() {
+class Ram {
     data class RamInfo(
         var totalAmount: Double = 0.0,
         var freeAmount: Double = 0.0,
@@ -14,12 +14,7 @@ class Ram private constructor() {
         private var mRamInfos = RamInfo()
         private var mBInit = false
 
-        // Singleton instance
-        fun getInstance(): Ram {
-            return Ram().apply {
-                getRamInfos()
-            }
-        }
+        fun clearCache() { mBInit = false }
     }
 
     val totalAmount: Double get() = mRamInfos.totalAmount

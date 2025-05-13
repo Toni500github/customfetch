@@ -3,7 +3,7 @@ package org.toni.customfetch_android_lib.query
 import java.io.File
 import java.nio.file.Files
 
-class Swap private constructor() {
+class Swap {
     data class SwapInfo(
         var totalAmount: Double = 0.0,
         var freeAmount: Double = 0.0,
@@ -14,12 +14,7 @@ class Swap private constructor() {
         private var mSwapInfos = SwapInfo()
         private var mBInit = false
 
-        // Singleton instance
-        fun getInstance(): Swap {
-            return Swap().apply {
-                getSwapInfos()
-            }
-        }
+        fun clearCache() { mBInit = false }
     }
 
     val totalAmount: Double get() = mSwapInfos.totalAmount

@@ -6,7 +6,7 @@ import java.lang.System
 import java.io.File
 import java.nio.file.Files
 
-class CPU private constructor() {
+class Cpu {
     data class CPUInfos(
         var name: String = UNKNOWN,
         var nproc: String = UNKNOWN,
@@ -93,9 +93,7 @@ class CPU private constructor() {
         private var mCpuInfos = CPUInfos()
         private var mBInit = false
 
-        // Singleton instance
-        private val _instance by lazy { CPU() }
-        fun getInstance(): CPU = _instance
+        fun clearCache() { mBInit = false }
 
         // https://github.com/kamgurgul/cpu-info/blob/master/shared/src/androidMain/kotlin/com/kgurgul/cpuinfo/data/provider/TemperatureProvider.android.kt#L119
         private val CPU_TEMP_FILE_PATHS = listOf(

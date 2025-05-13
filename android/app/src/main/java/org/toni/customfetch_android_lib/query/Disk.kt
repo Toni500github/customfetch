@@ -6,7 +6,6 @@ import org.toni.customfetch_android_lib.ParseArgs
 import org.toni.customfetch_android_lib.ParserFunctions.parse
 import org.toni.customfetch_android_lib.SystemInfo
 import org.toni.customfetch_android_lib.Variant
-import org.toni.customfetch_android_lib.getInfoFromName
 import org.toni.customfetch_android_lib.getInfoFromNameStr
 import java.io.File
 import java.nio.file.FileStore
@@ -54,7 +53,7 @@ private fun getFileStore(path: String): FileStore {
     return FileSystems.getDefault().fileStores.first()
 }
 
-class Disk private constructor(
+class Disk (
     path: String,
     queriedPaths: SystemInfo,
     parseArgs: ParseArgs,
@@ -75,16 +74,14 @@ class Disk private constructor(
         private val mDisksFormats = mutableListOf<SpannableStringBuilder>()
         private val mQueriedDevices = mutableListOf<String>()
 
-        fun getInstance(
-            path: String,
-            queriedPaths: SystemInfo,
-            parseArgs: ParseArgs,
-            autoModule: Boolean = false
-        ): Disk {
-            return Disk(path, queriedPaths, parseArgs, autoModule).apply {
-                initialize(path, queriedPaths, parseArgs, autoModule)
-            }
+        fun clearCache() {
+            mDisksFormats.clear()
+            mQueriedDevices.clear()
         }
+    }
+
+    init {
+        initialize(path, queriedPaths, parseArgs, autoModule)
     }
 
     // Properties (public getters)

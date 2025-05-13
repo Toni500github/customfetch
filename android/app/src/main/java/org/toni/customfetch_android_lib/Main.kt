@@ -7,9 +7,15 @@ import gnu.getopt.LongOpt
 import kotlinx.serialization.SerializationException
 import net.peanuuutz.tomlkt.Toml
 import org.toni.customfetch_android.BuildConfig
+import org.toni.customfetch_android_lib.query.Battery
+import org.toni.customfetch_android_lib.query.Cpu
+import org.toni.customfetch_android_lib.query.Disk
 import org.toni.customfetch_android_lib.query.DiskVolumeType
+import org.toni.customfetch_android_lib.query.Gpu
+import org.toni.customfetch_android_lib.query.Ram
+import org.toni.customfetch_android_lib.query.Swap
+import org.toni.customfetch_android_lib.query.System
 import java.io.File
-import java.io.FileNotFoundException
 import java.nio.file.Paths
 import kotlin.io.path.readText
 
@@ -157,7 +163,7 @@ private fun manageConfigStuff(context: Context, config: Config) {
 
 private fun detectDistroFile(config: Config): String {
     if (config.args.customDistro.isNotEmpty())
-        return "${config.t.dataDir}/ascii/${config.args.customDistro}"
+        return "${config.t.dataDir}/ascii/${config.args.customDistro}.txt"
 
     return "${config.t.dataDir}/ascii/android.txt"
 }
@@ -211,5 +217,25 @@ fun mainRender(context: Context, appWidgetId: Int, argsStr: String): List<Spanna
             path = logoTypePath.toString()
     }
 
-    return render(context,  appWidgetId, config, File(path))
+    var filePath = File(path)
+    if (!filePath.exists()) {
+        filePath = File.createTempFile("prefix", "suffix")
+        filePath.writeText("""
+            ${'$'}{green}  ;,           ,;
+            ${'$'}{green}   ';,.-----.,;'
+            ${'$'}{green}  ,'           ',
+            ${'$'}{green} /    O     O    \
+            ${'$'}{green}|                 |
+            ${'$'}{green}'-----------------'
+        """.trimIndent())
+    }
+
+    Cpu.clearCache()
+    Ram.clearCache()
+    Swap.clearCache()
+    Gpu.clearCache()
+    System.clearCache()
+    Battery.clearCache()
+    Disk.clearCache()
+    return render(context,  appWidgetId, config, filePath)
 }

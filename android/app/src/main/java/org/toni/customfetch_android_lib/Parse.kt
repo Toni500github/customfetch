@@ -15,9 +15,10 @@ import androidx.core.graphics.toColorInt
 import org.toni.customfetch_android_lib.ParserFunctions.getAndColorPercentage
 import org.toni.customfetch_android_lib.ParserFunctions.parse
 import org.toni.customfetch_android_lib.query.Battery
-import org.toni.customfetch_android_lib.query.CPU
+import org.toni.customfetch_android_lib.query.Cpu
 import org.toni.customfetch_android_lib.query.Disk
 import org.toni.customfetch_android_lib.query.DiskVolumeType
+import org.toni.customfetch_android_lib.query.Gpu
 import org.toni.customfetch_android_lib.query.Ram
 import org.toni.customfetch_android_lib.query.Swap
 import org.toni.customfetch_android_lib.query.System
@@ -617,7 +618,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
     }
 
     if (moduleName == "os") {
-        val querySystem = System.getInstance()
+        val querySystem = System()
 
         if (!sysInfo.containsKey(moduleName)) {
             sysInfo[moduleName] = mutableMapOf()
@@ -647,7 +648,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
         }
     }
     else if (moduleName == "system") {
-        val querySystem = System.getInstance()
+        val querySystem = System()
 
         if (!sysInfo.containsKey(moduleName)) {
             sysInfo[moduleName] = mutableMapOf()
@@ -682,7 +683,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
         }
     }
     else if (moduleName == "cpu") {
-        val queryCPU = CPU.getInstance()
+        val queryCPU = Cpu()
 
         if (!sysInfo.containsKey(moduleName))
             sysInfo[moduleName] = mutableMapOf()
@@ -707,7 +708,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
             die(parseArgs.context, "invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
 
         val path = moduleName.substring(6, moduleName.length-1)
-        val queryDisk = Disk.getInstance(path, queriedPaths, parseArgs)
+        val queryDisk = Disk(path, queriedPaths, parseArgs)
 
         if (!sysInfo.containsKey(moduleName))
             sysInfo[moduleName] = mutableMapOf()
@@ -760,7 +761,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
             sysInfo[moduleName] = mutableMapOf()
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            val queryRam = Ram.getInstance()
+            val queryRam = Ram()
             val byteUnits = listOf(
                 autoDivideBytes(queryRam.usedAmount * byteUnit, byteUnit),
                 autoDivideBytes(queryRam.freeAmount * byteUnit, byteUnit),
@@ -791,7 +792,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
             sysInfo[moduleName] = mutableMapOf()
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            val querySwap = Swap.getInstance()
+            val querySwap = Swap()
             val byteUnits = listOf(
                 autoDivideBytes(querySwap.usedAmount * byteUnit, byteUnit),
                 autoDivideBytes(querySwap.freeAmount * byteUnit, byteUnit),
@@ -822,7 +823,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
             sysInfo[moduleName] = mutableMapOf()
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            val queryBattery = Battery.getInstance(parseArgs.context)
+            val queryBattery = Battery(parseArgs.context)
             when (moduleMemberName) {
                 "vendor", "manufacturer", "name" -> sysInfoInsert(MAGIC_LINE)
                 "percentage", "perc" -> sysInfoInsert(getAndColorPercentage(queryBattery.perc, 100.0, parseArgs, true))
@@ -835,6 +836,19 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
             }
         }
     }
+    else if (moduleName.startsWith("gpu")) {
+        if (!sysInfo.containsKey(moduleName)) {
+            sysInfo[moduleName] = mutableMapOf()
+        }
+
+        if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
+            val queryGpu = Gpu()
+            when (moduleMemberName) {
+                "name" -> sysInfoInsert(queryGpu.name)
+                "vendor" -> sysInfoInsert(queryGpu.vendor)
+            }
+        }
+    }
     else if (moduleName == "auto") {
         if (!sysInfo.containsKey(moduleName)) {
             sysInfo[moduleName] = mutableMapOf()
@@ -843,7 +857,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
             when (moduleMemberName) {
                 "disk" -> {
-                    val queryDisk = Disk.getInstance("", queriedPaths, parseArgs, true)
+                    val queryDisk = Disk("", queriedPaths, parseArgs, true)
                     for (str in queryDisk.disksFormats) {
                         parseArgs.tmpLayout.add(str)
                         sysInfoInsert(str.toString())
@@ -895,7 +909,7 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
             val queryUser = User.getInstance()
-            val querySystem = System.getInstance()
+            val querySystem = System()
             val titleLen = (queryUser.name + "@" + querySystem.hostname).length
 
             val str = config.t.titleSep.repeat(titleLen)
@@ -961,7 +975,7 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
         }
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            val queryCPU = CPU.getInstance()
+            val queryCPU = Cpu()
             sysInfoInsert("%s (%s) @ %.2f GHz".format(queryCPU.name, queryCPU.nproc, queryCPU.freqMax))
         }
     }
@@ -972,7 +986,8 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
         }
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            sysInfoInsert(MAGIC_LINE)
+            val queryGpu = Gpu()
+            sysInfoInsert(queryGpu.vendor + " " + queryGpu.name)
         }
     }
 
@@ -982,7 +997,7 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
         }
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            val queryRam = Ram.getInstance()
+            val queryRam = Ram()
             val byteUnits = listOf(
                 autoDivideBytes(queryRam.usedAmount * byteUnit, byteUnit),
                 autoDivideBytes(queryRam.totalAmount * byteUnit, byteUnit)
@@ -1003,7 +1018,7 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
         }
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            val querySwap = Swap.getInstance()
+            val querySwap = Swap()
             val byteUnits = listOf(
                 autoDivideBytes(querySwap.usedAmount * byteUnit, byteUnit),
                 autoDivideBytes(querySwap.totalAmount * byteUnit, byteUnit)
@@ -1023,7 +1038,7 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
             die(parseArgs.context, "invalid disk module name '$moduleName', must be disk(/path/to/fs) e.g: disk(/)")
 
         val path = moduleName.substring(5, moduleName.length-1)
-        val queryDisk = Disk.getInstance(path, queriedPaths, parseArgs)
+        val queryDisk = Disk(path, queriedPaths, parseArgs)
 
         if (!sysInfo.containsKey(moduleName)) {
             sysInfo[moduleName] = mutableMapOf()
@@ -1068,7 +1083,7 @@ fun addValueFromModule(moduleName: String, parseArgs: ParseArgs) {
         }
 
         if (!sysInfo[moduleName]!!.containsKey(moduleMemberName)) {
-            val queryBattery = Battery.getInstance(parseArgs.context)
+            val queryBattery = Battery(parseArgs.context)
             val perc = getAndColorPercentage(queryBattery.perc, 100.0, parseArgs, true)
             perc.append(" [${queryBattery.status}]")
             sysInfoInsert(perc)
