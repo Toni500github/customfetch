@@ -215,7 +215,7 @@
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:paddingHorizontal="20dp"
-        android:text="Tested customfetch for android and widget and reported bugs that could've been CyberPunk 2077 worthy of note before v1.0.0"
+        android:text="Our trusted android app tester.\nThanks to him for reporting bugs that could've been CyberPunk 2077 worthy of note before v1.0.0"
         android:textColor="@color/subText" />
 
     <!-- Libraries -->
