@@ -33,6 +33,11 @@ fun info(fmt: String) {
     writeToFile("info: $fmt")
 }
 
+fun debug(fmt: String) {
+    Log.d("customfetch-DEBUG", "[DEBUG]: $fmt")
+    writeToFile("[DEBUG]: $fmt")
+} 
+
 fun warn(context: Context, fmt: String) {
     Log.e("customfetch-warn", "warning: $fmt")
     Toast.makeText(context, "warning: $fmt", Toast.LENGTH_SHORT).show()

@@ -7,6 +7,7 @@ import org.toni.customfetch_android_lib.ParserFunctions.parse
 import org.toni.customfetch_android_lib.SystemInfo
 import org.toni.customfetch_android_lib.Variant
 import org.toni.customfetch_android_lib.getInfoFromNameStr
+import org.toni.customfetch_android_lib.debug
 import java.io.File
 import java.nio.file.FileStore
 import java.nio.file.FileSystems
@@ -128,10 +129,11 @@ class Disk(
 
         if (autoModule) {
             for (store in FileSystems.getDefault().fileStores) {
-                val mntDir = store.toString().substring(0, store.toString().indexOf(' ')) // /storage/emulated (/dev/fuse)
                 if (!isPhysicalDisk(store))
                     continue
 
+                val mntDir = store.toString().substring(0, store.toString().indexOf(' ')) // /storage/emulated (/dev/fuse)
+                debug("AUTO: Trying to query at path '$mntDir'")
                 mDiskInfos.typesDisk = getTypesDisk(mntDir)
                 if ((parseArgs.config.autoDisk.displayTypesInt and mDiskInfos.typesDisk) == 0)
                     continue
@@ -153,6 +155,7 @@ class Disk(
         if (!File(path).exists())
             return
 
+        debug("disk path = $path")
         val store = getFileStore(path)
         mDiskInfos.apply {
             typefs = store.type()
