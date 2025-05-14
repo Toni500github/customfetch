@@ -17,7 +17,8 @@ enum class DiskVolumeType(val value: Int) {
     HIDDEN(1 shl 2),
     REGULAR(1 shl 3),
     EXTERNAL(1 shl 4),
-    READ_ONLY(1 shl 5);
+    READ_ONLY(1 shl 5),
+    EXTERNAL_STORAGE(1 shl 6)
 }
 
 private fun isPhysicalDisk(store: FileStore): Boolean =
@@ -40,6 +41,10 @@ private fun getTypesDisk(mntDir: String): Int {
         return DiskVolumeType.REGULAR.value
     if (mntDir.startsWith("/mnt/media_rw/"))
         return DiskVolumeType.EXTERNAL.value
+    // UUIDs on Android External drives are often 4–8 uppercase hex digits, a hyphen, then 4–8 more hex digits
+    // e.g A1B2-C3D4 or 1234ABCD-5678EFGH
+    if (mntDir.matches(Regex("^/storage/[A-F0-9]{4,8}-[A-F0-9]{4,8}$", RegexOption.IGNORE_CASE)))
+        return DiskVolumeType.EXTERNAL_STORAGE.value
 
     return DiskVolumeType.HIDDEN.value
 }
@@ -132,9 +137,17 @@ class Disk(
                 if (!isPhysicalDisk(store))
                     continue
 
-                val mntDir = store.toString().substring(0, store.toString().indexOf(' ')) // /storage/emulated (/dev/fuse)
+                var mntDir = store.toString().substring(0, store.toString().indexOf(' ')) // /storage/emulated (/dev/fuse)
                 debug("AUTO: Trying to query at path '$mntDir'")
                 mDiskInfos.typesDisk = getTypesDisk(mntDir)
+                if (mDiskInfos.typesDisk and DiskVolumeType.EXTERNAL_STORAGE.value != 0) {
+                    mntDir.replaceFirst("/storage/", "/mnt/media_rw/").let {
+                        if (File(it).exists()) {
+                            mntDir = it
+                        }
+                        mDiskInfos.typesDisk = mDiskInfos.typesDisk or DiskVolumeType.EXTERNAL.value
+                    }
+                }
                 if ((parseArgs.config.autoDisk.displayTypesInt and mDiskInfos.typesDisk) == 0)
                     continue
 
