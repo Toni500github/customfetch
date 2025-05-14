@@ -28,29 +28,29 @@ private fun writeToFile(fmt: String) {
     log.appendText("[$formattedDateTime] $fmt\n")
 }
 
-fun info(fmt: String) {
+internal fun info(fmt: String) {
     Log.i("customfetch-info", "info: $fmt")
     writeToFile("info: $fmt")
 }
 
-fun debug(fmt: String) {
+internal fun debug(fmt: String) {
     Log.d("customfetch-DEBUG", "[DEBUG]: $fmt")
     writeToFile("[DEBUG]: $fmt")
 } 
 
-fun warn(context: Context, fmt: String) {
+internal fun warn(context: Context, fmt: String) {
     Log.e("customfetch-warn", "warning: $fmt")
     Toast.makeText(context, "warning: $fmt", Toast.LENGTH_SHORT).show()
     writeToFile("WARNING: $fmt")
 }
 
-fun error(context: Context, fmt: String) {
+internal fun error(context: Context, fmt: String) {
     Log.e("customfetch-error", "ERROR: $fmt")
     Toast.makeText(context, "ERROR: $fmt", Toast.LENGTH_SHORT).show()
     writeToFile("ERROR: $fmt")
 }
 
-fun die(context: Context, fmt: String) {
+internal fun die(context: Context, fmt: String) {
     Log.e("customfetch-FATAL", "FATAL: $fmt")
     Toast.makeText(context, "FATAL: $fmt", Toast.LENGTH_LONG).show()
     writeToFile("FATAL: $fmt")
