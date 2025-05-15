@@ -11,6 +11,7 @@ import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.util.Log
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColorInt
 import org.toni.customfetch_android_lib.ParserFunctions.getAndColorPercentage
 import org.toni.customfetch_android_lib.ParserFunctions.parse
@@ -135,10 +136,14 @@ object ParserFunctions {
         if (color[0] != '#')
             color.delete(0, color.indexOf('#'))
 
-        if ((n in 100..107) || (n in 40..47))
-            currentSpans?.add(BackgroundColorSpan(Color.parseColor(color.toString())))
-        else
-            currentSpans?.add(ForegroundColorSpan(Color.parseColor(color.toString())))
+        val colorInt = Color.parseColor(color.toString())
+        val lighterColorInt = ColorUtils.blendARGB(colorInt, Color.WHITE, 0.5f)
+        when (n) {
+            in 100..107 -> currentSpans?.add(BackgroundColorSpan(lighterColorInt))
+            in 90..97 -> currentSpans?.add(ForegroundColorSpan(lighterColorInt))
+            in 40..47 -> currentSpans?.add(BackgroundColorSpan(colorInt))
+            else -> currentSpans?.add(ForegroundColorSpan(colorInt))
+        }
     }
 
     private fun convertAnsiEscapeRgb(parseArgs: ParseArgs, noescStr: String): String {
@@ -228,14 +233,14 @@ object ParserFunctions {
     private fun parseInfoTag(parser: Parser, parseArgs: ParseArgs, evaluate: Boolean = true): SpannableStringBuilder? {
         if (!parser.tryRead('<')) return null
 
-        val module = parse(parser, parseArgs, evaluate, '>')
+        val module = parse(parser, parseArgs, evaluate, '>').toString()
 
         if (!evaluate) return null
 
         val dotPos = module.indexOf('.')
         if (dotPos == -1) {
-            addValueFromModule(module.toString(), parseArgs)
-            val info = getInfoFromName(parseArgs.systemInfo, module.toString(), "module-$module")
+            addValueFromModule(module, parseArgs)
+            val info = getInfoFromName(parseArgs.systemInfo, module, "module-$module")
 
             if (parser.dollarPos != -1) {
                 parseArgs.pureOutput.replace(
@@ -253,7 +258,6 @@ object ParserFunctions {
         addValueFromModuleMember(moduleName, moduleMemberName, parseArgs)
 
         val info = getInfoFromName(parseArgs.systemInfo, moduleName, moduleMemberName)
-
         if (parser.dollarPos != -1) {
             parseArgs.pureOutput.replace(
                 parser.dollarPos,
@@ -261,6 +265,7 @@ object ParserFunctions {
                 info.toString()
             )
         }
+
         return info
     }
 
@@ -305,7 +310,7 @@ object ParserFunctions {
 
         if (color == "0") {
             parseArgs.spansDisabled = true
-            currentSpans?.clear()
+            currentSpans = null
         }
         else if (color == "1") {
             parseArgs.spansDisabled = true
