@@ -475,6 +475,7 @@ object ParserFunctions {
                 }
             }
         }
+        currentSpans = null
 
         return result
     }
@@ -637,7 +638,7 @@ fun addValueFromModuleMember(moduleName: String, moduleMemberName: String, parse
                 "kernel" -> sysInfoInsert(querySystem.kernelName + " " + querySystem.kernelVersion)
                 "kernel_name" -> sysInfoInsert(querySystem.kernelName)
                 "kernel_version" -> sysInfoInsert(querySystem.kernelVersion)
-                "packages", "pkgs" -> sysInfoInsert(querySystem.pkgsInstalled(config))
+                "packages", "pkgs" -> sysInfoInsert(MAGIC_LINE)
                 "initsys_name" -> sysInfoInsert(querySystem.osInitsysName)
                 "initsys_version" -> sysInfoInsert(querySystem.osInitsysVersion)
                 "hostname" -> sysInfoInsert(querySystem.hostname)

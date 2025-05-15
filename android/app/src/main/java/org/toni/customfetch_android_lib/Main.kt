@@ -223,7 +223,7 @@ fun mainRender(context: Context, appWidgetId: Int, argsStr: String): List<Spanna
 
     var filePath = File(path)
     if (!filePath.exists()) {
-        filePath = File.createTempFile("prefix", "suffix")
+        filePath = File.createTempFile("customfetch-ascii-logo_", ".txt")
         filePath.writeText("""
             ${'$'}{green}  ;,           ,;
             ${'$'}{green}   ';,.-----.,;'
@@ -232,6 +232,7 @@ fun mainRender(context: Context, appWidgetId: Int, argsStr: String): List<Spanna
             ${'$'}{green}|                 |
             ${'$'}{green}'-----------------'
         """.trimIndent())
+        filePath.deleteOnExit()
     }
 
     Cpu.clearCache()

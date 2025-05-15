@@ -3,7 +3,6 @@ package org.toni.customfetch_android_lib.query
 import android.os.Build
 import android.os.SystemClock
 import java.lang.System.getProperty
-import org.toni.customfetch_android_lib.Config
 import org.toni.customfetch_android_lib.UNKNOWN
 
 class System {
@@ -56,11 +55,6 @@ class System {
     val hostVendor: String get() = mSystemInfos.hostVendor
     val hostVersion: String get() = mSystemInfos.hostVersion
 
-    fun pkgsInstalled(config: Config): String {
-        // implementation
-        return mSystemInfos.pkgsInstalled
-    }
-
     init {
         if (!mBInit)
             mSystemInfos = getSystemInfos()
@@ -76,9 +70,9 @@ class System {
             hostname = "localhost",
             arch = Build.SUPPORTED_ABIS[0],
             uptime = SystemClock.uptimeMillis() / 1000,
-            osVersionId = Build.VERSION.SDK_INT.toString(),
+            osVersionId = Build.VERSION.RELEASE,
             osVersionCodename = Build.VERSION.CODENAME,
-            osPrettyName = "Android " + Build.VERSION.CODENAME + " " + Build.VERSION.SDK_INT,
+            osPrettyName = "Android " + Build.VERSION.CODENAME + " " + Build.VERSION.RELEASE,
             hostModelname = Build.BOARD,
             hostVendor = Build.MANUFACTURER,
             hostVersion = Build.MODEL,
