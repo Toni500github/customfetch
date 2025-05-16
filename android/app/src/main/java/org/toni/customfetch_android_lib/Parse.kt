@@ -142,7 +142,7 @@ object ParserFunctions {
             in 100..107 -> currentSpans?.add(BackgroundColorSpan(lighterColorInt))
             in 90..97 -> currentSpans?.add(ForegroundColorSpan(lighterColorInt))
             in 40..47 -> currentSpans?.add(BackgroundColorSpan(colorInt))
-            else -> currentSpans?.add(ForegroundColorSpan(colorInt))
+            in 30..37 -> currentSpans?.add(ForegroundColorSpan(colorInt))
         }
     }
 

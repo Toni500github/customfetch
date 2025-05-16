@@ -133,10 +133,6 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     debug("col = {}", col);
     const int n = std::stoi(col);
 
-    // unfortunatly you can't do bold and light in pango
-    if ((n >= 100 && n <= 107) || (n >= 90 && n <= 97))
-        weight = "light";
-
     if ((n >= 100 && n <= 107) || (n >= 40 && n <= 47))
         type = "bgcolor";
 
@@ -156,6 +152,20 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
 
     if (col.at(0) != '#')
         col.erase(0, col.find('#'));
+
+    if ((n >= 100 && n <= 107) || (n >= 90 && n <= 97))
+    {
+        const fmt::rgb color = hexStringToColor(col);
+        const uint r = color.r * 0.65f + 0xff * 0.35f;
+        const uint b = color.b * 0.65f + 0xff * 0.35f;
+        const uint g = color.g * 0.65f + 0xff * 0.35f;
+        const uint result = (r << 16) | (g << 8) | (b);
+
+        std::stringstream ss;
+        ss << std::hex << result;
+        col = ss.str();
+        col.insert(0, "#");
+    }
 
     return { col, weight, type };
     // clang-format on
@@ -312,7 +322,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 
     // if at end there a '$', it will make the end output "$</span>" and so it will confuse
     // addValueFromModule() and so let's make it "$ </span>". this is geniunenly stupid
-    if (config.gui && output.back() == '$')
+    if (config.gui && output[0] == '$')
         output += ' ';
 
     if (!config.colors_name.empty())
@@ -715,20 +725,6 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
         no_more_reset = true;
     }
 
-    // escape pango markup
-    // https://gitlab.gnome.org/GNOME/glib/-/blob/main/glib/gmarkup.c#L2150
-    // workaround: just put "\<" or "\&" in the config, e.g "$<os.kernel> \<- Kernel"
-    if (config.gui)
-    {
-        replace_str(input, "\\<", "&lt;");
-        replace_str(input, "\\&", "&amp;");
-    }
-    else
-    {
-        replace_str(input, "\\<", "<");
-        replace_str(input, "\\&", "&");
-    }
-
     parse_args_t parse_args{ systemInfo, pureOutput, layout, tmp_layout, config, colors, parsingLayout, true, no_more_reset, "" };
     Parser       parser{ input, pureOutput };
 
@@ -738,6 +734,21 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
         ret += "</span>";
 
     replace_str(parse_args.pureOutput, "&nbsp;", " ");
+    
+    // escape pango markup
+    // https://gitlab.gnome.org/GNOME/glib/-/blob/main/glib/gmarkup.c#L2150
+    // workaround: just put "\<" or "\&" in the config, e.g "$<os.kernel> \<- Kernel"
+    if (config.gui)
+    {
+        replace_str(ret, "\\<", "&lt;");
+        replace_str(ret, "\\&", "&amp;");
+        replace_str(ret, "&", "&amp;");
+    }
+    else
+    {
+        replace_str(ret, "\\<", "<");
+        replace_str(ret, "\\&", "&");
+    }
 
     return ret;
 }

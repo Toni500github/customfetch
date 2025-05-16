@@ -87,7 +87,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->font                = getValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
 
-    this->auto_disks_fmt = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>", true);
+    this->auto_disks_fmt      = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>", true);
     this->auto_disks_show_dupl= getValue<bool>("auto.disk.show-duplicated", false); 
 
     this->uptime_d_fmt = getValue<std::string>("os.uptime.days", " days");
@@ -126,10 +126,11 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
         this->percentage_colors = {"green", "yellow", "red"};
     }
 
-    for (const std::string& str : this->getValueArrayStr("auto.disk.display-types", {"removable", "regular", "read-only"}))
+    for (const std::string& str : this->getValueArrayStr("auto.disk.display-types", {"external", "regular", "read-only"}))
     {
         switch (fnv1a16::hash(str))
         {
+            case "external"_fnv1a16:
             case "removable"_fnv1a16:
                 this->auto_disks_types |= Query::DISK_VOLUME_TYPE_EXTERNAL; break;
             case "regular"_fnv1a16:

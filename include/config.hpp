@@ -351,10 +351,10 @@ fmt = "${auto}Disk (%1): $<disk(%1)>"
 # Only print disks that matches the description
 # of the following types:
 # regular   = Regular disks (internel M.2 SSD, ...) (won't be specified)
-# removable = External disks (USB, SATA, ...)
+# external  = External disks (USB, SATA, ...)
 # read-only = Disks with read-only filesystems
 # hidden    = Disks that are not really mounted by the user
-display-types = ["regular", "removable", "read-only"]
+display-types = ["regular", "external", "read-only"]
 
 # In some OSes such as NixOS or Android, there might be some directories that are bind mounted.
 # Bind mounted directories create an additional view of an existing directory,
@@ -368,7 +368,7 @@ show-duplicated = false
 days  = " days"
 hours = " hours"
 mins  = " mins"
-secs  = " seconds"
+secs  = " secs"
 
 # $<os.pkgs> config
 [os.pkgs]
