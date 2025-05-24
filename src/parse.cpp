@@ -222,7 +222,7 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
             color = "${" + config.percentage_colors.at(2) + "}";
     }
     else
-{
+    {
         if (result <= 45)
             color = "${" + config.percentage_colors.at(2) + "}";
         else if (result <= 80)

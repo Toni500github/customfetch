@@ -605,7 +605,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 'N':
                 config.args_disable_colors = true; break;
             case 'a':
-                config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = optarg};
+                config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = optarg}; break;
             case 'n':
                 config.args_disable_source = true; break;
             case 'L':

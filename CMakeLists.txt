@@ -14,13 +14,14 @@ file(GLOB
 	"src/*.cpp"
 	"src/query/linux/*.cpp"
 	"src/query/android/*.cpp"
+	"src/query/macos/*.cpp"
 	"src/query/linux/utils/*.cpp"
 	"src/toml++/toml.cpp")
 
 if(GUI_APP)
-set(TARGET_NAME customfetch-gui)
+	set(TARGET_NAME customfetch-gui)
 else()
-set(TARGET_NAME customfetch)
+	set(TARGET_NAME customfetch)
 endif()
 
 add_executable(${TARGET_NAME} ${SRC})

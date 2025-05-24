@@ -50,6 +50,7 @@ static bool get_xsettings_xfce4(const std::string_view property, const std::stri
 {
     static bool done = false;
     static rapidxml::xml_document<> doc;
+    static std::string buffer;
 
     if (!done)
     {
@@ -58,7 +59,7 @@ static bool get_xsettings_xfce4(const std::string_view property, const std::stri
         if (!f.is_open())
             return false;
 
-        std::string buffer((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+        buffer.assign(std::istreambuf_iterator<char>{f}, std::istreambuf_iterator<char>());
         buffer.push_back('\0');
 
         doc.parse<0>(&buffer[0]);
