@@ -93,7 +93,7 @@ static System::System_t get_os_infos()
     if (!f.is_open())
         die("Couldn't get MacOS base infos");
 
-    std::string buffer((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+    std::string buffer(std::istreambuf_iterator<char>{f}, std::istreambuf_iterator<char>{});
     buffer.push_back('\0');
 
     rapidxml::xml_document<> doc;

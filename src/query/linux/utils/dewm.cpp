@@ -191,7 +191,7 @@ std::string get_mate_version()
         return ret;
     }
 
-    std::string buffer((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+    std::string buffer(std::istreambuf_iterator<char>{f}, std::istreambuf_iterator<char>{});
     buffer.push_back('\0');
 
     rapidxml::xml_document<> doc;

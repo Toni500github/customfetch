@@ -386,7 +386,7 @@ static std::string get_term_version(const std::string_view term_name)
         if (!f.is_open())
             goto skip;
 
-        std::string buffer((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+        std::string buffer(std::istreambuf_iterator<char>{f}, std::istreambuf_iterator<char>{});
         buffer.push_back('\0');
 
         rapidxml::xml_document<> doc;
