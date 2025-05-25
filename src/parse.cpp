@@ -115,17 +115,21 @@ bool Query::User::m_bDont_query_dewm = false;
 // pureOutput
 std::string _;
 
-static std::array<std::string, 3> get_ansi_color(const std::string_view str, const colors_t& colors)
+// Get span tags from an ANSI escape color such as \e[0;31m
+// @param noesc_str The ansi color without \\e[ or \033[
+// @param colors The colors struct we'll look at
+// @return An array of 3 span tags elements in the follow: color, weight, type
+static std::array<std::string, 3> get_ansi_color(const std::string_view noesc_str, const colors_t& colors)
 {
-    const size_t first_m = str.rfind('m');
+    const size_t first_m = noesc_str.rfind('m');
     if (first_m == std::string::npos)
-        die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '{}'"), str);
+        die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '{}'"), noesc_str);
 
-    std::string col = str.data();
+    std::string col {noesc_str.data()};
     col.erase(first_m);  // 1;42
 
-    std::string weight = hasStart(col, "1;") ? "bold" : "normal";
-    std::string type   = "fgcolor";  // either fgcolor or bgcolor
+    std::string weight {hasStart(col, "1;") ? "bold" : "normal"};
+    std::string type   {"fgcolor"};  // either fgcolor or bgcolor
 
     if (hasStart(col, "1;") || hasStart(col, "0;"))
         col.erase(0, 2);
@@ -171,12 +175,17 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view str, con
     // clang-format on
 }
 
+// Convert an ANSI escape RGB color, such as \e[38;2;132;042;231m
+// into an hex color string
+// @param noesc_str The ansi color without \\e[ or \033[
+// @return The hex equivalent string
 static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 {
     if (std::count(noesc_str.begin(), noesc_str.end(), ';') < 4)
         die(_("ANSI escape code color '\\e[{}' should have an rgb type value\n"
               "e.g \\e[38;2;255;255;255m"),
             noesc_str);
+
     if (noesc_str.rfind('m') == std::string::npos)
         die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '\\e[{}'"),
             noesc_str);
@@ -725,16 +734,19 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
         no_more_reset = true;
     }
 
-    parse_args_t parse_args{ systemInfo, pureOutput, layout, tmp_layout, config, colors, parsingLayout, true, no_more_reset, "" };
+    parse_args_t parse_args{ systemInfo, pureOutput, layout, tmp_layout, config, colors, parsingLayout, true, no_more_reset };
     Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };
 
-    if (config.gui && !parse_args.firstrun_clr)
-        ret += "</span>";
+    if (config.gui)
+    {
+        if (!parse_args.firstrun_clr)
+            ret += "</span>";
 
-    replace_str(parse_args.pureOutput, "&nbsp;", " ");
-    
+        replace_str(parse_args.pureOutput, "&nbsp;", " ");
+    }
+
     // escape pango markup
     // https://gitlab.gnome.org/GNOME/glib/-/blob/main/glib/gmarkup.c#L2150
     // workaround: just put "\<" or "\&" in the config, e.g "$<os.kernel> \<- Kernel"

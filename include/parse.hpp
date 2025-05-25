@@ -52,11 +52,10 @@ struct parse_args_t
     bool                      parsingLayout;
     bool                      firstrun_clr  = true;
     bool                      no_more_reset = false;
-    std::string               endspan       = "";  // only for ANDROID_APP
 };
 
 /* Parse input, in-place, with data from systemInfo.
- * Documentation on formatting is in the default config.toml file or the customfetch.1 manual.
+ * Documentation on formatting is in the flag -w or the customfetch.1 manual.
  * @param input The string to parse
  * @param systemInfo The system infos
  * @param pureOutput The output of the string but without tags
@@ -104,7 +103,14 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
                             const std::string_view moduleMemberName);
 
-
+/*
+ * Create a colored percentage from parse()
+ * @param n1 The first number
+ * @param n2 The second number
+ * @param parse_args The parse() parameters
+ * @param invert Is the result high number bad or good?
+ * @return The colored percentage with ending %
+ */
 std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args,
                                             const bool invert = false);
 

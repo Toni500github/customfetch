@@ -143,7 +143,7 @@ public:
     void loadConfigFile(const std::string_view filename, colors_t& colors);
 
     /**
-     * Generate a config file
+     * Generate the default config file at path
      * @param filename The config file path
      */
     void generateConfig(const std::string_view filename);

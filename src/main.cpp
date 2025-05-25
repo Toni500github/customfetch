@@ -61,7 +61,7 @@
 
 using namespace std::string_view_literals;
 
-
+// Print the version and some other infos, then exit successfully
 static void version()
 {
     std::string version{ fmt::format("customfetch {} built from branch {} at {} commit {} ({}).\n"
@@ -84,6 +84,7 @@ static void version()
     std::exit(EXIT_SUCCESS);
 }
 
+// Print the args help menu, then exit with code depending if it's from invalid or -h arg
 static void help(bool invalid_opt = false)
 {
     constexpr std::string_view help(
@@ -156,6 +157,7 @@ Read the manual "customfetch.1" or --how-it-works for more infos about customfet
     std::exit(invalid_opt);
 }
 
+// Print all info modules you can put in $<>, then exit successfully
 static void modules_list()
 {
     constexpr std::string_view list(R"(
@@ -374,6 +376,7 @@ system
     std::exit(EXIT_SUCCESS);
 }
 
+// Print how customfetch works, then exit successfully
 static void explain_how_this_works()
 {
     constexpr std::string_view str(
@@ -462,6 +465,8 @@ without quotes ofc
     std::exit(EXIT_SUCCESS);
 }
 
+// Print a sorted list of ascii logos you can use at a "data-dir"
+// @param data_dir The data directory
 static void list_logos(const std::string& data_dir)
 {
     debug("data = {}", data_dir);
@@ -481,6 +486,7 @@ static void list_logos(const std::string& data_dir)
     std::exit(EXIT_SUCCESS);
 }
 
+// Return true if optarg says something true
 static bool str_to_bool(const std::string_view str)
 {
     return (str == "true" || str == "1" || str == "enable");
