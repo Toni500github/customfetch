@@ -726,6 +726,7 @@ int main(int argc, char *argv[])
     Config config(configFile, configDir, colors);
     if (!parseargs(argc, argv, config, configFile))
         return 1;
+    config.loadConfigFile(configFile, colors);
 
     is_live_mode = (config.loop_ms > 50);
 
