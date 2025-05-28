@@ -42,7 +42,7 @@
 // clang-format off
 // Get string literal length
 constexpr std::size_t operator""_len(const char*, std::size_t ln) noexcept
-{ 
+{
     return ln;
 }
 
@@ -318,13 +318,18 @@ void die(const std::string_view fmt, Args&&... args) noexcept
     std::exit(1);
 }
 
+#if DEBUG
+inline bool debug_print = true;
+#else
+inline bool debug_print = false;
+#endif
+
 template <typename... Args>
 void debug(const std::string_view fmt, Args&&... args) noexcept
 {
-#if DEBUG
-    fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::hot_pink))), "[DEBUG]:\033[0m {}\n",
-                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
-#endif
+    if (debug_print)
+        fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::hot_pink))), "[DEBUG]:\033[0m {}\n",
+                     fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>

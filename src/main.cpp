@@ -553,6 +553,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
         {"list-logos",         no_argument,       0, "list-logos"_fnv1a16},
         {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
+        {"debug",              optional_argument, 0, "debug"_fnv1a16},
         {"wrap-lines",         optional_argument, 0, "wrap-lines"_fnv1a16},
         {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
         {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
@@ -628,6 +629,13 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
 
             case "loop-ms"_fnv1a16:
                 config.loop_ms = std::stoul(optarg); break;
+
+            case "debug"_fnv1a16:
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    debug_print = str_to_bool(optarg);
+                else
+                    debug_print = true;
+                break;
 
             case "bg-image"_fnv1a16:
                 config.overrides["gui.bg-image"] = {.value_type = STR, .string_value = optarg}; break;
