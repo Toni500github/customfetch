@@ -78,7 +78,7 @@ static unsigned long get_uptime()
     if (clock_gettime(CLOCK_BOOTTIME, &uptime) != 0)
         return 0;
 
-    return (uint64_t)uptime.tv_sec * 1000 + (uint64_t)uptime.tv_nsec / 1000000;
+    return (uint64_t)uptime.tv_sec + (uint64_t)uptime.tv_nsec / 1000000;
 }
 
 System::System()
