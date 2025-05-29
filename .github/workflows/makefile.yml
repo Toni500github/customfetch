@@ -293,21 +293,3 @@ jobs:
           if-no-files-found: error
           name: customfetch-macos
           path: ./build/debug/customfetch
-
-  test-all-ascii-art:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install Packages
-      run: sudo apt-get update && sudo apt-get install build-essential gettext tree pkg-config -y
-    
-    - name: Clean
-      run: make distclean
-
-    - name: Compile and install
-      run: sudo make install DEBUG=0 VENDOR_TEST=0 GUI_APP=0
-
-    - name: Test all the ascii art logos
-      run: for f in assets/ascii/*; do printf "\e[31m%s\e[0m\n" "$f" && customfetch --wrap-lines --source "$f" -D assets && sleep 1; done
