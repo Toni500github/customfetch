@@ -115,6 +115,7 @@ bool Query::User::m_bDont_query_dewm = false;
 // pureOutput
 std::string _;
 
+#if GUI_APP
 // Get span tags from an ANSI escape color such as \e[0;31m
 // @param noesc_str The ansi color without \\e[ or \033[
 // @param colors The colors struct we'll look at
@@ -201,6 +202,7 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
     ss << std::hex << result;
     return ss.str();
 }
+#endif
 
 std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args)
 {
@@ -331,8 +333,10 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 
     // if at end there a '$', it will make the end output "$</span>" and so it will confuse
     // addValueFromModule() and so let's make it "$ </span>". this is geniunenly stupid
-    if (config.gui && output[0] == '$')
+#if GUI_APP
+    if (output[0] == '$')
         output += ' ';
+#endif
 
     if (!config.colors_name.empty())
     {
@@ -357,246 +361,256 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
         color = auto_colors.at(ver);
     }
 
+#if GUI_APP
     if (color == "1")
     {
-        output += config.gui ? endspan + "<span weight='bold'>" : NOCOLOR_BOLD;
+        output += endspan + "<span weight='bold'>";
     }
     else if (color == "0")
     {
-        output += config.gui ? endspan + "<span>" : NOCOLOR;
+        output += endspan + "<span>";
     }
+#else
+    if (color == "1")
+    {
+        output += NOCOLOR_BOLD;
+    }
+    else if (color == "0")
+    {
+        output += NOCOLOR;
+    }
+#endif
     else
     {
         std::string str_clr;
-        if (config.gui)
+    #if GUI_APP
+        switch (fnv1a16::hash(color))
         {
-            switch (fnv1a16::hash(color))
-            {
-                case "black"_fnv1a16:   str_clr = colors.gui_black; break;
-                case "red"_fnv1a16:     str_clr = colors.gui_red; break;
-                case "blue"_fnv1a16:    str_clr = colors.gui_blue; break;
-                case "green"_fnv1a16:   str_clr = colors.gui_green; break;
-                case "cyan"_fnv1a16:    str_clr = colors.gui_cyan; break;
-                case "yellow"_fnv1a16:  str_clr = colors.gui_yellow; break;
-                case "magenta"_fnv1a16: str_clr = colors.gui_magenta; break;
-                case "white"_fnv1a16:   str_clr = colors.gui_white; break;
-                default:                str_clr = color; break;
-            }
+            case "black"_fnv1a16:   str_clr = colors.gui_black; break;
+            case "red"_fnv1a16:     str_clr = colors.gui_red; break;
+            case "blue"_fnv1a16:    str_clr = colors.gui_blue; break;
+            case "green"_fnv1a16:   str_clr = colors.gui_green; break;
+            case "cyan"_fnv1a16:    str_clr = colors.gui_cyan; break;
+            case "yellow"_fnv1a16:  str_clr = colors.gui_yellow; break;
+            case "magenta"_fnv1a16: str_clr = colors.gui_magenta; break;
+            case "white"_fnv1a16:   str_clr = colors.gui_white; break;
+            default:                str_clr = color; break;
+        }
 
-            const size_t pos = str_clr.rfind('#');
-            if (pos != std::string::npos)
-            {
-                std::string        tagfmt  = "span ";
-                const std::string& opt_clr = str_clr.substr(0, pos);
+        const size_t pos = str_clr.rfind('#');
+        if (pos != std::string::npos)
+        {
+            std::string        tagfmt  = "span ";
+            const std::string& opt_clr = str_clr.substr(0, pos);
 
-                size_t      argmode_pos    = 0;
-                const auto& append_argmode = [&](const std::string_view fmt, const std::string_view mode) -> size_t {
-                    if (opt_clr.at(argmode_pos + 1) == '(')
-                    {
-                        const size_t closebrak = opt_clr.find(')', argmode_pos);
-                        if (closebrak == std::string::npos)
-                            die(_("'{}' mode in color '{}' doesn't have close bracket"), mode, str_clr);
-
-                        const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
-                        tagfmt += fmt.data() + value + "' ";
-
-                        return closebrak;
-                    }
-                    return 0;
-                };
-
-                bool bgcolor = false;
-                for (size_t i = 0; i < opt_clr.length(); ++i)
+            size_t      argmode_pos    = 0;
+            const auto& append_argmode = [&](const std::string_view fmt, const std::string_view mode) -> size_t {
+                if (opt_clr.at(argmode_pos + 1) == '(')
                 {
-                    switch (opt_clr.at(i))
-                    {
-                        case 'b':
-                            bgcolor = true;
-                            tagfmt += "bgcolor='" + str_clr.substr(pos) + "' ";
-                            break;
-                        case '!': tagfmt += "weight='bold' "; break;
-                        case 'u': tagfmt += "underline='single' "; break;
-                        case 'i': tagfmt += "style='italic' "; break;
-                        case 'o': tagfmt += "overline='single' "; break;
-                        case 's': tagfmt += "strikethrough='true' "; break;
+                    const size_t closebrak = opt_clr.find(')', argmode_pos);
+                    if (closebrak == std::string::npos)
+                        die(_("'{}' mode in color '{}' doesn't have close bracket"), mode, str_clr);
 
-                        case 'a':
-                            argmode_pos = i;
-                            i += append_argmode("fgalpha='", "fgalpha");
-                            break;
+                    const std::string& value = opt_clr.substr(argmode_pos + 2, closebrak - argmode_pos - 2);
+                    tagfmt += fmt.data() + value + "' ";
 
-                        case 'A':
-                            argmode_pos = i;
-                            i += append_argmode("bgalpha='", "bgalpha");
-                            break;
-
-                        case 'L':
-                            argmode_pos = i;
-                            i += append_argmode("underline='", "underline option");
-                            break;
-
-                        case 'U':
-                            argmode_pos = i;
-                            i += append_argmode("underline_color='", "colored underline");
-                            break;
-
-                        case 'B':
-                            argmode_pos = i;
-                            i += append_argmode("bgcolor='", "bgcolor");
-                            break;
-
-                        case 'w':
-                            argmode_pos = i;
-                            i += append_argmode("weight='", "font weight style");
-                            break;
-
-                        case 'O':
-                            argmode_pos = i;
-                            i += append_argmode("overline_color='", "overline color");
-                            break;
-
-                        case 'S':
-                            argmode_pos = i;
-                            i += append_argmode("strikethrough_color='", "color of strikethrough line");
-                            break;
-                    }
+                    return closebrak;
                 }
+                return 0;
+            };
 
-                if (!bgcolor)
-                    tagfmt += "fgcolor='" + str_clr.substr(pos) + "' ";
-
-                tagfmt.pop_back();
-                output += endspan + "<" + tagfmt + ">";
-            }
-
-            // "\\e" is for checking in the ascii_art, \033 in the config
-            else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
+            bool bgcolor = false;
+            for (size_t i = 0; i < opt_clr.length(); ++i)
             {
-                const std::string& noesc_str = hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
-                debug("noesc_str = {}", noesc_str);
+                switch (opt_clr.at(i))
+                {
+                    case 'b':
+                        bgcolor = true;
+                        tagfmt += "bgcolor='" + str_clr.substr(pos) + "' ";
+                        break;
+                    case '!': tagfmt += "weight='bold' "; break;
+                    case 'u': tagfmt += "underline='single' "; break;
+                    case 'i': tagfmt += "style='italic' "; break;
+                    case 'o': tagfmt += "overline='single' "; break;
+                    case 's': tagfmt += "strikethrough='true' "; break;
 
-                if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
-                {
-                    const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
-                    output +=
-                        fmt::format("{}<span {}gcolor='#{}'>", endspan, hasStart(noesc_str, "38") ? 'f' : 'b', hexclr);
-                }
-                else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
-                {
-                    die(_("256 true color '{}' works only in terminal"), noesc_str);
-                }
-                else
-                {
-                    const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
-                    const std::string_view            color  = clrs.at(0);
-                    const std::string_view            weight = clrs.at(1);
-                    const std::string_view            type   = clrs.at(2);
-                    output += fmt::format("{}<span {}='{}' weight='{}'>", endspan, type, color, weight);
+                    case 'a':
+                        argmode_pos = i;
+                        i += append_argmode("fgalpha='", "fgalpha");
+                        break;
+
+                    case 'A':
+                        argmode_pos = i;
+                        i += append_argmode("bgalpha='", "bgalpha");
+                        break;
+
+                    case 'L':
+                        argmode_pos = i;
+                        i += append_argmode("underline='", "underline option");
+                        break;
+
+                    case 'U':
+                        argmode_pos = i;
+                        i += append_argmode("underline_color='", "colored underline");
+                        break;
+
+                    case 'B':
+                        argmode_pos = i;
+                        i += append_argmode("bgcolor='", "bgcolor");
+                        break;
+
+                    case 'w':
+                        argmode_pos = i;
+                        i += append_argmode("weight='", "font weight style");
+                        break;
+
+                    case 'O':
+                        argmode_pos = i;
+                        i += append_argmode("overline_color='", "overline color");
+                        break;
+
+                    case 'S':
+                        argmode_pos = i;
+                        i += append_argmode("strikethrough_color='", "color of strikethrough line");
+                        break;
                 }
             }
 
+            if (!bgcolor)
+                tagfmt += "fgcolor='" + str_clr.substr(pos) + "' ";
+
+            tagfmt.pop_back();
+            output += endspan + "<" + tagfmt + ">";
+        }
+
+        // "\\e" is for checking in the ascii_art, \033 in the config
+        else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
+        {
+            const std::string& noesc_str = hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
+            debug("noesc_str = {}", noesc_str);
+
+            if (hasStart(noesc_str, "38;2;") || hasStart(noesc_str, "48;2;"))
+            {
+                const std::string& hexclr = convert_ansi_escape_rgb(noesc_str);
+                output +=
+                    fmt::format("{}<span {}gcolor='#{}'>", endspan, hasStart(noesc_str, "38") ? 'f' : 'b', hexclr);
+            }
+            else if (hasStart(noesc_str, "38;5;") || hasStart(noesc_str, "48;5;"))
+            {
+                die(_("256 true color '{}' works only in terminal"), noesc_str);
+            }
             else
             {
-                error(_("PARSER: failed to parse line with color '{}'"), str_clr);
-                if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
-                    parse_args.pureOutput.erase(parser.dollar_pos, taglen);
-                return output;
+                const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
+                const std::string_view            color  = clrs.at(0);
+                const std::string_view            weight = clrs.at(1);
+                const std::string_view            type   = clrs.at(2);
+                output += fmt::format("{}<span {}='{}' weight='{}'>", endspan, type, color, weight);
             }
         }
-        // if (!config.gui)
+
         else
         {
-            switch (fnv1a16::hash(color))
-            {
-                case "black"_fnv1a16:   str_clr = colors.black; break;
-                case "red"_fnv1a16:     str_clr = colors.red; break;
-                case "blue"_fnv1a16:    str_clr = colors.blue; break;
-                case "green"_fnv1a16:   str_clr = colors.green; break;
-                case "cyan"_fnv1a16:    str_clr = colors.cyan; break;
-                case "yellow"_fnv1a16:  str_clr = colors.yellow; break;
-                case "magenta"_fnv1a16: str_clr = colors.magenta; break;
-                case "white"_fnv1a16:   str_clr = colors.white; break;
-                default:                str_clr = color; break;
-            }
+            error(_("PARSER: failed to parse line with color '{}'"), str_clr);
+            if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+                parse_args.pureOutput.erase(parser.dollar_pos, taglen);
+            return output;
+        }
+        
+    // #if !GUI_APP
+    #else
+        switch (fnv1a16::hash(color))
+        {
+            case "black"_fnv1a16:   str_clr = colors.black; break;
+            case "red"_fnv1a16:     str_clr = colors.red; break;
+            case "blue"_fnv1a16:    str_clr = colors.blue; break;
+            case "green"_fnv1a16:   str_clr = colors.green; break;
+            case "cyan"_fnv1a16:    str_clr = colors.cyan; break;
+            case "yellow"_fnv1a16:  str_clr = colors.yellow; break;
+            case "magenta"_fnv1a16: str_clr = colors.magenta; break;
+            case "white"_fnv1a16:   str_clr = colors.white; break;
+            default:                str_clr = color; break;
+        }
 
-            const size_t pos = str_clr.rfind('#');
-            if (pos != std::string::npos)
-            {
-                const std::string& opt_clr = str_clr.substr(0, pos);
+        const size_t pos = str_clr.rfind('#');
+        if (pos != std::string::npos)
+        {
+            const std::string& opt_clr = str_clr.substr(0, pos);
 
-                fmt::text_style style;
+            fmt::text_style style;
 
-                const auto& skip_gui_argmode = [&opt_clr](const size_t index) -> size_t {
-                    if (opt_clr.at(index + 1) == '(')
-                    {
-                        const size_t closebrak = opt_clr.find(')', index);
-                        if (closebrak == std::string::npos)
-                            return 0;
-
-                        return closebrak;
-                    }
-                    return 0;
-                };
-
-                bool bgcolor = false;
-                for (size_t i = 0; i < opt_clr.length(); ++i)
+            const auto& skip_gui_argmode = [&opt_clr](const size_t index) -> size_t {
+                if (opt_clr.at(index + 1) == '(')
                 {
-                    switch (opt_clr.at(i))
-                    {
-                        case 'b':
-                            bgcolor = true;
-                            append_styles(style, fmt::bg(hexStringToColor(str_clr.substr(pos))));
-                            break;
-                        case '!': append_styles(style, fmt::emphasis::bold); break;
-                        case 'u': append_styles(style, fmt::emphasis::underline); break;
-                        case 'i': append_styles(style, fmt::emphasis::italic); break;
-                        case 'l': append_styles(style, fmt::emphasis::blink); break;
-                        case 's': append_styles(style, fmt::emphasis::strikethrough); break;
+                    const size_t closebrak = opt_clr.find(')', index);
+                    if (closebrak == std::string::npos)
+                        return 0;
 
-                        case 'U':
-                        case 'B':
-                        case 'S':
-                        case 'a':
-                        case 'w':
-                        case 'O':
-                        case 'A':
-                        case 'L': i += skip_gui_argmode(i); break;
-                    }
+                    return closebrak;
                 }
+                return 0;
+            };
 
-                if (!bgcolor)
-                    append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
+            bool bgcolor = false;
+            for (size_t i = 0; i < opt_clr.length(); ++i)
+            {
+                switch (opt_clr.at(i))
+                {
+                    case 'b':
+                        bgcolor = true;
+                        append_styles(style, fmt::bg(hexStringToColor(str_clr.substr(pos))));
+                        break;
+                    case '!': append_styles(style, fmt::emphasis::bold); break;
+                    case 'u': append_styles(style, fmt::emphasis::underline); break;
+                    case 'i': append_styles(style, fmt::emphasis::italic); break;
+                    case 'l': append_styles(style, fmt::emphasis::blink); break;
+                    case 's': append_styles(style, fmt::emphasis::strikethrough); break;
 
-                // you can't fmt::format(style, ""); ughh
-                if (style.has_emphasis())
-                {
-                    fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
-                    output += emph.begin();
-                }
-                if (style.has_background() || style.has_foreground())
-                {
-                    const uint32_t rgb_num = bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
-                    fmt::rgb rgb(rgb_num);
-                    fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1B[48;2;" : "\x1B[38;2;");
-                    output += ansi.begin();
+                    case 'U':
+                    case 'B':
+                    case 'S':
+                    case 'a':
+                    case 'w':
+                    case 'O':
+                    case 'A':
+                    case 'L': i += skip_gui_argmode(i); break;
                 }
             }
 
-            // "\\e" is for checking in the ascii_art, \033 in the config
-            else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
-            {
-                output += "\033[";
-                output += hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
-            }
+            if (!bgcolor)
+                append_styles(style, fmt::fg(hexStringToColor(str_clr.substr(pos))));
 
-            else
+            // you can't fmt::format(style, ""); ughh
+            if (style.has_emphasis())
             {
-                error(_("PARSER: failed to parse line with color '{}'"), str_clr);
-                if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
-                    parse_args.pureOutput.erase(parser.dollar_pos, taglen);
-                return output;
+                fmt::detail::ansi_color_escape<char> emph(style.get_emphasis());
+                output += emph.begin();
+            }
+            if (style.has_background() || style.has_foreground())
+            {
+                const uint32_t rgb_num = bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
+                fmt::rgb rgb(rgb_num);
+                fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1B[48;2;" : "\x1B[38;2;");
+                output += ansi.begin();
             }
         }
+
+        // "\\e" is for checking in the ascii_art, \033 in the config
+        else if (hasStart(str_clr, "\\e") || hasStart(str_clr, "\033"))
+        {
+            output += "\033[";
+            output += hasStart(str_clr, "\033") ? str_clr.substr(2) : str_clr.substr(3);
+        }
+
+        else
+        {
+            error(_("PARSER: failed to parse line with color '{}'"), str_clr);
+            if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
+                parse_args.pureOutput.erase(parser.dollar_pos, taglen);
+            return output;
+        }
+    #endif
+
         if (!parse_args.parsingLayout &&
             std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
             auto_colors.push_back(color);
@@ -739,28 +753,22 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
 
     std::string ret{ parse(parser, parse_args) };
 
-    if (config.gui)
-    {
-        if (!parse_args.firstrun_clr)
-            ret += "</span>";
+#if GUI_APP
+    if (!parse_args.firstrun_clr)
+        ret += "</span>";
 
-        replace_str(parse_args.pureOutput, "&nbsp;", " ");
-    }
+    replace_str(parse_args.pureOutput, "&nbsp;", " ");
 
     // escape pango markup
     // https://gitlab.gnome.org/GNOME/glib/-/blob/main/glib/gmarkup.c#L2150
     // workaround: just put "\<" or "\&" in the config, e.g "$<os.kernel> \<- Kernel"
-    if (config.gui)
-    {
-        replace_str(ret, "\\<", "&lt;");
-        replace_str(ret, "\\&", "&amp;");
-        replace_str(ret, "&", "&amp;");
-    }
-    else
-    {
-        replace_str(ret, "\\<", "<");
-        replace_str(ret, "\\&", "&");
-    }
+    replace_str(ret, "\\<", "&lt;");
+    replace_str(ret, "\\&", "&amp;");
+    replace_str(ret, "&", "&amp;");
+#else
+    replace_str(ret, "\\<", "<");
+    replace_str(ret, "\\&", "&");
+#endif
 
     return ret;
 }

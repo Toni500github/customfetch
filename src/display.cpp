@@ -119,10 +119,10 @@ static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std:
     {
         layout[i] = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
-        if (!config.gui && !config.args_disable_colors)
-        {
+    #if !GUI_APP
+        if (!config.args_disable_colors)
             layout[i].insert(0, NOCOLOR);
-        }
+    #endif
 
         if (!tmp_layout.empty())
         {
@@ -323,16 +323,15 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
         std::string asciiArt_s   = parse(line, parse_args);
         parse_args.no_more_reset = false;
+    #if !GUI_APP
         if (!config.args_disable_colors)
-            asciiArt_s += config.gui ? "" : NOCOLOR;
-
-        if (config.gui)
-        {
-            // check parse.cpp
-            const size_t pos = asciiArt_s.rfind("$ </");
-            if (pos != std::string::npos)
-                asciiArt_s.replace(pos, 2, "$");
-        }
+            asciiArt_s += NOCOLOR;
+    #else
+        // check parse.cpp
+        const size_t pos = asciiArt_s.rfind("$ </");
+        if (pos != std::string::npos)
+            asciiArt_s.replace(pos, 2, "$");
+    #endif
 
         asciiArt.push_back(asciiArt_s);
         const size_t pureOutputLen = utf8::distance(pureOutput.begin(), pureOutput.end());
@@ -354,10 +353,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         layout[i] = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
-        if (!config.gui && !config.args_disable_colors)
-        {
+    #if !GUI_APP
+        if (!config.args_disable_colors)
             layout[i].insert(0, NOCOLOR);
-        }
+    #endif
 
         if (!tmp_layout.empty())
         {
@@ -409,8 +408,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         for (size_t j = 0; j < spaces; j++)
             layout.at(i).insert(origin, " ");
 
+    #if !GUI_APP
         if (!config.args_disable_colors)
-            layout.at(i) += config.gui ? "" : NOCOLOR;
+            layout.at(i) += NOCOLOR;
+    #endif
     }
 
     for (; i < asciiArt.size(); i++)

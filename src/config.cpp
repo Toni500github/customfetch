@@ -34,7 +34,7 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-Config::Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors)
+Config::Config(const std::string_view configFile, const std::string_view configDir)
 {
     if (!std::filesystem::exists(configDir))
     {
@@ -128,8 +128,8 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     {
         switch (fnv1a16::hash(str))
         {
+            case "removable"_fnv1a16: // deprecated
             case "external"_fnv1a16:
-            case "removable"_fnv1a16:
                 this->auto_disks_types |= Query::DISK_VOLUME_TYPE_EXTERNAL; break;
             case "regular"_fnv1a16:
                 this->auto_disks_types |= Query::DISK_VOLUME_TYPE_REGULAR; break;

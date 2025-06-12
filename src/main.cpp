@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
 
     localize();
 
-    Config config(configFile, configDir, colors);
+    Config config(configFile, configDir);
     if (!parseargs(argc, argv, config, configFile))
         return 1;
     config.loadConfigFile(configFile, colors);
@@ -771,7 +771,6 @@ int main(int argc, char *argv[])
     }
 
 #if GUI_APP
-    config.gui = true;
     const auto& app = Gtk::Application::create("org.toni.customfetch");
     GUI::Window window(config, colors, path);
     return app->run(window);

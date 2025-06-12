@@ -77,7 +77,7 @@ class Config
 {
 public:
     // Create .config directories and files and load the config file (args or default)
-    Config(const std::string_view configFile, const std::string_view configDir, colors_t& colors);
+    Config(const std::string_view configFile, const std::string_view configDir);
 
     // Variables of config file in [config] table
     std::vector<std::string> layout;
@@ -96,7 +96,6 @@ public:
     std::uint16_t            logo_padding_top    = 0;
     std::uint16_t            layout_padding_top  = 0;
     std::uint32_t            loop_ms             = 0;
-    bool                     gui                 = false;
     bool                     sep_reset_after     = false;
     bool                     slow_query_warnings = false;
     bool                     use_SI_unit         = false;
