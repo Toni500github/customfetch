@@ -30,24 +30,18 @@
 </p>
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="1px" height="1px" align="left" />
 <img src="screenshots/pipeline-style.png" />
-<h2 align="center">
-  It's even an <b>android widget</b> and <b>GTK3 app</b>
-</h2>
-<img align=right width=54.4% src="screenshots/gui-example.png"/>
-<img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Transparent_Square_Tiles_Texture.png" width="45%" height="14px" align="right" />
-<img align=right width=54.2% src="screenshots/android_widget2.png"/>
-<p align=left>
-  <img width=42.45% src="screenshots/android_widget.jpg" />
-</p>
 
 ## Key Features
-* Run customfetch as a **terminal** or **GTK3 application** or even as an **android widget**
-* Really easy customizable and fast, check [Config (with explanation)](#config-with-explanation) section
-* Super lightweight, 3.3MB max
+* Run customfetch as a **terminal** or **GTK3 application** or even as an [android widget](https://github.com/Toni500github/customfetch-android-app)
+* Really easy to customize (check [Config (with explanation)](#config-with-explanation) section)
+* Fast (maybe) as [fastfetch](https://github.com/fastfetch-cli/fastfetch)
+* Super lightweight, 3.3MB max (GTK3 application)
 
-# Depends
-Customfetch only requires the standard C++ library from `gcc-libs`, which should come already pre-installed in almost all distros. Other than that, customfetch requires **no mandatory** dependencies.\
-Currently requires **C++20**, but it's possible to compile with C++17 too (may not be always supported)\
+# Dependencies
+Customfetch requires **no mandatory** dependencies.\
+For building from source, only requires **C++20** but it's possible to compile with C++17 too (may not be always supported)
+
+Here I'll list some packages to install for the GTK3 app or for making customfetch faster.
 The names of the packages can vary depending on the package manager or distro.
 
 If you want to install the GUI app install from your package manager:
@@ -65,8 +59,7 @@ optional dependencies that will make customfetch faster.
 Download the latest `.deb` package in [releases](https://github.com/Toni500github/customfetch/releases/latest)
 
 ## Android widget
-Download the latest `.apk` file in the [releases](https://github.com/Toni500github/customfetch/releases/latest) \
-AFAIK The google play protect doesn't detect any malware. If your antivirus does, please open an [issue here](https://github.com/Toni500github/customfetch/issues)
+Moved to the new repo: https://github.com/Toni500github/customfetch-android-app
 
 ## Arch and based (AUR)
 ```bash
@@ -97,18 +90,6 @@ yay -S customfetch-git
 
 # GUI app only
 yay -S customfetch-gui-git
-```
-
-## Android widget app (unstable)
-Download the latest apk build from the [GitHub actions](https://github.com/Toni500github/customfetch/actions/workflows/makefile.yml) artifacts\
-If you can't download or you are not logged in GitHub, use this link: https://nightly.link/Toni500github/customfetch/workflows/makefile/main/customfetch-android-app.zip
-
-## Android widget app (source)
-```bash
-# need java 17 + gradle 8.9 installed.
-# It's suggested to build from android studio,
-# so you that you can install the NDK library
-./android/gradlew assembleDebug --project-dir=./android
 ```
 
 ## Compile from (source) (unstable)

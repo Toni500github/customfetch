@@ -86,16 +86,6 @@ $(TARGET): genver fmt toml $(OBJ)
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
-android_app:
-ifeq ($(DEBUG), 1)
-	./android/gradlew assembleDebug --project-dir=./android
-else
-	./android/gradlew assembleRelease --project-dir=./android
-endif
-	@if [ $$? -eq 0 ]; then\
-		echo "APK build successfully. Get it in $(CURDIR)/android/app/build/outputs/apk path and choose which to install (debug/release)";\
-	fi
-
 locale:
 	scripts/make_mo.sh locale/
 
@@ -149,8 +139,6 @@ delete: uninstall
 
 updatever:
 	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
-	sed -i "s#versionName = \"$(OLDVERSION)\"#versionName = \"$(VERSION)\"#g" android/app/build.gradle.kts
-	sed -i "s#set(VERSION \"$(OLDVERSION)\")#set(VERSION \"$(VERSION)\")#g" CMakeLists.txt android/CMakeLists.txt
 	sed -i "s#Project-Id-Version: customfetch $(OLDVERSION)#Project-Id-Version: customfetch $(VERSION)#g" po/*
 
-.PHONY: $(TARGET) android_app updatever remove uninstall delete dist distclean fmt toml install all locale
+.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all locale
