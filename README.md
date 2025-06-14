@@ -1,10 +1,13 @@
-<h1 align="center">
-  Customfetch
-</h1>
-
 <p align="center">
-    A system information fetch tool (or neofetch like program), which its focus point is the performance and <b>customizability</b>
+  <img src="assets/icons/logo.svg" width="22%"/>
 </p>
+<h2></h2> <!-- add a separating line -->
+<h3>
+  <p align="center">
+    A system information fetch tool (or neofetch-like program), which its focus point is the performance and <b>customizability</b>
+  </p>
+</h3>
+
 <p align="center">
     <img src="https://img.shields.io/github/languages/top/Toni500github/customfetch?logo=cplusplusbuilder&label=" />
     <img src="https://img.shields.io/github/actions/workflow/status/Toni500github/customfetch/makefile.yml" />
@@ -235,6 +238,9 @@ I would like to thanks:
 * my best-friend [BurntRanch](https://github.com/BurntRanch/),\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me initialize this project and motivate me to keep going\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And also for making my customizability idea come true with the first prototype of the parser.
+
+* [saberr26](https://github.com/saberr26), \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For making the project logos
 
 * the Better C++ [discord server](https://discord.gg/uSzTjkXtAM), \
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For helping me improving the codebase and helping me with any issues I got,\
