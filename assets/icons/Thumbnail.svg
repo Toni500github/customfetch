@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 400 300"
+   version="1.1"
+   id="svg32"
+   sodipodi:docname="logo2.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs32">
+    <clipPath
+       id="gravityUiGpu0-6">
+      <path
+         fill="currentColor"
+         d="M 0,0 H 16 V 16 H 0 Z"
+         id="path2-5" />
+    </clipPath>
+    <clipPath
+       id="clipPath54">
+      <path
+         fill="currentColor"
+         d="M 0,0 H 16 V 16 H 0 Z"
+         id="path54" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     id="namedview32"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.4672466"
+     inkscape:cx="232.74888"
+     inkscape:cy="141.42136"
+     inkscape:window-width="1322"
+     inkscape:window-height="724"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg32" />
+  <!-- Terminal window background -->
+  <rect
+     x="20"
+     y="20"
+     width="360"
+     height="260"
+     rx="8"
+     fill="#1f2937"
+     stroke="#374151"
+     stroke-width="2"
+     id="rect1" />
+  <g
+     fill="none"
+     id="g2"
+     transform="matrix(0.86888851,0,0,1.0183547,35.021598,149.44004)"
+     style="fill:#10b981;fill-opacity:1">
+    <path
+       d="m 15.65458,30.590304 v 0.679963 c 0,0.250274 -0.344743,0.452303 -0.771815,0.452303 h -1.16286 c -0.427071,0 -0.771815,-0.202029 -0.771815,-0.452303 v -0.679963 c 0,-0.250274 0.344744,-0.452303 0.771815,-0.452303 h 1.160287 c 0.427072,0 0.774388,0.203537 0.774388,0.452303 z"
+       fill="#292d32"
+       id="path14-3"
+       style="fill:#4e064e;fill-opacity:1;stroke-width:0.196948"
+       transform="matrix(4.8993377,0,0,5.9633617,-60.911942,-176.44217)" />
+    <g
+       clip-path="url(#gravityUiGpu0-6)"
+       id="g1"
+       style="fill:#ffff00;fill-opacity:1">
+      <path
+         fill="currentColor"
+         fill-rule="evenodd"
+         d="M 0,1.25 A 0.75,0.75 0 0 1 0.75,0.5 h 0.5 A 2.25,2.25 0 0 1 3.5,2.75 V 3 H 13 a 3,3 0 0 1 3,3 v 4 a 3,3 0 0 1 -3,3 H 3.5 v 1.25 a 0.75,0.75 0 0 1 -1.5,0 V 2.75 A 0.75,0.75 0 0 0 1.25,2 H 0.75 A 0.75,0.75 0 0 1 0,1.25 M 13,4.5 H 3.5 v 7 H 13 A 1.5,1.5 0 0 0 14.5,10 V 6 A 1.5,1.5 0 0 0 13,4.5 M 8.5,8 a 1,1 0 1 1 -2,0 1,1 0 0 1 2,0 M 10,8 a 2.5,2.5 0 1 1 -5,0 2.5,2.5 0 0 1 5,0"
+         clip-rule="evenodd"
+         id="path1-3"
+         style="fill:#ff5eff;fill-opacity:0.95096982;opacity:0.88458041" />
+    </g>
+    <defs
+       id="defs2">
+      <clipPath
+         id="clipPath32">
+        <path
+           fill="currentColor"
+           d="M 0,0 H 16 V 16 H 0 Z"
+           id="path32" />
+      </clipPath>
+    </defs>
+  </g>
+  <!-- Window title bar -->
+  <rect
+     x="20"
+     y="20"
+     width="360"
+     height="35"
+     rx="8"
+     fill="#374151"
+     id="rect2" />
+  <rect
+     x="20"
+     y="51"
+     width="360"
+     height="8"
+     fill="#374151"
+     id="rect3" />
+  <!-- Window controls -->
+  <circle
+     cx="40"
+     cy="37.5"
+     r="6"
+     fill="#ef4444"
+     id="circle3" />
+  <circle
+     cx="60"
+     cy="37.5"
+     r="6"
+     fill="#f59e0b"
+     id="circle4" />
+  <circle
+     cx="80"
+     cy="37.5"
+     r="6"
+     fill="#10b981"
+     id="circle5" />
+  <!-- Window title -->
+  <text
+     x="200"
+     y="42"
+     font-family="monospace"
+     font-size="12"
+     fill="#9ca3af"
+     text-anchor="middle"
+     id="text5">customfetch</text>
+  <!-- Terminal prompt -->
+  <text
+     x="34.518074"
+     y="80.96386"
+     font-family="monospace"
+     font-size="14px"
+     fill="#10b981"
+     id="text6"
+     style="font-size:16px">&gt;</text>
+  <text
+     x="50"
+     y="80"
+     font-family="monospace"
+     font-size="14"
+     fill="#e5e7eb"
+     id="text7">customfetch</text>
+  <!-- System info layout -->
+  <g
+     transform="translate(35, 100)"
+     id="g29">
+    <!-- OS Info -->
+    <g
+       id="g9">
+      <circle
+         cx="7.3975902"
+         cy="8.1204815"
+         r="6"
+         fill="#2563eb"
+         id="circle7" />
+      <text
+         x="20"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#9ca3af"
+         id="text8">OS</text>
+      <text
+         x="100"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#e5e7eb"
+         id="text9">Linux</text>
+    </g>
+    <!-- CPU Info -->
+    <g
+       transform="translate(0, 25)"
+       id="g15">
+      <!-- CPU icon -->
+      <g
+         id="SVGRepo_iconCarrier-0-8"
+         transform="matrix(0.74625,0,0,0.75135,-2.2306322,-0.96849988)"
+         style="fill:#10b981;fill-opacity:1"
+         inkscape:label="cpu "
+         inkscape:transform-center-x="-17.831325"
+         inkscape:transform-center-y="5.7831325">
+        <path
+           opacity="0.4"
+           d="M 15,4 H 9 C 6.24,4 4,6.24 4,9 v 6 c 0,2.76 2.24,5 5,5 h 6 c 2.76,0 5,-2.24 5,-5 V 9 C 20,6.24 17.76,4 15,4 Z m 2.26,10.26 c 0,1.66 -1.34,3 -3,3 H 9.74 c -1.66,0 -3,-1.34 -3,-3 V 9.74 c 0,-1.66 1.34,-3 3,-3 h 4.51 c 1.66,0 3,1.34 3,3 v 4.52 z"
+           fill="#292d32"
+           id="path1-9-1"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="M 9.06055,2.75 V 4 h -0.06 c -0.5,0 -0.98,0.07 -1.44,0.21 V 2.75 c 0,-0.41 0.33,-0.75 0.75,-0.75 0.41,0 0.75,0.34 0.75,0.75 z"
+           fill="#292d32"
+           id="path2-3-0"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="M 12.75,2.75 V 4 h -1.5 V 2.75 C 11.25,2.34 11.59,2 12,2 c 0.41,0 0.75,0.34 0.75,0.75 z"
+           fill="#292d32"
+           id="path3-6-3"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="M 16.4492,2.75 V 4.21 C 15.9892,4.07 15.4992,4 14.9992,4 h -0.05 V 2.75 c 0,-0.41 0.34,-0.75 0.75,-0.75 0.41,0 0.75,0.34 0.75,0.75 z"
+           fill="#292d32"
+           id="path4-0-0"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="m 21.9991,8.30005 c 0,0.42 -0.33,0.75 -0.75,0.75 h -1.25 v -0.05 c 0,-0.5 -0.07,-0.99 -0.21,-1.45 h 1.46 c 0.42,0 0.75,0.34 0.75,0.75 z"
+           fill="#292d32"
+           id="path5-6-4"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="m 22,12 c 0,0.41 -0.33,0.75 -0.75,0.75 H 20 v -1.5 h 1.25 c 0.42,0 0.75,0.33 0.75,0.75 z"
+           fill="#292d32"
+           id="path6-4"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="m 21.9991,15.7 c 0,0.41 -0.33,0.75 -0.75,0.75 h -1.46 c 0.14,-0.46 0.21,-0.95 0.21,-1.45 v -0.05 h 1.25 c 0.42,0 0.75,0.33 0.75,0.75 z"
+           fill="#292d32"
+           id="path7-4"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="m 16.4492,19.79 v 1.46 c 0,0.41 -0.34,0.75 -0.75,0.75 -0.41,0 -0.75,-0.34 -0.75,-0.75 V 20 h 0.05 c 0.5,0 0.99,-0.07 1.45,-0.21 z"
+           fill="#292d32"
+           id="path8-4"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="m 12.7598,20 v 1.25 c 0,0.41 -0.34,0.75 -0.75,0.75 -0.42,0 -0.75,-0.34 -0.75,-0.75 V 20 Z"
+           fill="#292d32"
+           id="path9-7"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="m 9.06055,20 v 1.25 c 0,0.41 -0.34,0.75 -0.75,0.75 -0.42,0 -0.75,-0.34 -0.75,-0.75 v -1.46 c 0.46,0.14 0.94,0.21 1.44,0.21 z"
+           fill="#292d32"
+           id="path10-6"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="m 4.21,7.55005 c -0.14,0.46 -0.21,0.95 -0.21,1.45 v 0.05 H 2.75 c -0.41,0 -0.75,-0.33 -0.75,-0.75 0,-0.41 0.34,-0.75 0.75,-0.75 z"
+           fill="#292d32"
+           id="path11-3"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="m 4,11.25 v 1.5 H 2.75 C 2.34,12.75 2,12.41 2,12 2,11.58 2.34,11.25 2.75,11.25 Z"
+           fill="#292d32"
+           id="path12-1"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="M 4.21,16.45 H 2.75 C 2.34,16.45 2,16.11 2,15.7 2,15.28 2.34,14.95 2.75,14.95 H 4 V 15 c 0,0.5 0.07,0.99 0.21,1.45 z"
+           fill="#292d32"
+           id="path13-7"
+           style="fill:#10b981;fill-opacity:1" />
+        <path
+           d="M 17.2602,9.73999 V 14.25 c 0,1.66 -1.34,3 -3,3 H 9.74023 c -1.66,0 -3,-1.34 -3,-3 V 9.73999 c 0,-1.66 1.34,-3 3,-3 h 4.50997 c 1.66,0 3.01,1.35 3.01,3 z"
+           fill="#292d32"
+           id="path14-5"
+           style="fill:#10b981;fill-opacity:1" />
+      </g>
+      <text
+         x="20"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#9ca3af"
+         id="text14">CPU</text>
+      <text
+         x="100"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#e5e7eb"
+         id="text15">Intel i9-10900K</text>
+    </g>
+    <!-- GPU Info -->
+    <g
+       transform="translate(0, 50)"
+       id="g21">
+      <!-- GPU icon -->
+      <text
+         x="20"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#9ca3af"
+         id="text20">GPU</text>
+      <text
+         x="100"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#e5e7eb"
+         id="text21">RTX 4090</text>
+    </g>
+    <!-- Memory Info -->
+    <g
+       transform="translate(0, 75)"
+       id="g26">
+      <!-- Memory icon -->
+      <g
+         id="SVGRepo_iconCarrier"
+         transform="matrix(0.61388235,0,0,0.70055055,-0.32931007,-0.13603532)"
+         style="fill:#800080;fill-opacity:1">
+        <path
+           d="m 16.0103,20.97 c 0.0056,0.5561 -0.4437,1.01 -0.9999,1.01 H 8.99374 c -0.54968,0 -0.99631,-0.4436 -0.99998,-0.9933 L 7.98047,19 c 0,-1.1 0.89,-2 2,-2 h 4.01003 c 1.1,0 1.99,0.89 2,1.99 z"
+           fill="#292d32"
+           id="path1"
+           style="fill:#800080;fill-opacity:1" />
+        <path
+           d="m 18.5,9.99938 v 2.17002 c 0,0.53 0.21,1.04 0.59,1.42 l 0.82,0.82 c 0.38,0.38 0.59,0.89 0.59,1.42 v 1.17 c 0,2.3011 -0.9089,3.9936 -2.8943,4.6661 -0.3012,0.1021 -0.5968,-0.1358 -0.5979,-0.4538 L 17,18.9794 c -0.02,-1.64 -1.37,-2.98 -3,-2.98 H 9.99 c -1.66,0 -3,1.35 -3,3 v 2.2241 c 0,0.3175 -0.29371,0.5563 -0.5951,0.4566 C 4.386,21.0153 3.5,19.3124 3.5,16.9994 V 6.99938 C 3.5,4.59334 4.45179,2.83316 6.64523,2.23589 6.94579,2.15404 7.2259,2.3956 7.22143,2.70706 L 7.19,4.89938 c -0.01,0.47 0.16,0.92 0.48,1.26 0.33,0.34 0.76,0.52999 1.27,0.54 0.51417,0 0.97203,-0.21276 1.2845,-0.55906 0.1122,-0.12438 0.3271,-0.12939 0.4455,-0.01094 0.32,0.34 0.76,0.53999 1.27,0.54999 0.5143,0 0.9835,-0.22605 1.3036,-0.58992 0.1052,-0.11957 0.3206,-0.12911 0.4264,-0.01007 0.32,0.33999 0.76,0.54 1.27,0.55 0.96,0 1.73,-0.75001 1.75,-1.72001 L 16.7297,2.68602 C 16.7351,2.38172 17.0106,2.15075 17.3047,2.22893 19.5087,2.8147 20.5,4.58656 20.5,6.99938 v 1 c 0,0.55 -0.45,1 -1,1 -0.55,0 -1,0.45 -1,1 z"
+           fill="#292d32"
+           id="path2"
+           style="fill:#800080;fill-opacity:1" />
+        <path
+           d="M 9.22788,2.0033 C 9.50858,2.00149 9.73577,2.23107 9.73103,2.51174 L 9.68967,4.96 c -0.01,0.41 -0.34,0.74 -0.75,0.74 H 8.92968 C 8.50968,5.69 8.17967,5.35 8.18967,4.93 V 2.50678 c 0,-0.27488 0.2219,-0.49821 0.49678,-0.49999 z"
+           fill="#292d32"
+           id="path3"
+           style="fill:#800080;fill-opacity:1" />
+        <path
+           d="m 12.2311,2 c 0.2795,0 0.5047,0.22906 0.5,0.50847 L 12.6897,4.95 c -0.01,0.4 -0.34,0.73 -0.75,0.73 h -0.01 c -0.42,-0.01 -0.75,-0.35 -0.74,-0.76 V 2.5 c 0,-0.27614 0.2238,-0.5 0.5,-0.5 z"
+           fill="#292d32"
+           id="path4"
+           style="fill:#800080;fill-opacity:1" />
+        <path
+           d="m 15.2341,2.00658 c 0.2783,0.00175 0.5016,0.23041 0.4968,0.50867 l -0.0412,2.37452 c -0.01,0.41 -0.34,0.74 -0.75,0.74 h -0.01 c -0.42,-0.01 -0.75,-0.35 -0.74,-0.76 V 2.50316 c 0,-0.27737 0.2258,-0.50174 0.5031,-0.49999 z"
+           fill="#292d32"
+           id="path5"
+           style="fill:#800080;fill-opacity:1" />
+      </g>
+      <text
+         x="20"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#9ca3af"
+         id="text25">Memory</text>
+      <text
+         x="100"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#e5e7eb"
+         id="text26">32GB DDR4</text>
+    </g>
+    <!-- Uptime -->
+    <g
+       transform="translate(0, 100)"
+       id="g28">
+      <circle
+         cx="8"
+         cy="8"
+         r="6"
+         fill="#ef4444"
+         id="circle26" />
+      <path
+         d="M8 4 L8 8 L11 11"
+         stroke="#1f2937"
+         stroke-width="1.5"
+         stroke-linecap="round"
+         fill="none"
+         id="path26" />
+      <text
+         x="20"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#9ca3af"
+         id="text27">Uptime</text>
+      <text
+         x="100"
+         y="12"
+         font-family="monospace"
+         font-size="12"
+         fill="#e5e7eb"
+         id="text28">2h 34m</text>
+    </g>
+  </g>
+  <!-- Cursor -->
+  <rect
+     x="35"
+     y="250"
+     width="8"
+     height="16"
+     fill="#10b981"
+     id="rect29" />
+  <!-- Subtle logo watermark -->
+</svg>
