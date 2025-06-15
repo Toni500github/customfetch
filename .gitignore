@@ -1,8 +1,7 @@
 build*/
-assets/distro_ascii_arts.json
-assets/distro_ascii_arts.txt
+assets/distro_ascii*
 cufetch
-test*.txt
+*.txt
 pci.ids
 output/
 useless_stuff/
@@ -14,6 +13,8 @@ usr/
 scripts/ascii_parser.py
 scripts/dict_to_files.py
 scripts/test*
+tests/test*
+!tests/*.cpp
 
 *.tar.*
 *.mo
