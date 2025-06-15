@@ -209,29 +209,12 @@ bool is_file_image(const unsigned char* bytes)
 
 void strip(std::string& input)
 {
-    if (input.empty())
-    {
-        return;
-    }
-
-    // optimization for input size == 1
-    if (input.size() == 1)
-    {
-        if (input.at(0) == ' ' || input.at(0) == '\t' || input.at(0) == '\n')
-        {
-            input = "";
-            return;
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    // https://stackoverflow.com/a/25385766
-    const char* ws = " \t\n\r\f\v";
-    input.erase(input.find_last_not_of(ws) + 1);
-    input.erase(0, input.find_first_not_of(ws));
+    input.erase(
+        std::remove_if(input.begin(), input.end(),
+            [](unsigned char c) { return std::isspace(c); }
+        ),
+        input.end()
+    );
 }
 
 void getFileValue(u_short& iterIndex, const std::string_view line, std::string& str, const size_t& amount)

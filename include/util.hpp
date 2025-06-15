@@ -260,7 +260,6 @@ std::string str_toupper(std::string str);
 
 /* Remove all white spaces (' ', '\t', '\n') from string inplace!
  * @param input The string to strip
- * @original https://github.com/lfreist/hwinfo/blob/main/include/hwinfo/utils/stringutils.h#L50
  */
 void strip(std::string& input);
 
