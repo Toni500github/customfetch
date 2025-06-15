@@ -2,11 +2,9 @@
   <img src="assets/icons/logo.svg" width="22%"/>
 </p>
 <h2></h2> <!-- add a separating line -->
-<h3>
-  <p align="center">
+<p align="center">
     A system information fetch tool (or neofetch-like program), which its focus point is the performance and <b>customizability</b>
-  </p>
-</h3>
+</p>
 
 <p align="center">
     <img src="https://img.shields.io/github/languages/top/Toni500github/customfetch?logo=cplusplusbuilder&label=" />
