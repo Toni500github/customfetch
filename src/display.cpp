@@ -433,5 +433,8 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 void Display::display(const std::vector<std::string>& renderResult)
 {
     for (const std::string& str : renderResult)
-        fmt::print("{}\n", str);
+    {
+        fmt::print("{}", str);
+        fmt::print("\n");
+    }
 }

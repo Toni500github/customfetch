@@ -61,18 +61,24 @@ LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
 
-all: genver fmt toml $(TARGET)
+all: genver fmt toml json $(TARGET)
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
 	mkdir -p $(BUILDDIR)/fmt
-	make -C src/fmt BUILDDIR=$(BUILDDIR)/fmt
+	make -C src/libs/fmt BUILDDIR=$(BUILDDIR)/fmt
 endif
 
 toml:
 ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
 	mkdir -p $(BUILDDIR)/toml++
-	make -C src/toml++ BUILDDIR=$(BUILDDIR)/toml++
+	make -C src/libs/toml++ BUILDDIR=$(BUILDDIR)/toml++
+endif
+
+json:
+ifeq ($(wildcard $(BUILDDIR)/json/json.o),)
+	mkdir -p $(BUILDDIR)/json
+	make -C src/libs/json BUILDDIR=$(BUILDDIR)/json
 endif
 
 genver: ./scripts/generateVersion.sh
@@ -80,10 +86,10 @@ ifeq ($(wildcard include/version.h),)
 	./scripts/generateVersion.sh
 endif
 
-$(TARGET): genver fmt toml $(OBJ)
+$(TARGET): genver fmt toml json $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
-	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
+	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o $(BUILDDIR)/json/json.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
 locale:
