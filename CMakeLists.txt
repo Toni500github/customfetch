@@ -16,7 +16,8 @@ file(GLOB
 	"src/query/android/*.cpp"
 	"src/query/macos/*.cpp"
 	"src/query/linux/utils/*.cpp"
-	"src/toml++/toml.cpp")
+	"src/libs/json/json.cpp"
+	"src/libs/toml++/toml.cpp")
 
 if(GUI_APP)
 	set(TARGET_NAME customfetch-gui)
@@ -63,17 +64,91 @@ if(GUI_APP)
 endif()
 
 if(USE_DCONF)
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(DCONF dconf)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(DCONF dconf)
+    if(DCONF_FOUND)
+        message(STATUS "Found dconf - enabling dconf support")
+        target_compile_definitions(${TARGET_NAME} PRIVATE USE_DCONF=1)
         target_link_libraries(${TARGET_NAME} PUBLIC ${DCONF_LIBRARIES})
         target_include_directories(${TARGET_NAME} PUBLIC ${DCONF_INCLUDE_DIRS})
         target_compile_options(${TARGET_NAME} PUBLIC ${DCONF_CFLAGS_OTHER})
+    else()
+        message(STATUS "dconf not found - disabling dconf support")
+        target_compile_definitions(${TARGET_NAME} PRIVATE USE_DCONF=0)
+    endif()
+else()
+    target_compile_definitions(${TARGET_NAME} PRIVATE USE_DCONF=0)
 endif()
-
 
 # fmt
 add_library(fmt STATIC
-	"src/fmt/os.cc"
-	"src/fmt/format.cc")
+	"src/libs/fmt/os.cc"
+	"src/libs/fmt/format.cc")
 
 target_link_libraries(${TARGET_NAME} PUBLIC fmt)
+
+add_custom_target(locale
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/make_mo.sh ${CMAKE_SOURCE_DIR}/locale/
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Generating locale message object files"
+)
+
+add_dependencies(${TARGET_NAME} locale)
+
+# Installation prefixes
+set(MANPREFIX "${CMAKE_INSTALL_PREFIX}/share/man" CACHE PATH "Man page installation directory")
+set(APPPREFIX "${CMAKE_INSTALL_PREFIX}/share/applications" CACHE PATH "Application desktop file directory")
+set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale" CACHE PATH "Locale files directory")
+
+# Install executable
+install(TARGETS ${TARGET_NAME}
+        RUNTIME DESTINATION bin
+        COMPONENT runtime)
+
+# Create symlink
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${TARGET_NAME} \${CMAKE_INSTALL_PREFIX}/bin/cufetch)")
+
+# Install the rest
+install(FILES ${CMAKE_SOURCE_DIR}/customfetch.1
+        DESTINATION share/man/man1
+        COMPONENT documentation)
+
+install(FILES ${CMAKE_SOURCE_DIR}/LICENSE
+        DESTINATION share/licenses/customfetch
+        COMPONENT documentation)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/ascii/
+        DESTINATION share/customfetch/ascii
+        COMPONENT runtime)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/
+        DESTINATION share/customfetch/examples
+        COMPONENT runtime)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/locale/
+        DESTINATION share/locale
+        COMPONENT runtime)
+
+install(CODE "
+    execute_process(
+        COMMAND ${CMAKE_SOURCE_DIR}/scripts/make_mo.sh ${CMAKE_SOURCE_DIR}/locale/
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+" COMPONENT runtime)
+
+if(GUI_APP)
+    install(FILES ${CMAKE_SOURCE_DIR}/customfetch.desktop
+            DESTINATION share/applications
+            COMPONENT runtime)
+endif()
+
+# Uninstall target
+if(NOT TARGET uninstall)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY)
+
+    add_custom_target(uninstall
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
