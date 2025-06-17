@@ -60,18 +60,24 @@ LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -I$(SRC_DIR)/../include -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\"
 
-all: fmt toml catch2 bin
+all: fmt toml json catch2 bin
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
 	mkdir -p $(BUILDDIR)/fmt
-	make -C $(SRC_DIR)/fmt BUILDDIR=tests/$(BUILDDIR)/fmt
+	make -C $(SRC_DIR)/libs/fmt BUILDDIR=tests/$(BUILDDIR)/fmt
 endif
 
 toml:
 ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
 	mkdir -p $(BUILDDIR)/toml++
-	make -C $(SRC_DIR)/toml++ BUILDDIR=tests/$(BUILDDIR)/toml++
+	make -C $(SRC_DIR)/libs/toml++ BUILDDIR=tests/$(BUILDDIR)/toml++
+endif
+
+json:
+ifeq ($(wildcard $(BUILDDIR)/json/json.o),)
+	mkdir -p $(BUILDDIR)/json
+	make -C $(SRC_DIR)/libs/json BUILDDIR=tests/$(BUILDDIR)/json
 endif
 
 catch2:
@@ -90,17 +96,14 @@ $(BUILDDIR)/%.o: $(SRC_DIR)/%.cpp
 
 $(TEST_DIR)/test_%: $(BUILDDIR)/catch2/catch.o $(OBJ) $(TEST_DIR)/test_%.cpp
 	mkdir -p $(TEST_DIR)
-	$(CXX) $(CXXFLAGS) $(BUILDDIR)/toml++/toml.o $^ -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(BUILDDIR)/toml++/toml.o $(BUILDDIR)/json/json.o $^ -o $@ $(LDFLAGS)
 
 bin: $(TESTS)
 
 clean:
-	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/libcustomfetch.a $(OBJ)
+	rm -rf $(TESTS) $(BUILDDIR)
+	make -C .. clean
 
-distclean:
-	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ)
-	find . -type f -name "*.tar.gz" -exec rm -rf "{}" \;
-	find . -type f -name "*.o" -exec rm -rf "{}" \;
-	find . -type f -name "*.a" -exec rm -rf "{}" \;
+distclean: clean
 
 .PHONY: distclean clean catch2 fmt toml locale bin all
