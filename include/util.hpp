@@ -260,8 +260,9 @@ std::string str_toupper(std::string str);
 
 /* Remove all white spaces (' ', '\t', '\n') from string inplace!
  * @param input The string to strip
+ * @param padding_only Just trim the string
  */
-void strip(std::string& input);
+void strip(std::string& input, bool padding_only = true);
 
 /* Read file content (usually from /sys)
  * and return its first (and only) line, else UNKNOWN

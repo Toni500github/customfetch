@@ -207,14 +207,26 @@ bool is_file_image(const unsigned char* bytes)
     // clang-format on
 }
 
-void strip(std::string& input)
+void strip(std::string& input, bool padding_only)
 {
-    input.erase(
-        std::remove_if(input.begin(), input.end(),
-            [](unsigned char c) { return std::isspace(c); }
-        ),
-        input.end()
-    );
+    if (input.empty()) 
+        return;
+
+    if (padding_only)
+    {
+        const char* ws = " \t\n\r\f\v";
+        input.erase(input.find_last_not_of(ws) + 1);
+        input.erase(0, input.find_first_not_of(ws));
+    }
+    else
+    {
+        input.erase(
+            std::remove_if(input.begin(), input.end(),
+                [](unsigned char c) { return std::isspace(c); }
+            ),
+            input.end()
+        );
+    }
 }
 
 void getFileValue(u_short& iterIndex, const std::string_view line, std::string& str, const size_t& amount)
