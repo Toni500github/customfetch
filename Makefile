@@ -60,7 +60,7 @@ SRC 	   	 = $(wildcard src/*.cpp src/query/linux/*.cpp src/query/android/*.cpp s
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\"
+CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
 all: genver fmt toml json $(TARGET)
 

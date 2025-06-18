@@ -149,6 +149,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(1000, 600);
     set_position(Gtk::WIN_POS_CENTER_ALWAYS);
+    set_icon_from_file(ICONPREFIX "/customfetch/Thumbnail.png");
 
     debug("Window::Window analyzing file");
     std::ifstream                 f(path.data());

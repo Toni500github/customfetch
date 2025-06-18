@@ -10,6 +10,7 @@
 -DENABLE_NLS=1
 -DPREFIX="/usr"
 -DLOCALEDIR="/usr/share/locale"
+-DICONPREFIX="/usr/share/pixmaps/customfetch"
 -I./useless_stuff/
 -I/usr/include/gtkmm-3.0
 -I/usr/lib/gtkmm-3.0/include
