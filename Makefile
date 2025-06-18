@@ -4,6 +4,7 @@ PREFIX	  	?= /usr
 MANPREFIX	?= $(PREFIX)/share/man
 APPPREFIX 	?= $(PREFIX)/share/applications
 LOCALEDIR	?= $(PREFIX)/share/locale
+ICONPREFIX 	?= $(PREFIX)/share/pixmaps
 VARS  	  	?= -DENABLE_NLS=1
 
 DEBUG 		?= 1
@@ -109,7 +110,7 @@ usr-dist: $(TARGET) locale
 	rm -rf usr/
 
 clean:
-	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/libcustomfetch.a $(OBJ)
+	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/lib$(NAME).a $(OBJ)
 
 distclean:
 	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ)
@@ -126,8 +127,9 @@ install-common: locale
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	install LICENSE -Dm 644 $(DESTDIR)$(PREFIX)/share/licenses/$(NAME)/LICENSE
-	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
-	find examples/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/customfetch/{}" \;
+	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/$(NAME)/{}" \;
+	cd assets/icons && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(ICONPREFIX)/$(NAME)/{}" \;
+	find examples/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/$(NAME)/{}" \;
 	find locale/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
 ifeq ($(GUI_APP), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
@@ -138,13 +140,16 @@ uninstall:
 	rm -f  $(DESTDIR)$(PREFIX)/bin/$(TARGET) $(DESTDIR)$(PREFIX)/bin/cufetch
 	rm -f  $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	rm -f  $(DESTDIR)$(APPPREFIX)/$(NAME).desktop
-	rm -rf $(DESTDIR)$(PREFIX)/share/customfetch/
+	rm -rf $(DESTDIR)$(PREFIX)/share/licenses/$(NAME)/
+	rm -rf $(DESTDIR)$(PREFIX)/share/$(NAME)/
+	rm -rf $(DESTDIR)$(ICONPREFIX)/$(NAME)/
+	find   $(DESTDIR)$(LOCALEDIR) -type f -path "$(DESTDIR)$(LOCALEDIR)/*/LC_MESSAGES/$(NAME).mo" -exec rm -f {} \;
 
 remove: uninstall
 delete: uninstall
 
 updatever:
 	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
-	sed -i "s#Project-Id-Version: customfetch $(OLDVERSION)#Project-Id-Version: customfetch $(VERSION)#g" po/*
+	sed -i "s#Project-Id-Version: $(NAME) $(OLDVERSION)#Project-Id-Version: $(NAME) $(VERSION)#g" po/*
 
 .PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all locale

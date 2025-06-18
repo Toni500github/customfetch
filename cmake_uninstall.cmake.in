@@ -1,20 +1,37 @@
-if(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
-    message(FATAL_ERROR "Cannot find install manifest: @CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+message(STATUS "Removing special files")
+file(REMOVE "${CMAKE_INSTALL_PREFIX}/bin/cufetch")  # Symlink
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/customfetch-gui")
+    file(REMOVE "${CMAKE_INSTALL_PREFIX}/bin/customfetch-gui")  # GUI executable
 endif()
 
-file(READ "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt" files)
-string(REGEX REPLACE "\n" ";" files "${files}")
-foreach(file ${files})
-    message(STATUS "Uninstalling $ENV{DESTDIR}${file}")
-    if(EXISTS "$ENV{DESTDIR}${file}")
-        exec_program(
-            "@CMAKE_COMMAND@" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
-            OUTPUT_VARIABLE rm_out
-            RETURN_VALUE rm_retval)
-        if(NOT "${rm_retval}" STREQUAL 0)
-            message(FATAL_ERROR "Problem when removing $ENV{DESTDIR}${file}")
+if(EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+    message(STATUS "Processing install manifest")
+    file(READ "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt" files)
+    string(REGEX REPLACE "\n" ";" files "${files}")
+
+    foreach(file ${files})
+        if(EXISTS "${file}" OR IS_SYMLINK "${file}")
+            message(STATUS "Removing: ${file}")
+            file(REMOVE "${file}")
+            
+            # Remove empty parent directories
+            get_filename_component(dir "${file}" DIRECTORY)
+            while(NOT dir STREQUAL "${CMAKE_INSTALL_PREFIX}")
+                file(GLOB contents "${dir}/*")
+                if(NOT contents)
+                    message(STATUS "Removing empty directory: ${dir}")
+                    file(REMOVE_RECURSE "${dir}")
+                    get_filename_component(dir "${dir}" DIRECTORY)
+                else()
+                    break()
+                endif()
+            endwhile()
+        else()
+            message(STATUS "File not found (may be already removed): ${file}")
         endif()
-    else()
-        message(STATUS "File $ENV{DESTDIR}${file} does not exist.")
-    endif()
-endforeach()
+    endforeach()
+else()
+    message(WARNING "Install manifest not found - some files may remain")
+endif()
+
+message(STATUS "Uninstallation complete")

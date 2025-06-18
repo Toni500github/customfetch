@@ -99,6 +99,7 @@ add_dependencies(${TARGET_NAME} locale)
 set(MANPREFIX "${CMAKE_INSTALL_PREFIX}/share/man" CACHE PATH "Man page installation directory")
 set(APPPREFIX "${CMAKE_INSTALL_PREFIX}/share/applications" CACHE PATH "Application desktop file directory")
 set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale" CACHE PATH "Locale files directory")
+set(ICONPREFIX "${CMAKE_INSTALL_PREFIX}/share/pixmaps" CACHE PATH "Icon installation directory")
 
 # Install executable
 install(TARGETS ${TARGET_NAME}
@@ -123,6 +124,10 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/ascii/
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/
         DESTINATION share/customfetch/examples
+        COMPONENT runtime)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/icons/
+        DESTINATION share/pixmaps/customfetch
         COMPONENT runtime)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/locale/
