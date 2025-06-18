@@ -9,6 +9,8 @@ on:
 jobs:
   build-deb:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
 
     steps:
     - uses: actions/checkout@v4
@@ -51,6 +53,8 @@ jobs:
 
   build-deb-gui:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
 
     steps:
     - uses: actions/checkout@v4
@@ -88,6 +92,8 @@ jobs:
   
   build-ubuntu_22-04:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
 
     steps:
     - uses: actions/checkout@v4
@@ -128,6 +134,8 @@ jobs:
 
   build-ubuntu-22_04-GUI:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
 
     steps:
     - uses: actions/checkout@v4
@@ -159,6 +167,8 @@ jobs:
 
   build_Arch-AUR:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     container:
       image: archlinux
 
@@ -198,6 +208,8 @@ jobs:
 
   build_Arch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     container:
       image: archlinux
 
@@ -238,6 +250,9 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
 
@@ -271,6 +286,9 @@ jobs:
 
   test-suitcase:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+
     steps:
     - uses: actions/checkout@v4
 
