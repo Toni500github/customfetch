@@ -31,6 +31,7 @@
 #include <sys/types.h>
 
 #include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -286,7 +287,7 @@ std::string shorten_vendor_name(std::string vendor);
  * either from $XDG_CONFIG_HOME or from $HOME/.config/
  * @return user's config directory
  */
-std::string getHomeConfigDir();
+std::filesystem::path getHomeConfigDir();
 
 /*
  * Get the customfetch config directory
@@ -294,7 +295,7 @@ std::string getHomeConfigDir();
  * from getHomeConfigDir()
  * @return customfetch's config directory
  */
-std::string getConfigDir();
+std::filesystem::path getConfigDir();
 
 #if CF_ANDROID
 /* Get android property name such as "ro.product.marketname"

@@ -34,33 +34,33 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-Config::Config(const std::string_view configFile, const std::string_view configDir)
+Config::Config(const std::filesystem::path &configFile, const std::filesystem::path &configDir)
 {
     if (!std::filesystem::exists(configDir))
     {
-        warn(_("customfetch config folder was not found, Creating folders at {}!"), configDir);
+        warn(_("customfetch config folder was not found, Creating folders at {}!"), configDir.string());
         std::filesystem::create_directories(configDir);
     }
 
     if (!std::filesystem::exists(configFile))
     {
-        warn(_("config file {} not found, generating new one"), configFile);
+        warn(_("config file {} not found, generating new one"), configFile.string());
         this->generateConfig(configFile);
     }
 }
 
-void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
+void Config::loadConfigFile(const std::filesystem::path &filename, colors_t& colors)
 {
     try
     {
-        this->tbl = toml::parse_file(filename);
+        this->tbl = toml::parse_file(filename.string());
     }
     catch (const toml::parse_error& err)
     {
         die(_("Parsing config file '{}' failed:\n"
               "{}\n"
               "\t(error occurred at line {} column {})"),
-            filename, err.description(),
+            filename.string(), err.description(),
             err.source().begin.line, err.source().begin.column);
     }
 
@@ -230,14 +230,14 @@ void Config::overrideOption(const std::string& opt)
             value, name);
 }
 
-void Config::generateConfig(const std::string_view filename)
+void Config::generateConfig(const std::filesystem::path &filename)
 {
     if (std::filesystem::exists(filename))
     {
-        if (!askUserYorN(false, "WARNING: config file '{}' already exists. Do you want to overwrite it?", filename))
+        if (!askUserYorN(false, "WARNING: config file '{}' already exists. Do you want to overwrite it?", filename.string()))
             std::exit(1);
     }
 
-    auto f = fmt::output_file(filename.data());
+    auto f = fmt::output_file(filename.c_str());
     f.print("{}", AUTOCONFIG);
 }

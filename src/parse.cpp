@@ -263,7 +263,7 @@ const std::string getInfoFromName(const moduleMap_t& systemInfo, const std::stri
         //         return fmt::to_string(std::get<size_t>(result));
         // }
 
-        return it->second->handler();
+        return it->second.handler();
     }
 
     return "(unknown/invalid module)";

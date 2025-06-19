@@ -55,10 +55,10 @@ extern "C" {
 
 struct module_t {
     std::string name;
-    std::vector<std::shared_ptr<module_t>> submodules;
+    std::vector<module_t> submodules;   /* For best performance, use std::move() when adding modules in here. */
     std::function<const std::string (void)> handler;
 
-    module_t(const std::string &name, const std::vector<std::shared_ptr<module_t>> &submodules, const std::function<const std::string(void)> handler) : name(name), submodules(submodules), handler(handler) {
+    module_t(const std::string &name, const std::vector<module_t> &submodules, const std::function<const std::string(void)> handler) : name(name), submodules(submodules), handler(handler) {
 
     }
 };
@@ -67,7 +67,7 @@ struct parse_args_t;
 
 // Map from a modules name to its pointer.
 using moduleMap_t =
-    std::unordered_map<std::string, std::shared_ptr<module_t>>;
+    std::unordered_map<std::string, const module_t &>;
 // used in systemInfo_t most of the time
 using variant = std::variant<std::string, size_t, double>;
 

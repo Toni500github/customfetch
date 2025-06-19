@@ -31,6 +31,7 @@
 
 #include "config.hpp"
 #include "platform.hpp"
+#include "query.hpp"
 
 #if CF_MACOS
 constexpr std::string_view ascii_logo =
@@ -89,7 +90,7 @@ namespace Display
  * @param path Path to source file
  */
 std::vector<std::string> render(const Config& config, const colors_t& colors, const bool already_analyzed_path,
-                                const std::string_view path);
+                                const std::filesystem::path &path, moduleMap_t &moduleMap);
 
 /*
  * Display the rendered result (or just display a normal vector of string

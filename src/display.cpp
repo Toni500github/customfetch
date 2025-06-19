@@ -97,21 +97,21 @@ std::string Display::detect_distro(const Config& config)
 
 static std::vector<std::string> render_with_image(moduleMap_t& systemInfo, std::vector<std::string>& layout,
                                                   const Config& config, const colors_t& colors,
-                                                  const std::string_view path, const std::uint16_t font_width,
+                                                  const std::filesystem::path &path, const std::uint16_t font_width,
                                                   const std::uint16_t font_height)
 {
     int image_width, image_height, channels;
 
     // load the image and get its width and height
-    unsigned char* img = stbi_load(path.data(), &image_width, &image_height, &channels, 0);
+    unsigned char* img = stbi_load(path.c_str(), &image_width, &image_height, &channels, 0);
 
     if (!img)
-        die(_("Unable to load image '{}'"), path);
+        die(_("Unable to load image '{}'"), path.string());
 
     stbi_image_free(img);
     if (Display::ascii_logo_fd != -1)
     {
-        remove(path.data());
+        remove(path.c_str());
         close(Display::ascii_logo_fd);
     }
 
@@ -147,9 +147,9 @@ static std::vector<std::string> render_with_image(moduleMap_t& systemInfo, std::
     if (config.args_image_backend == "kitty")
         taur_exec({ "kitty", "+kitten", "icat",
                     "--align", (config.logo_position == "top" ? "center" : config.logo_position),
-                    "--place", fmt::format("{}x{}@0x0", width, height), path });
+                    "--place", fmt::format("{}x{}@0x0", width, height), path.string() });
     else if (config.args_image_backend == "viu")
-        taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path });
+        taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path.string() });
     else
         die(_("The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
               "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),
@@ -225,27 +225,21 @@ const std::string test() {
 }
 
 std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
-                                         const std::string_view path)
+                                         const std::filesystem::path &path, moduleMap_t &moduleMap)
 {
-    moduleMap_t             moduleMap{};
     std::vector<std::string> asciiArt{}, layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
-    std::shared_ptr<module_t> module = std::make_shared<module_t>("test!", std::vector<std::shared_ptr<module_t>>(), test);
-
-    /* TODO(burntranch): remove test */
-    moduleMap.emplace("test.module.123", std::move(module));
-
-    debug("Display::render path = {}", path);
+    debug("Display::render path = {}", path.string());
 
     bool          isImage = false;
     std::ifstream file;
     std::ifstream fileToAnalyze;  // both have same path
     if (!config.args_disable_source)
     {
-        file.open(path.data(), std::ios::binary);
-        fileToAnalyze.open(path.data(), std::ios::binary);
+        file.open(path.c_str(), std::ios::binary);
+        fileToAnalyze.open(path.c_str(), std::ios::binary);
         if (!file.is_open() || !fileToAnalyze.is_open())
-            die(_("Could not open logo file '{}'"), path);
+            die(_("Could not open logo file '{}'"), path.string());
 
         // first check if the file is an image
         // without even using the same library that "file" uses
@@ -311,7 +305,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     if (Display::ascii_logo_fd != -1)
     {
-        remove(path.data());
+        remove(path.c_str());
         close(Display::ascii_logo_fd);
     }
 

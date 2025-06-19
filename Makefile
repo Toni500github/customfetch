@@ -62,7 +62,13 @@ LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
-all: genver fmt toml json $(TARGET)
+all: genver libcufetch fmt toml json $(TARGET)
+
+libcufetch:
+ifeq ($(wildcard $(BUILDDIR)/libcufetch/libcufetch.so),)
+	mkdir -p $(BUILDDIR)/libcufetch
+	make -C src/libs/cufetch BUILDDIR=$(BUILDDIR)/libcufetch
+endif
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
@@ -87,7 +93,7 @@ ifeq ($(wildcard include/version.h),)
 	./scripts/generateVersion.sh
 endif
 
-$(TARGET): genver fmt toml json $(OBJ)
+$(TARGET): genver fmt toml libcufetch json $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o $(BUILDDIR)/json/json.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)

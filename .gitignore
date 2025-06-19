@@ -1,6 +1,5 @@
 build*/
 assets/distro_ascii*
-cufetch
 /*.txt
 pci.ids
 output/

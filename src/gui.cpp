@@ -63,7 +63,7 @@ using namespace GUI;
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
     std::string              path{ Display::detect_distro(config) };
-    modules_t             systemInfo{};
+    moduleMap_t             systemInfo{};
     std::vector<std::string> layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
     int image_width, image_height, channels;
@@ -135,15 +135,16 @@ bool Window::set_layout_markup()
     }
     else
     {
-        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(m_config, m_colors, true, m_path), "\n")));
+        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(m_config, m_colors, true, m_path, m_moduleMap), "\n")));
     }
     return true;
 }
 
-Window::Window(const Config& config, const colors_t& colors, const std::string_view path) :
+Window::Window(const Config& config, const colors_t& colors, const std::filesystem::path &path, moduleMap_t &moduleMap) :
     m_config(config),
     m_colors(colors),
     m_path(path),
+    m_moduleMap(moduleMap),
     isImage(false)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
@@ -152,7 +153,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     set_icon_from_file(ICONPREFIX "/customfetch/Thumbnail.png");
 
     debug("Window::Window analyzing file");
-    std::ifstream                 f(path.data());
+    std::ifstream                 f(path.c_str());
     std::array<unsigned char, 32> buffer;
     f.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
     if (is_file_image(buffer.data()))
@@ -161,7 +162,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     // useImage can be either a gif or an image
     if (isImage && !config.args_disable_source)
     {
-        const auto& img = Gdk::PixbufAnimation::create_from_file(path.data());
+        const auto& img = Gdk::PixbufAnimation::create_from_file(path.c_str());
         m_img           = Gtk::manage(new Gtk::Image(img));
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
@@ -211,7 +212,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
 
     if (Display::ascii_logo_fd != -1)
     {
-        ::remove(path.data());
+        ::remove(path.c_str());
         ::close(Display::ascii_logo_fd);
     }
 

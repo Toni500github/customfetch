@@ -606,7 +606,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
 }
 
 // clang-format off
-std::string getHomeConfigDir()
+std::filesystem::path getHomeConfigDir()
 {
     const char* dir = std::getenv("XDG_CONFIG_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
@@ -622,9 +622,9 @@ std::string getHomeConfigDir()
         if (home == nullptr)
             die(_("Failed to find $HOME, set it to your home directory!"));
 
-        return std::string(home) + "/.config";
+        return std::filesystem::path(home) / ".config";
     }
 }
 
-std::string getConfigDir()
-{ return getHomeConfigDir() + "/customfetch"; }
+std::filesystem::path getConfigDir()
+{ return getHomeConfigDir() / "customfetch"; }

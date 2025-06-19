@@ -33,6 +33,7 @@
 #include <filesystem>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include "config.hpp"
 #include "display.hpp"
@@ -540,7 +541,7 @@ static bool str_to_bool(const std::string_view str)
 // clang-format off
 // parseargs() but only for parsing the user config path trough args
 // and so we can directly construct Config
-static std::string parse_config_path(int argc, char* argv[], const std::string& configDir)
+static std::filesystem::path parse_config_path(int argc, char* argv[], const std::filesystem::path &configDir)
 {
     int opt = 0;
     int option_index = 0;
@@ -567,10 +568,10 @@ static std::string parse_config_path(int argc, char* argv[], const std::string& 
         }
     }
 
-    return configDir + "/config.toml";
+    return configDir / "config.toml";
 }
 
-static bool parseargs(int argc, char* argv[], Config& config, const std::string_view configFile)
+static bool parseargs(int argc, char* argv[], Config& config, const std::filesystem::path &configFile)
 {
     int opt = 0;
     int option_index = 0;
@@ -775,8 +776,8 @@ int main(int argc, char *argv[])
     // clang-format on
     colors_t colors;
 
-    const std::string& configDir  = getConfigDir();
-    const std::string& configFile = parse_config_path(argc, argv, configDir);
+    const std::filesystem::path configDir  = getConfigDir();
+    const std::filesystem::path configFile = parse_config_path(argc, argv, configDir);
 
     localize();
 
@@ -784,6 +785,38 @@ int main(int argc, char *argv[])
     if (!parseargs(argc, argv, config, configFile))
         return 1;
     config.loadConfigFile(configFile, colors);
+
+    LOAD_LIBRARY("libcufetch.so", die("Failed to load libcufetch!"));
+    void *cufetch_handle = handle;
+
+    /* TODO(burntranch): track each library and unload them. */
+    const std::filesystem::path modDir = configDir / "mods";
+    for (const auto &entry : std::filesystem::directory_iterator(modDir)) {
+        fmt::println("loading mod at {}!", entry.path().string());
+        
+        LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str(), warn("Failed to load mod {}!", entry.path().string()))
+        if (!handle)
+            continue;
+
+        LOAD_LIB_SYMBOL(void, start, void *)
+
+        start(cufetch_handle);
+    }
+
+    handle = cufetch_handle;
+
+    LOAD_LIB_SYMBOL(const std::vector<module_t> &, cfGetModules)
+    
+    const std::vector<module_t> &modules = cfGetModules();
+    moduleMap_t moduleMap;
+
+    fmt::println("modules count: {}", modules.size());
+    for (const module_t &module : modules) {
+        if (!module.handler)
+            continue;
+
+        moduleMap.emplace(module.name, module);
+    }
 
     is_live_mode = (config.loop_ms > 50);
 
@@ -821,7 +854,7 @@ int main(int argc, char *argv[])
 
 #if GUI_APP
     const auto& app = Gtk::Application::create("org.toni.customfetch");
-    GUI::Window window(config, colors, path);
+    GUI::Window window(config, colors, path, moduleMap);
     return app->run(window);
 #endif  // GUI_APP
 
@@ -845,13 +878,13 @@ int main(int argc, char *argv[])
             write(STDOUT_FILENO, "\33[H\33[2J", 7);
             fmt::print("\033[0;0H");
 
-            Display::display(Display::render(config, colors, false, path));
+            Display::display(Display::render(config, colors, false, path, moduleMap));
             std::this_thread::sleep_for(sleep_ms);
         }
     }
     else
     {
-        Display::display(Display::render(config, colors, false, path));
+        Display::display(Display::render(config, colors, false, path, moduleMap));
     }
 
     // enable both of them again

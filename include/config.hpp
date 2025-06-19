@@ -26,6 +26,7 @@
 #ifndef _CONFIG_HPP
 #define _CONFIG_HPP
 
+#include <filesystem>
 #define TOML_HEADER_ONLY 0
 
 #include <cstdint>
@@ -77,7 +78,7 @@ class Config
 {
 public:
     // Create .config directories and files and load the config file (args or default)
-    Config(const std::string_view configFile, const std::string_view configDir);
+    Config(const std::filesystem::path &configFile, const std::filesystem::path &configDir);
 
     // Variables of config file in [config] table
     std::vector<std::string> layout;
@@ -140,13 +141,13 @@ public:
      * @param colors The colors struct where we'll put the default config colors.
      *               It doesn't include the colors in config.alias-colors
      */
-    void loadConfigFile(const std::string_view filename, colors_t& colors);
+    void loadConfigFile(const std::filesystem::path &filename, colors_t& colors);
 
     /**
      * Generate the default config file at path
      * @param filename The config file path
      */
-    void generateConfig(const std::string_view filename);
+    void generateConfig(const std::filesystem::path &filename);
 
     /**
      * Add alias values to colors_name and colors_value.

@@ -26,6 +26,7 @@
 #ifndef _GUI_HPP
 #define _GUI_HPP
 
+#include "query.hpp"
 #if GUI_APP
 
 #include "config.hpp"
@@ -51,14 +52,15 @@ public:
      * @param colors The non-alias colors struct
      * @param path The logo source path
      */
-    Window(const Config& config, const colors_t& colors, const std::string_view path);
+    Window(const Config& config, const colors_t& colors, const std::filesystem::path &path, moduleMap_t &moduleMap);
     // Destroy the window, handled by GTK
     virtual ~Window();
 
 private:
     const Config& m_config;
     const colors_t& m_colors;
-    const std::string_view m_path;
+    const std::filesystem::path &m_path;
+    moduleMap_t &m_moduleMap;
     bool isImage;
 
     Gtk::Overlay                           m_overlay;
