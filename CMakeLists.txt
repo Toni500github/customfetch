@@ -100,6 +100,12 @@ set(MANPREFIX "${CMAKE_INSTALL_PREFIX}/share/man" CACHE PATH "Man page installat
 set(APPPREFIX "${CMAKE_INSTALL_PREFIX}/share/applications" CACHE PATH "Application desktop file directory")
 set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale" CACHE PATH "Locale files directory")
 set(ICONPREFIX "${CMAKE_INSTALL_PREFIX}/share/pixmaps" CACHE PATH "Icon installation directory")
+target_compile_definitions(${TARGET_NAME} PRIVATE
+    MANPREFIX="${MANPREFIX}"
+    APPPREFIX="${APPPREFIX}" 
+    LOCALEDIR="${LOCALEDIR}"
+    ICONPREFIX="${ICONPREFIX}"
+)
 
 # Install executable
 install(TARGETS ${TARGET_NAME}
