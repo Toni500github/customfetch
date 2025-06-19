@@ -792,9 +792,10 @@ int main(int argc, char *argv[])
 
     /* TODO(burntranch): track each library and unload them. */
     const std::filesystem::path modDir = configDir / "mods";
-    for (const auto& entry : std::filesystem::directory_iterator(modDir))
+    std::filesystem::create_directories(modDir);
+    for (const auto& entry : std::filesystem::directory_iterator{modDir})
     {
-        fmt::println("loading mod at {}!", entry.path().string());
+        info("loading mod at {}!", entry.path().string());
 
         LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str(),
                      warn("Failed to load mod {}!", entry.path().string()))
@@ -813,7 +814,7 @@ int main(int argc, char *argv[])
     const std::vector<module_t>& modules = cfGetModules();
     moduleMap_t                  moduleMap;
 
-    fmt::println("modules count: {}", modules.size());
+    info("modules count: {}", modules.size());
     for (const module_t& module : modules)
     {
         if (!module.handler)
