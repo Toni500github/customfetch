@@ -477,13 +477,13 @@ static void get_gtk_theme(const bool dont_query_dewm, const std::uint8_t ver, co
 }
 
 // clang-format off
-Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes,
+Theme::Theme(const std::uint8_t ver/*, systemInfo_t& queried_themes*/,
              const std::string& theme_name_version, const Config& config, const bool gsettings_only)
-            : m_theme_name(theme_name_version),
-              m_queried_themes(queried_themes)
+            : m_theme_name(theme_name_version)/*,
+              m_queried_themes(queried_themes)*/
 {
-    if (queried_themes.find(theme_name_version) != queried_themes.end())
-        return;
+    // if (queried_themes.find(theme_name_version) != queried_themes.end())
+    //     return;
 
     const std::string& wm_name = query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name());
     const std::string& de_name = query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(), wm_name);
@@ -505,17 +505,17 @@ Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes,
     if (m_theme_infos.gtk_icon_theme.empty())
         m_theme_infos.gtk_icon_theme = MAGIC_LINE;
 
-    m_queried_themes.insert(
-        {m_theme_name, {
-            {"theme-name",      variant(m_theme_infos.gtk_theme_name)},
-            {"icon-theme-name", variant(m_theme_infos.gtk_icon_theme)},
-            {"font-name",       variant(m_theme_infos.gtk_font)},
-        }}
-    );
+    // m_queried_themes.insert(
+    //     {m_theme_name, {
+    //         {"theme-name",      variant(m_theme_infos.gtk_theme_name)},
+    //         {"icon-theme-name", variant(m_theme_infos.gtk_icon_theme)},
+    //         {"font-name",       variant(m_theme_infos.gtk_font)},
+    //     }}
+    // );
 }
 
 // only use it for cursor
-Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only) : m_queried_themes(queried_themes)
+Theme::Theme(/*systemInfo_t& queried_themes, */const Config& config, const bool gsettings_only)/* : m_queried_themes(queried_themes)*/
 {
     const std::string& wm_name = query_user.wm_name(query_user.m_bDont_query_dewm, query_user.term_name());
     const std::string& de_name = query_user.de_name(query_user.m_bDont_query_dewm, query_user.term_name(), wm_name);
@@ -550,13 +550,13 @@ Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gset
 }
 
 std::string Theme::gtk_theme() noexcept
-{ return getInfoFromName(m_queried_themes, m_theme_name, "theme-name"); }
+{ return m_theme_infos.gtk_theme_name; }
 
 std::string Theme::gtk_icon_theme() noexcept
-{ return getInfoFromName(m_queried_themes, m_theme_name, "icon-theme-name"); }
+{ return m_theme_infos.gtk_icon_theme; }
 
 std::string Theme::gtk_font() noexcept
-{ return getInfoFromName(m_queried_themes, m_theme_name, "font-name"); }
+{ return m_theme_infos.gtk_font; }
 
 std::string& Theme::cursor() noexcept
 { return m_theme_infos.cursor; }

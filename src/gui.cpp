@@ -63,7 +63,7 @@ using namespace GUI;
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
     std::string              path{ Display::detect_distro(config) };
-    systemInfo_t             systemInfo{};
+    modules_t             systemInfo{};
     std::vector<std::string> layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
     int image_width, image_height, channels;

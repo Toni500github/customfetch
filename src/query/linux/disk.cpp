@@ -179,18 +179,8 @@ static std::string format_auto_query_string(std::string str, const struct mntent
     return str;
 }
 
-Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args, const bool auto_module)
+Disk::Disk(const std::string& path, parse_args_t& parse_args, const bool auto_module)
 {
-    if (queried_paths.find(path) != queried_paths.end() && !is_live_mode)
-    {
-        m_disk_infos.device       = getInfoFromName(queried_paths, path, "device");
-        m_disk_infos.mountdir     = getInfoFromName(queried_paths, path, "mountdir");
-        m_disk_infos.typefs       = getInfoFromName(queried_paths, path, "typefs");
-        m_disk_infos.total_amount = std::stod(getInfoFromName(queried_paths, path, "total_amount"));
-        m_disk_infos.used_amount  = std::stod(getInfoFromName(queried_paths, path, "used_amount"));
-        m_disk_infos.free_amount  = std::stod(getInfoFromName(queried_paths, path, "free_amount"));
-        return;
-    }
 
     if (access(path.data(), F_OK) != 0 && !auto_module)
     {
@@ -222,14 +212,14 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
             if (!(parse_args.config.auto_disks_types & m_disk_infos.types_disk))
                 continue;
 
-            if (!parse_args.config.auto_disks_show_dupl)
-            {
-                const auto& it = std::find(m_queried_devices.begin(), m_queried_devices.end(), pDevice->mnt_fsname);
-                if (it != m_queried_devices.end())
-                    continue;
+            // if (!parse_args.config.auto_disks_show_dupl)
+            // {
+            //     const auto& it = std::find(m_queried_devices.begin(), m_queried_devices.end(), pDevice->mnt_fsname);
+            //     if (it != m_queried_devices.end())
+            //         continue;
 
-                m_queried_devices.push_back(pDevice->mnt_fsname);
-            }
+            //     m_queried_devices.push_back(pDevice->mnt_fsname);
+            // }
 
             parse_args.no_more_reset = false;
             debug("AUTO: pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
@@ -274,16 +264,6 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
     m_disk_infos.used_amount  = m_disk_infos.total_amount - m_disk_infos.free_amount;
 
     endmntent(mountsFile);
-    queried_paths.insert(
-        {path, {
-            {"total_amount", variant(m_disk_infos.total_amount)},
-            {"used_amount",  variant(m_disk_infos.used_amount)},
-            {"free_amount",  variant(m_disk_infos.free_amount)},
-            {"typefs",       variant(m_disk_infos.typefs)},
-            {"mountdir",     variant(m_disk_infos.mountdir)},
-            {"device",       variant(m_disk_infos.device)}
-        }}
-    );
 }
 
 // clang-format off

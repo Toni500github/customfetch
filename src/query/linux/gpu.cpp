@@ -76,14 +76,14 @@ static GPU::GPU_t get_gpu_infos(const std::string_view m_vendor_id_s, const std:
     return ret;
 }
 
-GPU::GPU(const std::string& id, systemInfo_t& queried_gpus)
+GPU::GPU(const std::string& id/*, systemInfo_t& queried_gpus*/)
 {
-    if (queried_gpus.find(id) != queried_gpus.end())
-    {
-        m_gpu_infos.name   = getInfoFromName(queried_gpus, id, "name");
-        m_gpu_infos.vendor = getInfoFromName(queried_gpus, id, "vendor");
-        return;
-    }
+    // if (queried_gpus.find(id) != queried_gpus.end())
+    // {
+    //     m_gpu_infos.name   = getInfoFromName(queried_gpus, id, "name");
+    //     m_gpu_infos.vendor = getInfoFromName(queried_gpus, id, "vendor");
+    //     return;
+    // }
 
     const std::uint16_t max_iter = 10;
     std::uint16_t       id_iter  = std::stoi(id);
@@ -109,12 +109,6 @@ GPU::GPU(const std::string& id, systemInfo_t& queried_gpus)
     m_device_id_s = read_by_syspath(sys_path + "/device/device");
 
     m_gpu_infos = get_gpu_infos(m_vendor_id_s, m_device_id_s);
-    queried_gpus.insert(
-        {id, {
-            {"name",   variant(m_gpu_infos.name)},
-            {"vendor", variant(m_gpu_infos.vendor)},
-        }}
-    );
 }
 
 // clang-format off

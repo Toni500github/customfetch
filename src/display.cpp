@@ -29,6 +29,9 @@
 #include "platform.hpp"
 #include <cstddef>
 #include <cstdio>
+#include <memory>
+#include <string>
+#include <utility>
 
 #ifndef GUI_APP
 # define STB_IMAGE_IMPLEMENTATION
@@ -92,7 +95,7 @@ std::string Display::detect_distro(const Config& config)
 #endif
 }
 
-static std::vector<std::string> render_with_image(systemInfo_t& systemInfo, std::vector<std::string>& layout,
+static std::vector<std::string> render_with_image(moduleMap_t& systemInfo, std::vector<std::string>& layout,
                                                   const Config& config, const colors_t& colors,
                                                   const std::string_view path, const std::uint16_t font_width,
                                                   const std::uint16_t font_height)
@@ -217,11 +220,20 @@ static bool get_pos(int& y, int& x)
     return true;
 }
 
+const std::string test() {
+    return "Test!!!";
+}
+
 std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
                                          const std::string_view path)
 {
-    systemInfo_t             systemInfo{};
+    moduleMap_t             moduleMap{};
     std::vector<std::string> asciiArt{}, layout{ config.args_layout.empty() ? config.layout : config.args_layout };
+
+    std::shared_ptr<module_t> module = std::make_shared<module_t>("test!", std::vector<std::shared_ptr<module_t>>(), test);
+
+    /* TODO(burntranch): remove test */
+    moduleMap.emplace("test.module.123", std::move(module));
 
     debug("Display::render path = {}", path);
 
@@ -266,7 +278,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         std::ifstream distro_file(distro_path);
         std::string   line, _;
         std::vector<std::string> tmp_layout;
-        parse_args_t  parse_args{ systemInfo, _, layout, tmp_layout, config, colors, false };
+        parse_args_t  parse_args{ moduleMap, _, layout, tmp_layout, config, colors, false };
 
         while (std::getline(distro_file, line))
         {
@@ -294,7 +306,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         get_pos(y, x);
         fmt::print("\033[{};{}H", y, x);
 
-        return render_with_image(systemInfo, layout, config, colors, path, font_width, font_height);
+        return render_with_image(moduleMap, layout, config, colors, path, font_width, font_height);
     }
 
     if (Display::ascii_logo_fd != -1)
@@ -319,7 +331,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         std::string  pureOutput;
         std::vector<std::string> tmp_layout;
-        parse_args_t parse_args{ systemInfo, pureOutput, layout, tmp_layout, config, colors, false };
+        parse_args_t parse_args{ moduleMap, pureOutput, layout, tmp_layout, config, colors, false };
 
         std::string asciiArt_s   = parse(line, parse_args);
         parse_args.no_more_reset = false;
@@ -348,7 +360,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     std::string  _;
     std::vector<std::string> tmp_layout;
-    parse_args_t parse_args{ systemInfo, _, layout, tmp_layout, config, colors, true };
+    parse_args_t parse_args{ moduleMap, _, layout, tmp_layout, config, colors, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
         layout[i] = parse(layout[i], parse_args);

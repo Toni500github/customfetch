@@ -245,24 +245,25 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
-std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
-                            const std::string_view moduleMemberName)
+const std::string getInfoFromName(const moduleMap_t& systemInfo, const std::string_view moduleName)
 {
-    if (const auto& it1 = systemInfo.find(moduleName.data()); it1 != systemInfo.end())
+    if (const auto& it = systemInfo.find(moduleName.data()); it != systemInfo.end())
     {
-        if (const auto& it2 = it1->second.find(moduleMemberName.data()); it2 != it1->second.end())
-        {
-            const variant& result = it2->second;
+        // if (const auto& it2 = it1->second.find(moduleMemberName.data()); it2 != it1->second.end())
+        // {
+        //     const variant& result = it2->second;
 
-            if (std::holds_alternative<std::string>(result))
-                return std::get<std::string>(result);
+        //     if (std::holds_alternative<std::string>(result))
+        //         return std::get<std::string>(result);
 
-            else if (std::holds_alternative<double>(result))
-                return fmt::format("{:.2f}", (std::get<double>(result)));
+        //     else if (std::holds_alternative<double>(result))
+        //         return fmt::format("{:.2f}", (std::get<double>(result)));
 
-            else
-                return fmt::to_string(std::get<size_t>(result));
-        }
+        //     else
+        //         return fmt::to_string(std::get<size_t>(result));
+        // }
+
+        return it->second->handler();
     }
 
     return "(unknown/invalid module)";
@@ -637,23 +638,23 @@ std::optional<std::string> parse_info_tag(Parser& parser, parse_args_t& parse_ar
     if (!evaluate)
         return {};
 
-    const size_t dot_pos = module.find('.');
-    if (dot_pos == module.npos)
-    {
-        addValueFromModule(module, parse_args);
-        const std::string& info = getInfoFromName(parse_args.systemInfo, module, "module-" + module);
+    // const size_t dot_pos = module.find('.');
+    // if (dot_pos == module.npos)
+    // {
+    //     // addValueFromModule(module, parse_args);
+    //     const std::string& info = getInfoFromName(parse_args.systemInfo, module, "module-" + module);
 
-        if (parser.dollar_pos != std::string::npos)
-            parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
+    //     if (parser.dollar_pos != std::string::npos)
+    //         parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
 
-        return info;
-    }
+    //     return info;
+    // }
 
-    const std::string& moduleName       = module.substr(0, dot_pos);
-    const std::string& moduleMemberName = module.substr(dot_pos + 1);
-    addValueFromModuleMember(moduleName, moduleMemberName, parse_args);
+    // const std::string& moduleName       = module.substr(0, dot_pos);
+    // const std::string& moduleMemberName = module.substr(dot_pos + 1);
+    // addValueFromModuleMember(moduleName, moduleMemberName, parse_args);
 
-    const std::string& info = getInfoFromName(parse_args.systemInfo, moduleName, moduleMemberName);
+    const std::string& info = getInfoFromName(parse_args.systemInfo, module);
 
     if (parser.dollar_pos != std::string::npos)
         parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
@@ -738,7 +739,7 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
     return result;
 }
 
-std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput, std::vector<std::string>& layout,
+std::string parse(std::string input, moduleMap_t& systemInfo, std::string& pureOutput, std::vector<std::string>& layout,
                   std::vector<std::string>& tmp_layout, const Config& config, const colors_t& colors, const bool parsingLayout, bool& no_more_reset)
 {
     if (!config.sep_reset.empty() && parsingLayout && !no_more_reset)
@@ -776,6 +777,9 @@ std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pure
     return ret;
 }
 
+// Re-enable them later
+// trying some plugins stuff
+#if 0
 static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t hours, const std::uint16_t mins,
                                    const std::uint16_t secs, const Config& config)
 {
@@ -878,10 +882,10 @@ static std::string prettify_de_name(const std::string_view de_name)
     return de_name.data();
 }
 
-systemInfo_t queried_gpus;
-systemInfo_t queried_disks;
-systemInfo_t queried_themes_names;
-systemInfo_t queried_themes;
+moduleMap_t queried_gpus;
+moduleMap_t queried_disks;
+moduleMap_t queried_themes_names;
+moduleMap_t queried_themes;
 
 // clang-format on
 void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName,
@@ -1097,7 +1101,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         Query::Theme gtk2(2, queried_themes, "gtk2", config);
         Query::Theme gtk3(3, queried_themes, "gtk3", config);
         Query::Theme gtk4(4, queried_themes, "gtk4", config);
-        
+     
         if (sysInfo.find(moduleName) == sysInfo.end())
             sysInfo.insert({ moduleName, {} });
 
@@ -1227,7 +1231,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                         str += "Hidden, ";
                     if (query_disk.types_disk() & Query::DISK_VOLUME_TYPE_READ_ONLY)
                         str += "Read-only, ";
-                    
+                 
                     if (!str.empty())
                         str.erase(str.length() - 2);
                     SYSINFO_INSERT(str);
@@ -1551,7 +1555,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
             // clang-format on
             if (query_disk.typefs() != MAGIC_LINE)
                 result += " - " + query_disk.typefs();
-            
+         
             std::string types_disk {"["};
             if (query_disk.types_disk() & Query::DISK_VOLUME_TYPE_EXTERNAL)
                 types_disk += "External, ";
@@ -1628,7 +1632,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
             {
                 const std::string& perc = get_and_color_percentage(query_ram.swap_used_amount(), query_ram.swap_total_amount(), 
                                                                    parse_args);
-                
+             
                 SYSINFO_INSERT(fmt::format("{:.2f} {} / {:.2f} {} {}",
                                             byte_units.at(USED).num_bytes, byte_units.at(USED).unit,
                                             byte_units.at(TOTAL).num_bytes,byte_units.at(TOTAL).unit,
@@ -1672,7 +1676,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
             SYSINFO_INSERT(parse("${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}   ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", _, parse_args));
         }
     }
-    
+ 
     // clang-format off
     // I really dislike how repetitive this code is
     else if (hasStart(moduleName, "colors_symbol"))
@@ -1726,3 +1730,4 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
     else
         die(_("Invalid module name: {}"), moduleName);
 }
+#endif

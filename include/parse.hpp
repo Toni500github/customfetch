@@ -26,16 +26,14 @@
 #ifndef _PARSE_HPP
 #define _PARSE_HPP
 
+#include <functional>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <variant>
 #include <vector>
-
 #include "config.hpp"
-
-// from query.hpp
-using systemInfo_t =
-    std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, double>>>;
+#include "query.hpp"
 
 /* The additional args that parse() needs for getting the necessary infos/configs.
  * Only used for making the argument passing more clear.
@@ -43,7 +41,7 @@ using systemInfo_t =
  */
 struct parse_args_t
 {
-    systemInfo_t&             systemInfo;
+    moduleMap_t&             systemInfo;
     std::string&              pureOutput;
     std::vector<std::string>& layout;
     std::vector<std::string>& tmp_layout;
@@ -66,7 +64,7 @@ struct parse_args_t
  * @param parsingLayout If we are parsing layout or not
  * @param no_more_reset If we are recursively parsing, e.g we are inside tags
  */
-std::string parse(std::string input, systemInfo_t& systemInfo, std::string& pureOutput,
+std::string parse(std::string input, moduleMap_t& systemInfo, std::string& pureOutput,
                   std::vector<std::string>& layout, std::vector<std::string>& tmp_layout,
                   const Config& config, const colors_t& colors, const bool parsingLayout, bool& no_more_reset);
 
@@ -83,8 +81,8 @@ std::string parse(const std::string& input, std::string& _, parse_args_t& parse_
  * @param moduleMemberName The module member name
  * @param parse_args The parse() like arguments
  */
-void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName,
-                              parse_args_t& parse_args);
+// void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName,
+//                               parse_args_t& parse_args);
 
 /* Set module only values to a systemInfo_t map.
  * If the name of said module matches any module name, it will be added
@@ -92,7 +90,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
  * @param moduleName The module name
  * @param parse_args The parse() like arguments
  */
-void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args);
+// void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args);
 
 /*
  * Return an info module member value
@@ -100,7 +98,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
  * @param moduleName The module name
  * @param moduleMemberName The module member name
  */
-std::string getInfoFromName(const systemInfo_t& systemInfo, const std::string_view moduleName,
+const std::string getInfoFromName(const moduleMap_t& systemInfo, const std::string_view moduleName,
                             const std::string_view moduleMemberName);
 
 /*

@@ -28,13 +28,14 @@
 
 #include <cstdint>
 #include <fstream>
+#include <functional>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <variant>
 #include <vector>
 
 #include "config.hpp"
-#include "parse.hpp"
 #include "util.hpp"
 
 extern "C" {
@@ -52,9 +53,21 @@ extern "C" {
 #include <unistd.h>
 }
 
-// Special variable for storing info modules values
-using systemInfo_t =
-    std::unordered_map<std::string, std::unordered_map<std::string, std::variant<std::string, size_t, double>>>;
+struct module_t {
+    std::string name;
+    std::vector<std::shared_ptr<module_t>> submodules;
+    std::function<const std::string (void)> handler;
+
+    module_t(const std::string &name, const std::vector<std::shared_ptr<module_t>> &submodules, const std::function<const std::string(void)> handler) : name(name), submodules(submodules), handler(handler) {
+
+    }
+};
+
+struct parse_args_t;
+
+// Map from a modules name to its pointer.
+using moduleMap_t =
+    std::unordered_map<std::string, std::shared_ptr<module_t>>;
 // used in systemInfo_t most of the time
 using variant = std::variant<std::string, size_t, double>;
 
@@ -173,10 +186,10 @@ public:
         std::string cursor_size{ UNKNOWN };
     };
 
-    Theme(const std::uint8_t ver, systemInfo_t& queried_themes, const std::string& theme_name_version,
+    Theme(const std::uint8_t ver/*, moduleMap_t& queried_themes*/, const std::string& theme_name_version,
           const Config& config, const bool gsettings_only = false);
 
-    Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only = false);
+    Theme(/*moduleMap_t& queried_themes, */const Config& config, const bool gsettings_only = false);
 
     std::string  gtk_theme() noexcept;
     std::string  gtk_icon_theme() noexcept;
@@ -188,7 +201,7 @@ private:
     User           query_user;
     std::string    m_wmde_name;
     std::string    m_theme_name;
-    systemInfo_t&  m_queried_themes;
+    // moduleMap_t&  m_queried_themes;
     static Theme_t m_theme_infos;
 };
 
@@ -242,7 +255,7 @@ public:
         std::string vendor{ MAGIC_LINE };
     };
 
-    GPU(const std::string& id, systemInfo_t& queried_gpus);
+    GPU(const std::string& id/*, moduleMap_t& queried_gpus*/);
 
     std::string& name() noexcept;
     std::string& vendor() noexcept;
@@ -299,7 +312,7 @@ public:
         int         types_disk   = 0;
     };
 
-    Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args,
+    Disk(const std::string& path, parse_args_t& parse_args,
          const bool auto_module = false);
 
     double&      total_amount() noexcept;
@@ -314,7 +327,7 @@ public:
     { return m_disks_formats; }
 
 private:
-    std::vector<std::string> m_disks_formats, m_queried_devices;
+    std::vector<std::string> m_disks_formats/*, m_queried_devices*/;
     static Disk_t            m_disk_infos;
 };
 
