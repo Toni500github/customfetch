@@ -140,7 +140,7 @@ ADVANCED/CONFIG:
     --color <STRING>            Replace a color globally. Syntax: "name=hex" (no spaces around "=").
                                 Example: "--color magenta=#FF00FF".
 
-    --allow-command-tag         Allow bash command tags $() to be executed in the config or -m args.
+    --disallow-command-tag      Do not allow command tags $() to be executed in the config or -m args.
                                 This is a safety measure for preventing malicious code to be executed because you didn't want to check the config first.
 
 INFORMATIONAL:
@@ -596,20 +596,20 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"source-path",      required_argument, 0, 's'},
         {"image-backend",    required_argument, 0, 'i'},
 
-        {"list-logos",         no_argument,       0, "list-logos"_fnv1a16},
-        {"allow-command-tag",  no_argument,       0, "allow-command-tag"_fnv1a16},
-        {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
-        {"debug",              optional_argument, 0, "debug"_fnv1a16},
-        {"wrap-lines",         optional_argument, 0, "wrap-lines"_fnv1a16},
-        {"gen-config",         optional_argument, 0, "gen-config"_fnv1a16},
-        {"sep-reset",          required_argument, 0, "sep-reset"_fnv1a16},
-        {"title-sep",          required_argument, 0, "title-sep"_fnv1a16},
-        {"logo-padding-top",   required_argument, 0, "logo-padding-top"_fnv1a16},
-        {"logo-padding-left",  required_argument, 0, "logo-padding-left"_fnv1a16},
-        {"layout-padding-top", required_argument, 0, "layout-padding-top"_fnv1a16},
-        {"loop-ms",            required_argument, 0, "loop-ms"_fnv1a16},
-        {"bg-image",           required_argument, 0, "bg-image"_fnv1a16},
-        {"color",              required_argument, 0, "color"_fnv1a16},
+        {"list-logos",           no_argument,       0, "list-logos"_fnv1a16},
+        {"disallow-command-tag", no_argument,       0, "disallow-command-tag"_fnv1a16},
+        {"sep-reset-after",      optional_argument, 0, "sep-reset-after"_fnv1a16},
+        {"debug",                optional_argument, 0, "debug"_fnv1a16},
+        {"wrap-lines",           optional_argument, 0, "wrap-lines"_fnv1a16},
+        {"gen-config",           optional_argument, 0, "gen-config"_fnv1a16},
+        {"sep-reset",            required_argument, 0, "sep-reset"_fnv1a16},
+        {"title-sep",            required_argument, 0, "title-sep"_fnv1a16},
+        {"logo-padding-top",     required_argument, 0, "logo-padding-top"_fnv1a16},
+        {"logo-padding-left",    required_argument, 0, "logo-padding-left"_fnv1a16},
+        {"layout-padding-top",   required_argument, 0, "layout-padding-top"_fnv1a16},
+        {"loop-ms",              required_argument, 0, "loop-ms"_fnv1a16},
+        {"bg-image",             required_argument, 0, "bg-image"_fnv1a16},
+        {"color",                required_argument, 0, "color"_fnv1a16},
 
         {0,0,0,0}
     };
@@ -664,8 +664,8 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case 'L':
                 config.args_print_logo_only = true; break;
 
-            case "allow-command-tag"_fnv1a16:
-                config.args_allow_commands = true; break;
+            case "disallow-command-tag"_fnv1a16:
+                config.args_disallow_commands = true; break;
 
             case "logo-padding-top"_fnv1a16:
                 config.overrides["config.logo-padding-top"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
