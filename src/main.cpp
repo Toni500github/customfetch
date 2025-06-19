@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
     std::filesystem::create_directories(modDir);
     for (const auto& entry : std::filesystem::directory_iterator{modDir})
     {
-        info("loading mod at {}!", entry.path().string());
+        debug("loading mod at {}!", entry.path().string());
 
         LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str(),
                      warn("Failed to load mod {}!", entry.path().string()))
@@ -814,9 +814,10 @@ int main(int argc, char *argv[])
     const std::vector<module_t>& modules = cfGetModules();
     moduleMap_t                  moduleMap;
 
-    info("modules count: {}", modules.size());
+    debug("modules count: {}", modules.size());
     for (const module_t& module : modules)
     {
+        debug("adding module {} (has handler: {})", module.name, module.handler != NULL);
         if (!module.handler)
             continue;
 
@@ -895,6 +896,9 @@ int main(int argc, char *argv[])
     // enable both of them again
     if (!config.wrap_lines)
         enable_cursor();
+
+    handle = cufetch_handle;
+    UNLOAD_LIBRARY();
 
     return 0;
 }
