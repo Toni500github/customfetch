@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -53,27 +53,33 @@ extern "C" {
 #include <unistd.h>
 }
 
-struct module_t {
-    std::string name;
-    std::vector<module_t> submodules;   /* For best performance, use std::move() when adding modules in here. */
-    std::function<const std::string (void)> handler;
+struct module_t
+{
+    std::string           name;
+    std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
+    std::function<const std::string(void)> handler;
 
-    module_t(const std::string &name, const std::vector<module_t> &submodules, const std::function<const std::string(void)> handler) : name(name), submodules(submodules), handler(handler) {
-
+    module_t(const std::string& name, const std::vector<module_t>& submodules,
+             const std::function<const std::string(void)> handler)
+        : name(name), submodules(submodules), handler(handler)
+    {
     }
 };
 
 struct parse_args_t;
 
 // Map from a modules name to its pointer.
-using moduleMap_t =
-    std::unordered_map<std::string, const module_t &>;
+using moduleMap_t = std::unordered_map<std::string, const module_t&>;
 // used in systemInfo_t most of the time
 using variant = std::variant<std::string, size_t, double>;
 
 inline bool is_live_mode = false;
 
-#define CHECK_INIT(x) if (!x || is_live_mode) {x = true;} else {return;}
+#define CHECK_INIT(x)       \
+    if (!x || is_live_mode) \
+        x = true;           \
+    else                    \
+        return;             \
 
 namespace Query
 {
@@ -108,18 +114,18 @@ public:
 
     System();
 
-    std::string  kernel_name() noexcept;
-    std::string  kernel_version() noexcept;
-    std::string  hostname() noexcept;
-    std::string  arch() noexcept;
-    std::string& os_pretty_name() noexcept;
-    std::string& os_name() noexcept;
-    std::string& os_id() noexcept;
-    std::string& os_initsys_name();
-    std::string& os_initsys_version();
-    std::string& os_versionid() noexcept;
-    std::string& os_version_codename() noexcept;
-    unsigned long&   uptime() noexcept;
+    std::string    kernel_name() noexcept;
+    std::string    kernel_version() noexcept;
+    std::string    hostname() noexcept;
+    std::string    arch() noexcept;
+    std::string&   os_pretty_name() noexcept;
+    std::string&   os_name() noexcept;
+    std::string&   os_id() noexcept;
+    std::string&   os_initsys_name();
+    std::string&   os_initsys_version();
+    std::string&   os_versionid() noexcept;
+    std::string&   os_version_codename() noexcept;
+    unsigned long& uptime() noexcept;
 
     // motherboard (host)
     std::string& host_modelname() noexcept;
@@ -186,10 +192,10 @@ public:
         std::string cursor_size{ UNKNOWN };
     };
 
-    Theme(const std::uint8_t ver/*, moduleMap_t& queried_themes*/, const std::string& theme_name_version,
+    Theme(const std::uint8_t ver /*, moduleMap_t& queried_themes*/, const std::string& theme_name_version,
           const Config& config, const bool gsettings_only = false);
 
-    Theme(/*moduleMap_t& queried_themes, */const Config& config, const bool gsettings_only = false);
+    Theme(/*moduleMap_t& queried_themes, */ const Config& config, const bool gsettings_only = false);
 
     std::string  gtk_theme() noexcept;
     std::string  gtk_icon_theme() noexcept;
@@ -198,9 +204,9 @@ public:
     std::string& cursor_size() noexcept;
 
 private:
-    User           query_user;
-    std::string    m_wmde_name;
-    std::string    m_theme_name;
+    User        query_user;
+    std::string m_wmde_name;
+    std::string m_theme_name;
     // moduleMap_t&  m_queried_themes;
     static Theme_t m_theme_infos;
 };
@@ -255,7 +261,7 @@ public:
         std::string vendor{ MAGIC_LINE };
     };
 
-    GPU(const std::string& id/*, moduleMap_t& queried_gpus*/);
+    GPU(const std::string& id /*, moduleMap_t& queried_gpus*/);
 
     std::string& name() noexcept;
     std::string& vendor() noexcept;
@@ -303,8 +309,8 @@ class Disk
 public:
     struct Disk_t
     {
-        std::string typefs { MAGIC_LINE };
-        std::string device { MAGIC_LINE };
+        std::string typefs{ MAGIC_LINE };
+        std::string device{ MAGIC_LINE };
         std::string mountdir{ MAGIC_LINE };
         double      total_amount = 0;
         double      free_amount  = 0;
@@ -312,13 +318,12 @@ public:
         int         types_disk   = 0;
     };
 
-    Disk(const std::string& path, parse_args_t& parse_args,
-         const bool auto_module = false);
+    Disk(const std::string& path, parse_args_t& parse_args, const bool auto_module = false);
 
     double&      total_amount() noexcept;
     double&      free_amount() noexcept;
     double&      used_amount() noexcept;
-    int&         types_disk() noexcept;         
+    int&         types_disk() noexcept;
     std::string& typefs() noexcept;
     std::string& device() noexcept;
     std::string& mountdir() noexcept;
@@ -327,7 +332,7 @@ public:
     { return m_disks_formats; }
 
 private:
-    std::vector<std::string> m_disks_formats/*, m_queried_devices*/;
+    std::vector<std::string> m_disks_formats /*, m_queried_devices*/;
     static Disk_t            m_disk_infos;
 };
 

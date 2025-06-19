@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -47,78 +47,79 @@
 #if CF_LINUX || CF_ANDROID
 
 #include <mntent.h>
+#include <unistd.h>
+
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include <unistd.h>
-#include <algorithm>
 #include <string_view>
 
 #include "config.hpp"
+#include "parse.hpp"
 #include "query.hpp"
 #include "util.hpp"
-#include "parse.hpp"
 
 using namespace Query;
 
 // https://github.com/fastfetch-cli/fastfetch/blob/dev/src/detection/disk/disk_linux.c
 static bool is_physical_device(const mntent* device)
 {
-    #if !CF_ANDROID // On Android, `/dev` is not accessible, so that the following checks always fail
+#if !CF_ANDROID  // On Android, `/dev` is not accessible, so that the following checks always fail
 
-    //Always show the root path
+    // Always show the root path
     if (strcmp(device->mnt_dir, "/") == 0)
         return true;
 
     if (strcmp(device->mnt_fsname, "none") == 0)
         return false;
 
-    //DrvFs is a filesystem plugin to WSL that was designed to support interop between WSL and the Windows filesystem.
+    // DrvFs is a filesystem plugin to WSL that was designed to support interop between WSL and the Windows filesystem.
     if (strcmp(device->mnt_type, "9p") == 0)
         return std::string_view(device->mnt_opts).find("aname=drvfs") != std::string_view::npos;
 
-    //ZFS pool
+    // ZFS pool
     if (strcmp(device->mnt_type, "zfs") == 0)
         return true;
 
-    //Pseudo filesystems don't have a device in /dev
+    // Pseudo filesystems don't have a device in /dev
     if (!hasStart(device->mnt_fsname, "/dev/"))
         return false;
 
-    //#731
+    // #731
     if (strcmp(device->mnt_type, "bcachefs") == 0)
         return true;
 
-    if(
-        hasStart(device->mnt_fsname + 5, "loop") || //Ignore loop devices
-        hasStart(device->mnt_fsname + 5, "ram")  || //Ignore ram devices
-        hasStart(device->mnt_fsname + 5, "fd")      //Ignore fd devices
-    ) return false;
+    if (hasStart(device->mnt_fsname + 5, "loop") ||  // Ignore loop devices
+        hasStart(device->mnt_fsname + 5, "ram") ||   // Ignore ram devices
+        hasStart(device->mnt_fsname + 5, "fd")       // Ignore fd devices
+    )
+        return false;
 
     struct stat deviceStat;
     if (stat(device->mnt_fsname, &deviceStat) != 0)
         return false;
 
-    //Ignore all devices that are not block devices
+    // Ignore all devices that are not block devices
     if (!S_ISBLK(deviceStat.st_mode))
         return false;
 
-    #else
+#else
 
-    //Pseudo filesystems don't have a device in /dev
+    // Pseudo filesystems don't have a device in /dev
     if (!hasStart(device->mnt_fsname, "/dev/"))
         return false;
 
-    if(
-        hasStart(device->mnt_fsname + 5, "loop") || //Ignore loop devices
-        hasStart(device->mnt_fsname + 5, "ram")  || //Ignore ram devices
-        hasStart(device->mnt_fsname + 5, "fd")      //Ignore fd devices
-    ) return false;
+    if (hasStart(device->mnt_fsname + 5, "loop") ||  // Ignore loop devices
+        hasStart(device->mnt_fsname + 5, "ram") ||   // Ignore ram devices
+        hasStart(device->mnt_fsname + 5, "fd")       // Ignore fd devices
+    )
+        return false;
 
     // https://source.android.com/docs/core/ota/apex?hl=zh-cn
     if (hasStart(device->mnt_dir, "/apex/"))
         return false;
 
-    #endif // !CF_ANDROID
+#endif  // !CF_ANDROID
 
     return true;
 }
@@ -129,7 +130,7 @@ static bool is_removable(const mntent* device)
         return false;
 
     //                                                                          like str.substr(5);
-    std::string sys_block_partition {fmt::format("/sys/class/block/{}", (device->mnt_fsname + "/dev/"_len))};
+    std::string sys_block_partition{ fmt::format("/sys/class/block/{}", (device->mnt_fsname + "/dev/"_len)) };
     // check if it's like /dev/sda1
     if (sys_block_partition.back() >= '0' && sys_block_partition.back() <= '9')
         sys_block_partition.pop_back();
@@ -153,7 +154,7 @@ static int get_disk_type(const mntent* device)
         ret |= DISK_VOLUME_TYPE_READ_ONLY;
 
     return ret;
-#else // CF_ANDROID
+#else  // CF_ANDROID
     if (strcmp(device->mnt_dir, "/") == 0 || strcmp(device->mnt_dir, "/storage/emulated") == 0)
         return DISK_VOLUME_TYPE_REGULAR;
 
@@ -164,7 +165,7 @@ static int get_disk_type(const mntent* device)
 #endif
 }
 
-static std::string format_auto_query_string(std::string str, const struct mntent *device)
+static std::string format_auto_query_string(std::string str, const struct mntent* device)
 {
     replace_str(str, "%1", device->mnt_dir);
     replace_str(str, "%2", device->mnt_fsname);
@@ -181,13 +182,12 @@ static std::string format_auto_query_string(std::string str, const struct mntent
 
 Disk::Disk(const std::string& path, parse_args_t& parse_args, const bool auto_module)
 {
-
     if (access(path.data(), F_OK) != 0 && !auto_module)
     {
         // if user is using $<disk(path)> or $<disk(path).fs>
         // then let's just "try" to remove it
-        m_disk_infos.typefs = MAGIC_LINE;
-        m_disk_infos.device = MAGIC_LINE;
+        m_disk_infos.typefs   = MAGIC_LINE;
+        m_disk_infos.device   = MAGIC_LINE;
         m_disk_infos.mountdir = MAGIC_LINE;
         return;
     }
@@ -224,8 +224,7 @@ Disk::Disk(const std::string& path, parse_args_t& parse_args, const bool auto_mo
             parse_args.no_more_reset = false;
             debug("AUTO: pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
             m_disks_formats.push_back(
-                parse(format_auto_query_string(parse_args.config.auto_disks_fmt, pDevice), parse_args)
-            );
+                parse(format_auto_query_string(parse_args.config.auto_disks_fmt, pDevice), parse_args));
         }
 
         endmntent(mountsFile);
@@ -259,8 +258,8 @@ Disk::Disk(const std::string& path, parse_args_t& parse_args, const bool auto_mo
         return;
     }
 
-    m_disk_infos.total_amount = static_cast<double>(fs.f_blocks * fs.f_frsize);    
-    m_disk_infos.free_amount  = static_cast<double>(fs.f_bfree  * fs.f_frsize);    
+    m_disk_infos.total_amount = static_cast<double>(fs.f_blocks * fs.f_frsize);
+    m_disk_infos.free_amount  = static_cast<double>(fs.f_bfree * fs.f_frsize);
     m_disk_infos.used_amount  = m_disk_infos.total_amount - m_disk_infos.free_amount;
 
     endmntent(mountsFile);

@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -39,8 +39,8 @@
 #include "display.hpp"
 #include "fmt/ranges.h"
 #include "gui.hpp"
-#include "query.hpp"
 #include "platform.hpp"
+#include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
@@ -65,10 +65,11 @@ using namespace std::string_view_literals;
 // Print the version and some other infos, then exit successfully
 static void version()
 {
-    std::string version{ fmt::format("customfetch {} built from branch {} at {} commit {} ({}).\n"
-                                    "Date: {}\n"
-                                    "Tag: {}",
-                                    VERSION, GIT_BRANCH, GIT_DIRTY, GIT_COMMIT_HASH, GIT_COMMIT_MESSAGE, GIT_COMMIT_DATE, GIT_TAG) };
+    std::string version{ fmt::format(
+        "customfetch {} built from branch {} at {} commit {} ({}).\n"
+        "Date: {}\n"
+        "Tag: {}",
+        VERSION, GIT_BRANCH, GIT_DIRTY, GIT_COMMIT_HASH, GIT_COMMIT_MESSAGE, GIT_COMMIT_DATE, GIT_TAG) };
 
 #if !(USE_DCONF)
     version += "\n\nNO flags were set\n";
@@ -520,7 +521,7 @@ static void list_logos(const std::string& data_dir)
         die("failed to access data directory '{}'", data_dir);
 
     std::vector<std::string> list;
-    for (const auto& logo : std::filesystem::directory_iterator{data_dir})
+    for (const auto& logo : std::filesystem::directory_iterator{ data_dir })
     {
         if (logo.is_regular_file())
             list.push_back(logo.path().stem());
@@ -787,31 +788,34 @@ int main(int argc, char *argv[])
     config.loadConfigFile(configFile, colors);
 
     LOAD_LIBRARY("libcufetch.so", die("Failed to load libcufetch!"));
-    void *cufetch_handle = handle;
+    void* cufetch_handle = handle;
 
     /* TODO(burntranch): track each library and unload them. */
     const std::filesystem::path modDir = configDir / "mods";
-    for (const auto &entry : std::filesystem::directory_iterator(modDir)) {
+    for (const auto& entry : std::filesystem::directory_iterator(modDir))
+    {
         fmt::println("loading mod at {}!", entry.path().string());
-        
-        LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str(), warn("Failed to load mod {}!", entry.path().string()))
+
+        LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str(),
+                     warn("Failed to load mod {}!", entry.path().string()))
         if (!handle)
             continue;
 
-        LOAD_LIB_SYMBOL(void, start, void *)
+        LOAD_LIB_SYMBOL(void, start, void*)
 
         start(cufetch_handle);
     }
 
     handle = cufetch_handle;
 
-    LOAD_LIB_SYMBOL(const std::vector<module_t> &, cfGetModules)
-    
-    const std::vector<module_t> &modules = cfGetModules();
-    moduleMap_t moduleMap;
+    LOAD_LIB_SYMBOL(const std::vector<module_t>&, cfGetModules)
+
+    const std::vector<module_t>& modules = cfGetModules();
+    moduleMap_t                  moduleMap;
 
     fmt::println("modules count: {}", modules.size());
-    for (const module_t &module : modules) {
+    for (const module_t& module : modules)
+    {
         if (!module.handler)
             continue;
 
@@ -845,7 +849,7 @@ int main(int argc, char *argv[])
 
     if (!std::filesystem::exists(path) && !config.args_disable_source)
     {
-        path = std::filesystem::temp_directory_path() / "customfetch_ascii_logo-XXXXXX";
+        path                   = std::filesystem::temp_directory_path() / "customfetch_ascii_logo-XXXXXX";
         Display::ascii_logo_fd = mkstemp(path.data());
         if (Display::ascii_logo_fd < 0)
             die("Failed to create temp path at {}: {}", path, strerror(errno));
@@ -870,7 +874,7 @@ int main(int argc, char *argv[])
 
     if (is_live_mode)
     {
-        const std::chrono::milliseconds sleep_ms {config.loop_ms};
+        const std::chrono::milliseconds sleep_ms{ config.loop_ms };
 
         while (true)
         {

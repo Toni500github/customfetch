@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -133,7 +133,7 @@ std::string read_by_syspath(const std::string_view path, bool report_error)
 
     std::string result;
     std::getline(f, result);
-    
+
     if (!result.empty() && result.back() == '\n')
         result.pop_back();
 
@@ -209,7 +209,7 @@ bool is_file_image(const unsigned char* bytes)
 
 void strip(std::string& input, bool padding_only)
 {
-    if (input.empty()) 
+    if (input.empty())
         return;
 
     if (padding_only)
@@ -220,12 +220,8 @@ void strip(std::string& input, bool padding_only)
     }
     else
     {
-        input.erase(
-            std::remove_if(input.begin(), input.end(),
-                [](unsigned char c) { return std::isspace(c); }
-            ),
-            input.end()
-        );
+        input.erase(std::remove_if(input.begin(), input.end(), [](unsigned char c) { return std::isspace(c); }),
+                    input.end());
     }
 }
 
@@ -547,11 +543,9 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
 
 std::string read_shell_exec(const std::string_view cmd)
 {
-    std::array<char, 4096> buffer;
-    std::string            result;
-    std::unique_ptr<FILE, void(*)(FILE*)> pipe(popen(cmd.data(), "r"),
-    [](FILE *f) -> void
-    {
+    std::array<char, 4096>                 buffer;
+    std::string                            result;
+    std::unique_ptr<FILE, void (*)(FILE*)> pipe(popen(cmd.data(), "r"), [](FILE* f) -> void {
         // wrapper to ignore the return value from pclose().
         // Is needed with newer versions of gnu g++
         std::ignore = pclose(f);

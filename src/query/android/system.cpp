@@ -29,8 +29,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <ctime>
 #include <array>
+#include <ctime>
 #include <string_view>
 
 #include "../linux/utils/packages.hpp"
@@ -88,7 +88,7 @@ System::System()
     if (uname(&m_uname_infos) != 0)
         die("uname() failed: {}\nCould not get system infos", strerror(errno));
 
-    m_uptime = get_uptime();
+    m_uptime       = get_uptime();
     m_system_infos = get_system_infos();
 }
 

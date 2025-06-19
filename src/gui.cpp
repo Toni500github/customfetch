@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -63,7 +63,7 @@ using namespace GUI;
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
     std::string              path{ Display::detect_distro(config) };
-    moduleMap_t             systemInfo{};
+    moduleMap_t              systemInfo{};
     std::vector<std::string> layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
     int image_width, image_height, channels;
@@ -87,10 +87,10 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     }
 
     // this is just for parse() to auto add the distro colors
-    std::ifstream file(path, std::ios::binary);
-    std::string   line, _;
+    std::ifstream            file(path, std::ios::binary);
+    std::string              line, _;
     std::vector<std::string> tmp_layout;
-    parse_args_t  parse_args{ systemInfo, _, layout, tmp_layout, config, colors, false };
+    parse_args_t             parse_args{ systemInfo, _, layout, tmp_layout, config, colors, false };
     while (std::getline(file, line))
     {
         parse(line, parse_args);
@@ -100,13 +100,13 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     parse_args.parsingLayout = true;
     for (size_t i = 0; i < layout.size(); ++i)
     {
-        layout[i] = parse(layout[i], parse_args);
+        layout[i]                = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
 
         if (!tmp_layout.empty())
         {
-            layout.erase(layout.begin()+i);
-            layout.insert(layout.begin()+i, tmp_layout.begin(), tmp_layout.end());
+            layout.erase(layout.begin() + i);
+            layout.insert(layout.begin() + i, tmp_layout.begin(), tmp_layout.end());
             tmp_layout.clear();
         }
     }
@@ -116,8 +116,10 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    const unsigned int offset = (config.offset.back() == '%') ? Display::calc_perc(std::stof(config.offset.substr(0,config.offset.size()-1)), image_width, 0) :
-                                                                std::stoi(config.offset);
+    const unsigned int offset =
+        (config.offset.back() == '%')
+            ? Display::calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), image_width, 0)
+            : std::stoi(config.offset);
 
     for (size_t i = 0; i < layout.size(); i++)
         for (size_t _ = 0; _ < offset; _++)  // I use _ because we don't need it
@@ -135,12 +137,13 @@ bool Window::set_layout_markup()
     }
     else
     {
-        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(m_config, m_colors, true, m_path, m_moduleMap), "\n")));
+        m_label.set_markup(
+            fmt::format("{}", fmt::join(Display::render(m_config, m_colors, true, m_path, m_moduleMap), "\n")));
     }
     return true;
 }
 
-Window::Window(const Config& config, const colors_t& colors, const std::filesystem::path &path, moduleMap_t &moduleMap) :
+Window::Window(const Config& config, const colors_t& colors, const std::filesystem::path& path, moduleMap_t& moduleMap) :
     m_config(config),
     m_colors(colors),
     m_path(path),
@@ -187,7 +190,6 @@ Window::Window(const Config& config, const colors_t& colors, const std::filesyst
     this->set_layout_markup();
     if (is_live_mode)
         Glib::signal_timeout().connect(sigc::mem_fun(*this, &Window::set_layout_markup), config.loop_ms);
-
 
     if (config.gui_bg_image != "disable")
     {

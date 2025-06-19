@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -29,19 +29,19 @@
 #include <linux/limits.h>
 #include <unistd.h>
 
-#include <ctime>
 #include <array>
 #include <cerrno>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <filesystem>
 #include <string>
 
 #include "config.hpp"
 #include "query.hpp"
-#include "util.hpp"
 #include "switch_fnv1a.hpp"
+#include "util.hpp"
 #include "utils/packages.hpp"
 
 using namespace Query;
@@ -79,7 +79,7 @@ static System::System_t get_system_infos_lsb_releases()
     System::System_t ret;
 
     debug("calling in System {}", __PRETTY_FUNCTION__);
-    std::string lsb_release_path;
+    std::string                               lsb_release_path;
     constexpr std::array<std::string_view, 3> lsb_paths = { "/etc/lsb-release", "/usr/lib/lsb-release" };
     for (const std::string_view path : lsb_paths)
     {
@@ -120,8 +120,9 @@ static System::System_t get_system_infos_os_releases()
     System::System_t ret;
 
     debug("calling in System {}", __PRETTY_FUNCTION__);
-    std::string os_release_path;
-    constexpr std::array<std::string_view, 3> os_paths = { "/etc/os-release", "/usr/lib/os-release", "/usr/share/os-release" };
+    std::string                               os_release_path;
+    constexpr std::array<std::string_view, 3> os_paths = { "/etc/os-release", "/usr/lib/os-release",
+                                                           "/usr/share/os-release" };
     for (const std::string_view path : os_paths)
     {
         if (std::filesystem::exists(path))
@@ -134,7 +135,7 @@ static System::System_t get_system_infos_os_releases()
     std::ifstream os_release_file(os_release_path, std::ios::in);
     if (!os_release_file.is_open())
     {
-        //error(_("Could not open '{}'\nFailed to get OS infos"), os_release_path);
+        // error(_("Could not open '{}'\nFailed to get OS infos"), os_release_path);
         return ret;
     }
 
@@ -166,7 +167,7 @@ static unsigned long get_uptime()
 {
     const std::string& buf = read_by_syspath("/proc/uptime");
     if (buf != UNKNOWN)
-        return std::stoul(buf.substr(0,buf.find('.'))); // 19065.18 190952.06
+        return std::stoul(buf.substr(0, buf.find('.')));  // 19065.18 190952.06
 
     struct std::timespec uptime;
     if (clock_gettime(CLOCK_BOOTTIME, &uptime) != 0)
@@ -182,7 +183,7 @@ System::System()
     if (uname(&m_uname_infos) != 0)
         die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
 
-    m_uptime = get_uptime();
+    m_uptime       = get_uptime();
     m_system_infos = get_system_infos_os_releases();
     if (m_system_infos.os_name == UNKNOWN || m_system_infos.os_pretty_name == UNKNOWN)
         m_system_infos = get_system_infos_lsb_releases();
@@ -236,7 +237,7 @@ std::string& System::os_initsys_name()
     static bool done = false;
     if (done && !is_live_mode)
         return m_system_infos.os_initsys_name;
-    
+
     // there's no way PID 1 doesn't exist.
     // This will always succeed (because we are on linux)
     std::ifstream f_initsys("/proc/1/comm", std::ios::binary);
@@ -267,12 +268,12 @@ std::string& System::os_initsys_version()
         return m_system_infos.os_initsys_version;
 
     std::string path;
-    char buf[PATH_MAX];
+    char        buf[PATH_MAX];
     if (realpath(which("init").c_str(), buf))
         path = buf;
 
     std::ifstream f(path, std::ios::in);
-    std::string line;
+    std::string   line;
 
     const std::string& name = str_tolower(this->os_initsys_name());
     switch (fnv1a16::hash(name))
@@ -294,7 +295,7 @@ std::string& System::os_initsys_version()
         case "openrc"_fnv1a16:
         {
             std::string tmp;
-            while(read_binary_file(f, line))
+            while (read_binary_file(f, line))
             {
                 if (line == "RC_VERSION")
                 {
@@ -316,7 +317,7 @@ std::string& System::pkgs_installed(const Config& config)
     if (!done || is_live_mode)
     {
         m_system_infos.pkgs_installed = get_all_pkgs(config);
-        done = true;
+        done                          = true;
     }
 
     return m_system_infos.pkgs_installed;

@@ -1,33 +1,34 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
 #include "platform.hpp"
 #if CF_MACOS
 
-#include <cstring>
 #include <sys/types.h>
+
+#include <cstring>
 
 #include "query.hpp"
 #include "util.hpp"
@@ -65,8 +66,7 @@ static int get_disk_type(const int flags)
     return type;
 }
 
-Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args,
-         const bool auto_module)
+Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args, const bool auto_module)
 {
     if (queried_paths.find(path) != queried_paths.end() && !is_live_mode)
     {
@@ -83,8 +83,8 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
     {
         // if user is using $<disk(path)> or $<disk(path).fs>
         // then let's just "try" to remove it
-        m_disk_infos.typefs = MAGIC_LINE;
-        m_disk_infos.device = MAGIC_LINE;
+        m_disk_infos.typefs   = MAGIC_LINE;
+        m_disk_infos.device   = MAGIC_LINE;
         m_disk_infos.mountdir = MAGIC_LINE;
         return;
     }
@@ -92,11 +92,11 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
     if (auto_module)
     {
         const int size = getfsstat(NULL, 0, MNT_WAIT);
-        if (size <= 0) 
+        if (size <= 0)
             die(_("Failed to get Disk infos"));
 
         struct statfs* buf = reinterpret_cast<struct statfs*>(malloc(sizeof(*buf) * (unsigned)size));
-        if (getfsstat(buf, (int) (sizeof(*buf) * (unsigned) size), MNT_NOWAIT) <= 0)
+        if (getfsstat(buf, (int)(sizeof(*buf) * (unsigned)size), MNT_NOWAIT) <= 0)
             die(_("Failed to get Disk infos"));
 
         for (struct statfs* fs = buf; fs < buf + size; ++fs)
@@ -119,8 +119,7 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
 
             parse_args.no_more_reset = false;
             m_disks_formats.push_back(
-                parse(format_auto_query_string(parse_args.config.auto_disks_fmt, fs), parse_args)
-            );
+                parse(format_auto_query_string(parse_args.config.auto_disks_fmt, fs), parse_args));
         }
 
         free(buf);
@@ -138,24 +137,21 @@ Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& p
     if (path != fs.f_mntonname && path != fs.f_mntfromname)
         return;
 
-    m_disk_infos.typefs       = fs.f_fstypename;
-    m_disk_infos.device       = fs.f_mntfromname;
-    m_disk_infos.mountdir     = fs.f_mntonname;
+    m_disk_infos.typefs   = fs.f_fstypename;
+    m_disk_infos.device   = fs.f_mntfromname;
+    m_disk_infos.mountdir = fs.f_mntonname;
 
-    m_disk_infos.total_amount = static_cast<double>(fs.f_blocks * fs.f_bsize);    
-    m_disk_infos.free_amount  = static_cast<double>(fs.f_bfree  * fs.f_bsize);    
+    m_disk_infos.total_amount = static_cast<double>(fs.f_blocks * fs.f_bsize);
+    m_disk_infos.free_amount  = static_cast<double>(fs.f_bfree * fs.f_bsize);
     m_disk_infos.used_amount  = m_disk_infos.total_amount - m_disk_infos.free_amount;
 
-    queried_paths.insert(
-        {path, {
-            {"total_amount", variant(m_disk_infos.total_amount)},
-            {"used_amount",  variant(m_disk_infos.used_amount)},
-            {"free_amount",  variant(m_disk_infos.free_amount)},
-            {"typefs",       variant(m_disk_infos.typefs)},
-            {"mountdir",     variant(m_disk_infos.mountdir)},
-            {"device",       variant(m_disk_infos.device)}
-        }}
-    );
+    queried_paths.insert({ path,
+                           { { "total_amount", variant(m_disk_infos.total_amount) },
+                             { "used_amount", variant(m_disk_infos.used_amount) },
+                             { "free_amount", variant(m_disk_infos.free_amount) },
+                             { "typefs", variant(m_disk_infos.typefs) },
+                             { "mountdir", variant(m_disk_infos.mountdir) },
+                             { "device", variant(m_disk_infos.device) } } });
 }
 
 // clang-format off

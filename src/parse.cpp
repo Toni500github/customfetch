@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -87,7 +87,7 @@ public:
     const std::string_view src;
     std::string&           pureOutput;
     size_t                 dollar_pos = 0;
-    size_t                 pos = 0;
+    size_t                 pos        = 0;
 };
 
 // declarations of static members in query.hpp
@@ -124,13 +124,14 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view noesc_st
 {
     const size_t first_m = noesc_str.rfind('m');
     if (first_m == std::string::npos)
-        die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '{}'"), noesc_str);
+        die(_("Parser: failed to parse layout/ascii art: missing 'm' while using ANSI color escape code in '{}'"),
+            noesc_str);
 
-    std::string col {noesc_str.data()};
+    std::string col{ noesc_str.data() };
     col.erase(first_m);  // 1;42
 
-    std::string weight {hasStart(col, "1;") ? "bold" : "normal"};
-    std::string type   {"fgcolor"};  // either fgcolor or bgcolor
+    std::string weight{ hasStart(col, "1;") ? "bold" : "normal" };
+    std::string type{ "fgcolor" };  // either fgcolor or bgcolor
 
     if (hasStart(col, "1;") || hasStart(col, "0;"))
         col.erase(0, 2);
@@ -206,8 +207,8 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 
 std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args)
 {
-    return parse(input, parse_args.systemInfo, _, parse_args.layout, parse_args.tmp_layout,
-                 parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
+    return parse(input, parse_args.systemInfo, _, parse_args.layout, parse_args.tmp_layout, parse_args.config,
+                 parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
 std::string parse(const std::string& input, parse_args_t& parse_args)
@@ -216,8 +217,7 @@ std::string parse(const std::string& input, parse_args_t& parse_args)
                  parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
-std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args,
-                                     const bool invert)
+std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args, const bool invert)
 {
     const Config& config = parse_args.config;
     const float   result = n1 / n2 * static_cast<float>(100);
@@ -326,7 +326,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     const colors_t& colors = parse_args.colors;
     const size_t    taglen = color.length() + "${}"_len;
 
-    const std::string endspan {!parse_args.firstrun_clr ? "</span>" : ""};
+    const std::string endspan{ !parse_args.firstrun_clr ? "</span>" : "" };
 
     if (config.args_disable_colors)
     {
@@ -348,7 +348,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
         if (it_name != config.colors_name.end())
         {
             const size_t index = std::distance(config.colors_name.begin(), it_name);
-            color = config.colors_value.at(index);
+            color              = config.colors_value.at(index);
         }
     }
 
@@ -387,7 +387,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     else
     {
         std::string str_clr;
-    #if GUI_APP
+#if GUI_APP
         switch (fnv1a16::hash(color))
         {
             case "black"_fnv1a16:   str_clr = colors.gui_black; break;
@@ -520,9 +520,9 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
                 parse_args.pureOutput.erase(parser.dollar_pos, taglen);
             return output;
         }
-        
-    // #if !GUI_APP
-    #else
+
+// #if !GUI_APP
+#else
         switch (fnv1a16::hash(color))
         {
             case "black"_fnv1a16:   str_clr = colors.black; break;
@@ -592,8 +592,9 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
             }
             if (style.has_background() || style.has_foreground())
             {
-                const uint32_t rgb_num = bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
-                fmt::rgb rgb(rgb_num);
+                const uint32_t rgb_num =
+                    bgcolor ? style.get_background().value.rgb_color : style.get_foreground().value.rgb_color;
+                fmt::rgb                             rgb(rgb_num);
                 fmt::detail::ansi_color_escape<char> ansi(rgb, bgcolor ? "\x1B[48;2;" : "\x1B[38;2;");
                 output += ansi.begin();
             }
@@ -613,10 +614,9 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
                 parse_args.pureOutput.erase(parser.dollar_pos, taglen);
             return output;
         }
-    #endif
+#endif
 
-        if (!parse_args.parsingLayout &&
-            std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
+        if (!parse_args.parsingLayout && std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
             auto_colors.push_back(color);
     }
 
@@ -740,7 +740,8 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
 }
 
 std::string parse(std::string input, moduleMap_t& systemInfo, std::string& pureOutput, std::vector<std::string>& layout,
-                  std::vector<std::string>& tmp_layout, const Config& config, const colors_t& colors, const bool parsingLayout, bool& no_more_reset)
+                  std::vector<std::string>& tmp_layout, const Config& config, const colors_t& colors,
+                  const bool parsingLayout, bool& no_more_reset)
 {
     if (!config.sep_reset.empty() && parsingLayout && !no_more_reset)
     {
@@ -752,7 +753,8 @@ std::string parse(std::string input, moduleMap_t& systemInfo, std::string& pureO
         no_more_reset = true;
     }
 
-    parse_args_t parse_args{ systemInfo, pureOutput, layout, tmp_layout, config, colors, parsingLayout, true, no_more_reset };
+    parse_args_t parse_args{ systemInfo, pureOutput,    layout, tmp_layout,   config,
+                             colors,     parsingLayout, true,   no_more_reset };
     Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };

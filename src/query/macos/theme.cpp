@@ -33,16 +33,17 @@ using namespace Query;
 
 Theme::Theme(const std::uint8_t ver, systemInfo_t& queried_themes, const std::string& theme_name_version,
              const Config& config, const bool gsettings_only)
-            : m_queried_themes(queried_themes)
+    : m_queried_themes(queried_themes)
 {
-    m_theme_infos.cursor = m_theme_infos.gtk_font = m_theme_infos.cursor_size = m_theme_infos.gtk_theme_name = m_theme_infos.gtk_icon_theme 
-        = MAGIC_LINE;
+    m_theme_infos.cursor = m_theme_infos.gtk_font = m_theme_infos.cursor_size = m_theme_infos.gtk_theme_name =
+        m_theme_infos.gtk_icon_theme                                          = MAGIC_LINE;
 }
 
-Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only) : m_queried_themes(queried_themes)
+Theme::Theme(systemInfo_t& queried_themes, const Config& config, const bool gsettings_only)
+    : m_queried_themes(queried_themes)
 {
-    m_theme_infos.cursor = m_theme_infos.gtk_font = m_theme_infos.cursor_size = m_theme_infos.gtk_theme_name = m_theme_infos.gtk_icon_theme 
-        = MAGIC_LINE;
+    m_theme_infos.cursor = m_theme_infos.gtk_font = m_theme_infos.cursor_size = m_theme_infos.gtk_theme_name =
+        m_theme_infos.gtk_icon_theme                                          = MAGIC_LINE;
 }
 
 // clang-format off

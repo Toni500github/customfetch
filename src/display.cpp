@@ -1,46 +1,48 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
 // Implementation of the system behind displaying/rendering the information
 
 #include "display.hpp"
-#include "platform.hpp"
+
 #include <cstddef>
 #include <cstdio>
 #include <memory>
 #include <string>
 #include <utility>
 
+#include "platform.hpp"
+
 #ifndef GUI_APP
 # define STB_IMAGE_IMPLEMENTATION
 #endif
 
 #if CF_MACOS
-#include <util.h>
+# include <util.h>
 #else
-#include <pty.h>
+# include <pty.h>
 #endif
 
 #include <sys/ioctl.h>
@@ -66,7 +68,7 @@
 
 std::string Display::detect_distro(const Config& config)
 {
-    //debug("/etc/os-release = \n{}", read_shell_exec("cat /etc/os-release 2> /dev/null"));
+    // debug("/etc/os-release = \n{}", read_shell_exec("cat /etc/os-release 2> /dev/null"));
 
     if (!config.args_custom_distro.empty())
     {
@@ -97,7 +99,7 @@ std::string Display::detect_distro(const Config& config)
 
 static std::vector<std::string> render_with_image(moduleMap_t& systemInfo, std::vector<std::string>& layout,
                                                   const Config& config, const colors_t& colors,
-                                                  const std::filesystem::path &path, const std::uint16_t font_width,
+                                                  const std::filesystem::path& path, const std::uint16_t font_width,
                                                   const std::uint16_t font_height)
 {
     int image_width, image_height, channels;
@@ -115,22 +117,22 @@ static std::vector<std::string> render_with_image(moduleMap_t& systemInfo, std::
         close(Display::ascii_logo_fd);
     }
 
-    std::string  _;
+    std::string              _;
     std::vector<std::string> tmp_layout;
-    parse_args_t parse_args{ systemInfo, _, layout, tmp_layout, config, colors, true };
+    parse_args_t             parse_args{ systemInfo, _, layout, tmp_layout, config, colors, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
-        layout[i] = parse(layout[i], parse_args);
+        layout[i]                = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
-    #if !GUI_APP
+#if !GUI_APP
         if (!config.args_disable_colors)
             layout[i].insert(0, NOCOLOR);
-    #endif
+#endif
 
         if (!tmp_layout.empty())
         {
-            layout.erase(layout.begin()+i);
-            layout.insert(layout.begin()+i, tmp_layout.begin(), tmp_layout.end());
+            layout.erase(layout.begin() + i);
+            layout.insert(layout.begin() + i, tmp_layout.begin(), tmp_layout.end());
             tmp_layout.clear();
         }
     }
@@ -163,8 +165,10 @@ static std::vector<std::string> render_with_image(moduleMap_t& systemInfo, std::
         return layout;
     }
 
-    const unsigned int offset = (config.offset.back() == '%') ? Display::calc_perc(std::stof(config.offset.substr(0,config.offset.size()-1)), width, 0) :
-                                                                std::stoi(config.offset);
+    const unsigned int offset =
+        (config.offset.back() == '%')
+            ? Display::calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), width, 0)
+            : std::stoi(config.offset);
 
     for (std::string& str : layout)
         for (size_t _ = 0; _ < width + offset; ++_)
@@ -178,8 +182,8 @@ static std::vector<std::string> render_with_image(moduleMap_t& systemInfo, std::
 static bool get_pos(int& y, int& x)
 {
     std::array<char, 32> buf;
-    int  ret, i, pow;
-    char ch;
+    int                  ret, i, pow;
+    char                 ch;
 
     y = 0;
     x = 0;
@@ -220,12 +224,10 @@ static bool get_pos(int& y, int& x)
     return true;
 }
 
-const std::string test() {
-    return "Test!!!";
-}
+const std::string test() { return "Test!!!"; }
 
 std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
-                                         const std::filesystem::path &path, moduleMap_t &moduleMap)
+                                         const std::filesystem::path& path, moduleMap_t& moduleMap)
 {
     std::vector<std::string> asciiArt{}, layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
@@ -269,10 +271,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         debug("{} distro_path = {}", __FUNCTION__, distro_path);
 
         // this is just for parse() to auto add the distro colors
-        std::ifstream distro_file(distro_path);
-        std::string   line, _;
+        std::ifstream            distro_file(distro_path);
+        std::string              line, _;
         std::vector<std::string> tmp_layout;
-        parse_args_t  parse_args{ moduleMap, _, layout, tmp_layout, config, colors, false };
+        parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, colors, false };
 
         while (std::getline(distro_file, line))
         {
@@ -283,7 +285,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     std::vector<size_t> pureAsciiArtLens;
     int                 maxLineLength = -1;
-    
+
     struct winsize win;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
 
@@ -323,21 +325,21 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     std::string line;
     while (std::getline(file, line))
     {
-        std::string  pureOutput;
+        std::string              pureOutput;
         std::vector<std::string> tmp_layout;
-        parse_args_t parse_args{ moduleMap, pureOutput, layout, tmp_layout, config, colors, false };
+        parse_args_t             parse_args{ moduleMap, pureOutput, layout, tmp_layout, config, colors, false };
 
         std::string asciiArt_s   = parse(line, parse_args);
         parse_args.no_more_reset = false;
-    #if !GUI_APP
+#if !GUI_APP
         if (!config.args_disable_colors)
             asciiArt_s += NOCOLOR;
-    #else
+#else
         // check parse.cpp
         const size_t pos = asciiArt_s.rfind("$ </");
         if (pos != std::string::npos)
             asciiArt_s.replace(pos, 2, "$");
-    #endif
+#endif
 
         asciiArt.push_back(asciiArt_s);
         const size_t pureOutputLen = utf8::distance(pureOutput.begin(), pureOutput.end());
@@ -352,23 +354,23 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     if (config.args_print_logo_only)
         return asciiArt;
 
-    std::string  _;
+    std::string              _;
     std::vector<std::string> tmp_layout;
-    parse_args_t parse_args{ moduleMap, _, layout, tmp_layout, config, colors, true };
+    parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, colors, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
-        layout[i] = parse(layout[i], parse_args);
+        layout[i]                = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
-    #if !GUI_APP
+#if !GUI_APP
         if (!config.args_disable_colors)
             layout[i].insert(0, NOCOLOR);
-    #endif
+#endif
 
         if (!tmp_layout.empty())
         {
-            layout.erase(layout.begin()+i);
-            layout.insert(layout.begin()+i, tmp_layout.begin(), tmp_layout.end());
-            i += tmp_layout.size()-1;
+            layout.erase(layout.begin() + i);
+            layout.insert(layout.begin() + i, tmp_layout.begin(), tmp_layout.end());
+            i += tmp_layout.size() - 1;
             tmp_layout.clear();
         }
     }
@@ -383,13 +385,15 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     if (config.logo_position == "top" || config.logo_position == "bottom")
     {
         if (!asciiArt.empty())
-            layout.insert(config.logo_position == "top" ? layout.begin() : layout.end(),
-                          asciiArt.begin(), asciiArt.end());
+            layout.insert(config.logo_position == "top" ? layout.begin() : layout.end(), asciiArt.begin(),
+                          asciiArt.end());
         return layout;
     }
 
-    const unsigned int offset = (config.offset.back() == '%') ? calc_perc(std::stof(config.offset.substr(0,config.offset.size()-1)), win.ws_col, maxLineLength) :
-                                                                std::stoi(config.offset);
+    const unsigned int offset =
+        (config.offset.back() == '%')
+            ? calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), win.ws_col, maxLineLength)
+            : std::stoi(config.offset);
 
     size_t i;
     for (i = 0; i < layout.size(); i++)
@@ -414,10 +418,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         for (size_t j = 0; j < spaces; j++)
             layout.at(i).insert(origin, " ");
 
-    #if !GUI_APP
+#if !GUI_APP
         if (!config.args_disable_colors)
             layout.at(i) += NOCOLOR;
-    #endif
+#endif
     }
 
     for (; i < asciiArt.size(); i++)

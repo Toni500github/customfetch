@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -279,13 +279,11 @@ static std::string get_term_name(std::string& term_ver, const std::string_view o
     else if (hasStart(term_name, "gnome-terminal"))
         term_name.erase("gnome-terminal"_len + 1);
 
-    
     // let's try to get the real terminal name
     // on NixOS, instead of returning the -wrapped name.
     // tested on gnome-console, kitty, st and alacritty
     // hope now NixOS users will know the terminal they got, along the version if possible
-    if (osname.find("NixOS") != osname.npos ||
-        (hasEnding(term_name, "wrapped") && which("nix") != UNKNOWN))
+    if (osname.find("NixOS") != osname.npos || (hasEnding(term_name, "wrapped") && which("nix") != UNKNOWN))
     {
         // /nix/store/sha256string-gnome-console-0.31.0/bin/.kgx-wrapped
         char        buf[PATH_MAX];
@@ -386,7 +384,7 @@ static std::string get_term_version(const std::string_view term_name)
         if (!f.is_open())
             goto skip;
 
-        std::string buffer(std::istreambuf_iterator<char>{f}, std::istreambuf_iterator<char>{});
+        std::string buffer(std::istreambuf_iterator<char>{ f }, std::istreambuf_iterator<char>{});
         buffer.push_back('\0');
 
         rapidxml::xml_document<> doc;

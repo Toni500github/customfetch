@@ -26,22 +26,23 @@
 #include "platform.hpp"
 #if CF_MACOS
 
-#include <ratio>
-#include <string>
 #include <sys/sysctl.h>
 #include <unistd.h>
+
+#include <ratio>
+#include <string>
 
 #include "query.hpp"
 #include "util.hpp"
 
 using namespace Query;
 
-static bool get_sysctl(int name[2], void *ret, size_t *oldlenp)
+static bool get_sysctl(int name[2], void* ret, size_t* oldlenp)
 {
     return (sysctl(name, 2, ret, oldlenp, NULL, 0) == 0);
 }
 
-static bool get_sysctl(const char *name, void *ret, size_t *oldlenp)
+static bool get_sysctl(const char* name, void* ret, size_t* oldlenp)
 {
     return (sysctlbyname(name, ret, oldlenp, NULL, 0) == 0);
 }
@@ -50,7 +51,7 @@ static CPU::CPU_t get_cpu_infos()
 {
     CPU::CPU_t ret;
     debug("calling in CPU {}", __PRETTY_FUNCTION__);
-    char buf[1024]; 
+    char   buf[1024];
     size_t len = sizeof(buf);
 
     get_sysctl("machdep.cpu.brand_string", &buf, &len);
@@ -66,7 +67,7 @@ static CPU::CPU_t get_cpu_infos()
     ret.nproc = buf;
 
     uint64_t freq_cur = 0, freq_max = 0, freq_min;
-    size_t length = sizeof(freq_cur);
+    size_t   length = sizeof(freq_cur);
     get_sysctl("hw.cpufrequency_max", &freq_max, &length);
     get_sysctl("hw.cpufrequency_min", &freq_min, &length);
 

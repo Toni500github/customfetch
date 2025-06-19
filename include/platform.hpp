@@ -19,20 +19,23 @@
 # define CF_LINUX 0
 #endif
 
-#if (defined(__MACOS__) || defined(__MACH__) || defined(TARGET_OS_MAC) || defined(TARGET_OS_OSX) || __is_target_vendor(apple) || __is_target_os(darwin) || __is_target_os(MacOSX))
+#if (defined(__MACOS__) || defined(__MACH__) || defined(TARGET_OS_MAC) || defined(TARGET_OS_OSX) || \
+     __is_target_vendor(apple) || __is_target_os(darwin) || __is_target_os(MacOSX))
 # define CF_MACOS 1
 #else
 # define CF_MACOS 0
 #endif
 
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__MINGW64__))
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__CYGWIN__) || \
+     defined(__MINGW32__) || defined(__MINGW64__))
 # define CF_WINDOWS 1
 #else
 # define CF_WINDOWS 0
 #endif
 
 #if !(CF_LINUX || CF_ANDROID || CF_MACOS) || CF_WINDOWS
-# warning "Platform currently may not be supported, only Linux, Android and MacOS. Please feel free to report any compilation errors"
+# warning \
+    "Platform currently may not be supported, only Linux, Android and MacOS. Please feel free to report any compilation errors"
 #endif
 
-#endif // _PLATFORM_H_
+#endif  // _PLATFORM_H_

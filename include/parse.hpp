@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
+
 #include "config.hpp"
 #include "query.hpp"
 
@@ -41,7 +42,7 @@
  */
 struct parse_args_t
 {
-    moduleMap_t&             systemInfo;
+    moduleMap_t&              systemInfo;
     std::string&              pureOutput;
     std::vector<std::string>& layout;
     std::vector<std::string>& tmp_layout;
@@ -64,9 +65,9 @@ struct parse_args_t
  * @param parsingLayout If we are parsing layout or not
  * @param no_more_reset If we are recursively parsing, e.g we are inside tags
  */
-std::string parse(std::string input, moduleMap_t& systemInfo, std::string& pureOutput,
-                  std::vector<std::string>& layout, std::vector<std::string>& tmp_layout,
-                  const Config& config, const colors_t& colors, const bool parsingLayout, bool& no_more_reset);
+std::string parse(std::string input, moduleMap_t& systemInfo, std::string& pureOutput, std::vector<std::string>& layout,
+                  std::vector<std::string>& tmp_layout, const Config& config, const colors_t& colors,
+                  const bool parsingLayout, bool& no_more_reset);
 
 // parse() for parse_args_t& arguments
 std::string parse(const std::string& input, parse_args_t& parse_args);
@@ -99,7 +100,7 @@ std::string parse(const std::string& input, std::string& _, parse_args_t& parse_
  * @param moduleMemberName The module member name
  */
 const std::string getInfoFromName(const moduleMap_t& systemInfo, const std::string_view moduleName,
-                            const std::string_view moduleMemberName);
+                                  const std::string_view moduleMemberName);
 
 /*
  * Create a colored percentage from parse()
@@ -110,7 +111,7 @@ const std::string getInfoFromName(const moduleMap_t& systemInfo, const std::stri
  * @return The colored percentage with ending %
  */
 std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args,
-                                            const bool invert = false);
+                                     const bool invert = false);
 
 template <typename... Styles>
 void append_styles(fmt::text_style& current_style, Styles&&... styles)
