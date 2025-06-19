@@ -128,6 +128,7 @@ public:
     std::uint16_t            m_offset_calc        = 0;
     bool                     args_disable_source  = false;
     bool                     args_disable_colors  = false;
+    bool                     args_allow_commands  = false;
     bool                     m_display_distro     = true;
     bool                     args_print_logo_only = false;
 

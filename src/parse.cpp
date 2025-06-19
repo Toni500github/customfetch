@@ -296,6 +296,9 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     if (!evaluate)
         return {};
 
+    if (!parse_args.config.args_allow_commands)
+        die(_("Trying to execute command `{}` but --allow-command-tag is not set"), command);
+
     const bool removetag = (command.front() == '!');
     if (removetag)
         command.erase(0, 1);

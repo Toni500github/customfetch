@@ -140,7 +140,7 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1,
     --logo-padding-top  <num>   Padding of the logo from the top
     --logo-padding-left <num>   Padding of the logo from the left
     --layout-padding-top <num>  Padding of the layout from the top
-    --title-sep <string>        A character (or string) to use in $<builtin.title_sep>
+    --title-sep <string>        A character (or string) to use in $<title_sep>
     --sep-reset <string>        A character (or string) that when encountered, will automatically reset color
     --sep-reset-after [<bool>]  Reset color either before or after 'sep-reset'
     --gen-config [<path>]       Generate default config file to config folder (if path, it will generate to the path)
@@ -149,6 +149,9 @@ NOTE: Arguments that takes [<bool>] values, the values can be either: "true", 1,
     --color <string>            Replace instances of a color with another value.
                                 Syntax MUST be "name=value" with no space between "=", example: --color "foo=#444333".
                                 Thus replaces any instance of foo with #444333. Can be done with multiple colors separately.
+
+    --allow-command-tag         Allow bash command tags $() to be executed in the config or -m args.
+                                This is a safety measure for preventing malicious code to be executed because you didn't want to check the config first
 
 Read the manual "customfetch.1" or --how-it-works for more infos about customfetch and how it works
 )");
@@ -552,6 +555,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"image-backend",    required_argument, 0, 'i'},
 
         {"list-logos",         no_argument,       0, "list-logos"_fnv1a16},
+        {"allow-command-tag",  no_argument,       0, "allow-command-tag"_fnv1a16},
         {"sep-reset-after",    optional_argument, 0, "sep-reset-after"_fnv1a16},
         {"debug",              optional_argument, 0, "debug"_fnv1a16},
         {"wrap-lines",         optional_argument, 0, "wrap-lines"_fnv1a16},
@@ -617,6 +621,9 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 config.args_disable_source = true; break;
             case 'L':
                 config.args_print_logo_only = true; break;
+
+            case "allow-command-tag"_fnv1a16:
+                config.args_allow_commands = true; break;
 
             case "logo-padding-top"_fnv1a16:
                 config.overrides["config.logo-padding-top"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
