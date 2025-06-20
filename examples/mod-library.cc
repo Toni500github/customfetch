@@ -3,7 +3,7 @@
 Mods are essentially custom(fetch) modules that you can implement yourself and register using libcufetch!
 They are to be compiled as shared libraries **with no name mangling!!**, with one start function. Scroll down for more details on the start function.
 
-To compile this, just run `g++ -shared -fPIC mod-library.cc -o mod-library.so`. To use it, you'll need to put it in your customfetch/mods config directory.
+To compile this, just run `g++ -I../include -shared -fPIC mod-library.cc -o mod-library.so`. To use it, you'll need to put it in your customfetch/mods config directory.
 */
 
 #include <dlfcn.h>
@@ -11,6 +11,8 @@ To compile this, just run `g++ -shared -fPIC mod-library.cc -o mod-library.so`. 
 #include <iostream>
 #include <stdio.h>
 #include <string>
+
+#include "common.hpp"
 
 /* ret_type = type of what the function returns
  * func     = the function name
@@ -21,17 +23,6 @@ To compile this, just run `g++ -shared -fPIC mod-library.cc -o mod-library.so`. 
     func##_t func = reinterpret_cast<func##_t>(dlsym(handle, #func));
 
 #define UNLOAD_LIBRARY() dlclose(handle);
-
-/* ideally you'd import the right header file, I'm putting this here because I want this to be "separated" from customfetch. */
-struct module_t {
-    std::string name;
-    std::vector<module_t> submodules;   /* For best performance, use std::move() when adding modules in here. */
-    std::function<const std::string (void)> handler;
-
-    module_t(const std::string &name, const std::vector<module_t> &submodules, const std::function<const std::string(void)> handler) : name(name), submodules(submodules), handler(handler) {
-
-    }
-};
 
 /* The handler that we'll use for our module, Handlers return const std::string (WILL be changed to const char pointers). */
 const std::string test() {
@@ -66,7 +57,7 @@ extern "C" void start(void *handle) {
     module_t test_module = {"test", {}, test};
 
     /* And here we create the 'modification' module. This is what we're actually going to register and it will include the test module as a submodule. */
-    /* This module doesn't have a handler, so it can't be used in the config (`modification` won't work). We'll instead use `modification.test` to invoke the test module (which does have a handler). */
+    /* This module doesn't have a handler, so it can't be used in the config (`modification` won't work). We'll instead use `modification.test` in the config (which does have a handler). */
     module_t modification_module = { "modification", { std::move(test_module) }, NULL };
 
     /* Register the module. */

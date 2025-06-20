@@ -37,6 +37,7 @@
 
 #include "config.hpp"
 #include "util.hpp"
+#include "common.hpp"
 
 extern "C" {
 #if !CF_MACOS
@@ -52,19 +53,6 @@ extern "C" {
 #include <sys/utsname.h>
 #include <unistd.h>
 }
-
-struct module_t
-{
-    std::string           name;
-    std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
-    std::function<const std::string(void)> handler;
-
-    module_t(const std::string& name, const std::vector<module_t>& submodules,
-             const std::function<const std::string(void)> handler)
-        : name(name), submodules(submodules), handler(handler)
-    {
-    }
-};
 
 struct parse_args_t;
 

@@ -39,6 +39,7 @@
 #include "fmt/base.h"
 #include "fmt/color.h"
 #include "platform.hpp"
+#include "common.hpp"
 
 // clang-format off
 // Get string literal length
@@ -53,15 +54,6 @@ struct byte_units_t
     std::string unit;
     double      num_bytes;
 };
-
-#if ENABLE_NLS && !CF_MACOS
-/* here so it doesn't need to be included elsewhere */
-#include <libintl.h>
-#include <locale.h>
-#define _(str) gettext(str)
-#else
-#define _(s) (char*)s
-#endif
 
 constexpr const char NOCOLOR[] = "\033[0m";
 constexpr const char NOCOLOR_BOLD[] = "\033[0m\033[1m";
@@ -92,8 +84,6 @@ constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
     func##_t func = reinterpret_cast<func##_t>(dlsym(handle, #func));
 
 #define UNLOAD_LIBRARY() dlclose(handle);
-
-#define BOLD_COLOR(x) (fmt::emphasis::bold | fmt::fg(x))
 
 /* https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
  * Check if substring exists at the end
@@ -303,49 +293,6 @@ std::filesystem::path getConfigDir();
  */
 std::string get_android_property(const std::string_view name);
 #endif
-
-template <typename... Args>
-void error(const std::string_view fmt, Args&&... args) noexcept
-{
-    fmt::print(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "ERROR: {}\033[0m\n",
-                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
-}
-
-template <typename... Args>
-void die(const std::string_view fmt, Args&&... args) noexcept
-{
-    fmt::print(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "FATAL: {}\033[0m\n",
-                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
-    std::exit(1);
-}
-
-#if DEBUG
-inline bool debug_print = true;
-#else
-inline bool debug_print = false;
-#endif
-
-template <typename... Args>
-void debug(const std::string_view fmt, Args&&... args) noexcept
-{
-    if (debug_print)
-        fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::hot_pink))), "[DEBUG]:\033[0m {}\n",
-                     fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
-}
-
-template <typename... Args>
-void warn(const std::string_view fmt, Args&&... args) noexcept
-{
-    fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))), "WARNING: {}\033[0m\n",
-                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
-}
-
-template <typename... Args>
-void info(const std::string_view fmt, Args&&... args) noexcept
-{
-    fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::cyan))), "INFO: {}\033[0m\n",
-                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
-}
 
 /** Ask the user a yes or no question.
  * @param def The default result

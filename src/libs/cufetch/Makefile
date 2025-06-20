@@ -9,6 +9,6 @@ cufetch: cufetch.cc
 	mv -f libcufetch.so ../../../$(BUILDDIR)/libcufetch.so
 
 clean:
-	rm -f *.o *.so *.a ../../../$(BUILDDIR)/cufetch/.*a
+	rm -f *.o *.so *.a ../../../$(BUILDDIR)/cufetch/.*so
 
 .PHONY: clean all cufetch

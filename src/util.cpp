@@ -49,6 +49,7 @@
 #include "fmt/ranges.h"
 #include "pci.ids.hpp"
 #include "platform.hpp"
+#include "common.hpp"
 
 bool hasEnding(const std::string_view fullString, const std::string_view ending)
 {

@@ -62,7 +62,7 @@ LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
-all: genver libcufetch fmt toml json $(TARGET)
+all: genver libcufetch fmt toml json core-plugins $(TARGET)
 
 libcufetch:
 ifeq ($(wildcard $(BUILDDIR)/libcufetch/libcufetch.so),)
@@ -88,12 +88,18 @@ ifeq ($(wildcard $(BUILDDIR)/json/json.o),)
 	make -C src/libs/json BUILDDIR=$(BUILDDIR)/json
 endif
 
+core-plugins:
+ifeq ($(wildcard $(BUILDDIR)/core-plugins/*.so),)
+	mkdir -p $(BUILDDIR)/core-plugins
+	make -C core-plugins BUILDDIR=$(BUILDDIR)/core-plugins
+endif
+
 genver: ./scripts/generateVersion.sh
 ifeq ($(wildcard include/version.h),)
 	./scripts/generateVersion.sh
 endif
 
-$(TARGET): genver fmt toml libcufetch json $(OBJ)
+$(TARGET): genver fmt toml libcufetch json core-plugins $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
 	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o $(BUILDDIR)/json/json.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
@@ -158,4 +164,4 @@ updatever:
 	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
 	sed -i "s#Project-Id-Version: $(NAME) $(OLDVERSION)#Project-Id-Version: $(NAME) $(VERSION)#g" po/*
 
-.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all locale
+.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml libcufetch core-plugins install all locale

@@ -1,6 +1,7 @@
 #include <memory>
 #include <vector>
-#include "query.hpp"
+
+#include "common.hpp"
 
 static std::vector<module_t> modules;
 
@@ -16,10 +17,12 @@ extern "C" {
         }
     }
 
+    /* Register a module, and its submodules, to customfetch. */
     [[gnu::unused]] void cfRegisterModule(const module_t &module) {
         addModule(module);
     }
 
+    /* Get a list of all modules registered. */
     [[gnu::unused]] const std::vector<module_t> &cfGetModules() {
         return modules;
     }

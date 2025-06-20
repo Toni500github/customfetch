@@ -51,6 +51,7 @@
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
+#include "common.hpp"
 
 // https://github.com/fastfetch-cli/fastfetch/blob/a61765c8b1387777be67d967bc2f69031c8ca399/src/detection/displayserver/linux/wmde.c#L19
 std::string parse_de_env(void) noexcept
