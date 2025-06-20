@@ -1,14 +1,17 @@
 CXX		?= g++
 CXX_INCLUDES 	= -I../../include
-CXX_FLAGS 	= -shared -fPIC
+CXX_FLAGS 	= -ggdb3 -shared -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -DNDEBUG -shared -Wl,-soname,libcufetch-core-modules.so.1
 
-all: linux-system
+SRC		= $(wildcard linux/*.cc)
+OBJ		= $(SRC:.cc=.o)
 
-linux-system: linux/system.cc
-	$(CXX) $(CXX_INCLUDES) $(CXX_FLAGS) linux/system.cc ../util.cpp -o linux-system-mod.so
-	mv -f linux-system-mod.so ../../$(BUILDDIR)/linux-system-mod.so
+all: linux-core-modules
+
+linux-core-modules:
+	$(CXX) $(CXX_INCLUDES) $(CXX_FLAGS) linux/*.cc ../util.cpp -o $@.so
+	mv -f $@.so ../../$(BUILDDIR)/core-plugins/$@.so
 
 clean:
-	rm -f *.o *.so *.a ../../$(BUILDDIR)/core-plugin/.*so
+	rm -f *.o *.so *.a ../../$(BUILDDIR)/core-plugins/.*so
 
-.PHONY: clean all cufetch
+.PHONY: clean all linux-core-modules
