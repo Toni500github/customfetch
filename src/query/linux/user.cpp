@@ -152,7 +152,9 @@ static std::string get_de_version(const std::string_view de_name)
 static std::string get_wm_wayland_name(std::string& wm_path_exec)
 {
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
-    void *handle = LOAD_LIBRARY("libwayland-client.so", return get_wm_name(wm_path_exec);)
+    void *handle = LOAD_LIBRARY("libwayland-client.so")
+    if (!handle)
+        return get_wm_name(wm_path_exec);
 
     LOAD_LIB_SYMBOL(wl_display*, wl_display_connect, const char* name)
     LOAD_LIB_SYMBOL(void, wl_display_disconnect, wl_display* display)
