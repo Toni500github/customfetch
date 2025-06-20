@@ -91,7 +91,7 @@ endif
 core-plugins:
 ifeq ($(wildcard $(BUILDDIR)/core-plugins/*.so),)
 	mkdir -p $(BUILDDIR)/core-plugins
-	make -C core-plugins BUILDDIR=$(BUILDDIR)/core-plugins
+	make -C src/core-plugins BUILDDIR=$(BUILDDIR)/core-plugins
 endif
 
 genver: ./scripts/generateVersion.sh
