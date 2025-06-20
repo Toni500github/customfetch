@@ -40,6 +40,12 @@ constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
 
 #define UNLOAD_LIBRARY(handle) dlclose(handle);
 
+#define APICALL extern "C"
+// {fmt} library already has __attribute__((visibility(value))) fallback so let's use that maybeAdd commentMore actions
+#define EXPORT FMT_VISIBILITY("default") void
+#define MOD_INIT start
+
+
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
 {

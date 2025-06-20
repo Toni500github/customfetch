@@ -197,7 +197,7 @@ const std::string os_name_id() {
     return name_id;
 }
 
-extern "C" void start(void *handle) {
+APICALL EXPORT MOD_INIT(void *handle) {
     if (!handle) {
         std::cout << "Exiting because !handle" << std::endl;
         return;

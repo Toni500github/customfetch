@@ -806,9 +806,9 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        LOAD_LIB_SYMBOL(handle, void, start, void*)
+        LOAD_LIB_SYMBOL(handle, void, MOD_INIT, void*)
 
-        start(cufetch_handle);
+        MOD_INIT(cufetch_handle);
     }
 
     LOAD_LIB_SYMBOL(cufetch_handle, const std::vector<module_t>&, cfGetModules)
