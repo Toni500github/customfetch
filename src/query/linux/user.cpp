@@ -54,6 +54,14 @@
 #include "utils/dewm.hpp"
 #include "utils/term.hpp"
 
+/* ret_type = type of what the function returns
+ * func     = the function name
+ * ...      = the arguments in a function if any
+ */
+#define LOAD_LIB_SYMBOL(ret_type, func, ...)   \
+    typedef ret_type (*func##_t)(__VA_ARGS__); \
+    func##_t func = reinterpret_cast<func##_t>(dlsym(handle, #func));
+
 using namespace Query;
 
 static std::string get_de_name()
@@ -144,7 +152,7 @@ static std::string get_de_version(const std::string_view de_name)
 static std::string get_wm_wayland_name(std::string& wm_path_exec)
 {
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
-    LOAD_LIBRARY("libwayland-client.so", return get_wm_name(wm_path_exec);)
+    void *handle = LOAD_LIBRARY("libwayland-client.so", return get_wm_name(wm_path_exec);)
 
     LOAD_LIB_SYMBOL(wl_display*, wl_display_connect, const char* name)
     LOAD_LIB_SYMBOL(void, wl_display_disconnect, wl_display* display)
@@ -166,7 +174,7 @@ static std::string get_wm_wayland_name(std::string& wm_path_exec)
     char buf[PATH_MAX];
     wm_path_exec = realpath(fmt::format("/proc/{}/exe", ucred.pid).c_str(), buf);
 
-    UNLOAD_LIBRARY()
+    UNLOAD_LIBRARY(handle)
 
     return prettify_wm_name(ret);
 #else

@@ -5,7 +5,7 @@ CXX_FLAGS 	= -shared -fPIC
 all: linux-system
 
 linux-system: linux/system.cc
-	$(CXX) $(CXX_INCLUDES) $(CXX_FLAGS) linux/system.cc -o linux-system-mod.so
+	$(CXX) $(CXX_INCLUDES) $(CXX_FLAGS) linux/system.cc ../util.cpp -o linux-system-mod.so
 	mv -f linux-system-mod.so ../../$(BUILDDIR)/linux-system-mod.so
 
 clean:

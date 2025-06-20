@@ -9,37 +9,7 @@
 #include <string_view>
 
 #include "common.hpp"
-
-#define BOLD_COLOR(x) (fmt::emphasis::bold | fmt::fg(x))
-
-/* ret_type = type of what the function returns
- * func     = the function name
- * ...      = the arguments in a function if any
- */
-#define LOAD_LIB_SYMBOL(ret_type, func, ...)   \
-    typedef ret_type (*func##_t)(__VA_ARGS__); \
-    func##_t func = reinterpret_cast<func##_t>(dlsym(handle, #func));
-
-#define UNLOAD_LIBRARY() dlclose(handle);
-
-std::string read_by_syspath(const std::string_view path)
-{
-    std::ifstream f(path.data());
-    if (!f.is_open())
-    {
-        error(_("Failed to open {}"), path);
-
-        return "(unknown)";
-    }
-
-    std::string result;
-    std::getline(f, result);
-
-    if (!result.empty() && result.back() == '\n')
-        result.pop_back();
-
-    return result;
-}
+#include "util.hpp"
 
 /* The handler that we'll use for our module, Handlers return const std::string (WILL be changed to const char pointers). */
 const std::string host() {
@@ -79,18 +49,12 @@ const std::string host() {
 const std::string host_name() {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
-    std::string board_name = "(unknown)";
-
     if (std::filesystem::exists(syspath + "/board_name"))
-    {
-        board_name = read_by_syspath(syspath + "/board_name");
-    }
+        return read_by_syspath(syspath + "/board_name");
     else if (std::filesystem::exists(syspath + "/product_name"))
-    {
-        board_name = read_by_syspath(syspath + "/product_name");
-    }
+        return read_by_syspath(syspath + "/product_name");
 
-    return board_name;
+    return UNKNOWN;
 }
 
 const std::string host_version() {
@@ -147,7 +111,7 @@ extern "C" void start(void *handle) {
         return;
     }
 
-    LOAD_LIB_SYMBOL(void, cfRegisterModule, const module_t &module);
+    LOAD_LIB_SYMBOL(handle, void, cfRegisterModule, const module_t &module);
 
     module_t host_name_module = {"name", {}, host_name};
     module_t host_version_module = {"version", {}, host_version};

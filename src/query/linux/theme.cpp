@@ -42,6 +42,14 @@
 #include <glib/gvariant.h>
 #endif
 
+/* ret_type = type of what the function returns
+ * func     = the function name
+ * ...      = the arguments in a function if any
+ */
+#define LOAD_LIB_SYMBOL(ret_type, func, ...)   \
+    typedef ret_type (*func##_t)(__VA_ARGS__); \
+    func##_t func = reinterpret_cast<func##_t>(dlsym(handle, #func));
+
 using namespace Query;
 
 const std::string& configDir = getHomeConfigDir();
@@ -129,7 +137,7 @@ static bool get_cursor_dconf(const std::string_view de_name, Theme::Theme_t& the
 {
 #if USE_DCONF
 
-    LOAD_LIBRARY("libdconf.so", return false);
+    void *handle = LOAD_LIBRARY("libdconf.so", return false);
     LOAD_LIB_SYMBOL(DConfClient*, dconf_client_new, void);
     LOAD_LIB_SYMBOL(GVariant*, dconf_client_read, DConfClient*, const char*);
     LOAD_LIB_SYMBOL(const gchar*, g_variant_get_string, GVariant*, gsize*);
@@ -309,7 +317,7 @@ static bool get_gtk_theme_dconf(const std::string_view de_name, Theme::Theme_t& 
 {
 #if USE_DCONF
 
-    LOAD_LIBRARY("libdconf.so", return false);
+    void *handle = LOAD_LIBRARY("libdconf.so", return false);
     LOAD_LIB_SYMBOL(DConfClient*, dconf_client_new, void);
     LOAD_LIB_SYMBOL(GVariant*, dconf_client_read, DConfClient * client, const char*);
     LOAD_LIB_SYMBOL(const gchar*, g_variant_get_string, GVariant* value, gsize* lenght);

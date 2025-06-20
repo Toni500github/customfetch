@@ -38,6 +38,7 @@
 #include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
+#include "fmt/std.h"
 #include "gui.hpp"
 #include "platform.hpp"
 #include "query.hpp"
@@ -787,8 +788,9 @@ int main(int argc, char *argv[])
         return 1;
     config.loadConfigFile(configFile, colors);
 
-    LOAD_LIBRARY("libcufetch.so", die("Failed to load libcufetch!"));
-    void* cufetch_handle = handle;
+    void* cufetch_handle = LOAD_LIBRARY("libcufetch.so")
+    if (!cufetch_handle)
+        die("Failed to load libcufetch! {}", dlerror());
 
     /* TODO(burntranch): track each library and unload them. */
     const std::filesystem::path modDir = configDir / "mods";
@@ -797,19 +799,19 @@ int main(int argc, char *argv[])
     {
         debug("loading mod at {}!", entry.path().string());
 
-        LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str(),
-                     warn("Failed to load mod {}!", entry.path().string()))
-        if (!handle)
+        void *handle = LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str());
+        if (!handle) {
+            warn("Failed to load mod {}! {}", entry.path(), dlerror());
+            dlerror();
             continue;
+        }
 
-        LOAD_LIB_SYMBOL(void, start, void*)
+        LOAD_LIB_SYMBOL(handle, void, start, void*)
 
         start(cufetch_handle);
     }
 
-    handle = cufetch_handle;
-
-    LOAD_LIB_SYMBOL(const std::vector<module_t>&, cfGetModules)
+    LOAD_LIB_SYMBOL(cufetch_handle, const std::vector<module_t>&, cfGetModules)
 
     const std::vector<module_t>& modules = cfGetModules();
     moduleMap_t                  moduleMap;
@@ -897,8 +899,7 @@ int main(int argc, char *argv[])
     if (!config.wrap_lines)
         enable_cursor();
 
-    handle = cufetch_handle;
-    UNLOAD_LIBRARY();
+    UNLOAD_LIBRARY(cufetch_handle);
 
     return 0;
 }
