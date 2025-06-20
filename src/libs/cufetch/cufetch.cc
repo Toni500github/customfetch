@@ -13,7 +13,7 @@ extern "C" {
         modules.emplace_back(module).name = prefix + module.name;
         
         for (const module_t &submodule : module.submodules) {
-            addModule(submodule, module.name + separator);
+            addModule(submodule, prefix + module.name + separator);
         }
     }
 

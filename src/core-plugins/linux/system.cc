@@ -1,16 +1,9 @@
-/* This is an example for a mod you could install in .config/mods
-
-Mods are essentially custom(fetch) modules that you can implement yourself and register using libcufetch!
-They are to be compiled as shared libraries **with no name mangling!!**, with one start function. Scroll down for more details on the start function.
-
-To compile this, just run `g++ -I../include -shared -fPIC mod-library.cc -o mod-library.so`. To use it, you'll need to put it in your customfetch/mods config directory.
-*/
-
 #include <dlfcn.h>
 #include <filesystem>
 #include <functional>
 #include <iostream>
 #include <stdio.h>
+#include <sys/utsname.h>
 #include <string>
 #include <fstream>
 #include <string_view>
@@ -52,9 +45,9 @@ std::string read_by_syspath(const std::string_view path)
 const std::string host() {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
-    std::string board_name;
-    std::string board_version;
-    std::string board_vendor;
+    std::string board_name = "(unknown)";
+    std::string board_version = "(unknown)";
+    std::string board_vendor = "(unknown)";
 
     if (std::filesystem::exists(syspath + "/board_name"))
     {
@@ -86,7 +79,7 @@ const std::string host() {
 const std::string host_name() {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
-    std::string board_name;
+    std::string board_name = "(unknown)";
 
     if (std::filesystem::exists(syspath + "/board_name"))
     {
@@ -100,6 +93,54 @@ const std::string host_name() {
     return board_name;
 }
 
+const std::string host_version() {
+    const std::string syspath = "/sys/devices/virtual/dmi/id";
+
+    std::string board_version = "(unknown)";
+
+    if (std::filesystem::exists(syspath + "/board_name"))
+    {
+        board_version   = read_by_syspath(syspath + "/board_version");
+    }
+    else if (std::filesystem::exists(syspath + "/product_name"))
+    {
+        board_version = read_by_syspath(syspath + "/product_version");
+    }
+
+    return board_version;
+}
+
+const std::string host_vendor() {
+    const std::string syspath = "/sys/devices/virtual/dmi/id";
+
+    std::string board_vendor = "(unknown)";
+
+    if (std::filesystem::exists(syspath + "/board_name"))
+    {
+        board_vendor   = read_by_syspath(syspath + "/board_vendor");
+    }
+    else if (std::filesystem::exists(syspath + "/product_name"))
+    {
+        const std::string &board_name = read_by_syspath(syspath + "/product_name");
+        static constexpr std::string_view standard_pc_name = "Standard PC";
+        if (board_name.substr(0, standard_pc_name.size()) == standard_pc_name) {
+            board_vendor = "KVM/QEMU";
+        }
+    }
+
+    return board_vendor;
+}
+
+const std::string arch() {
+    utsname sysinfo;
+
+    if (uname(&sysinfo) != 0) {
+        die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
+    }
+
+    return sysinfo.machine;
+}
+
 extern "C" void start(void *handle) {
     if (!handle) {
         std::cout << "Exiting because !handle" << std::endl;
@@ -109,12 +150,22 @@ extern "C" void start(void *handle) {
     LOAD_LIB_SYMBOL(void, cfRegisterModule, const module_t &module);
 
     module_t host_name_module = {"name", {}, host_name};
-    module_t host_module = {"host", { std::move(host_name_module) }, host};
+    module_t host_version_module = {"version", {}, host_version};
+    module_t host_vendor_module = {"vendor", {}, host_vendor};
+    module_t host_module = {"host", { std::move(host_name_module), std::move(host_version_module), std::move(host_vendor_module) }, host};
     
     /* Only for compatibility */
     module_t host_name_module_compat = { "host_name", {}, host_name };
+    module_t host_version_module_compat = {"host_version", {}, host_version};
+    module_t host_vendor_module_compat = {"host_vendor", {}, host_vendor};
 
-    module_t system_module = { "system", { std::move(host_module), std::move(host_name_module_compat) }, NULL };
+    module_t arch_module = {"arch", {}, arch};
+
+    module_t system_module = { "system", { 
+                                                        std::move(host_module),
+                                                        std::move(host_name_module_compat), std::move(host_version_module_compat), std::move(host_vendor_module_compat),
+                                                        std::move(arch_module),
+                                                    }, NULL };
 
     cfRegisterModule(system_module);
 }
