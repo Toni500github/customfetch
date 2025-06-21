@@ -65,33 +65,29 @@ CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"
 all: genver libcufetch fmt toml json core-plugins $(TARGET)
 
 libcufetch:
-ifeq ($(wildcard $(BUILDDIR)/libcufetch/libcufetch.so),)
-	mkdir -p $(BUILDDIR)/libcufetch
-	make -C src/libs/cufetch BUILDDIR=$(BUILDDIR)/libcufetch
+ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
+	make -C src/libs/cufetch BUILDDIR=$(BUILDDIR)
 endif
 
 fmt:
-ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
-	mkdir -p $(BUILDDIR)/fmt
-	make -C src/libs/fmt BUILDDIR=$(BUILDDIR)/fmt
+ifeq ($(wildcard $(BUILDDIR)/libfmt.a),)
+	make -C src/libs/fmt BUILDDIR=$(BUILDDIR)
 endif
 
 toml:
-ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
-	mkdir -p $(BUILDDIR)/toml++
-	make -C src/libs/toml++ BUILDDIR=$(BUILDDIR)/toml++
+ifeq ($(wildcard $(BUILDDIR)/toml.o),)
+	make -C src/libs/toml++ BUILDDIR=$(BUILDDIR)
 endif
 
 json:
-ifeq ($(wildcard $(BUILDDIR)/json/json.o),)
-	mkdir -p $(BUILDDIR)/json
-	make -C src/libs/json BUILDDIR=$(BUILDDIR)/json
+ifeq ($(wildcard $(BUILDDIR)/json.o),)
+	make -C src/libs/json BUILDDIR=$(BUILDDIR)
 endif
 
 core-plugins:
 ifeq ($(wildcard $(BUILDDIR)/core-plugins/*.so),)
 	mkdir -p $(BUILDDIR)/core-plugins
-	make -C src/core-plugins BUILDDIR=$(BUILDDIR)/core-plugins
+	make -C src/core-plugins BUILDDIR=$(BUILDDIR)
 endif
 
 genver: ./scripts/generateVersion.sh
@@ -102,7 +98,7 @@ endif
 $(TARGET): genver fmt toml libcufetch json core-plugins $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
-	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o $(BUILDDIR)/json/json.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
+	$(CXX) $(OBJ) $(BUILDDIR)/*.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
 locale:
