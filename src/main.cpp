@@ -790,7 +790,7 @@ int main(int argc, char *argv[])
 
     void* cufetch_handle = LOAD_LIBRARY("libcufetch.so")
     if (!cufetch_handle)
-        die("Failed to load libcufetch! {}", dlerror());
+        die("Failed to load {}", dlerror());
 
     /* TODO(burntranch): track each library and unload them. */
     const std::filesystem::path modDir = configDir / "mods";
@@ -800,13 +800,15 @@ int main(int argc, char *argv[])
         debug("loading mod at {}!", entry.path().string());
 
         void *handle = LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str());
-        if (!handle) {
-            warn("Failed to load mod {}! {}", entry.path(), dlerror());
+        if (!handle)
+        {
+            // dlerror() is pretty formatted
+            warn("Failed to load mod {}", dlerror());
             dlerror();
             continue;
         }
 
-        LOAD_LIB_SYMBOL(handle, void, MOD_INIT, void*)
+        LOAD_LIB_SYMBOL(handle, void, start, void*)
 
         MOD_INIT(cufetch_handle);
     }

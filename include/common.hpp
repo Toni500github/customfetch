@@ -45,6 +45,7 @@ constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
 #define EXPORT FMT_VISIBILITY("default") void
 #define MOD_INIT start
 
+using modfunc = const std::string;
 
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept

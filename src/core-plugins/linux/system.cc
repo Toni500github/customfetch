@@ -1,14 +1,15 @@
-#include <cstring>
 #include <filesystem>
 #include <sys/utsname.h>
 #include <string>
 #include <string_view>
 
+#include "linux-core-modules.hh"
 #include "common.hpp"
 #include "util.hpp"
 
 /* The handler that we'll use for our module, Handlers return const std::string (WILL be changed to const char pointers). */
-const std::string host() {
+modfunc host()
+{
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
     std::string board_name = "(unknown)";
@@ -42,7 +43,8 @@ const std::string host() {
     return board_vendor + ' ' + board_name + ' ' + board_version;
 }
 
-const std::string host_name() {
+modfunc host_name()
+{
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
     if (std::filesystem::exists(syspath + "/board_name"))
@@ -53,7 +55,8 @@ const std::string host_name() {
     return UNKNOWN;
 }
 
-const std::string host_version() {
+modfunc host_version()
+{
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
     if (std::filesystem::exists(syspath + "/board_name"))
@@ -64,7 +67,8 @@ const std::string host_version() {
     return UNKNOWN;
 }
 
-const std::string host_vendor() {
+modfunc host_vendor()
+{
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
     std::string board_vendor {UNKNOWN};
@@ -83,10 +87,7 @@ const std::string host_vendor() {
     return board_vendor;
 }
 
-const std::string arch() {
-    utsname sysinfo;
-    if (uname(&sysinfo) != 0)
-        die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
-
-    return sysinfo.machine;
+modfunc arch()
+{
+    return g_uname_infos.machine;
 }
