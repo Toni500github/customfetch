@@ -11,38 +11,37 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-static const char* read_value(const char* name, size_t n)
+static std::string read_value(const char* name, size_t n)
 {
     if (!os_release)
         return UNKNOWN;
-    rewind(os_release);  // Reset file pointer to start
 
-    char*  buf  = strdup(UNKNOWN);  // Default value
-    char*  line = NULL;
-    size_t len  = 0;
+    rewind(os_release);
+
+    std::string result{UNKNOWN};
+    char* line = nullptr;
+    size_t len = 0;
+
     while (getline(&line, &len, os_release) != -1)
     {
         if (strncmp(line, name, n) != 0)
             continue;
 
-        // Find the first quote after the key
         char* start = strchr(line + n, '"');
         if (!start)
             continue;
         start++;
 
-        // Find the closing quote
         char* end = strrchr(start, '"');
         if (!end)
             continue;
 
-        free(buf);
-        buf = strndup(start, end - start);
+        result.assign(start, end - start);
         break;
     }
 
     free(line);
-    return buf;
+    return result;
 }
 
 static unsigned long get_uptime()

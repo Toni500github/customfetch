@@ -45,6 +45,10 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
+#if CF_LINUX
+# include "core-plugins/linux/linux-core-modules.hh"
+#endif
+
 #if (!__has_include("version.h"))
 # error "version.h not found, please generate it with ./scripts/generateVersion.sh"
 #else
@@ -900,6 +904,11 @@ int main(int argc, char *argv[])
     // enable both of them again
     if (!config.wrap_lines)
         enable_cursor();
+
+#if CF_LINUX
+    if (os_release) fclose(os_release);
+    if (cpuinfo) fclose(cpuinfo);
+#endif
 
     UNLOAD_LIBRARY(cufetch_handle);
 

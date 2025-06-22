@@ -9,54 +9,58 @@
 
 const std::string freq_dir = "/sys/devices/system/cpu/cpu0/cpufreq";
 
-static char* trim_whitespace(char* str)
+static void trim(char* str)
 {
-    if (!str)
-        return NULL;
+    if (!str) return;
+    
+    // Trim leading space
+    char *p = str;
+    while (isspace((unsigned char)*p))
+        ++p;
+    memmove(str, p, strlen(p) + 1);
 
-    // Trim leading whitespace
-    while (isspace((unsigned char)*str))
-        str++;
-
-    // If all spaces
-    if (*str == '\0')
-        return strdup("");
-
-    // Trim trailing whitespace
-    char* end = str + strlen(str) - 1;
-    while (end > str && isspace((unsigned char)*end))
-        end--;
-
-    *(end + 1) = '\0';
-    return strdup(str);
+    // Trim trailing space
+    p = str + strlen(str) - 1;
+    while (p >= str && isspace((unsigned char)*p))
+        --p;
+    p[1] = '\0';
 }
 
-static char* read_value(const char* name, size_t n, bool do_rewind)
+static bool read_value(const char* name, size_t n, bool do_rewind, char* buf, size_t buf_size)
 {
-    if (!cpuinfo)
-        return NULL;
+    if (!cpuinfo || !buf || !buf_size)
+        return false;
     if (do_rewind)
         rewind(cpuinfo);
 
-    char*  line  = NULL;
-    size_t len   = 0;
-    char*  value = NULL;
-
+    char* line = NULL;
+    size_t len = 0;
+    bool found = false;
     while (getline(&line, &len, cpuinfo) != -1)
     {
-        if (strncmp(line, name, n) != 0)
+        if (strncmp(line, name, n))
             continue;
-
+        
         char* colon = strchr(line, ':');
         if (!colon)
             continue;
 
-        value = trim_whitespace(colon + 1);
+        // Extract and trim value
+        char* val = colon + 1;
+        while (isspace((unsigned char)*val))
+            ++val;
+        trim(val);
+
+        // Safe copy to buffer
+        strncpy(buf, val, buf_size - 1);
+        buf[buf_size - 1] = '\0';
+        
+        found = true;
         break;
     }
 
     free(line);
-    return value;
+    return found;
 }
 
 float cpu_temp()
@@ -84,31 +88,39 @@ float cpu_temp()
 
 modfunc cpu_name()
 {
-    char* name = read_value("model name", "model name"_len, true);
-    if (!name)
+    char name[4096];
+    if (!read_value("model name", "model name"_len, true, name, sizeof(name)))
         return UNKNOWN;
-
-    char* at = strrchr(name, '@');
-    if (!at)
-        return name;
 
     // sometimes /proc/cpuinfo at model name
     // the name will contain the min freq
     // happens on intel cpus especially
+    char* at = strrchr(name, '@');
+    if (!at)
+        return name;
     if (at > name && *(at - 1) == ' ')
         *(at - 1) = '\0';
     else
         *at = '\0';
 
+    trim(name);
     return name;
 }
+
 
 modfunc cpu_nproc()
 {
     uint nproc = 0;
     rewind(cpuinfo);
-    while (read_value("processor", "processor"_len, false))
-        ++nproc;
+    
+    char* line = NULL;
+    size_t len = 0;
+    while (getline(&line, &len, cpuinfo) != -1)
+    {
+        if (strncmp(line, "processor", "processor"_len) == 0)
+            nproc++;
+    }
+    free(line);
     return fmt::to_string(nproc);
 }
 
