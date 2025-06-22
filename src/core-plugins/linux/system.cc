@@ -1,26 +1,28 @@
-#include <filesystem>
 #include <sys/utsname.h>
+
+#include <filesystem>
 #include <string>
 #include <string_view>
 
-#include "linux-core-modules.hh"
 #include "common.hpp"
+#include "linux-core-modules.hh"
 #include "util.hpp"
 
-/* The handler that we'll use for our module, Handlers return const std::string (WILL be changed to const char pointers). */
+/* The handler that we'll use for our module, Handlers return const std::string (WILL be changed to const char
+ * pointers). */
 modfunc host()
 {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
-    std::string board_name = "(unknown)";
+    std::string board_name    = "(unknown)";
     std::string board_version = "(unknown)";
-    std::string board_vendor = "(unknown)";
+    std::string board_vendor  = "(unknown)";
 
     if (std::filesystem::exists(syspath + "/board_name"))
     {
-        board_name      = read_by_syspath(syspath + "/board_name");
-        board_version   = read_by_syspath(syspath + "/board_version");
-        board_vendor    = read_by_syspath(syspath + "/board_vendor");
+        board_name    = read_by_syspath(syspath + "/board_name");
+        board_version = read_by_syspath(syspath + "/board_version");
+        board_vendor  = read_by_syspath(syspath + "/board_vendor");
 
         if (board_vendor == "Micro-Star International Co., Ltd.")
             board_vendor = "MSI";
@@ -71,7 +73,7 @@ modfunc host_vendor()
 {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
-    std::string board_vendor {UNKNOWN};
+    std::string board_vendor{ UNKNOWN };
 
     if (std::filesystem::exists(syspath + "/board_name"))
     {

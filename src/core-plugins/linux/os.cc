@@ -1,38 +1,40 @@
+#include <cassert>
 #include <cstdio>
 #include <cstring>
-#include <cassert>
 #include <fstream>
 #include <string>
 
 #define FMT_HEADER_ONLY 1
 #include "common.hpp"
 #include "fmt/format.h"
+#include "linux-core-modules.hh"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
-#include "linux-core-modules.hh"
 
-static const char *read_value(const char *name, size_t n)
+static const char* read_value(const char* name, size_t n)
 {
     if (!os_release)
         return UNKNOWN;
-    rewind(os_release); // Reset file pointer to start
+    rewind(os_release);  // Reset file pointer to start
 
-    char *buf = strdup(UNKNOWN); // Default value
-    char *line = NULL;
-    size_t len = 0;
+    char*  buf  = strdup(UNKNOWN);  // Default value
+    char*  line = NULL;
+    size_t len  = 0;
     while (getline(&line, &len, os_release) != -1)
     {
         if (strncmp(line, name, n) != 0)
             continue;
 
         // Find the first quote after the key
-        char *start = strchr(line + n, '"');
-        if (!start) continue;
+        char* start = strchr(line + n, '"');
+        if (!start)
+            continue;
         start++;
 
         // Find the closing quote
-        char *end = strrchr(start, '"');
-        if (!end) continue;
+        char* end = strrchr(start, '"');
+        if (!end)
+            continue;
 
         free(buf);
         buf = strndup(start, end - start);
@@ -150,4 +152,3 @@ modfunc os_initsys_version()
 
     return os_initsys_version;
 }
-

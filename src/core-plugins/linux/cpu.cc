@@ -1,5 +1,7 @@
 #include <unistd.h>
+
 #include <string>
+
 #include "common.hpp"
 #include "fmt/format.h"
 #include "linux-core-modules.hh"
@@ -7,41 +9,45 @@
 
 const std::string freq_dir = "/sys/devices/system/cpu/cpu0/cpufreq";
 
-static char *trim_whitespace(char *str)
+static char* trim_whitespace(char* str)
 {
-    if (!str) return NULL;
+    if (!str)
+        return NULL;
 
     // Trim leading whitespace
-    while (isspace((unsigned char)*str)) str++;
+    while (isspace((unsigned char)*str))
+        str++;
 
     // If all spaces
-    if (*str == '\0') return strdup("");
+    if (*str == '\0')
+        return strdup("");
 
     // Trim trailing whitespace
-    char *end = str + strlen(str) - 1;
-    while (end > str && isspace((unsigned char)*end)) end--;
+    char* end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end))
+        end--;
 
     *(end + 1) = '\0';
     return strdup(str);
 }
 
-static char *read_value(const char *name, size_t n, bool do_rewind)
+static char* read_value(const char* name, size_t n, bool do_rewind)
 {
     if (!cpuinfo)
         return NULL;
     if (do_rewind)
         rewind(cpuinfo);
 
-    char *line = NULL;
-    size_t len = 0;
-    char *value = NULL;
+    char*  line  = NULL;
+    size_t len   = 0;
+    char*  value = NULL;
 
     while (getline(&line, &len, cpuinfo) != -1)
     {
         if (strncmp(line, name, n) != 0)
             continue;
 
-        char *colon = strchr(line, ':');
+        char* colon = strchr(line, ':');
         if (!colon)
             continue;
 
@@ -78,11 +84,13 @@ float cpu_temp()
 
 modfunc cpu_name()
 {
-    char *name = read_value("model name", "model name"_len, true);
-    if (!name) return UNKNOWN;
+    char* name = read_value("model name", "model name"_len, true);
+    if (!name)
+        return UNKNOWN;
 
-    char *at = strrchr(name, '@');
-    if (!at) return name;
+    char* at = strrchr(name, '@');
+    if (!at)
+        return name;
 
     // sometimes /proc/cpuinfo at model name
     // the name will contain the min freq
