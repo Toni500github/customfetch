@@ -8,7 +8,7 @@ OBJ		= $(SRC:.cc=.o)
 all: linux-core-modules
 
 linux-core-modules:
-	$(CXX) $(CXX_INCLUDES) $(CXX_FLAGS) linux/*.cc ../util.cpp -o $@.so
+	$(CXX) $(CXX_INCLUDES) $(CXX_FLAGS) linux/*.cc linux/utils/*.cpp ../util.cpp -o $@.so
 	mv -f $@.so ../../$(BUILDDIR)/core-plugins/$@.so
 
 clean:

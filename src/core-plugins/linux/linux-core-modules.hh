@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include <pwd.h>
 #include <sys/utsname.h>
 
 // system.cc
@@ -31,6 +32,19 @@ modfunc cpu_freq_cur();
 modfunc cpu_freq_max();
 modfunc cpu_freq_min();
 modfunc cpu_freq_bios();
-float  cpu_temp();
+float   cpu_temp();
 modfunc cpu_nproc();
 modfunc cpu_name();
+
+// user.cc
+inline struct passwd* g_pwd;
+inline bool is_tty = false;
+inline std::string term_pid, term_name;
+std::string get_terminal_name();
+std::string get_terminal_pid();
+modfunc user_name();
+modfunc user_shell_path();
+modfunc user_shell_name();
+modfunc user_shell_version();
+modfunc user_term_name();
+modfunc user_term_version();

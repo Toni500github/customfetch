@@ -1,10 +1,14 @@
 #include <dlfcn.h>
+#include <unistd.h>
+#include <utility>
 #include "linux-core-modules.hh"
 #include "common.hpp"
 #include "fmt/format.h"
+#include "util.hpp"
 
 APICALL EXPORT MOD_INIT(void *handle)
 {
+    // INIT STUFF
     if (!handle)
     {
         error("Exiting because !handle");
@@ -16,9 +20,20 @@ APICALL EXPORT MOD_INIT(void *handle)
     if (uname(&g_uname_infos) != 0)
         die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
 
+    if (g_pwd = getpwuid(getuid()), !g_pwd)
+        die(_("getpwent failed: {}\nCould not get user infos"), std::strerror(errno));
+
+    term_pid = get_terminal_pid();
+    term_name = get_terminal_name();
+    if (hasStart(str_tolower(term_name), "login") || hasStart(term_name, "init") || hasStart(term_name, "(init)"))
+    {
+        is_tty = true;
+        term_name = ttyname(STDIN_FILENO);
+    }
     os_release = fopen("/etc/os-release", "r");
     cpuinfo = fopen("/proc/cpuinfo", "r");
 
+    // MODULES REGISTERING
     module_t os_name_pretty_module = {"pretty", {}, os_pretty_name};
     module_t os_name_id_module = {"id", {}, os_name_id};
     module_t os_name_module = { "name", {
@@ -142,4 +157,44 @@ APICALL EXPORT MOD_INIT(void *handle)
         }};
 
     cfRegisterModule(cpu_module);
+
+    // $<user>
+    module_t user_name_module = {"name", {}, user_name};
+
+    module_t user_shell_path_module = {"path", {}, user_shell_path};
+    module_t user_shell_name_module = {"name", {}, user_shell_name};
+    module_t user_shell_version_module = {"version", {}, user_shell_version};
+    module_t user_shell_module = {"shell", {
+        std::move(user_shell_name_module),
+        std::move(user_shell_path_module),
+        std::move(user_shell_version_module),
+    }, []() {return user_shell_name() + ' ' + user_shell_version();}};
+
+    module_t user_term_name_module = {"name", {}, user_term_name};
+    module_t user_term_version_module = {"version", {}, user_shell_version};
+    module_t user_term_module = {"terminal", {
+        std::move(user_term_version_module),
+        std::move(user_term_name_module)
+    }, []() {return user_term_name() + ' ' + user_term_version();}};
+
+    /* Only for compatibility */
+    module_t user_shell_path_module_compat = {"shell_path", {}, user_shell_path};
+    module_t user_shell_name_module_compat = {"shell_name", {}, user_shell_name};
+    module_t user_shell_version_module_compat = {"shell_version", {}, user_shell_version};
+    module_t user_term_name_module_compat = {"terminal_name", {}, user_term_name};
+    module_t user_term_version_module_compat = {"terminal_version", {}, user_shell_version};
+
+    module_t user_module = {"user", {
+        std::move(user_name_module),
+        std::move(user_shell_module),
+        std::move(user_term_module),
+
+        std::move(user_shell_name_module_compat),
+        std::move(user_shell_path_module_compat),
+        std::move(user_shell_version_module_compat),
+        std::move(user_term_version_module_compat),
+        std::move(user_term_name_module_compat)
+    }, NULL};
+
+    cfRegisterModule(user_module);
 }
