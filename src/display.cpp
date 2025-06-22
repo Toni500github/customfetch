@@ -235,13 +235,11 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     bool          isImage = false;
     std::ifstream file;
-    std::ifstream fileToAnalyze;  // both have same path
     if (!config.args_disable_source)
     {
-        file.open(path.c_str(), std::ios::binary);
-        fileToAnalyze.open(path.c_str(), std::ios::binary);
-        if (!file.is_open() || !fileToAnalyze.is_open())
-            die(_("Could not open logo file '{}'"), path.string());
+        file.open(path.string(), std::ios::binary);
+        if (!file.is_open())
+            die(_("Could not open logo file '{}'"), path);
 
         // first check if the file is an image
         // without even using the same library that "file" uses
@@ -250,8 +248,10 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         {
             debug("Display::render() analyzing file");
             std::array<unsigned char, 32> buffer;
-            fileToAnalyze.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
+            file.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
             isImage = is_file_image(buffer.data());
+            file.clear();
+            file.seekg(0);
         }
     }
 
