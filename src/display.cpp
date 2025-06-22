@@ -239,7 +239,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         file.open(path.string(), std::ios::binary);
         if (!file.is_open())
-            die(_("Could not open logo file '{}'"), path);
+            die(_("Could not open logo file '{}'"), path.string());
 
         // first check if the file is an image
         // without even using the same library that "file" uses
