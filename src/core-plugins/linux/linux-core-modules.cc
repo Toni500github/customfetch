@@ -1,6 +1,7 @@
 #include <dlfcn.h>
 #include "linux-core-modules.hh"
 #include "common.hpp"
+#include "fmt/format.h"
 
 APICALL EXPORT MOD_INIT(void *handle)
 {
@@ -16,8 +17,8 @@ APICALL EXPORT MOD_INIT(void *handle)
         die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
 
     os_release = fopen("/etc/os-release", "r");
+    cpuinfo = fopen("/proc/cpuinfo", "r");
 
-    // $<os.name>
     module_t os_name_pretty_module = {"pretty", {}, os_pretty_name};
     module_t os_name_id_module = {"id", {}, os_name_id};
     module_t os_name_module = { "name", {
@@ -25,13 +26,9 @@ APICALL EXPORT MOD_INIT(void *handle)
         std::move(os_name_id_module)
     }, os_name };
 
-    // $<os.uptime>
     module_t os_uptime_module = {"uptime", {}, os_uptime};
-    
-    // $<os.hostname>
     module_t os_hostname_module = {"hostname", {}, os_hostname};
 
-    // $<os.kernel>
     module_t os_kernel_name_module = {"name", {}, os_kernel_name};
     module_t os_kernel_version_module = {"version", {}, os_kernel_version};
     module_t os_kernel_module = {"kernel", {
@@ -39,7 +36,6 @@ APICALL EXPORT MOD_INIT(void *handle)
         std::move(os_kernel_version_module)
     }, []() {return os_kernel_name() + ' ' + os_kernel_version();}};
 
-    // $<os.initsys>
     module_t os_initsys_name_module = {"name", {}, os_initsys_name};
     module_t os_initsys_version_module = {"version", {}, os_initsys_version};
     module_t os_initsys_module = {"initsys", {
@@ -94,4 +90,56 @@ APICALL EXPORT MOD_INIT(void *handle)
     }, NULL };
 
     cfRegisterModule(system_module);
+
+    // $<cpu>
+    module_t cpu_name_module   = {"name", {}, cpu_name};
+    module_t cpu_nproc_module  = {"nproc" , {}, cpu_nproc};
+
+    module_t cpu_freq_cur_module = {"current", {}, cpu_freq_cur};
+    module_t cpu_freq_max_module = {"max", {}, cpu_freq_max};
+    module_t cpu_freq_min_module = {"min", {}, cpu_freq_min};
+    module_t cpu_freq_bios_module = {"bios_limit", {}, cpu_freq_bios};
+    module_t cpu_freq_module = {"freq", {
+        std::move(cpu_freq_cur_module),
+        std::move(cpu_freq_max_module),
+        std::move(cpu_freq_min_module),
+        std::move(cpu_freq_bios_module),
+    }, cpu_freq_max};
+
+    module_t cpu_temp_C_module = {"C", {}, []() {return fmt::format("{:.2f}°C", cpu_temp());}};
+    module_t cpu_temp_F_module = {"F", {}, []() {return fmt::format("{:.2f}°F", cpu_temp() * 1.8 + 34);}};
+    module_t cpu_temp_K_module = {"K", {}, []() {return fmt::format("{:.2f}°K", cpu_temp() + 273.15);}};
+    module_t cpu_temp_module = {"temp", {
+        std::move(cpu_temp_C_module),
+        std::move(cpu_temp_F_module),
+        std::move(cpu_temp_K_module),
+    }, []() {return fmt::format("{:.2f}°C", cpu_temp());}};
+
+    /* Only for compatibility */
+    module_t cpu_freq_cur_module_compat = {"freq_cur", {}, cpu_freq_cur};
+    module_t cpu_freq_max_module_compat = {"freq_max", {}, cpu_freq_max};
+    module_t cpu_freq_min_module_compat = {"freq_min", {}, cpu_freq_min};
+    module_t cpu_freq_bios_module_compat = {"freq_bios_limit", {}, cpu_freq_bios};
+    module_t cpu_temp_C_module_compat = {"temp_C", {}, []() {return fmt::format("{:.2f}", cpu_temp());}};
+    module_t cpu_temp_F_module_compat = {"temp_F", {}, []() {return fmt::format("{:.2f}", cpu_temp() * 1.8 + 34);}};
+    module_t cpu_temp_K_module_compat = {"temp_K", {}, []() {return fmt::format("{:.2f}", cpu_temp() + 273.15);}};
+
+    module_t cpu_module = {"cpu", {
+        std::move(cpu_name_module),
+        std::move(cpu_nproc_module),
+        std::move(cpu_freq_module),
+        std::move(cpu_temp_module),
+
+        std::move(cpu_freq_cur_module_compat),
+        std::move(cpu_freq_max_module_compat),
+        std::move(cpu_freq_min_module_compat),
+        std::move(cpu_freq_bios_module_compat),
+        std::move(cpu_temp_C_module_compat),
+        std::move(cpu_temp_F_module_compat),
+        std::move(cpu_temp_K_module_compat),
+    }, []() {
+            return fmt::format("{} ({}) @ {} GHz", cpu_name(), cpu_nproc(), cpu_freq_max());
+        }};
+
+    cfRegisterModule(cpu_module);
 }
