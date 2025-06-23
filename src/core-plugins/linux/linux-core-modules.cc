@@ -177,23 +177,47 @@ APICALL EXPORT MOD_INIT(void *handle)
         std::move(user_term_name_module)
     }, []() {return user_term_name() + ' ' + user_term_version();}};
 
+    module_t user_wm_name_module = {"name", {}, user_wm_name};
+    module_t user_wm_version_module = {"version", {}, user_wm_version};
+    module_t user_wm_module = {"wm", {
+        std::move(user_wm_version_module),
+        std::move(user_wm_name_module)
+    }, []() {return user_wm_name() + ' ' + user_wm_version();}};
+
+    module_t user_de_name_module = {"name", {}, user_de_name};
+    module_t user_de_version_module = {"version", {}, user_de_version};
+    module_t user_de_module = {"de", {
+        std::move(user_de_version_module),
+        std::move(user_de_name_module)
+    }, []() {return user_de_name() + ' ' + user_de_version();}};
+
     /* Only for compatibility */
     module_t user_shell_path_module_compat = {"shell_path", {}, user_shell_path};
     module_t user_shell_name_module_compat = {"shell_name", {}, user_shell_name};
     module_t user_shell_version_module_compat = {"shell_version", {}, user_shell_version};
     module_t user_term_name_module_compat = {"terminal_name", {}, user_term_name};
     module_t user_term_version_module_compat = {"terminal_version", {}, user_shell_version};
+    module_t user_wm_name_module_compat = {"wm_name", {}, user_wm_name};
+    module_t user_wm_version_module_compat = {"wm_version", {}, user_wm_version};
+    module_t user_de_name_module_compat = {"de_name", {}, user_de_name};
+    module_t user_de_version_module_compat = {"de_version", {}, user_de_version};
 
     module_t user_module = {"user", {
         std::move(user_name_module),
         std::move(user_shell_module),
         std::move(user_term_module),
+        std::move(user_wm_module),
+        std::move(user_de_module),
 
         std::move(user_shell_name_module_compat),
         std::move(user_shell_path_module_compat),
         std::move(user_shell_version_module_compat),
         std::move(user_term_version_module_compat),
-        std::move(user_term_name_module_compat)
+        std::move(user_term_name_module_compat),
+        std::move(user_wm_name_module_compat),
+        std::move(user_wm_version_module_compat),
+        std::move(user_de_name_module_compat),
+        std::move(user_de_version_module_compat),
     }, NULL};
 
     cfRegisterModule(user_module);

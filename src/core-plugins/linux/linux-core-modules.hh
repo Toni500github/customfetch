@@ -39,7 +39,7 @@ modfunc cpu_name();
 // user.cc
 inline struct passwd* g_pwd;
 inline bool is_tty = false;
-inline std::string term_pid, term_name;
+inline std::string term_pid, term_name, wm_name, de_name, wm_path_exec;
 std::string get_terminal_name();
 std::string get_terminal_pid();
 modfunc user_name();
@@ -48,3 +48,7 @@ modfunc user_shell_name();
 modfunc user_shell_version();
 modfunc user_term_name();
 modfunc user_term_version();
+modfunc user_wm_name();
+modfunc user_wm_version();
+modfunc user_de_name();
+modfunc user_de_version();

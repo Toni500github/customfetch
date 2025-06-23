@@ -5,7 +5,13 @@
 #include "linux-core-modules.hh"
 #include "switch_fnv1a.hpp"
 #include "utils/term.hpp"
+#include "utils/dewm.hpp"
 #include "util.hpp"
+
+#if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
+#include <sys/socket.h>
+#include <wayland-client.h>
+#endif
 
 // clang-format off
 static std::string get_term_name_env(bool get_default = false)
@@ -53,8 +59,6 @@ static std::string get_term_name_env(bool get_default = false)
 
     return UNKNOWN;
 }
-// clang-format on
-
 
 modfunc user_name()
 { return g_pwd->pw_name; }
@@ -62,6 +66,7 @@ modfunc user_name()
 modfunc user_shell_path()
 { return g_pwd->pw_shell; }
 
+// clang-format on
 modfunc user_shell_name()
 {
     return user_shell_path().substr(user_shell_path().rfind('/') + 1);
@@ -121,6 +126,9 @@ std::string get_terminal_name()
 
 modfunc user_term_name()
 {
+    if (is_tty)
+        return term_name;
+
     // st (suckless terminal)
     if (term_name == "exe")
         term_name = "st";
@@ -176,6 +184,9 @@ modfunc user_term_name()
 
 modfunc user_term_version()
 {
+    if (is_tty)
+        return "";
+
     const std::string& term_name = user_term_name();
     if (term_name.empty())
         return UNKNOWN;
@@ -231,4 +242,181 @@ modfunc user_term_version()
 
     debug("get_term_version ret after = {}", ret);
     return ret;
+}
+
+std::string get_wm_name(std::string& wm_path_exec)
+{
+    std::string path, proc_name, wm_name;
+    const uid_t uid = getuid();
+
+    for (auto const& dir_entry : std::filesystem::directory_iterator{ "/proc/" })
+    {
+        if (!std::isdigit((dir_entry.path().string().at(6))))  // /proc/5
+            continue;
+
+        path = dir_entry.path() / "loginuid";
+        std::ifstream f_uid(path, std::ios::binary);
+        std::string   s_uid;
+        std::getline(f_uid, s_uid);
+        if (std::stoul(s_uid) != uid)
+            continue;
+
+        path = dir_entry.path() / "cmdline";
+        std::ifstream f_cmdline(path, std::ios::binary);
+        std::getline(f_cmdline, proc_name);
+
+        size_t pos = 0;
+        if ((pos = proc_name.find('\0')) != std::string::npos)
+            proc_name.erase(pos);
+
+        if ((pos = proc_name.rfind('/')) != std::string::npos)
+            proc_name.erase(0, pos + 1);
+
+        debug("WM proc_name = {}", proc_name);
+
+        if ((wm_name = prettify_wm_name(proc_name)) == MAGIC_LINE)
+            continue;
+
+        char buf[PATH_MAX];
+        wm_path_exec = realpath((dir_entry.path().string() + "/exe").c_str(), buf);
+        break;
+    }
+
+    debug("wm_name = {}", wm_name);
+    if (wm_name.empty())
+        return MAGIC_LINE;
+
+    return wm_name;
+}
+
+static std::string get_wm_wayland_name(std::string& wm_path_exec)
+{
+#if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
+    void *handle = LOAD_LIBRARY("libwayland-client.so")
+    if (!handle)
+        return get_wm_name(wm_path_exec);
+
+    LOAD_LIB_SYMBOL(handle, wl_display*, wl_display_connect, const char* name)
+    LOAD_LIB_SYMBOL(handle, void, wl_display_disconnect, wl_display* display)
+    LOAD_LIB_SYMBOL(handle, int, wl_display_get_fd, wl_display* display)
+
+    std::string ret = MAGIC_LINE;
+
+    struct wl_display* display = wl_display_connect(NULL);
+
+    struct ucred ucred;
+    socklen_t    len = sizeof(struct ucred);
+    if (getsockopt(wl_display_get_fd(display), SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1)
+        return MAGIC_LINE;
+
+    std::ifstream f(fmt::format("/proc/{}/comm", ucred.pid), std::ios::in);
+    f >> ret;
+    wl_display_disconnect(display);
+
+    char buf[PATH_MAX];
+    wm_path_exec = realpath(fmt::format("/proc/{}/exe", ucred.pid).c_str(), buf);
+
+    UNLOAD_LIBRARY(handle)
+
+    return prettify_wm_name(ret);
+#else
+    return get_wm_name(wm_path_exec);
+#endif
+}
+
+modfunc user_wm_name()
+{
+    if (!wm_name.empty())
+        return wm_name;
+    if (is_tty)
+        return MAGIC_LINE;
+
+    const char* env = std::getenv("WAYLAND_DISPLAY");
+    if (env != nullptr && env[0] != '\0')
+        wm_name = get_wm_wayland_name(wm_path_exec);
+    else
+        wm_name = get_wm_name(wm_path_exec);
+
+    if (de_name == wm_name)
+        de_name = MAGIC_LINE;
+
+    return wm_name;
+}
+
+modfunc user_wm_version()
+{
+    if (is_tty)
+        return MAGIC_LINE;
+    user_wm_name(); // populate wm_path_exec if haven't already
+    std::string wm_version;
+    if (wm_name == "Xfwm4" && get_fast_xfwm4_version(wm_version, wm_path_exec))
+        return wm_version;
+
+    if (wm_name == "dwm")
+        read_exec({ wm_path_exec.c_str(), "-v" }, wm_version, true);
+    else
+        read_exec({ wm_path_exec.c_str(), "--version" }, wm_version);
+
+    if (wm_name == "Xfwm4")
+        wm_version.erase(0, "\tThis is xfwm4 version "_len);  // saying only "xfwm4 4.18.2 etc." no?
+    else
+        wm_version.erase(0, wm_name.length() + 1);
+
+    const size_t pos = wm_version.find(' ');
+    if (pos != std::string::npos)
+        wm_version.erase(pos);
+
+    return wm_version;
+}
+
+modfunc user_de_name()
+{
+    if (is_tty || ((de_name != MAGIC_LINE && wm_name != MAGIC_LINE) && de_name == wm_name))
+    {
+        de_name = MAGIC_LINE;
+        return de_name;
+    }
+
+    de_name = parse_de_env();
+    debug("get_de_name = {}", de_name);
+    if (hasStart(de_name, "X-"))
+        de_name.erase(0, 2);
+
+    if (de_name == wm_name)
+        de_name = MAGIC_LINE;
+
+    return de_name;
+}
+
+modfunc user_de_version()
+{
+    if (is_tty || de_name == UNKNOWN || de_name == MAGIC_LINE || de_name.empty())
+        return UNKNOWN;
+
+    switch (fnv1a16::hash(str_tolower(de_name)))
+    {
+        case "mate"_fnv1a16:     return get_mate_version();
+        case "cinnamon"_fnv1a16: return get_cinnamon_version();
+
+        case "kde"_fnv1a16: return get_kwin_version();
+
+        case "xfce"_fnv1a16:
+        case "xfce4"_fnv1a16: return get_xfce4_version();
+
+        case "gnome"_fnv1a16:
+        case "gnome-shell"_fnv1a16:
+        {
+            std::string ret;
+            read_exec({ "gnome-shell", "--version" }, ret);
+            ret.erase(0, ret.rfind(' '));
+            return ret;
+        }
+        default:
+        {
+            std::string ret;
+            read_exec({ de_name.data(), "--version" }, ret);
+            ret.erase(0, ret.rfind(' '));
+            return ret;
+        }
+    }
 }
