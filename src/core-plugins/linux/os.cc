@@ -25,18 +25,19 @@ static std::string read_value(const std::string_view name)
 
     while (getline(&line, &len, os_release) != -1)
     {
-        if (strncmp(line, name.data(), name.length()) != 0)
+        if (name.length() > len || strncmp(line, name.data(), name.length()) != 0)
             continue;
 
-        char* start = strchr(line + name.length(), '"');
-        if (!start)
-            continue;
-        start++;
+        char* start = strchr(line + name.length(), '"');    /* Get first occurence of " */
+        if (start)
+            start++;    /* Get after the " */
+        else
+            start = line + name.length();   /* No ", get the start. */
 
-        char* end = strrchr(start, '"');
+        char* end = strrchr(start, '"');    /* Get last occurence of " */
         if (!end)
-            continue;
-
+            end = line + strlen(line) - 1;  /* Set to the end of the string -- no newline. (I heard Windows has a different newline sequence.. *sigh*) */
+  
         result.assign(start, end - start);
         break;
     }

@@ -5,6 +5,7 @@
 #include <string_view>
 
 #include "common.hpp"
+#include "fmt/base.h"
 #include "linux-core-modules.hh"
 #include "util.hpp"
 

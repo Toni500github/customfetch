@@ -247,6 +247,9 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
 
 const std::string getInfoFromName(const moduleMap_t& modulesInfo, std::string moduleName)
 {
+    /* copy module name */
+    std::string name{moduleName};
+
     /* Position of the open parenthesis, -1 (18 billion smth because it's a size_t) if we aren't in there */
     size_t open_par_pos = -1;
     int i = -1;
@@ -272,7 +275,7 @@ const std::string getInfoFromName(const moduleMap_t& modulesInfo, std::string mo
             if (open_par_pos != (size_t)-1)
             {
                 arg.pop_back();
-                moduleName.erase(open_par_pos, arg.length() + 2);
+                name.erase(open_par_pos, arg.length() + 2);
             }
 
             break;
@@ -282,7 +285,7 @@ const std::string getInfoFromName(const moduleMap_t& modulesInfo, std::string mo
             arg += c;
     }
 
-    if (const auto& it = modulesInfo.find(moduleName); it != modulesInfo.end())
+    if (const auto& it = modulesInfo.find(name); it != modulesInfo.end())
         return it->second.handler(arg);
 
     return "(unknown/invalid module)";
