@@ -245,37 +245,36 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
-const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::string& moduleName)
+const std::string getInfoFromName(const moduleMap_t& modulesInfo, std::string moduleName)
 {
-    /* copy module name */
-    std::string name{moduleName};
+    /* Position of the open parenthesis, -1 (18 billion smth because it's a size_t) if we aren't in there */
+    size_t open_par_pos = -1;
+    int i = -1;
 
     /* argument that's collected from what's between the parenthesis in "module(...).test" */
     std::string arg;
-
-    /* Position of the open parenthesis, -1 (18 billion smth because it's a size_t) if we aren't in there */
-    size_t open_par_pos = -1;
-    
-    int i = -1;
-
-    for (const char &c : name) {
+    for (const char& c : moduleName)
+    {
         i++;
-        if (c == '(' && open_par_pos == (size_t)-1) {
+        if (c == '(' && open_par_pos == (size_t)-1)
+        {
             open_par_pos = i;
             continue;
         }
 
         /* we've reached the separator, do some validation. */
         /* TODO(burntranch): get separator from a common header or config that both libcufetch and we read from. */
-        if (c == '.') {
+        if (c == '.')
+        {
             if (open_par_pos != (size_t)-1 && arg.back() != ')')
-                die("Module name `{}` is invalid. Arguments must end in )", moduleName);
+                die("Module name `{}` is invalid. Arguments must end with )", moduleName);
 
-            if (open_par_pos != (size_t)-1) {
+            if (open_par_pos != (size_t)-1)
+            {
                 arg.pop_back();
-                name.erase(open_par_pos, arg.length() + 2);
+                moduleName.erase(open_par_pos, arg.length() + 2);
             }
-            
+
             break;
         }
 
@@ -283,24 +282,8 @@ const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::str
             arg += c;
     }
 
-    if (const auto& it = modulesInfo.find(name.data()); it != modulesInfo.end())
-    {
-        // if (const auto& it2 = it1->second.find(moduleMemberName.data()); it2 != it1->second.end())
-        // {
-        //     const variant& result = it2->second;
-
-        //     if (std::holds_alternative<std::string>(result))
-        //         return std::get<std::string>(result);
-
-        //     else if (std::holds_alternative<double>(result))
-        //         return fmt::format("{:.2f}", (std::get<double>(result)));
-
-        //     else
-        //         return fmt::to_string(std::get<size_t>(result));
-        // }
-
+    if (const auto& it = modulesInfo.find(moduleName); it != modulesInfo.end())
         return it->second.handler(arg);
-    }
 
     return "(unknown/invalid module)";
 }
