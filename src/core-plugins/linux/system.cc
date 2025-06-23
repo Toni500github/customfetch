@@ -10,7 +10,7 @@
 
 /* The handler that we'll use for our module, Handlers return const std::string (WILL be changed to const char
  * pointers). */
-modfunc host()
+MODFUNC(host)
 {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
@@ -45,7 +45,7 @@ modfunc host()
     return board_vendor + ' ' + board_name + ' ' + board_version;
 }
 
-modfunc host_name()
+MODFUNC(host_name)
 {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
@@ -57,7 +57,7 @@ modfunc host_name()
     return UNKNOWN;
 }
 
-modfunc host_version()
+MODFUNC(host_version)
 {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
@@ -69,7 +69,7 @@ modfunc host_version()
     return UNKNOWN;
 }
 
-modfunc host_vendor()
+MODFUNC(host_vendor)
 {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
@@ -89,7 +89,7 @@ modfunc host_vendor()
     return board_vendor;
 }
 
-modfunc arch()
+MODFUNC(arch)
 {
     return g_uname_infos.machine;
 }

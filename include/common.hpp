@@ -5,6 +5,7 @@
 #include <vector>
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include "platform.hpp"
 
 #if ENABLE_NLS && !CF_MACOS
 /* here so it doesn't need to be included elsewhere */
@@ -29,14 +30,14 @@ constexpr const char UNKNOWN[] = "(unknown)";
 // Every instance of this string in a layout line, the whole line will be erased.
 constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
 
-/* handle   = the library handle
+/* handler  = the library handle
  * ret_type = type of what the function returns
  * func     = the function name
  * ...      = the arguments in a function if any
  */
-#define LOAD_LIB_SYMBOL(handle, ret_type, func, ...)   \
+#define LOAD_LIB_SYMBOL(handler, ret_type, func, ...)   \
     typedef ret_type (*func##_t)(__VA_ARGS__); \
-    func##_t func = reinterpret_cast<func##_t>(dlsym(handle, #func));
+    func##_t func = reinterpret_cast<func##_t>(dlsym(handler, #func));
 
 #define UNLOAD_LIBRARY(handle) dlclose(handle);
 
@@ -45,7 +46,7 @@ constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
 #define EXPORT FMT_VISIBILITY("default") void
 #define MOD_INIT start
 
-using modfunc = const std::string;
+#define MODFUNC(name) const std::string name(__attribute__((unused)) const std::string& module = "")
 
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
@@ -94,11 +95,5 @@ struct module_t
 {
     std::string           name;
     std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
-    std::function<const std::string(void)> handler;
-
-    module_t(const std::string& name, const std::vector<module_t>& submodules,
-             const std::function<const std::string(void)> handler)
-        : name(name), submodules(submodules), handler(handler)
-    {
-    }
+    std::function<const std::string(const std::string&)> handler;
 };

@@ -3,6 +3,7 @@
 #include <cstring>
 #include <fstream>
 #include <string>
+#include <string_view>
 
 #define FMT_HEADER_ONLY 1
 #include "common.hpp"
@@ -11,7 +12,7 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-static std::string read_value(const char* name, size_t n)
+static std::string read_value(const std::string_view name)
 {
     if (!os_release)
         return UNKNOWN;
@@ -24,10 +25,10 @@ static std::string read_value(const char* name, size_t n)
 
     while (getline(&line, &len, os_release) != -1)
     {
-        if (strncmp(line, name, n) != 0)
+        if (strncmp(line, name.data(), name.length()) != 0)
             continue;
 
-        char* start = strchr(line + n, '"');
+        char* start = strchr(line + name.length(), '"');
         if (!start)
             continue;
         start++;
@@ -57,34 +58,34 @@ static unsigned long get_uptime()
     return (unsigned long)uptime.tv_sec * 1000 + (unsigned long)uptime.tv_nsec / 1000000;
 }
 
-modfunc os_name()
-{ return read_value("NAME=", "NAME="_len); }
+MODFUNC(os_name)
+{ return read_value("NAME="); }
 
-modfunc os_pretty_name()
-{ return read_value("PRETTY_NAME=", "PRETTY_NAME="_len); }
+MODFUNC(os_pretty_name)
+{ return read_value("PRETTY_NAME="); }
 
-modfunc os_name_id()
-{ return read_value("ID=", "ID="_len); }
+MODFUNC(os_name_id)
+{ return read_value("ID="); }
 
-modfunc os_version_id()
-{ return read_value("VERSION_ID=", "VERSION_ID="_len); }
+MODFUNC(os_version_id)
+{ return read_value("VERSION_ID="); }
 
-modfunc os_version_codename()
-{ return read_value("VERSION_CODENAME=", "VERSION_CODENAME="_len); }
+MODFUNC(os_version_codename)
+{ return read_value("VERSION_CODENAME="); }
 
-modfunc os_uptime()
+MODFUNC(os_uptime)
 { return fmt::to_string(get_uptime()); }
 
-modfunc os_kernel_name()
+MODFUNC(os_kernel_name)
 { return g_uname_infos.sysname; }
 
-modfunc os_kernel_version()
+MODFUNC(os_kernel_version)
 { return g_uname_infos.release; }
 
-modfunc os_hostname()
+MODFUNC(os_hostname)
 { return g_uname_infos.nodename; }
 
-modfunc os_initsys_name()
+MODFUNC(os_initsys_name)
 {
     // there's no way PID 1 doesn't exist.
     // This will always succeed (because we are on linux)
@@ -105,7 +106,7 @@ modfunc os_initsys_name()
     return initsys;
 }
 
-modfunc os_initsys_version()
+MODFUNC(os_initsys_version)
 {
     std::string os_initsys_version;
     std::string path;

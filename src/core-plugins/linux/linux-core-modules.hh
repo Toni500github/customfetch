@@ -6,35 +6,35 @@
 
 // system.cc
 inline utsname g_uname_infos;
-modfunc arch();
-modfunc host();
-modfunc host_name();
-modfunc host_version();
-modfunc host_vendor();
+MODFUNC(arch);
+MODFUNC(host);
+MODFUNC(host_name);
+MODFUNC(host_version);
+MODFUNC(host_vendor);
 
 // os.cc
 inline std::FILE *os_release;
-modfunc os_name();
-modfunc os_pretty_name();
-modfunc os_name_id();
-modfunc os_version_id();
-modfunc os_version_codename();
-modfunc os_uptime();
-modfunc os_kernel_name();
-modfunc os_kernel_version();
-modfunc os_hostname();
-modfunc os_initsys_name();
-modfunc os_initsys_version();
+MODFUNC(os_name);
+MODFUNC(os_pretty_name);
+MODFUNC(os_name_id);
+MODFUNC(os_version_id);
+MODFUNC(os_version_codename);
+MODFUNC(os_uptime);
+MODFUNC(os_kernel_name);
+MODFUNC(os_kernel_version);
+MODFUNC(os_hostname);
+MODFUNC(os_initsys_name);
+MODFUNC(os_initsys_version);
 
 // cpu.cc
 inline std::FILE *cpuinfo;
-modfunc cpu_freq_cur();
-modfunc cpu_freq_max();
-modfunc cpu_freq_min();
-modfunc cpu_freq_bios();
+MODFUNC(cpu_freq_cur);
+MODFUNC(cpu_freq_max);
+MODFUNC(cpu_freq_min);
+MODFUNC(cpu_freq_bios);
 float   cpu_temp();
-modfunc cpu_nproc();
-modfunc cpu_name();
+MODFUNC(cpu_nproc);
+MODFUNC(cpu_name);
 
 // user.cc
 inline struct passwd* g_pwd;
@@ -42,13 +42,23 @@ inline bool is_tty = false;
 inline std::string term_pid, term_name, wm_name, de_name, wm_path_exec;
 std::string get_terminal_name();
 std::string get_terminal_pid();
-modfunc user_name();
-modfunc user_shell_path();
-modfunc user_shell_name();
-modfunc user_shell_version();
-modfunc user_term_name();
-modfunc user_term_version();
-modfunc user_wm_name();
-modfunc user_wm_version();
-modfunc user_de_name();
-modfunc user_de_version();
+MODFUNC(user_name);
+MODFUNC(user_shell_path);
+MODFUNC(user_shell_name);
+MODFUNC(user_shell_version);
+MODFUNC(user_term_name);
+MODFUNC(user_term_version);
+MODFUNC(user_wm_name);
+MODFUNC(user_wm_version);
+MODFUNC(user_de_name);
+MODFUNC(user_de_version);
+
+// ram.cc
+inline std::FILE* meminfo;
+double ram_free();
+double ram_total();
+double swap_free();
+double swap_total();
+
+#undef MODFUNC
+#define MODFUNC(name) const std::string name(__attribute__((unused)) const std::string& module)

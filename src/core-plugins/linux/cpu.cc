@@ -86,7 +86,7 @@ float cpu_temp()
     return 0.0f;
 }
 
-modfunc cpu_name()
+MODFUNC(cpu_name)
 {
     char name[4096];
     if (!read_value("model name", "model name"_len, true, name, sizeof(name)))
@@ -108,7 +108,7 @@ modfunc cpu_name()
 }
 
 
-modfunc cpu_nproc()
+MODFUNC(cpu_nproc)
 {
     uint nproc = 0;
     rewind(cpuinfo);
@@ -124,28 +124,28 @@ modfunc cpu_nproc()
     return fmt::to_string(nproc);
 }
 
-modfunc cpu_freq_cur()
+MODFUNC(cpu_freq_cur)
 {
     if (access((freq_dir + "/scaling_cur_freq").c_str(), F_OK) != 0)
         return "0";
     return fmt::format("{:.2f}", std::stof(read_by_syspath(freq_dir + "/scaling_cur_freq")) / 1000000);
 }
 
-modfunc cpu_freq_max()
+MODFUNC(cpu_freq_max)
 {
     if (access((freq_dir + "/scaling_max_freq").c_str(), F_OK) != 0)
         return "0";
     return fmt::format("{:.2f}", std::stof(read_by_syspath(freq_dir + "/scaling_max_freq")) / 1000000);
 }
 
-modfunc cpu_freq_min()
+MODFUNC(cpu_freq_min)
 {
     if (access((freq_dir + "/scaling_min_freq").c_str(), F_OK) != 0)
         return "0";
     return fmt::format("{:.2f}", std::stof(read_by_syspath(freq_dir + "/scaling_min_freq")) / 1000000);
 }
 
-modfunc cpu_freq_bios()
+MODFUNC(cpu_freq_bios)
 {
     if (access((freq_dir + "/bios_limit").c_str(), F_OK) != 0)
         return "0";

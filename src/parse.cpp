@@ -245,26 +245,10 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
-const std::string getInfoFromName(const moduleMap_t& systemInfo, const std::string_view moduleName)
+const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::string& moduleName)
 {
-    if (const auto& it = systemInfo.find(moduleName.data()); it != systemInfo.end())
-    {
-        // if (const auto& it2 = it1->second.find(moduleMemberName.data()); it2 != it1->second.end())
-        // {
-        //     const variant& result = it2->second;
-
-        //     if (std::holds_alternative<std::string>(result))
-        //         return std::get<std::string>(result);
-
-        //     else if (std::holds_alternative<double>(result))
-        //         return fmt::format("{:.2f}", (std::get<double>(result)));
-
-        //     else
-        //         return fmt::to_string(std::get<size_t>(result));
-        // }
-
-        return it->second.handler();
-    }
+    if (const auto& it = modulesInfo.find(moduleName); it != modulesInfo.end())
+        return it->second.handler(moduleName);
 
     return "(unknown/invalid module)";
 }

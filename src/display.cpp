@@ -224,8 +224,6 @@ static bool get_pos(int& y, int& x)
     return true;
 }
 
-const std::string test() { return "Test!!!"; }
-
 std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
                                          const std::filesystem::path& path, moduleMap_t& moduleMap)
 {

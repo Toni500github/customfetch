@@ -60,19 +60,19 @@ static std::string get_term_name_env(bool get_default = false)
     return UNKNOWN;
 }
 
-modfunc user_name()
+MODFUNC(user_name)
 { return g_pwd->pw_name; }
 
-modfunc user_shell_path()
+MODFUNC(user_shell_path)
 { return g_pwd->pw_shell; }
 
 // clang-format on
-modfunc user_shell_name()
+MODFUNC(user_shell_name)
 {
     return user_shell_path().substr(user_shell_path().rfind('/') + 1);
 }
 
-modfunc user_shell_version()
+MODFUNC(user_shell_version)
 {
     const std::string& shell_name = user_shell_name();
     std::string ret;
@@ -124,7 +124,7 @@ std::string get_terminal_name()
     return term_name;
 }
 
-modfunc user_term_name()
+MODFUNC(user_term_name)
 {
     if (is_tty)
         return term_name;
@@ -182,7 +182,7 @@ modfunc user_term_name()
     return term_name;
 }
 
-modfunc user_term_version()
+MODFUNC(user_term_version)
 {
     if (is_tty)
         return "";
@@ -324,7 +324,7 @@ static std::string get_wm_wayland_name(std::string& wm_path_exec)
 #endif
 }
 
-modfunc user_wm_name()
+MODFUNC(user_wm_name)
 {
     if (!wm_name.empty())
         return wm_name;
@@ -343,7 +343,7 @@ modfunc user_wm_name()
     return wm_name;
 }
 
-modfunc user_wm_version()
+MODFUNC(user_wm_version)
 {
     if (is_tty)
         return MAGIC_LINE;
@@ -369,7 +369,7 @@ modfunc user_wm_version()
     return wm_version;
 }
 
-modfunc user_de_name()
+MODFUNC(user_de_name)
 {
     if (is_tty || ((de_name != MAGIC_LINE && wm_name != MAGIC_LINE) && de_name == wm_name))
     {
@@ -388,7 +388,7 @@ modfunc user_de_name()
     return de_name;
 }
 
-modfunc user_de_version()
+MODFUNC(user_de_version)
 {
     if (is_tty || de_name == UNKNOWN || de_name == MAGIC_LINE || de_name.empty())
         return UNKNOWN;
