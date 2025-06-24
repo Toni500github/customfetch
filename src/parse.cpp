@@ -371,6 +371,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
         }
     }
 
+    static std::vector<std::string> auto_colors;
     if (hasStart(color, "auto"))
     {
         int ver = color.length() > 4 ? std::stoi(color.substr(4)) - 1 : 0;
