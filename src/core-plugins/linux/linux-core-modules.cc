@@ -4,14 +4,14 @@
 #include <array>
 #include <string_view>
 #include <utility>
-#include "linux-core-modules.hh"
+#include "core-modules.hh"
 #include "common.hpp"
 #include "fmt/format.h"
 #include "util.hpp"
 
 using unused = const std::string&;
 
-APICALL EXPORT MOD_INIT(void *handle)
+void core_plugins_start(void *handle)
 {
     // ------------ INIT STUFF ------------
     if (!handle)

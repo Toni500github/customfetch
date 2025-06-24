@@ -1,5 +1,5 @@
 #include "common.hpp"
-#include "linux-core-modules.hh"
+#include "core-modules.hh"
 #include <cstdio>
 #include <string>
 #include <string_view>

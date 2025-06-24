@@ -23,6 +23,7 @@
  *
  */
 
+#include <dlfcn.h>
 #include <getopt.h>
 #include <unistd.h>
 
@@ -38,16 +39,13 @@
 #include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
-#include "fmt/std.h"
 #include "gui.hpp"
 #include "platform.hpp"
 #include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-#if CF_LINUX
-# include "core-plugins/linux/linux-core-modules.hh"
-#endif
+#include "core-modules.hh"
 
 #if (!__has_include("version.h"))
 # error "version.h not found, please generate it with ./scripts/generateVersion.sh"
@@ -757,6 +755,7 @@ static void localize(void)
 #endif
 }
 
+void core_plugins_start(void *handle);
 int main(int argc, char *argv[])
 {
 
@@ -797,6 +796,7 @@ int main(int argc, char *argv[])
         die("Failed to load {}", dlerror());
 
     /* TODO(burntranch): track each library and unload them. */
+    core_plugins_start(cufetch_handle);
     const std::filesystem::path modDir = configDir / "mods";
     std::filesystem::create_directories(modDir);
     for (const auto& entry : std::filesystem::directory_iterator{modDir})
@@ -814,7 +814,7 @@ int main(int argc, char *argv[])
 
         LOAD_LIB_SYMBOL(handle, void, start, void*)
 
-        MOD_INIT(cufetch_handle);
+        start(cufetch_handle);
     }
 
     LOAD_LIB_SYMBOL(cufetch_handle, const std::vector<module_t>&, cfGetModules)

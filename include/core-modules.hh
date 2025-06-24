@@ -4,6 +4,8 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 
+#define MODFUNC(name) const std::string name(__attribute__((unused)) const std::string& module = "")
+
 // system.cc
 inline utsname g_uname_infos;
 MODFUNC(arch);

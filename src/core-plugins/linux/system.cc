@@ -5,8 +5,7 @@
 #include <string_view>
 
 #include "common.hpp"
-#include "fmt/base.h"
-#include "linux-core-modules.hh"
+#include "core-modules.hh"
 #include "util.hpp"
 
 /* The handler that we'll use for our module, Handlers return const std::string (WILL be changed to const char

@@ -59,8 +59,8 @@
 #include "fmt/format.h"
 #include "parse.hpp"
 #include "platform.hpp"
-#include "query.hpp"
 #include "stb_image.h"
+#include "core-modules.hh"
 #include "utf8/checked.h"
 #include "util.hpp"
 
@@ -74,14 +74,14 @@ std::string Display::detect_distro(const Config& config)
     }
     else
     {
-        Query::System system;
-        std::string   format;
-
-        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_id()));
+        std::string format;
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(os_name_id()));
+        debug("checking path in {}: {}", __func__, format);
         if (std::filesystem::exists(format))
             return format;
 
-        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(system.os_name()));
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(os_name()));
+        debug("checking path in {}: {}", __func__, format);
         if (std::filesystem::exists(format))
             return format;
     }

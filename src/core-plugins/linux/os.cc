@@ -8,7 +8,7 @@
 #define FMT_HEADER_ONLY 1
 #include "common.hpp"
 #include "fmt/format.h"
-#include "linux-core-modules.hh"
+#include "core-modules.hh"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
@@ -37,7 +37,7 @@ static std::string read_value(const std::string_view name)
         char* end = strrchr(start, '"');    /* Get last occurence of " */
         if (!end)
             end = line + strlen(line) - 1;  /* Set to the end of the string -- no newline. (I heard Windows has a different newline sequence.. *sigh*) */
-  
+
         result.assign(start, end - start);
         break;
     }

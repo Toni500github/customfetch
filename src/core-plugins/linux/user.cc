@@ -2,7 +2,7 @@
 #include <fstream>
 #include "common.hpp"
 #include "fmt/format.h"
-#include "linux-core-modules.hh"
+#include "core-modules.hh"
 #include "switch_fnv1a.hpp"
 #include "utils/term.hpp"
 #include "utils/dewm.hpp"

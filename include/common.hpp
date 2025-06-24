@@ -16,8 +16,6 @@
 #define _(s) (char*)s
 #endif
 
-#define BOLD_COLOR(x) (fmt::emphasis::bold | fmt::fg(x))
-
 constexpr const char NOCOLOR[] = "\033[0m";
 constexpr const char NOCOLOR_BOLD[] = "\033[0m\033[1m";
 constexpr const char UNKNOWN[] = "(unknown)";
@@ -43,10 +41,10 @@ constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
 
 #define APICALL extern "C"
 // {fmt} library already has __attribute__((visibility(value))) fallback so let's use that maybeAdd commentMore actions
-#define EXPORT FMT_VISIBILITY("default") void
-#define MOD_INIT start
+#define EXPORT FMT_VISIBILITY("default")
+#define MOD_INIT void start
 
-#define MODFUNC(name) const std::string name(__attribute__((unused)) const std::string& module = "")
+#define BOLD_COLOR(x) (fmt::emphasis::bold | fmt::fg(x))
 
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
@@ -90,6 +88,8 @@ void info(const std::string_view fmt, Args&&... args) noexcept
     fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::cyan))), "INFO: {}\033[0m\n",
                  fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
+
+#undef BOLD_COLOR
 
 struct module_t
 {

@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <string>
+#include <fstream>
 #include <unordered_map>
 #include <variant>
 #include <vector>

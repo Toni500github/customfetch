@@ -4,7 +4,7 @@
 
 #include "common.hpp"
 #include "fmt/format.h"
-#include "linux-core-modules.hh"
+#include "core-modules.hh"
 #include "util.hpp"
 
 const std::string freq_dir = "/sys/devices/system/cpu/cpu0/cpufreq";

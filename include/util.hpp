@@ -282,7 +282,7 @@ bool askUserYorN(bool def, const std::string_view fmt, Args&&... args)
     fmt::print("{}", inputs_str);
 
     while (std::getline(std::cin, result) && (result.length() > 1))
-        fmt::print(BOLD_COLOR(fmt::rgb(fmt::color::yellow)), "Please answear y or n,{}", inputs_str);
+        warn("Please answear y or n {}", inputs_str);
 
     ctrl_d_handler(std::cin);
 

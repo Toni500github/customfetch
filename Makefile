@@ -56,13 +56,16 @@ NAME		 = customfetch
 TARGET		?= $(NAME)
 OLDVERSION	 = 0.10.2
 VERSION    	 = 1.0.0
-SRC 	   	 = $(wildcard src/*.cpp src/query/linux/*.cpp src/query/android/*.cpp src/query/macos/*.cpp src/query/linux/utils/*.cpp)
-OBJ 	   	 = $(SRC:.cpp=.o)
+SRC_CPP 	 = $(wildcard src/*.cpp src/core-plugins/linux/utils/*.cpp)
+SRC_CC  	 = $(wildcard src/core-plugins/linux/*.cc)
+OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
+OBJ_CC  	 = $(SRC_CC:.cc=.o)
+OBJ		 = $(OBJ_CPP) $(OBJ_CC)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
-all: genver libcufetch fmt toml json core-plugins $(TARGET)
+all: genver libcufetch fmt toml json $(TARGET)
 
 libcufetch:
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
@@ -84,18 +87,12 @@ ifeq ($(wildcard $(BUILDDIR)/json.o),)
 	make -C src/libs/json BUILDDIR=$(BUILDDIR)
 endif
 
-core-plugins:
-ifeq ($(wildcard $(BUILDDIR)/core-plugins/*.so),)
-	mkdir -p $(BUILDDIR)/core-plugins
-	make -C src/core-plugins BUILDDIR=$(BUILDDIR)
-endif
-
 genver: ./scripts/generateVersion.sh
 ifeq ($(wildcard include/version.h),)
 	./scripts/generateVersion.sh
 endif
 
-$(TARGET): genver fmt toml libcufetch json core-plugins $(OBJ)
+$(TARGET): genver fmt toml libcufetch json $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
 	$(CXX) $(OBJ) $(BUILDDIR)/*.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
@@ -160,4 +157,4 @@ updatever:
 	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
 	sed -i "s#Project-Id-Version: $(NAME) $(OLDVERSION)#Project-Id-Version: $(NAME) $(VERSION)#g" po/*
 
-.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml libcufetch core-plugins install all locale
+.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml libcufetch install all locale
