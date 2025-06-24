@@ -120,6 +120,4 @@ void append_styles(fmt::text_style& current_style, Styles&&... styles)
     current_style |= (styles | ...);
 }
 
-inline std::vector<std::string> auto_colors;
-
 #endif

@@ -367,8 +367,6 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         }
     }
 
-    auto_colors.clear();
-
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),

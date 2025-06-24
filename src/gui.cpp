@@ -182,7 +182,6 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     style_context->lookup_color("theme_fg_color", fg_color);
     std::string fg_color_str = rgba_to_hexstr(fg_color);*/
 
-    auto_colors.clear();
     this->set_layout_markup();
     if (is_live_mode)
         Glib::signal_timeout().connect(sigc::mem_fun(*this, &Window::set_layout_markup), config.loop_ms);
