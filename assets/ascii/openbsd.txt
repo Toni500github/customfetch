@@ -1,22 +1,22 @@
-${cyan}                                     _
+${yellow}${cyan}                                     _
 ${cyan}                                    (_)
 ${yellow}              |    .
 ${yellow}          .   |L  /|   .         ${cyan} _
-${yellow}      _ . |\ _| \--+._/| .       ${cyan}(_)
-${yellow}     / ||\| Y J  )   / |/| ./
+${yellow}      _ . |\\ _| \\--+._/| .       ${cyan}(_)
+${yellow}     / ||\\| Y J  )   / |/| ./
 ${yellow}    J  |)'( |        ` F`.'/       ${cyan} _
 ${yellow}  -\<|  F         __     .-\<        ${cyan}(_)
 ${yellow}    | /       .-'${cyan}. ${yellow}`.  /${cyan}-. ${yellow}L___
-${yellow}    J \\      \<    ${cyan}\ ${yellow} | | ${black}O${cyan}\\${yellow}|.-' ${cyan} _
+${yellow}    J \\      \<    ${cyan}\\ ${yellow} | | ${black}O${cyan}\\${yellow}|.-' ${cyan} _
 ${yellow}  _J \\  .-    \\${cyan}/ ${black}O ${cyan}| ${yellow}| \\  |${yellow}F    ${cyan}(_)
 ${yellow} '-F  -\<_.     \\   .-'  `-' L__
 ${yellow}__J  _   _.     >-'  )${red}._.   ${yellow}|-'
-${yellow} `-|.'   /_.          ${red}\_|  ${yellow} F
+${yellow} `-|.'   /_.          ${red}\\_|  ${yellow} F
 ${yellow}  /.-   .                _.\<
 ${yellow} /'    /.'             .'  `\\
 ${yellow}  /L  /'   |/      _.-'-\\
-${yellow} /'J       ___.---'\|
-${yellow}   |\  .--' V  | `. `
+${yellow} /'J       ___.---'\\|
+${yellow}   |\\  .--' V  | `. `
 ${yellow}   |/`. `-.     `._)
 ${yellow}      / .-.\\
 ${yellow}      \\ (  `\\

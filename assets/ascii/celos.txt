@@ -12,7 +12,7 @@ ${black}#################################### ${magenta}MMMMMMMMMMMMMc
 ${magenta}      "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM:
 ${magenta}       "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
 ${magenta}       'MMMMMMMMM*******************************:
-${magenta}        \"MMMMMM ${black}#####################################
+${magenta}        \\"MMMMMM ${black}#####################################
 ${magenta}         ${magenta}`:MMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmm;
 ${magenta}           `"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
 ${magenta}             `":MMMMMMMMMMMMMMMMMMMMMMMMM;'

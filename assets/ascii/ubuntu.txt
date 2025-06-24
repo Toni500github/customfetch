@@ -1,20 +1,20 @@
-${red}            .-/+oossssoo+\-.
+${red}            .-/+oossssoo+\\-.
 ${red}        `:+ssssssssssssssssss+:`
 ${red}      -+ssssssssssssssssssyyssss+-
 ${red}    .ossssssssssssssssss${white}dMMMNy${red}sssso.
-${red}   /sssssssssss${white}hdmmNNmmyNMMMMh${red}ssssss\
+${red}   /sssssssssss${white}hdmmNNmmyNMMMMh${red}ssssss\\
 ${red}  +sssssssss${white}hm${red}yd${white}MMMMMMMNddddy${red}ssssssss+
-${red} /ssssssss${white}hNMMM${red}yh${white}hyyyyhmNMMMNh${red}ssssssss\
+${red} /ssssssss${white}hNMMM${red}yh${white}hyyyyhmNMMMNh${red}ssssssss\\
 ${red}.ssssssss${white}dMMMNh${red}ssssssssss${white}hNMMMd${red}ssssssss.
 ${red}+ssss${white}hhhyNMMNy${red}ssssssssssss${white}yNMMMy${red}sssssss+
 ${red}oss${white}yNMMMNyMMh${red}ssssssssssssss${white}hmmmh${red}ssssssso
 ${red}oss${white}yNMMMNyMMh${red}sssssssssssssshmmmh${red}ssssssso
 ${red}+ssss${white}hhhyNMMNy${red}ssssssssssss${white}yNMMMy${red}sssssss+
 ${red}.ssssssss${white}dMMMNh${red}ssssssssss${white}hNMMMd${red}ssssssss.
-${red} \ssssssss${white}hNMMM${red}yh${white}hyyyyhdNMMMNh${red}ssssssss/
+${red} \\ssssssss${white}hNMMM${red}yh${white}hyyyyhdNMMMNh${red}ssssssss/
 ${red}  +sssssssss${white}dm${red}yd${white}MMMMMMMMddddy${red}ssssssss+
-${red}   \sssssssssss${white}hdmNNNNmyNMMMMh${red}ssssss/
+${red}   \\sssssssssss${white}hdmNNNNmyNMMMMh${red}ssssss/
 ${red}    .ossssssssssssssssss${white}dMMMNy${red}sssso.
 ${red}      -+sssssssssssssssss${white}yyy${red}ssss+-
 ${red}        `:+ssssssssssssssssss+:`
-${red}            .-\+oossssoo+/-.
+${red}            .-\\+oossssoo+/-.

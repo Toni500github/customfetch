@@ -8,10 +8,10 @@ ${blue}eee          ${green}`+oooooo:          ${blue}eee
 ${blue}eee          ${green}-+oooooo+:         ${blue}eee
 ${blue}ee         ${green}`/:oooooooo+:         ${blue}ee
 ${blue}ee        ${green}`/+   +++    +:        ${blue}ee
-${blue}ee              ${green}+o+\             ${blue}ee
-${blue}eee             ${green}+o+\            ${blue}eee
-${blue}eee        ${green}//  \\ooo/  \\\        ${blue}eee
-${blue} eee      ${green}//++++oooo++++\\\     ${blue}eee
+${blue}ee              ${green}+o+\\             ${blue}ee
+${blue}eee             ${green}+o+\\            ${blue}eee
+${blue}eee        ${green}//  \\ooo/  \\\\        ${blue}eee
+${blue} eee      ${green}//++++oooo++++\\\\     ${blue}eee
 ${blue}  eeee    ${green}::::++oooo+:::::   ${blue}eeee
 ${blue}    eeeee   ${red}Grombyang OS ${blue}  eeee
 ${blue}      eeeeeeeeeeeeeeeeeeeeeee
