@@ -13,7 +13,7 @@ ${white}-/:::::::::/:${black}`:-.      .-:${white}`:///////////-
  `${white}-::::--${yellow}.-://.${black}---....---${yellow}`:+/:-${white}--::::-`
        ${yellow}-/+///+o/-${black}.----.${yellow}.:oo+++o+.
      ${yellow}-+/////+++o:${red}syyyyy.${yellow}o+++++++++:
-    ${yellow}.+////+++++-${red}+sssssy+${yellow}.++++++++++\
+    ${yellow}.+////+++++-${red}+sssssy+${yellow}.++++++++++\\
     ${yellow}.+:/++++++.${red}.yssssssy-${yellow}`+++++++++:
      ${yellow}:/+++++-  ${red}+sssssssss  ${yellow}-++++++-
        ${yellow}`--`    ${red}+sssssssso    ${yellow}`--`
