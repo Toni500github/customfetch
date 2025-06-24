@@ -909,10 +909,10 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
                                                                          "KiB", "MB", "MiB", "PB", "PiB", "TB",
                                                                          "TiB", "YB", "YiB", "ZB", "ZiB" };
 
-    const auto& return_devided_bytes = [&sorted_valid_prefixes, &moduleMemberName](const double& amount) -> double {
+    const auto& return_divided_bytes = [&sorted_valid_prefixes, &moduleMemberName](const double& amount) -> double {
         const std::string& prefix = moduleMemberName.substr(moduleMemberName.find('-') + 1);
         if (std::binary_search(sorted_valid_prefixes.begin(), sorted_valid_prefixes.end(), prefix))
-            return devide_bytes(amount, prefix).num_bytes;
+            return divide_bytes(amount, prefix).num_bytes;
 
         return 0;
     };
@@ -1218,9 +1218,9 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount(), byte_unit);
-            byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount(), byte_unit);
-            byte_units.at(FREE)  = auto_devide_bytes(query_disk.free_amount(), byte_unit);
+            byte_units.at(TOTAL) = auto_divide_bytes(query_disk.total_amount(), byte_unit);
+            byte_units.at(USED)  = auto_divide_bytes(query_disk.used_amount(), byte_unit);
+            byte_units.at(FREE)  = auto_divide_bytes(query_disk.free_amount(), byte_unit);
 
             switch (moduleMember_hash)
             {
@@ -1270,11 +1270,11 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
                 default:
                     if (hasStart(moduleMemberName, "free-"))
-                        SYSINFO_INSERT(return_devided_bytes(query_disk.free_amount()));
+                        SYSINFO_INSERT(return_divided_bytes(query_disk.free_amount()));
                     else if (hasStart(moduleMemberName, "used-"))
-                        SYSINFO_INSERT(return_devided_bytes(query_disk.used_amount()));
+                        SYSINFO_INSERT(return_divided_bytes(query_disk.used_amount()));
                     else if (hasStart(moduleMemberName, "total-"))
-                        SYSINFO_INSERT(return_devided_bytes(query_disk.total_amount()));
+                        SYSINFO_INSERT(return_divided_bytes(query_disk.total_amount()));
             }
         }
     }
@@ -1296,9 +1296,9 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             //                                                            idk, trick the diviser
-            byte_units.at(FREE)  = auto_devide_bytes(query_ram.swap_free_amount() * byte_unit, byte_unit);
-            byte_units.at(USED)  = auto_devide_bytes(query_ram.swap_used_amount() * byte_unit, byte_unit);
-            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * byte_unit, byte_unit);
+            byte_units.at(FREE)  = auto_divide_bytes(query_ram.swap_free_amount() * byte_unit, byte_unit);
+            byte_units.at(USED)  = auto_divide_bytes(query_ram.swap_used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_divide_bytes(query_ram.swap_total_amount() * byte_unit, byte_unit);
 
             switch (moduleMember_hash)
             {
@@ -1328,11 +1328,11 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
                 default:
                     if (hasStart(moduleMemberName, "free-"))
-                        SYSINFO_INSERT(return_devided_bytes(query_ram.swap_free_amount()));
+                        SYSINFO_INSERT(return_divided_bytes(query_ram.swap_free_amount()));
                     else if (hasStart(moduleMemberName, "used-"))
-                        SYSINFO_INSERT(return_devided_bytes(query_ram.swap_used_amount()));
+                        SYSINFO_INSERT(return_divided_bytes(query_ram.swap_used_amount()));
                     else if (hasStart(moduleMemberName, "total-"))
-                        SYSINFO_INSERT(return_devided_bytes(query_ram.swap_total_amount()));
+                        SYSINFO_INSERT(return_divided_bytes(query_ram.swap_total_amount()));
             }
         }
     }
@@ -1354,9 +1354,9 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             //                                                     idk, trick the diviser
-            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
-            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
-            byte_units.at(FREE)  = auto_devide_bytes(query_ram.free_amount() * byte_unit, byte_unit);
+            byte_units.at(USED)  = auto_divide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_divide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
+            byte_units.at(FREE)  = auto_divide_bytes(query_ram.free_amount() * byte_unit, byte_unit);
 
             switch (moduleMember_hash)
             {
@@ -1386,11 +1386,11 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
                 default:
                     if (hasStart(moduleMemberName, "free-"))
-                        SYSINFO_INSERT(return_devided_bytes(query_ram.free_amount()));
+                        SYSINFO_INSERT(return_divided_bytes(query_ram.free_amount()));
                     else if (hasStart(moduleMemberName, "used-"))
-                        SYSINFO_INSERT(return_devided_bytes(query_ram.used_amount()));
+                        SYSINFO_INSERT(return_divided_bytes(query_ram.used_amount()));
                     else if (hasStart(moduleMemberName, "total-"))
-                        SYSINFO_INSERT(return_devided_bytes(query_ram.total_amount()));
+                        SYSINFO_INSERT(return_divided_bytes(query_ram.total_amount()));
             }
         }
     }
@@ -1546,8 +1546,8 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
-            byte_units.at(TOTAL) = auto_devide_bytes(query_disk.total_amount(), byte_unit);
-            byte_units.at(USED)  = auto_devide_bytes(query_disk.used_amount(), byte_unit);
+            byte_units.at(TOTAL) = auto_divide_bytes(query_disk.total_amount(), byte_unit);
+            byte_units.at(USED)  = auto_divide_bytes(query_disk.used_amount(), byte_unit);
 
             const std::string& perc =
                 get_and_color_percentage(query_disk.used_amount(), query_disk.total_amount(), parse_args);
@@ -1597,8 +1597,8 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             //                                                            idk, trick the divider
-            byte_units.at(USED)  = auto_devide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
-            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
+            byte_units.at(USED)  = auto_divide_bytes(query_ram.used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_divide_bytes(query_ram.total_amount() * byte_unit, byte_unit);
 
             const std::string& perc =
                 get_and_color_percentage(query_ram.used_amount(), query_ram.total_amount(), parse_args);
@@ -1628,8 +1628,8 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
         if (sysInfo.at(moduleName).find(moduleMemberName) == sysInfo.at(moduleName).end())
         {
             //                                                            idk, trick the divider
-            byte_units.at(USED)  = auto_devide_bytes(query_ram.swap_used_amount() * byte_unit, byte_unit);
-            byte_units.at(TOTAL) = auto_devide_bytes(query_ram.swap_total_amount() * byte_unit, byte_unit);
+            byte_units.at(USED)  = auto_divide_bytes(query_ram.swap_used_amount() * byte_unit, byte_unit);
+            byte_units.at(TOTAL) = auto_divide_bytes(query_ram.swap_total_amount() * byte_unit, byte_unit);
 
             // clang-format off
             if (byte_units.at(TOTAL).num_bytes < 1)

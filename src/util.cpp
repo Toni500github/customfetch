@@ -141,7 +141,7 @@ std::string read_by_syspath(const std::string_view path, bool report_error)
     return result;
 }
 
-byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const std::string_view maxprefix)
+byte_units_t auto_divide_bytes(const double num, const std::uint16_t base, const std::string_view maxprefix)
 {
     double size = num;
 
@@ -168,19 +168,19 @@ byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const
     return { prefixes.at(counter).data(), size };
 }
 
-byte_units_t devide_bytes(const double num, const std::string_view prefix)
+byte_units_t divide_bytes(const double num, const std::string_view prefix)
 {
     if (prefix != "B")
     {
         // GiB
         // 012
         if (prefix.size() == 3 && prefix.at(1) == 'i')
-            return auto_devide_bytes(num, 1024, prefix);
+            return auto_divide_bytes(num, 1024, prefix);
         else
-            return auto_devide_bytes(num, 1000, prefix);
+            return auto_divide_bytes(num, 1000, prefix);
     }
 
-    return auto_devide_bytes(num, 0);
+    return auto_divide_bytes(num, 0);
 }
 
 bool is_file_image(const unsigned char* bytes)

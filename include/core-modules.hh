@@ -59,8 +59,10 @@ MODFUNC(user_de_version);
 inline std::FILE* meminfo;
 double ram_free();
 double ram_total();
+double ram_used();
 double swap_free();
 double swap_total();
+double swap_used();
 
 #undef MODFUNC
 #define MODFUNC(name) const std::string name(__attribute__((unused)) const std::string& module)

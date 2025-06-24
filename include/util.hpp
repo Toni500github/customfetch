@@ -115,13 +115,13 @@ void getFileValue(u_short& iterIndex, const std::string_view line, std::string& 
  * @param base Base to devide (1000 = bytes OR 1024 = bibytes)
  * @param maxprefix The maxinum prefix we can go up to (empty for ignore)
  */
-byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const std::string_view maxprefix = "");
+byte_units_t auto_divide_bytes(const double num, const std::uint16_t base, const std::string_view maxprefix = "");
 
 /* Covert bytes (or bibytes) to be accurate to a specific prefix
  * @param num The number to convert
  * @param prefix The prefix we want to convert to (GiB, MB, etc.)
  */
-byte_units_t devide_bytes(const double num, const std::string_view prefix);
+byte_units_t divide_bytes(const double num, const std::string_view prefix);
 
 /* Check if file is image (static or gif).
  * Doesn't check for mp4, mp3 or other binary formats

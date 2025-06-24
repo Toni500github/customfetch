@@ -19,7 +19,7 @@ static double read_value(const std::string_view key)
             continue;
 
         // Skip colon and whitespace
-        char* value = line + 1;
+        char* value = line + key.length();
         while (isspace(*value)) value++;
 
         // Find end of numeric value (stop at first non-digit or '.')
@@ -42,8 +42,14 @@ double ram_free()
 double ram_total()
 { return read_value("MemTotal:"); }
 
+double ram_used()
+{ return ram_total() - ram_free(); }
+
 double swap_free()
 { return read_value("SwapFree:"); }
 
 double swap_total()
 { return read_value("SwapTotal:"); }
+
+double swap_used()
+{ return swap_total() - swap_free(); }

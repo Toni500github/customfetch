@@ -11,6 +11,23 @@
 
 using unused = const std::string&;
 
+const std::string amount(const double amount, const std::string& prefix)
+{
+    constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
+                                                                         "KiB", "MB", "MiB", "PB", "PiB", "TB",
+                                                                         "TiB", "YB", "YiB", "ZB", "ZiB" };
+
+    if (prefix.empty())
+    {
+        byte_units_t amount_unit = auto_divide_bytes(amount * 1024, 1024);
+        return fmt::format("{:.2f} {}", amount_unit.num_bytes, amount_unit.unit);
+    }
+
+    if (std::binary_search(sorted_valid_prefixes.begin(), sorted_valid_prefixes.end(), prefix))
+            return fmt::format("{:.2f}", divide_bytes(amount, prefix).num_bytes);
+    return "0";
+}
+
 void core_plugins_start(void *handle)
 {
     // ------------ INIT STUFF ------------
@@ -229,15 +246,13 @@ void core_plugins_start(void *handle)
     cfRegisterModule(user_module);
 
     // $<ram>
-    constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
-                                                                         "KiB", "MB", "MiB", "PB", "PiB", "TB",
-                                                                         "TiB", "YB", "YiB", "ZB", "ZiB" };
-    const auto& return_devided_bytes = [&](const double& amount, const std::string& module) -> double {
-        const std::string& prefix = module.substr(module.find('-') + 1);
-        if (std::binary_search(sorted_valid_prefixes.begin(), sorted_valid_prefixes.end(), prefix))
-            return devide_bytes(amount, prefix).num_bytes;
-
-        return 0;
-    };
-    module_t ram_free_module{"free", {}, NULL};
+    module_t ram_free_module  = {"free",  {}, [&](const std::string& prefix) { return amount(ram_free(),  prefix); }};
+    module_t ram_used_module  = {"used",  {}, [&](const std::string& prefix) { return amount(ram_used(),  prefix); }};
+    module_t ram_total_module = {"total", {}, [&](const std::string& prefix) { return amount(ram_total(), prefix); }};
+    module_t ram_module = {"ram", {
+        std::move(ram_free_module),
+        std::move(ram_used_module),
+        std::move(ram_total_module)
+    }, NULL};
+    cfRegisterModule(ram_module);
 }
