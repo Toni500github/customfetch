@@ -207,13 +207,13 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 
 std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args)
 {
-    return parse(input, parse_args.systemInfo, _, parse_args.layout, parse_args.tmp_layout, parse_args.config,
+    return parse(input, parse_args.modulesInfo, _, parse_args.layout, parse_args.tmp_layout, parse_args.config,
                  parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
 std::string parse(const std::string& input, parse_args_t& parse_args)
 {
-    return parse(input, parse_args.systemInfo, parse_args.pureOutput, parse_args.layout, parse_args.tmp_layout,
+    return parse(input, parse_args.modulesInfo, parse_args.pureOutput, parse_args.layout, parse_args.tmp_layout,
                  parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
@@ -247,16 +247,16 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
 
 const std::string getInfoFromName(const moduleMap_t& modulesInfo, std::string moduleName)
 {
-    /* Position of the open parenthesis, -1 (18 billion smth because it's a size_t) if we aren't in there */
-    size_t open_par_pos = -1;
+    /* Position of the open parenthesis */
+    int open_par_pos = -1;
     int i = -1;
 
     /* argument that's collected from what's between the parenthesis in "module(...).test" */
     std::string arg;
-    for (const char& c : moduleName)
+    for (const char c : moduleName)
     {
         i++;
-        if (c == '(' && open_par_pos == (size_t)-1)
+        if (c == '(' && open_par_pos == -1)
         {
             open_par_pos = i;
             continue;
@@ -266,10 +266,10 @@ const std::string getInfoFromName(const moduleMap_t& modulesInfo, std::string mo
         /* TODO(burntranch): get separator from a common header or config that both libcufetch and we read from. */
         if (c == '.')
         {
-            if (open_par_pos != (size_t)-1 && arg.back() != ')')
+            if (open_par_pos != -1 && arg.back() != ')')
                 die("Module name `{}` is invalid. Arguments must end with )", moduleName);
 
-            if (open_par_pos != (size_t)-1)
+            if (open_par_pos != -1)
             {
                 arg.pop_back();
                 moduleName.erase(open_par_pos, arg.length() + 2);
@@ -278,7 +278,7 @@ const std::string getInfoFromName(const moduleMap_t& modulesInfo, std::string mo
             break;
         }
 
-        if (open_par_pos != (size_t)-1)
+        if (open_par_pos != -1)
             arg += c;
     }
 
@@ -657,23 +657,7 @@ std::optional<std::string> parse_info_tag(Parser& parser, parse_args_t& parse_ar
     if (!evaluate)
         return {};
 
-    // const size_t dot_pos = module.find('.');
-    // if (dot_pos == module.npos)
-    // {
-    //     // addValueFromModule(module, parse_args);
-    //     const std::string& info = getInfoFromName(parse_args.systemInfo, module, "module-" + module);
-
-    //     if (parser.dollar_pos != std::string::npos)
-    //         parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
-
-    //     return info;
-    // }
-
-    // const std::string& moduleName       = module.substr(0, dot_pos);
-    // const std::string& moduleMemberName = module.substr(dot_pos + 1);
-    // addValueFromModuleMember(moduleName, moduleMemberName, parse_args);
-
-    const std::string& info = getInfoFromName(parse_args.systemInfo, module);
+    const std::string& info = getInfoFromName(parse_args.modulesInfo, module);
 
     if (parser.dollar_pos != std::string::npos)
         parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
@@ -758,7 +742,7 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
     return result;
 }
 
-std::string parse(std::string input, moduleMap_t& systemInfo, std::string& pureOutput, std::vector<std::string>& layout,
+std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pureOutput, std::vector<std::string>& layout,
                   std::vector<std::string>& tmp_layout, const Config& config, const colors_t& colors,
                   const bool parsingLayout, bool& no_more_reset)
 {
@@ -772,7 +756,7 @@ std::string parse(std::string input, moduleMap_t& systemInfo, std::string& pureO
         no_more_reset = true;
     }
 
-    parse_args_t parse_args{ systemInfo, pureOutput,    layout, tmp_layout,   config,
+    parse_args_t parse_args{ modulesInfo, pureOutput,    layout, tmp_layout,   config,
                              colors,     parsingLayout, true,   no_more_reset };
     Parser       parser{ input, pureOutput };
 
@@ -916,7 +900,7 @@ void addValueFromModuleMember(const std::string& moduleName, const std::string& 
 
     // just aliases for convention
     const Config& config  = parse_args.config;
-    systemInfo_t& sysInfo = parse_args.systemInfo;
+    modulesInfo_t& sysInfo = parse_args.modulesInfo;
 
     const auto&                                moduleMember_hash     = fnv1a16::hash(moduleMemberName);
     const std::uint16_t                        byte_unit             = config.use_SI_unit ? 1000 : 1024;
@@ -1474,7 +1458,7 @@ void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args)
 
     // just aliases for convention
     const Config& config  = parse_args.config;
-    systemInfo_t& sysInfo = parse_args.systemInfo;
+    modulesInfo_t& sysInfo = parse_args.modulesInfo;
 
     const std::uint16_t byte_unit = config.use_SI_unit ? 1000 : 1024;
 

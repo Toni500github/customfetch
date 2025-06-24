@@ -26,11 +26,7 @@
 #ifndef _PARSE_HPP
 #define _PARSE_HPP
 
-#include <functional>
-#include <memory>
 #include <string>
-#include <unordered_map>
-#include <variant>
 #include <vector>
 
 #include "config.hpp"
@@ -42,7 +38,7 @@
  */
 struct parse_args_t
 {
-    moduleMap_t&              systemInfo;
+    moduleMap_t&              modulesInfo;
     std::string&              pureOutput;
     std::vector<std::string>& layout;
     std::vector<std::string>& tmp_layout;
@@ -53,10 +49,10 @@ struct parse_args_t
     bool                      no_more_reset = false;
 };
 
-/* Parse input, in-place, with data from systemInfo.
+/* Parse input, in-place, with data from modulesInfo.
  * Documentation on formatting is in the flag -w or the customfetch.1 manual.
  * @param input The string to parse
- * @param systemInfo The system infos
+ * @param modulesInfo The system infos
  * @param pureOutput The output of the string but without tags
  * @param layout The layout of customfetch
  * @param tmp_layout The temponary layout to be used for $<auto> modules
@@ -65,7 +61,7 @@ struct parse_args_t
  * @param parsingLayout If we are parsing layout or not
  * @param no_more_reset If we are recursively parsing, e.g we are inside tags
  */
-std::string parse(std::string input, moduleMap_t& systemInfo, std::string& pureOutput, std::vector<std::string>& layout,
+std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pureOutput, std::vector<std::string>& layout,
                   std::vector<std::string>& tmp_layout, const Config& config, const colors_t& colors,
                   const bool parsingLayout, bool& no_more_reset);
 
@@ -75,7 +71,7 @@ std::string parse(const std::string& input, parse_args_t& parse_args);
 // so we have to create a tmp string just for the sake of the function arguments
 std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args);
 
-/* Set module members values to a systemInfo_t map.
+/* Set module members values to a modulesInfo_t map.
  * If the name of said module matches any module name, it will be added
  * else, error out.
  * @param moduleName The module name
@@ -85,7 +81,7 @@ std::string parse(const std::string& input, std::string& _, parse_args_t& parse_
 // void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName,
 //                               parse_args_t& parse_args);
 
-/* Set module only values to a systemInfo_t map.
+/* Set module only values to a modulesInfo_t map.
  * If the name of said module matches any module name, it will be added
  * else, error out.
  * @param moduleName The module name
@@ -95,11 +91,11 @@ std::string parse(const std::string& input, std::string& _, parse_args_t& parse_
 
 /*
  * Return an info module member value
- * @param systemInfo The systemInfo_t map
+ * @param modulesInfo The modulesInfo_t map
  * @param moduleName The module name
  * @param moduleMemberName The module member name
  */
-const std::string getInfoFromName(const moduleMap_t& systemInfo, const std::string_view moduleName,
+const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::string_view moduleName,
                                   const std::string_view moduleMemberName);
 
 /*

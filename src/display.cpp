@@ -29,9 +29,7 @@
 
 #include <cstddef>
 #include <cstdio>
-#include <memory>
 #include <string>
-#include <utility>
 
 #include "platform.hpp"
 
@@ -97,7 +95,7 @@ std::string Display::detect_distro(const Config& config)
 #endif
 }
 
-static std::vector<std::string> render_with_image(moduleMap_t& systemInfo, std::vector<std::string>& layout,
+static std::vector<std::string> render_with_image(moduleMap_t& modulesInfo, std::vector<std::string>& layout,
                                                   const Config& config, const colors_t& colors,
                                                   const std::filesystem::path& path, const std::uint16_t font_width,
                                                   const std::uint16_t font_height)
@@ -119,7 +117,7 @@ static std::vector<std::string> render_with_image(moduleMap_t& systemInfo, std::
 
     std::string              _;
     std::vector<std::string> tmp_layout;
-    parse_args_t             parse_args{ systemInfo, _, layout, tmp_layout, config, colors, true };
+    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, colors, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
         layout[i]                = parse(layout[i], parse_args);

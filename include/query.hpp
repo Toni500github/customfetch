@@ -27,16 +27,12 @@
 #define _QUERY_HPP
 
 #include <cstdint>
-#include <fstream>
-#include <functional>
-#include <memory>
 #include <string>
 #include <unordered_map>
 #include <variant>
 #include <vector>
 
 #include "config.hpp"
-#include "util.hpp"
 #include "common.hpp"
 
 extern "C" {

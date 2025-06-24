@@ -908,6 +908,7 @@ int main(int argc, char *argv[])
 #if CF_LINUX
     if (os_release) fclose(os_release);
     if (cpuinfo) fclose(cpuinfo);
+    if (meminfo) fclose(meminfo);
 #endif
 
     UNLOAD_LIBRARY(cufetch_handle);

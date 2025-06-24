@@ -63,7 +63,7 @@ using namespace GUI;
 static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
 {
     std::string              path{ Display::detect_distro(config) };
-    moduleMap_t              systemInfo{};
+    moduleMap_t              modulesInfo{};
     std::vector<std::string> layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
     int image_width, image_height, channels;
@@ -90,7 +90,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     std::ifstream            file(path, std::ios::binary);
     std::string              line, _;
     std::vector<std::string> tmp_layout;
-    parse_args_t             parse_args{ systemInfo, _, layout, tmp_layout, config, colors, false };
+    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, colors, false };
     while (std::getline(file, line))
     {
         parse(line, parse_args);
