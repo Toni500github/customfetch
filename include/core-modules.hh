@@ -4,7 +4,7 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 
-#define MODFUNC(name) const std::string name(__attribute__((unused)) const std::string& module = "")
+#define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t *callbackInfo = nullptr)
 
 // system.cc
 inline utsname g_uname_infos;
@@ -65,4 +65,4 @@ double swap_total();
 double swap_used();
 
 #undef MODFUNC
-#define MODFUNC(name) const std::string name(__attribute__((unused)) const std::string& module)
+#define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t *callbackInfo)

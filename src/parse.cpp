@@ -39,6 +39,7 @@
 #include <string_view>
 #include <vector>
 
+#include "common.hpp"
 #include "config.hpp"
 #include "fmt/color.h"
 #include "fmt/format.h"
@@ -245,47 +246,92 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
-const std::string getInfoFromName(const moduleMap_t& modulesInfo, std::string moduleName)
+const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::string &moduleName)
 {
-    /* Position of the open parenthesis */
-    int open_par_pos = -1;
-    int i = -1;
+    std::string name;
+    name.reserve(moduleName.size());
+
+    /* true when we find a '(' */
+    bool collecting = false;
+
+    /* current position */
+    size_t i = -1;
+    size_t stripped_char_count = 0; /* amount of chars stripped from `name` */
+
+    /* position of start, resets every separator */
+    size_t start_pos = 0;
+
+    moduleArgs_t *moduleArgs = new moduleArgs_t;
 
     /* argument that's collected from what's between the parenthesis in "module(...).test" */
     std::string arg;
+    arg.reserve(moduleName.size());
     for (const char c : moduleName)
     {
         i++;
-        if (c == '(' && open_par_pos == -1)
+        if (c == '(' && !collecting)
         {
-            open_par_pos = i;
+            collecting = true;
             continue;
         }
 
-        /* we've reached the separator, do some validation. */
-        /* TODO(burntranch): get separator from a common header or config that both libcufetch and we read from. */
-        if (c == '.')
-        {
-            if (open_par_pos != -1 && arg.back() != ')')
-                die("Module name `{}` is invalid. Arguments must end with )", moduleName);
+        if ((c == '.' || i + 1 == moduleName.size())) {
+            if (collecting) {
+                if (arg.back() != ')' && c != ')')
+                    die("Module name `{}` is invalid. Arguments must end with )", moduleName);
+                
+                if (arg.back() == ')')
+                    arg.pop_back();
 
-            if (open_par_pos != -1)
-            {
-                arg.pop_back();
-                moduleName.erase(open_par_pos, arg.length() + 2);
+                moduleArgs_t *moduleArg = moduleArgs;
+                while (moduleArg->next != nullptr) {
+                    moduleArg = moduleArg->next;
+                }
+
+                moduleArg->name = std::string{name.begin() + start_pos, name.end()};
+                moduleArg->value = arg;
+                moduleArg->next = new moduleArgs_t;
+                moduleArg->next->prev = moduleArg;
+
+                if (c == '.') {
+                    name.push_back('.');
+                    stripped_char_count++;
+                }
+            } else {
+                name.push_back(c);
             }
 
-            break;
+            start_pos = i + 1 - stripped_char_count;
+            arg = "";
+            collecting = false;
+
+            continue;
         }
 
-        if (open_par_pos != -1)
-            arg += c;
+        if (!collecting) {
+            name.push_back(c);
+        } else {
+            stripped_char_count++;
+            arg.push_back(c);
+        }
     }
 
-    if (const auto& it = modulesInfo.find(moduleName); it != modulesInfo.end())
-        return it->second.handler(arg);
+    std::string result = "(unknown/invalid module)";
+    if (const auto& it = modulesInfo.find(name); it != modulesInfo.end()) {
+        struct callbackInfo_t callbackInfo = { moduleArgs };
 
-    return "(unknown/invalid module)";
+        result = it->second.handler(&callbackInfo);
+    }
+
+    while (moduleArgs) {
+        moduleArgs_t *next = moduleArgs->next;
+
+        delete moduleArgs;
+
+        moduleArgs = next;
+    }
+
+    return result;
 }
 
 std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate = true, const char until = 0);

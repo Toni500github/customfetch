@@ -91,9 +91,23 @@ void info(const std::string_view fmt, Args&&... args) noexcept
 
 #undef BOLD_COLOR
 
+/* A linked list including module arguments. An argument may be specified for any part of the module path (e.g. `disk(/).used(GiB)`, `test(a).hi`) */
+struct moduleArgs_t {
+    struct moduleArgs_t *prev = nullptr;
+
+    std::string name;
+    std::string value;
+
+    struct moduleArgs_t *next = nullptr;
+};
+
+struct callbackInfo_t {
+    struct moduleArgs_t *moduleArgs;
+};
+
 struct module_t
 {
     std::string           name;
     std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
-    std::function<const std::string(const std::string&)> handler;
+    std::function<const std::string(const callbackInfo_t *)> handler;
 };
