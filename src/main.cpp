@@ -779,8 +779,6 @@ int main(int argc, char *argv[])
 #endif
 
     // clang-format on
-    colors_t colors;
-
     const std::filesystem::path configDir  = getConfigDir();
     const std::filesystem::path configFile = parse_config_path(argc, argv, configDir);
 
@@ -789,7 +787,7 @@ int main(int argc, char *argv[])
     Config config(configFile, configDir);
     if (!parseargs(argc, argv, config, configFile))
         return 1;
-    config.loadConfigFile(configFile, colors);
+    config.loadConfigFile(configFile);
 
     void* cufetch_handle = LOAD_LIBRARY("libcufetch.so")
     if (!cufetch_handle)
@@ -868,7 +866,7 @@ int main(int argc, char *argv[])
 
 #if GUI_APP
     const auto& app = Gtk::Application::create("org.toni.customfetch");
-    GUI::Window window(config, colors, path, moduleMap);
+    GUI::Window window(config, path, moduleMap);
     return app->run(window);
 #endif  // GUI_APP
 
@@ -892,13 +890,13 @@ int main(int argc, char *argv[])
             write(STDOUT_FILENO, "\33[H\33[2J", 7);
             fmt::print("\033[0;0H");
 
-            Display::display(Display::render(config, colors, false, path, moduleMap));
+            Display::display(Display::render(config, false, path, moduleMap));
             std::this_thread::sleep_for(sleep_ms);
         }
     }
     else
     {
-        Display::display(Display::render(config, colors, false, path, moduleMap));
+        Display::display(Display::render(config, false, path, moduleMap));
     }
 
     // enable both of them again

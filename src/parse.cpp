@@ -29,8 +29,6 @@
 
 #include <algorithm>
 #include <array>
-#include <chrono>
-#include <cstdint>
 #include <cstdlib>
 #include <ios>
 #include <optional>
@@ -121,7 +119,7 @@ std::string _;
 // @param noesc_str The ansi color without \\e[ or \033[
 // @param colors The colors struct we'll look at
 // @return An array of 3 span tags elements in the follow: color, weight, type
-static std::array<std::string, 3> get_ansi_color(const std::string_view noesc_str, const colors_t& colors)
+static std::array<std::string, 3> get_ansi_color(const std::string_view noesc_str, const Config::colors_t& colors)
 {
     const size_t first_m = noesc_str.rfind('m');
     if (first_m == std::string::npos)
@@ -209,13 +207,13 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args)
 {
     return parse(input, parse_args.modulesInfo, _, parse_args.layout, parse_args.tmp_layout, parse_args.config,
-                 parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
+                 parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
 std::string parse(const std::string& input, parse_args_t& parse_args)
 {
     return parse(input, parse_args.modulesInfo, parse_args.pureOutput, parse_args.layout, parse_args.tmp_layout,
-                 parse_args.config, parse_args.colors, parse_args.parsingLayout, parse_args.no_more_reset);
+                 parse_args.config, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
 std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args, const bool invert)
@@ -376,6 +374,12 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     return cmd_output;
 }
 
+template <typename... Styles>
+static void append_styles(fmt::text_style& current_style, Styles&&... styles)
+{
+    current_style |= (styles | ...);
+}
+
 std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_args, const bool evaluate)
 {
     if (!parser.try_read('{'))
@@ -388,7 +392,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 
     std::string     output;
     const Config&   config = parse_args.config;
-    const colors_t& colors = parse_args.colors;
+    const Config::colors_t& colors = parse_args.config.colors;
     const size_t    taglen = color.length() + "${}"_len;
 
     const std::string endspan{ !parse_args.firstrun_clr ? "</span>" : "" };
@@ -790,7 +794,7 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
 }
 
 std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pureOutput, std::vector<std::string>& layout,
-                  std::vector<std::string>& tmp_layout, const Config& config, const colors_t& colors,
+                  std::vector<std::string>& tmp_layout, const Config& config,
                   const bool parsingLayout, bool& no_more_reset)
 {
     if (!config.sep_reset.empty() && parsingLayout && !no_more_reset)
@@ -804,7 +808,7 @@ std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pure
     }
 
     parse_args_t parse_args{ modulesInfo, pureOutput,    layout, tmp_layout,   config,
-                             colors,     parsingLayout, true,   no_more_reset };
+                             parsingLayout, true,   no_more_reset };
     Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };

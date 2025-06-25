@@ -60,7 +60,7 @@ using namespace GUI;
 }*/
 
 // Display::render but only for images on GUI
-static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
+static std::vector<std::string> render_with_image(const Config& config)
 {
     std::string              path{ Display::detect_distro(config) };
     moduleMap_t              modulesInfo{};
@@ -90,7 +90,7 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     std::ifstream            file(path, std::ios::binary);
     std::string              line, _;
     std::vector<std::string> tmp_layout;
-    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, colors, false };
+    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, false };
     while (std::getline(file, line))
     {
         parse(line, parse_args);
@@ -133,19 +133,18 @@ bool Window::set_layout_markup()
     if (isImage)
     {
         if (!m_config.args_print_logo_only)
-            m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(m_config, m_colors), "\n")));
+            m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(m_config), "\n")));
     }
     else
     {
         m_label.set_markup(
-            fmt::format("{}", fmt::join(Display::render(m_config, m_colors, true, m_path, m_moduleMap), "\n")));
+            fmt::format("{}", fmt::join(Display::render(m_config, true, m_path, m_moduleMap), "\n")));
     }
     return true;
 }
 
-Window::Window(const Config& config, const colors_t& colors, const std::filesystem::path& path, moduleMap_t& moduleMap) :
+Window::Window(const Config& config, const std::filesystem::path& path, moduleMap_t& moduleMap) :
     m_config(config),
-    m_colors(colors),
     m_path(path),
     m_moduleMap(moduleMap),
     isImage(false)

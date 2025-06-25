@@ -51,34 +51,34 @@ struct override_configs_types
     int         int_value    = 0;
 };
 
-// config colors
-// those without gui_ prefix are for the terminal
-struct colors_t
-{
-    std::string black;
-    std::string red;
-    std::string green;
-    std::string blue;
-    std::string cyan;
-    std::string yellow;
-    std::string magenta;
-    std::string white;
-
-    std::string gui_black;
-    std::string gui_red;
-    std::string gui_green;
-    std::string gui_blue;
-    std::string gui_cyan;
-    std::string gui_yellow;
-    std::string gui_magenta;
-    std::string gui_white;
-};
-
 class Config
 {
 public:
     // Create .config directories and files and load the config file (args or default)
     Config(const std::filesystem::path& configFile, const std::filesystem::path& configDir);
+    
+    // config colors
+    // those without gui_ prefix are for the terminal
+    struct colors_t
+    {
+        std::string black;
+        std::string red;
+        std::string green;
+        std::string blue;
+        std::string cyan;
+        std::string yellow;
+        std::string magenta;
+        std::string white;
+
+        std::string gui_black;
+        std::string gui_red;
+        std::string gui_green;
+        std::string gui_blue;
+        std::string gui_cyan;
+        std::string gui_yellow;
+        std::string gui_magenta;
+        std::string gui_white;
+    } colors;
 
     // Variables of config file in [config] table
     std::vector<std::string> layout;
@@ -141,7 +141,7 @@ public:
      * @param colors The colors struct where we'll put the default config colors.
      *               It doesn't include the colors in config.alias-colors
      */
-    void loadConfigFile(const std::filesystem::path& filename, colors_t& colors);
+    void loadConfigFile(const std::filesystem::path& filename);
 
     /**
      * Generate the default config file at path

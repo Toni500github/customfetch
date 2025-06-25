@@ -49,16 +49,14 @@ public:
     /**
      * Initialize and create everything and parse layout with source path.
      * @param config The config class
-     * @param colors The non-alias colors struct
      * @param path The logo source path
      */
-    Window(const Config& config, const colors_t& colors, const std::filesystem::path& path, moduleMap_t& moduleMap);
+    Window(const Config& config, const std::filesystem::path& path, moduleMap_t& moduleMap);
     // Destroy the window, handled by GTK
     virtual ~Window();
 
 private:
     const Config&                m_config;
-    const colors_t&              m_colors;
     const std::filesystem::path& m_path;
     moduleMap_t&                 m_moduleMap;
     bool                         isImage;

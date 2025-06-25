@@ -85,11 +85,10 @@ namespace Display
 /*
  * Render the layout along side the source file and return the vector
  * @param config The config class
- * @param colors The colors
  * @param already_analyzed_path If already checked that the source path is not a binary file
  * @param path Path to source file
  */
-std::vector<std::string> render(const Config& config, const colors_t& colors, const bool already_analyzed_path,
+std::vector<std::string> render(const Config& config, const bool already_analyzed_path,
                                 const std::filesystem::path& path, moduleMap_t& moduleMap);
 
 /*

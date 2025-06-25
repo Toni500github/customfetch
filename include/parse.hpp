@@ -30,7 +30,9 @@
 #include <vector>
 
 #include "config.hpp"
-#include "query.hpp"
+
+// Map from a modules name to its pointer.
+using moduleMap_t = std::unordered_map<std::string, const module_t&>;
 
 /* The additional args that parse() needs for getting the necessary infos/configs.
  * Only used for making the argument passing more clear.
@@ -43,7 +45,6 @@ struct parse_args_t
     std::vector<std::string>& layout;
     std::vector<std::string>& tmp_layout;
     const Config&             config;
-    const colors_t&           colors;
     bool                      parsingLayout;
     bool                      firstrun_clr  = true;
     bool                      no_more_reset = false;
@@ -62,7 +63,7 @@ struct parse_args_t
  * @param no_more_reset If we are recursively parsing, e.g we are inside tags
  */
 std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pureOutput, std::vector<std::string>& layout,
-                  std::vector<std::string>& tmp_layout, const Config& config, const colors_t& colors,
+                  std::vector<std::string>& tmp_layout, const Config& config,
                   const bool parsingLayout, bool& no_more_reset);
 
 // parse() for parse_args_t& arguments
@@ -108,11 +109,5 @@ const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::str
  */
 std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args,
                                      const bool invert = false);
-
-template <typename... Styles>
-void append_styles(fmt::text_style& current_style, Styles&&... styles)
-{
-    current_style |= (styles | ...);
-}
 
 #endif

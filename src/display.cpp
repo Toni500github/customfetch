@@ -96,9 +96,8 @@ std::string Display::detect_distro(const Config& config)
 }
 
 static std::vector<std::string> render_with_image(moduleMap_t& modulesInfo, std::vector<std::string>& layout,
-                                                  const Config& config, const colors_t& colors,
-                                                  const std::filesystem::path& path, const std::uint16_t font_width,
-                                                  const std::uint16_t font_height)
+                                                  const Config& config, const std::filesystem::path& path,
+                                                  const std::uint16_t font_width, const std::uint16_t font_height)
 {
     int image_width, image_height, channels;
 
@@ -117,7 +116,7 @@ static std::vector<std::string> render_with_image(moduleMap_t& modulesInfo, std:
 
     std::string              _;
     std::vector<std::string> tmp_layout;
-    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, colors, true };
+    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
         layout[i]                = parse(layout[i], parse_args);
@@ -222,7 +221,7 @@ static bool get_pos(int& y, int& x)
     return true;
 }
 
-std::vector<std::string> Display::render(const Config& config, const colors_t& colors, const bool already_analyzed_file,
+std::vector<std::string> Display::render(const Config& config, const bool already_analyzed_file,
                                          const std::filesystem::path& path, moduleMap_t& moduleMap)
 {
     std::vector<std::string> asciiArt{}, layout{ config.args_layout.empty() ? config.layout : config.args_layout };
@@ -270,7 +269,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         std::ifstream            distro_file(distro_path);
         std::string              line, _;
         std::vector<std::string> tmp_layout;
-        parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, colors, false };
+        parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, false };
 
         while (std::getline(distro_file, line))
         {
@@ -298,7 +297,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
         get_pos(y, x);
         fmt::print("\033[{};{}H", y, x);
 
-        return render_with_image(moduleMap, layout, config, colors, path, font_width, font_height);
+        return render_with_image(moduleMap, layout, config, path, font_width, font_height);
     }
 
     if (Display::ascii_logo_fd != -1)
@@ -323,7 +322,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
     {
         std::string              pureOutput;
         std::vector<std::string> tmp_layout;
-        parse_args_t             parse_args{ moduleMap, pureOutput, layout, tmp_layout, config, colors, false };
+        parse_args_t             parse_args{ moduleMap, pureOutput, layout, tmp_layout, config, false };
 
         std::string asciiArt_s   = parse(line, parse_args);
         parse_args.no_more_reset = false;
@@ -352,7 +351,7 @@ std::vector<std::string> Display::render(const Config& config, const colors_t& c
 
     std::string              _;
     std::vector<std::string> tmp_layout;
-    parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, colors, true };
+    parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
         layout[i]                = parse(layout[i], parse_args);

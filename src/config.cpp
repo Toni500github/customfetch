@@ -49,7 +49,7 @@ Config::Config(const std::filesystem::path& configFile, const std::filesystem::p
     }
 }
 
-void Config::loadConfigFile(const std::filesystem::path& filename, colors_t& colors)
+void Config::loadConfigFile(const std::filesystem::path& filename)
 {
     try
     {
