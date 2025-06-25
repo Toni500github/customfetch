@@ -244,7 +244,7 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
-const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::string &moduleName)
+const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::string& moduleName)
 {
     std::string name;
     name.reserve(moduleName.size());
@@ -253,13 +253,13 @@ const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::str
     bool collecting = false;
 
     /* current position */
-    size_t i = -1;
+    size_t i                   = -1;
     size_t stripped_char_count = 0; /* amount of chars stripped from `name` */
 
     /* position of start, resets every separator */
     size_t start_pos = 0;
 
-    moduleArgs_t *moduleArgs = new moduleArgs_t;
+    moduleArgs_t* moduleArgs = new moduleArgs_t;
 
     /* argument that's collected from what's between the parenthesis in "module(...).test" */
     std::string arg;
@@ -273,56 +273,67 @@ const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::str
             continue;
         }
 
-        if ((c == '.' || i + 1 == moduleName.size())) {
-            if (collecting) {
+        if ((c == '.' || i + 1 == moduleName.size()))
+        {
+            if (collecting)
+            {
                 if (arg.back() != ')' && c != ')')
                     die("Module name `{}` is invalid. Arguments must end with )", moduleName);
-                
+
                 if (arg.back() == ')')
                     arg.pop_back();
 
-                moduleArgs_t *moduleArg = moduleArgs;
-                while (moduleArg->next != nullptr) {
+                moduleArgs_t* moduleArg = moduleArgs;
+                while (moduleArg->next != nullptr)
+                {
                     moduleArg = moduleArg->next;
                 }
 
-                moduleArg->name = std::string{name.begin() + start_pos, name.end()};
-                moduleArg->value = arg;
-                moduleArg->next = new moduleArgs_t;
+                moduleArg->name       = std::string{ name.begin() + start_pos, name.end() };
+                moduleArg->value      = arg;
+                moduleArg->next       = new moduleArgs_t;
                 moduleArg->next->prev = moduleArg;
 
-                if (c == '.') {
+                if (c == '.')
+                {
                     name.push_back('.');
                     stripped_char_count++;
                 }
-            } else {
+            }
+            else
+            {
                 name.push_back(c);
             }
 
-            start_pos = i + 1 - stripped_char_count;
-            arg = "";
+            start_pos  = i + 1 - stripped_char_count;
+            arg        = "";
             collecting = false;
 
             continue;
         }
 
-        if (!collecting) {
+        if (!collecting)
+        {
             name.push_back(c);
-        } else {
+        }
+        else
+        {
             stripped_char_count++;
             arg.push_back(c);
         }
     }
 
     std::string result = "(unknown/invalid module)";
-    if (const auto& it = modulesInfo.find(name); it != modulesInfo.end()) {
+    if (const auto& it = modulesInfo.find(name); it != modulesInfo.end())
+    {
         struct callbackInfo_t callbackInfo = { moduleArgs };
 
         result = it->second.handler(&callbackInfo);
     }
 
-    while (moduleArgs) {
-        moduleArgs_t *next = moduleArgs->next;
+    while (moduleArgs)
+    {
+        moduleArgs_t* next = moduleArgs->next;
 
         delete moduleArgs;
 
@@ -390,10 +401,10 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     if (!evaluate)
         return {};
 
-    std::string     output;
-    const Config&   config = parse_args.config;
+    std::string             output;
+    const Config&           config = parse_args.config;
     const Config::colors_t& colors = parse_args.config.colors;
-    const size_t    taglen = color.length() + "${}"_len;
+    const size_t            taglen = color.length() + "${}"_len;
 
     const std::string endspan{ !parse_args.firstrun_clr ? "</span>" : "" };
 
@@ -793,8 +804,8 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
     return result;
 }
 
-std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pureOutput, std::vector<std::string>& layout,
-                  std::vector<std::string>& tmp_layout, const Config& config,
+std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pureOutput,
+                  std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const Config& config,
                   const bool parsingLayout, bool& no_more_reset)
 {
     if (!config.sep_reset.empty() && parsingLayout && !no_more_reset)
@@ -807,8 +818,7 @@ std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pure
         no_more_reset = true;
     }
 
-    parse_args_t parse_args{ modulesInfo, pureOutput,    layout, tmp_layout,   config,
-                             parsingLayout, true,   no_more_reset };
+    parse_args_t parse_args{ modulesInfo, pureOutput, layout, tmp_layout, config, parsingLayout, true, no_more_reset };
     Parser       parser{ input, pureOutput };
 
     std::string ret{ parse(parser, parse_args) };
