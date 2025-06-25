@@ -145,7 +145,7 @@ byte_units_t auto_divide_bytes(const double num, const std::uint16_t base, const
 {
     double size = num;
 
-    std::array<std::string_view, 10> prefixes;
+    std::array<std::string_view, 9> prefixes;
     if (base == 1024)
         prefixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     else if (base == 1000)
@@ -153,34 +153,44 @@ byte_units_t auto_divide_bytes(const double num, const std::uint16_t base, const
     else
         prefixes = { "B" };
 
-    std::uint16_t counter = 0;
-    if (maxprefix.empty())
+    size_t counter = 0;
+    const auto& max_it = !maxprefix.empty()
+        ? std::find(prefixes.begin(), prefixes.end(), maxprefix)
+        : prefixes.end();
+
+    while (counter + 1 < prefixes.size() && size >= base)
     {
-        for (; counter < prefixes.size() && size >= base; ++counter)
-            size /= base;
-    }
-    else
-    {
-        for (; counter < prefixes.size() && size >= base && prefixes.at(counter) != maxprefix; ++counter)
-            size /= base;
+        if (max_it != prefixes.end() && prefixes[counter] == maxprefix)
+            break;
+        size /= base;
+        ++counter;
     }
 
-    return { prefixes.at(counter).data(), size };
+    return { prefixes[counter].data(), size };
 }
 
 byte_units_t divide_bytes(const double num, const std::string_view prefix)
 {
-    if (prefix != "B")
-    {
-        // GiB
-        // 012
-        if (prefix.size() == 3 && prefix.at(1) == 'i')
-            return auto_divide_bytes(num, 1024, prefix);
-        else
-            return auto_divide_bytes(num, 1000, prefix);
-    }
+    if (prefix == "B")
+        return {"B", num};
 
-    return auto_divide_bytes(num, 0);
+    // GiB
+    // 012
+    const std::uint16_t base = (prefix.size() == 3 && prefix[1] == 'i') ? 1024 : 1000;
+    std::array<std::string_view, 9> prefixes;
+    if (base == 1024)
+        prefixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+    else if (base == 1000)
+        prefixes = { "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+
+    const auto& it = std::find(prefixes.begin(), prefixes.end(), prefix);
+    if (it == prefixes.end())
+        return {"B", num};
+
+    const size_t index = std::distance(prefixes.begin(), it);
+    const double value = num / std::pow(static_cast<double>(base), index);
+
+    return { prefix.data(), value };
 }
 
 bool is_file_image(const unsigned char* bytes)

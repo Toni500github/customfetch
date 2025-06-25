@@ -10,22 +10,26 @@
 #include "fmt/format.h"
 #include "util.hpp"
 
-using unused = const std::string&;
+using unused = const callbackInfo_t *;
 
-const std::string amount(const double amount, const std::string& prefix)
+const std::string amount(const double amount, moduleArgs_t *moduleArgs, const std::string& name)
 {
     constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
                                                                          "KiB", "MB", "MiB", "PB", "PiB", "TB",
                                                                          "TiB", "YB", "YiB", "ZB", "ZiB" };
 
-    if (prefix.empty())
+    if (moduleArgs->value.empty() || !moduleArgs->next)
     {
         byte_units_t amount_unit = auto_divide_bytes(amount * 1024, 1024);
         return fmt::format("{:.2f} {}", amount_unit.num_bytes, amount_unit.unit);
     }
 
+    moduleArgs_t *modArgs = moduleArgs;
+    for (; modArgs && modArgs->name != name; modArgs = modArgs->next);
+    const std::string& prefix = modArgs->value;
+
     if (std::binary_search(sorted_valid_prefixes.begin(), sorted_valid_prefixes.end(), prefix))
-            return fmt::format("{:.2f}", divide_bytes(amount, prefix).num_bytes);
+        return fmt::format("{:.5f}", divide_bytes(amount * 1024, prefix).num_bytes);
     return "0";
 }
 
@@ -73,14 +77,14 @@ void core_plugins_start(void *handle)
     module_t os_kernel_module = {"kernel", {
         std::move(os_kernel_name_module),
         std::move(os_kernel_version_module)
-    }, [](const callbackInfo_t *) {return os_kernel_name() + ' ' + os_kernel_version();}};
+    }, [](unused) {return os_kernel_name() + ' ' + os_kernel_version();}};
 
     module_t os_initsys_name_module = {"name", {}, os_initsys_name};
     module_t os_initsys_version_module = {"version", {}, os_initsys_version};
     module_t os_initsys_module = {"initsys", {
         std::move(os_initsys_name_module),
         std::move(os_initsys_version_module),
-    }, [](const callbackInfo_t *) {return os_initsys_name() + ' ' + os_initsys_version();}};
+    }, [](unused) {return os_initsys_name() + ' ' + os_initsys_version();}};
 
     /* Only for compatibility */
     module_t os_pretty_name_module_compat = { "pretty_name", {}, os_pretty_name };
@@ -145,23 +149,23 @@ void core_plugins_start(void *handle)
         std::move(cpu_freq_bios_module),
     }, cpu_freq_max};
 
-    module_t cpu_temp_C_module = {"C", {}, [](const callbackInfo_t *) {return fmt::format("{:.2f}°C", cpu_temp());}};
-    module_t cpu_temp_F_module = {"F", {}, [](const callbackInfo_t *) {return fmt::format("{:.2f}°F", cpu_temp() * 1.8 + 34);}};
-    module_t cpu_temp_K_module = {"K", {}, [](const callbackInfo_t *) {return fmt::format("{:.2f}°K", cpu_temp() + 273.15);}};
+    module_t cpu_temp_C_module = {"C", {}, [](unused) {return fmt::format("{:.2f}°C", cpu_temp());}};
+    module_t cpu_temp_F_module = {"F", {}, [](unused) {return fmt::format("{:.2f}°F", cpu_temp() * 1.8 + 34);}};
+    module_t cpu_temp_K_module = {"K", {}, [](unused) {return fmt::format("{:.2f}°K", cpu_temp() + 273.15);}};
     module_t cpu_temp_module = {"temp", {
         std::move(cpu_temp_C_module),
         std::move(cpu_temp_F_module),
         std::move(cpu_temp_K_module),
-    }, [](const callbackInfo_t *) {return fmt::format("{:.2f}°C", cpu_temp());}};
+    }, [](unused) {return fmt::format("{:.2f}°C", cpu_temp());}};
 
     /* Only for compatibility */
     module_t cpu_freq_cur_module_compat = {"freq_cur", {}, cpu_freq_cur};
     module_t cpu_freq_max_module_compat = {"freq_max", {}, cpu_freq_max};
     module_t cpu_freq_min_module_compat = {"freq_min", {}, cpu_freq_min};
     module_t cpu_freq_bios_module_compat = {"freq_bios_limit", {}, cpu_freq_bios};
-    module_t cpu_temp_C_module_compat = {"temp_C", {}, [](const callbackInfo_t *) {return fmt::format("{:.2f}", cpu_temp());}};
-    module_t cpu_temp_F_module_compat = {"temp_F", {}, [](const callbackInfo_t *) {return fmt::format("{:.2f}", cpu_temp() * 1.8 + 34);}};
-    module_t cpu_temp_K_module_compat = {"temp_K", {}, [](const callbackInfo_t *) {return fmt::format("{:.2f}", cpu_temp() + 273.15);}};
+    module_t cpu_temp_C_module_compat = {"temp_C", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp());}};
+    module_t cpu_temp_F_module_compat = {"temp_F", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp() * 1.8 + 34);}};
+    module_t cpu_temp_K_module_compat = {"temp_K", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp() + 273.15);}};
 
     module_t cpu_module = {"cpu", {
         std::move(cpu_name_module),
@@ -176,7 +180,7 @@ void core_plugins_start(void *handle)
         std::move(cpu_temp_C_module_compat),
         std::move(cpu_temp_F_module_compat),
         std::move(cpu_temp_K_module_compat),
-    }, [](const callbackInfo_t *) {
+    }, [](unused) {
             return fmt::format("{} ({}) @ {} GHz", cpu_name(), cpu_nproc(), cpu_freq_max());
         }};
 
@@ -192,28 +196,28 @@ void core_plugins_start(void *handle)
         std::move(user_shell_name_module),
         std::move(user_shell_path_module),
         std::move(user_shell_version_module),
-    }, [](const callbackInfo_t *) {return user_shell_name() + " " + user_shell_version();}};
+    }, [](unused) {return user_shell_name() + " " + user_shell_version();}};
 
     module_t user_term_name_module = {"name", {}, user_term_name};
     module_t user_term_version_module = {"version", {}, user_shell_version};
     module_t user_term_module = {"terminal", {
         std::move(user_term_version_module),
         std::move(user_term_name_module)
-    }, [](const callbackInfo_t *) {return user_term_name() + " " + user_term_version();}};
+    }, [](unused) {return user_term_name() + " " + user_term_version();}};
 
     module_t user_wm_name_module = {"name", {}, user_wm_name};
     module_t user_wm_version_module = {"version", {}, user_wm_version};
     module_t user_wm_module = {"wm", {
         std::move(user_wm_version_module),
         std::move(user_wm_name_module)
-    }, [](const callbackInfo_t *) {return user_wm_name() + " " + user_wm_version();}};
+    }, [](unused) {return user_wm_name() + " " + user_wm_version();}};
 
     module_t user_de_name_module = {"name", {}, user_de_name};
     module_t user_de_version_module = {"version", {}, user_de_version};
     module_t user_de_module = {"de", {
         std::move(user_de_version_module),
         std::move(user_de_name_module)
-    }, [](const callbackInfo_t *) {return user_de_name() + " " + user_de_version();}};
+    }, [](unused) {return user_de_name() + " " + user_de_version();}};
 
     /* Only for compatibility */
     module_t user_shell_path_module_compat = {"shell_path", {}, user_shell_path};
@@ -247,10 +251,9 @@ void core_plugins_start(void *handle)
     cfRegisterModule(user_module);
 
     // $<ram>
-    /* TODO(burntranch): readd prefix support */
-    module_t ram_free_module  = {"free",  {}, [&](const callbackInfo_t *) { return std::to_string(ram_free()); }};
-    module_t ram_used_module  = {"used",  {}, [&](const callbackInfo_t *) { return std::to_string(ram_used()); }};
-    module_t ram_total_module = {"total", {}, [&](const callbackInfo_t *) { return std::to_string(ram_total()); }};
+    module_t ram_free_module  = {"free",  {}, [](const callbackInfo_t *callback) { return amount(ram_free(),  callback->moduleArgs, "free"); }};
+    module_t ram_used_module  = {"used",  {}, [](const callbackInfo_t *callback) { return amount(ram_used(),  callback->moduleArgs, "used"); }};
+    module_t ram_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(ram_total(), callback->moduleArgs, "total"); }};
     module_t ram_module = {"ram", {
         std::move(ram_free_module),
         std::move(ram_used_module),
