@@ -61,7 +61,7 @@ SRC_CC  	 = $(wildcard src/core-plugins/linux/*.cc)
 OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
 OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
-LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
+LDFLAGS   	+= -L./$(BUILDDIR) -lcufetch -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
@@ -69,7 +69,8 @@ all: genver libcufetch fmt toml json $(TARGET)
 
 libcufetch:
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
-	make -C src/libs/cufetch BUILDDIR=$(BUILDDIR)
+	mkdir -p $(BUILDDIR)
+	make -C libcufetch BUILDDIR=$(BUILDDIR)
 endif
 
 fmt:

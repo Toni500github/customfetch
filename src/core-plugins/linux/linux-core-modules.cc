@@ -5,6 +5,8 @@
 #include <string>
 #include <string_view>
 #include <utility>
+
+#include "cufetch.hh"
 #include "core-modules.hh"
 #include "common.hpp"
 #include "fmt/format.h"
@@ -33,17 +35,9 @@ const std::string amount(const double amount, moduleArgs_t *moduleArgs, const st
     return "0";
 }
 
-void core_plugins_start(void *handle)
+void core_plugins_start()
 {
     // ------------ INIT STUFF ------------
-    if (!handle)
-    {
-        error("Exiting because !handle");
-        return;
-    }
-
-    LOAD_LIB_SYMBOL(handle, void, cfRegisterModule, const module_t& module);
-
     if (uname(&g_uname_infos) != 0)
         die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
 

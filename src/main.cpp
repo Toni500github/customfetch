@@ -36,6 +36,7 @@
 #include <thread>
 #include <vector>
 
+#include "cufetch.hh"
 #include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
@@ -755,7 +756,7 @@ static void localize(void)
 #endif
 }
 
-void core_plugins_start(void *handle);
+void core_plugins_start();
 int main(int argc, char *argv[])
 {
 
@@ -789,12 +790,8 @@ int main(int argc, char *argv[])
         return 1;
     config.loadConfigFile(configFile);
 
-    void* cufetch_handle = LOAD_LIBRARY("libcufetch.so")
-    if (!cufetch_handle)
-        die("Failed to load {}", dlerror());
-
     /* TODO(burntranch): track each library and unload them. */
-    core_plugins_start(cufetch_handle);
+    core_plugins_start();
     const std::filesystem::path modDir = configDir / "mods";
     std::filesystem::create_directories(modDir);
     for (const auto& entry : std::filesystem::directory_iterator{modDir})
@@ -810,12 +807,10 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        LOAD_LIB_SYMBOL(handle, void, start, void*)
+        //LOAD_LIB_SYMBOL(handle, void, start, void*)
 
-        start(cufetch_handle);
+        //start();
     }
-
-    LOAD_LIB_SYMBOL(cufetch_handle, const std::vector<module_t>&, cfGetModules)
 
     const std::vector<module_t>& modules = cfGetModules();
     moduleMap_t                  moduleMap;
@@ -908,8 +903,6 @@ int main(int argc, char *argv[])
     if (cpuinfo) fclose(cpuinfo);
     if (meminfo) fclose(meminfo);
 #endif
-
-    UNLOAD_LIBRARY(cufetch_handle);
 
     return 0;
 }

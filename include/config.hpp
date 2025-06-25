@@ -184,7 +184,6 @@ private:
             if (overridePos != overrides.end() && overrides.at(value.data()).value_type == BOOL)
                 return overrides.at(value.data()).bool_value;
 
-        // user wants a str (overridable), we found an override matching the name, and the override is a str.
         if constexpr (std::is_same<T, std::string>())
             if (overridePos != overrides.end() && overrides.at(value.data()).value_type == STR)
                 return overrides.at(value.data()).string_value;
