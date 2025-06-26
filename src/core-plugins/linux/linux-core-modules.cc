@@ -286,4 +286,41 @@ void core_plugins_start()
         std::move(disk_total_module),
     }, NULL};
     cfRegisterModule(disk_module);
+
+    // $<battery>
+    module_t battery_modelname_module = {"name", {}, battery_modelname};
+    module_t battery_status_module = {"status", {}, battery_status};
+    module_t battery_capacity_level_module = {"capacity_level", {}, battery_capacity_level};
+    module_t battery_technology_module = {"technology", {}, battery_technology};
+    module_t battery_vendor_module = {"manufacturer", {}, battery_vendor};
+    module_t battery_perc_module = {"perc", {}, battery_perc};
+
+    module_t battery_temp_C_module = {"C", {}, [](unused) {return fmt::format("{:.2f}°C", battery_temp());}};
+    module_t battery_temp_F_module = {"F", {}, [](unused) {return fmt::format("{:.2f}°F", battery_temp() * 1.8 + 34);}};
+    module_t battery_temp_K_module = {"K", {}, [](unused) {return fmt::format("{:.2f}°K", battery_temp() + 273.15);}};
+    module_t battery_temp_module = {"temp", {
+        std::move(battery_temp_C_module),
+        std::move(battery_temp_F_module),
+        std::move(battery_temp_K_module),
+    }, [](unused) {return fmt::format("{:.2f}°C", battery_temp());}};
+
+    /* Only for compatibility */
+    module_t battery_temp_C_module_compat = {"temp_C", {}, [](unused) {return fmt::format("{:.2f}", battery_temp());}};
+    module_t battery_temp_F_module_compat = {"temp_F", {}, [](unused) {return fmt::format("{:.2f}", battery_temp() * 1.8 + 34);}};
+    module_t battery_temp_K_module_compat = {"temp_K", {}, [](unused) {return fmt::format("{:.2f}", battery_temp() + 273.15);}};
+
+    module_t battery_module = {"battery", {
+        std::move(battery_modelname_module),
+        std::move(battery_status_module),
+        std::move(battery_capacity_level_module),
+        std::move(battery_technology_module),
+        std::move(battery_vendor_module),
+        std::move(battery_perc_module),
+        std::move(battery_temp_module),
+
+        std::move(battery_temp_C_module_compat),
+        std::move(battery_temp_F_module_compat),
+        std::move(battery_temp_K_module_compat),
+    }, NULL};
+    cfRegisterModule(battery_module);
 }

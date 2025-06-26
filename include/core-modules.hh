@@ -74,5 +74,14 @@ double disk_total(const callbackInfo_t *callbackInfo);
 double disk_free(const callbackInfo_t *callbackInfo);
 double disk_used(const callbackInfo_t *callbackInfo);
 
+// battery.cc
+MODFUNC(battery_modelname);
+MODFUNC(battery_perc);
+MODFUNC(battery_status);
+MODFUNC(battery_capacity_level);
+MODFUNC(battery_technology);
+MODFUNC(battery_vendor);
+double battery_temp();
+
 #undef MODFUNC
 #define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t *callbackInfo)
