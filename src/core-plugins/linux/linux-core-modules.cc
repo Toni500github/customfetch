@@ -1,4 +1,5 @@
 #include <dlfcn.h>
+#include <mntent.h>
 #include <unistd.h>
 #include <algorithm>
 #include <array>
@@ -14,24 +15,21 @@
 
 using unused = const callbackInfo_t *;
 
-const std::string amount(const double amount, moduleArgs_t *moduleArgs, const std::string& name)
+const std::string amount(const double amount, const moduleArgs_t *moduleArgs)
 {
     constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
                                                                          "KiB", "MB", "MiB", "PB", "PiB", "TB",
                                                                          "TiB", "YB", "YiB", "ZB", "ZiB" };
 
-    if (moduleArgs->value.empty() || !moduleArgs->next)
+    if (!moduleArgs->next || moduleArgs->next->value.empty())
     {
-        byte_units_t amount_unit = auto_divide_bytes(amount * 1024, 1024);
+        byte_units_t amount_unit = auto_divide_bytes(amount, 1024);
         return fmt::format("{:.2f} {}", amount_unit.num_bytes, amount_unit.unit);
     }
 
-    moduleArgs_t *modArgs = moduleArgs;
-    for (; modArgs && modArgs->name != name; modArgs = modArgs->next);
-    const std::string& prefix = modArgs->value;
-
+    const std::string& prefix = moduleArgs->next->value;
     if (std::binary_search(sorted_valid_prefixes.begin(), sorted_valid_prefixes.end(), prefix))
-        return fmt::format("{:.5f}", divide_bytes(amount * 1024, prefix).num_bytes);
+        return fmt::format("{:.5f}", divide_bytes(amount, prefix).num_bytes);
     return "0";
 }
 
@@ -54,6 +52,7 @@ void core_plugins_start()
     os_release = fopen("/etc/os-release", "r");
     cpuinfo = fopen("/proc/cpuinfo", "r");
     meminfo = fopen("/proc/meminfo", "r");
+    mountsFile = setmntent("/proc/mounts", "r");
 
     // ------------ MODULES REGISTERING ------------
     module_t os_name_pretty_module = {"pretty", {}, os_pretty_name};
@@ -71,14 +70,14 @@ void core_plugins_start()
     module_t os_kernel_module = {"kernel", {
         std::move(os_kernel_name_module),
         std::move(os_kernel_version_module)
-    }, [](unused) {return os_kernel_name() + ' ' + os_kernel_version();}};
+    }, [](unused) {return os_kernel_name() + " " + os_kernel_version();}};
 
     module_t os_initsys_name_module = {"name", {}, os_initsys_name};
     module_t os_initsys_version_module = {"version", {}, os_initsys_version};
     module_t os_initsys_module = {"initsys", {
         std::move(os_initsys_name_module),
         std::move(os_initsys_version_module),
-    }, [](unused) {return os_initsys_name() + ' ' + os_initsys_version();}};
+    }, [](unused) {return os_initsys_name() + " " + os_initsys_version();}};
 
     /* Only for compatibility */
     module_t os_pretty_name_module_compat = { "pretty_name", {}, os_pretty_name };
@@ -245,13 +244,46 @@ void core_plugins_start()
     cfRegisterModule(user_module);
 
     // $<ram>
-    module_t ram_free_module  = {"free",  {}, [](const callbackInfo_t *callback) { return amount(ram_free(),  callback->moduleArgs, "free"); }};
-    module_t ram_used_module  = {"used",  {}, [](const callbackInfo_t *callback) { return amount(ram_used(),  callback->moduleArgs, "used"); }};
-    module_t ram_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(ram_total(), callback->moduleArgs, "total"); }};
+    module_t ram_free_module  = {"free",  {}, [](const callbackInfo_t *callback) { return amount(ram_free() * 1024,  callback->moduleArgs);  }};
+    module_t ram_used_module  = {"used",  {}, [](const callbackInfo_t *callback) { return amount(ram_used() * 1024,  callback->moduleArgs);  }};
+    module_t ram_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(ram_total() * 1024, callback->moduleArgs); }};
+
     module_t ram_module = {"ram", {
         std::move(ram_free_module),
         std::move(ram_used_module),
         std::move(ram_total_module)
     }, NULL};
     cfRegisterModule(ram_module);
+
+    // $<swap>
+    module_t swap_free_module  = {"free",  {}, [](const callbackInfo_t *callback) { return amount(swap_free() * 1024,  callback->moduleArgs); }};
+    module_t swap_used_module  = {"used",  {}, [](const callbackInfo_t *callback) { return amount(swap_used() * 1024,  callback->moduleArgs); }};
+    module_t swap_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(swap_total() * 1024, callback->moduleArgs); }};
+
+    module_t swap_module = {"swap", {
+        std::move(swap_free_module),
+        std::move(swap_used_module),
+        std::move(swap_total_module)
+    }, NULL};
+    cfRegisterModule(swap_module);
+
+    // $<disk>
+    module_t disk_fsname_module = {"fs", {}, disk_fsname};
+    module_t disk_device_module = {"device", {}, disk_device};
+    module_t disk_mountdir_module = {"mountdir", {}, disk_mountdir};
+    module_t disk_types_module = {"types", {}, disk_types};
+    module_t disk_free_module  = {"free",  {}, [](const callbackInfo_t *callback) { return amount(disk_free(callback),  callback->moduleArgs); }};
+    module_t disk_used_module  = {"used",  {}, [](const callbackInfo_t *callback) { return amount(disk_used(callback),  callback->moduleArgs); }};
+    module_t disk_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(disk_total(callback), callback->moduleArgs); }};
+
+    module_t disk_module = {"disk", {
+        std::move(disk_fsname_module),
+        std::move(disk_device_module),
+        std::move(disk_mountdir_module),
+        std::move(disk_types_module),
+        std::move(disk_free_module),
+        std::move(disk_used_module),
+        std::move(disk_total_module),
+    }, NULL};
+    cfRegisterModule(disk_module);
 }

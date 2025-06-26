@@ -407,17 +407,18 @@ Tag References:
 1. Information Tag ($<>)
     Retrieves system information from modules.
 
-    Syntax: $<module.member> or $<module>
+    Syntax: $<module.submodule.sub...> or $<module>
 
     Examples:
-    - $<user.name>  # Displays login username
-    - $<os.kernel>  # Shows kernel version
-    - $<ram>        # Shows formatted RAM usage
+    - $<user.name>       # Displays login username
+    - $<os.kernel.name>  # Shows kernel name only
+    - $<ram>             # Shows formatted RAM usage
 
     Use `--list-modules` to see all available modules and members.
 
 2. Bash Command Tag ($())
     Executes shell commands and outputs the result.
+    Supports full shell syntax including pipes and redirection.
 
     Syntax: $(command)
 
@@ -425,8 +426,6 @@ Tag References:
     - $(echo "hello")             # Outputs: hello
     - $(date +%F)                 # Shows current date
     - $(uname -r | cut -d'-' -f1) # Shows kernel version number only
-
-    Supports full shell syntax including pipes and redirection.
 
 3. Conditional Tag ($[])
     Displays different outputs based on conditions.
@@ -899,6 +898,7 @@ int main(int argc, char *argv[])
         enable_cursor();
 
 #if CF_LINUX
+    if (mountsFile) fclose(mountsFile);
     if (os_release) fclose(os_release);
     if (cpuinfo) fclose(cpuinfo);
     if (meminfo) fclose(meminfo);

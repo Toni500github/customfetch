@@ -55,7 +55,7 @@ MODFUNC(user_wm_version);
 MODFUNC(user_de_name);
 MODFUNC(user_de_version);
 
-// ram.cc
+// ram.cc and swap.cc
 inline std::FILE* meminfo;
 double ram_free();
 double ram_total();
@@ -63,6 +63,16 @@ double ram_used();
 double swap_free();
 double swap_total();
 double swap_used();
+
+// disk.cc
+inline std::FILE *mountsFile;
+MODFUNC(disk_fsname);
+MODFUNC(disk_device);
+MODFUNC(disk_mountdir);
+MODFUNC(disk_types);
+double disk_total(const callbackInfo_t *callbackInfo);
+double disk_free(const callbackInfo_t *callbackInfo);
+double disk_used(const callbackInfo_t *callbackInfo);
 
 #undef MODFUNC
 #define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t *callbackInfo)
