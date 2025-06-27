@@ -323,4 +323,15 @@ void core_plugins_start()
         std::move(battery_temp_K_module_compat),
     }, NULL};
     cfRegisterModule(battery_module);
+
+    // $<gpu>
+    module_t gpu_name_module = {"name", {}, gpu_name};
+    module_t gpu_vendor_short_module = {"short", {}, [](const callbackInfo_t *callback) {return shorten_vendor_name(gpu_vendor(callback));}};
+    module_t gpu_vendor_module = {"vendor", {std::move(gpu_vendor_short_module)}, gpu_vendor};
+
+    module_t gpu_module = {"gpu", {
+        std::move(gpu_name_module),
+        std::move(gpu_vendor_module)
+    }, [](const callbackInfo_t *callback) {return shorten_vendor_name(gpu_vendor(callback)) + " " + gpu_name(callback);}};
+    cfRegisterModule(gpu_module);
 }

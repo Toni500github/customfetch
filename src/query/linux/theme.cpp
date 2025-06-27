@@ -31,7 +31,6 @@
 
 #include "config.hpp"
 #include "fmt/format.h"
-#include "parse.hpp"
 #include "query.hpp"
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "switch_fnv1a.hpp"
@@ -46,6 +45,7 @@
  * func     = the function name
  * ...      = the arguments in a function if any
  */
+#undef LOAD_LIB_SYMBOL
 #define LOAD_LIB_SYMBOL(ret_type, func, ...)   \
     typedef ret_type (*func##_t)(__VA_ARGS__); \
     func##_t func = reinterpret_cast<func##_t>(dlsym(handle, #func));

@@ -83,5 +83,9 @@ MODFUNC(battery_technology);
 MODFUNC(battery_vendor);
 double battery_temp();
 
+// gpu.cc
+MODFUNC(gpu_name);
+MODFUNC(gpu_vendor);
+
 #undef MODFUNC
 #define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t *callbackInfo)
