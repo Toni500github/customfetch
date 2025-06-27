@@ -92,16 +92,16 @@ void core_plugins_start()
         std::move(os_name_id_module)
     }, os_name };
 
-    module_t os_uptime_s_module = {"secs",  {}, [&](unused) {return fmt::to_string(uptime_secs.count() % 60);}};
-    module_t os_uptime_m_module = {"mins",  {}, [&](unused) {return fmt::to_string(uptime_mins.count() % 60);}};
-    module_t os_uptime_h_module = {"hours", {}, [&](unused) {return fmt::to_string(uptime_hours.count() % 24);}};
-    module_t os_uptime_d_module = {"days",  {}, [&](unused) {return fmt::to_string(uptime_days);}};
+    module_t os_uptime_s_module = {"secs",  {}, [=](unused) {return fmt::to_string(uptime_secs.count() % 60);}};
+    module_t os_uptime_m_module = {"mins",  {}, [=](unused) {return fmt::to_string(uptime_mins.count() % 60);}};
+    module_t os_uptime_h_module = {"hours", {}, [=](unused) {return fmt::to_string(uptime_hours.count() % 24);}};
+    module_t os_uptime_d_module = {"days",  {}, [=](unused) {return fmt::to_string(uptime_days);}};
     module_t os_uptime_module = {"uptime", {
         std::move(os_uptime_s_module),
         std::move(os_uptime_m_module),
         std::move(os_uptime_h_module),
         std::move(os_uptime_d_module),
-    }, [&](const callbackInfo_t* callback) { return get_auto_uptime(uptime_days, uptime_hours.count() % 24, uptime_mins.count() % 60,
+    }, [=](const callbackInfo_t* callback) { return get_auto_uptime(uptime_days, uptime_hours.count() % 24, uptime_mins.count() % 60,
                                                    uptime_secs.count() % 60, callback->config); }};
 
     module_t os_hostname_module = {"hostname", {}, os_hostname};
