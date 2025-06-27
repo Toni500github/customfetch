@@ -853,27 +853,6 @@ const std::string parse(const std::string& input, const moduleMap_t& modulesInfo
 // Re-enable them later
 // trying some plugins stuff
 #if 0
-static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t hours, const std::uint16_t mins,
-                                   const std::uint16_t secs, const Config& config)
-{
-    if (days == 0 && hours == 0 && mins == 0)
-        return fmt::format("{}{}", secs, config.uptime_s_fmt);
-
-    std::string ret;
-
-    if (days > 0)
-        ret += fmt::format("{}{}, ", days, config.uptime_d_fmt);
-
-    if (hours > 0)
-        ret += fmt::format("{}{}, ", hours, config.uptime_h_fmt);
-
-    if (mins > 0)
-        ret += fmt::format("{}{}, ", mins, config.uptime_m_fmt);
-
-    ret.erase(ret.length() - 2);  // the last ", "
-
-    return ret;
-}
 
 static std::string get_auto_gtk_format(const std::string_view gtk2, const std::string_view gtk3,
                                        const std::string_view gtk4)

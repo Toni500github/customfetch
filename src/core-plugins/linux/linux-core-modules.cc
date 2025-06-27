@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -35,9 +36,36 @@ const std::string amount(const double amount, const moduleArgs_t* moduleArgs)
     return "0";
 }
 
+static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t hours, const std::uint16_t mins,
+                                   const std::uint16_t secs, const Config& config)
+{
+    if (days == 0 && hours == 0 && mins == 0)
+        return fmt::format("{}{}", secs, config.uptime_s_fmt);
+
+    std::string ret;
+
+    if (days > 0)
+        ret += fmt::format("{}{}, ", days, config.uptime_d_fmt);
+
+    if (hours > 0)
+        ret += fmt::format("{}{}, ", hours, config.uptime_h_fmt);
+
+    if (mins > 0)
+        ret += fmt::format("{}{}, ", mins, config.uptime_m_fmt);
+
+    ret.erase(ret.length() - 2);  // the last ", "
+
+    return ret;
+}
+
 void core_plugins_start()
 {
     // ------------ INIT STUFF ------------
+    const std::chrono::seconds  uptime_secs(os_uptime());
+    const std::chrono::minutes& uptime_mins  = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
+    const std::chrono::hours&   uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
+    const size_t                uptime_days  = uptime_secs.count() / (60 * 60 * 24);
+
     if (uname(&g_uname_infos) != 0)
         die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
 
@@ -64,7 +92,18 @@ void core_plugins_start()
         std::move(os_name_id_module)
     }, os_name };
 
-    module_t os_uptime_module = {"uptime", {}, os_uptime};
+    module_t os_uptime_s_module = {"secs",  {}, [&](unused) {return fmt::to_string(uptime_secs.count() % 60);}};
+    module_t os_uptime_m_module = {"mins",  {}, [&](unused) {return fmt::to_string(uptime_mins.count() % 60);}};
+    module_t os_uptime_h_module = {"hours", {}, [&](unused) {return fmt::to_string(uptime_hours.count() % 24);}};
+    module_t os_uptime_d_module = {"days",  {}, [&](unused) {return fmt::to_string(uptime_days);}};
+    module_t os_uptime_module = {"uptime", {
+        std::move(os_uptime_s_module),
+        std::move(os_uptime_m_module),
+        std::move(os_uptime_h_module),
+        std::move(os_uptime_d_module),
+    }, [&](const callbackInfo_t* callback) { return get_auto_uptime(uptime_days, uptime_hours.count() % 24, uptime_mins.count() % 60,
+                                                   uptime_secs.count() % 60, callback->config); }};
+
     module_t os_hostname_module = {"hostname", {}, os_hostname};
 
     module_t os_kernel_name_module = {"name", {}, os_kernel_name};

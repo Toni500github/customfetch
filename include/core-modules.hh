@@ -22,7 +22,7 @@ MODFUNC(os_pretty_name);
 MODFUNC(os_name_id);
 MODFUNC(os_version_id);
 MODFUNC(os_version_codename);
-MODFUNC(os_uptime);
+unsigned long os_uptime();
 MODFUNC(os_kernel_name);
 MODFUNC(os_kernel_version);
 MODFUNC(os_hostname);

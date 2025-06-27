@@ -75,8 +75,8 @@ MODFUNC(os_version_id)
 MODFUNC(os_version_codename)
 { return read_value("VERSION_CODENAME="); }
 
-MODFUNC(os_uptime)
-{ return fmt::to_string(get_uptime()); }
+unsigned long os_uptime()
+{ return get_uptime(); }
 
 MODFUNC(os_kernel_name)
 { return g_uname_infos.sysname; }
