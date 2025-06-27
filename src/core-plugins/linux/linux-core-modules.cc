@@ -58,6 +58,31 @@ static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t
     return ret;
 }
 
+static std::string get_colors_symbol(const callbackInfo_t* callback, bool is_light)
+{
+    const moduleArgs_t* symbolArg;
+    for (symbolArg = callback->moduleArgs; symbolArg && symbolArg->name != "symbol";
+         symbolArg = symbolArg->next)
+        ;
+    if (symbolArg->value.empty())
+        die(
+            _("color symbol palette argument module is empty.\n"
+              "Must be used like 'colors_symbol(`symbol for printing the color palette`)'"));
+
+    if (is_light)
+        return parse(
+            fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} "
+                        "{0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
+                        symbolArg->value),
+            callback->modulesInfo, callback->config);
+    else
+        return parse(
+            fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} "
+                        "{0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
+                        symbolArg->value),
+            callback->modulesInfo, callback->config);
+}
+
 void core_plugins_start()
 {
     // ------------ INIT STUFF ------------
@@ -395,41 +420,28 @@ void core_plugins_start()
     cfRegisterModule(title_module);
 
     // $<colors>
-    module_t colros_symbol_module = {
+    module_t colors_light_symbol_module = {
         "symbol",
         {},
         [](const callbackInfo_t* callback) {
-            const moduleArgs_t* symbolArg;
-            for (symbolArg = callback->moduleArgs; symbolArg && symbolArg->name != "symbol";
-                 symbolArg = symbolArg->next)
-                ;
-            if (symbolArg->value.empty())
-                die(
-                    _("color symbol palette argument module is empty.\n"
-                      "Must be used like 'colors_symbol(`symbol for printing the color palette`)'"));
-
-            if (symbolArg->prev->name == "light")
-                return parse(
-                    fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} "
-                                "{0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
-                                symbolArg->value),
-                    callback->modulesInfo, callback->config);
-            else
-                return parse(
-                    fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} "
-                                "{0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
-                                symbolArg->value),
-                    callback->modulesInfo, callback->config);
+            return get_colors_symbol(callback, true);
         }
     };
-    module_t colors_light_module = { "light", { std::move(colros_symbol_module) }, [](const callbackInfo_t* callback) {
+    module_t colors_symbol_module = {
+        "symbol",
+        {},
+        [](const callbackInfo_t* callback) {
+            return get_colors_symbol(callback, false);
+        }
+    };
+    module_t colors_light_module = { "light", { std::move(colors_light_symbol_module) }, [](const callbackInfo_t* callback) {
                                         return parse(
                                             "${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}  "
                                             " ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}",
                                             callback->modulesInfo, callback->config);
                                     } };
     module_t colors_module = { "colors",
-                               { std::move(colros_symbol_module), std::move(colors_light_module) },
+                               { std::move(colors_symbol_module), std::move(colors_light_module) },
                                [](const callbackInfo_t* callback) {
                                    return parse(
                                        "${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   "
