@@ -1,17 +1,18 @@
-#include "common.hpp"
-#include "core-modules.hh"
 #include <cstdio>
 #include <string>
 #include <string_view>
+
+#include "common.hpp"
+#include "core-modules.hh"
 
 static double read_value(const std::string_view key)
 {
     if (!meminfo)
         return 0.0;
 
-    std::string result{UNKNOWN};
-    char* line = nullptr;
-    size_t len = 0;
+    std::string result{ UNKNOWN };
+    char*       line = nullptr;
+    size_t      len  = 0;
 
     while (getline(&line, &len, meminfo) != -1)
     {
@@ -20,11 +21,13 @@ static double read_value(const std::string_view key)
 
         // Skip colon and whitespace
         char* value = line + key.length();
-        while (isspace(*value)) value++;
+        while (isspace(*value))
+            value++;
 
         // Find end of numeric value (stop at first non-digit or '.')
         char* end = value;
-        while (*end && (isdigit(*end) || *end == '.')) end++;
+        while (*end && (isdigit(*end) || *end == '.'))
+            end++;
 
         if (value != end)
             result.assign(value, end - value);

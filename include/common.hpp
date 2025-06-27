@@ -1,10 +1,12 @@
 #pragma once
 
+#include <fmt/color.h>
+#include <fmt/core.h>
+
 #include <functional>
 #include <string>
 #include <vector>
-#include <fmt/core.h>
-#include <fmt/color.h>
+
 #include "platform.hpp"
 
 #if ENABLE_NLS && !CF_MACOS
@@ -16,9 +18,9 @@
 #define _(s) (char*)s
 #endif
 
-constexpr const char NOCOLOR[] = "\033[0m";
+constexpr const char NOCOLOR[]      = "\033[0m";
 constexpr const char NOCOLOR_BOLD[] = "\033[0m\033[1m";
-constexpr const char UNKNOWN[] = "(unknown)";
+constexpr const char UNKNOWN[]      = "(unknown)";
 
 // Usually in neofetch/fastfetch when some infos couldn't be queried,
 // they remove it from the display. With customfetch is kinda difficult to know when to remove
@@ -33,8 +35,8 @@ constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
  * func     = the function name
  * ...      = the arguments in a function if any
  */
-#define LOAD_LIB_SYMBOL(handler, ret_type, func, ...)   \
-    typedef ret_type (*func##_t)(__VA_ARGS__); \
+#define LOAD_LIB_SYMBOL(handler, ret_type, func, ...) \
+    typedef ret_type (*func##_t)(__VA_ARGS__);        \
     func##_t func = reinterpret_cast<func##_t>(dlsym(handler, #func));
 
 #define UNLOAD_LIBRARY(handle) dlclose(handle);
@@ -50,14 +52,14 @@ template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
 {
     fmt::print(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "ERROR: {}\033[0m\n",
-                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void die(const std::string_view fmt, Args&&... args) noexcept
 {
     fmt::print(stderr, BOLD_COLOR(fmt::rgb(fmt::color::red)), "FATAL: {}\033[0m\n",
-                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
     std::exit(1);
 }
 
@@ -72,42 +74,45 @@ void debug(const std::string_view fmt, Args&&... args) noexcept
 {
     if (debug_print)
         fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::hot_pink))), "[DEBUG]:\033[0m {}\n",
-                     fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+                   fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void warn(const std::string_view fmt, Args&&... args) noexcept
 {
     fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::yellow))), "WARNING: {}\033[0m\n",
-                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void info(const std::string_view fmt, Args&&... args) noexcept
 {
     fmt::print(BOLD_COLOR((fmt::rgb(fmt::color::cyan))), "INFO: {}\033[0m\n",
-                 fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 #undef BOLD_COLOR
 
-/* A linked list including module arguments. An argument may be specified for any part of the module path (e.g. `disk(/).used(GiB)`, `test(a).hi`) */
-struct moduleArgs_t {
-    struct moduleArgs_t *prev = nullptr;
+/* A linked list including module arguments. An argument may be specified for any part of the module path (e.g.
+ * `disk(/).used(GiB)`, `test(a).hi`) */
+struct moduleArgs_t
+{
+    struct moduleArgs_t* prev = nullptr;
 
     std::string name;
     std::string value;
 
-    struct moduleArgs_t *next = nullptr;
+    struct moduleArgs_t* next = nullptr;
 };
 
-struct callbackInfo_t {
-    struct moduleArgs_t *moduleArgs;
+struct callbackInfo_t
+{
+    struct moduleArgs_t* moduleArgs;
 };
 
 struct module_t
 {
     std::string           name;
     std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
-    std::function<const std::string(const callbackInfo_t *)> handler;
+    std::function<const std::string(const callbackInfo_t*)> handler;
 };

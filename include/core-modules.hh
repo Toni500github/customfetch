@@ -1,10 +1,11 @@
 #pragma once
 
-#include "common.hpp"
 #include <pwd.h>
 #include <sys/utsname.h>
 
-#define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t *callbackInfo = nullptr)
+#include "common.hpp"
+
+#define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo = nullptr)
 
 // system.cc
 inline utsname g_uname_infos;
@@ -15,7 +16,7 @@ MODFUNC(host_version);
 MODFUNC(host_vendor);
 
 // os.cc
-inline std::FILE *os_release;
+inline std::FILE* os_release;
 MODFUNC(os_name);
 MODFUNC(os_pretty_name);
 MODFUNC(os_name_id);
@@ -29,7 +30,7 @@ MODFUNC(os_initsys_name);
 MODFUNC(os_initsys_version);
 
 // cpu.cc
-inline std::FILE *cpuinfo;
+inline std::FILE* cpuinfo;
 MODFUNC(cpu_freq_cur);
 MODFUNC(cpu_freq_max);
 MODFUNC(cpu_freq_min);
@@ -40,10 +41,10 @@ MODFUNC(cpu_name);
 
 // user.cc
 inline struct passwd* g_pwd;
-inline bool is_tty = false;
-inline std::string term_pid, term_name, wm_name, de_name, wm_path_exec;
-std::string get_terminal_name();
-std::string get_terminal_pid();
+inline bool           is_tty = false;
+inline std::string    term_pid, term_name, wm_name, de_name, wm_path_exec;
+std::string           get_terminal_name();
+std::string           get_terminal_pid();
 MODFUNC(user_name);
 MODFUNC(user_shell_path);
 MODFUNC(user_shell_name);
@@ -57,22 +58,22 @@ MODFUNC(user_de_version);
 
 // ram.cc and swap.cc
 inline std::FILE* meminfo;
-double ram_free();
-double ram_total();
-double ram_used();
-double swap_free();
-double swap_total();
-double swap_used();
+double            ram_free();
+double            ram_total();
+double            ram_used();
+double            swap_free();
+double            swap_total();
+double            swap_used();
 
 // disk.cc
-inline std::FILE *mountsFile;
+inline std::FILE* mountsFile;
 MODFUNC(disk_fsname);
 MODFUNC(disk_device);
 MODFUNC(disk_mountdir);
 MODFUNC(disk_types);
-double disk_total(const callbackInfo_t *callbackInfo);
-double disk_free(const callbackInfo_t *callbackInfo);
-double disk_used(const callbackInfo_t *callbackInfo);
+double disk_total(const callbackInfo_t* callbackInfo);
+double disk_free(const callbackInfo_t* callbackInfo);
+double disk_used(const callbackInfo_t* callbackInfo);
 
 // battery.cc
 MODFUNC(battery_modelname);
@@ -88,4 +89,4 @@ MODFUNC(gpu_name);
 MODFUNC(gpu_vendor);
 
 #undef MODFUNC
-#define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t *callbackInfo)
+#define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo)

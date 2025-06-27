@@ -137,7 +137,7 @@ static bool get_cursor_dconf(const std::string_view de_name, Theme::Theme_t& the
 {
 #if USE_DCONF
 
-    void *handle = LOAD_LIBRARY("libdconf.so");
+    void* handle = LOAD_LIBRARY("libdconf.so");
     if (!handle)
         return false;
 
@@ -320,7 +320,7 @@ static bool get_gtk_theme_dconf(const std::string_view de_name, Theme::Theme_t& 
 {
 #if USE_DCONF
 
-    void *handle = LOAD_LIBRARY("libdconf.so");
+    void* handle = LOAD_LIBRARY("libdconf.so");
     if (!handle)
         return false;
 

@@ -3,18 +3,19 @@
 #include <string>
 
 #include "common.hpp"
-#include "fmt/format.h"
 #include "core-modules.hh"
+#include "fmt/format.h"
 #include "util.hpp"
 
 const std::string freq_dir = "/sys/devices/system/cpu/cpu0/cpufreq";
 
 static void trim(char* str)
 {
-    if (!str) return;
-    
+    if (!str)
+        return;
+
     // Trim leading space
-    char *p = str;
+    char* p = str;
     while (isspace((unsigned char)*p))
         ++p;
     memmove(str, p, strlen(p) + 1);
@@ -33,14 +34,14 @@ static bool read_value(const char* name, size_t n, bool do_rewind, char* buf, si
     if (do_rewind)
         rewind(cpuinfo);
 
-    char* line = NULL;
-    size_t len = 0;
-    bool found = false;
+    char*  line  = NULL;
+    size_t len   = 0;
+    bool   found = false;
     while (getline(&line, &len, cpuinfo) != -1)
     {
         if (strncmp(line, name, n))
             continue;
-        
+
         char* colon = strchr(line, ':');
         if (!colon)
             continue;
@@ -54,7 +55,7 @@ static bool read_value(const char* name, size_t n, bool do_rewind, char* buf, si
         // Safe copy to buffer
         strncpy(buf, val, buf_size - 1);
         buf[buf_size - 1] = '\0';
-        
+
         found = true;
         break;
     }
@@ -107,14 +108,13 @@ MODFUNC(cpu_name)
     return name;
 }
 
-
 MODFUNC(cpu_nproc)
 {
     uint nproc = 0;
     rewind(cpuinfo);
-    
-    char* line = NULL;
-    size_t len = 0;
+
+    char*  line = NULL;
+    size_t len  = 0;
     while (getline(&line, &len, cpuinfo) != -1)
     {
         if (strncmp(line, "processor", "processor"_len) == 0)

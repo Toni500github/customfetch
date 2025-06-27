@@ -137,17 +137,13 @@ bool Window::set_layout_markup()
     }
     else
     {
-        m_label.set_markup(
-            fmt::format("{}", fmt::join(Display::render(m_config, true, m_path, m_moduleMap), "\n")));
+        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(m_config, true, m_path, m_moduleMap), "\n")));
     }
     return true;
 }
 
-Window::Window(const Config& config, const std::filesystem::path& path, moduleMap_t& moduleMap) :
-    m_config(config),
-    m_path(path),
-    m_moduleMap(moduleMap),
-    isImage(false)
+Window::Window(const Config& config, const std::filesystem::path& path, moduleMap_t& moduleMap)
+    : m_config(config), m_path(path), m_moduleMap(moduleMap), isImage(false)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(1000, 600);

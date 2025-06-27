@@ -38,9 +38,9 @@
 #endif
 
 #if CF_MACOS
-# include <util.h>
+#include <util.h>
 #else
-# include <pty.h>
+#include <pty.h>
 #endif
 
 #include <sys/ioctl.h>
@@ -55,12 +55,12 @@
 #include <vector>
 
 #include "config.hpp"
+#include "core-modules.hh"
 #include "fmt/core.h"
 #include "fmt/format.h"
 #include "parse.hpp"
 #include "platform.hpp"
 #include "stb_image.h"
-#include "core-modules.hh"
 #include "utf8/checked.h"
 #include "util.hpp"
 

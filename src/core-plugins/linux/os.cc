@@ -7,8 +7,8 @@
 
 #define FMT_HEADER_ONLY 1
 #include "common.hpp"
-#include "fmt/format.h"
 #include "core-modules.hh"
+#include "fmt/format.h"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
@@ -19,24 +19,25 @@ static std::string read_value(const std::string_view name)
 
     rewind(os_release);
 
-    std::string result{UNKNOWN};
-    char* line = nullptr;
-    size_t len = 0;
+    std::string result{ UNKNOWN };
+    char*       line = nullptr;
+    size_t      len  = 0;
 
     while (getline(&line, &len, os_release) != -1)
     {
         if (name.length() > len || strncmp(line, name.data(), name.length()) != 0)
             continue;
 
-        char* start = strchr(line + name.length(), '"');    /* Get first occurence of " */
+        char* start = strchr(line + name.length(), '"'); /* Get first occurence of " */
         if (start)
-            start++;    /* Get after the " */
+            start++; /* Get after the " */
         else
-            start = line + name.length();   /* No ", get the start. */
+            start = line + name.length(); /* No ", get the start. */
 
-        char* end = strrchr(start, '"');    /* Get last occurence of " */
+        char* end = strrchr(start, '"'); /* Get last occurence of " */
         if (!end)
-            end = line + strlen(line) - 1;  /* Set to the end of the string -- no newline. (I heard Windows has a different newline sequence.. *sigh*) */
+            end = line + strlen(line) - 1; /* Set to the end of the string -- no newline. (I heard Windows has a
+                                              different newline sequence.. *sigh*) */
 
         result.assign(start, end - start);
         break;

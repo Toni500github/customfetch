@@ -1,12 +1,14 @@
 #include <unistd.h>
+
 #include <fstream>
+
 #include "common.hpp"
-#include "fmt/format.h"
 #include "core-modules.hh"
+#include "fmt/format.h"
 #include "switch_fnv1a.hpp"
-#include "utils/term.hpp"
-#include "utils/dewm.hpp"
 #include "util.hpp"
+#include "utils/dewm.hpp"
+#include "utils/term.hpp"
 
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
 #include <sys/socket.h>
@@ -292,7 +294,7 @@ std::string get_wm_name(std::string& wm_path_exec)
 static std::string get_wm_wayland_name(std::string& wm_path_exec)
 {
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
-    void *handle = LOAD_LIBRARY("libwayland-client.so")
+    void* handle = LOAD_LIBRARY("libwayland-client.so");
     if (!handle)
         return get_wm_name(wm_path_exec);
 
@@ -347,7 +349,7 @@ MODFUNC(user_wm_version)
 {
     if (is_tty)
         return MAGIC_LINE;
-    user_wm_name(); // populate wm_path_exec if haven't already
+    user_wm_name();  // populate wm_path_exec if haven't already
     std::string wm_version;
     if (wm_name == "Xfwm4" && get_fast_xfwm4_version(wm_version, wm_path_exec))
         return wm_version;

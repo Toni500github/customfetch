@@ -64,7 +64,7 @@ inline bool is_live_mode = false;
     if (!x || is_live_mode) \
         x = true;           \
     else                    \
-        return;             \
+        return;
 
 namespace Query
 {

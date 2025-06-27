@@ -2,7 +2,9 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <unistd.h>
+
 #include <cstdio>
+
 #include "common.hpp"
 #include "core-modules.hh"
 #include "util.hpp"
@@ -119,9 +121,10 @@ static int get_disk_type(const mntent* device)
 #endif
 }
 
-static struct mntent* get_disk_info(const callbackInfo_t *callbackInfo)
+static struct mntent* get_disk_info(const callbackInfo_t* callbackInfo)
 {
-    if (callbackInfo->moduleArgs->name != "disk" || (callbackInfo->moduleArgs->name == "disk" && callbackInfo->moduleArgs->value.empty()))
+    if (callbackInfo->moduleArgs->name != "disk" ||
+        (callbackInfo->moduleArgs->name == "disk" && callbackInfo->moduleArgs->value.empty()))
         die("Module disk doesn't have an argmument to the path/device to query");
 
     const std::string& path = callbackInfo->moduleArgs->value;
@@ -143,10 +146,10 @@ static struct mntent* get_disk_info(const callbackInfo_t *callbackInfo)
     return NULL;
 }
 
-static bool get_disk_usage_info(const callbackInfo_t *callbackInfo, struct statvfs *fs)
+static bool get_disk_usage_info(const callbackInfo_t* callbackInfo, struct statvfs* fs)
 {
-    struct mntent* pDevice = get_disk_info(callbackInfo);
-    const std::string& path = callbackInfo->moduleArgs->value;
+    struct mntent*     pDevice  = get_disk_info(callbackInfo);
+    const std::string& path     = callbackInfo->moduleArgs->value;
     const std::string& statpath = (hasStart(path, "/dev") && pDevice) ? pDevice->mnt_dir : path;
 
     return (statvfs(statpath.c_str(), fs) == 0);
@@ -164,7 +167,7 @@ MODFUNC(disk_mountdir)
 
 MODFUNC(disk_types)
 {
-    const int types = get_disk_type(get_disk_info(callbackInfo));
+    const int   types = get_disk_type(get_disk_info(callbackInfo));
     std::string str;
     if (types & DISK_VOLUME_TYPE_EXTERNAL)
         str += "External, ";
@@ -172,14 +175,14 @@ MODFUNC(disk_types)
         str += "Hidden, ";
     if (types & DISK_VOLUME_TYPE_READ_ONLY)
         str += "Read-only, ";
-    
+
     if (!str.empty())
         str.erase(str.length() - 2);
 
     return str;
 }
 
-double disk_total(const callbackInfo_t *callbackInfo)
+double disk_total(const callbackInfo_t* callbackInfo)
 {
     struct statvfs fs;
     if (!get_disk_usage_info(callbackInfo, &fs))
@@ -188,7 +191,7 @@ double disk_total(const callbackInfo_t *callbackInfo)
     return static_cast<double>(fs.f_blocks * fs.f_frsize);
 }
 
-double disk_free(const callbackInfo_t *callbackInfo)
+double disk_free(const callbackInfo_t* callbackInfo)
 {
     struct statvfs fs;
     if (!get_disk_usage_info(callbackInfo, &fs))

@@ -56,7 +56,7 @@ class Config
 public:
     // Create .config directories and files and load the config file (args or default)
     Config(const std::filesystem::path& configFile, const std::filesystem::path& configDir);
-    
+
     // config colors
     // those without gui_ prefix are for the terminal
     struct colors_t

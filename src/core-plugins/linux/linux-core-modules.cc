@@ -1,21 +1,22 @@
 #include <dlfcn.h>
 #include <mntent.h>
 #include <unistd.h>
+
 #include <algorithm>
 #include <array>
 #include <string>
 #include <string_view>
 #include <utility>
 
-#include "cufetch.hh"
-#include "core-modules.hh"
 #include "common.hpp"
+#include "core-modules.hh"
+#include "cufetch.hh"
 #include "fmt/format.h"
 #include "util.hpp"
 
-using unused = const callbackInfo_t *;
+using unused = const callbackInfo_t*;
 
-const std::string amount(const double amount, const moduleArgs_t *moduleArgs)
+const std::string amount(const double amount, const moduleArgs_t* moduleArgs)
 {
     constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
                                                                          "KiB", "MB", "MiB", "PB", "PiB", "TB",
@@ -42,16 +43,16 @@ void core_plugins_start()
     if (g_pwd = getpwuid(getuid()), !g_pwd)
         die(_("getpwent failed: {}\nCould not get user infos"), std::strerror(errno));
 
-    term_pid = get_terminal_pid();
+    term_pid  = get_terminal_pid();
     term_name = get_terminal_name();
     if (hasStart(str_tolower(term_name), "login") || hasStart(term_name, "init") || hasStart(term_name, "(init)"))
     {
-        is_tty = true;
+        is_tty    = true;
         term_name = ttyname(STDIN_FILENO);
     }
     os_release = fopen("/etc/os-release", "r");
-    cpuinfo = fopen("/proc/cpuinfo", "r");
-    meminfo = fopen("/proc/meminfo", "r");
+    cpuinfo    = fopen("/proc/cpuinfo", "r");
+    meminfo    = fopen("/proc/meminfo", "r");
     mountsFile = setmntent("/proc/mounts", "r");
 
     // ------------ MODULES REGISTERING ------------

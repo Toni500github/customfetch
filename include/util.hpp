@@ -36,10 +36,10 @@
 #include <string>
 #include <vector>
 
+#include "common.hpp"
 #include "fmt/base.h"
 #include "fmt/color.h"
 #include "platform.hpp"
-#include "common.hpp"
 
 // clang-format off
 // Get string literal length

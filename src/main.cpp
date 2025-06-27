@@ -36,8 +36,9 @@
 #include <thread>
 #include <vector>
 
-#include "cufetch.hh"
 #include "config.hpp"
+#include "core-modules.hh"
+#include "cufetch.hh"
 #include "display.hpp"
 #include "fmt/ranges.h"
 #include "gui.hpp"
@@ -46,12 +47,10 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-#include "core-modules.hh"
-
 #if (!__has_include("version.h"))
-# error "version.h not found, please generate it with ./scripts/generateVersion.sh"
+#error "version.h not found, please generate it with ./scripts/generateVersion.sh"
 #else
-# include "version.h"
+#include "version.h"
 #endif
 
 // clang-format off
@@ -94,7 +93,7 @@ static void version()
 static void help(bool invalid_opt = false)
 {
     constexpr std::string_view help(
-R"(Usage: customfetch [OPTIONS]...  
+        R"(Usage: customfetch [OPTIONS]...  
 A command-line, GUI, and Android widget system information tool (like neofetch) focused on customizability and performance.
 
 NOTE: Boolean flags [<BOOL>] accept: "true", 1, "enable", or empty. Any other value is treated as false.
@@ -399,7 +398,7 @@ system
 static void explain_how_this_works()
 {
     constexpr std::string_view str(
-R"(
+        R"(
 customfetch is designed for maximum customizability, allowing users to display system information exactly how they want it.
 The layout and logo is controlled through special tags that can output system info, execute commands, apply conditional logic, add colors, and calculate percentages with some colors.
 
@@ -537,10 +536,7 @@ static void list_logos(const std::string& data_dir)
 }
 
 // Return true if optarg says something true
-static bool str_to_bool(const std::string_view str)
-{
-    return (str == "true" || str == "1" || str == "enable");
-}
+static bool str_to_bool(const std::string_view str) { return (str == "true" || str == "1" || str == "enable"); }
 
 // clang-format off
 // parseargs() but only for parsing the user config path trough args
@@ -793,11 +789,11 @@ int main(int argc, char *argv[])
     core_plugins_start();
     const std::filesystem::path modDir = configDir / "mods";
     std::filesystem::create_directories(modDir);
-    for (const auto& entry : std::filesystem::directory_iterator{modDir})
+    for (const auto& entry : std::filesystem::directory_iterator{ modDir })
     {
         debug("loading mod at {}!", entry.path().string());
 
-        void *handle = LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str());
+        void* handle = LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str());
         if (!handle)
         {
             // dlerror() is pretty formatted
@@ -806,9 +802,9 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        //LOAD_LIB_SYMBOL(handle, void, start, void*)
+        // LOAD_LIB_SYMBOL(handle, void, start, void*)
 
-        //start();
+        // start();
     }
 
     const std::vector<module_t>& modules = cfGetModules();
@@ -898,10 +894,14 @@ int main(int argc, char *argv[])
         enable_cursor();
 
 #if CF_LINUX
-    if (mountsFile) fclose(mountsFile);
-    if (os_release) fclose(os_release);
-    if (cpuinfo) fclose(cpuinfo);
-    if (meminfo) fclose(meminfo);
+    if (mountsFile)
+        fclose(mountsFile);
+    if (os_release)
+        fclose(os_release);
+    if (cpuinfo)
+        fclose(cpuinfo);
+    if (meminfo)
+        fclose(meminfo);
 #endif
 
     return 0;

@@ -45,11 +45,11 @@
 #include <tuple>
 #include <vector>
 
+#include "common.hpp"
 #include "fmt/color.h"
 #include "fmt/ranges.h"
 #include "pci.ids.hpp"
 #include "platform.hpp"
-#include "common.hpp"
 
 bool hasEnding(const std::string_view fullString, const std::string_view ending)
 {
@@ -172,11 +172,11 @@ byte_units_t auto_divide_bytes(const double num, const std::uint16_t base, const
 byte_units_t divide_bytes(const double num, const std::string_view prefix)
 {
     if (prefix == "B")
-        return {"B", num};
+        return { "B", num };
 
     // GiB
     // 012
-    const std::uint16_t base = (prefix.size() == 3 && prefix[1] == 'i') ? 1024 : 1000;
+    const std::uint16_t             base = (prefix.size() == 3 && prefix[1] == 'i') ? 1024 : 1000;
     std::array<std::string_view, 9> prefixes;
     if (base == 1024)
         prefixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
@@ -185,7 +185,7 @@ byte_units_t divide_bytes(const double num, const std::string_view prefix)
 
     const auto& it = std::find(prefixes.begin(), prefixes.end(), prefix);
     if (it == prefixes.end())
-        return {"B", num};
+        return { "B", num };
 
     const size_t index = std::distance(prefixes.begin(), it);
     const double value = num / std::pow(static_cast<double>(base), index);

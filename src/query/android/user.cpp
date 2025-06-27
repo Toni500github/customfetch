@@ -59,7 +59,7 @@ static std::string get_shell_name(const std::string_view shell_path)
 User::User() noexcept
 {
     CHECK_INIT(m_bInit);
-    
+
     if (m_pPwd = getpwuid(getuid()), !m_pPwd)
         die("getpwent failed: {}\nCould not get user infos", std::strerror(errno));
 
