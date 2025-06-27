@@ -102,9 +102,15 @@ set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale" CACHE PATH "Locale files di
 set(ICONPREFIX "${CMAKE_INSTALL_PREFIX}/share/pixmaps" CACHE PATH "Icon installation directory")
 target_compile_definitions(${TARGET_NAME} PRIVATE
     MANPREFIX="${MANPREFIX}"
-    APPPREFIX="${APPPREFIX}" 
+    APPPREFIX="${APPPREFIX}"
     LOCALEDIR="${LOCALEDIR}"
     ICONPREFIX="${ICONPREFIX}"
+)
+set(CUFETCH_HEADERS
+    include/config.hpp
+    include/common.hpp
+    include/core-modules.hh
+    include/cufetch.hh
 )
 
 # Install executable
@@ -123,6 +129,11 @@ install(FILES ${CMAKE_SOURCE_DIR}/customfetch.1
 install(FILES ${CMAKE_SOURCE_DIR}/LICENSE
         DESTINATION share/licenses/customfetch
         COMPONENT documentation)
+
+install(FILES ${CUFETCH_HEADERS}
+    	DESTINATION include/cufetch
+    	COMPONENT development
+)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/ascii/
         DESTINATION share/customfetch/ascii

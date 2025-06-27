@@ -61,6 +61,7 @@ SRC_CC  	 = $(wildcard src/core-plugins/linux/*.cc)
 OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
 OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
+HEADERS		 = include/config.hpp include/common.hpp include/core-modules.hh include/cufetch.hh
 LDFLAGS   	+= -L./$(BUILDDIR) -lcufetch -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
@@ -137,6 +138,8 @@ install-common: locale
 	cd assets/icons && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(ICONPREFIX)/$(NAME)/{}" \;
 	find examples/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/$(NAME)/{}" \;
 	find locale/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
+	mkdir -p $(DESTDIR)$(PREFIX)/include/cufetch/
+	find $(HEADERS) -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/cufetch/{}" \;
 ifeq ($(GUI_APP), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
 	cp -f $(NAME).desktop $(DESTDIR)$(APPPREFIX)/$(NAME).desktop
@@ -148,6 +151,7 @@ uninstall:
 	rm -f  $(DESTDIR)$(APPPREFIX)/$(NAME).desktop
 	rm -rf $(DESTDIR)$(PREFIX)/share/licenses/$(NAME)/
 	rm -rf $(DESTDIR)$(PREFIX)/share/$(NAME)/
+	rm -rf $(DESTDIR)$(PREFIX)/include/cufetch/
 	rm -rf $(DESTDIR)$(ICONPREFIX)/$(NAME)/
 	find   $(DESTDIR)$(LOCALEDIR) -type f -path "$(DESTDIR)$(LOCALEDIR)/*/LC_MESSAGES/$(NAME).mo" -exec rm -f {} \;
 
