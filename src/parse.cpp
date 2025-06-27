@@ -244,7 +244,7 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
-const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::string& moduleName)
+const std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName)
 {
     std::string name;
     name.reserve(moduleName.size());
@@ -324,9 +324,9 @@ const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::str
     }
 
     std::string result = "(unknown/invalid module)";
-    if (const auto& it = modulesInfo.find(name); it != modulesInfo.end())
+    if (const auto& it = parse_args.modulesInfo.find(name); it != parse_args.modulesInfo.end())
     {
-        struct callbackInfo_t callbackInfo = { moduleArgs };
+        struct callbackInfo_t callbackInfo = { moduleArgs, parse_args.modulesInfo, parse_args.config };
 
         result = it->second.handler(&callbackInfo);
     }
@@ -719,7 +719,7 @@ std::optional<std::string> parse_info_tag(Parser& parser, parse_args_t& parse_ar
     if (!evaluate)
         return {};
 
-    const std::string& info = getInfoFromName(parse_args.modulesInfo, module);
+    const std::string& info = getInfoFromName(parse_args, module);
 
     if (parser.dollar_pos != std::string::npos)
         parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
@@ -804,7 +804,7 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
     return result;
 }
 
-std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pureOutput,
+std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
                   std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const Config& config,
                   const bool parsingLayout, bool& no_more_reset)
 {
@@ -841,6 +841,13 @@ std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pure
 #endif
 
     return ret;
+}
+
+const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config)
+{
+    std::vector<std::string> nah;
+    parse_args_t parse_args{ modulesInfo, _, nah, nah, config, true, true, true};
+    return parse(input, parse_args);
 }
 
 // Re-enable them later

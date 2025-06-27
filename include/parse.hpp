@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 
+#include "common.hpp"
 #include "config.hpp"
 
 // Map from a modules name to its pointer.
@@ -40,7 +41,7 @@ using moduleMap_t = std::unordered_map<std::string, const module_t&>;
  */
 struct parse_args_t
 {
-    moduleMap_t&              modulesInfo;
+    const moduleMap_t&        modulesInfo;
     std::string&              pureOutput;
     std::vector<std::string>& layout;
     std::vector<std::string>& tmp_layout;
@@ -62,7 +63,7 @@ struct parse_args_t
  * @param parsingLayout If we are parsing layout or not
  * @param no_more_reset If we are recursively parsing, e.g we are inside tags
  */
-std::string parse(std::string input, moduleMap_t& modulesInfo, std::string& pureOutput,
+std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
                   std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const Config& config,
                   const bool parsingLayout, bool& no_more_reset);
 
@@ -91,13 +92,11 @@ std::string parse(const std::string& input, std::string& _, parse_args_t& parse_
 // void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args);
 
 /*
- * Return an info module member value
- * @param modulesInfo The modulesInfo_t map
+ * Return an info module value
+ * @param parse_args The parse() like arguments
  * @param moduleName The module name
- * @param moduleMemberName The module member name
  */
-const std::string getInfoFromName(const moduleMap_t& modulesInfo, const std::string_view moduleName,
-                                  const std::string_view moduleMemberName);
+const std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName);
 
 /*
  * Create a colored percentage from parse()

@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "common.hpp"
+#include "config.hpp"
 #include "core-modules.hh"
 #include "cufetch.hh"
 #include "fmt/format.h"
@@ -335,4 +336,66 @@ void core_plugins_start()
         std::move(gpu_vendor_module)
     }, [](const callbackInfo_t *callback) {return shorten_vendor_name(gpu_vendor(callback)) + " " + gpu_name(callback);}};
     cfRegisterModule(gpu_module);
+
+    // $<title>
+    module_t title_sep_module = { "sep", {}, [](const callbackInfo_t* callback) {
+                                     const size_t title_len =
+                                         std::string_view(user_name() + "@" + os_hostname()).length();
+
+                                     std::string str;
+                                     str.reserve(callback->config.title_sep.length() * title_len);
+                                     for (size_t i = 0; i < title_len; i++)
+                                         str += callback->config.title_sep;
+
+                                     return str;
+                                 } };
+    module_t title_module = { "title", { std::move(title_sep_module) }, [](const callbackInfo_t* callback) {
+                                 return parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", callback->modulesInfo,
+                                              callback->config);
+                             } };
+    cfRegisterModule(title_module);
+
+    // $<colors>
+    module_t colros_symbol_module = {
+        "symbol",
+        {},
+        [](const callbackInfo_t* callback) {
+            const moduleArgs_t* symbolArg;
+            for (symbolArg = callback->moduleArgs; symbolArg && symbolArg->name != "symbol";
+                 symbolArg = symbolArg->next)
+                ;
+            if (symbolArg->value.empty())
+                die(
+                    _("color symbol palette argument module is empty.\n"
+                      "Must be used like 'colors_symbol(`symbol for printing the color palette`)'"));
+
+            if (symbolArg->prev->name == "light")
+                return parse(
+                    fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} "
+                                "{0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
+                                symbolArg->value),
+                    callback->modulesInfo, callback->config);
+            else
+                return parse(
+                    fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} "
+                                "{0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
+                                symbolArg->value),
+                    callback->modulesInfo, callback->config);
+        }
+    };
+    module_t colors_light_module = { "light", { std::move(colros_symbol_module) }, [](const callbackInfo_t* callback) {
+                                        return parse(
+                                            "${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}  "
+                                            " ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}",
+                                            callback->modulesInfo, callback->config);
+                                    } };
+    module_t colors_module = { "colors",
+                               { std::move(colros_symbol_module), std::move(colors_light_module) },
+                               [](const callbackInfo_t* callback) {
+                                   return parse(
+                                       "${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   "
+                                       "${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}",
+                                       callback->modulesInfo, callback->config);
+                               } };
+    cfRegisterModule(colors_module);
 }

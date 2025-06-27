@@ -105,14 +105,22 @@ struct moduleArgs_t
     struct moduleArgs_t* next = nullptr;
 };
 
-struct callbackInfo_t
-{
-    struct moduleArgs_t* moduleArgs;
-};
-
+struct callbackInfo_t;
 struct module_t
 {
     std::string           name;
     std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
     std::function<const std::string(const callbackInfo_t*)> handler;
+};
+
+// Map from a modules name to its pointer.
+using moduleMap_t = std::unordered_map<std::string, const module_t&>;
+class Config;
+const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config);
+
+struct callbackInfo_t
+{
+    const moduleArgs_t* moduleArgs;
+    const moduleMap_t&  modulesInfo;
+    const Config&       config;
 };
