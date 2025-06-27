@@ -802,9 +802,9 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        // LOAD_LIB_SYMBOL(handle, void, start, void*)
+        LOAD_LIB_SYMBOL(handle, void, start, void*)
 
-        // start();
+        start(handle);
     }
 
     const std::vector<module_t>& modules = cfGetModules();

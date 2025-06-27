@@ -61,10 +61,10 @@ SRC_CC  	 = $(wildcard src/core-plugins/linux/*.cc)
 OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
 OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
-HEADERS		 = include/config.hpp include/common.hpp include/core-modules.hh include/cufetch.hh
+HEADERS		 = config.hpp common.hpp core-modules.hh cufetch.hh
 LDFLAGS   	+= -L./$(BUILDDIR) -lcufetch -lfmt -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
+CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
 all: genver libcufetch fmt toml json $(TARGET)
 
@@ -129,7 +129,7 @@ install: install-common $(TARGET)
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 	cd $(DESTDIR)$(PREFIX)/bin/ && ln -sf $(TARGET) cufetch
 
-install-common: locale
+install-common: libcufetch locale
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
@@ -139,7 +139,8 @@ install-common: locale
 	find examples/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/$(NAME)/{}" \;
 	find locale/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
 	mkdir -p $(DESTDIR)$(PREFIX)/include/cufetch/
-	find $(HEADERS) -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/cufetch/{}" \;
+	cd include && find $(HEADERS) -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/cufetch/{}" \;
+	install -Dm 755 $(BUILDDIR)/libcufetch.so $(DESTDIR)$(PREFIX)/lib/libcufetch.so.1
 ifeq ($(GUI_APP), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
 	cp -f $(NAME).desktop $(DESTDIR)$(APPPREFIX)/$(NAME).desktop

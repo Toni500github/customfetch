@@ -12,10 +12,10 @@ include_directories(include)
 file(GLOB
 	SRC
 	"src/*.cpp"
-	"src/query/linux/*.cpp"
+	"src/core-plugins/linux/*.cc"
 	"src/query/android/*.cpp"
 	"src/query/macos/*.cpp"
-	"src/query/linux/utils/*.cpp"
+	"src/core-plugins/linux/utils/*.cpp"
 	"src/libs/json/json.cpp"
 	"src/libs/toml++/toml.cpp")
 
@@ -69,7 +69,6 @@ if(USE_DCONF)
     if(DCONF_FOUND)
         message(STATUS "Found dconf - enabling dconf support")
         target_compile_definitions(${TARGET_NAME} PRIVATE USE_DCONF=1)
-        target_link_libraries(${TARGET_NAME} PUBLIC ${DCONF_LIBRARIES})
         target_include_directories(${TARGET_NAME} PUBLIC ${DCONF_INCLUDE_DIRS})
         target_compile_options(${TARGET_NAME} PUBLIC ${DCONF_CFLAGS_OTHER})
     else()
@@ -85,8 +84,35 @@ add_library(fmt STATIC
 	"src/libs/fmt/os.cc"
 	"src/libs/fmt/format.cc")
 
+set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(${TARGET_NAME} PUBLIC fmt)
 
+# libcufetch
+set(CUFETCH_HEADERS
+    include/config.hpp
+    include/common.hpp
+    include/core-modules.hh
+    include/cufetch.hh
+)
+
+add_library(cufetch SHARED
+    libcufetch/config.cc
+    libcufetch/cufetch.cc
+    libcufetch/parse.cc
+)
+
+set_target_properties(cufetch PROPERTIES
+    VERSION 1.0.0
+    SOVERSION 1
+    OUTPUT_NAME "cufetch"
+    PUBLIC_HEADER "${CUFETCH_HEADERS}"
+    POSITION_INDEPENDENT_CODE ON
+)
+
+target_link_libraries(cufetch PUBLIC fmt)
+target_link_libraries(${TARGET_NAME} PUBLIC cufetch)
+
+# locale
 add_custom_target(locale
     COMMAND ${CMAKE_SOURCE_DIR}/scripts/make_mo.sh ${CMAKE_SOURCE_DIR}/locale/
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -106,12 +132,6 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
     LOCALEDIR="${LOCALEDIR}"
     ICONPREFIX="${ICONPREFIX}"
 )
-set(CUFETCH_HEADERS
-    include/config.hpp
-    include/common.hpp
-    include/core-modules.hh
-    include/cufetch.hh
-)
 
 # Install executable
 install(TARGETS ${TARGET_NAME}
@@ -130,9 +150,10 @@ install(FILES ${CMAKE_SOURCE_DIR}/LICENSE
         DESTINATION share/licenses/customfetch
         COMPONENT documentation)
 
-install(FILES ${CUFETCH_HEADERS}
-    	DESTINATION include/cufetch
-    	COMPONENT development
+install(TARGETS cufetch
+	LIBRARY DESTINATION lib
+	PUBLIC_HEADER DESTINATION include/cufetch
+	COMPONENT runtime
 )
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/ascii/
@@ -150,6 +171,15 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/icons/
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/locale/
         DESTINATION share/locale
         COMPONENT runtime)
+
+install(CODE "
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libcufetch.so.1 ${CMAKE_INSTALL_PREFIX}/lib/libcufetch.so
+    )
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libcufetch.so.1.0.0 ${CMAKE_INSTALL_PREFIX}/lib/libcufetch.so.1
+    )
+")
 
 install(CODE "
     execute_process(
