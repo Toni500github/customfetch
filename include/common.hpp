@@ -116,7 +116,9 @@ struct module_t
 // Map from a modules name to its pointer.
 using moduleMap_t = std::unordered_map<std::string, const module_t&>;
 class Config;
+
 const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config);
+const std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert);
 
 struct callbackInfo_t
 {

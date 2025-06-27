@@ -310,25 +310,33 @@ void core_plugins_start()
     cfRegisterModule(user_module);
 
     // $<ram>
-    module_t ram_free_module  = {"free",  {}, [](const callbackInfo_t *callback) { return amount(ram_free() * 1024,  callback->moduleArgs);  }};
-    module_t ram_used_module  = {"used",  {}, [](const callbackInfo_t *callback) { return amount(ram_used() * 1024,  callback->moduleArgs);  }};
+    module_t ram_free_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_free(), ram_total(), callback, true);}};
+    module_t ram_used_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_used(), ram_total(), callback, false);}};
+    module_t ram_free_module  = {"free",  {std::move(ram_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_free() * 1024,  callback->moduleArgs);  }};
+    module_t ram_used_module  = {"used",  {std::move(ram_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_used() * 1024,  callback->moduleArgs);  }};
     module_t ram_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(ram_total() * 1024, callback->moduleArgs); }};
 
     module_t ram_module = {"ram", {
         std::move(ram_free_module),
         std::move(ram_used_module),
+        std::move(ram_free_perc_module),
+        std::move(ram_used_perc_module),
         std::move(ram_total_module)
     }, NULL};
     cfRegisterModule(ram_module);
 
     // $<swap>
-    module_t swap_free_module  = {"free",  {}, [](const callbackInfo_t *callback) { return amount(swap_free() * 1024,  callback->moduleArgs); }};
-    module_t swap_used_module  = {"used",  {}, [](const callbackInfo_t *callback) { return amount(swap_used() * 1024,  callback->moduleArgs); }};
+    module_t swap_free_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_free(), swap_total(), callback, true);}};
+    module_t swap_used_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_used(), swap_total(), callback, false);}};
+    module_t swap_free_module  = {"free",  {std::move(swap_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_free() * 1024,  callback->moduleArgs);  }};
+    module_t swap_used_module  = {"used",  {std::move(swap_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_used() * 1024,  callback->moduleArgs);  }};
     module_t swap_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(swap_total() * 1024, callback->moduleArgs); }};
 
     module_t swap_module = {"swap", {
         std::move(swap_free_module),
         std::move(swap_used_module),
+        std::move(swap_free_perc_module),
+        std::move(swap_used_perc_module),
         std::move(swap_total_module)
     }, NULL};
     cfRegisterModule(swap_module);
@@ -338,8 +346,11 @@ void core_plugins_start()
     module_t disk_device_module = {"device", {}, disk_device};
     module_t disk_mountdir_module = {"mountdir", {}, disk_mountdir};
     module_t disk_types_module = {"types", {}, disk_types};
-    module_t disk_free_module  = {"free",  {}, [](const callbackInfo_t *callback) { return amount(disk_free(callback),  callback->moduleArgs); }};
-    module_t disk_used_module  = {"used",  {}, [](const callbackInfo_t *callback) { return amount(disk_used(callback),  callback->moduleArgs); }};
+
+    module_t disk_free_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_free(callback), disk_total(callback), callback, true);}};
+    module_t disk_used_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_used(callback), disk_total(callback), callback, false);}};
+    module_t disk_free_module  = {"free",  {std::move(disk_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_free(callback),  callback->moduleArgs);  }};
+    module_t disk_used_module  = {"used",  {std::move(disk_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_used(callback),  callback->moduleArgs);  }};
     module_t disk_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(disk_total(callback), callback->moduleArgs); }};
 
     module_t disk_module = {"disk", {
@@ -347,6 +358,8 @@ void core_plugins_start()
         std::move(disk_device_module),
         std::move(disk_mountdir_module),
         std::move(disk_types_module),
+        std::move(disk_free_perc_module),
+        std::move(disk_used_perc_module),
         std::move(disk_free_module),
         std::move(disk_used_module),
         std::move(disk_total_module),
@@ -420,20 +433,8 @@ void core_plugins_start()
     cfRegisterModule(title_module);
 
     // $<colors>
-    module_t colors_light_symbol_module = {
-        "symbol",
-        {},
-        [](const callbackInfo_t* callback) {
-            return get_colors_symbol(callback, true);
-        }
-    };
-    module_t colors_symbol_module = {
-        "symbol",
-        {},
-        [](const callbackInfo_t* callback) {
-            return get_colors_symbol(callback, false);
-        }
-    };
+    module_t colors_light_symbol_module = { "symbol", {}, [](const callbackInfo_t* callback) { return get_colors_symbol(callback, true); } };
+    module_t colors_symbol_module = { "symbol", {}, [](const callbackInfo_t* callback) { return get_colors_symbol(callback, false); }};
     module_t colors_light_module = { "light", { std::move(colors_light_symbol_module) }, [](const callbackInfo_t* callback) {
                                         return parse(
                                             "${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}  "

@@ -244,6 +244,13 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
+const std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert)
+{
+    std::vector<std::string> nah;
+    parse_args_t parse_args{ callback->modulesInfo, _, nah, nah, callback->config, true, true, true};
+    return get_and_color_percentage(n1, n2, parse_args, invert);
+}
+
 const std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName)
 {
     std::string name;
