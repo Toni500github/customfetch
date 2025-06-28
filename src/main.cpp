@@ -40,6 +40,7 @@
 #include "core-modules.hh"
 #include "cufetch.hh"
 #include "display.hpp"
+#include "fmt/base.h"
 #include "fmt/ranges.h"
 #include "gui.hpp"
 #include "platform.hpp"
@@ -165,7 +166,7 @@ EXAMPLES:
        customfetch --distro "arch" --loop-ms 1000
 
     3. Override layout and colors:
-       customfetch -m "${auto}OS: $<os.name>" --color "magenta=#FF00FF"
+       customfetch -m "${magenta}OS: $<os.name>" --color "magenta=#FF00FF"
 
 For details, see `man customfetch` or run `--how-it-works`.
 )");
@@ -177,220 +178,36 @@ For details, see `man customfetch` or run `--how-it-works`.
 // Print all info modules you can put in $<>, then exit successfully
 static void modules_list()
 {
-    constexpr std::string_view list(R"(
---------------------------------------------------------[ MODULE ONLY ]------------------------------------------------------------------------
-Should be used as like as $<module>
-NOTE: module "title_sep" as an extended name version called "title_separator"
+    for (const module_t& module : cfGetModules())
+    {
+        std::vector<std::string> parts;
 
-Syntax:
-# maybe comments of the module
-module:
-  description [example of what it prints]
+        // Split name into parts (e.g., "os.name.pretty" -> ["os", "name", "pretty"])
+        size_t start = 0, end = module.name.find('.');
+        bool new_module = true;
+        while (end != std::string::npos)
+        {
+            new_module = false;
+            parts.push_back(module.name.substr(start, end - start));
+            start = end + 1;
+            end   = module.name.find('.', start);
+        }
+        parts.push_back(module.name.substr(start));
+        if (new_module)
+            fmt::print("\n");
 
-ram:
-  used and total amount of RAM (auto) with used percentage [2.81 GiB / 15.88 GiB (5.34%)]
+        // Generate indentation
+        for (size_t depth = 0; depth < parts.size(); ++depth)
+        {
+            if (depth == parts.size() - 1)
+                fmt::print("{:<6} \t- {}", parts[depth], module.description);
+            else
+                fmt::print("  ");
+        }
 
-swap:
-  used and total amount of the swapfile (auto) with used percentage [477.68 MiB / 512.00 MiB (88.45%)]
+        fmt::print("\n");
+    }
 
-# note: the module can have either a device path
-#       or a filesystem path
-#       e.g disk(/) or disk(/dev/sda5)
-disk(/path/to/fs):
-  used and total amount of disk space (auto) with type of filesystem and used percentage [379.83 GiB / 438.08 GiB (86.70%) - ext4]
-
-# usually people have 1 GPU in their PC,
-# but if you got more than 1 and want to query it,
-# you should call gpu module with a number, e.g gpu1 (default gpu0).
-# Infos are gotten from `/sys/class/drm/` and on each cardN directory
-gpu:
-  GPU shorter vendor name and model name [NVIDIA GeForce GTX 1650]
-
-cpu:
-  CPU model name with number of virtual processors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]
-
-battery:
-  battery current percentage and status [50.00% [Discharging]]
-
-title:
-  user and hostname colored with ${auto2} [toni@arch2]
-
-title_sep:
-  separator between the title and the system infos (with the title length) [--------]
-
-colors:
-  color palette with background spaces
-
-colors_light:
-  light color palette with background spaces
-
-# with `symbol` I mean a symbol to be used for the
-# view of the color palette
-colors_symbol(symbol):
-  color palette with specific symbol
-
-# with `symbol` I mean a symbol to be used for the
-# view of the color palette
-colors_light_symbol(symbol):
-  light color palette with specific symbol
-
---------------------------------------------------------[ MODULE MEMBERS ]------------------------------------------------------------------------
-
-Should be used as like as $<module.member>
-NOTE: module members such as "os.pkgs" or "disk.used_perc" have an extended name version
-      "os.pkgs" == "os.packages"
-      any module member that has "perc" can be replaced with "percentage"
-
-Syntax:
-# maybe comments of the module
-module
-  member: description [example of what it prints; maybe another]
-
-os
-  name:             OS name (pretty name) [Ubuntu 22.04.4 LTS; Arch Linux]
-  name_id:          OS name id [ubuntu, arch]
-  kernel:           kernel name and version [Linux 6.9.3-zen1-1-zen]
-  kernel_name:      kernel name [Linux]
-  kernel_version:   kernel version [6.9.3-zen1-1-zen]
-  version_id:       OS version id [22.04.4, 20240101.0.204074]
-  version_codename: OS version codename [jammy]
-  pkgs:             count of the installed packages by a package manager [1869 (pacman), 4 (flatpak)]
-  uptime:           (auto) uptime of the system [36 mins, 3 hours, 23 days]
-  uptime_secs:      uptime of the system in seconds (should be used along with others uptime_ members) [45]
-  uptime_mins:      uptime of the system in minutes (should be used along with others uptime_ members) [12]
-  uptime_hours:     uptime of the system in hours   (should be used along with others uptime_ members) [34]
-  uptime_days:      uptime of the system in days    (should be used along with others uptime_ members) [2]
-  hostname:         hostname of the OS [myMainPC]
-  initsys_name:     Init system name [systemd]
-  initsys_version:  Init system version [256.5-1-arch]
-
-user
-  name:             name you are currently logged in (not real name) [toni69]
-  shell:            login shell name and version [zsh 5.9]
-  shell_name:       login shell [zsh]
-  shell_path:       login shell (with path) [/bin/zsh]
-  shell_version:    login shell version (may be not correct) [5.9]
-  de_name:          Desktop Environment current session name [Plasma]
-  wm_name:          Window Manager current session name [dwm; xfwm4]
-  wm_version:       Window Manager version (may not work correctly) [6.2; 4.18.0]
-  terminal:         terminal name and version [alacritty 0.13.2]
-  terminal_name:    terminal name [alacritty]
-  terminal_version: terminal version [0.13.2]
-
-# this module is just for generic theme stuff
-# such as indeed cursor
-# because it is not GTK-Qt specific
-theme
-  cursor:      cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
-  cursor_name: cursor name [Bibata-Modern-Ice]
-  cursor_size: cursor size [16]
-
-# If USE_DCONF flag is set, then we're going to use
-# dconf, else backing up to gsettings
-theme-gsettings
-  name:        gsettings theme name [Decay-Green]
-  icons:       gsettings icons theme name [Papirus-Dark]
-  font:        gsettings font theme name [Cantarell 10]
-  cursor:      gsettings cursor name with its size (auto add the size if queried) [Bibata-Modern-Ice (16px)]
-  cursor_name: gsettings cursor name [Bibata-Modern-Ice]
-  cursor_size: gsettings cursor size [16]
-
-# the N stands for the gtk version number to query
-# so for example if you want to query the gtk3 theme name
-# write it like "theme-gtk3.name"
-# note: may be slow because of calling "gsettings" if couldn't read from configs.
-#       Read theme-gsettings module comments
-theme-gtkN
-  name:  gtk theme name [Arc-Dark]
-  icons: gtk icons theme name [Qogir-Dark]
-  font:  gtk font theme name [Noto Sans 10]
-
-# basically as like as the "theme-gtkN" module above
-# but with gtk{2,3,4} and auto format gkt version
-# note: may be slow because of calling "gsettings" if couldn't read from configs.
-# 	Read theme-gsettings module comments
-theme-gtk-all
-  name:  gtk theme name [Arc-Dark [GTK2/3/4]]
-  icons: gtk icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]
-  font:  gtk font theme name [Hack Nerd Font 13 [GTK2], Noto Sans 10 [GTK3/4]]
-
-# note: these members are auto displayed in from B to YB (depending if using SI byte unit or not(IEC)).
-# they all (except those that has the same name as the module or that ends with "_perc")
-# have variants from -B to -YB and -B to -YiB
-# example: if you want to show your 512MiB of used RAM in GiB
-# use the `used-GiB` variant (they don't print the unit tho)
-ram
-  used:      used amount of RAM (auto) [2.81 GiB]
-  free:      available amount of RAM (auto) [10.46 GiB]
-  total:     total amount of RAM (auto) [15.88 GiB]
-  used_perc: percentage of used amount of RAM in total [17.69%]
-  free_perc: percentage of available amount of RAM in total [82.31%]
-
-# same comments as RAM (above)
-swap
-  used:      used amount of the swapfile (auto) [477.68 MiB]
-  free:      available amount of the swapfile (auto) [34.32 MiB]
-  total:     total amount of the swapfile (auto) [512.00 MiB]
-  used_perc: percentage of used amount of the swapfile in total [93.29%]
-  free_perc: percentage of available amount of the swapfile in total [6.71%]
-
-# same comments as RAM (above)
-# note: the module can have either a device path
-#	or a filesystem path
-#	e.g disk(/) or disk(/dev/sda5)
-disk(/path/to/fs)
-  used:      used amount of disk space (auto) [360.02 GiB]
-  free:      available amount of disk space (auto) [438.08 GiB]
-  total:     total amount of disk space (auto) [100.08 GiB]
-  used_perc: percentage of used amount of the disk in total [82.18%]
-  free_perc: percentage of available amount of the disk in total [17.82%]
-  fs:        type of filesystem [ext4]
-  device:    path to device [/dev/sda5]
-  types:     an array of type options (pretty format) [Regular, External]
-  mountdir:  path to the device mount point [/]
-
-# usually people have 1 GPU in their PC,
-# but if you got more than 1 and want to query it,
-# you should call gpu module with a number, e.g gpu1 (default gpu0).
-# Infos are gotten from `/sys/class/drm/` and on each cardN directory
-gpu
-  name:        GPU model name [GeForce GTX 1650]
-  vendor:      GPU short vendor name [NVIDIA]
-  vendor_long: GPU vendor name [NVIDIA Corporation]
-
-# cpu module has a member called "temp" and it has 3 variant units:
-# "temp_C" (Celsius) "temp_F" (Fahrenheit) "temp_K" (Kelvin)
-cpu
-  name:     CPU model name [AMD Ryzen 5 5500]
-  temp:     CPU temperature (by the chosen unit) [40.62]
-  nproc:    CPU number of virtual processors [12]
-  freq_cur: CPU current frequency (in GHz) [3.42]
-  freq_min: CPU minimum frequency (in GHz) [2.45]
-  freq_max: CPU maximum frequency (in GHz) [4.90]
-  freq_bios_limit: CPU frequency limited by bios (in GHz) [4.32]
-
-# battery module has a member called "temp" and it has 3 variant units:
-# "temp_C" (Celsius) "temp_F" (Fahrenheit) "temp_K" (Kelvin)
-battery
-  name:           battery model name
-  temp:           battery temperature (by the chosen unit)
-  perc:           battery current percentage
-  vendor:         battery manufacturer name
-  status:         battery current status [Discharging, AC Connected]
-  technology:     battery technology [Li-lion]
-  capacity_level: battery capacity level [Normal, Critical]
-
-system
-  host:         Host (aka. Motherboard) model name with vendor and version [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95) 1.0]
-  host_name:    Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]
-  host_version: Host (aka. Motherboard) model version [1.0]
-  host_vendor:  Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]
-  arch:         the architecture of the machine [x86_64, aarch64]
-
-)");
-
-    fmt::print("{}", list);
-    fmt::print("\n");
     std::exit(EXIT_SUCCESS);
 }
 
@@ -514,7 +331,7 @@ A: Yes! Complex nesting is supported, for example:
     std::exit(EXIT_SUCCESS);
 }
 
-// Print a sorted list of ascii logos you can use at a "data-dir"
+// Print a modules list of ascii logos you can use at a "data-dir"
 // @param data_dir The data directory
 static void list_logos(const std::string& data_dir)
 {
@@ -781,8 +598,6 @@ int main(int argc, char *argv[])
     localize();
 
     Config config(configFile, configDir);
-    if (!parseargs(argc, argv, config, configFile))
-        return 1;
     config.loadConfigFile(configFile);
 
     /* TODO(burntranch): track each library and unload them. */
@@ -806,6 +621,9 @@ int main(int argc, char *argv[])
 
         start(handle);
     }
+
+    if (!parseargs(argc, argv, config, configFile))
+        return 1;
 
     const std::vector<module_t>& modules = cfGetModules();
     moduleMap_t                  moduleMap;
