@@ -145,14 +145,6 @@ void core_plugins_start()
         std::move(os_initsys_version_module),
     }, [](unused) {return os_initsys_name() + " " + os_initsys_version();}};
 
-    /* Only for compatibility */
-    module_t os_pretty_name_module_compat = { "pretty_name", "OS name (pretty name) [Ubuntu 22.04.4 LTS; Arch Linux]", {}, os_pretty_name };
-    module_t os_name_id_module_compat = { "name_id", "OS name id [ubuntu, arch]", {}, os_name_id };
-    module_t os_kernel_name_module_compat = {"kernel_name", "kernel name [Linux]", {}, os_kernel_name};
-    module_t os_kernel_version_module_compat = {"kernel_version", "kernel version [6.9.3-zen1-1-zen]", {}, os_kernel_version};
-    module_t os_initsys_name_module_compat = {"initsys_name", "Init system name [systemd]", {}, os_initsys_name};
-    module_t os_initsys_version_module_compat = {"initsys_version", "Init system version [256.5-1-arch]", {}, os_initsys_version};
-
     // $<os>
     module_t os_module = { "os", "OS modules", {
         std::move(os_name_module),
@@ -160,13 +152,6 @@ void core_plugins_start()
         std::move(os_kernel_module),
         std::move(os_hostname_module),
         std::move(os_initsys_module),
-
-        std::move(os_pretty_name_module_compat),
-        std::move(os_name_id_module_compat),
-        std::move(os_kernel_name_module_compat),
-        std::move(os_kernel_version_module_compat),
-        std::move(os_initsys_name_module_compat),
-        std::move(os_initsys_version_module_compat),
     }, NULL};
     cfRegisterModule(os_module);
 
@@ -174,23 +159,16 @@ void core_plugins_start()
     module_t host_name_module = {"name", "Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]", {}, host_name};
     module_t host_version_module = {"version", "Host (aka. Motherboard) model version [1.0]", {}, host_version};
     module_t host_vendor_module = {"vendor", "Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]", {}, host_vendor};
-    module_t host_module = {"host", "Host (aka. Motherboard) model name with vendor and version [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95) 1.0]", { 
+    module_t host_module = {"host", "Host (aka. Motherboard) model name with vendor and version [MSI PRO B550M-P GEN3 (MS-7D95) 1.0]", { 
         std::move(host_name_module), 
         std::move(host_version_module), 
         std::move(host_vendor_module) },
     host};
 
     module_t arch_module = {"arch", "the architecture of the machine [x86_64, aarch64]", {}, arch};
-    /* Only for compatibility */
-    module_t host_name_module_compat = { "host_name", "Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]", {}, host_name };
-    module_t host_version_module_compat = {"host_version", "Host (aka. Motherboard) model version [1.0]", {}, host_version};
-    module_t host_vendor_module_compat = {"host_vendor", "Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]", {}, host_vendor};
 
     module_t system_module = { "system", "System modules", { 
         std::move(host_module),
-        std::move(host_name_module_compat), 
-        std::move(host_version_module_compat), 
-        std::move(host_vendor_module_compat),
         std::move(arch_module),
     }, NULL };
     cfRegisterModule(system_module);
@@ -219,28 +197,11 @@ void core_plugins_start()
         std::move(cpu_temp_K_module),
     }, [](unused) {return fmt::format("{:.2f}°C", cpu_temp());}};
 
-    /* Only for compatibility */
-    module_t cpu_freq_cur_module_compat = {"freq_cur", "CPU current frequency (in GHz) [3.42]", {}, cpu_freq_cur};
-    module_t cpu_freq_max_module_compat = {"freq_max", "CPU maximum frequency (in GHz) [4.90]", {}, cpu_freq_max};
-    module_t cpu_freq_min_module_compat = {"freq_min", "CPU minimum frequency (in GHz) [2.45]", {}, cpu_freq_min};
-    module_t cpu_freq_bios_module_compat = {"freq_bios_limit", "CPU frequency limited by bios (in GHz) [4.32]", {}, cpu_freq_bios};
-    module_t cpu_temp_C_module_compat = {"temp_C", "CPU temperature in Celsius [40.62]", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp());}};
-    module_t cpu_temp_F_module_compat = {"temp_F", "CPU temperature in Fahrenheit [105.12]", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp() * 1.8 + 34);}};
-    module_t cpu_temp_K_module_compat = {"temp_K", "CPU temperature in Kelvin [313.77]", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp() + 273.15);}};
-
     module_t cpu_module = {"cpu", "CPU model name with number of virtual processors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]",{
         std::move(cpu_name_module),
         std::move(cpu_nproc_module),
         std::move(cpu_freq_module),
         std::move(cpu_temp_module),
-
-        std::move(cpu_freq_cur_module_compat),
-        std::move(cpu_freq_max_module_compat),
-        std::move(cpu_freq_min_module_compat),
-        std::move(cpu_freq_bios_module_compat),
-        std::move(cpu_temp_C_module_compat),
-        std::move(cpu_temp_F_module_compat),
-        std::move(cpu_temp_K_module_compat),
     }, [](unused) {
             return fmt::format("{} ({}) @ {} GHz", cpu_name(), cpu_nproc(), cpu_freq_max());
         }};
@@ -279,33 +240,12 @@ void core_plugins_start()
         std::move(user_de_name_module)
     }, [](unused) {return user_de_name() + " " + user_de_version();}};
 
-    /* Only for compatibility */
-    module_t user_shell_path_module_compat = {"shell_path", "login shell (with path) [/bin/zsh]", {}, user_shell_path};
-    module_t user_shell_name_module_compat = {"shell_name", "login shell [zsh]", {}, user_shell_name};
-    module_t user_shell_version_module_compat = {"shell_version", "login shell version (may be not correct) [5.9]", {}, user_shell_version};
-    module_t user_term_name_module_compat = {"terminal_name", "terminal name [alacritty]", {}, user_term_name};
-    module_t user_term_version_module_compat = {"terminal_version", "terminal version [0.13.2]", {}, user_shell_version};
-    module_t user_wm_name_module_compat = {"wm_name", "Window Manager current session name [dwm; xfwm4]", {}, user_wm_name};
-    module_t user_wm_version_module_compat = {"wm_version", "Window Manager version (may not work correctly) [6.2; 4.18.0]", {}, user_wm_version};
-    module_t user_de_name_module_compat = {"de_name", "Desktop Environment current session name [Plasma]", {}, user_de_name};
-    module_t user_de_version_module_compat = {"de_version", "Desktop Environment version (if available)", {}, user_de_version};
-
     module_t user_module = {"user", "User modules", {
         std::move(user_name_module),
         std::move(user_shell_module),
         std::move(user_term_module),
         std::move(user_wm_module),
         std::move(user_de_module),
-
-        std::move(user_shell_name_module_compat),
-        std::move(user_shell_path_module_compat),
-        std::move(user_shell_version_module_compat),
-        std::move(user_term_version_module_compat),
-        std::move(user_term_name_module_compat),
-        std::move(user_wm_name_module_compat),
-        std::move(user_wm_version_module_compat),
-        std::move(user_de_name_module_compat),
-        std::move(user_de_version_module_compat),
     }, NULL};
     cfRegisterModule(user_module);
 
@@ -319,8 +259,6 @@ void core_plugins_start()
     module_t ram_module = {"ram", "used and total amount of RAM (auto) with used percentage [2.81 GiB / 15.88 GiB (5.34%)]", {
         std::move(ram_free_module),
         std::move(ram_used_module),
-        std::move(ram_free_perc_module),
-        std::move(ram_used_perc_module),
         std::move(ram_total_module)
     }, NULL};
     cfRegisterModule(ram_module);
@@ -335,8 +273,6 @@ void core_plugins_start()
     module_t swap_module = {"swap", "used and total amount of the swapfile (auto) with used percentage [477.68 MiB / 512.00 MiB (88.45%)]", {
         std::move(swap_free_module),
         std::move(swap_used_module),
-        std::move(swap_free_perc_module),
-        std::move(swap_used_perc_module),
         std::move(swap_total_module)
     }, NULL};
     cfRegisterModule(swap_module);
@@ -358,8 +294,6 @@ void core_plugins_start()
         std::move(disk_device_module),
         std::move(disk_mountdir_module),
         std::move(disk_types_module),
-        std::move(disk_free_perc_module),
-        std::move(disk_used_perc_module),
         std::move(disk_free_module),
         std::move(disk_used_module),
         std::move(disk_total_module),
@@ -377,17 +311,11 @@ void core_plugins_start()
     module_t battery_temp_C_module = {"C", "battery temperature in Celsius [e.g. 37.12°C]", {}, [](unused) {return fmt::format("{:.2f}°C", battery_temp());}};
     module_t battery_temp_F_module = {"F", "battery temperature in Fahrenheit [e.g. 98.81°F]", {}, [](unused) {return fmt::format("{:.2f}°F", battery_temp() * 1.8 + 34);}};
     module_t battery_temp_K_module = {"K", "battery temperature in Kelvin [e.g. 310.27°K]", {}, [](unused) {return fmt::format("{:.2f}°K", battery_temp() + 273.15);}};
-
     module_t battery_temp_module = {"temp", "battery temperature (by the chosen unit)", {
         std::move(battery_temp_C_module),
         std::move(battery_temp_F_module),
         std::move(battery_temp_K_module),
     }, [](unused) {return fmt::format("{:.2f}°C", battery_temp());}};
-
-    /* Only for compatibility */
-    module_t battery_temp_C_module_compat = {"temp_C", "battery temperature in Celsius (no unit)", {}, [](unused) {return fmt::format("{:.2f}", battery_temp());}};
-    module_t battery_temp_F_module_compat = {"temp_F", "battery temperature in Fahrenheit (no unit)", {}, [](unused) {return fmt::format("{:.2f}", battery_temp() * 1.8 + 34);}};
-    module_t battery_temp_K_module_compat = {"temp_K", "battery temperature in Kelvin (no unit)", {}, [](unused) {return fmt::format("{:.2f}", battery_temp() + 273.15);}};
 
     module_t battery_module = {"battery", "battery current percentage and status [50.00% [Discharging]]", {
         std::move(battery_modelname_module),
@@ -397,10 +325,6 @@ void core_plugins_start()
         std::move(battery_vendor_module),
         std::move(battery_perc_module),
         std::move(battery_temp_module),
-
-        std::move(battery_temp_C_module_compat),
-        std::move(battery_temp_F_module_compat),
-        std::move(battery_temp_K_module_compat),
     }, NULL};
     cfRegisterModule(battery_module);
 
@@ -445,7 +369,7 @@ void core_plugins_start()
                                             " ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}",
                                             callback->modulesInfo, callback->config);
                                     } };
-    module_t colors_module = { "colors", "light color palette with background spaces",
+    module_t colors_module = { "colors", "color palette with background spaces",
                                { std::move(colors_symbol_module), std::move(colors_light_module) },
                                [](const callbackInfo_t* callback) {
                                    return parse(
