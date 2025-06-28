@@ -62,20 +62,20 @@ OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
 OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
 HEADERS		 = config.hpp common.hpp core-modules.hh cufetch.hh
-LDFLAGS   	+= -L./$(BUILDDIR) -lcufetch -lfmt -ldl
+LDFLAGS   	+= -Wl,-Bstatic $(BUILDDIR)/libfmt.a -Wl,-Bdynamic -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
-all: genver libcufetch fmt toml json $(TARGET)
+all: genver fmt toml json libcufetch $(TARGET)
 
 libcufetch:
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
-	mkdir -p $(BUILDDIR)
 	make -C libcufetch BUILDDIR=$(BUILDDIR)
 endif
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/libfmt.a),)
+	mkdir -p $(BUILDDIR)
 	make -C src/libs/fmt BUILDDIR=$(BUILDDIR)
 endif
 
@@ -94,10 +94,10 @@ ifeq ($(wildcard include/version.h),)
 	./scripts/generateVersion.sh
 endif
 
-$(TARGET): genver fmt toml libcufetch json $(OBJ)
+$(TARGET): genver fmt toml json libcufetch $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
-	$(CXX) $(OBJ) $(BUILDDIR)/*.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
+	$(CXX) -o $(BUILDDIR)/$(TARGET) $(OBJ) $(BUILDDIR)/*.o $(LDFLAGS)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
 locale:
@@ -121,9 +121,9 @@ clean:
 
 distclean:
 	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ)
-	find . -type f -name "*.tar.gz" -exec rm -rf "{}" \;
-	find . -type f -name "*.o" -exec rm -rf "{}" \;
-	find . -type f -name "*.a" -exec rm -rf "{}" \;
+	find . -type f -name "*.tar.gz" -delete
+	find . -type f -name "*.o" -delete
+	find . -type f -name "*.a" -delete
 
 install: install-common $(TARGET)
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)

@@ -5,7 +5,7 @@
 CXX		?= g++
 # CXX_DEFINES 	= -DFMT_LIB_EXPORT -Dfmt_EXPORTS
 CXX_INCLUDES 	= -I../../../include
-CXX_FLAGS 	= -O3 -DNDEBUG -fvisibility=hidden -fvisibility-inlines-hidden
+CXX_FLAGS 	= -O3 -DNDEBUG -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
 
 all: fmt
 
@@ -15,7 +15,6 @@ fmt: format.cc os.cc
 	ar qc libfmt.a os.cc.o format.cc.o
 	ranlib libfmt.a
 	mv -f libfmt.a ../../../$(BUILDDIR)/libfmt.a
-	# $(CXX) -fPIC -O3 -DNDEBUG -shared -Wl,-soname,libfmt.so.10 -o libfmt.so format.cc.o os.cc.o
 
 clean:
 	rm -f *.o *.so *.a ../../../$(BUILDDIR)/fmt/.*a
