@@ -110,18 +110,18 @@ void core_plugins_start()
     mountsFile = setmntent("/proc/mounts", "r");
 
     // ------------ MODULES REGISTERING ------------
-    module_t os_name_pretty_module = {"pretty", {}, os_pretty_name};
-    module_t os_name_id_module = {"id", {}, os_name_id};
-    module_t os_name_module = { "name", {
+    module_t os_name_pretty_module = {"pretty", "OS pretty name [Ubuntu 22.04.4 LTS; Arch Linux]", {}, os_pretty_name};
+    module_t os_name_id_module = {"id", "OS id name [ubuntu, arch]", {}, os_name_id};
+    module_t os_name_module = { "name", "OS basic name [Ubuntu]", {
         std::move(os_name_pretty_module),
         std::move(os_name_id_module)
     }, os_name };
 
-    module_t os_uptime_s_module = {"secs",  {}, [=](unused) {return fmt::to_string(uptime_secs.count() % 60);}};
-    module_t os_uptime_m_module = {"mins",  {}, [=](unused) {return fmt::to_string(uptime_mins.count() % 60);}};
-    module_t os_uptime_h_module = {"hours", {}, [=](unused) {return fmt::to_string(uptime_hours.count() % 24);}};
-    module_t os_uptime_d_module = {"days",  {}, [=](unused) {return fmt::to_string(uptime_days);}};
-    module_t os_uptime_module = {"uptime", {
+    module_t os_uptime_s_module = {"secs", "uptime of the system in seconds [45]", {}, [=](unused) {return fmt::to_string(uptime_secs.count() % 60);}};
+    module_t os_uptime_m_module = {"mins", "uptime of the system in minutes [12]", {}, [=](unused) {return fmt::to_string(uptime_mins.count() % 60);}};
+    module_t os_uptime_h_module = {"hours", "uptime of the system in hours [34]", {}, [=](unused) {return fmt::to_string(uptime_hours.count() % 24);}};
+    module_t os_uptime_d_module = {"days", "uptime of the system in days [2]", {}, [=](unused) {return fmt::to_string(uptime_days);}};
+    module_t os_uptime_module = {"uptime", "(auto) uptime of the system [36 mins, 3 hours, 23 days]", {
         std::move(os_uptime_s_module),
         std::move(os_uptime_m_module),
         std::move(os_uptime_h_module),
@@ -129,32 +129,32 @@ void core_plugins_start()
     }, [=](const callbackInfo_t* callback) { return get_auto_uptime(uptime_days, uptime_hours.count() % 24, uptime_mins.count() % 60,
                                                    uptime_secs.count() % 60, callback->config); }};
 
-    module_t os_hostname_module = {"hostname", {}, os_hostname};
+    module_t os_hostname_module = {"hostname", "hostname of the OS [myMainPC]", {}, os_hostname};
 
-    module_t os_kernel_name_module = {"name", {}, os_kernel_name};
-    module_t os_kernel_version_module = {"version", {}, os_kernel_version};
-    module_t os_kernel_module = {"kernel", {
+    module_t os_kernel_name_module = {"name", "kernel name [Linux]", {}, os_kernel_name};
+    module_t os_kernel_version_module = {"version", "kernel version [6.9.3-zen1-1-zen]", {}, os_kernel_version};
+    module_t os_kernel_module = {"kernel", "kernel name and version [Linux 6.9.3-zen1-1-zen]", {
         std::move(os_kernel_name_module),
         std::move(os_kernel_version_module)
     }, [](unused) {return os_kernel_name() + " " + os_kernel_version();}};
 
-    module_t os_initsys_name_module = {"name", {}, os_initsys_name};
-    module_t os_initsys_version_module = {"version", {}, os_initsys_version};
-    module_t os_initsys_module = {"initsys", {
+    module_t os_initsys_name_module = {"name", "Init system name [systemd]", {}, os_initsys_name};
+    module_t os_initsys_version_module = {"version", "Init system version [256.5-1-arch]", {}, os_initsys_version};
+    module_t os_initsys_module = {"initsys", "Init system name and version [systemd 256.5-1-arch]", {
         std::move(os_initsys_name_module),
         std::move(os_initsys_version_module),
     }, [](unused) {return os_initsys_name() + " " + os_initsys_version();}};
 
     /* Only for compatibility */
-    module_t os_pretty_name_module_compat = { "pretty_name", {}, os_pretty_name };
-    module_t os_name_id_module_compat = { "name_id", {}, os_name_id };
-    module_t os_kernel_name_module_compat = {"kernel_name", {}, os_kernel_name};
-    module_t os_kernel_version_module_compat = {"kernel_version", {}, os_kernel_version};
-    module_t os_initsys_name_module_compat = {"initsys_name", {}, os_initsys_name};
-    module_t os_initsys_version_module_compat = {"initsys_version", {}, os_initsys_version};
+    module_t os_pretty_name_module_compat = { "pretty_name", "OS name (pretty name) [Ubuntu 22.04.4 LTS; Arch Linux]", {}, os_pretty_name };
+    module_t os_name_id_module_compat = { "name_id", "OS name id [ubuntu, arch]", {}, os_name_id };
+    module_t os_kernel_name_module_compat = {"kernel_name", "kernel name [Linux]", {}, os_kernel_name};
+    module_t os_kernel_version_module_compat = {"kernel_version", "kernel version [6.9.3-zen1-1-zen]", {}, os_kernel_version};
+    module_t os_initsys_name_module_compat = {"initsys_name", "Init system name [systemd]", {}, os_initsys_name};
+    module_t os_initsys_version_module_compat = {"initsys_version", "Init system version [256.5-1-arch]", {}, os_initsys_version};
 
     // $<os>
-    module_t os_module = { "os", {
+    module_t os_module = { "os", "OS modules", {
         std::move(os_name_module),
         std::move(os_uptime_module),
         std::move(os_kernel_module),
@@ -168,65 +168,67 @@ void core_plugins_start()
         std::move(os_initsys_name_module_compat),
         std::move(os_initsys_version_module_compat),
     }, NULL};
-
-    //fclose(os_release);
     cfRegisterModule(os_module);
 
     // $<system>
-    module_t host_name_module = {"name", {}, host_name};
-    module_t host_version_module = {"version", {}, host_version};
-    module_t host_vendor_module = {"vendor", {}, host_vendor};
-    module_t host_module = {"host", { std::move(host_name_module), std::move(host_version_module), std::move(host_vendor_module) }, host};
+    module_t host_name_module = {"name", "Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]", {}, host_name};
+    module_t host_version_module = {"version", "Host (aka. Motherboard) model version [1.0]", {}, host_version};
+    module_t host_vendor_module = {"vendor", "Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]", {}, host_vendor};
+    module_t host_module = {"host", "Host (aka. Motherboard) model name with vendor and version [Micro-Star International Co., Ltd. PRO B550M-P GEN3 (MS-7D95) 1.0]", { 
+        std::move(host_name_module), 
+        std::move(host_version_module), 
+        std::move(host_vendor_module) },
+    host};
 
+    module_t arch_module = {"arch", "the architecture of the machine [x86_64, aarch64]", {}, arch};
     /* Only for compatibility */
-    module_t host_name_module_compat = { "host_name", {}, host_name };
-    module_t host_version_module_compat = {"host_version", {}, host_version};
-    module_t host_vendor_module_compat = {"host_vendor", {}, host_vendor};
+    module_t host_name_module_compat = { "host_name", "Host (aka. Motherboard) model name [PRO B550M-P GEN3 (MS-7D95)]", {}, host_name };
+    module_t host_version_module_compat = {"host_version", "Host (aka. Motherboard) model version [1.0]", {}, host_version};
+    module_t host_vendor_module_compat = {"host_vendor", "Host (aka. Motherboard) model vendor [Micro-Star International Co., Ltd.]", {}, host_vendor};
 
-    module_t arch_module = {"arch", {}, arch};
-
-    module_t system_module = { "system", { 
+    module_t system_module = { "system", "System modules", { 
         std::move(host_module),
-        std::move(host_name_module_compat), std::move(host_version_module_compat), std::move(host_vendor_module_compat),
+        std::move(host_name_module_compat), 
+        std::move(host_version_module_compat), 
+        std::move(host_vendor_module_compat),
         std::move(arch_module),
     }, NULL };
-
     cfRegisterModule(system_module);
 
     // $<cpu>
-    module_t cpu_name_module   = {"name", {}, cpu_name};
-    module_t cpu_nproc_module  = {"nproc" , {}, cpu_nproc};
+    module_t cpu_name_module   = {"name", "CPU model name [AMD Ryzen 5 5500]", {}, cpu_name};
+    module_t cpu_nproc_module  = {"nproc" , "CPU number of virtual processors [12]", {}, cpu_nproc};
 
-    module_t cpu_freq_cur_module = {"current", {}, cpu_freq_cur};
-    module_t cpu_freq_max_module = {"max", {}, cpu_freq_max};
-    module_t cpu_freq_min_module = {"min", {}, cpu_freq_min};
-    module_t cpu_freq_bios_module = {"bios_limit", {}, cpu_freq_bios};
-    module_t cpu_freq_module = {"freq", {
+    module_t cpu_freq_cur_module = {"current", "CPU current frequency (in GHz) [3.42]", {}, cpu_freq_cur};
+    module_t cpu_freq_max_module = {"max", "CPU maximum frequency (in GHz) [4.90]", {}, cpu_freq_max};
+    module_t cpu_freq_min_module = {"min", "CPU minimum frequency (in GHz) [2.45]", {}, cpu_freq_min};
+    module_t cpu_freq_bios_module = {"bios_limit", "CPU frequency limited by bios (in GHz) [4.32]", {}, cpu_freq_bios};
+    module_t cpu_freq_module = {"freq", "CPU frequency info (GHz)", {
         std::move(cpu_freq_cur_module),
         std::move(cpu_freq_max_module),
         std::move(cpu_freq_min_module),
         std::move(cpu_freq_bios_module),
     }, cpu_freq_max};
 
-    module_t cpu_temp_C_module = {"C", {}, [](unused) {return fmt::format("{:.2f}°C", cpu_temp());}};
-    module_t cpu_temp_F_module = {"F", {}, [](unused) {return fmt::format("{:.2f}°F", cpu_temp() * 1.8 + 34);}};
-    module_t cpu_temp_K_module = {"K", {}, [](unused) {return fmt::format("{:.2f}°K", cpu_temp() + 273.15);}};
-    module_t cpu_temp_module = {"temp", {
+    module_t cpu_temp_C_module = {"C", "CPU temperature in Celsius [40.62]", {}, [](unused) {return fmt::format("{:.2f}°C", cpu_temp());}};
+    module_t cpu_temp_F_module = {"F", "CPU temperature in Fahrenheit [105.12]", {}, [](unused) {return fmt::format("{:.2f}°F", cpu_temp() * 1.8 + 34);}};
+    module_t cpu_temp_K_module = {"K", "CPU temperature in Kelvin [313.77]", {}, [](unused) {return fmt::format("{:.2f}°K", cpu_temp() + 273.15);}};
+    module_t cpu_temp_module = {"temp", "CPU temperature (by the chosen unit) [40.62]", {
         std::move(cpu_temp_C_module),
         std::move(cpu_temp_F_module),
         std::move(cpu_temp_K_module),
     }, [](unused) {return fmt::format("{:.2f}°C", cpu_temp());}};
 
     /* Only for compatibility */
-    module_t cpu_freq_cur_module_compat = {"freq_cur", {}, cpu_freq_cur};
-    module_t cpu_freq_max_module_compat = {"freq_max", {}, cpu_freq_max};
-    module_t cpu_freq_min_module_compat = {"freq_min", {}, cpu_freq_min};
-    module_t cpu_freq_bios_module_compat = {"freq_bios_limit", {}, cpu_freq_bios};
-    module_t cpu_temp_C_module_compat = {"temp_C", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp());}};
-    module_t cpu_temp_F_module_compat = {"temp_F", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp() * 1.8 + 34);}};
-    module_t cpu_temp_K_module_compat = {"temp_K", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp() + 273.15);}};
+    module_t cpu_freq_cur_module_compat = {"freq_cur", "CPU current frequency (in GHz) [3.42]", {}, cpu_freq_cur};
+    module_t cpu_freq_max_module_compat = {"freq_max", "CPU maximum frequency (in GHz) [4.90]", {}, cpu_freq_max};
+    module_t cpu_freq_min_module_compat = {"freq_min", "CPU minimum frequency (in GHz) [2.45]", {}, cpu_freq_min};
+    module_t cpu_freq_bios_module_compat = {"freq_bios_limit", "CPU frequency limited by bios (in GHz) [4.32]", {}, cpu_freq_bios};
+    module_t cpu_temp_C_module_compat = {"temp_C", "CPU temperature in Celsius [40.62]", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp());}};
+    module_t cpu_temp_F_module_compat = {"temp_F", "CPU temperature in Fahrenheit [105.12]", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp() * 1.8 + 34);}};
+    module_t cpu_temp_K_module_compat = {"temp_K", "CPU temperature in Kelvin [313.77]", {}, [](unused) {return fmt::format("{:.2f}", cpu_temp() + 273.15);}};
 
-    module_t cpu_module = {"cpu", {
+    module_t cpu_module = {"cpu", "CPU model name with number of virtual processors and max freq [AMD Ryzen 5 5500 (12) @ 4.90 GHz]",{
         std::move(cpu_name_module),
         std::move(cpu_nproc_module),
         std::move(cpu_freq_module),
@@ -242,54 +244,53 @@ void core_plugins_start()
     }, [](unused) {
             return fmt::format("{} ({}) @ {} GHz", cpu_name(), cpu_nproc(), cpu_freq_max());
         }};
-
     cfRegisterModule(cpu_module);
 
     // $<user>
-    module_t user_name_module = {"name", {}, user_name};
+    module_t user_name_module = {"name", "name you are currently logged in (not real name) [toni69]", {}, user_name};
 
-    module_t user_shell_path_module = {"path", {}, user_shell_path};
-    module_t user_shell_name_module = {"name", {}, user_shell_name};
-    module_t user_shell_version_module = {"version", {}, user_shell_version};
-    module_t user_shell_module = {"shell", {
+    module_t user_shell_path_module = {"path", "login shell (with path) [/bin/zsh]", {}, user_shell_path};
+    module_t user_shell_name_module = {"name", "login shell [zsh]", {}, user_shell_name};
+    module_t user_shell_version_module = {"version", "login shell version (may be not correct) [5.9]", {}, user_shell_version};
+    module_t user_shell_module = {"shell", "login shell name and version [zsh 5.9]", {
         std::move(user_shell_name_module),
         std::move(user_shell_path_module),
         std::move(user_shell_version_module),
     }, [](unused) {return user_shell_name() + " " + user_shell_version();}};
 
-    module_t user_term_name_module = {"name", {}, user_term_name};
-    module_t user_term_version_module = {"version", {}, user_shell_version};
-    module_t user_term_module = {"terminal", {
+    module_t user_term_name_module = {"name", "terminal name [alacritty]", {}, user_term_name};
+    module_t user_term_version_module = {"version", "terminal version [0.13.2]", {}, user_shell_version};
+    module_t user_term_module = {"terminal", "terminal name and version [alacritty 0.13.2]", {
         std::move(user_term_version_module),
         std::move(user_term_name_module)
     }, [](unused) {return user_term_name() + " " + user_term_version();}};
 
-    module_t user_wm_name_module = {"name", {}, user_wm_name};
-    module_t user_wm_version_module = {"version", {}, user_wm_version};
-    module_t user_wm_module = {"wm", {
+    module_t user_wm_name_module = {"name", "Window Manager current session name [dwm; xfwm4]", {}, user_wm_name};
+    module_t user_wm_version_module = {"version", "Window Manager version (may not work correctly) [6.2; 4.18.0]", {}, user_wm_version};
+    module_t user_wm_module = {"wm", "Window Manager current session name and version", {
         std::move(user_wm_version_module),
         std::move(user_wm_name_module)
     }, [](unused) {return user_wm_name() + " " + user_wm_version();}};
 
-    module_t user_de_name_module = {"name", {}, user_de_name};
-    module_t user_de_version_module = {"version", {}, user_de_version};
-    module_t user_de_module = {"de", {
+    module_t user_de_name_module = {"name", "Desktop Environment current session name [Plasma]", {}, user_de_name};
+    module_t user_de_version_module = {"version", "Desktop Environment version (if available)", {}, user_de_version};
+    module_t user_de_module = {"de", "Desktop Environment current session name and version", {
         std::move(user_de_version_module),
         std::move(user_de_name_module)
     }, [](unused) {return user_de_name() + " " + user_de_version();}};
 
     /* Only for compatibility */
-    module_t user_shell_path_module_compat = {"shell_path", {}, user_shell_path};
-    module_t user_shell_name_module_compat = {"shell_name", {}, user_shell_name};
-    module_t user_shell_version_module_compat = {"shell_version", {}, user_shell_version};
-    module_t user_term_name_module_compat = {"terminal_name", {}, user_term_name};
-    module_t user_term_version_module_compat = {"terminal_version", {}, user_shell_version};
-    module_t user_wm_name_module_compat = {"wm_name", {}, user_wm_name};
-    module_t user_wm_version_module_compat = {"wm_version", {}, user_wm_version};
-    module_t user_de_name_module_compat = {"de_name", {}, user_de_name};
-    module_t user_de_version_module_compat = {"de_version", {}, user_de_version};
+    module_t user_shell_path_module_compat = {"shell_path", "login shell (with path) [/bin/zsh]", {}, user_shell_path};
+    module_t user_shell_name_module_compat = {"shell_name", "login shell [zsh]", {}, user_shell_name};
+    module_t user_shell_version_module_compat = {"shell_version", "login shell version (may be not correct) [5.9]", {}, user_shell_version};
+    module_t user_term_name_module_compat = {"terminal_name", "terminal name [alacritty]", {}, user_term_name};
+    module_t user_term_version_module_compat = {"terminal_version", "terminal version [0.13.2]", {}, user_shell_version};
+    module_t user_wm_name_module_compat = {"wm_name", "Window Manager current session name [dwm; xfwm4]", {}, user_wm_name};
+    module_t user_wm_version_module_compat = {"wm_version", "Window Manager version (may not work correctly) [6.2; 4.18.0]", {}, user_wm_version};
+    module_t user_de_name_module_compat = {"de_name", "Desktop Environment current session name [Plasma]", {}, user_de_name};
+    module_t user_de_version_module_compat = {"de_version", "Desktop Environment version (if available)", {}, user_de_version};
 
-    module_t user_module = {"user", {
+    module_t user_module = {"user", "User modules", {
         std::move(user_name_module),
         std::move(user_shell_module),
         std::move(user_term_module),
@@ -306,17 +307,16 @@ void core_plugins_start()
         std::move(user_de_name_module_compat),
         std::move(user_de_version_module_compat),
     }, NULL};
-
     cfRegisterModule(user_module);
 
     // $<ram>
-    module_t ram_free_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_free(), ram_total(), callback, true);}};
-    module_t ram_used_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_used(), ram_total(), callback, false);}};
-    module_t ram_free_module  = {"free",  {std::move(ram_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_free() * 1024,  callback->moduleArgs);  }};
-    module_t ram_used_module  = {"used",  {std::move(ram_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_used() * 1024,  callback->moduleArgs);  }};
-    module_t ram_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(ram_total() * 1024, callback->moduleArgs); }};
-
-    module_t ram_module = {"ram", {
+    module_t ram_free_perc_module  = {"perc", "percentage of available amount of RAM in total [82.31%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_free(), ram_total(), callback, true);}};
+    module_t ram_used_perc_module  = {"perc", "percentage of used amount of RAM in total [17.69%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_used(), ram_total(), callback, false);}};
+    module_t ram_free_module  = {"free", "available amount of RAM (auto) [10.46 GiB]", {std::move(ram_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_free() * 1024,  callback->moduleArgs);  }};
+    module_t ram_used_module  = {"used", "used amount of RAM (auto) [2.81 GiB]", {std::move(ram_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_used() * 1024,  callback->moduleArgs);  }};
+    module_t ram_total_module = {"total", "total amount of RAM (auto) [15.88 GiB]", {}, [](const callbackInfo_t *callback) { return amount(ram_total() * 1024, callback->moduleArgs); }};
+        
+    module_t ram_module = {"ram", "used and total amount of RAM (auto) with used percentage [2.81 GiB / 15.88 GiB (5.34%)]", {
         std::move(ram_free_module),
         std::move(ram_used_module),
         std::move(ram_free_perc_module),
@@ -326,13 +326,13 @@ void core_plugins_start()
     cfRegisterModule(ram_module);
 
     // $<swap>
-    module_t swap_free_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_free(), swap_total(), callback, true);}};
-    module_t swap_used_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_used(), swap_total(), callback, false);}};
-    module_t swap_free_module  = {"free",  {std::move(swap_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_free() * 1024,  callback->moduleArgs);  }};
-    module_t swap_used_module  = {"used",  {std::move(swap_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_used() * 1024,  callback->moduleArgs);  }};
-    module_t swap_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(swap_total() * 1024, callback->moduleArgs); }};
+    module_t swap_free_perc_module  = {"perc", "percentage of available amount of the swapfile in total [6.71%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_free(), swap_total(), callback, true);}};
+    module_t swap_used_perc_module  = {"perc", "percentage of used amount of the swapfile in total [93.29%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_used(), swap_total(), callback, false);}};
+    module_t swap_free_module  = {"free", "available amount of the swapfile (auto) [34.32 MiB]", {std::move(swap_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_free() * 1024,  callback->moduleArgs);  }};
+    module_t swap_used_module  = {"used", "used amount of the swapfile (auto) [477.68 MiB]", {std::move(swap_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_used() * 1024,  callback->moduleArgs);  }};
+    module_t swap_total_module = {"total", "total amount of the swapfile (auto) [512.00 MiB]", {}, [](const callbackInfo_t *callback) { return amount(swap_total() * 1024, callback->moduleArgs); }};
 
-    module_t swap_module = {"swap", {
+    module_t swap_module = {"swap", "used and total amount of the swapfile (auto) with used percentage [477.68 MiB / 512.00 MiB (88.45%)]", {
         std::move(swap_free_module),
         std::move(swap_used_module),
         std::move(swap_free_perc_module),
@@ -342,18 +342,18 @@ void core_plugins_start()
     cfRegisterModule(swap_module);
 
     // $<disk>
-    module_t disk_fsname_module = {"fs", {}, disk_fsname};
-    module_t disk_device_module = {"device", {}, disk_device};
-    module_t disk_mountdir_module = {"mountdir", {}, disk_mountdir};
-    module_t disk_types_module = {"types", {}, disk_types};
+    module_t disk_fsname_module = {"fs", "type of filesystem [ext4]", {}, disk_fsname};
+    module_t disk_device_module = {"device", "path to device [/dev/sda5]", {}, disk_device};
+    module_t disk_mountdir_module = {"mountdir", "path to the device mount point [/]", {}, disk_mountdir};
+    module_t disk_types_module = {"types", "an array of type options (pretty format) [Regular, External]", {}, disk_types};
 
-    module_t disk_free_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_free(callback), disk_total(callback), callback, true);}};
-    module_t disk_used_perc_module  = {"perc",  {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_used(callback), disk_total(callback), callback, false);}};
-    module_t disk_free_module  = {"free",  {std::move(disk_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_free(callback),  callback->moduleArgs);  }};
-    module_t disk_used_module  = {"used",  {std::move(disk_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_used(callback),  callback->moduleArgs);  }};
-    module_t disk_total_module = {"total", {}, [](const callbackInfo_t *callback) { return amount(disk_total(callback), callback->moduleArgs); }};
+    module_t disk_free_perc_module  = {"perc", "percentage of available amount of the disk in total [17.82%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_free(callback), disk_total(callback), callback, true);}};
+    module_t disk_used_perc_module  = {"perc", "percentage of used amount of the disk in total [82.18%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_used(callback), disk_total(callback), callback, false);}};
+    module_t disk_free_module  = {"free", "available amount of disk space (auto) [438.08 GiB]", {std::move(disk_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_free(callback),  callback->moduleArgs);  }};
+    module_t disk_used_module  = {"used", "used amount of disk space (auto) [360.02 GiB]", {std::move(disk_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_used(callback),  callback->moduleArgs);  }};
+    module_t disk_total_module = {"total", "total amount of disk space (auto) [100.08 GiB]", {}, [](const callbackInfo_t *callback) { return amount(disk_total(callback), callback->moduleArgs); }};
 
-    module_t disk_module = {"disk", {
+    module_t disk_module = {"disk", "used and total amount of disk space (auto) with type of filesystem and used percentage [379.83 GiB / 438.08 GiB (86.70%) - ext4]", {
         std::move(disk_fsname_module),
         std::move(disk_device_module),
         std::move(disk_mountdir_module),
@@ -367,28 +367,29 @@ void core_plugins_start()
     cfRegisterModule(disk_module);
 
     // $<battery>
-    module_t battery_modelname_module = {"name", {}, battery_modelname};
-    module_t battery_status_module = {"status", {}, battery_status};
-    module_t battery_capacity_level_module = {"capacity_level", {}, battery_capacity_level};
-    module_t battery_technology_module = {"technology", {}, battery_technology};
-    module_t battery_vendor_module = {"manufacturer", {}, battery_vendor};
-    module_t battery_perc_module = {"perc", {}, battery_perc};
+    module_t battery_modelname_module = {"name", "battery model name", {}, battery_modelname};
+    module_t battery_status_module = {"status", "battery current status [Discharging, AC Connected]", {}, battery_status};
+    module_t battery_capacity_level_module = {"capacity_level", "battery capacity level [Normal, Critical]", {}, battery_capacity_level};
+    module_t battery_technology_module = {"technology", "battery technology [Li-lion]", {}, battery_technology};
+    module_t battery_vendor_module = {"manufacturer", "battery manufacturer name", {}, battery_vendor};
+    module_t battery_perc_module = {"perc", "battery current percentage", {}, battery_perc};
 
-    module_t battery_temp_C_module = {"C", {}, [](unused) {return fmt::format("{:.2f}°C", battery_temp());}};
-    module_t battery_temp_F_module = {"F", {}, [](unused) {return fmt::format("{:.2f}°F", battery_temp() * 1.8 + 34);}};
-    module_t battery_temp_K_module = {"K", {}, [](unused) {return fmt::format("{:.2f}°K", battery_temp() + 273.15);}};
-    module_t battery_temp_module = {"temp", {
+    module_t battery_temp_C_module = {"C", "battery temperature in Celsius [e.g. 37.12°C]", {}, [](unused) {return fmt::format("{:.2f}°C", battery_temp());}};
+    module_t battery_temp_F_module = {"F", "battery temperature in Fahrenheit [e.g. 98.81°F]", {}, [](unused) {return fmt::format("{:.2f}°F", battery_temp() * 1.8 + 34);}};
+    module_t battery_temp_K_module = {"K", "battery temperature in Kelvin [e.g. 310.27°K]", {}, [](unused) {return fmt::format("{:.2f}°K", battery_temp() + 273.15);}};
+
+    module_t battery_temp_module = {"temp", "battery temperature (by the chosen unit)", {
         std::move(battery_temp_C_module),
         std::move(battery_temp_F_module),
         std::move(battery_temp_K_module),
     }, [](unused) {return fmt::format("{:.2f}°C", battery_temp());}};
 
     /* Only for compatibility */
-    module_t battery_temp_C_module_compat = {"temp_C", {}, [](unused) {return fmt::format("{:.2f}", battery_temp());}};
-    module_t battery_temp_F_module_compat = {"temp_F", {}, [](unused) {return fmt::format("{:.2f}", battery_temp() * 1.8 + 34);}};
-    module_t battery_temp_K_module_compat = {"temp_K", {}, [](unused) {return fmt::format("{:.2f}", battery_temp() + 273.15);}};
+    module_t battery_temp_C_module_compat = {"temp_C", "battery temperature in Celsius (no unit)", {}, [](unused) {return fmt::format("{:.2f}", battery_temp());}};
+    module_t battery_temp_F_module_compat = {"temp_F", "battery temperature in Fahrenheit (no unit)", {}, [](unused) {return fmt::format("{:.2f}", battery_temp() * 1.8 + 34);}};
+    module_t battery_temp_K_module_compat = {"temp_K", "battery temperature in Kelvin (no unit)", {}, [](unused) {return fmt::format("{:.2f}", battery_temp() + 273.15);}};
 
-    module_t battery_module = {"battery", {
+    module_t battery_module = {"battery", "battery current percentage and status [50.00% [Discharging]]", {
         std::move(battery_modelname_module),
         std::move(battery_status_module),
         std::move(battery_capacity_level_module),
@@ -404,18 +405,21 @@ void core_plugins_start()
     cfRegisterModule(battery_module);
 
     // $<gpu>
-    module_t gpu_name_module = {"name", {}, gpu_name};
-    module_t gpu_vendor_short_module = {"short", {}, [](const callbackInfo_t *callback) {return shorten_vendor_name(gpu_vendor(callback));}};
-    module_t gpu_vendor_module = {"vendor", {std::move(gpu_vendor_short_module)}, gpu_vendor};
-
-    module_t gpu_module = {"gpu", {
+    module_t gpu_name_module = {"name", "GPU model name [GeForce GTX 1650]", {}, gpu_name};
+    module_t gpu_vendor_short_module = {"short", "GPU short vendor name [NVIDIA]", {}, [](const callbackInfo_t *callback) {
+        return shorten_vendor_name(gpu_vendor(callback));
+    }};
+    module_t gpu_vendor_module = {"vendor", "GPU vendor name [NVIDIA Corporation]", {
+        std::move(gpu_vendor_short_module)
+    }, gpu_vendor};
+    module_t gpu_module = {"gpu", "GPU shorter vendor name and model name [NVIDIA GeForce GTX 1650]", {
         std::move(gpu_name_module),
         std::move(gpu_vendor_module)
     }, [](const callbackInfo_t *callback) {return shorten_vendor_name(gpu_vendor(callback)) + " " + gpu_name(callback);}};
     cfRegisterModule(gpu_module);
 
     // $<title>
-    module_t title_sep_module = { "sep", {}, [](const callbackInfo_t* callback) {
+    module_t title_sep_module = { "sep", "separator between the title and the system infos (with the title length) [--------]", {}, [](const callbackInfo_t* callback) {
                                      const size_t title_len =
                                          std::string_view(user_name() + "@" + os_hostname()).length();
 
@@ -426,22 +430,22 @@ void core_plugins_start()
 
                                      return str;
                                  } };
-    module_t title_module = { "title", { std::move(title_sep_module) }, [](const callbackInfo_t* callback) {
+    module_t title_module = { "title", "user and hostname colored with ${auto2} [toni@arch2]", { std::move(title_sep_module) }, [](const callbackInfo_t* callback) {
                                  return parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", callback->modulesInfo,
                                               callback->config);
                              } };
     cfRegisterModule(title_module);
 
     // $<colors>
-    module_t colors_light_symbol_module = { "symbol", {}, [](const callbackInfo_t* callback) { return get_colors_symbol(callback, true); } };
-    module_t colors_symbol_module = { "symbol", {}, [](const callbackInfo_t* callback) { return get_colors_symbol(callback, false); }};
-    module_t colors_light_module = { "light", { std::move(colors_light_symbol_module) }, [](const callbackInfo_t* callback) {
+    module_t colors_light_symbol_module = { "symbol", "light color palette with specific symbol", {}, [](const callbackInfo_t* callback) { return get_colors_symbol(callback, true); } };
+    module_t colors_symbol_module = { "symbol", "color palette with specific symbol", {}, [](const callbackInfo_t* callback) { return get_colors_symbol(callback, false); }};
+    module_t colors_light_module = { "light", "light color palette with background spaces", { std::move(colors_light_symbol_module) }, [](const callbackInfo_t* callback) {
                                         return parse(
                                             "${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}  "
                                             " ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}",
                                             callback->modulesInfo, callback->config);
                                     } };
-    module_t colors_module = { "colors",
+    module_t colors_module = { "colors", "light color palette with background spaces",
                                { std::move(colors_symbol_module), std::move(colors_light_module) },
                                [](const callbackInfo_t* callback) {
                                    return parse(

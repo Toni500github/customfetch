@@ -4,12 +4,13 @@ static std::vector<module_t> modules;
 
 static char separator = '.';
 
-static void addModule(const module_t& module, const std::string& prefix = "")
+static void addModule(module_t module, const std::string& prefix = "")
 {
-    modules.emplace_back(module).name = prefix + module.name;
+    module.name = prefix + module.name;
+    modules.push_back(module); // No std::move since we modify name first
 
-    for (const module_t& submodule : module.submodules)
-        addModule(submodule, prefix + module.name + separator);
+    for (module_t submodule : module.submodules) // Copy submodule to avoid reference issues
+        addModule(std::move(submodule), prefix + module.name + separator);
 }
 
 /* Register a module, and its submodules, to customfetch. */

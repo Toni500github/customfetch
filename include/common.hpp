@@ -1,22 +1,11 @@
 #pragma once
 
-#include <fmt/color.h>
-#include <fmt/core.h>
+#include "fmt/color.h"
+#include "fmt/core.h"
 
 #include <functional>
 #include <string>
 #include <vector>
-
-#include "platform.hpp"
-
-#if ENABLE_NLS && !CF_MACOS
-/* here so it doesn't need to be included elsewhere */
-#include <libintl.h>
-#include <locale.h>
-#define _(str) gettext(str)
-#else
-#define _(s) (char*)s
-#endif
 
 constexpr const char NOCOLOR[]      = "\033[0m";
 constexpr const char NOCOLOR_BOLD[] = "\033[0m\033[1m";
@@ -109,6 +98,7 @@ struct callbackInfo_t;
 struct module_t
 {
     std::string           name;
+    std::string           description;
     std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
     std::function<const std::string(const callbackInfo_t*)> handler;
 };

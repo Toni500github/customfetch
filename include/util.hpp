@@ -55,6 +55,15 @@ struct byte_units_t
     double      num_bytes;
 };
 
+#if ENABLE_NLS && !CF_MACOS
+/* here so it doesn't need to be included elsewhere */
+#include <libintl.h>
+#include <locale.h>
+#define _(str) gettext(str)
+#else
+#define _(s) (char*)s
+#endif
+
 /* lib = library to load (string) */
 #define LOAD_LIBRARY(lib) dlopen(lib, RTLD_LAZY);
 
