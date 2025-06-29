@@ -36,8 +36,8 @@
 #include <thread>
 #include <vector>
 
+#include "common.hpp"
 #include "config.hpp"
-#include "core-modules.hh"
 #include "cufetch.hh"
 #include "display.hpp"
 #include "fmt/base.h"
@@ -84,7 +84,8 @@ static void version()
 #endif
 #endif
 
-    fmt::print("{}\n", version);
+    fmt::print("{}", version);
+    fmt::print("\n");
 
     // if only everyone would not return error when querying the program version :(
     std::exit(EXIT_SUCCESS);
@@ -171,7 +172,8 @@ EXAMPLES:
 For details, see `man customfetch` or run `--how-it-works`.
 )");
 
-    fmt::print("{}\n", help);
+    fmt::print("{}", help);
+    fmt::print("\n");
     std::exit(invalid_opt);
 }
 
@@ -569,6 +571,7 @@ static void localize(void)
 }
 
 void core_plugins_start();
+void core_plugins_finish();
 int main(int argc, char *argv[])
 {
 
@@ -592,13 +595,14 @@ int main(int argc, char *argv[])
 #endif
 
     // clang-format on
-    const std::filesystem::path configDir  = getConfigDir();
-    const std::filesystem::path configFile = parse_config_path(argc, argv, configDir);
+    const std::filesystem::path& configDir  = getConfigDir();
+    const std::filesystem::path& configFile = parse_config_path(argc, argv, configDir);
 
     localize();
 
     Config config(configFile, configDir);
     config.loadConfigFile(configFile);
+    std::vector<void *> plugins_handle;
 
     /* TODO(burntranch): track each library and unload them. */
     core_plugins_start();
@@ -612,7 +616,7 @@ int main(int argc, char *argv[])
         if (!handle)
         {
             // dlerror() is pretty formatted
-            warn("Failed to load mod {}", dlerror());
+            warn("Failed to load mod at {}: {}", entry.path().string(), dlerror());
             dlerror();
             continue;
         }
@@ -620,6 +624,7 @@ int main(int argc, char *argv[])
         LOAD_LIB_SYMBOL(handle, void, start, void*)
 
         start(handle);
+        plugins_handle.push_back(handle);
     }
 
     if (!parseargs(argc, argv, config, configFile))
@@ -711,16 +716,15 @@ int main(int argc, char *argv[])
     if (!config.wrap_lines)
         enable_cursor();
 
-#if CF_LINUX
-    if (mountsFile)
-        fclose(mountsFile);
-    if (os_release)
-        fclose(os_release);
-    if (cpuinfo)
-        fclose(cpuinfo);
-    if (meminfo)
-        fclose(meminfo);
-#endif
+    core_plugins_finish();
+    for (void *handle : plugins_handle)
+    {
+        LOAD_LIB_SYMBOL(handle, void, finish, void*)
+
+        finish(handle);
+        UNLOAD_LIBRARY(handle);
+    }
+    plugins_handle.clear();
 
     return 0;
 }

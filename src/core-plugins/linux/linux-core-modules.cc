@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cstdio>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -378,4 +379,12 @@ void core_plugins_start()
                                        callback->modulesInfo, callback->config);
                                } };
     cfRegisterModule(colors_module);
+}
+
+void core_plugins_finish()
+{
+    if (mountsFile) fclose(mountsFile);
+    if (os_release) fclose(os_release);
+    if (meminfo)    fclose(meminfo);
+    if (cpuinfo)    fclose(cpuinfo);
 }
