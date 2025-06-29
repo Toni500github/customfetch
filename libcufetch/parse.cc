@@ -41,7 +41,6 @@
 #include "config.hpp"
 #include "fmt/color.h"
 #include "fmt/format.h"
-#include "fmt/ranges.h"
 #include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"

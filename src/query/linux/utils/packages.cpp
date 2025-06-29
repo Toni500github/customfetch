@@ -25,6 +25,7 @@
 
 #include "packages.hpp"
 
+#include "util.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -59,14 +60,14 @@ static size_t get_num_string_file(const std::string_view path, const std::string
     return ret;
 }
 
+#define ADD_PKGS_COUNT(pkgman) \
+    if (pkgs_count.pkgman > 0) \
+        ret += fmt::format("{} ({}), ", pkgs_count.pkgman, #pkgman);
+
 std::string get_all_pkgs(const Config& config)
 {
     std::string           ret;
     pkgs_managers_count_t pkgs_count;
-
-#define ADD_PKGS_COUNT(pkgman) \
-    if (pkgs_count.pkgman > 0) \
-        ret += fmt::format("{} ({}), ", pkgs_count.pkgman, #pkgman);
 
     for (const std::string& name : config.pkgs_managers)
     {
@@ -105,3 +106,5 @@ std::string get_all_pkgs(const Config& config)
 
     return ret;
 }
+
+#undef ADD_PKGS_COUNT

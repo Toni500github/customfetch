@@ -37,6 +37,7 @@
 #include <vector>
 
 #include "config.hpp"
+#include "cufetch/config.hh"
 #include "cufetch/cufetch.hh"
 #include "display.hpp"
 #include "fmt/base.h"
@@ -460,21 +461,21 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
             case "list-logos"_fnv1a16:
                 list_logos(config.data_dir+"/ascii"); break;
             case 'f':
-                config.overrides["gui.font"] = {.value_type = STR, .string_value = optarg}; break;
+                config.overrideOption("gui.font", {.value_type = STR, .string_value = optarg}); break;
             case 'o':
-                config.overrides["config.offset"] = {.value_type = STR, .string_value = optarg}; break;
+                config.overrideOption("config.offset", {.value_type = STR, .string_value = optarg}); break;
             case 'C': // we have already did it in parse_config_path()
                 break;
             case 'D':
-                config.overrides["config.data-dir"] = {.value_type = STR, .string_value = optarg}; break;
+                config.overrideOption("config.data-dir", {.value_type = STR, .string_value = optarg}); break;
             case 'd':
                 config.args_custom_distro = str_tolower(optarg); break;
             case 'm':
                 config.args_layout.push_back(optarg); break;
             case 'p':
-                config.overrides["config.logo-position"] = {.value_type = STR, .string_value = optarg}; break;
+                config.overrideOption("config.logo-position", {.value_type = STR, .string_value = optarg}); break;
             case 's':
-                config.overrides["config.source-path"] = {.value_type = STR, .string_value = optarg}; break;
+                config.overrideOption("config.source-path", {.value_type = STR, .string_value = optarg}); break;
             case 'i':
                 config.args_image_backend = optarg; break;
             case 'O':
@@ -482,7 +483,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
             case 'N':
                 config.args_disable_colors = true; break;
             case 'a':
-                config.overrides["config.ascii-logo-type"] = {.value_type = STR, .string_value = optarg}; break;
+                config.overrideOption("config.ascii-logo-type", {.value_type = STR, .string_value = optarg}); break;
             case 'n':
                 config.args_disable_source = true; break;
             case 'L':
@@ -492,13 +493,13 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
                 config.args_disallow_commands = true; break;
 
             case "logo-padding-top"_fnv1a16:
-                config.overrides["config.logo-padding-top"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
+                config.overrideOption("config.logo-padding-top", {.value_type = INT, .int_value = std::stoi(optarg)}); break;
 
             case "logo-padding-left"_fnv1a16:
-                config.overrides["config.logo-padding-left"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
+                config.overrideOption("config.logo-padding-left", {.value_type = INT, .int_value = std::stoi(optarg)}); break;
 
             case "layout-padding-top"_fnv1a16:
-                config.overrides["config.layout-padding-top"] = {.value_type = INT, .int_value = std::stoi(optarg)}; break;
+                config.overrideOption("config.layout-padding-top", {.value_type = INT, .int_value = std::stoi(optarg)}); break;
 
             case "loop-ms"_fnv1a16:
                 config.loop_ms = std::stoul(optarg); break;
@@ -511,13 +512,13 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
                 break;
 
             case "bg-image"_fnv1a16:
-                config.overrides["gui.bg-image"] = {.value_type = STR, .string_value = optarg}; break;
+                config.overrideOption("gui.bg-image", {.value_type = STR, .string_value = optarg}); break;
 
             case "wrap-lines"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.overrides["config.wrap-lines"] = {.value_type = BOOL, .bool_value = str_to_bool(optarg)};
+                    config.overrideOption("config.wrap-lines", {.value_type = BOOL, .bool_value = str_to_bool(optarg)});
                 else
-                    config.overrides["config.wrap-lines"] = {.value_type = BOOL, .bool_value = true};
+                    config.overrideOption("config.wrap-lines", {.value_type = BOOL, .bool_value = true});
                 break;
 
             case "color"_fnv1a16:
@@ -531,16 +532,16 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
                 exit(EXIT_SUCCESS);
 
             case "sep-reset"_fnv1a16:
-                config.overrides["config.sep-reset"] = {.value_type = STR, .string_value = optarg}; break;
+                config.overrideOption("config.sep-reset", {.value_type = STR, .string_value = optarg}); break;
 
             case "title-sep"_fnv1a16:
-                config.overrides["config.title-sep"] = {.value_type = STR, .string_value = optarg}; break;
+                config.overrideOption("config.title-sep", {.value_type = STR, .string_value = optarg}); break;
 
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.overrides["config.sep-reset-after"] = {.value_type = BOOL, .bool_value = str_to_bool(optarg)};
+                    config.overrideOption("config.sep-reset-after", {.value_type = BOOL, .bool_value = str_to_bool(optarg)});
                 else
-                    config.overrides["config.sep-reset-after"] = {.value_type = BOOL, .bool_value = true};
+                    config.overrideOption("config.sep-reset-after", {.value_type = BOOL, .bool_value = true});
                 break;
 
             default:
@@ -625,9 +626,9 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        LOAD_LIB_SYMBOL(handle, void, start, void*)
+        LOAD_LIB_SYMBOL(handle, void, start, void*, const ConfigBase& config)
 
-        start(handle);
+        start(handle, config);
         plugins_handle.push_back(handle);
     }
 

@@ -26,35 +26,15 @@
 #ifndef _CONFIG_HPP
 #define _CONFIG_HPP
 
-#include <filesystem>
+#undef TOML_HEADER_ONLY
 #define TOML_HEADER_ONLY 0
+#include <filesystem>
+#include "platform.hpp"
+#include "cufetch/config.hh"
 
-#include <cstdint>
-#include <type_traits>
-#include <unordered_map>
-
-#include "toml++/toml.hpp"
-#include "util.hpp"
-
-enum types
+class Config : public ConfigBase
 {
-    STR,
-    BOOL,
-    INT
-};
-
-struct override_configs_types
-{
-    types       value_type;
-    std::string string_value = "";
-    bool        bool_value   = false;
-    int         int_value    = 0;
-};
-
-class Config
-{
-public:
-    // Create .config directories and files and load the config file (args or default)
+public:// Create .config directories and files and load the config file (args or default)
     Config(const std::filesystem::path& configFile, const std::filesystem::path& configDir);
 
     // config colors
@@ -133,8 +113,6 @@ public:
     bool                     args_disallow_commands = false;
     bool                     args_print_logo_only   = false;
 
-    std::unordered_map<std::string, override_configs_types> overrides;
-
     /**
      * Load config file and parse every config variables
      * @param filename The config file path
@@ -165,54 +143,13 @@ public:
      */
     void overrideOption(const std::string& opt);
 
-private:
-    // Parsed config from loadConfigFile()
-    toml::table tbl;
-
     /**
-     * Get value of config variables
-     * @param value The config variable "path" (e.g "config.source-path")
-     * @param fallback Default value if couldn't retrive value
+     * Override a config value from --override
+     * @param str The value to override.
+     *            Must have a '=' for separating the name and value to override.
+     *            NO spaces between
      */
-    template <typename T>
-    T getValue(const std::string_view value, const T&& fallback, bool dont_expand_var = false) const
-    {
-        const auto& overridePos = overrides.find(value.data());
-
-        // user wants a bool (overridable), we found an override matching the name, and the override is a bool.
-        if constexpr (std::is_same<T, bool>())
-            if (overridePos != overrides.end() && overrides.at(value.data()).value_type == BOOL)
-                return overrides.at(value.data()).bool_value;
-
-        if constexpr (std::is_same<T, std::string>())
-            if (overridePos != overrides.end() && overrides.at(value.data()).value_type == STR)
-                return overrides.at(value.data()).string_value;
-
-        if constexpr (std::is_same<T, std::uint16_t>())
-            if (overridePos != overrides.end() && overrides.at(value.data()).value_type == INT)
-                return overrides.at(value.data()).int_value;
-
-        const std::optional<T>& ret = this->tbl.at_path(value).value<T>();
-        if constexpr (toml::is_string<T>)  // if we want to get a value that's a string
-            return ret ? expandVar(ret.value(), dont_expand_var) : expandVar(fallback, dont_expand_var);
-        else
-            return ret.value_or(fallback);
-    }
-
-    /**
-     * getValue() but don't want to specify the template, so it's std::string,
-     * and because of the name, only used when retriving the colors for terminal and GUI
-     * @param value The config variable "path" (e.g "config.gui-red")
-     * @param fallback Default value if couldn't retrive value
-     */
-    std::string getThemeValue(const std::string_view value, const std::string_view fallback) const;
-
-    /**
-     * Get value of config array of string variables
-     * @param value The config variable "path" (e.g "config.gui-red")
-     * @param fallback Default value if couldn't retrive value
-     */
-    std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback);
+    void overrideOption(const std::string& opt, const override_configs_types& option);
 };
 
 // default config

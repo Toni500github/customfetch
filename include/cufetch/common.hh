@@ -67,8 +67,7 @@ void info(const std::string_view fmt, Args&&... args) noexcept
 #undef BOLD_COLOR
 
 #define APICALL extern "C"
-// {fmt} library already has __attribute__((visibility(value))) fallback so let's use that maybeAdd commentMore actions
-#define EXPORT FMT_VISIBILITY("default")
+#define EXPORT __attribute__((visibility("default")))
 #define MOD_INIT void start
 
 class Config;
