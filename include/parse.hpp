@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-#include "common.hpp"
+#include "cufetch/common.hh"
 #include "config.hpp"
 
 // Map from a modules name to its pointer.

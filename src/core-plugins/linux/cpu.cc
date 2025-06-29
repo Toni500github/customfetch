@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "common.hpp"
+#include "cufetch/common.hh"
 #include "core-modules.hh"
 #include "fmt/format.h"
 #include "util.hpp"

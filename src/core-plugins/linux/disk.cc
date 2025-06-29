@@ -5,7 +5,7 @@
 
 #include <cstdio>
 
-#include "common.hpp"
+#include "cufetch/common.hh"
 #include "core-modules.hh"
 #include "util.hpp"
 

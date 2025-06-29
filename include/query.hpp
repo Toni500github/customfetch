@@ -34,7 +34,7 @@
 #include <vector>
 
 #include "config.hpp"
-#include "common.hpp"
+#include "cufetch/common.hh"
 
 extern "C" {
 #if !CF_MACOS

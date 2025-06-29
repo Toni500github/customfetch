@@ -10,10 +10,9 @@
 #include <string_view>
 #include <utility>
 
-#include "common.hpp"
 #include "config.hpp"
 #include "core-modules.hh"
-#include "cufetch.hh"
+#include "cufetch/cufetch.hh"
 #include "fmt/format.h"
 #include "util.hpp"
 

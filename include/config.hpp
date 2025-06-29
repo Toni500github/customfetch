@@ -225,7 +225,7 @@ inline constexpr std::string_view AUTOCONFIG = R"#([config]
 # * if on the android app, click the button "how it works" during widget configuration
 layout = [
     "$<title>",
-    "$<title_sep>",
+    "$<title.sep>",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
@@ -247,7 +247,7 @@ layout = [
     "${auto}RAM: $<ram>",
     "",
     "$<colors>", # normal colors
-    "$<colors_light>" # light colors
+    "$<colors.light>" # light colors
 ]
 
 # display ascii-art or image/gif (GUI only) near layout

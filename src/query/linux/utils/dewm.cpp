@@ -48,7 +48,7 @@
 #include <cstdlib>
 #include <fstream>
 
-#include "common.hpp"
+#include "cufetch/common.hh"
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"

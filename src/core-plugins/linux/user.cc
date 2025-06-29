@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-#include "common.hpp"
+#include "cufetch/common.hh"
 #include "core-modules.hh"
 #include "fmt/format.h"
 #include "switch_fnv1a.hpp"

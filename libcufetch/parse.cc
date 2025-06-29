@@ -37,7 +37,7 @@
 #include <string_view>
 #include <vector>
 
-#include "common.hpp"
+#include "cufetch/common.hh"
 #include "config.hpp"
 #include "fmt/color.h"
 #include "fmt/format.h"

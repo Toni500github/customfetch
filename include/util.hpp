@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-#include "common.hpp"
+#include "cufetch/common.hh"
 #include "fmt/base.h"
 #include "fmt/color.h"
 #include "platform.hpp"
@@ -66,6 +66,17 @@ struct byte_units_t
 
 /* lib = library to load (string) */
 #define LOAD_LIBRARY(lib) dlopen(lib, RTLD_LAZY);
+
+/* handler  = the library handle
+ * ret_type = type of what the function returns
+ * func     = the function name
+ * ...      = the arguments in a function if any
+ */
+#define LOAD_LIB_SYMBOL(handler, ret_type, func, ...) \
+    typedef ret_type (*func##_t)(__VA_ARGS__);        \
+    func##_t func = reinterpret_cast<func##_t>(dlsym(handler, #func));
+
+#define UNLOAD_LIBRARY(handle) dlclose(handle);
 
 /* https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
  * Check if substring exists at the end

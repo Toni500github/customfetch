@@ -89,10 +89,8 @@ target_link_libraries(${TARGET_NAME} PUBLIC fmt)
 
 # libcufetch
 set(CUFETCH_HEADERS
-    include/config.hpp
-    include/common.hpp
-    include/core-modules.hh
-    include/cufetch.hh
+    include/cufetch/common.hh
+    include/cufetch/cufetch.hh
 )
 
 add_library(cufetch SHARED

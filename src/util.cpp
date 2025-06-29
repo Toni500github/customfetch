@@ -45,7 +45,6 @@
 #include <tuple>
 #include <vector>
 
-#include "common.hpp"
 #include "fmt/color.h"
 #include "fmt/ranges.h"
 #include "pci.ids.hpp"

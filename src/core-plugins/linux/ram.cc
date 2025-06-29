@@ -2,7 +2,7 @@
 #include <string>
 #include <string_view>
 
-#include "common.hpp"
+#include "cufetch/common.hh"
 #include "core-modules.hh"
 
 static double read_value(const std::string_view key)

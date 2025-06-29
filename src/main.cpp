@@ -36,9 +36,8 @@
 #include <thread>
 #include <vector>
 
-#include "common.hpp"
 #include "config.hpp"
-#include "cufetch.hh"
+#include "cufetch/cufetch.hh"
 #include "display.hpp"
 #include "fmt/base.h"
 #include "fmt/ranges.h"
@@ -202,7 +201,12 @@ static void modules_list()
         for (size_t depth = 0; depth < parts.size(); ++depth)
         {
             if (depth == parts.size() - 1)
-                fmt::print("{:<6} \t- {}", parts[depth], module.description);
+            {
+                if (new_module)
+                    fmt::print("{} - {}", parts[depth], module.description);
+                else
+                    fmt::print("{:<6} \t- {}", parts[depth], module.description);
+            }
             else
                 fmt::print("  ");
         }

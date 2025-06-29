@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "common.hpp"
+#include "cufetch/common.hh"
 
 /* Register a module, and its submodules, to customfetch. */
 void cfRegisterModule(const module_t& module);

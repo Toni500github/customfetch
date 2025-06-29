@@ -61,7 +61,6 @@ SRC_CC  	 = $(wildcard src/core-plugins/linux/*.cc)
 OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
 OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
-HEADERS		 = config.hpp common.hpp core-modules.hh cufetch.hh
 LDFLAGS   	+= -Wl,-Bstatic $(BUILDDIR)/libfmt.a -Wl,-Bdynamic -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
@@ -139,7 +138,7 @@ install-common: libcufetch locale
 	find examples/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/$(NAME)/{}" \;
 	find locale/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
 	mkdir -p $(DESTDIR)$(PREFIX)/include/cufetch/
-	cd include && find $(HEADERS) -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/cufetch/{}" \;
+	cd include/cufetch && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/cufetch/{}" \;
 	install -Dm 755 $(BUILDDIR)/libcufetch.so $(DESTDIR)$(PREFIX)/lib/libcufetch.so.1
 ifeq ($(GUI_APP), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
