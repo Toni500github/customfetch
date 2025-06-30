@@ -6,8 +6,16 @@ cmake_minimum_required(VERSION 3.10)
 project(customfetch)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3 -O0 -DDEBUG=1 -Wall -Wextra -Wpedantic -Wno-unused-parameter")
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 include_directories(include)
+include_directories(include/cufetch)
+
+set_source_files_properties(
+    "src/libs/toml++/toml.cpp"
+    PROPERTIES COMPILE_FLAGS "-fvisibility=default"
+)
 
 file(GLOB
 	SRC
@@ -30,10 +38,6 @@ add_executable(${TARGET_NAME} ${SRC})
 # Get git info hash and branch
 execute_process(COMMAND ./scripts/generateVersion.sh
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-
-target_compile_definitions(${TARGET_NAME} PRIVATE
-        VERSION="1.0.0"
-)
 
 # https://github.com/libcpr/cpr/blob/5f475522597b8f3721e2440daddeced7a969f24c/CMakeLists.txt#L39
 macro(add_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
@@ -89,6 +93,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC fmt)
 
 # libcufetch
 set(CUFETCH_HEADERS
+    include/cufetch/config.hh
     include/cufetch/common.hh
     include/cufetch/cufetch.hh
 )
@@ -103,7 +108,6 @@ set_target_properties(cufetch PROPERTIES
     VERSION 1.0.0
     SOVERSION 1
     OUTPUT_NAME "cufetch"
-    PUBLIC_HEADER "${CUFETCH_HEADERS}"
     POSITION_INDEPENDENT_CODE ON
 )
 
@@ -125,10 +129,12 @@ set(APPPREFIX "${CMAKE_INSTALL_PREFIX}/share/applications" CACHE PATH "Applicati
 set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale" CACHE PATH "Locale files directory")
 set(ICONPREFIX "${CMAKE_INSTALL_PREFIX}/share/pixmaps" CACHE PATH "Icon installation directory")
 target_compile_definitions(${TARGET_NAME} PRIVATE
+    VERSION="1.0.0"
     MANPREFIX="${MANPREFIX}"
     APPPREFIX="${APPPREFIX}"
     LOCALEDIR="${LOCALEDIR}"
     ICONPREFIX="${ICONPREFIX}"
+    $<$<BOOL:${GUI_APP}>:GUI_APP=1>
 )
 
 # Install executable
@@ -148,10 +154,20 @@ install(FILES ${CMAKE_SOURCE_DIR}/LICENSE
         DESTINATION share/licenses/customfetch
         COMPONENT documentation)
 
+install(FILES $<TARGET_FILE:fmt>
+    DESTINATION lib
+    RENAME libcufetch-fmt.a
+    COMPONENT runtime
+)
+
 install(TARGETS cufetch
-	LIBRARY DESTINATION lib
-	PUBLIC_HEADER DESTINATION include/cufetch
-	COMPONENT runtime
+    LIBRARY DESTINATION lib
+    COMPONENT runtime
+)
+
+install(DIRECTORY include/cufetch/
+    DESTINATION include/cufetch
+    COMPONENT development
 )
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/ascii/
