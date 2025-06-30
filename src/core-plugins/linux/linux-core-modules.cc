@@ -10,6 +10,7 @@
 #include <string_view>
 #include <utility>
 
+#include "utils/packages.hpp"
 #include "core-modules.hh"
 #include "cufetch/cufetch.hh"
 #include "fmt/format.h"
@@ -144,6 +145,8 @@ void core_plugins_start()
         std::move(os_initsys_version_module),
     }, [](unused) {return os_initsys_name() + " " + os_initsys_version();}};
 
+    module_t os_pkgs_module = {"pkgs", "Count of system packages", {}, [](const callbackInfo_t* callback){ return get_all_pkgs(callback->config); }};
+
     // $<os>
     module_t os_module = { "os", "OS modules", {
         std::move(os_name_module),
@@ -151,6 +154,7 @@ void core_plugins_start()
         std::move(os_kernel_module),
         std::move(os_hostname_module),
         std::move(os_initsys_module),
+        std::move(os_pkgs_module),
     }, NULL};
     cfRegisterModule(os_module);
 

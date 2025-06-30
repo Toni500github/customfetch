@@ -5,7 +5,6 @@
 #include <string>
 #include <string_view>
 
-#define FMT_HEADER_ONLY 1
 #include "cufetch/common.hh"
 #include "core-modules.hh"
 #include "fmt/format.h"
@@ -47,7 +46,7 @@ static std::string read_value(const std::string_view name)
     return result;
 }
 
-static unsigned long get_uptime()
+unsigned long os_uptime()
 {
     const std::string& buf = read_by_syspath("/proc/uptime");
     if (buf != UNKNOWN)
@@ -74,9 +73,6 @@ MODFUNC(os_version_id)
 
 MODFUNC(os_version_codename)
 { return read_value("VERSION_CODENAME="); }
-
-unsigned long os_uptime()
-{ return get_uptime(); }
 
 MODFUNC(os_kernel_name)
 { return g_uname_infos.sysname; }
