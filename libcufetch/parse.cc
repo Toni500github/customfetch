@@ -38,7 +38,6 @@
 #include <vector>
 
 #include "cufetch/common.hh"
-#include "config.hpp"
 #include "fmt/color.h"
 #include "fmt/format.h"
 #include "query.hpp"
@@ -203,13 +202,13 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 }
 #endif
 
-std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args)
+EXPORT std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args)
 {
     return parse(input, parse_args.modulesInfo, _, parse_args.layout, parse_args.tmp_layout, parse_args.config,
                  parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
-std::string parse(const std::string& input, parse_args_t& parse_args)
+EXPORT std::string parse(const std::string& input, parse_args_t& parse_args)
 {
     return parse(input, parse_args.modulesInfo, parse_args.pureOutput, parse_args.layout, parse_args.tmp_layout,
                  parse_args.config, parse_args.parsingLayout, parse_args.no_more_reset);
@@ -241,13 +240,6 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     }
 
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
-}
-
-const std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert)
-{
-    std::vector<std::string> nah;
-    parse_args_t parse_args{ callback->modulesInfo, _, nah, nah, callback->config, true, true, true};
-    return get_and_color_percentage(n1, n2, parse_args, invert);
 }
 
 const std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName)
@@ -810,7 +802,7 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
     return result;
 }
 
-std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
+EXPORT std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
                   std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const Config& config,
                   const bool parsingLayout, bool& no_more_reset)
 {
@@ -849,11 +841,18 @@ std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string
     return ret;
 }
 
-const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config)
+APICALL EXPORT const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config)
 {
     std::vector<std::string> nah;
     parse_args_t parse_args{ modulesInfo, _, nah, nah, config, true, true, true};
     return parse(input, parse_args);
+}
+
+APICALL EXPORT const std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert)
+{
+    std::vector<std::string> nah;
+    parse_args_t parse_args{ callback->modulesInfo, _, nah, nah, callback->config, true, true, true};
+    return get_and_color_percentage(n1, n2, parse_args, invert);
 }
 
 // Re-enable them later

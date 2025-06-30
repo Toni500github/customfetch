@@ -63,7 +63,7 @@ OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
 LDFLAGS   	+= -Wl,-Bstatic $(BUILDDIR)/libfmt.a -Wl,-Bdynamic -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
+CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/cufetch -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
 all: genver fmt toml json libcufetch $(TARGET)
 
@@ -140,6 +140,7 @@ install-common: libcufetch locale
 	mkdir -p $(DESTDIR)$(PREFIX)/include/cufetch/
 	cd include/cufetch && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/cufetch/{}" \;
 	install -Dm 755 $(BUILDDIR)/libcufetch.so $(DESTDIR)$(PREFIX)/lib/libcufetch.so.1
+	install -Dm 755 $(BUILDDIR)/libfmt.a $(DESTDIR)$(PREFIX)/lib/libcufetch-fmt.a
 ifeq ($(GUI_APP), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
 	cp -f $(NAME).desktop $(DESTDIR)$(APPPREFIX)/$(NAME).desktop

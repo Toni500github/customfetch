@@ -14,7 +14,7 @@ static void addModule(module_t module, const std::string& prefix = "")
 }
 
 /* Register a module, and its submodules, to customfetch. */
-void cfRegisterModule(const module_t& module) { addModule(module); }
+APICALL EXPORT void cfRegisterModule(const module_t& module) { addModule(module); }
 
 /* Get a list of all modules registered. */
-const std::vector<module_t>& cfGetModules() { return modules; }
+APICALL EXPORT const std::vector<module_t>& cfGetModules() { return modules; }

@@ -13,8 +13,12 @@ all: libcufetch
 libcufetch: $(OBJ) $(FMT_STATIC)
 	$(CXX) $(CXX_FLAGS) $(OBJ) $(CXX_INCLUDES) \
 		-Wl,-Bstatic $(FMT_STATIC) -Wl,-Bdynamic \
-		-o libcufetch.so
-	mv -f libcufetch.so ../$(BUILDDIR)/$@.so
+		-Wl,--export-dynamic \
+		-Wl,-soname,libcufetch.so.1 \
+		-o libcufetch.so.1.0.0
+	ln -sf libcufetch.so.1.0.0 libcufetch.so.1
+	ln -sf libcufetch.so.1.0.0 libcufetch.so
+	mv -f libcufetch.so* ../$(BUILDDIR)/
 
 clean:
 	rm -f *.o *.so *.a ../$(BUILDDIR)/libcufetch.so

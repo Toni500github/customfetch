@@ -54,7 +54,6 @@
 #include <iostream>
 #include <vector>
 
-#include "config.hpp"
 #include "core-modules.hh"
 #include "fmt/core.h"
 #include "fmt/format.h"

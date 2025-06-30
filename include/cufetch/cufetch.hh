@@ -38,11 +38,11 @@ struct module_t
     std::function<const std::string(const callbackInfo_t*)> handler;
 };
 
-const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config);
-const std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert);
+APICALL EXPORT const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config);
+APICALL EXPORT const std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert);
 
 /* Register a module, and its submodules, to customfetch. */
-void cfRegisterModule(const module_t& module);
+APICALL EXPORT void cfRegisterModule(const module_t& module);
 
 /* Get a list of all modules registered. */
-const std::vector<module_t>& cfGetModules();
+APICALL EXPORT const std::vector<module_t>& cfGetModules();
