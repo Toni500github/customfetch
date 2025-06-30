@@ -9,10 +9,8 @@ VARS  	  	?= -DENABLE_NLS=1
 
 DEBUG 		?= 1
 GUI_APP         ?= 0
-VENDOR_TEST 	?= 0
-DEVICE_TEST     ?= 0
-
 USE_DCONF	?= 1
+
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
@@ -27,14 +25,6 @@ else
     		CXXFLAGS := -O3 $(CXXFLAGS)
 	endif
         BUILDDIR  = build/release
-endif
-
-ifeq ($(VENDOR_TEST), 1)
-	VARS += -DVENDOR_TEST=1
-endif
-
-ifeq ($(DEVICE_TEST), 1)
-	VARS += -DDEVICE_TEST=1
 endif
 
 ifeq ($(GUI_APP), 1)

@@ -575,31 +575,11 @@ static void localize(void)
 #endif
 }
 
+// clang-format on
 void core_plugins_start();
 void core_plugins_finish();
 int main(int argc, char *argv[])
 {
-
-#ifdef VENDOR_TEST
-    // test
-    fmt::println("=== VENDOR TEST! ===");
-
-    fmt::println("Intel: {}", binarySearchPCIArray("8086"));
-    fmt::println("AMD: {}", binarySearchPCIArray("1002"));
-    fmt::println("NVIDIA: {}", binarySearchPCIArray("10de"));
-#endif
-
-#ifdef DEVICE_TEST
-    // test
-    fmt::println("=== DEVICE TEST! ===");
-
-    fmt::println("an Intel iGPU: {}", binarySearchPCIArray("8086", "0f31"));
-    fmt::println("RX 7700 XT: {}", binarySearchPCIArray("1002", "747e"));
-    fmt::println("GTX 1650: {}", binarySearchPCIArray("10de", "1f0a"));
-    fmt::println("?: {}", binarySearchPCIArray("1414", "0006"));
-#endif
-
-    // clang-format on
     const std::filesystem::path& configDir  = getConfigDir();
     const std::filesystem::path& configFile = parse_config_path(argc, argv, configDir);
 
