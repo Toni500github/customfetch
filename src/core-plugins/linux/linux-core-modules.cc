@@ -10,7 +10,6 @@
 #include <string_view>
 #include <utility>
 
-#include "config.hpp"
 #include "core-modules.hh"
 #include "cufetch/cufetch.hh"
 #include "fmt/format.h"
@@ -18,7 +17,7 @@
 
 using unused = const callbackInfo_t*;
 
-const std::string amount(const double amount, const moduleArgs_t* moduleArgs)
+std::string amount(const double amount, const moduleArgs_t* moduleArgs)
 {
     constexpr std::array<std::string_view, 32> sorted_valid_prefixes = { "B",   "EB", "EiB", "GB", "GiB", "kB",
                                                                          "KiB", "MB", "MiB", "PB", "PiB", "TB",

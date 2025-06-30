@@ -92,7 +92,7 @@ std::string parse(const std::string& input, std::string& _, parse_args_t& parse_
  * @param parse_args The parse() like arguments
  * @param moduleName The module name
  */
-const std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName);
+std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName);
 
 /*
  * Create a colored percentage from parse()

@@ -35,11 +35,11 @@ struct module_t
     std::string           name;
     std::string           description;
     std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
-    std::function<const std::string(const callbackInfo_t*)> handler;
+    std::function<std::string(const callbackInfo_t*)> handler;
 };
 
-APICALL EXPORT const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config);
-APICALL EXPORT const std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert);
+APICALL EXPORT std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config);
+APICALL EXPORT std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert);
 
 /* Register a module, and its submodules, to customfetch. */
 APICALL EXPORT void cfRegisterModule(const module_t& module);

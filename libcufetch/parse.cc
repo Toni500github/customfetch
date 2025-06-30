@@ -242,7 +242,7 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
-const std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName)
+std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName)
 {
     std::string name;
     name.reserve(moduleName.size());
@@ -841,14 +841,14 @@ EXPORT std::string parse(std::string input, const moduleMap_t& modulesInfo, std:
     return ret;
 }
 
-APICALL EXPORT const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config)
+APICALL EXPORT std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config)
 {
     std::vector<std::string> nah;
     parse_args_t parse_args{ modulesInfo, _, nah, nah, config, true, true, true};
     return parse(input, parse_args);
 }
 
-APICALL EXPORT const std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert)
+APICALL EXPORT std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert)
 {
     std::vector<std::string> nah;
     parse_args_t parse_args{ callback->modulesInfo, _, nah, nah, callback->config, true, true, true};
