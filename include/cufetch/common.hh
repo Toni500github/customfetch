@@ -3,10 +3,6 @@
 #include "fmt/color.h"
 #include "fmt/core.h"
 
-#include <functional>
-#include <string>
-#include <vector>
-
 constexpr const char NOCOLOR[]      = "\033[0m";
 constexpr const char NOCOLOR_BOLD[] = "\033[0m\033[1m";
 constexpr const char UNKNOWN[]      = "(unknown)";
@@ -18,6 +14,11 @@ constexpr const char UNKNOWN[]      = "(unknown)";
 //
 // Every instance of this string in a layout line, the whole line will be erased.
 constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
+
+#define APICALL extern "C"
+#define EXPORT __attribute__((visibility("default")))
+#define MOD_INIT void start
+#define MOD_FINISH void finish
 
 #define BOLD_COLOR(x) (fmt::emphasis::bold | fmt::fg(fmt::rgb(x)))
 
@@ -65,43 +66,3 @@ void info(const std::string_view fmt, Args&&... args) noexcept
 }
 
 #undef BOLD_COLOR
-
-#define APICALL extern "C"
-#define EXPORT __attribute__((visibility("default")))
-#define MOD_INIT void start
-
-class Config;
-struct module_t;
-
-// Map from a modules name to its pointer.
-using moduleMap_t = std::unordered_map<std::string, const module_t&>;
-
-/* A linked list including module arguments. An argument may be specified for any part of the module path (e.g.
- * `disk(/).used(GiB)`, `test(a).hi`) */
-struct moduleArgs_t
-{
-    struct moduleArgs_t* prev = nullptr;
-
-    std::string name;
-    std::string value;
-
-    struct moduleArgs_t* next = nullptr;
-};
-
-struct callbackInfo_t
-{
-    const moduleArgs_t* moduleArgs;
-    const moduleMap_t&  modulesInfo;
-    const Config&       config;
-};
-
-struct module_t
-{
-    std::string           name;
-    std::string           description;
-    std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
-    std::function<const std::string(const callbackInfo_t*)> handler;
-};
-
-const std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config);
-const std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert);

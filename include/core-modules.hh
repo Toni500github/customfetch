@@ -3,7 +3,7 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 
-#include "cufetch/common.hh"
+#include "cufetch/cufetch.hh"
 
 #define MODFUNC(name) const std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo = nullptr)
 

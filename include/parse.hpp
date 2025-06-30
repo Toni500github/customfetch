@@ -29,11 +29,7 @@
 #include <string>
 #include <vector>
 
-#include "cufetch/common.hh"
-#include "config.hpp"
-
-// Map from a modules name to its pointer.
-using moduleMap_t = std::unordered_map<std::string, const module_t&>;
+#include "cufetch/cufetch.hh"
 
 /* The additional args that parse() needs for getting the necessary infos/configs.
  * Only used for making the argument passing more clear.

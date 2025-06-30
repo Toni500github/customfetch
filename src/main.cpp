@@ -626,7 +626,13 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        LOAD_LIB_SYMBOL(handle, void, start, void*, const ConfigBase& config)
+        LOAD_LIB_SYMBOL(handle, void, start, void*, const ConfigBase& config);
+        if (dlerror())
+        {
+            warn("Failed to load mod at {}: Missing function 'start'", entry.path().string());
+            dlclose(handle);
+            continue;
+        }
 
         start(handle, config);
         plugins_handle.push_back(handle);
@@ -724,7 +730,12 @@ int main(int argc, char *argv[])
     core_plugins_finish();
     for (void *handle : plugins_handle)
     {
-        LOAD_LIB_SYMBOL(handle, void, finish, void*)
+        LOAD_LIB_SYMBOL(handle, void, finish, void*);
+        if (dlerror())
+        {
+            dlclose(handle);
+            continue;
+        }
 
         finish(handle);
         UNLOAD_LIBRARY(handle);

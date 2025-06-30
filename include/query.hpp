@@ -29,12 +29,10 @@
 #include <cstdint>
 #include <string>
 #include <fstream>
-#include <unordered_map>
 #include <variant>
 #include <vector>
 
-#include "config.hpp"
-#include "cufetch/common.hh"
+#include "parse.hpp"
 
 extern "C" {
 #if !CF_MACOS
@@ -51,10 +49,6 @@ extern "C" {
 #include <unistd.h>
 }
 
-struct parse_args_t;
-
-// Map from a modules name to its pointer.
-using moduleMap_t = std::unordered_map<std::string, const module_t&>;
 // used in systemInfo_t most of the time
 using variant = std::variant<std::string, size_t, double>;
 

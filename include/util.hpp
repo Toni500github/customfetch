@@ -65,7 +65,7 @@ struct byte_units_t
 #endif
 
 /* lib = library to load (string) */
-#define LOAD_LIBRARY(lib) dlopen(lib, RTLD_LAZY);
+#define LOAD_LIBRARY(lib) dlopen(lib, RTLD_NOW);
 
 /* handler  = the library handle
  * ret_type = type of what the function returns
