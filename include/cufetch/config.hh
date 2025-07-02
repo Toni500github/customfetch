@@ -34,7 +34,7 @@ public:
      * @param fallback Default value if couldn't retrive value
      */
     template <typename T>
-    T getValue(const std::string_view value, const T&& fallback) const
+    T&& getValue(const std::string_view value, const T&& fallback) const
     {
         const auto& overridePos = overrides.find(value.data());
 
