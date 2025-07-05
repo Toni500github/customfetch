@@ -101,20 +101,20 @@ NOTE: Boolean flags [<BOOL>] accept: "true", 1, "enable", or empty. Any other va
 
 GENERAL OPTIONS:
     -h, --help                  Print this help menu.
-    -V, --version               Print version and Git branch info.
-    -C, --config <PATH>         Path to the config file (default: ~/.config/customfetch.conf).
+    -V, --version               Print version and other infos about the build.
+    -C, --config <PATH>         Path to the config file (default: ~/.config/customfetch/config.toml).
 
     --gen-config [<PATH>]       Generate default config file. If PATH is omitted, saves to default location.
                                 Prompts before overwriting.
 
 LOGO OPTIONS:
     -n, --no-logo               Disable logo display.
-    -L, --logo-only             Print only the logo (skip info layout).
+    -L, --logo-only             Print only the logo (skip layout completely).
     -s, --source-path <PATH>    Path to custom ASCII art/image file.
     
     -a, --ascii-logo-type <TYPE>
                                 Type of ASCII art (typically "small", "old", or empty for default).
-                                Example: "--ascii-logo-type small" looks for "logo_small.txt".
+                                Example: "-d arch -a older" looks for "arch_older.txt".
 
     -D, --data-dir <PATH>       Path to data directory containing "ascii/" subfolder with distro logos.
     -d, --distro <NAME>         Use a custom distro logo (case-insensitive, e.g., "windows 11" or "ArCh").
@@ -128,35 +128,35 @@ LAYOUT & FORMATTING:
                                 Example: `-m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu>"`.
 
     -N, --no-color              Disable all colors (useful for pipes/scripts).
-    --wrap-lines=[<BOOL>]       Enable line wrapping (default: false).
-    --title-sep <STRING>        String to use for $<title_sep> (default: "-").
+    --wrap-lines=[<BOOL>]       Enable terminal line wrapping (default: false).
+    --title-sep <STRING>        String to use for $<title.sep> (default: "-").
     --sep-reset <STRING>        String that resets color (default: ":").
     --sep-reset-after=[<BOOL>]  Reset color after (default) or before 'sep-reset'.
 
 GUI/TERMINAL OPTIONS:
     -f, --font <STRING>         GUI font (format: "FAMILY STYLE SIZE", e.g., "Liberation Mono Normal 12").
-    -i, --image-backend <NAME>  (Experimental) Terminal image backend ("kitty" or "viu").
+    -i, --image-backend <NAME>  Terminal image backend ("kitty" or "viu").
     --bg-image <PATH>           GUI background image path ("disable" to turn off).
 
-ADVANCED/CONFIG:
+CONFIG:
     -O, --override <STRING>     Override a config value (non-array). Syntax: "name=value" (no spaces around "=").
                                 Example: "auto.disk.fmt='Disk(%1): %6'".
-                                Note: Names without dots (e.g., "sep-reset-after") gets mapped to "config.<name>".
+                                Note: Names without dots (e.g., "sep-reset-after") gets auto-appended to "config.".
 
-    --color <STRING>            Replace a color globally. Syntax: "name=hex" (no spaces around "=").
+    --color <STRING>            Replace a color globally. Syntax: "name=value" (no spaces around "=").
                                 Example: "--color magenta=#FF00FF".
 
-    --disallow-command-tag      Do not allow command tags $() to be executed in the config or -m args.
+    --disallow-command-tag      Do not allow command tags $() to be executed.
                                 This is a safety measure for preventing malicious code to be executed because you didn't want to check the config first.
 
 INFORMATIONAL:
     -l, --list-modules          List all available info tag modules (e.g., $<cpu> or $<os.name>).
-    -w, --how-it-works          Explain layout variables and customization.
+    -w, --how-it-works          Explain tags and general customization.
     --list-logos                List available ASCII logos in --data-dir.
 
 LIVE MODE:
     --loop-ms <NUM>             Run in live mode, updating every <NUM> milliseconds (min: 50).
-                                Use 0 to disable (default).
+                                Use inferior <NUM> than 50 to disable (default).
 
 EXAMPLES:
     1. Minimal output with default logo:
@@ -208,7 +208,9 @@ static void modules_list()
                     fmt::print("{:<6} \t- {}", parts[depth], module.description);
             }
             else
+            {
                 fmt::print("  ");
+            }
         }
 
         fmt::print("\n");
@@ -257,7 +259,7 @@ Tag References:
     Examples:
     - $[$<user.name>,toni,Welcome back!,Access denied]
     - $[$(date +%m-%d),12-25,Merry Christmas!,]
-    - $[$<os.name_id>,arch,${green}I use arch btw,${red}Non-arch user]
+    - $[$<os.name.id>,arch,${green}I use arch btw,${red}Non-arch user]
 
 4. Color Tag (${})
     Applies colors and text formatting.
@@ -270,7 +272,7 @@ Tag References:
     - Special colors: ${auto} (uses logo colors)
     - Reset styles: ${0} (normal), ${1} (bold reset)
 
-    Formatting modifiers (prefix before color):
+    Formatting modifiers (prefix before hexcolor):
     - ! = Bold
     - u = Underline
     - i = Italic
@@ -341,7 +343,7 @@ A: Yes! Complex nesting is supported, for example:
 // @param data_dir The data directory
 static void list_logos(const std::string& data_dir)
 {
-    debug("data = {}", data_dir);
+    debug("data-dir = {}", data_dir);
     if (access(data_dir.c_str(), F_OK) != 0)
         die("failed to access data directory '{}'", data_dir);
 
@@ -354,7 +356,8 @@ static void list_logos(const std::string& data_dir)
 
     std::sort(list.begin(), list.end());
 
-    fmt::print("{}\n", fmt::join(list, "\n"));
+    fmt::print("{}", fmt::join(list, "\n"));
+    fmt::print("\n");
     std::exit(EXIT_SUCCESS);
 }
 
