@@ -1,7 +1,7 @@
 CXX	?= g++
 SRC 	 = toml.cpp
 TARGET   = toml.o
-CXXFLAGS = -I../../../include -fPIE -std=c++20
+CXXFLAGS = -I../../../include/cufetch -fPIE -std=c++20
 
 all: $(TARGET)
 

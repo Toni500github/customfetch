@@ -17,8 +17,8 @@ constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
 
 #define APICALL extern "C"
 #define EXPORT __attribute__((visibility("default")))
-#define MOD_INIT void start
-#define MOD_FINISH void finish
+#define PLUGIN_INIT void start
+#define PLUGIN_FINISH void finish
 
 #define BOLD_COLOR(x) (fmt::emphasis::bold | fmt::fg(fmt::rgb(x)))
 

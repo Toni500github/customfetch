@@ -29,9 +29,9 @@
 #include <string>
 #include <vector>
 
-#include "config.hpp"
+#include "cufetch/config.hh"
+#include "cufetch/cufetch.hh"
 #include "platform.hpp"
-#include "query.hpp"
 
 #if CF_MACOS
 constexpr std::string_view ascii_logo =
@@ -89,7 +89,7 @@ namespace Display
  * @param path Path to source file
  */
 std::vector<std::string> render(const Config& config, const bool already_analyzed_path,
-                                const std::filesystem::path& path, moduleMap_t& moduleMap);
+                                const std::filesystem::path& path, const moduleMap_t& moduleMap);
 
 /*
  * Display the rendered result (or just display a normal vector of string

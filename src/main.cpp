@@ -36,7 +36,6 @@
 #include <thread>
 #include <vector>
 
-#include "config.hpp"
 #include "cufetch/config.hh"
 #include "cufetch/cufetch.hh"
 #include "display.hpp"
@@ -591,25 +590,25 @@ int main(int argc, char *argv[])
 
     /* TODO(burntranch): track each library and unload them. */
     core_plugins_start();
-    const std::filesystem::path modDir = configDir / "mods";
-    std::filesystem::create_directories(modDir);
-    for (const auto& entry : std::filesystem::directory_iterator{ modDir })
+    const std::filesystem::path plguinDir = configDir / "plugins";
+    std::filesystem::create_directories(plguinDir);
+    for (const auto& entry : std::filesystem::directory_iterator{ plguinDir })
     {
-        debug("loading mod at {}!", entry.path().string());
+        debug("loading plugin at {}!", entry.path().string());
 
         void* handle = LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str());
         if (!handle)
         {
             // dlerror() is pretty formatted
-            warn("Failed to load mod at {}: {}", entry.path().string(), dlerror());
+            warn("Failed to load plugin at {}: {}", entry.path().string(), dlerror());
             dlerror();
             continue;
         }
 
-        LOAD_LIB_SYMBOL(handle, void, start, void*, const ConfigBase& config);
+        LOAD_LIB_SYMBOL(handle, void, start, void*, const ConfigBase&);
         if (dlerror())
         {
-            warn("Failed to load mod at {}: Missing function 'start'", entry.path().string());
+            warn("Failed to load plugin at {}: Missing function 'start'", entry.path().string());
             dlclose(handle);
             continue;
         }

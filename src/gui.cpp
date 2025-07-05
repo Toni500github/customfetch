@@ -34,7 +34,6 @@
 #include <filesystem>
 #include <fstream>
 
-#include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
 #include "gdkmm/pixbufanimation.h"

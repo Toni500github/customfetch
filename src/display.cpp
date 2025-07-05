@@ -94,7 +94,7 @@ std::string Display::detect_distro(const Config& config)
 #endif
 }
 
-static std::vector<std::string> render_with_image(moduleMap_t& modulesInfo, std::vector<std::string>& layout,
+static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo, std::vector<std::string>& layout,
                                                   const Config& config, const std::filesystem::path& path,
                                                   const std::uint16_t font_width, const std::uint16_t font_height)
 {
@@ -221,7 +221,7 @@ static bool get_pos(int& y, int& x)
 }
 
 std::vector<std::string> Display::render(const Config& config, const bool already_analyzed_file,
-                                         const std::filesystem::path& path, moduleMap_t& moduleMap)
+                                         const std::filesystem::path& path, const moduleMap_t& moduleMap)
 {
     std::vector<std::string> asciiArt{}, layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
