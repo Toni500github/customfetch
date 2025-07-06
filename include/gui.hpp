@@ -59,7 +59,7 @@ private:
     const Config& m_config;
     const colors_t& m_colors;
     const std::string_view m_path;
-    bool isImage;
+    bool m_isImage;
 
     Gtk::Overlay                           m_overlay;
     Gtk::Box                               m_box;

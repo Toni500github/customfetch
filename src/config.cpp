@@ -84,6 +84,7 @@ void Config::loadConfigFile(const std::string_view filename, colors_t& colors)
     this->title_sep           = getValue<std::string>("config.title-sep", "-");
     this->font                = getValue<std::string>("gui.font", "Liberation Mono Normal 12");
     this->gui_bg_image        = getValue<std::string>("gui.bg-image", "disable");
+    this->gui_css_file        = getValue<std::string>("gui.gtk-css", "disable");
 
     this->auto_disks_fmt      = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>", true);
     this->auto_disks_show_dupl= getValue<bool>("auto.disk.show-duplicated", false); 

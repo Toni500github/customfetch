@@ -607,6 +607,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
         {"logo-padding-top",     required_argument, 0, "logo-padding-top"_fnv1a16},
         {"logo-padding-left",    required_argument, 0, "logo-padding-left"_fnv1a16},
         {"layout-padding-top",   required_argument, 0, "layout-padding-top"_fnv1a16},
+        {"gtk-css",              required_argument, 0, "gtk-css"_fnv1a16},
         {"loop-ms",              required_argument, 0, "loop-ms"_fnv1a16},
         {"bg-image",             required_argument, 0, "bg-image"_fnv1a16},
         {"color",                required_argument, 0, "color"_fnv1a16},
@@ -679,15 +680,20 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
             case "loop-ms"_fnv1a16:
                 config.loop_ms = std::stoul(optarg); break;
 
-            case "debug"_fnv1a16:
-                if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    debug_print = str_to_bool(optarg);
-                else
-                    debug_print = true;
-                break;
+            case "color"_fnv1a16:
+                config.addAliasColors(optarg); break;
+
+            case "sep-reset"_fnv1a16:
+                config.overrides["config.sep-reset"] = {.value_type = STR, .string_value = optarg}; break;
+
+            case "title-sep"_fnv1a16:
+                config.overrides["config.title-sep"] = {.value_type = STR, .string_value = optarg}; break;
 
             case "bg-image"_fnv1a16:
                 config.overrides["gui.bg-image"] = {.value_type = STR, .string_value = optarg}; break;
+
+            case "gtk-css"_fnv1a16:
+                config.overrides["gui.gtk-css"] = {.value_type = STR, .string_value = optarg}; break;
 
             case "wrap-lines"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
@@ -696,8 +702,12 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                     config.overrides["config.wrap-lines"] = {.value_type = BOOL, .bool_value = true};
                 break;
 
-            case "color"_fnv1a16:
-                config.addAliasColors(optarg); break;
+            case "debug"_fnv1a16:
+                if (OPTIONAL_ARGUMENT_IS_PRESENT)
+                    debug_print = str_to_bool(optarg);
+                else
+                    debug_print = true;
+                break;
 
             case "gen-config"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
@@ -705,12 +715,6 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::string_
                 else
                     config.generateConfig(configFile);
                 exit(EXIT_SUCCESS);
-
-            case "sep-reset"_fnv1a16:
-                config.overrides["config.sep-reset"] = {.value_type = STR, .string_value = optarg}; break;
-
-            case "title-sep"_fnv1a16:
-                config.overrides["config.title-sep"] = {.value_type = STR, .string_value = optarg}; break;
 
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
