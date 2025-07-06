@@ -59,7 +59,7 @@ all: genver fmt toml json libcufetch $(TARGET)
 
 libcufetch:
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
-	make -C libcufetch BUILDDIR=$(BUILDDIR)
+	make -C libcufetch BUILDDIR=$(BUILDDIR) GUI_APP=$(GUI_APP)
 endif
 
 fmt:

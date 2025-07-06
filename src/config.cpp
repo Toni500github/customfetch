@@ -82,7 +82,6 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->logo_position       = expandVar(getValue<std::string>("config.logo-position", "left"));
     this->data_dir            = expandVar(getValue<std::string>("config.data-dir", get_data_dir("customfetch")));
     this->title_sep           = expandVar(getValue<std::string>("config.title-sep", "-"));
-    this->font                = expandVar(getValue<std::string>("gui.font", "Liberation Mono Normal 12"));
     this->gui_bg_image        = expandVar(getValue<std::string>("gui.bg-image", "disable"));
     this->gui_css_file        = expandVar(getValue<std::string>("gui.gtk-css",  "disable"));
 

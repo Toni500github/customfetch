@@ -114,7 +114,6 @@ public:
     std::vector<std::string> percentage_colors;
     std::vector<std::string> colors_name, colors_value;
     std::string              source_path;
-    std::string              font;
     std::string              data_dir;
     std::string              sep_reset;
     std::string              title_sep;

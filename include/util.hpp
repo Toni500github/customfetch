@@ -92,7 +92,11 @@ EXPORT bool hasEnding(const std::string_view fullString, const std::string_view 
  */
 EXPORT bool hasStart(const std::string_view fullString, const std::string_view start);
 
-std::vector<std::string> split(const std::string_view text, char delim);
+/* Spilt a string into a vector using a delimeter
+ * @param text The string to split
+ * @param delim The delimeter used for spliting the text
+ */
+EXPORT std::vector<std::string> split(const std::string_view text, const char delim);
 
 /* Get device name from `all_ids` in pci.ids.hpp
  * @param dev_entry_pos Line position from where the device is located

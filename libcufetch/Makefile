@@ -1,9 +1,10 @@
 CXX		?= g++
+GUI_APP         ?= 0
+SRC             = $(wildcard *.cc)
+OBJ             = $(SRC:.cc=.o)
+FMT_STATIC      = ../$(BUILDDIR)/libfmt.a
 CXX_INCLUDES 	= -I../include
-CXX_FLAGS 	= -shared -fPIC
-SRC		= $(wildcard *.cc)
-OBJ		= $(SRC:.cc=.o)
-FMT_STATIC	= ../$(BUILDDIR)/libfmt.a
+CXX_FLAGS 	= -shared -fPIC -DGUI_APP=$(GUI_APP)
 
 all: libcufetch
 

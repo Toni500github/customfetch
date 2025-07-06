@@ -212,7 +212,7 @@ Window::Window(const Config& config, const std::filesystem::path& path, const mo
             die(_("Failed to load CSS: {}"), ex.gobj()->message);
         }
 
-        m_overlay.get_style_context()->add_provider_for_screen(screen, css_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+        m_box.get_style_context()->add_provider_for_screen(screen, css_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
     }
 
     if (Display::ascii_logo_fd != -1)
