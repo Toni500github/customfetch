@@ -26,10 +26,9 @@
 #ifndef _GUI_HPP
 #define _GUI_HPP
 
-#include "query.hpp"
 #if GUI_APP
 
-#include "config.hpp"
+#include "cufetch/cufetch.hh"
 #include "gdkmm/pixbuf.h"
 #include "gdkmm/pixbufanimation.h"
 #include "gtkmm/alignment.h"
@@ -51,15 +50,15 @@ public:
      * @param config The config class
      * @param path The logo source path
      */
-    Window(const Config& config, const std::filesystem::path& path, moduleMap_t& moduleMap);
+    Window(const Config& config, const std::filesystem::path& path, const moduleMap_t& moduleMap);
     // Destroy the window, handled by GTK
     virtual ~Window();
 
 private:
     const Config&                m_config;
     const std::filesystem::path& m_path;
-    moduleMap_t&                 m_moduleMap;
-    bool                         isImage;
+    const moduleMap_t&           m_moduleMap;
+    bool                         m_isImage;
 
     Gtk::Overlay                           m_overlay;
     Gtk::Box                               m_box;

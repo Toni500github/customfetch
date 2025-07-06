@@ -34,16 +34,19 @@
 #include <filesystem>
 #include <fstream>
 
+#include "cufetch/config.hh"
 #include "display.hpp"
 #include "fmt/ranges.h"
-#include "gdkmm/pixbufanimation.h"
-#include "glibmm/main.h"
-#include "gtkmm/enums.h"
-#include "pangomm/fontdescription.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "stb_image.h"
 #include "util.hpp"
+
+#include "gdkmm/pixbufanimation.h"
+#include "glibmm/refptr.h"
+#include "gtkmm/cssprovider.h"
+#include "glibmm/main.h"
+#include "gtkmm/enums.h"
 
 using namespace GUI;
 
@@ -129,7 +132,7 @@ static std::vector<std::string> render_with_image(const Config& config)
 
 bool Window::set_layout_markup()
 {
-    if (isImage)
+    if (m_isImage)
     {
         if (!m_config.args_print_logo_only)
             m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(m_config), "\n")));
@@ -141,8 +144,8 @@ bool Window::set_layout_markup()
     return true;
 }
 
-Window::Window(const Config& config, const std::filesystem::path& path, moduleMap_t& moduleMap)
-    : m_config(config), m_path(path), m_moduleMap(moduleMap), isImage(false)
+Window::Window(const Config& config, const std::filesystem::path& path, const moduleMap_t& moduleMap)
+    : m_config(config), m_path(path), m_moduleMap(moduleMap), m_isImage(false)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(1000, 600);
@@ -154,10 +157,10 @@ Window::Window(const Config& config, const std::filesystem::path& path, moduleMa
     std::array<unsigned char, 32> buffer;
     f.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
     if (is_file_image(buffer.data()))
-        isImage = true;
+        m_isImage = true;
 
     // useImage can be either a gif or an image
-    if (isImage && !config.args_disable_source)
+    if (m_isImage && !config.args_disable_source)
     {
         const auto& img = Gdk::PixbufAnimation::create_from_file(path.c_str());
         m_img           = Gtk::manage(new Gtk::Image(img));
@@ -167,18 +170,6 @@ Window::Window(const Config& config, const std::filesystem::path& path, moduleMa
     }
 
     m_box.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
-
-    // https://stackoverflow.com/a/76372996
-    Glib::RefPtr<Pango::Context> context = m_label.get_pango_context();
-    Pango::FontDescription       font(config.font);
-    debug("font family = {}", font.get_family().raw());
-    debug("font style = {}", fmt::underlying(font.get_style()));
-    debug("font weight = {}", fmt::underlying(font.get_weight()));
-    context->set_font_description(font);
-
-    /*Gdk::RGBA fg_color;
-    style_context->lookup_color("theme_fg_color", fg_color);
-    std::string fg_color_str = rgba_to_hexstr(fg_color);*/
 
     this->set_layout_markup();
     if (is_live_mode)
@@ -203,6 +194,25 @@ Window::Window(const Config& config, const std::filesystem::path& path, moduleMa
             Glib::signal_timeout().connect(sigc::mem_fun(*this, &Window::on_update_animation), duration);
         }
         m_overlay.add_overlay(m_bg_image);
+    }
+
+    if (config.gui_css_file != "disable")
+    {
+        if (!std::filesystem::exists(config.gui_css_file))
+            die(_("Path to gtk css file '{}' doesn't exist"), config.gui_css_file);
+
+        Glib::RefPtr<Gtk::CssProvider> css_provider = Gtk::CssProvider::create();
+        Glib::RefPtr<Gdk::Screen> screen = Gdk::Screen::get_default();
+        try
+        {
+            css_provider->load_from_path(config.gui_css_file);
+        }
+        catch (const Glib::Error& ex)
+        {
+            die(_("Failed to load CSS: {}"), ex.gobj()->message);
+        }
+
+        m_overlay.get_style_context()->add_provider_for_screen(screen, css_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
     }
 
     if (Display::ascii_logo_fd != -1)

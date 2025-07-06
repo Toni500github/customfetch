@@ -211,15 +211,9 @@ apk-files    = ["/var/lib/apk/db/installed"]
 # Desktop/Android app options
 [gui]
 
-# Font to be used
-# syntax must be [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]
-# e.g "Liberation Mono Normal 12"
-# check https://lazka.github.io/pgi-docs/Pango-1.0/classes/FontDescription.html#Pango.FontDescription for more infos
-font = "Liberation Mono Normal 12"
-
 # These are the colors you can use in the GUI mode.
 # They overwrite the terminal colors from above.
-# They can only have hexcodes colors
+# They can only have hexcodes colors and its modifiers
 black   = "!#000005"
 red     = "!#ff2000"
 green   = "!#00ff00"
@@ -232,6 +226,10 @@ white   = "!#ffffff"
 # Path to image as a background.
 # put "disable" for disabling and use the theme color as background.
 bg-image = "disable"
+
+# Path to gtk css file to be used.
+# put "disable" for disabling.
+gtk-css = "disable"
 
 )#";
 
