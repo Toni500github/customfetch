@@ -20,6 +20,7 @@ set_source_files_properties(
 file(GLOB
 	SRC
 	"src/*.cpp"
+	"src/core-plugins/*.cc"
 	"src/core-plugins/linux/*.cc"
 	"src/query/android/*.cpp"
 	"src/query/macos/*.cpp"
