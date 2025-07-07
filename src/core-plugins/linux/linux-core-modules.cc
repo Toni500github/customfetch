@@ -13,6 +13,7 @@
 #include "utils/packages.hpp"
 #include "core-modules.hh"
 #include "cufetch/cufetch.hh"
+#include "config.hpp"
 #include "fmt/format.h"
 #include "util.hpp"
 
@@ -83,7 +84,7 @@ static std::string get_colors_symbol(const callbackInfo_t* callback, bool is_lig
             callback->modulesInfo, callback->config);
 }
 
-void core_plugins_start()
+void core_plugins_start(const Config& config)
 {
     // ------------ INIT STUFF ------------
     const std::chrono::seconds  uptime_secs(os_uptime());
@@ -126,8 +127,8 @@ void core_plugins_start()
         std::move(os_uptime_m_module),
         std::move(os_uptime_h_module),
         std::move(os_uptime_d_module),
-    }, [=](const callbackInfo_t* callback) { return get_auto_uptime(uptime_days, uptime_hours.count() % 24, uptime_mins.count() % 60,
-                                                   uptime_secs.count() % 60, callback->config); }};
+    }, [=](unused) { return get_auto_uptime(uptime_days, uptime_hours.count() % 24, uptime_mins.count() % 60,
+                                                   uptime_secs.count() % 60, config); }};
 
     module_t os_hostname_module = {"hostname", "hostname of the OS [myMainPC]", {}, os_hostname};
 
@@ -145,7 +146,7 @@ void core_plugins_start()
         std::move(os_initsys_version_module),
     }, [](unused) {return os_initsys_name() + " " + os_initsys_version();}};
 
-    module_t os_pkgs_module = {"pkgs", "Count of system packages", {}, [](const callbackInfo_t* callback){ return get_all_pkgs(callback->config); }};
+    module_t os_pkgs_module = {"pkgs", "Count of system packages", {}, [&](unused){ return get_all_pkgs(config); }};
 
     // $<os>
     module_t os_module = { "os", "OS modules", {
@@ -346,14 +347,14 @@ void core_plugins_start()
     cfRegisterModule(gpu_module);
 
     // $<title>
-    module_t title_sep_module = { "sep", "separator between the title and the system infos (with the title length) [--------]", {}, [](const callbackInfo_t* callback) {
+    module_t title_sep_module = { "sep", "separator between the title and the system infos (with the title length) [--------]", {}, [&](unused) {
                                      const size_t title_len =
                                          std::string_view(user_name() + "@" + os_hostname()).length();
 
                                      std::string str;
-                                     str.reserve(callback->config.title_sep.length() * title_len);
+                                     str.reserve(config.title_sep.length() * title_len);
                                      for (size_t i = 0; i < title_len; i++)
-                                         str += callback->config.title_sep;
+                                         str += config.title_sep;
 
                                      return str;
                                  } };

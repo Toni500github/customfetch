@@ -65,6 +65,9 @@
 
 using namespace std::string_view_literals;
 
+bool display_modules = false;
+bool display_list_logos = false;
+
 // Print the version and some other infos, then exit successfully
 static void version()
 {
@@ -174,49 +177,6 @@ For details, see `man customfetch` or run `--how-it-works`.
     fmt::print("{}", help);
     fmt::print("\n");
     std::exit(invalid_opt);
-}
-
-// Print all info modules you can put in $<>, then exit successfully
-static void modules_list()
-{
-    for (const module_t& module : cfGetModules())
-    {
-        std::vector<std::string> parts;
-
-        // Split name into parts (e.g., "os.name.pretty" -> ["os", "name", "pretty"])
-        size_t start = 0, end = module.name.find('.');
-        bool new_module = true;
-        while (end != std::string::npos)
-        {
-            new_module = false;
-            parts.push_back(module.name.substr(start, end - start));
-            start = end + 1;
-            end   = module.name.find('.', start);
-        }
-        parts.push_back(module.name.substr(start));
-        if (new_module)
-            fmt::print("\n");
-
-        // Generate indentation
-        for (size_t depth = 0; depth < parts.size(); ++depth)
-        {
-            if (depth == parts.size() - 1)
-            {
-                if (new_module)
-                    fmt::print("{} - {}", parts[depth], module.description);
-                else
-                    fmt::print("{:<6} \t- {}", parts[depth], module.description);
-            }
-            else
-            {
-                fmt::print("  ");
-            }
-        }
-
-        fmt::print("\n");
-    }
-
-    std::exit(EXIT_SUCCESS);
 }
 
 // Print how customfetch works, then exit successfully
@@ -358,11 +318,54 @@ static void list_logos(const std::string& data_dir)
 
     fmt::print("{}", fmt::join(list, "\n"));
     fmt::print("\n");
-    std::exit(EXIT_SUCCESS);
+}
+
+// Print all info modules you can put in $<>, then exit successfully
+static void modules_list()
+{
+    for (const module_t& module : cfGetModules())
+    {
+        std::vector<std::string> parts;
+
+        // Split name into parts (e.g., "os.name.pretty" -> ["os", "name", "pretty"])
+        size_t start = 0, end = module.name.find('.');
+        bool new_module = true;
+        while (end != std::string::npos)
+        {
+            new_module = false;
+            parts.push_back(module.name.substr(start, end - start));
+            start = end + 1;
+            end   = module.name.find('.', start);
+        }
+        parts.push_back(module.name.substr(start));
+        if (new_module)
+            fmt::print("\n");
+
+        // Generate indentation
+        for (size_t depth = 0; depth < parts.size(); ++depth)
+        {
+            if (depth == parts.size() - 1)
+            {
+                if (new_module)
+                    fmt::print("{} - {}", parts[depth], module.description);
+                else
+                    fmt::print("{:<6} \t- {}", parts[depth], module.description);
+            }
+            else
+            {
+                fmt::print("  ");
+            }
+        }
+
+        fmt::print("\n");
+    }
 }
 
 // Return true if optarg says something true
-static bool str_to_bool(const std::string_view str) { return (str == "true" || str == "1" || str == "enable"); }
+static bool str_to_bool(const std::string_view str)
+{
+    return (str == "true" || str == "1" || str == "enable");
+}
 
 // clang-format off
 // parseargs() but only for parsing the user config path trough args
@@ -397,7 +400,7 @@ static std::filesystem::path parse_config_path(int argc, char* argv[], const std
     return configDir / "config.toml";
 }
 
-static bool parseargs(int argc, char* argv[], Config& config, const std::filesystem::path &configFile)
+static bool parseargs(int argc, char* argv[], Config& config, const std::filesystem::path& configFile)
 {
     int opt = 0;
     int option_index = 0;
@@ -458,27 +461,27 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
             case 'h':
                 help(); break;
             case 'l':
-                modules_list(); break;
+                display_modules = true; break;
             case 'w':
                 explain_how_this_works(); break;
             case "list-logos"_fnv1a16:
-                list_logos(config.data_dir+"/ascii"); break;
+                display_list_logos = true; break;
             case 'f':
-                config.overrideOption("gui.font", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("gui.font", optarg); break;
             case 'o':
-                config.overrideOption("config.offset", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("config.offset", optarg); break;
             case 'C': // we have already did it in parse_config_path()
                 break;
             case 'D':
-                config.overrideOption("config.data-dir", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("config.data-dir", optarg); break;
             case 'd':
                 config.args_custom_distro = str_tolower(optarg); break;
             case 'm':
                 config.args_layout.push_back(optarg); break;
             case 'p':
-                config.overrideOption("config.logo-position", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("config.logo-position", optarg); break;
             case 's':
-                config.overrideOption("config.source-path", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("config.source-path", optarg); break;
             case 'i':
                 config.args_image_backend = optarg; break;
             case 'O':
@@ -486,7 +489,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
             case 'N':
                 config.args_disable_colors = true; break;
             case 'a':
-                config.overrideOption("config.ascii-logo-type", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("config.ascii-logo-type", optarg); break;
             case 'n':
                 config.args_disable_source = true; break;
             case 'L':
@@ -496,13 +499,13 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
                 config.args_disallow_commands = true; break;
 
             case "logo-padding-top"_fnv1a16:
-                config.overrideOption("config.logo-padding-top", {.value_type = INT, .int_value = std::stoi(optarg)}); break;
+                config.overrideOption("config.logo-padding-top", std::stoi(optarg)); break;
 
             case "logo-padding-left"_fnv1a16:
-                config.overrideOption("config.logo-padding-left", {.value_type = INT, .int_value = std::stoi(optarg)}); break;
+                config.overrideOption("config.logo-padding-left", std::stoi(optarg)); break;
 
             case "layout-padding-top"_fnv1a16:
-                config.overrideOption("config.layout-padding-top", {.value_type = INT, .int_value = std::stoi(optarg)}); break;
+                config.overrideOption("config.layout-padding-top", std::stoi(optarg)); break;
 
             case "loop-ms"_fnv1a16:
                 config.loop_ms = std::stoul(optarg); break;
@@ -511,22 +514,22 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
                 config.addAliasColors(optarg); break;
 
             case "sep-reset"_fnv1a16:
-                config.overrideOption("config.sep-reset", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("config.sep-reset", optarg); break;
 
             case "title-sep"_fnv1a16:
-                config.overrideOption("config.title-sep", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("config.title-sep", optarg); break;
 
             case "bg-image"_fnv1a16:
-                config.overrideOption("gui.bg-image", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("gui.bg-image", optarg); break;
 
             case "gtk-css"_fnv1a16:
-                config.overrideOption("gui.gtk-css", {.value_type = STR, .string_value = optarg}); break;
+                config.overrideOption("gui.gtk-css", optarg); break;
 
             case "wrap-lines"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.overrideOption("config.wrap-lines", {.value_type = BOOL, .bool_value = str_to_bool(optarg)});
+                    config.overrideOption("config.wrap-lines", str_to_bool(optarg));
                 else
-                    config.overrideOption("config.wrap-lines", {.value_type = BOOL, .bool_value = true});
+                    config.overrideOption("config.wrap-lines", true);
                 break;
 
             case "debug"_fnv1a16:
@@ -545,15 +548,22 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
 
             case "sep-reset-after"_fnv1a16:
                 if (OPTIONAL_ARGUMENT_IS_PRESENT)
-                    config.overrideOption("config.sep-reset-after", {.value_type = BOOL, .bool_value = str_to_bool(optarg)});
+                    config.overrideOption("config.sep-reset-after", str_to_bool(optarg));
                 else
-                    config.overrideOption("config.sep-reset-after", {.value_type = BOOL, .bool_value = true});
+                    config.overrideOption("config.sep-reset-after", true);
                 break;
 
             default:
                 return false;
         }
     }
+
+    config.overrideOption("intern.args.print-logo-only",      config.args_print_logo_only);
+    config.overrideOption("intern.args.disable-logo",         config.args_disable_source);
+    config.overrideOption("intern.args.disallow-commands",    config.args_disallow_commands);
+    config.overrideOption("intern.args.custom-distro",        config.args_custom_distro);
+    config.overrideOption("intern.args.image-backend",        config.args_image_backend);
+    config.overrideOption("intern.args.disable-colors",       config.args_disable_colors);
 
     return true;
 }
@@ -582,8 +592,10 @@ static void localize(void)
 }
 
 // clang-format on
-void core_plugins_start();
+void core_plugins_start(const Config& config);
 void core_plugins_finish();
+
+
 int main(int argc, char *argv[])
 {
     const std::filesystem::path& configDir  = getConfigDir();
@@ -592,11 +604,13 @@ int main(int argc, char *argv[])
     localize();
 
     Config config(configFile, configDir);
+    if (!parseargs(argc, argv, config, configFile))
+        return 1;
     config.loadConfigFile(configFile);
     std::vector<void *> plugins_handle;
 
     /* TODO(burntranch): track each library and unload them. */
-    core_plugins_start();
+    core_plugins_start(config);
     const std::filesystem::path plguinDir = configDir / "plugins";
     std::filesystem::create_directories(plguinDir);
     for (const auto& entry : std::filesystem::directory_iterator{ plguinDir })
@@ -623,9 +637,17 @@ int main(int argc, char *argv[])
         start(handle, config);
         plugins_handle.push_back(handle);
     }
-
-    if (!parseargs(argc, argv, config, configFile))
-        return 1;
+    
+    if (display_modules)
+    {
+        modules_list();
+        return 0;
+    }
+    else if (display_list_logos)
+    {
+        list_logos(config.data_dir+"/ascii");
+        return 0;
+    }
 
     const std::vector<module_t>& modules = cfGetModules();
     moduleMap_t                  moduleMap;

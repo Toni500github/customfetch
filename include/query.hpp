@@ -111,7 +111,7 @@ public:
     std::string& host_vendor() noexcept;
     std::string& host_version() noexcept;
 
-    std::string& pkgs_installed(const Config& config);
+    std::string& pkgs_installed(const ConfigBase& config);
 
 private:
     static System_t       m_system_infos;
@@ -172,9 +172,9 @@ public:
     };
 
     Theme(const std::uint8_t ver /*, moduleMap_t& queried_themes*/, const std::string& theme_name_version,
-          const Config& config, const bool gsettings_only = false);
+          const ConfigBase& config, const bool gsettings_only = false);
 
-    Theme(/*moduleMap_t& queried_themes, */ const Config& config, const bool gsettings_only = false);
+    Theme(/*moduleMap_t& queried_themes, */ const ConfigBase& config, const bool gsettings_only = false);
 
     std::string  gtk_theme() noexcept;
     std::string  gtk_icon_theme() noexcept;

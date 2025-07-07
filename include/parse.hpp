@@ -41,7 +41,7 @@ struct parse_args_t
     std::string&              pureOutput;
     std::vector<std::string>& layout;
     std::vector<std::string>& tmp_layout;
-    const Config&             config;
+    const ConfigBase&         config;
     bool                      parsingLayout;
     bool                      firstrun_clr  = true;
     bool                      no_more_reset = false;
@@ -60,7 +60,7 @@ struct parse_args_t
  * @param no_more_reset If we are recursively parsing, e.g we are inside tags
  */
 std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
-                  std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const Config& config,
+                  std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const ConfigBase& config,
                   const bool parsingLayout, bool& no_more_reset);
 
 // parse() for parse_args_t& arguments

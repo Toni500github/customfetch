@@ -38,6 +38,7 @@
 #include <vector>
 
 #include "cufetch/common.hh"
+#include "cufetch/config.hh"
 #include "fmt/color.h"
 #include "fmt/format.h"
 #include "query.hpp"
@@ -117,7 +118,7 @@ std::string _;
 // @param noesc_str The ansi color without \\e[ or \033[
 // @param colors The colors struct we'll look at
 // @return An array of 3 span tags elements in the follow: color, weight, type
-static std::array<std::string, 3> get_ansi_color(const std::string_view noesc_str, const Config::colors_t& colors)
+static std::array<std::string, 3> get_ansi_color(const std::string_view noesc_str, const ConfigBase& config)
 {
     const size_t first_m = noesc_str.rfind('m');
     if (first_m == std::string::npos)
@@ -143,14 +144,14 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view noesc_st
     // clang-format off
     switch (col.back())
     {
-        case '0': col = colors.gui_black;   break;
-        case '1': col = colors.gui_red;     break;
-        case '2': col = colors.gui_green;   break;
-        case '3': col = colors.gui_yellow;  break;
-        case '4': col = colors.gui_blue;    break;
-        case '5': col = colors.gui_magenta; break;
-        case '6': col = colors.gui_cyan;    break;
-        case '7': col = colors.gui_white;   break;
+        case '0': col = config.getThemeValue("gui.black",   "!#000005"); break;
+        case '1': col = config.getThemeValue("gui.red",     "!#ff2000"); break;
+        case '2': col = config.getThemeValue("gui.green",   "!#00ff00"); break;
+        case '3': col = config.getThemeValue("gui.yellow",  "!#ffff00"); break;
+        case '4': col = config.getThemeValue("gui.blue",    "!#00aaff"); break;
+        case '5': col = config.getThemeValue("gui.magenta", "!#ff11cc"); break;
+        case '6': col = config.getThemeValue("gui.cyan",    "!#00ffff"); break;
+        case '7': col = config.getThemeValue("gui.white",   "!#ffffff"); break;
     }
 
     if (col.at(0) != '#')
@@ -216,27 +217,27 @@ EXPORT std::string parse(const std::string& input, parse_args_t& parse_args)
 
 std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args, const bool invert)
 {
-    const Config& config = parse_args.config;
-    const float   result = n1 / n2 * static_cast<float>(100);
+    const std::vector<std::string>& percentage_colors = parse_args.config.getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
+    const float                     result = n1 / n2 * static_cast<float>(100);
 
     std::string color;
     if (!invert)
     {
         if (result <= 45)
-            color = "${" + config.percentage_colors.at(0) + "}";
+            color = "${" + percentage_colors.at(0) + "}";
         else if (result <= 80)
-            color = "${" + config.percentage_colors.at(1) + "}";
+            color = "${" + percentage_colors.at(1) + "}";
         else
-            color = "${" + config.percentage_colors.at(2) + "}";
+            color = "${" + percentage_colors.at(2) + "}";
     }
     else
     {
         if (result <= 45)
-            color = "${" + config.percentage_colors.at(2) + "}";
+            color = "${" + percentage_colors.at(2) + "}";
         else if (result <= 80)
-            color = "${" + config.percentage_colors.at(1) + "}";
+            color = "${" + percentage_colors.at(1) + "}";
         else
-            color = "${" + config.percentage_colors.at(0) + "}";
+            color = "${" + percentage_colors.at(0) + "}";
     }
 
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
@@ -369,7 +370,7 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     if (!evaluate)
         return {};
 
-    if (parse_args.config.args_disallow_commands)
+    if (parse_args.config.getValue("intern.args.disallow-commands", false))
         die(_("Trying to execute command $({}) but --disallow-command-tag is set"), command);
 
     const bool removetag = (command.front() == '!');
@@ -399,14 +400,12 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     if (!evaluate)
         return {};
 
-    std::string             output;
-    const Config&           config = parse_args.config;
-    const Config::colors_t& colors = parse_args.config.colors;
-    const size_t            taglen = color.length() + "${}"_len;
+    std::string       output;
+    const size_t      taglen  = color.length() + "${}"_len;
+    const ConfigBase& config  = parse_args.config;
+    const std::string endspan = !parse_args.firstrun_clr ? "</span>" : "";
 
-    const std::string endspan{ !parse_args.firstrun_clr ? "</span>" : "" };
-
-    if (config.args_disable_colors)
+    if (config.getValue("intern.args.disable-colors", false))
     {
         if (parser.dollar_pos != std::string::npos)
             parse_args.pureOutput.erase(parser.dollar_pos, taglen);
@@ -419,14 +418,27 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     if (output[0] == '$')
         output += ' ';
 #endif
-
-    if (!config.colors_name.empty())
+    
+    static std::vector<std::string> alias_colors_name, alias_colors_value;
+    const std::vector<std::string>& alias_colors = config.getValueArrayStr("config.alias-colors", {});
+    if (!alias_colors.empty() && (alias_colors_name.empty() && alias_colors_value.empty()))
     {
-        const auto& it_name = std::find(config.colors_name.begin(), config.colors_name.end(), color);
-        if (it_name != config.colors_name.end())
+        for (const std::string& str : alias_colors)
         {
-            const size_t index = std::distance(config.colors_name.begin(), it_name);
-            color              = config.colors_value.at(index);
+            const size_t pos = str.find('=');
+            if (pos == std::string::npos)
+                die(_("alias color '{}' does NOT have an equal sign '=' for separating color name and value\n"
+                    "For more check with --help"), str);
+
+            alias_colors_name.push_back(str.substr(0, pos));
+            alias_colors_value.push_back(str.substr(pos + 1));
+        }
+
+        const auto& it_name = std::find(alias_colors_name.begin(), alias_colors_name.end(), color);
+        if (it_name != alias_colors_name.end())
+        {
+            const size_t index = std::distance(alias_colors_name.begin(), it_name);
+            color              = alias_colors_value.at(index);
         }
     }
 
@@ -469,14 +481,14 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 #if GUI_APP
         switch (fnv1a16::hash(color))
         {
-            case "black"_fnv1a16:   str_clr = colors.gui_black; break;
-            case "red"_fnv1a16:     str_clr = colors.gui_red; break;
-            case "blue"_fnv1a16:    str_clr = colors.gui_blue; break;
-            case "green"_fnv1a16:   str_clr = colors.gui_green; break;
-            case "cyan"_fnv1a16:    str_clr = colors.gui_cyan; break;
-            case "yellow"_fnv1a16:  str_clr = colors.gui_yellow; break;
-            case "magenta"_fnv1a16: str_clr = colors.gui_magenta; break;
-            case "white"_fnv1a16:   str_clr = colors.gui_white; break;
+            case "black"_fnv1a16:   str_clr = config.getThemeValue("gui.black",   "!#000005"); break;
+            case "red"_fnv1a16:     str_clr = config.getThemeValue("gui.red",     "!#ff2000"); break;
+            case "green"_fnv1a16:   str_clr = config.getThemeValue("gui.green",   "!#00ff00"); break;
+            case "yellow"_fnv1a16:  str_clr = config.getThemeValue("gui.yellow",  "!#ffff00"); break;
+            case "blue"_fnv1a16:    str_clr = config.getThemeValue("gui.blue",    "!#00aaff"); break;
+            case "magenta"_fnv1a16: str_clr = config.getThemeValue("gui.magenta", "!#ff11cc"); break;
+            case "cyan"_fnv1a16:    str_clr = config.getThemeValue("gui.cyan",    "!#00ffff"); break;
+            case "white"_fnv1a16:   str_clr = config.getThemeValue("gui.white",   "!#ffffff"); break;
             default:                str_clr = color; break;
         }
 
@@ -584,7 +596,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
             }
             else
             {
-                const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, colors);
+                const std::array<std::string, 3>& clrs   = get_ansi_color(noesc_str, config);
                 const std::string_view            color  = clrs.at(0);
                 const std::string_view            weight = clrs.at(1);
                 const std::string_view            type   = clrs.at(2);
@@ -604,14 +616,14 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 #else
         switch (fnv1a16::hash(color))
         {
-            case "black"_fnv1a16:   str_clr = colors.black; break;
-            case "red"_fnv1a16:     str_clr = colors.red; break;
-            case "blue"_fnv1a16:    str_clr = colors.blue; break;
-            case "green"_fnv1a16:   str_clr = colors.green; break;
-            case "cyan"_fnv1a16:    str_clr = colors.cyan; break;
-            case "yellow"_fnv1a16:  str_clr = colors.yellow; break;
-            case "magenta"_fnv1a16: str_clr = colors.magenta; break;
-            case "white"_fnv1a16:   str_clr = colors.white; break;
+            case "black"_fnv1a16:   str_clr = config.getThemeValue("config.black",   "\033[1;30m"); break;
+            case "red"_fnv1a16:     str_clr = config.getThemeValue("config.red",     "\033[1;31m"); break;
+            case "green"_fnv1a16:   str_clr = config.getThemeValue("config.green",   "\033[1;32m"); break;
+            case "yellow"_fnv1a16:  str_clr = config.getThemeValue("config.yellow",  "\033[1;33m"); break;
+            case "blue"_fnv1a16:    str_clr = config.getThemeValue("config.blue",    "\033[1;34m"); break;
+            case "magenta"_fnv1a16: str_clr = config.getThemeValue("config.magenta", "\033[1;35m"); break;
+            case "cyan"_fnv1a16:    str_clr = config.getThemeValue("config.cyan",    "\033[1;36m"); break;
+            case "white"_fnv1a16:   str_clr = config.getThemeValue("config.white",   "\033[1;37m"); break;
             default:                str_clr = color; break;
         }
 
@@ -803,15 +815,16 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
 }
 
 EXPORT std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
-                  std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const Config& config,
+                  std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const ConfigBase& config,
                   const bool parsingLayout, bool& no_more_reset)
 {
-    if (!config.sep_reset.empty() && parsingLayout && !no_more_reset)
+    const std::string& sep_reset = config.getValue<std::string>("config.sep-reset", ":");
+    if (!sep_reset.empty() && parsingLayout && !no_more_reset)
     {
-        if (config.sep_reset_after)
-            replace_str(input, config.sep_reset, config.sep_reset + "${0}");
+        if (config.getValue("config.sep-reset-after", false))
+            replace_str(input, sep_reset, sep_reset + "${0}");
         else
-            replace_str(input, config.sep_reset, "${0}" + config.sep_reset);
+            replace_str(input, sep_reset, "${0}" + sep_reset);
 
         no_more_reset = true;
     }
@@ -841,7 +854,7 @@ EXPORT std::string parse(std::string input, const moduleMap_t& modulesInfo, std:
     return ret;
 }
 
-APICALL EXPORT std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config)
+APICALL EXPORT std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const ConfigBase& config)
 {
     std::vector<std::string> nah;
     parse_args_t parse_args{ modulesInfo, _, nah, nah, config, true, true, true};

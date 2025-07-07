@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-#include "cufetch/config.hh"
+#include "config.hpp"
 #include "cufetch/cufetch.hh"
 #include "platform.hpp"
 

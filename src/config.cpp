@@ -200,11 +200,6 @@ void Config::overrideOption(const std::string& opt)
             value, name);
 }
 
-void Config::overrideOption(const std::string& opt, const override_configs_types& option)
-{
-    overrides[opt] = option;
-}
-
 void Config::generateConfig(const std::filesystem::path &filename)
 {
     if (std::filesystem::exists(filename))

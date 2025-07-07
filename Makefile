@@ -106,7 +106,7 @@ usr-dist: $(TARGET) locale
 	rm -rf usr/
 
 clean:
-	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/lib$(NAME).a $(OBJ)
+	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/libcufetch.so $(OBJ) libcufetch/*.o
 
 distclean:
 	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ)

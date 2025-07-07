@@ -25,35 +25,6 @@
 
 #include "cufetch/config.hh"
 
-#include <string>
-#include <vector>
-#include "util.hpp"
-
 template int ConfigBase::getValue<int>(const std::string_view, const int&&) const;
 template std::string ConfigBase::getValue<std::string>(const std::string_view, const std::string&&) const;
 template bool ConfigBase::getValue<bool>(const std::string_view, const bool&&) const;
-
-std::vector<std::string> ConfigBase::getValueArrayStr(const std::string_view          value,
-                                                      const std::vector<std::string>& fallback)
-{
-    std::vector<std::string> ret;
-
-    // https://stackoverflow.com/a/78266628
-    const auto& array = tbl.at_path(value);
-    if (const toml::array* array_it = array.as_array())
-    {
-        array_it->for_each(
-            [&ret, value](auto&& el)
-            {
-                if (const toml::value<std::string>* str_elem = el.as_string())
-                    ret.push_back((*str_elem)->data());
-                else
-                    warn(_("an element of the array '{}' is not a string"), value);
-            }
-        );
-
-        return ret;
-    }
-    else
-        return fallback;
-}

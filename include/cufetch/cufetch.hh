@@ -27,7 +27,7 @@ struct callbackInfo_t
 {
     const moduleArgs_t* moduleArgs;
     const moduleMap_t&  modulesInfo;
-    const Config&       config;
+    const ConfigBase&   config;
 };
 
 struct module_t
@@ -38,7 +38,7 @@ struct module_t
     std::function<std::string(const callbackInfo_t*)> handler;
 };
 
-APICALL EXPORT std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const Config& config);
+APICALL EXPORT std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const ConfigBase& config);
 APICALL EXPORT std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert);
 
 /* Register a module, and its submodules, to customfetch. */
