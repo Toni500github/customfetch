@@ -4,18 +4,20 @@
 
 #include <algorithm>
 #include <array>
-#include <chrono>
 #include <cstdio>
 #include <string>
 #include <string_view>
 #include <utility>
 
-#include "utils/packages.hpp"
 #include "core-modules.hh"
 #include "cufetch/cufetch.hh"
 #include "config.hpp"
 #include "fmt/format.h"
 #include "util.hpp"
+
+#if CF_LINUX
+# include "linux/utils/packages.hpp"
+#endif
 
 using unused = const callbackInfo_t*;
 
@@ -87,16 +89,18 @@ static std::string get_colors_symbol(const callbackInfo_t* callback, bool is_lig
 void core_plugins_start(const Config& config)
 {
     // ------------ INIT STUFF ------------
-    const std::chrono::seconds  uptime_secs(os_uptime());
-    const std::chrono::minutes& uptime_mins  = std::chrono::duration_cast<std::chrono::minutes>(uptime_secs);
-    const std::chrono::hours&   uptime_hours = std::chrono::duration_cast<std::chrono::hours>(uptime_secs);
-    const size_t                uptime_days  = uptime_secs.count() / (60 * 60 * 24);
+    const size_t uptime_secs  = os_uptime();
+    const size_t uptime_mins  = uptime_secs / (60);
+    const size_t uptime_hours = uptime_secs / (60 * 60);
+    const size_t uptime_days  = uptime_secs / (60 * 60 * 24);
 
+#if CF_LINUX
     if (uname(&g_uname_infos) != 0)
-        die(_("uname() failed: {}\nCould not get system infos"), strerror(errno));
+        die(_("uname() failed: {}\nCould not get system infos"), std::strerror(errno));
 
     if (g_pwd = getpwuid(getuid()), !g_pwd)
         die(_("getpwent failed: {}\nCould not get user infos"), std::strerror(errno));
+#endif
 
     term_pid  = get_terminal_pid();
     term_name = get_terminal_name();
@@ -118,17 +122,17 @@ void core_plugins_start(const Config& config)
         std::move(os_name_id_module)
     }, os_name };
 
-    module_t os_uptime_s_module = {"secs", "uptime of the system in seconds [45]", {}, [=](unused) {return fmt::to_string(uptime_secs.count() % 60);}};
-    module_t os_uptime_m_module = {"mins", "uptime of the system in minutes [12]", {}, [=](unused) {return fmt::to_string(uptime_mins.count() % 60);}};
-    module_t os_uptime_h_module = {"hours", "uptime of the system in hours [34]", {}, [=](unused) {return fmt::to_string(uptime_hours.count() % 24);}};
+    module_t os_uptime_s_module = {"secs", "uptime of the system in seconds [45]", {}, [=](unused) {return fmt::to_string(uptime_secs % 60);}};
+    module_t os_uptime_m_module = {"mins", "uptime of the system in minutes [12]", {}, [=](unused) {return fmt::to_string(uptime_mins % 60);}};
+    module_t os_uptime_h_module = {"hours", "uptime of the system in hours [34]", {}, [=](unused) {return fmt::to_string(uptime_hours % 24);}};
     module_t os_uptime_d_module = {"days", "uptime of the system in days [2]", {}, [=](unused) {return fmt::to_string(uptime_days);}};
     module_t os_uptime_module = {"uptime", "(auto) uptime of the system [36 mins, 3 hours, 23 days]", {
         std::move(os_uptime_s_module),
         std::move(os_uptime_m_module),
         std::move(os_uptime_h_module),
         std::move(os_uptime_d_module),
-    }, [=](unused) { return get_auto_uptime(uptime_days, uptime_hours.count() % 24, uptime_mins.count() % 60,
-                                                   uptime_secs.count() % 60, config); }};
+    }, [=](unused) { return get_auto_uptime(uptime_days, uptime_hours % 24, uptime_mins % 60,
+                                                   uptime_secs % 60, config); }};
 
     module_t os_hostname_module = {"hostname", "hostname of the OS [myMainPC]", {}, os_hostname};
 
@@ -386,8 +390,11 @@ void core_plugins_start(const Config& config)
 
 void core_plugins_finish()
 {
+#if CF_LINUX
     if (mountsFile) fclose(mountsFile);
     if (os_release) fclose(os_release);
     if (meminfo)    fclose(meminfo);
     if (cpuinfo)    fclose(cpuinfo);
+    if (g_pwd)      free(g_pwd);
+#endif
 }

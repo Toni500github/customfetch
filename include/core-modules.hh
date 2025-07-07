@@ -3,12 +3,12 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 
+#include "platform.hpp"
 #include "cufetch/cufetch.hh"
 
 #define MODFUNC(name) std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo = nullptr)
 
 // system.cc
-inline utsname g_uname_infos;
 MODFUNC(arch);
 MODFUNC(host);
 MODFUNC(host_name);
@@ -40,7 +40,6 @@ MODFUNC(cpu_nproc);
 MODFUNC(cpu_name);
 
 // user.cc
-inline struct passwd* g_pwd;
 inline bool           is_tty = false;
 inline std::string    term_pid, term_name, wm_name, de_name, wm_path_exec;
 std::string           get_terminal_name();
@@ -87,6 +86,11 @@ double battery_temp();
 // gpu.cc
 MODFUNC(gpu_name);
 MODFUNC(gpu_vendor);
+
+#if CF_LINUX
+inline struct passwd* g_pwd;
+inline utsname g_uname_infos;
+#endif
 
 #undef MODFUNC
 #define MODFUNC(name) std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo)
