@@ -4,9 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "cufetch/config.hh"
-
-struct module_t;
+#include "cufetch/parse.hh"
 
 // Map from a modules name to its pointer.
 using moduleMap_t = std::unordered_map<std::string, const module_t&>;
@@ -26,8 +24,7 @@ struct moduleArgs_t
 struct callbackInfo_t
 {
     const moduleArgs_t* moduleArgs;
-    const moduleMap_t&  modulesInfo;
-    const ConfigBase&   config;
+    parse_args_t&       parse_args;
 };
 
 struct module_t
@@ -37,9 +34,6 @@ struct module_t
     std::vector<module_t> submodules; /* For best performance, use std::move() when adding modules in here. */
     std::function<std::string(const callbackInfo_t*)> handler;
 };
-
-APICALL EXPORT std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const ConfigBase& config);
-APICALL EXPORT std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert);
 
 /* Register a module, and its submodules, to customfetch. */
 APICALL EXPORT void cfRegisterModule(const module_t& module);

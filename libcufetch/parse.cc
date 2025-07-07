@@ -39,6 +39,7 @@
 
 #include "cufetch/common.hh"
 #include "cufetch/config.hh"
+#include "cufetch/cufetch.hh"
 #include "fmt/color.h"
 #include "fmt/format.h"
 #include "query.hpp"
@@ -243,7 +244,7 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
-std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName)
+std::string getInfoFromName(parse_args_t& parse_args, const std::string& moduleName)
 {
     std::string name;
     name.reserve(moduleName.size());
@@ -284,9 +285,7 @@ std::string getInfoFromName(const parse_args_t& parse_args, const std::string& m
 
                 moduleArgs_t* moduleArg = moduleArgs;
                 while (moduleArg->next != nullptr)
-                {
                     moduleArg = moduleArg->next;
-                }
 
                 moduleArg->name       = std::string{ name.begin() + start_pos, name.end() };
                 moduleArg->value      = arg;
@@ -325,7 +324,7 @@ std::string getInfoFromName(const parse_args_t& parse_args, const std::string& m
     std::string result = "(unknown/invalid module)";
     if (const auto& it = parse_args.modulesInfo.find(name); it != parse_args.modulesInfo.end())
     {
-        struct callbackInfo_t callbackInfo = { moduleArgs, parse_args.modulesInfo, parse_args.config };
+        struct callbackInfo_t callbackInfo = { moduleArgs, parse_args };
 
         result = it->second.handler(&callbackInfo);
     }
@@ -852,20 +851,6 @@ EXPORT std::string parse(std::string input, const moduleMap_t& modulesInfo, std:
 #endif
 
     return ret;
-}
-
-APICALL EXPORT std::string parse(const std::string& input, const moduleMap_t& modulesInfo, const ConfigBase& config)
-{
-    std::vector<std::string> nah;
-    parse_args_t parse_args{ modulesInfo, _, nah, nah, config, true, true, true};
-    return parse(input, parse_args);
-}
-
-APICALL EXPORT std::string get_and_color_percentage(const float n1, const float n2, const callbackInfo_t* callback, const bool invert)
-{
-    std::vector<std::string> nah;
-    parse_args_t parse_args{ callback->modulesInfo, _, nah, nah, callback->config, true, true, true};
-    return get_and_color_percentage(n1, n2, parse_args, invert);
 }
 
 // Re-enable them later

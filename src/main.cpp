@@ -36,8 +36,7 @@
 #include <thread>
 #include <vector>
 
-#include "cufetch/config.hh"
-#include "cufetch/cufetch.hh"
+#include "core-modules.hh"
 #include "display.hpp"
 #include "fmt/base.h"
 #include "fmt/ranges.h"
@@ -592,10 +591,6 @@ static void localize(void)
 }
 
 // clang-format on
-void core_plugins_start(const Config& config);
-void core_plugins_finish();
-
-
 int main(int argc, char *argv[])
 {
     const std::filesystem::path& configDir  = getConfigDir();

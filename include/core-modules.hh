@@ -5,6 +5,7 @@
 
 #include "platform.hpp"
 #include "cufetch/cufetch.hh"
+#include "config.hpp"
 
 #define MODFUNC(name) std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo = nullptr)
 
@@ -94,3 +95,6 @@ inline utsname g_uname_infos;
 
 #undef MODFUNC
 #define MODFUNC(name) std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo)
+
+void core_plugins_start(const Config& config);
+void core_plugins_finish();

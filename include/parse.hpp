@@ -26,83 +26,18 @@
 #ifndef _PARSE_HPP
 #define _PARSE_HPP
 
-#include <string>
-#include <vector>
+#include "cufetch/parse.hh"
 
-#include "cufetch/cufetch.hh"
-
-/* The additional args that parse() needs for getting the necessary infos/configs.
- * Only used for making the argument passing more clear.
- * Always pass it non-const and by reference
- */
-struct parse_args_t
-{
-    const moduleMap_t&        modulesInfo;
-    std::string&              pureOutput;
-    std::vector<std::string>& layout;
-    std::vector<std::string>& tmp_layout;
-    const ConfigBase&         config;
-    bool                      parsingLayout;
-    bool                      firstrun_clr  = true;
-    bool                      no_more_reset = false;
-};
-
-/* Parse input, in-place, with data from modulesInfo.
- * Documentation on formatting is in the flag -w or the customfetch.1 manual.
- * @param input The string to parse
- * @param modulesInfo The system infos
- * @param pureOutput The output of the string but without tags
- * @param layout The layout of customfetch
- * @param tmp_layout The temponary layout to be used for $<auto> modules
- * @param config The config
- * @param colors The colors
- * @param parsingLayout If we are parsing layout or not
- * @param no_more_reset If we are recursively parsing, e.g we are inside tags
- */
-std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
-                  std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const ConfigBase& config,
-                  const bool parsingLayout, bool& no_more_reset);
-
-// parse() for parse_args_t& arguments
-std::string parse(const std::string& input, parse_args_t& parse_args);
 // some times we don't want to use the original pureOutput,
 // so we have to create a tmp string just for the sake of the function arguments
 std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args);
-
-/* Set module members values to a modulesInfo_t map.
- * If the name of said module matches any module name, it will be added
- * else, error out.
- * @param moduleName The module name
- * @param moduleMemberName The module member name
- * @param parse_args The parse() like arguments
- */
-// void addValueFromModuleMember(const std::string& moduleName, const std::string& moduleMemberName,
-//                               parse_args_t& parse_args);
-
-/* Set module only values to a modulesInfo_t map.
- * If the name of said module matches any module name, it will be added
- * else, error out.
- * @param moduleName The module name
- * @param parse_args The parse() like arguments
- */
-// void addValueFromModule(const std::string& moduleName, parse_args_t& parse_args);
 
 /*
  * Return an info module value
  * @param parse_args The parse() like arguments
  * @param moduleName The module name
  */
-std::string getInfoFromName(const parse_args_t& parse_args, const std::string& moduleName);
+std::string getInfoFromName(parse_args_t& parse_args, const std::string& moduleName);
 
-/*
- * Create a colored percentage from parse()
- * @param n1 The first number
- * @param n2 The second number
- * @param parse_args The parse() parameters
- * @param invert Is the result high number bad or good?
- * @return The colored percentage with ending %
- */
-std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args,
-                                     const bool invert = false);
 
 #endif

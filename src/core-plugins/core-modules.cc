@@ -77,13 +77,13 @@ static std::string get_colors_symbol(const callbackInfo_t* callback, bool is_lig
             fmt::format("${{\033[90m}} {0} ${{\033[91m}} {0} ${{\033[92m}} {0} ${{\033[93m}} {0} ${{\033[94m}} "
                         "{0} ${{\033[95m}} {0} ${{\033[96m}} {0} ${{\033[97m}} {0} ${{0}}",
                         symbolArg->value),
-            callback->modulesInfo, callback->config);
+            callback->parse_args);
     else
         return parse(
             fmt::format("${{\033[30m}} {0} ${{\033[31m}} {0} ${{\033[32m}} {0} ${{\033[33m}} {0} ${{\033[34m}} "
                         "{0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
                         symbolArg->value),
-            callback->modulesInfo, callback->config);
+            callback->parse_args);
 }
 
 void core_plugins_start(const Config& config)
@@ -258,8 +258,8 @@ void core_plugins_start(const Config& config)
     cfRegisterModule(user_module);
 
     // $<ram>
-    module_t ram_free_perc_module  = {"perc", "percentage of available amount of RAM in total [82.31%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_free(), ram_total(), callback, true);}};
-    module_t ram_used_perc_module  = {"perc", "percentage of used amount of RAM in total [17.69%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_used(), ram_total(), callback, false);}};
+    module_t ram_free_perc_module  = {"perc", "percentage of available amount of RAM in total [82.31%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_free(), ram_total(), callback->parse_args, true);}};
+    module_t ram_used_perc_module  = {"perc", "percentage of used amount of RAM in total [17.69%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_used(), ram_total(), callback->parse_args, false);}};
     module_t ram_free_module  = {"free", "available amount of RAM (auto) [10.46 GiB]", {std::move(ram_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_free() * 1024,  callback->moduleArgs);  }};
     module_t ram_used_module  = {"used", "used amount of RAM (auto) [2.81 GiB]", {std::move(ram_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_used() * 1024,  callback->moduleArgs);  }};
     module_t ram_total_module = {"total", "total amount of RAM (auto) [15.88 GiB]", {}, [](const callbackInfo_t *callback) { return amount(ram_total() * 1024, callback->moduleArgs); }};
@@ -272,8 +272,8 @@ void core_plugins_start(const Config& config)
     cfRegisterModule(ram_module);
 
     // $<swap>
-    module_t swap_free_perc_module  = {"perc", "percentage of available amount of the swapfile in total [6.71%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_free(), swap_total(), callback, true);}};
-    module_t swap_used_perc_module  = {"perc", "percentage of used amount of the swapfile in total [93.29%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_used(), swap_total(), callback, false);}};
+    module_t swap_free_perc_module  = {"perc", "percentage of available amount of the swapfile in total [6.71%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_free(), swap_total(), callback->parse_args, true);}};
+    module_t swap_used_perc_module  = {"perc", "percentage of used amount of the swapfile in total [93.29%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_used(), swap_total(), callback->parse_args, false);}};
     module_t swap_free_module  = {"free", "available amount of the swapfile (auto) [34.32 MiB]", {std::move(swap_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_free() * 1024,  callback->moduleArgs);  }};
     module_t swap_used_module  = {"used", "used amount of the swapfile (auto) [477.68 MiB]", {std::move(swap_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_used() * 1024,  callback->moduleArgs);  }};
     module_t swap_total_module = {"total", "total amount of the swapfile (auto) [512.00 MiB]", {}, [](const callbackInfo_t *callback) { return amount(swap_total() * 1024, callback->moduleArgs); }};
@@ -291,8 +291,8 @@ void core_plugins_start(const Config& config)
     module_t disk_mountdir_module = {"mountdir", "path to the device mount point [/]", {}, disk_mountdir};
     module_t disk_types_module = {"types", "an array of type options (pretty format) [Regular, External]", {}, disk_types};
 
-    module_t disk_free_perc_module  = {"perc", "percentage of available amount of the disk in total [17.82%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_free(callback), disk_total(callback), callback, true);}};
-    module_t disk_used_perc_module  = {"perc", "percentage of used amount of the disk in total [82.18%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_used(callback), disk_total(callback), callback, false);}};
+    module_t disk_free_perc_module  = {"perc", "percentage of available amount of the disk in total [17.82%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_free(callback), disk_total(callback), callback->parse_args, true);}};
+    module_t disk_used_perc_module  = {"perc", "percentage of used amount of the disk in total [82.18%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_used(callback), disk_total(callback), callback->parse_args, false);}};
     module_t disk_free_module  = {"free", "available amount of disk space (auto) [438.08 GiB]", {std::move(disk_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_free(callback),  callback->moduleArgs);  }};
     module_t disk_used_module  = {"used", "used amount of disk space (auto) [360.02 GiB]", {std::move(disk_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_used(callback),  callback->moduleArgs);  }};
     module_t disk_total_module = {"total", "total amount of disk space (auto) [100.08 GiB]", {}, [](const callbackInfo_t *callback) { return amount(disk_total(callback), callback->moduleArgs); }};
@@ -363,8 +363,7 @@ void core_plugins_start(const Config& config)
                                      return str;
                                  } };
     module_t title_module = { "title", "user and hostname colored with ${auto2} [toni@arch2]", { std::move(title_sep_module) }, [](const callbackInfo_t* callback) {
-                                 return parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", callback->modulesInfo,
-                                              callback->config);
+                                 return parse("${auto2}$<user.name>${0}@${auto2}$<os.hostname>", callback->parse_args);
                              } };
     cfRegisterModule(title_module);
 
@@ -374,8 +373,7 @@ void core_plugins_start(const Config& config)
     module_t colors_light_module = { "light", "light color palette with background spaces", { std::move(colors_light_symbol_module) }, [](const callbackInfo_t* callback) {
                                         return parse(
                                             "${\033[100m}   ${\033[101m}   ${\033[102m}   ${\033[103m}   ${\033[104m}  "
-                                            " ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}",
-                                            callback->modulesInfo, callback->config);
+                                            " ${\033[105m}   ${\033[106m}   ${\033[107m}   ${0}", callback->parse_args);
                                     } };
     module_t colors_module = { "colors", "color palette with background spaces",
                                { std::move(colors_symbol_module), std::move(colors_light_module) },
@@ -383,18 +381,15 @@ void core_plugins_start(const Config& config)
                                    return parse(
                                        "${\033[40m}   ${\033[41m}   ${\033[42m}   ${\033[43m}   ${\033[44m}   "
                                        "${\033[45m}   ${\033[46m}   ${\033[47m}   ${0}",
-                                       callback->modulesInfo, callback->config);
+                                       callback->parse_args);
                                } };
     cfRegisterModule(colors_module);
 }
 
 void core_plugins_finish()
 {
-#if CF_LINUX
     if (mountsFile) fclose(mountsFile);
     if (os_release) fclose(os_release);
     if (meminfo)    fclose(meminfo);
     if (cpuinfo)    fclose(cpuinfo);
-    if (g_pwd)      free(g_pwd);
-#endif
 }
