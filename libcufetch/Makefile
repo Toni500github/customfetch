@@ -4,7 +4,7 @@ SRC             = $(wildcard *.cc)
 OBJ             = $(SRC:.cc=.o)
 FMT_STATIC      = ../$(BUILDDIR)/libfmt.a
 CXX_INCLUDES 	= -I../include
-CXX_FLAGS 	= -shared -fPIC -DGUI_APP=$(GUI_APP)
+CXX_FLAGS 	= -ggdb3 -shared -fPIC -DGUI_APP=$(GUI_APP)
 
 all: libcufetch
 

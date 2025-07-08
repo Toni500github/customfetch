@@ -7,15 +7,9 @@
 
 #include "cufetch/common.hh"
 #include "core-modules.hh"
+#include "cufetch/config.hh"
+#include "switch_fnv1a.hpp"
 #include "util.hpp"
-
-enum
-{
-    DISK_VOLUME_TYPE_HIDDEN    = 1 << 2,
-    DISK_VOLUME_TYPE_REGULAR   = 1 << 3,
-    DISK_VOLUME_TYPE_EXTERNAL  = 1 << 4,
-    DISK_VOLUME_TYPE_READ_ONLY = 1 << 5,
-};
 
 // https://github.com/fastfetch-cli/fastfetch/blob/dev/src/detection/disk/disk_linux.c
 static bool is_physical_device(const mntent* device)
@@ -121,6 +115,21 @@ static int get_disk_type(const mntent* device)
 #endif
 }
 
+static std::string format_auto_query_string(std::string str, const struct mntent* device)
+{
+    replace_str(str, "%1", device->mnt_dir);
+    replace_str(str, "%2", device->mnt_fsname);
+    replace_str(str, "%3", device->mnt_type);
+
+    replace_str(str, "%4", fmt::format("$<disk({}).total>", device->mnt_dir));
+    replace_str(str, "%5", fmt::format("$<disk({}).free>", device->mnt_dir));
+    replace_str(str, "%6", fmt::format("$<disk({}).used>", device->mnt_dir));
+    replace_str(str, "%7", fmt::format("$<disk({}).used_perc>", device->mnt_dir));
+    replace_str(str, "%8", fmt::format("$<disk({}).free_perc>", device->mnt_dir));
+
+    return str;
+}
+
 static struct mntent* get_disk_info(const callbackInfo_t* callbackInfo)
 {
     if (callbackInfo->moduleArgs->name != "disk" ||
@@ -129,21 +138,18 @@ static struct mntent* get_disk_info(const callbackInfo_t* callbackInfo)
 
     const std::string& path = callbackInfo->moduleArgs->value;
     if (access(path.c_str(), F_OK) != 0 || !mountsFile)
-        return NULL;
+        die("Failed to query disk at path: '{}", path);
 
     struct mntent* pDevice;
     while ((pDevice = getmntent(mountsFile)))
     {
         debug("pDevice->mnt_dir = {:<50} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
         if (path == pDevice->mnt_dir || path == pDevice->mnt_fsname)
-        {
-            rewind(mountsFile);
-            return pDevice;
-        }
+            break;
     }
 
     rewind(mountsFile);
-    return NULL;
+    return pDevice;
 }
 
 static bool get_disk_usage_info(const callbackInfo_t* callbackInfo, struct statvfs* fs)
@@ -180,6 +186,54 @@ MODFUNC(disk_types)
         str.erase(str.length() - 2);
 
     return str;
+}
+
+MODFUNC(auto_disk)
+{
+    static std::vector<std::string> queried_devices;
+    const ConfigBase& config = callbackInfo->parse_args.config;
+    const std::string& auto_disks_fmt = config.getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
+    int auto_disks_types = 0;
+    for (const std::string& str : config.getValueArrayStr("auto.disk.display-types", {"external", "regular", "read-only"}))
+    {
+        switch (fnv1a16::hash(str))
+        {
+            case "removable"_fnv1a16: // deprecated
+            case "external"_fnv1a16:
+                auto_disks_types |= DISK_VOLUME_TYPE_EXTERNAL; break;
+            case "regular"_fnv1a16:
+                auto_disks_types |= DISK_VOLUME_TYPE_REGULAR; break;
+            case "read-only"_fnv1a16:
+                auto_disks_types |= DISK_VOLUME_TYPE_READ_ONLY; break;
+            case "hidden"_fnv1a16:
+                auto_disks_types |= DISK_VOLUME_TYPE_HIDDEN; break;
+        }
+    }
+
+    long old_position = ftell(mountsFile);
+    if (old_position == -1L)
+        die("Failed to get initial file position");
+
+    struct mntent* pDevice;
+    while ((pDevice = getmntent(mountsFile)))
+    {
+        if (!is_physical_device(pDevice))
+            continue;
+
+        if (!(auto_disks_types & get_disk_type(pDevice)))
+            continue;
+
+        old_position = ftell(mountsFile);
+        if (old_position == -1L)
+            break;
+
+        debug("AUTO: pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
+        callbackInfo->parse_args.no_more_reset = false;
+        callbackInfo->parse_args.tmp_layout.push_back(parse(format_auto_query_string(auto_disks_fmt, pDevice), callbackInfo->parse_args));
+        if (fseek(mountsFile, old_position, SEEK_SET) == -1)
+            die("Failed to seek back to saved position");
+    }
+    return "";
 }
 
 double disk_total(const callbackInfo_t* callbackInfo)

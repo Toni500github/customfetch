@@ -86,6 +86,32 @@ static std::string get_colors_symbol(const callbackInfo_t* callback, bool is_lig
             callback->parse_args);
 }
 
+MODFUNC(disk_fmt)
+{
+    const callbackInfo_t *callback = callbackInfo;
+    const double used  = disk_used(callback);
+    const double total = disk_total(callback);
+    const std::string& perc =
+                get_and_color_percentage(used, total, callback->parse_args, false);
+
+    // clang-format off
+    std::string result {fmt::format("{} / {} {}",
+                        amount(used, callback->moduleArgs),
+                        amount(total, callback->moduleArgs), 
+                        parse("${0}(" + perc + ")", callback->parse_args))
+                        };
+    // clang-format on
+    const std::string& fsname = disk_fsname(callback);
+    if (fsname != MAGIC_LINE)
+        result += " - " + fsname;
+    
+    const std::string& types = disk_types(callback);
+    if (!types.empty())
+        result += " [" + types + "]";
+
+    return result;
+}
+
 void core_plugins_start(const Config& config)
 {
     // ------------ INIT STUFF ------------
@@ -305,7 +331,7 @@ void core_plugins_start(const Config& config)
         std::move(disk_free_module),
         std::move(disk_used_module),
         std::move(disk_total_module),
-    }, NULL};
+    }, disk_fmt};
     cfRegisterModule(disk_module);
 
     // $<battery>
@@ -349,6 +375,11 @@ void core_plugins_start(const Config& config)
         std::move(gpu_vendor_module)
     }, [](const callbackInfo_t *callback) {return shorten_vendor_name(gpu_vendor(callback)) + " " + gpu_name(callback);}};
     cfRegisterModule(gpu_module);
+
+    // $<auto>
+    module_t auto_disk_module = {"disk", "Query all disks based on auto.disk.display-types", {}, auto_disk};
+    module_t auto_module = {"auto", "", {std::move(auto_disk_module)}, NULL};
+    cfRegisterModule(auto_module);
 
     // $<title>
     module_t title_sep_module = { "sep", "separator between the title and the system infos (with the title length) [--------]", {}, [&](unused) {

@@ -66,11 +66,20 @@ double            swap_total();
 double            swap_used();
 
 // disk.cc
+enum
+{
+    DISK_VOLUME_TYPE_HIDDEN    = 1 << 2,
+    DISK_VOLUME_TYPE_REGULAR   = 1 << 3,
+    DISK_VOLUME_TYPE_EXTERNAL  = 1 << 4,
+    DISK_VOLUME_TYPE_READ_ONLY = 1 << 5,
+};
+
 inline std::FILE* mountsFile;
 MODFUNC(disk_fsname);
 MODFUNC(disk_device);
 MODFUNC(disk_mountdir);
 MODFUNC(disk_types);
+MODFUNC(auto_disk);
 double disk_total(const callbackInfo_t* callbackInfo);
 double disk_free(const callbackInfo_t* callbackInfo);
 double disk_used(const callbackInfo_t* callbackInfo);
