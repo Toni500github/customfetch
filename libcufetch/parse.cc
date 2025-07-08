@@ -898,45 +898,6 @@ static std::string get_auto_gtk_format(const std::string_view gtk2, const std::s
     return MAGIC_LINE;
 }
 
-static std::string prettify_term_name(const std::string_view term_name)
-{
-    switch (fnv1a16::hash(str_tolower(term_name.data())))
-    {
-        case "gnome-terminal"_fnv1a16:
-        case "gnome terminal"_fnv1a16: return "GNOME Terminal";
-
-        case "gnome-console"_fnv1a16:
-        case "gnome console"_fnv1a16: return "GNOME console";
-    }
-    return term_name.data();
-}
-
-static std::string prettify_de_name(const std::string_view de_name)
-{
-    switch (fnv1a16::hash(str_tolower(de_name.data())))
-    {
-        case "kde"_fnv1a16:
-        case "plasma"_fnv1a16:
-        case "plasmashell"_fnv1a16:
-        case "plasmawayland"_fnv1a16: return "KDE Plasma";
-
-        case "gnome"_fnv1a16:
-        case "gnome-shell"_fnv1a16: return "GNOME";
-
-        case "xfce"_fnv1a16:
-        case "xfce4"_fnv1a16:
-        case "xfce4-session"_fnv1a16: return "Xfce4";
-
-        case "mate"_fnv1a16:
-        case "mate-session"_fnv1a16: return "Mate";
-
-        case "lxqt"_fnv1a16:
-        case "lxqt-session"_fnv1a16: return "LXQt";
-    }
-
-    return de_name.data();
-}
-
 moduleMap_t queried_gpus;
 moduleMap_t queried_disks;
 moduleMap_t queried_themes_names;

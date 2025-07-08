@@ -15,6 +15,45 @@
 #include <wayland-client.h>
 #endif
 
+static std::string prettify_de_name(const std::string_view de_name)
+{
+    switch (fnv1a16::hash(str_tolower(de_name.data())))
+    {
+        case "kde"_fnv1a16:
+        case "plasma"_fnv1a16:
+        case "plasmashell"_fnv1a16:
+        case "plasmawayland"_fnv1a16: return "KDE Plasma";
+
+        case "gnome"_fnv1a16:
+        case "gnome-shell"_fnv1a16: return "GNOME";
+
+        case "xfce"_fnv1a16:
+        case "xfce4"_fnv1a16:
+        case "xfce4-session"_fnv1a16: return "Xfce4";
+
+        case "mate"_fnv1a16:
+        case "mate-session"_fnv1a16: return "Mate";
+
+        case "lxqt"_fnv1a16:
+        case "lxqt-session"_fnv1a16: return "LXQt";
+    }
+
+    return de_name.data();
+}
+
+static std::string prettify_term_name(const std::string_view term_name)
+{
+    switch (fnv1a16::hash(str_tolower(term_name.data())))
+    {
+        case "gnome-terminal"_fnv1a16:
+        case "gnome terminal"_fnv1a16: return "GNOME Terminal";
+
+        case "gnome-console"_fnv1a16:
+        case "gnome console"_fnv1a16: return "GNOME console";
+    }
+    return term_name.data();
+}
+
 // clang-format off
 static std::string get_term_name_env(bool get_default = false)
 {
@@ -71,12 +110,12 @@ MODFUNC(user_shell_path)
 // clang-format on
 MODFUNC(user_shell_name)
 {
-    return user_shell_path().substr(user_shell_path().rfind('/') + 1);
+    return user_shell_path(callbackInfo).substr(user_shell_path(callbackInfo).rfind('/') + 1);
 }
 
 MODFUNC(user_shell_version)
 {
-    const std::string& shell_name = user_shell_name();
+    const std::string& shell_name = user_shell_name(callbackInfo);
     std::string ret;
 
     if (shell_name == "nu")
@@ -141,7 +180,7 @@ MODFUNC(user_term_name)
     else if (hasStart(term_name, "gnome-terminal"))
         term_name.erase("gnome-terminal"_len + 1);
 
-    const std::string& osname = os_name();
+    const std::string& osname = os_name(callbackInfo);
     // let's try to get the real terminal name
     // on NixOS, instead of returning the -wrapped name.
     // tested on gnome-console, kitty, st and alacritty
@@ -189,7 +228,7 @@ MODFUNC(user_term_version)
     if (is_tty)
         return "";
 
-    const std::string& term_name = user_term_name();
+    const std::string& term_name = user_term_name(callbackInfo);
     if (term_name.empty())
         return UNKNOWN;
 
@@ -243,7 +282,7 @@ MODFUNC(user_term_version)
         ret.erase(pos);
 
     debug("get_term_version ret after = {}", ret);
-    return ret;
+    return prettify_term_name(ret);
 }
 
 std::string get_wm_name(std::string& wm_path_exec)
@@ -349,7 +388,7 @@ MODFUNC(user_wm_version)
 {
     if (is_tty)
         return MAGIC_LINE;
-    user_wm_name();  // populate wm_path_exec if haven't already
+    user_wm_name(callbackInfo);  // populate wm_path_exec if haven't already
     std::string wm_version;
     if (wm_name == "Xfwm4" && get_fast_xfwm4_version(wm_version, wm_path_exec))
         return wm_version;
@@ -368,7 +407,7 @@ MODFUNC(user_wm_version)
     if (pos != std::string::npos)
         wm_version.erase(pos);
 
-    return wm_version;
+    return prettify_wm_name(wm_version);
 }
 
 MODFUNC(user_de_name)
@@ -387,7 +426,7 @@ MODFUNC(user_de_name)
     if (de_name == wm_name)
         de_name = MAGIC_LINE;
 
-    return de_name;
+    return prettify_de_name(de_name);
 }
 
 MODFUNC(user_de_version)

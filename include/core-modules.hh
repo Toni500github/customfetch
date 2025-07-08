@@ -7,7 +7,7 @@
 #include "cufetch/cufetch.hh"
 #include "config.hpp"
 
-#define MODFUNC(name) std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo = nullptr)
+#define MODFUNC(name) std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo)
 
 // system.cc
 MODFUNC(arch);
@@ -97,13 +97,20 @@ double battery_temp();
 MODFUNC(gpu_name);
 MODFUNC(gpu_vendor);
 
+// theme.cc
+MODFUNC(theme_gtk_name);
+MODFUNC(theme_gtk_icon);
+MODFUNC(theme_gtk_font);
+MODFUNC(theme_cursor_name);
+MODFUNC(theme_cursor_size);
+MODFUNC(theme_gsettings_name);
+MODFUNC(theme_gsettings_icon);
+MODFUNC(theme_gsettings_font);
+
 #if CF_LINUX
 inline struct passwd* g_pwd;
 inline utsname g_uname_infos;
 #endif
-
-#undef MODFUNC
-#define MODFUNC(name) std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo)
 
 void core_plugins_start(const Config& config);
 void core_plugins_finish();

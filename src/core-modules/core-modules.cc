@@ -167,14 +167,14 @@ void core_plugins_start(const Config& config)
     module_t os_kernel_module = {"kernel", "kernel name and version [Linux 6.9.3-zen1-1-zen]", {
         std::move(os_kernel_name_module),
         std::move(os_kernel_version_module)
-    }, [](unused) {return os_kernel_name() + " " + os_kernel_version();}};
+    }, [](unused _) {return os_kernel_name(_) + " " + os_kernel_version(_);}};
 
     module_t os_initsys_name_module = {"name", "Init system name [systemd]", {}, os_initsys_name};
     module_t os_initsys_version_module = {"version", "Init system version [256.5-1-arch]", {}, os_initsys_version};
     module_t os_initsys_module = {"initsys", "Init system name and version [systemd 256.5-1-arch]", {
         std::move(os_initsys_name_module),
         std::move(os_initsys_version_module),
-    }, [](unused) {return os_initsys_name() + " " + os_initsys_version();}};
+    }, [](unused _) {return os_initsys_name(_) + " " + os_initsys_version(_);}};
 
     module_t os_pkgs_module = {"pkgs", "Count of system packages", {}, [&](unused){ return get_all_pkgs(config); }};
 
@@ -236,8 +236,8 @@ void core_plugins_start(const Config& config)
         std::move(cpu_nproc_module),
         std::move(cpu_freq_module),
         std::move(cpu_temp_module),
-    }, [](unused) {
-            return fmt::format("{} ({}) @ {} GHz", cpu_name(), cpu_nproc(), cpu_freq_max());
+    }, [](unused _) {
+            return fmt::format("{} ({}) @ {} GHz", cpu_name(_), cpu_nproc(_), cpu_freq_max(_));
         }};
     cfRegisterModule(cpu_module);
 
@@ -251,28 +251,28 @@ void core_plugins_start(const Config& config)
         std::move(user_shell_name_module),
         std::move(user_shell_path_module),
         std::move(user_shell_version_module),
-    }, [](unused) {return user_shell_name() + " " + user_shell_version();}};
+    }, [](unused _) {return user_shell_name(_) + " " + user_shell_version(_);}};
 
     module_t user_term_name_module = {"name", "terminal name [alacritty]", {}, user_term_name};
     module_t user_term_version_module = {"version", "terminal version [0.13.2]", {}, user_shell_version};
     module_t user_term_module = {"terminal", "terminal name and version [alacritty 0.13.2]", {
         std::move(user_term_version_module),
         std::move(user_term_name_module)
-    }, [](unused) {return user_term_name() + " " + user_term_version();}};
+    }, [](unused _) {return user_term_name(_) + " " + user_term_version(_);}};
 
     module_t user_wm_name_module = {"name", "Window Manager current session name [dwm; xfwm4]", {}, user_wm_name};
     module_t user_wm_version_module = {"version", "Window Manager version (may not work correctly) [6.2; 4.18.0]", {}, user_wm_version};
     module_t user_wm_module = {"wm", "Window Manager current session name and version", {
         std::move(user_wm_version_module),
         std::move(user_wm_name_module)
-    }, [](unused) {return user_wm_name() + " " + user_wm_version();}};
+    }, [](unused _) {return user_wm_name(_) + " " + user_wm_version(_);}};
 
     module_t user_de_name_module = {"name", "Desktop Environment current session name [Plasma]", {}, user_de_name};
     module_t user_de_version_module = {"version", "Desktop Environment version (if available)", {}, user_de_version};
     module_t user_de_module = {"de", "Desktop Environment current session name and version", {
         std::move(user_de_version_module),
         std::move(user_de_name_module)
-    }, [](unused) {return user_de_name() + " " + user_de_version();}};
+    }, [](unused _) {return user_de_name(_) + " " + user_de_version(_);}};
 
     module_t user_module = {"user", "User modules", {
         std::move(user_name_module),
@@ -362,6 +362,39 @@ void core_plugins_start(const Config& config)
     }, NULL};
     cfRegisterModule(battery_module);
 
+    // $<theme>
+    module_t theme_gtk_name_module = {"name", "", {}, theme_gtk_name};
+    module_t theme_gtk_font_module = {"font", "", {}, theme_gtk_font};
+    module_t theme_gtk_icon_module = {"icon", "", {}, theme_gtk_icon};
+    module_t theme_gtk_module = {"gtk", "", {
+        std::move(theme_gtk_name_module),
+        std::move(theme_gtk_font_module),
+        std::move(theme_gtk_icon_module)
+    }, NULL};
+
+    module_t theme_gsettings_name_module = {"name", "", {}, theme_gsettings_name};
+    module_t theme_gsettings_font_module = {"font", "", {}, theme_gsettings_font};
+    module_t theme_gsettings_icon_module = {"icon", "", {}, theme_gsettings_icon};
+    module_t theme_gsettings_module = {"gsettings", "", {
+        std::move(theme_gsettings_name_module),
+        std::move(theme_gsettings_font_module),
+        std::move(theme_gsettings_icon_module)
+    }, NULL};
+
+    module_t theme_cursor_name_module = {"name", "", {}, theme_cursor_name};
+    module_t theme_cursor_size_module = {"size", "", {}, theme_cursor_size};
+    module_t theme_cursor_module = {"cursor", "", {
+        std::move(theme_cursor_size_module),
+        std::move(theme_cursor_name_module),
+    }, NULL};
+
+    module_t theme_module = {"theme", "", {
+        std::move(theme_gtk_module),
+        std::move(theme_gsettings_module),
+        std::move(theme_cursor_module),
+    }, NULL};
+    cfRegisterModule(theme_module);
+
     // $<gpu>
     module_t gpu_name_module = {"name", "GPU model name [GeForce GTX 1650]", {}, gpu_name};
     module_t gpu_vendor_short_module = {"short", "GPU short vendor name [NVIDIA]", {}, [](const callbackInfo_t *callback) {
@@ -382,9 +415,9 @@ void core_plugins_start(const Config& config)
     cfRegisterModule(auto_module);
 
     // $<title>
-    module_t title_sep_module = { "sep", "separator between the title and the system infos (with the title length) [--------]", {}, [&](unused) {
+    module_t title_sep_module = { "sep", "separator between the title and the system infos (with the title length) [--------]", {}, [&](unused _) {
                                      const size_t title_len =
-                                         std::string_view(user_name() + "@" + os_hostname()).length();
+                                         std::string_view(user_name(_) + "@" + os_hostname(_)).length();
 
                                      std::string str;
                                      str.reserve(config.title_sep.length() * title_len);

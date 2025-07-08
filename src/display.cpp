@@ -74,12 +74,12 @@ std::string Display::detect_distro(const Config& config)
     else
     {
         std::string format;
-        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(os_name_id()));
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(os_name_id(nullptr)));
         debug("checking path in {}: {}", __func__, format);
         if (std::filesystem::exists(format))
             return format;
 
-        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(os_name()));
+        format = fmt::format("{}/ascii/{}.txt", config.data_dir, str_tolower(os_name(nullptr)));
         debug("checking path in {}: {}", __func__, format);
         if (std::filesystem::exists(format))
             return format;

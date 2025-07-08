@@ -115,7 +115,7 @@ MODFUNC(os_initsys_version)
     std::ifstream f(path, std::ios::in);
     std::string   line;
 
-    const std::string& name = str_tolower(os_initsys_name());
+    const std::string& name = str_tolower(os_initsys_name(callbackInfo));
     switch (fnv1a16::hash(name))
     {
         case "systemd"_fnv1a16:
