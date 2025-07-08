@@ -20,11 +20,11 @@ set_source_files_properties(
 file(GLOB
 	SRC
 	"src/*.cpp"
-	"src/core-plugins/*.cc"
-	"src/core-plugins/linux/*.cc"
+	"src/core-modules/*.cc"
+	"src/core-modules/linux/*.cc"
 	"src/query/android/*.cpp"
 	"src/query/macos/*.cpp"
-	"src/core-plugins/linux/utils/*.cpp"
+	"src/core-modules/linux/utils/*.cpp"
 	"src/libs/json/json.cpp"
 	"src/libs/toml++/toml.cpp")
 
