@@ -418,7 +418,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
 
     for (; i < asciiArt.size(); ++i)
     {
-        std::string line{" ", config.logo_padding_left + asciiArt.at(i).length()};
+        std::string line(config.logo_padding_left + asciiArt.at(i).length(), ' ');
         line += asciiArt.at(i);
 
         layout.push_back(line);

@@ -1,25 +1,43 @@
+UNAME_S := $(shell uname -s)
+
+# is macos?
+ifeq ($(UNAME_S),Darwin)
+    LIBNAME      := libcufetch.dylib
+    INSTALL_NAME := -Wl,-install_name,@rpath/$(LIBNAME)
+    SHARED_FLAG  := -dynamiclib
+    SONAME_FLAGS :=
+else
+    LIBNAME      := libcufetch.so.1.0.0
+    INSTALL_NAME := -Wl,-soname,libcufetch.so.1
+    SHARED_FLAG  := -shared
+    SONAME_FLAGS := -Wl,--export-dynamic
+endif
+
 CXX		?= g++
 GUI_APP         ?= 0
 SRC             = $(wildcard *.cc)
-OBJ             = $(SRC:.cc=.o)
+OBJ             = $(SRC:.cc=.o) ../$(BUILDDIR)/toml.o
 FMT_STATIC      = ../$(BUILDDIR)/libfmt.a
-CXX_INCLUDES 	= -I../include
-CXX_FLAGS 	= -ggdb3 -shared -fPIC -DGUI_APP=$(GUI_APP)
+CXXFLAGS 	+= -ggdb3 -I../include -fPIC -DGUI_APP=$(GUI_APP)
+OUTPUT		:= ../$(BUILDDIR)/$(LIBNAME)
 
-all: libcufetch
+all: $(OUTPUT)
+	@if [ "$(UNAME_S)" = "Linux" ]; then \
+		ln -sf libcufetch.so.1.0.0 ../build/debug/libcufetch.so.1; \
+		ln -sf libcufetch.so.1.0.0 ../build/debug/libcufetch.so; \
+	elif [ "$(UNAME_S)" = "Darwin" ]; then \
+		ln -sf libcufetch.dylib ../build/debug/libcufetch.1.dylib; \
+		ln -sf libcufetch.dylib ../build/debug/libcufetch.1.0.0.dylib; \
+	fi
 
 %.o: %.cc
-	$(CXX) $(CXX_INCLUDES) $(CXX_FLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-libcufetch: $(OBJ) $(FMT_STATIC)
-	$(CXX) $(CXX_FLAGS) $(OBJ) $(CXX_INCLUDES) \
-		-Wl,-Bstatic $(FMT_STATIC) -Wl,-Bdynamic \
-		-Wl,--export-dynamic \
-		-Wl,-soname,libcufetch.so.1 \
-		-o libcufetch.so.1.0.0
-	ln -sf libcufetch.so.1.0.0 libcufetch.so.1
-	ln -sf libcufetch.so.1.0.0 libcufetch.so
-	mv -f libcufetch.so* ../$(BUILDDIR)/
+$(OUTPUT): $(OBJ) $(FMT_STATIC)
+	$(CXX) $(SHARED_FLAG) $(CXXFLAGS) $(OBJ) \
+		$(FMT_STATIC) \
+		$(SONAME_FLAGS) $(INSTALL_NAME) \
+		-o $@
 
 clean:
 	rm -f *.o *.so *.a ../$(BUILDDIR)/libcufetch.so

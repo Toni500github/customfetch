@@ -32,6 +32,8 @@
 #include <variant>
 #include <vector>
 
+#include "cufetch/cufetch.hh"
+#include "platform.hpp"
 #include "parse.hpp"
 
 extern "C" {

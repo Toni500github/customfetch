@@ -42,22 +42,28 @@ ifeq ($(USE_DCONF), 1)
         endif
 endif
 
+# is macos?
+ifeq ($(shell uname -s),Darwin)
+	SRC_CC  :=
+	SRC_CPP := $(wildcard src/*.cpp src/query/macos/*.cpp)
+endif
+
 NAME		 = customfetch
 TARGET		?= $(NAME)
 OLDVERSION	 = 0.10.2
 VERSION    	 = 1.0.0
-SRC_CPP 	 = $(wildcard src/*.cpp src/core-modules/linux/utils/*.cpp)
-SRC_CC  	 = $(wildcard src/core-modules/*.cc src/core-modules/linux/*.cc)
+SRC_CPP 	?= $(wildcard src/*.cpp src/core-modules/linux/utils/*.cpp)
+SRC_CC  	?= $(wildcard src/core-modules/*.cc src/core-modules/linux/*.cc src/core-modules/android/*.cc)
 OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
 OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
-LDFLAGS   	+= -L$(BUILDDIR) -Wl,-Bstatic $(BUILDDIR)/libfmt.a -Wl,-Bdynamic -lcufetch -ldl
+LDFLAGS   	+= -Wl,-rpath,$(BUILDDIR) -L$(BUILDDIR) $(BUILDDIR)/libfmt.a -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/cufetch -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
 all: genver fmt toml json libcufetch $(TARGET)
 
-libcufetch:
+libcufetch: fmt toml
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
 	make -C libcufetch BUILDDIR=$(BUILDDIR) GUI_APP=$(GUI_APP)
 endif

@@ -30,7 +30,7 @@
 
 using namespace Query;
 
-GPU::GPU(const std::string& id, systemInfo_t& queried_gpus) {}
+GPU::GPU(const std::string& id, modulesInfo_t& queried_gpus) {}
 
 // clang-format off
 std::string& GPU::name() noexcept

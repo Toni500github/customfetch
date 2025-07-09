@@ -66,7 +66,7 @@ static int get_disk_type(const int flags)
     return type;
 }
 
-Disk::Disk(const std::string& path, systemInfo_t& queried_paths, parse_args_t& parse_args, const bool auto_module)
+Disk::Disk(const std::string& path, modulesInfo_t& queried_paths, parse_args_t& parse_args, const bool auto_module)
 {
     if (queried_paths.find(path) != queried_paths.end() && !is_live_mode)
     {

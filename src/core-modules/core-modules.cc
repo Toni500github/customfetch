@@ -1,5 +1,6 @@
+#include "platform.hpp"
+
 #include <dlfcn.h>
-#include <mntent.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -15,8 +16,10 @@
 #include "fmt/format.h"
 #include "util.hpp"
 
-#if CF_LINUX
-# include "linux/utils/packages.hpp"
+#include "linux/utils/packages.hpp"
+
+#if !CF_MACOS
+# include <mntent.h>
 #endif
 
 using unused = const callbackInfo_t*;
@@ -179,10 +182,12 @@ void core_plugins_start(const Config& config)
         is_tty    = true;
         term_name = ttyname(STDIN_FILENO);
     }
+#if !CF_MACOS
     os_release = fopen("/etc/os-release", "r");
     cpuinfo    = fopen("/proc/cpuinfo", "r");
     meminfo    = fopen("/proc/meminfo", "r");
     mountsFile = setmntent("/proc/mounts", "r");
+#endif
 
 #if CF_ANDROID
     is_tty = true;

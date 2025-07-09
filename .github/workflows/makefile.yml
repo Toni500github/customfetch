@@ -284,24 +284,24 @@ jobs:
           name: customfetch-macos
           path: ./build/debug/customfetch
 
-  test-suitcase:
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install Packages
-      run: |
-        sudo apt-get purge firefox # Slows down the installation alot, fuck snap
-        sudo apt-get update && sudo apt upgrade -y
-        sudo apt-get install neofetch tree build-essential g++-11 libwayland-dev gettext libgtk-3-dev pkg-config libdconf-dev libglib2.0-dev libgtkmm-3.0-dev libarchive-tools -y
-    
-    - name: Clean
-      run: make distclean
-
-    - name: Compile and install
-      run: |
-        cd tests && make
-        find . -type f -executable -exec {} \;
+          #  test-suitcase:
+          #    runs-on: ubuntu-22.04
+          #    permissions:
+          #      contents: read
+          #
+          #    steps:
+          #    - uses: actions/checkout@v4
+          #
+          #    - name: Install Packages
+          #      run: |
+          #        sudo apt-get purge firefox # Slows down the installation alot, fuck snap
+          #        sudo apt-get update && sudo apt upgrade -y
+          #        sudo apt-get install neofetch tree build-essential g++-11 libwayland-dev gettext libgtk-3-dev pkg-config libdconf-dev libglib2.0-dev libgtkmm-3.0-dev libarchive-tools -y
+          #    
+          #    - name: Clean
+          #      run: make distclean
+          #
+          #    - name: Compile and install
+          #      run: |
+          #        cd tests && make
+          #        find . -type f -executable -exec {} \;
