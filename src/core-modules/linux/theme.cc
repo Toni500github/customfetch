@@ -1,4 +1,3 @@
-#include "cufetch/cufetch.hh"
 #include "platform.hpp"
 #if CF_LINUX
 

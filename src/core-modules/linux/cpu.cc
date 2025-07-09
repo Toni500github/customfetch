@@ -1,9 +1,9 @@
-#include <cstring>
 #include "platform.hpp"
 #if CF_ANDROID || CF_LINUX
 #include <unistd.h>
 
 #include <string>
+#include <cstring>
 
 #include "cufetch/common.hh"
 #include "core-modules.hh"

@@ -1,5 +1,5 @@
 #include "platform.hpp"
-#if !CF_ANDROID
+#if CF_ANDROID
 
 #include "core-modules.hh"
 #include "cufetch/common.hh"
@@ -18,4 +18,4 @@ MODFUNC(theme_gsettings_font) { return MAGIC_LINE; }
 MODFUNC(theme_gsettings_cursor_name) { return MAGIC_LINE; }
 MODFUNC(theme_gsettings_cursor_size) { return MAGIC_LINE; }
 
-#endif  // !CF_ANDROID
+#endif  // CF_ANDROID

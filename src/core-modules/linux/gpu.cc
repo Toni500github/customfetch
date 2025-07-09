@@ -1,3 +1,6 @@
+#include "platform.hpp"
+#if CF_LINUX
+
 #include <cstdint>
 #include <filesystem>
 #include <string>
@@ -61,3 +64,5 @@ MODFUNC(gpu_vendor)
     const std::string& sys_path = get_gpu_syspath(id);
     return get_vendor(read_by_syspath(sys_path + "/device/vendor"));
 }
+
+#endif

@@ -1,3 +1,6 @@
+#include "platform.hpp"
+#if CF_LINUX
+
 #include <cassert>
 #include <cstdio>
 #include <cstring>
@@ -150,3 +153,5 @@ MODFUNC(os_initsys_version)
 
     return os_initsys_version;
 }
+
+#endif

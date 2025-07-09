@@ -1,3 +1,6 @@
+#include "platform.hpp"
+#if CF_LINUX
+
 #include <unistd.h>
 
 #include <string>
@@ -69,3 +72,5 @@ double battery_temp()
 
     return 0;
 }
+
+#endif

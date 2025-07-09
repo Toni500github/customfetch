@@ -1,6 +1,6 @@
 #include "platform.hpp"
-
 #if CF_LINUX
+
 #include <sys/utsname.h>
 
 #include <filesystem>

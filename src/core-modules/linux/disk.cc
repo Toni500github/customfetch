@@ -1,3 +1,6 @@
+#include "platform.hpp"
+#if CF_LINUX || CF_ANDROID
+
 #include <mntent.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
@@ -258,3 +261,5 @@ double disk_used(const callbackInfo_t *callbackInfo)
 { 
     return disk_total(callbackInfo) - disk_free(callbackInfo);
 }
+
+#endif

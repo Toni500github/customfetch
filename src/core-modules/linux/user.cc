@@ -1,3 +1,6 @@
+#include "platform.hpp"
+#if CF_LINUX
+
 #include <unistd.h>
 
 #include <fstream>
@@ -461,3 +464,5 @@ MODFUNC(user_de_version)
         }
     }
 }
+
+#endif

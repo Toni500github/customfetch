@@ -1,3 +1,6 @@
+#include "platform.hpp"
+#if CF_LINUX || CF_ANDROID
+
 #include <cstdio>
 #include <string>
 #include <string_view>
@@ -56,3 +59,5 @@ double swap_total()
 
 double swap_used()
 { return swap_total() - swap_free(); }
+
+#endif
