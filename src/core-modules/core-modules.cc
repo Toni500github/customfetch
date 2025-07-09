@@ -142,6 +142,10 @@ void core_plugins_start(const Config& config)
     meminfo    = fopen("/proc/meminfo", "r");
     mountsFile = setmntent("/proc/mounts", "r");
 
+#if CF_ANDROID
+    is_tty = true;
+#endif
+
     // ------------ MODULES REGISTERING ------------
     module_t os_name_pretty_module = {"pretty", "OS pretty name [Ubuntu 22.04.4 LTS; Arch Linux]", {}, os_pretty_name};
     module_t os_name_id_module = {"id", "OS id name [ubuntu, arch]", {}, os_name_id};

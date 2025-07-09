@@ -1,14 +1,9 @@
-#include <cassert>
-#include <cstdio>
-#include <cstring>
-#include <string>
+#include "platform.hpp"
+#if CF_ANDROID
 
 #include "core-modules.hh"
-#include "fmt/format.h"
-#include "platform.hpp"
 #include "util.hpp"
 
-#if CF_ANDROID
 MODFUNC(os_name)
 { return "Android"; }
 
@@ -34,13 +29,18 @@ MODFUNC(os_hostname)
 { return g_uname_infos.nodename; }
 
 MODFUNC(os_initsys_name)
-{
-    return "init";
-}
+{ return "init"; }
 
 MODFUNC(os_initsys_version)
+{ return ""; }
+
+unsigned long os_uptime()
 {
-    return "";
+    struct std::timespec uptime;
+    if (clock_gettime(CLOCK_BOOTTIME, &uptime) != 0)
+        return 0;
+
+    return (uint64_t)uptime.tv_sec + (uint64_t)uptime.tv_nsec / 1000000;
 }
 
 #endif

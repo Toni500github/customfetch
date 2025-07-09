@@ -39,6 +39,8 @@ MODFUNC(cpu_freq_bios);
 float   cpu_temp();
 MODFUNC(cpu_nproc);
 MODFUNC(cpu_name);
+MODFUNC(android_cpu_vendor);
+MODFUNC(android_cpu_model_name);
 
 // user.cc
 inline bool           is_tty = false;

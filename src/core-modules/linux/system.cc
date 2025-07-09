@@ -11,15 +11,11 @@
 #include "core-modules.hh"
 #include "util.hpp"
 
-/* The handler that we'll use for our module, Handlers return const std::string (WILL be changed to const char
- * pointers). */
 MODFUNC(host)
 {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
-    std::string board_name    = "(unknown)";
-    std::string board_version = "(unknown)";
-    std::string board_vendor  = "(unknown)";
+    std::string board_name{UNKNOWN}, board_version{UNKNOWN}, board_vendor{UNKNOWN};
 
     if (std::filesystem::exists(syspath + "/board_name"))
     {
@@ -45,7 +41,7 @@ MODFUNC(host)
             board_version = read_by_syspath(syspath + "/product_version");
     }
 
-    return board_vendor + ' ' + board_name + ' ' + board_version;
+    return board_vendor + " " + board_name + " " + board_version;
 }
 
 MODFUNC(host_name)
