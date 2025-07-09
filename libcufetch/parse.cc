@@ -857,47 +857,6 @@ EXPORT std::string parse(std::string input, const moduleMap_t& modulesInfo, std:
 // trying some plugins stuff
 #if 0
 
-static std::string get_auto_gtk_format(const std::string_view gtk2, const std::string_view gtk3,
-                                       const std::string_view gtk4)
-{
-    if ((gtk2 != MAGIC_LINE && gtk3 != MAGIC_LINE && gtk4 != MAGIC_LINE))
-    {
-        if (gtk2 == gtk3 && gtk2 == gtk4)
-            return fmt::format("{} [GTK2/3/4]", gtk4);
-        else if (gtk2 == gtk3)
-            return fmt::format("{} [GTK2/3], {} [GTK4]", gtk2, gtk4);
-        else if (gtk4 == gtk3)
-            return fmt::format("{} [GTK2], {} [GTK3/4]", gtk2, gtk4);
-        else
-            return fmt::format("{} [GTK2], {} [GTK3], {} [GTK4]", gtk2, gtk3, gtk4);
-    }
-
-    else if (gtk3 != MAGIC_LINE && gtk4 != MAGIC_LINE)
-    {
-        if (gtk3 == gtk4)
-            return fmt::format("{} [GTK3/4]", gtk4);
-        else
-            return fmt::format("{} [GTK3], {} [GTK4]", gtk3, gtk4);
-    }
-
-    else if (gtk2 != MAGIC_LINE && gtk3 != MAGIC_LINE)
-    {
-        if (gtk2 == gtk3)
-            return fmt::format("{} [GTK2/3]", gtk3);
-        else
-            return fmt::format("{} [GTK2], {} [GTK3]", gtk2, gtk3);
-    }
-
-    else if (gtk4 != MAGIC_LINE)
-        return fmt::format("{} [GTK4]", gtk4);
-    else if (gtk3 != MAGIC_LINE)
-        return fmt::format("{} [GTK3]", gtk3);
-    else if (gtk2 != MAGIC_LINE)
-        return fmt::format("{} [GTK2]", gtk2);
-
-    return MAGIC_LINE;
-}
-
 moduleMap_t queried_gpus;
 moduleMap_t queried_disks;
 moduleMap_t queried_themes_names;

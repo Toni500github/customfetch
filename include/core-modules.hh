@@ -103,9 +103,14 @@ MODFUNC(theme_gtk_icon);
 MODFUNC(theme_gtk_font);
 MODFUNC(theme_cursor_name);
 MODFUNC(theme_cursor_size);
+MODFUNC(theme_gtk_all_name);
+MODFUNC(theme_gtk_all_icon);
+MODFUNC(theme_gtk_all_font);
 MODFUNC(theme_gsettings_name);
 MODFUNC(theme_gsettings_icon);
 MODFUNC(theme_gsettings_font);
+MODFUNC(theme_gsettings_cursor_name);
+MODFUNC(theme_gsettings_cursor_size);
 
 #if CF_LINUX
 inline struct passwd* g_pwd;

@@ -363,22 +363,39 @@ void core_plugins_start(const Config& config)
     cfRegisterModule(battery_module);
 
     // $<theme>
+    module_t theme_gtk_all_name_module = {"name", "", {}, theme_gtk_all_name};
+    module_t theme_gtk_all_font_module = {"font", "", {}, theme_gtk_all_font};
+    module_t theme_gtk_all_icon_module = {"icon", "", {}, theme_gtk_all_icon};
+    module_t theme_gtk_all_module = {"all", "", {
+        std::move(theme_gtk_all_name_module),
+        std::move(theme_gtk_all_font_module),
+        std::move(theme_gtk_all_icon_module)
+    }, NULL};
+
     module_t theme_gtk_name_module = {"name", "", {}, theme_gtk_name};
     module_t theme_gtk_font_module = {"font", "", {}, theme_gtk_font};
     module_t theme_gtk_icon_module = {"icon", "", {}, theme_gtk_icon};
     module_t theme_gtk_module = {"gtk", "", {
         std::move(theme_gtk_name_module),
         std::move(theme_gtk_font_module),
-        std::move(theme_gtk_icon_module)
+        std::move(theme_gtk_icon_module),
+        std::move(theme_gtk_all_module)
     }, NULL};
 
     module_t theme_gsettings_name_module = {"name", "", {}, theme_gsettings_name};
     module_t theme_gsettings_font_module = {"font", "", {}, theme_gsettings_font};
     module_t theme_gsettings_icon_module = {"icon", "", {}, theme_gsettings_icon};
+    module_t theme_gsettings_cursor_name_module = {"name", "", {}, theme_gsettings_cursor_name};
+    module_t theme_gsettings_cursor_size_module = {"size", "", {}, theme_gsettings_cursor_size};
+    module_t theme_gsettings_cursor_module = {"cursor", "", {
+        std::move(theme_gsettings_cursor_size_module),
+        std::move(theme_gsettings_cursor_name_module),
+    }, NULL};
     module_t theme_gsettings_module = {"gsettings", "", {
         std::move(theme_gsettings_name_module),
         std::move(theme_gsettings_font_module),
-        std::move(theme_gsettings_icon_module)
+        std::move(theme_gsettings_icon_module),
+        std::move(theme_gsettings_cursor_module)
     }, NULL};
 
     module_t theme_cursor_name_module = {"name", "", {}, theme_cursor_name};
