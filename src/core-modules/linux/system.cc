@@ -1,3 +1,6 @@
+#include "platform.hpp"
+
+#if CF_LINUX
 #include <sys/utsname.h>
 
 #include <filesystem>
@@ -93,3 +96,5 @@ MODFUNC(arch)
 {
     return g_uname_infos.machine;
 }
+
+#endif

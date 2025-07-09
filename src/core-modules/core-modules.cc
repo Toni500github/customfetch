@@ -120,10 +120,12 @@ void core_plugins_start(const Config& config)
     const size_t uptime_hours = uptime_secs / (60 * 60);
     const size_t uptime_days  = uptime_secs / (60 * 60 * 24);
 
-#if CF_LINUX
+#if CF_LINUX || CF_ANDROID
     if (uname(&g_uname_infos) != 0)
         die(_("uname() failed: {}\nCould not get system infos"), std::strerror(errno));
+#endif
 
+#if CF_LINUX
     if (g_pwd = getpwuid(getuid()), !g_pwd)
         die(_("getpwent failed: {}\nCould not get user infos"), std::strerror(errno));
 #endif
