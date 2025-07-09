@@ -112,6 +112,48 @@ MODFUNC(disk_fmt)
     return result;
 }
 
+MODFUNC(ram_fmt)
+{
+    const callbackInfo_t *callback = callbackInfo;
+    const double used  = ram_used();
+    const double total = ram_total();
+    const std::string& perc =
+                get_and_color_percentage(used, total, callback->parse_args, false);
+
+    // clang-format off
+    return fmt::format("{} / {} {}",
+                        amount(used, callback->moduleArgs),
+                        amount(total, callback->moduleArgs), 
+                        parse("${0}(" + perc + ")", callback->parse_args))
+                        ;
+    // clang-format on
+}
+
+MODFUNC(swap_fmt)
+{
+    const callbackInfo_t *callback = callbackInfo;
+    const double used  = swap_used();
+    const double total = swap_total();
+    if (used < 1)
+        return "Disabled";
+
+    const std::string& perc =
+                get_and_color_percentage(used, total, callback->parse_args, false);
+
+    // clang-format off
+    return fmt::format("{} / {} {}",
+                        amount(used, callback->moduleArgs),
+                        amount(total, callback->moduleArgs), 
+                        parse("${0}(" + perc + ")", callback->parse_args))
+                        ;
+    // clang-format on
+}
+
+MODFUNC(battery_fmt)
+{
+    return fmt::format("{} [{}]", get_and_color_percentage(std::stod(battery_perc(callbackInfo)), 100, callbackInfo->parse_args, true), battery_status(callbackInfo));
+}
+
 void core_plugins_start(const Config& config)
 {
     // ------------ INIT STUFF ------------
@@ -300,7 +342,7 @@ void core_plugins_start(const Config& config)
         std::move(ram_free_module),
         std::move(ram_used_module),
         std::move(ram_total_module)
-    }, NULL};
+    }, ram_fmt};
     cfRegisterModule(ram_module);
 
     // $<swap>
@@ -314,7 +356,7 @@ void core_plugins_start(const Config& config)
         std::move(swap_free_module),
         std::move(swap_used_module),
         std::move(swap_total_module)
-    }, NULL};
+    }, swap_fmt};
     cfRegisterModule(swap_module);
 
     // $<disk>
@@ -365,7 +407,7 @@ void core_plugins_start(const Config& config)
         std::move(battery_vendor_module),
         std::move(battery_perc_module),
         std::move(battery_temp_module),
-    }, NULL};
+    }, battery_fmt};
     cfRegisterModule(battery_module);
 
     // $<theme>
