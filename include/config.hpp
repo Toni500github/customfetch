@@ -195,12 +195,12 @@ layout = [
     "${auto}Uptime: $<os.uptime>",)#"
 #if !CF_ANDROID
                                                R"#(
-    "${auto}Theme: $<theme-gtk-all.name>",
-    "${auto}Icons: $<theme-gtk-all.icons>",
-    "${auto}Font: $<theme-gtk-all.font>",
+    "${auto}Theme: $<theme.gtk.all.name>",
+    "${auto}Icons: $<theme.gtk.all.icons>",
+    "${auto}Font: $<theme.gtk.all.font>",
     "${auto}Cursor: $<theme.cursor>",
-    "${auto}WM: $<user.wm_name>",
-    "${auto}DE: $<user.de_name>",)#"
+    "${auto}WM: $<user.wm.name>",
+    "${auto}DE: $<user.de.name>",)#"
 #endif
                                                R"#(
     "$<auto.disk>",
