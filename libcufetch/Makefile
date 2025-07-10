@@ -23,11 +23,11 @@ OUTPUT		:= ../$(BUILDDIR)/$(LIBNAME)
 
 all: $(OUTPUT)
 	@if [ "$(UNAME_S)" = "Linux" ]; then \
-		ln -sf libcufetch.so.1.0.0 ../build/debug/libcufetch.so.1; \
-		ln -sf libcufetch.so.1.0.0 ../build/debug/libcufetch.so; \
+		ln -sf libcufetch.so.1.0.0 ../$(BUILDDIR)/libcufetch.so.1; \
+		ln -sf libcufetch.so.1.0.0 ../$(BUILDDIR)/libcufetch.so; \
 	elif [ "$(UNAME_S)" = "Darwin" ]; then \
-		ln -sf libcufetch.dylib ../build/debug/libcufetch.1.dylib; \
-		ln -sf libcufetch.dylib ../build/debug/libcufetch.1.0.0.dylib; \
+		ln -sf libcufetch.dylib ../$(BUILDDIR)/libcufetch.1.dylib; \
+		ln -sf libcufetch.dylib ../$(BUILDDIR)/libcufetch.1.0.0.dylib; \
 	fi
 
 %.o: %.cc

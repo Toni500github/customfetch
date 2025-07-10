@@ -96,7 +96,7 @@ static void version()
 static void help(bool invalid_opt = false)
 {
     constexpr std::string_view help(
-        R"(Usage: customfetch [OPTIONS]...  
+        R"(Usage: customfetch [OPTIONS]...
 A command-line, GUI, and Android widget system information tool (like neofetch) focused on customizability and performance.
 
 NOTE: Boolean flags [<BOOL>] accept: "true", 1, "enable", or empty. Any other value is treated as false.
@@ -113,7 +113,7 @@ LOGO OPTIONS:
     -n, --no-logo               Disable logo display.
     -L, --logo-only             Print only the logo (skip layout completely).
     -s, --source-path <PATH>    Path to custom ASCII art/image file.
-    
+
     -a, --ascii-logo-type <TYPE>
                                 Type of ASCII art (typically "small", "old", or empty for default).
                                 Example: "-d arch -a older" looks for "arch_older.txt".
@@ -130,6 +130,7 @@ LAYOUT & FORMATTING:
                                 Example: `-m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu>"`.
 
     -N, --no-color              Disable all colors (useful for pipes/scripts).
+    --layout-padding-top <NUM>	Layout padding from top (default: 0).
     --wrap-lines=[<BOOL>]       Enable terminal line wrapping (default: false).
     --title-sep <STRING>        String to use for $<title.sep> (default: "-").
     --sep-reset <STRING>        String that resets color (default: ":").

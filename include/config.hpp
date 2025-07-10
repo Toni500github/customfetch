@@ -163,12 +163,12 @@ public:
             o.value_type = BOOL;
             o.bool_value = value;
         }
-        else if constexpr (std::is_same_v<T, std::string>)
+        else if constexpr (std::is_convertible_v<T, std::string>)
         {
             o.value_type = STR;
             o.string_value = value;
         }
-        else if constexpr (std::is_same_v<T, int> || std::is_same_v<T, std::uint16_t>)
+        else if constexpr (std::is_convertible_v<T, int>)
         {
             o.value_type = INT;
             o.int_value = value;

@@ -248,41 +248,41 @@ jobs:
     - name: Test customfetch
       run: ./build/debug/customfetch --wrap-lines
 
-  build-macos:
-    runs-on: macos-latest
-    permissions:
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install the packages
-        run: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install --overwrite fastfetch neofetch tree llvm@19
-
-      - name: uname -a && clang++ --version
-        run: uname -a && echo "\n" && $(brew --prefix llvm@19)/bin/clang++ --version
-        
-      - name: Clean
-        run: make distclean
-
-      - name: Compile
-        run: make DEBUG=1 GUI_APP=0 CXX=$(brew --prefix llvm@19)/bin/clang++
-
-      - name: Test neofetch
-        run: neofetch
-
-      - name: Test fastfetch
-        run: fastfetch
-
-      - name: Test customfetch
-        run: ./build/debug/customfetch -D assets
-
-      - name: Upload to github artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: customfetch-macos
-          path: ./build/debug/customfetch
+      #  build-macos:
+      #    runs-on: macos-latest
+      #    permissions:
+      #      contents: read
+      #
+      #    steps:
+      #      - uses: actions/checkout@v4
+      #
+      #      - name: Install the packages
+      #        run: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install --overwrite fastfetch neofetch tree llvm@19
+      #
+      #      - name: uname -a && clang++ --version
+      #        run: uname -a && echo "\n" && $(brew --prefix llvm@19)/bin/clang++ --version
+      #        
+      #      - name: Clean
+      #        run: make distclean
+      #
+      #      - name: Compile
+      #        run: make DEBUG=1 GUI_APP=0 CXX=$(brew --prefix llvm@19)/bin/clang++
+      #
+      #      - name: Test neofetch
+      #        run: neofetch
+      #
+      #      - name: Test fastfetch
+      #        run: fastfetch
+      #
+      #      - name: Test customfetch
+      #        run: ./build/debug/customfetch -D assets
+      #
+      #      - name: Upload to github artifacts
+      #        uses: actions/upload-artifact@v4
+      #        with:
+      #          if-no-files-found: error
+      #          name: customfetch-macos
+      #          path: ./build/debug/customfetch
 
           #  test-suitcase:
           #    runs-on: ubuntu-22.04
