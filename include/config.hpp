@@ -13,7 +13,7 @@
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
  * products derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -31,13 +31,22 @@
 
 #include <filesystem>
 #include <string_view>
+#include <string>
+#include <vector>
+#include <map>
 
 #include "platform.hpp"
 #include "cufetch/config.hh"
 
+struct box_chars_t {
+    std::string horizontal;
+    std::string vertical;
+};
+
 class Config : public ConfigBase
 {
 public:
+    int box_extra_padding = 0; // additional spaces added to every column
     // Create .config directories and files and load the config file (args or default)
     Config(const std::filesystem::path& configFile, const std::filesystem::path& configDir);
 
@@ -85,6 +94,8 @@ public:
     bool                     slow_query_warnings = false;
     bool                     use_SI_unit         = false;
     bool                     wrap_lines          = false;
+    bool                     box_drawing_enabled = false; // New member
+    box_chars_t              box_chars;                   // New member
 
     // Variables of config file for
     // modules specific configs
@@ -163,12 +174,12 @@ public:
             o.value_type = BOOL;
             o.bool_value = value;
         }
-        else if constexpr (std::is_same_v<T, std::string>)
+        else if constexpr (std::is_convertible_v<T, std::string>)
         {
             o.value_type = STR;
             o.string_value = value;
         }
-        else if constexpr (std::is_same_v<T, int> || std::is_same_v<T, std::uint16_t>)
+        else if constexpr (std::is_convertible_v<T, int>)
         {
             o.value_type = INT;
             o.int_value = value;
@@ -212,6 +223,15 @@ layout = [
     "$<colors>", # normal colors
     "$<colors.light>" # light colors
 ]
+
+# NEW: Enable the dynamic box drawing feature
+box-drawing-enabled = false
+
+# Box drawing glyphs
+[config.box-chars]
+horizontal = "─"
+vertical   = "│"
+
 
 # display ascii-art or image/gif (GUI only) near layout
 # put "os" for displaying the OS ascii-art

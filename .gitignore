@@ -1,7 +1,7 @@
 build*/
 assets/distro_ascii*
 /cufetch
-/*.txt
+*.txt
 pci.ids
 output/
 useless_stuff/
