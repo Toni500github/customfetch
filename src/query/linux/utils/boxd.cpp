@@ -5,16 +5,36 @@
 #include <string_view>
 #include <vector>
 #include <unordered_map>
-
-#include "util.hpp"
-#include "utf8/checked.h"
 #include <locale>
 #include <codecvt>
 #include <cwchar>
+#include <iostream>
+#include <iterator>
 
+#include "util.hpp"
+#include "utf8/checked.h"
+
+// Anonymous namespace to keep helpers local to this file
 namespace {
-inline void trim_ws(std::string& s)
-{
+
+// --- Data Structures ---
+
+// Holds the calculated dimensions for a single room.
+struct RoomLayoutInfo {
+    size_t pin_position = 0; // The column where the $<pin> marker should align.
+    size_t total_width = 0;  // The total visual width of the fully rendered room.
+};
+
+// Represents a single room defined by $<room> and $<endroom>.
+struct Room {
+    std::vector<std::string> lines; // The raw lines of content inside the room.
+    RoomLayoutInfo layout_info;     // The calculated layout dimensions.
+};
+
+
+// --- Utility Functions ---
+
+static void trim_ws(std::string& s) {
     static constexpr const char* WS = " \t\n\r\f\v";
     const size_t start = s.find_first_not_of(WS);
     if (start == std::string::npos) {
@@ -24,40 +44,36 @@ inline void trim_ws(std::string& s)
     const size_t end = s.find_last_not_of(WS);
     s = s.substr(start, end - start + 1);
 }
-}
-static size_t get_visual_width(const std::string& input) {
-    try {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-        std::wstring wide = converter.from_bytes(input);
-        size_t width = 0;
-        for (wchar_t ch : wide) {
-            int w = wcwidth(ch);
-            width += (w < 0 ? 1 : w);
-        }
-        return width;
-    } catch (...) {
-        return input.length();
+
+static size_t get_visual_width(const std::string& s) {
+    if (s.empty()) {
+        return 0;
     }
+    std::wstring wstr;
+    try {
+        utf8::utf8to16(s.begin(), s.end(), std::back_inserter(wstr));
+    } catch (const utf8::exception&) {
+        return s.length(); // Fallback on invalid UTF-8
+    }
+    
+    int width = wcswidth(wstr.c_str(), wstr.length());
+    
+    return (width < 0) ? wstr.length() : static_cast<size_t>(width);
 }
 
-static std::string strip_ansi(const std::string& str)
-{
+
+static std::string strip_ansi(const std::string& str) {
     std::string result;
     result.reserve(str.size());
     bool in_escape = false;
-
-    for (size_t i = 0; i < str.size(); ++i)
-    {
-        if (str[i] == '\033' && i + 1 < str.size() && str[i + 1] == '[')
-        {
+    for (size_t i = 0; i < str.size(); ++i) {
+        if (str[i] == '\033' && i + 1 < str.size() && str[i + 1] == '[') {
             in_escape = true;
-            i++; // Skip the '['
+            i++;
             continue;
         }
-        if (in_escape)
-        {
-            if (str[i] == 'm')
-                in_escape = false;
+        if (in_escape) {
+            if (str[i] == 'm') in_escape = false;
             continue;
         }
         result += str[i];
@@ -65,145 +81,126 @@ static std::string strip_ansi(const std::string& str)
     return result;
 }
 
-std::vector<std::string> apply_box_drawing(std::vector<std::string> layout,
-                                           const Config& config) noexcept
-{
-    if (layout.empty())
-        return layout;
 
-    const auto& bc = config.box_chars;
-    struct RowData {
-        std::vector<std::string> cells; // coloured cells (data rows)
-        bool is_data = false;           // true if row contains '|'
-        bool has_vertical_macro = false; // true if row contains '$vertical'
-        std::string raw;               // original line text
-    };
+// --- Core Logic ---
 
-    std::vector<RowData> rows;
-    std::vector<size_t> max_col_width;
+// Calculates the required layout dimensions for a room based on the $<pin> marker.
+RoomLayoutInfo calculate_room_layout(const std::vector<std::string>& room_lines) {
+    RoomLayoutInfo info;
+    size_t max_left_width = 0;
+    size_t max_right_width = 0;
 
-    auto ensure_cols = [&](size_t n) {
-        if (max_col_width.size() < n)
-            max_col_width.resize(n, 0);
-    };
+    for (const auto& line : room_lines) {
+        size_t pin_pos = line.find("$<pin>");
+        if (pin_pos != std::string::npos) {
+            std::string left_part = line.substr(0, pin_pos);
+            std::string right_part = line.substr(pin_pos + 6); // length of "$<pin>"
 
-    for (const std::string& raw : layout) {
-        RowData rd;
-        rd.raw = raw;
+            max_left_width = std::max(max_left_width, get_visual_width(strip_ansi(left_part)));
+            max_right_width = std::max(max_right_width, get_visual_width(strip_ansi(right_part)));
+        }
+    }
+
+    info.pin_position = max_left_width;
+    info.total_width = max_left_width + max_right_width;
+    
+    return info;
+}
+
+// Processes a single line from a room, applying all formatting.
+std::string process_room_line(std::string line, const Config& config, const RoomLayoutInfo& layout_info) {
+    // 1. Handle $<pin> alignment
+    size_t pin_pos = line.find("$<pin>");
+    if (pin_pos != std::string::npos) {
+        std::string left_part = line.substr(0, pin_pos);
+        std::string right_part = line.substr(pin_pos + 6); // length of "$<pin>"
+
+        size_t left_width = get_visual_width(strip_ansi(left_part));
+        size_t right_width = get_visual_width(strip_ansi(right_part));
+
+        size_t left_padding = (layout_info.pin_position > left_width) ? (layout_info.pin_position - left_width) : 0;
+
+        size_t max_right_width = layout_info.total_width - layout_info.pin_position;
+        size_t right_padding = (max_right_width > right_width) ? (max_right_width - right_width) : 0;
+
+        line = left_part + std::string(left_padding, ' ') + right_part + std::string(right_padding, ' ');
+    }
+
+    // 2. Handle $<fill> expansion
+    while (true) {
+        size_t fill_pos = line.find("$<fill>");
+        if (fill_pos == std::string::npos) break;
+
+        std::string temp_line = line;
+        temp_line.erase(fill_pos, 7); // Remove the "$<fill>" marker
+        size_t static_width = get_visual_width(strip_ansi(temp_line));
         
-        rd.has_vertical_macro = (raw.find("$vertical") != std::string::npos);
-        rd.is_data = rd.has_vertical_macro || (raw.find('|') != std::string::npos) || (raw.find("$fill") == std::string::npos);
-
-        if (rd.is_data) {
-            std::string line_to_process = raw;
-            if (rd.has_vertical_macro) {
-                size_t pos = line_to_process.find("$vertical");
-                line_to_process.replace(pos, 9, "|");
+        size_t fill_needed = (layout_info.total_width > static_width) ? (layout_info.total_width - static_width) : 0;
+        
+        std::string fill_str;
+        if (!config.box_chars.horizontal.empty()) {
+            for (size_t i = 0; i < fill_needed; ++i) {
+                fill_str += config.box_chars.horizontal;
             }
+        }
+        line.replace(fill_pos, 7, fill_str);
+    }
 
-            std::string token;
-            bool in_esc = false;
-            for (char ch : line_to_process) {
-                if (ch == '\033') in_esc = true;
-                if (!in_esc && ch == '|') {
-                    rd.cells.emplace_back(std::move(token));
-                    token.clear();
-                    continue;
+    return line;
+}
+
+} // anonymous namespace
+
+// Main function to apply the box drawing logic.
+std::vector<std::string> apply_box_drawing(std::vector<std::string> layout, const Config& config) noexcept
+{
+    if (!config.box_drawing_enabled) {
+        return layout;
+    }
+
+    std::vector<std::string> final_layout;
+    
+    for (size_t i = 0; i < layout.size(); ++i) {
+        std::string current_line = layout[i];
+        trim_ws(current_line);
+        
+        if (current_line.find("$<room>") != std::string::npos) {
+            // Found the start of a room, now find the end.
+            Room current_room;
+            size_t room_end_idx = i;
+            bool room_found = false;
+
+            for (size_t j = i + 1; j < layout.size(); ++j) {
+                std::string inner_line = layout[j];
+                trim_ws(inner_line);
+                if (inner_line.find("$<endroom>") != std::string::npos) {
+                    room_end_idx = j;
+                    room_found = true;
+                    break;
                 }
-                token.push_back(ch);
-                if (in_esc && ch == 'm') in_esc = false;
+                current_room.lines.push_back(layout[j]);
             }
-            rd.cells.emplace_back(std::move(token));
-            ensure_cols(rd.cells.size());
 
-            for (size_t c = 0; c < rd.cells.size(); ++c) {
-                std::string clean = strip_ansi(rd.cells[c]);
-                trim_ws(clean);
-                size_t vw = get_visual_width(clean);
-                max_col_width[c] = std::max(max_col_width[c], vw);
+            if (room_found) {
+                // Calculate the layout for this specific room using the pin logic.
+                current_room.layout_info = calculate_room_layout(current_room.lines);
+                
+                // Process and add each line of the room to the final layout.
+                for (const auto& line : current_room.lines) {
+                    final_layout.push_back(process_room_line(line, config, current_room.layout_info));
+                }
+                
+                // Skip the main loop ahead to the end of the processed room.
+                i = room_end_idx;
+            } else {
+                // No $<endroom> found, treat $<room> as a literal line.
+                final_layout.push_back(layout[i]);
             }
-        }
-        rows.push_back(std::move(rd));
-    }
-
-    for (auto& w : max_col_width)
-        w += std::max<int>(0, config.box_extra_padding);
-
-    const size_t cols = max_col_width.size();
-    if (cols == 0) return layout;
-
-    auto repeat = [&](const std::string& unit, size_t n) {
-        if (n == 0 || unit.empty()) return std::string();
-        std::string out;
-        out.reserve(unit.size() * n);
-        for (size_t i = 0; i < n; ++i) out += unit;
-        return out;
-    };
-
-    std::vector<std::string> rendered(rows.size());
-    size_t max_inner_width = 0;
-
-    for (size_t r = 0; r < rows.size(); ++r) {
-        if (!rows[r].is_data) continue;
-
-        std::string line;
-        if (!rows[r].has_vertical_macro) line += bc.vertical;
-
-        for (size_t c = 0; c < cols; ++c) {
-            std::string cell = (c < rows[r].cells.size()) ? rows[r].cells[c] : "";
-            trim_ws(cell);
-            std::string clean = strip_ansi(cell);
-            size_t vis = get_visual_width(clean);
-            size_t pad = (max_col_width[c] > vis) ? (max_col_width[c] - vis) : 0;
-
-            line += ' ';
-            line += cell;
-            line.append(pad, ' ');
-            line += ' ';
-            
-            if (c < cols - 1) {
-                 if (rows[r].has_vertical_macro && c == 0) {
-                    line += bc.vertical;
-                 } else if (!rows[r].has_vertical_macro) {
-                    line += bc.vertical;
-                 }
-            }
-        }
-        if (!rows[r].has_vertical_macro) line += bc.vertical;
-        rendered[r] = line;
-        size_t inner_vis = get_visual_width(strip_ansi(line)) - (rows[r].has_vertical_macro ? 0 : 2);
-        max_inner_width = std::max(max_inner_width, inner_vis);
-    }
-
-    const size_t target_total = max_inner_width + 2; // borders included
-    std::vector<std::string> output;
-    output.reserve(rows.size());
-
-    auto expand_fill = [&](std::string line) {
-        while (true) {
-            size_t pos = line.find("$fill");
-            if (pos == std::string::npos) break;
-
-            std::string before = strip_ansi(line.substr(0, pos));
-            std::string after  = strip_ansi(line.substr(pos + 5));
-            size_t current = get_visual_width(before) + get_visual_width(after);
-            size_t need = (current < target_total) ? (target_total - current) : 0;
-            line.replace(pos, 5, repeat(bc.horizontal, need));
-        }
-        // unescape $
-        size_t sp = 0;
-        while ((sp = line.find("\\$", sp)) != std::string::npos) {
-            line.replace(sp, 2, "$");
-        }
-        return line;
-    };
-
-    for (size_t i = 0; i < rows.size(); ++i) {
-        if (rows[i].is_data) {
-            output.push_back(rendered[i]);
         } else {
-            output.push_back(expand_fill(rows[i].raw));
+            // This line is not a room marker, add it as is.
+            final_layout.push_back(layout[i]);
         }
     }
-    return output;
+    
+    return final_layout;
 }
