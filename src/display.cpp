@@ -23,7 +23,7 @@
  *
  */
 
-// Implementation of the system behind displaying/rendering the information
+
 
 #include "display.hpp"
 
@@ -34,7 +34,7 @@
 #include "platform.hpp"
 
 #ifndef GUI_APP
-# define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 #endif
 
 #if CF_MACOS
@@ -53,6 +53,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <memory> // For std::make_unique
 
 #include "core-modules.hh"
 #include "fmt/core.h"
@@ -62,6 +63,27 @@
 #include "stb_image.h"
 #include "utf8/checked.h"
 #include "util.hpp"
+#include "core-modules/linux/utils/boxd.hpp"
+
+#include <cwchar>
+#include <locale>
+
+
+size_t get_visual_width(const std::string& input) {
+    try {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+        std::wstring wide = converter.from_bytes(input);
+        size_t width = 0;
+        for (wchar_t ch : wide) {
+            int w = wcwidth(ch);
+            width += (w < 0 ? 1 : w); 
+        }
+        return width;
+    } catch (...) {
+        return input.length(); 
+    }
+}
+
 
 std::string Display::detect_distro(const Config& config)
 {
@@ -100,11 +122,11 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
 {
     int image_width, image_height, channels;
 
-    // load the image and get its width and height
+    
     unsigned char* img = stbi_load(path.c_str(), &image_width, &image_height, &channels, 0);
 
     if (!img)
-        die(_("Unable to load image '{}'"), path.string());
+        die(_("Unable to load image \'{}\'"), path.string());
 
     stbi_image_free(img);
     if (Display::ascii_logo_fd != -1)
@@ -113,12 +135,12 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
         close(Display::ascii_logo_fd);
     }
 
-    std::string              _;
+    std::string                  _;
     std::vector<std::string> tmp_layout;
-    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, true };
+    parse_args_t                 parse_args{ modulesInfo, _, layout, tmp_layout, config, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
-        layout[i]                = parse(layout[i], parse_args);
+        layout[i]              = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
 #if !GUI_APP
         if (!config.args_disable_colors)
@@ -129,16 +151,18 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
         {
             layout.erase(layout.begin() + i);
             layout.insert(layout.begin() + i, tmp_layout.begin(), tmp_layout.end());
+            
+            i += tmp_layout.size() - 1;
             tmp_layout.clear();
         }
     }
 
-    // erase each element for each instance of MAGIC_LINE
+    
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
+    
     const size_t width  = image_width / font_width;
     const size_t height = image_height / font_height;
 
@@ -149,7 +173,7 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
     else if (config.args_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path.string() });
     else
-        die(_("The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
+        die(_("The image backend \'{}\' isn\'t supported, only \'kitty\' and \'viu\'.\n"
               "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),
             config.args_image_backend);
 
@@ -173,8 +197,7 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
     return layout;
 }
 
-// https://stackoverflow.com/a/50888457
-// with a little C++ modernizing
+
 static bool get_pos(int& y, int& x)
 {
     std::array<char, 32> buf;
@@ -233,7 +256,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
     {
         file.open(path.string(), std::ios::binary);
         if (!file.is_open())
-            die(_("Could not open logo file '{}'"), path.string());
+            die(_("Could not open logo file \'{}\'"), path.string());
 
         // first check if the file is an image
         // without even using the same library that "file" uses
@@ -264,11 +287,11 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
 
         debug("{} distro_path = {}", __FUNCTION__, distro_path);
 
-        // this is just for parse() to auto add the distro colors
-        std::ifstream            distro_file(distro_path);
-        std::string              line, _;
+        
+        std::ifstream          distro_file(distro_path);
+        std::string            line, _;
         std::vector<std::string> tmp_layout;
-        parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, false };
+        parse_args_t           parse_args{ moduleMap, _, layout, tmp_layout, config, false };
 
         while (std::getline(distro_file, line))
         {
@@ -285,8 +308,8 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
 
     if (isImage)
     {
-        // clear screen
-        write(STDOUT_FILENO, "\33[H\33[2J", 7);
+        
+        write(STDOUT_FILENO, "\033[H\033[2J", 7);
 
         const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
         const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
@@ -329,14 +352,14 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         if (!config.args_disable_colors)
             asciiArt_s += NOCOLOR;
 #else
-        // check parse.cpp
+        
         const size_t pos = asciiArt_s.rfind("$ </");
         if (pos != std::string::npos)
             asciiArt_s.replace(pos, 2, "$");
 #endif
 
         asciiArt.push_back(asciiArt_s);
-        const size_t pureOutputLen = utf8::distance(pureOutput.begin(), pureOutput.end());
+        const size_t pureOutputLen = get_visual_width(pureOutput);
 
         if (static_cast<int>(pureOutputLen) > maxLineLength)
             maxLineLength = static_cast<int>(pureOutputLen);
@@ -348,17 +371,30 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
     if (config.args_print_logo_only)
         return asciiArt;
 
+    if (layout.empty())
+    {
+        debug("Layout is empty, returning only ASCII art with an error message. Check config parsing.");
+        if (!asciiArt.empty()) {
+            asciiArt.push_back("");
+        }
+        asciiArt.push_back("Error: No layout found.");
+        asciiArt.push_back("Please check your configuration file (`customfetch.conf`).");
+        asciiArt.push_back("The 'layout' array might be missing or empty, or there's a syntax error.");
+        return asciiArt;
+    }
+
+    
     std::string              _;
     std::vector<std::string> tmp_layout;
     parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
-        layout[i]                = parse(layout[i], parse_args);
+        layout[i]              = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
-#if !GUI_APP
+    #if !GUI_APP
         if (!config.args_disable_colors)
             layout[i].insert(0, NOCOLOR);
-#endif
+    #endif
 
         if (!tmp_layout.empty())
         {
@@ -369,10 +405,191 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         }
     }
 
-    // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
+
+    
+#if 0
+    if (config.box_drawing_enabled)
+    {
+        size_t max_key_width = 0;
+        size_t max_value_width = 0;
+
+        
+        auto strip_ansi = [](const std::string& str) -> std::string {
+            std::string result;
+            result.reserve(str.size());
+            bool in_escape = false;
+            
+            for (size_t i = 0; i < str.size(); ++i) {
+                if (str[i] == '\033' && i + 1 < str.size() && str[i + 1] == '[') {
+                    in_escape = true;
+                    i++; // Skip the '[' as well
+                    continue;
+                }
+                
+                if (in_escape) {
+                    if (str[i] == 'm') {
+                        in_escape = false;
+                    }
+                    continue;
+                }
+                
+                result += str[i];
+            }
+            return result;
+        };
+
+        
+        for (const auto& line : layout)
+        {
+            if (line.empty()) continue;
+            
+            std::string clean_line = strip_ansi(line);
+            size_t sep_pos = clean_line.find('|');
+            
+            if (sep_pos != std::string::npos)
+            {
+                std::string key_part = clean_line.substr(0, sep_pos);
+                std::string value_part = clean_line.substr(sep_pos + 1);
+                
+                
+                key_part.erase(0, key_part.find_first_not_of(" \t"));
+                key_part.erase(key_part.find_last_not_of(" \t") + 1);
+                value_part.erase(0, value_part.find_first_not_of(" \t"));
+                value_part.erase(value_part.find_last_not_of(" \t") + 1);
+                
+                max_key_width = std::max(max_key_width, get_visual_width(key_part));
+                max_value_width = std::max(max_value_width, get_visual_width(value_part));
+            }
+            else
+            {
+                
+                std::string trimmed = clean_line;
+                trimmed.erase(0, trimmed.find_first_not_of(" \t"));
+                trimmed.erase(trimmed.find_last_not_of(" \t") + 1);
+                max_key_width = std::max(max_key_width, get_visual_width(trimmed));
+            }
+        }
+
+        std::vector<std::string> boxed_layout;
+        const auto& bc = config.box_chars;
+
+                // Create top border
+        const std::string tl = "╭", tr = "╮", bl = "╰", br = "╯", tt = "┬", bt = "┴";
+        std::string top_border = tl;
+        for(size_t i = 0; i < max_key_width + 2; ++i) top_border += bc.horizontal;
+        top_border += tt;
+        for(size_t i = 0; i < max_value_width + 2; ++i) top_border += bc.horizontal;
+        top_border += tr;
+        boxed_layout.push_back(top_border);
+
+        
+        for (const auto& line : layout)
+        {
+            if (line.empty()) {
+                
+                std::string empty_row = bc.vertical;
+                empty_row += std::string(max_key_width + 2, ' ');
+                empty_row += bc.vertical;
+                empty_row += std::string(max_value_width + 2, ' ');
+                empty_row += bc.vertical;
+                boxed_layout.push_back(empty_row);
+                continue;
+            }
+
+            std::string clean_line = strip_ansi(line);
+            size_t sep_pos = clean_line.find('|');
+            
+            if (sep_pos != std::string::npos)
+            {
+                
+                size_t original_sep_pos = line.find('|');
+                
+                std::string key = line.substr(0, original_sep_pos);
+                std::string value = line.substr(original_sep_pos + 1);
+
+                const char* WHITESPACE = " \t\n\r\f\v";
+                key.erase(0, key.find_first_not_of(WHITESPACE));
+                key.erase(key.find_last_not_of(WHITESPACE) + 1);
+                value.erase(0, value.find_first_not_of(WHITESPACE));
+                value.erase(value.find_last_not_of(WHITESPACE) + 1);
+
+                
+                std::string key_clean = clean_line.substr(0, sep_pos);
+                std::string value_clean = clean_line.substr(sep_pos + 1);
+                
+                // Trim clean versions
+                key_clean.erase(0, key_clean.find_first_not_of(" \t"));
+                key_clean.erase(key_clean.find_last_not_of(" \t") + 1);
+                value_clean.erase(0, value_clean.find_first_not_of(" \t"));
+                value_clean.erase(value_clean.find_last_not_of(" \t") + 1);
+                
+                size_t key_width = get_visual_width(key_clean);
+                size_t value_width = get_visual_width(value_clean);
+
+                std::string formatted_line = bc.vertical;
+                formatted_line += " ";
+                formatted_line += key;
+                
+                if (max_key_width > key_width) {
+                    formatted_line += std::string(max_key_width - key_width, ' ');
+                }
+                formatted_line += " ";
+                formatted_line += bc.vertical;
+                formatted_line += " ";
+                formatted_line += value;
+                
+                if (max_value_width > value_width) {
+                    formatted_line += std::string(max_value_width - value_width, ' ');
+                }
+                formatted_line += " ";
+                formatted_line += bc.vertical;
+                
+                boxed_layout.push_back(formatted_line);
+            }
+            else
+            {
+                
+                std::string clean_trimmed = clean_line;
+                clean_trimmed.erase(0, clean_trimmed.find_first_not_of(" \t"));
+                clean_trimmed.erase(clean_trimmed.find_last_not_of(" \t") + 1);
+                
+                
+                std::string line_with_colors_trimmed = line;
+                const char* WHITESPACE = " \t\n\r\f\v";
+                line_with_colors_trimmed.erase(0, line_with_colors_trimmed.find_first_not_of(WHITESPACE));
+                line_with_colors_trimmed.erase(line_with_colors_trimmed.find_last_not_of(WHITESPACE) + 1);
+
+                size_t content_width = get_visual_width(clean_trimmed);
+                size_t total_width = max_key_width + max_value_width + 2;
+                size_t padding = (total_width > content_width) ? (total_width - content_width) : 0;
+                
+                std::string formatted_line = bc.vertical;
+                formatted_line += " ";
+                formatted_line += line_with_colors_trimmed; 
+                formatted_line += std::string(padding, ' ');
+                formatted_line += " ";
+                formatted_line += bc.vertical;
+                
+                boxed_layout.push_back(formatted_line);
+            }
+        }
+
+        
+        std::string bottom_border = bl;
+        for(size_t i = 0; i < max_key_width + 2; ++i) bottom_border += bc.horizontal;
+        bottom_border += bt;
+        for(size_t i = 0; i < max_value_width + 2; ++i) bottom_border += bc.horizontal;
+        bottom_border += br;
+        boxed_layout.push_back(bottom_border);
+
+        #endif
+    if (config.box_drawing_enabled)
+    {
+        layout = apply_box_drawing(std::move(layout), config);
+    }
 
     if (config.logo_position == "top" || config.logo_position == "bottom")
     {
@@ -382,40 +599,42 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         return layout;
     }
 
-    const unsigned int offset =
+    
+    std::vector<std::string> final_render;
+    const size_t num_rows = std::max(asciiArt.size(), layout.size());
+    const unsigned int offset_val =
         (config.offset.back() == '%')
             ? calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), win.ws_col, maxLineLength)
             : std::stoi(config.offset);
+    
+    const std::string offset_str(offset_val, ' ');
 
-    size_t i;
-    for (i = 0; i < layout.size(); i++)
-    {
-        size_t origin = config.logo_padding_left;
+    for (size_t i = 0; i < num_rows; ++i) {
+        std::string current_row;
 
-        // The user-specified offset to be put before the logo
-        for (size_t j = 0; j < config.logo_padding_left; ++j)
-            layout.at(i).insert(0, " ");
-
-        if (i < asciiArt.size())
-        {
-            layout.at(i).insert(origin, asciiArt.at(i));
-            origin += asciiArt.at(i).length();
+        
+        if (i < asciiArt.size()) {
+            current_row.append(config.logo_padding_left, ' ');
+            current_row.append(asciiArt[i]);
+            size_t pure_width = (i < pureAsciiArtLens.size()) ? pureAsciiArtLens[i] : 0;
+            size_t padding_needed = (maxLineLength > static_cast<int>(pure_width)) ? (maxLineLength - pure_width) : 0;
+            current_row.append(padding_needed, ' ');
+        } else {
+            
+            current_row.append(config.logo_padding_left + maxLineLength, ' ');
         }
+        
+        current_row.append(offset_str);
 
-        const size_t spaces = (maxLineLength + (config.args_disable_source ? 1 : offset)) -
-                              (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
-
-        debug("spaces: {}", spaces);
-
-        for (size_t j = 0; j < spaces; j++)
-            layout.at(i).insert(origin, " ");
-
-#if !GUI_APP
-        if (!config.args_disable_colors)
-            layout.at(i) += NOCOLOR;
-#endif
+        
+        if (i < layout.size()) {
+            current_row.append(layout[i]);
+        }
+        
+        final_render.push_back(current_row);
     }
 
+<<<<<<< Updated upstream
     for (; i < asciiArt.size(); ++i)
     {
         std::string line(config.logo_padding_left, ' ');
@@ -425,6 +644,9 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
     }
 
     return layout;
+=======
+    return final_render;
+>>>>>>> Stashed changes
 }
 
 void Display::display(const std::vector<std::string>& renderResult)
