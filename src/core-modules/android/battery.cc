@@ -80,12 +80,14 @@ MODFUNC(battery_status)
     if (!assert_doc())
         return read_value_dumpsys("powered", true);
 
+    std::string charge_status{ str_tolower(doc["status"].as_string()) };
+    charge_status.at(0) = toupper(charge_status.at(0));
     switch (fnv1a16::hash(doc["plugged"].as_string()))
     {
-        case "PLUGGED_AC"_fnv1a16:       return "AC Connected, "      + str_tolower(doc["status"].as_string());
-        case "PLUGGED_USB"_fnv1a16:      return "USB Connected, "     + str_tolower(doc["status"].as_string());
-        case "PLUGGED_WIRELESS"_fnv1a16: return "Wireless Connected, "+ str_tolower(doc["status"].as_string());
-        default: return "Discharging";
+        case "PLUGGED_AC"_fnv1a16:       return "AC Connected, "      + charge_status;
+        case "PLUGGED_USB"_fnv1a16:      return "USB Connected, "     + charge_status;
+        case "PLUGGED_WIRELESS"_fnv1a16: return "Wireless Connected, "+ charge_status;
+        default: return charge_status;
     }
 }
 

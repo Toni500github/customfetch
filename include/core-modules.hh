@@ -3,7 +3,6 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 
-#include "platform.hpp"
 #include "cufetch/cufetch.hh"
 #include "config.hpp"
 
@@ -17,6 +16,7 @@ MODFUNC(host_version);
 MODFUNC(host_vendor);
 
 // os.cc
+inline utsname g_uname_infos;
 inline std::FILE* os_release;
 MODFUNC(os_name);
 MODFUNC(os_pretty_name);
@@ -43,6 +43,7 @@ MODFUNC(android_cpu_vendor);
 MODFUNC(android_cpu_model_name);
 
 // user.cc
+inline struct passwd* g_pwd;
 inline bool           is_tty = false;
 inline std::string    term_pid, term_name, wm_name, de_name, wm_path_exec;
 std::string           get_terminal_name();
@@ -113,11 +114,6 @@ MODFUNC(theme_gsettings_icon);
 MODFUNC(theme_gsettings_font);
 MODFUNC(theme_gsettings_cursor_name);
 MODFUNC(theme_gsettings_cursor_size);
-
-#if CF_LINUX
-inline struct passwd* g_pwd;
-inline utsname g_uname_infos;
-#endif
 
 void core_plugins_start(const Config& config);
 void core_plugins_finish();
