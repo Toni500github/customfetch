@@ -54,6 +54,7 @@ with open("pci.ids", "r") as f:
 
                 # pci_table[current_vendor][device_id] = device_name
                 continue
+            # TODO: remove all subdevices (useless)
             case 2:
                 # subvendor = line.split(' ')[0]
                 # subdevice_id = line.split(' ')[1]

@@ -1,6 +1,8 @@
 #ifndef _PCI_IDS_HPP
 #define _PCI_IDS_HPP
 
+/* TODO: delete any subdevices (what the fuck man this REALLY needs a rewrite) */
+
 #include "platform.hpp"
 #if !CF_ANDROID
 
@@ -2674,7 +2676,6 @@ inline std::string get_pci_ids()
 		174b d340  Radeon R7 340 OEM
 		1b0a 90d3  Radeon R7 240 OEM
 	6613  Oland PRO [Radeon R7 240/340 / Radeon 520]
-		148c 7340  Radeon R7 340
 		1682 7240  R7 240 2048 MB
 		1dcf 3000  Oland PRO [Radeon R7 240/340 / Radeon 520]
 	6617  Oland LE [Radeon R7 240]
