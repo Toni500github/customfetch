@@ -6,7 +6,6 @@
 #include <vector>
 #include <unordered_map>
 #include <locale>
-#include <codecvt>
 #include <cwchar>
 #include <iostream>
 #include <iterator>
@@ -14,25 +13,17 @@
 #include "util.hpp"
 #include "utf8/checked.h"
 
-// Anonymous namespace to keep helpers local to this file
 namespace {
 
-// --- Data Structures ---
-
-// Holds the calculated dimensions for a single room.
 struct RoomLayoutInfo {
-    size_t pin_position = 0; // The column where the $<pin> marker should align.
-    size_t total_width = 0;  // The total visual width of the fully rendered room.
+    size_t pin_position = 0;
+    size_t total_width = 0;
 };
 
-// Represents a single room defined by $<room> and $<endroom>.
 struct Room {
-    std::vector<std::string> lines; // The raw lines of content inside the room.
-    RoomLayoutInfo layout_info;     // The calculated layout dimensions.
+    std::vector<std::string> lines;
+    RoomLayoutInfo layout_info;
 };
-
-
-// --- Utility Functions ---
 
 static void trim_ws(std::string& s) {
     static constexpr const char* WS = " \t\n\r\f\v";
@@ -45,6 +36,7 @@ static void trim_ws(std::string& s) {
     s = s.substr(start, end - start + 1);
 }
 
+// Calculates visual width of string, handling UTF-8 and wide characters.
 static size_t get_visual_width(const std::string& s) {
     if (s.empty()) {
         return 0;
@@ -61,13 +53,15 @@ static size_t get_visual_width(const std::string& s) {
     return (width < 0) ? wstr.length() : static_cast<size_t>(width);
 }
 
-
+// Strips ANSI escape codes and custom color tags from a string.
 static std::string strip_ansi(const std::string& str) {
     std::string result;
     result.reserve(str.size());
     bool in_escape = false;
+    bool in_custom_color = false;
     for (size_t i = 0; i < str.size(); ++i) {
-        if (str[i] == '\033' && i + 1 < str.size() && str[i + 1] == '[') {
+        // Handle ANSI escape codes (e.g., \u001b[...m)
+        if (str[i] == '\u001b' && i + 1 < str.size() && str[i + 1] == '[') {
             in_escape = true;
             i++;
             continue;
@@ -76,15 +70,24 @@ static std::string strip_ansi(const std::string& str) {
             if (str[i] == 'm') in_escape = false;
             continue;
         }
+
+        // Handle custom color tags (e.g., ${red}, ${0})
+        if (str[i] == '
+ && i + 1 < str.size() && str[i + 1] == '{') {
+            in_custom_color = true;
+            i++;
+            continue;
+        }
+        if (in_custom_color) {
+            if (str[i] == '}') in_custom_color = false;
+            continue;
+        }
         result += str[i];
     }
     return result;
 }
 
-
-// --- Core Logic ---
-
-// Calculates the required layout dimensions for a room based on the $<pin> marker.
+// Calculates room dimensions based on $<pin> for alignment.
 RoomLayoutInfo calculate_room_layout(const std::vector<std::string>& room_lines) {
     RoomLayoutInfo info;
     size_t max_left_width = 0;
@@ -94,7 +97,7 @@ RoomLayoutInfo calculate_room_layout(const std::vector<std::string>& room_lines)
         size_t pin_pos = line.find("$<pin>");
         if (pin_pos != std::string::npos) {
             std::string left_part = line.substr(0, pin_pos);
-            std::string right_part = line.substr(pin_pos + 6); // length of "$<pin>"
+            std::string right_part = line.substr(pin_pos + 6);
 
             max_left_width = std::max(max_left_width, get_visual_width(strip_ansi(left_part)));
             max_right_width = std::max(max_right_width, get_visual_width(strip_ansi(right_part)));
@@ -107,13 +110,13 @@ RoomLayoutInfo calculate_room_layout(const std::vector<std::string>& room_lines)
     return info;
 }
 
-// Processes a single line from a room, applying all formatting.
+// Processes a single line within a room, applying $<pin> alignment and $<fill> expansion.
 std::string process_room_line(std::string line, const Config& config, const RoomLayoutInfo& layout_info) {
-    // 1. Handle $<pin> alignment
+    // Align content based on $<pin> marker.
     size_t pin_pos = line.find("$<pin>");
     if (pin_pos != std::string::npos) {
         std::string left_part = line.substr(0, pin_pos);
-        std::string right_part = line.substr(pin_pos + 6); // length of "$<pin>"
+        std::string right_part = line.substr(pin_pos + 6);
 
         size_t left_width = get_visual_width(strip_ansi(left_part));
         size_t right_width = get_visual_width(strip_ansi(right_part));
@@ -126,13 +129,13 @@ std::string process_room_line(std::string line, const Config& config, const Room
         line = left_part + std::string(left_padding, ' ') + right_part + std::string(right_padding, ' ');
     }
 
-    // 2. Handle $<fill> expansion
+    // Expand $<fill> with horizontal box characters.
     while (true) {
         size_t fill_pos = line.find("$<fill>");
         if (fill_pos == std::string::npos) break;
 
         std::string temp_line = line;
-        temp_line.erase(fill_pos, 7); // Remove the "$<fill>" marker
+        temp_line.erase(fill_pos, 7);
         size_t static_width = get_visual_width(strip_ansi(temp_line));
         
         size_t fill_needed = (layout_info.total_width > static_width) ? (layout_info.total_width - static_width) : 0;
@@ -151,7 +154,7 @@ std::string process_room_line(std::string line, const Config& config, const Room
 
 } // anonymous namespace
 
-// Main function to apply the box drawing logic.
+// Applies box drawing logic to the layout.
 std::vector<std::string> apply_box_drawing(std::vector<std::string> layout, const Config& config) noexcept
 {
     if (!config.box_drawing_enabled) {
@@ -165,7 +168,6 @@ std::vector<std::string> apply_box_drawing(std::vector<std::string> layout, cons
         trim_ws(current_line);
         
         if (current_line.find("$<room>") != std::string::npos) {
-            // Found the start of a room, now find the end.
             Room current_room;
             size_t room_end_idx = i;
             bool room_found = false;
@@ -182,22 +184,17 @@ std::vector<std::string> apply_box_drawing(std::vector<std::string> layout, cons
             }
 
             if (room_found) {
-                // Calculate the layout for this specific room using the pin logic.
                 current_room.layout_info = calculate_room_layout(current_room.lines);
                 
-                // Process and add each line of the room to the final layout.
                 for (const auto& line : current_room.lines) {
                     final_layout.push_back(process_room_line(line, config, current_room.layout_info));
                 }
                 
-                // Skip the main loop ahead to the end of the processed room.
                 i = room_end_idx;
             } else {
-                // No $<endroom> found, treat $<room> as a literal line.
                 final_layout.push_back(layout[i]);
             }
         } else {
-            // This line is not a room marker, add it as is.
             final_layout.push_back(layout[i]);
         }
     }
