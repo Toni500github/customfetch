@@ -70,18 +70,26 @@
 
 
 size_t get_visual_width(const std::string& input) {
+    if (input.empty())
+        return 0;
+
+    size_t width = 0;
     try {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-        std::wstring wide = converter.from_bytes(input);
-        size_t width = 0;
-        for (wchar_t ch : wide) {
-            int w = wcwidth(ch);
-            width += (w < 0 ? 1 : w); 
+        utf8::iterator<std::string::const_iterator> it(input.begin(), input.begin(), input.end());
+        utf8::iterator<std::string::const_iterator> end(input.end(), input.begin(), input.end());
+
+        for (; it != end; ++it) {
+            wchar_t wch[2] = { static_cast<wchar_t>(*it), 0 };
+            int w = wcwidth(wch[0]);
+            if (w > 0) {
+                width += w;
+            }
         }
-        return width;
-    } catch (...) {
-        return input.length(); 
+    } catch (const std::exception& e) {
+        // Fallback for invalid UTF-8 sequences
+        return input.length();
     }
+    return width;
 }
 
 
@@ -384,220 +392,43 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
     }
 
     
-    std::string              _;
+    // --- Layout Parsing and Expansion --- 
+    std::vector<std::string> parsed_layout;
     std::vector<std::string> tmp_layout;
+    std::string              _;
     parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, true };
+
     for (size_t i = 0; i < layout.size(); ++i)
     {
-        layout[i]              = parse(layout[i], parse_args);
-        parse_args.no_more_reset = false;
-    #if !GUI_APP
-        if (!config.args_disable_colors)
-            layout[i].insert(0, NOCOLOR);
-    #endif
+        std::string current_line = layout[i];
+        std::string parsed_line = parse(current_line, parse_args);
 
         if (!tmp_layout.empty())
         {
-            layout.erase(layout.begin() + i);
-            layout.insert(layout.begin() + i, tmp_layout.begin(), tmp_layout.end());
-            i += tmp_layout.size() - 1;
+            // A multi-line module was used. It populated tmp_layout.
+            // Insert the contents of tmp_layout into our new layout.
+            parsed_layout.insert(parsed_layout.end(), tmp_layout.begin(), tmp_layout.end());
             tmp_layout.clear();
         }
+        else
+        {
+            // A single-line module was used. Add the parsed line.
+            parsed_layout.push_back(parsed_line);
+        }
+        parse_args.no_more_reset = false;
     }
+    layout = parsed_layout; // Replace original layout with the fully parsed one.
 
-    layout.erase(std::remove_if(layout.begin(), layout.end(),
-                                [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
-                 layout.end());
-
-    
-#if 0
-    if (config.box_drawing_enabled)
-    {
-        size_t max_key_width = 0;
-        size_t max_value_width = 0;
-
-        
-        auto strip_ansi = [](const std::string& str) -> std::string {
-            std::string result;
-            result.reserve(str.size());
-            bool in_escape = false;
-            
-            for (size_t i = 0; i < str.size(); ++i) {
-                if (str[i] == '\033' && i + 1 < str.size() && str[i + 1] == '[') {
-                    in_escape = true;
-                    i++; // Skip the '[' as well
-                    continue;
-                }
-                
-                if (in_escape) {
-                    if (str[i] == 'm') {
-                        in_escape = false;
-                    }
-                    continue;
-                }
-                
-                result += str[i];
-            }
-            return result;
-        };
-
-        
-        for (const auto& line : layout)
-        {
-            if (line.empty()) continue;
-            
-            std::string clean_line = strip_ansi(line);
-            size_t sep_pos = clean_line.find('|');
-            
-            if (sep_pos != std::string::npos)
-            {
-                std::string key_part = clean_line.substr(0, sep_pos);
-                std::string value_part = clean_line.substr(sep_pos + 1);
-                
-                
-                key_part.erase(0, key_part.find_first_not_of(" \t"));
-                key_part.erase(key_part.find_last_not_of(" \t") + 1);
-                value_part.erase(0, value_part.find_first_not_of(" \t"));
-                value_part.erase(value_part.find_last_not_of(" \t") + 1);
-                
-                max_key_width = std::max(max_key_width, get_visual_width(key_part));
-                max_value_width = std::max(max_value_width, get_visual_width(value_part));
-            }
-            else
-            {
-                
-                std::string trimmed = clean_line;
-                trimmed.erase(0, trimmed.find_first_not_of(" \t"));
-                trimmed.erase(trimmed.find_last_not_of(" \t") + 1);
-                max_key_width = std::max(max_key_width, get_visual_width(trimmed));
-            }
-        }
-
-        std::vector<std::string> boxed_layout;
-        const auto& bc = config.box_chars;
-
-                // Create top border
-        const std::string tl = "╭", tr = "╮", bl = "╰", br = "╯", tt = "┬", bt = "┴";
-        std::string top_border = tl;
-        for(size_t i = 0; i < max_key_width + 2; ++i) top_border += bc.horizontal;
-        top_border += tt;
-        for(size_t i = 0; i < max_value_width + 2; ++i) top_border += bc.horizontal;
-        top_border += tr;
-        boxed_layout.push_back(top_border);
-
-        
-        for (const auto& line : layout)
-        {
-            if (line.empty()) {
-                
-                std::string empty_row = bc.vertical;
-                empty_row += std::string(max_key_width + 2, ' ');
-                empty_row += bc.vertical;
-                empty_row += std::string(max_value_width + 2, ' ');
-                empty_row += bc.vertical;
-                boxed_layout.push_back(empty_row);
-                continue;
-            }
-
-            std::string clean_line = strip_ansi(line);
-            size_t sep_pos = clean_line.find('|');
-            
-            if (sep_pos != std::string::npos)
-            {
-                
-                size_t original_sep_pos = line.find('|');
-                
-                std::string key = line.substr(0, original_sep_pos);
-                std::string value = line.substr(original_sep_pos + 1);
-
-                const char* WHITESPACE = " \t\n\r\f\v";
-                key.erase(0, key.find_first_not_of(WHITESPACE));
-                key.erase(key.find_last_not_of(WHITESPACE) + 1);
-                value.erase(0, value.find_first_not_of(WHITESPACE));
-                value.erase(value.find_last_not_of(WHITESPACE) + 1);
-
-                
-                std::string key_clean = clean_line.substr(0, sep_pos);
-                std::string value_clean = clean_line.substr(sep_pos + 1);
-                
-                // Trim clean versions
-                key_clean.erase(0, key_clean.find_first_not_of(" \t"));
-                key_clean.erase(key_clean.find_last_not_of(" \t") + 1);
-                value_clean.erase(0, value_clean.find_first_not_of(" \t"));
-                value_clean.erase(value_clean.find_last_not_of(" \t") + 1);
-                
-                size_t key_width = get_visual_width(key_clean);
-                size_t value_width = get_visual_width(value_clean);
-
-                std::string formatted_line = bc.vertical;
-                formatted_line += " ";
-                formatted_line += key;
-                
-                if (max_key_width > key_width) {
-                    formatted_line += std::string(max_key_width - key_width, ' ');
-                }
-                formatted_line += " ";
-                formatted_line += bc.vertical;
-                formatted_line += " ";
-                formatted_line += value;
-                
-                if (max_value_width > value_width) {
-                    formatted_line += std::string(max_value_width - value_width, ' ');
-                }
-                formatted_line += " ";
-                formatted_line += bc.vertical;
-                
-                boxed_layout.push_back(formatted_line);
-            }
-            else
-            {
-                
-                std::string clean_trimmed = clean_line;
-                clean_trimmed.erase(0, clean_trimmed.find_first_not_of(" \t"));
-                clean_trimmed.erase(clean_trimmed.find_last_not_of(" \t") + 1);
-                
-                
-                std::string line_with_colors_trimmed = line;
-                const char* WHITESPACE = " \t\n\r\f\v";
-                line_with_colors_trimmed.erase(0, line_with_colors_trimmed.find_first_not_of(WHITESPACE));
-                line_with_colors_trimmed.erase(line_with_colors_trimmed.find_last_not_of(WHITESPACE) + 1);
-
-                size_t content_width = get_visual_width(clean_trimmed);
-                size_t total_width = max_key_width + max_value_width + 2;
-                size_t padding = (total_width > content_width) ? (total_width - content_width) : 0;
-                
-                std::string formatted_line = bc.vertical;
-                formatted_line += " ";
-                formatted_line += line_with_colors_trimmed; 
-                formatted_line += std::string(padding, ' ');
-                formatted_line += " ";
-                formatted_line += bc.vertical;
-                
-                boxed_layout.push_back(formatted_line);
-            }
-        }
-
-        
-        std::string bottom_border = bl;
-        for(size_t i = 0; i < max_key_width + 2; ++i) bottom_border += bc.horizontal;
-        bottom_border += bt;
-        for(size_t i = 0; i < max_value_width + 2; ++i) bottom_border += bc.horizontal;
-        bottom_border += br;
-        boxed_layout.push_back(bottom_border);
-
-        #endif
+    // --- Box Drawing --- 
     if (config.box_drawing_enabled)
     {
         layout = apply_box_drawing(std::move(layout), config);
     }
 
-    if (config.logo_position == "top" || config.logo_position == "bottom")
-    {
-        if (!asciiArt.empty())
-            layout.insert(config.logo_position == "top" ? layout.begin() : layout.end(), asciiArt.begin(),
-                          asciiArt.end());
-        return layout;
-    }
+    // --- Final Cleanup and Rendering --- 
+    layout.erase(std::remove_if(layout.begin(), layout.end(),
+                                [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
+                 layout.end());
 
     
     std::vector<std::string> final_render;
@@ -634,19 +465,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         final_render.push_back(current_row);
     }
 
-<<<<<<< Updated upstream
-    for (; i < asciiArt.size(); ++i)
-    {
-        std::string line(config.logo_padding_left, ' ');
-        line += asciiArt.at(i);
-
-        layout.push_back(line);
-    }
-
-    return layout;
-=======
     return final_render;
->>>>>>> Stashed changes
 }
 
 void Display::display(const std::vector<std::string>& renderResult)

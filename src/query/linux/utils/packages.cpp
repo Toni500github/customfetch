@@ -66,8 +66,7 @@ static size_t get_num_string_file(const std::string_view path, const std::string
 
 std::string get_all_pkgs(const Config& config)
 {
-    std::string           ret;
-    pkgs_managers_count_t pkgs_count;
+    size_t total_pkgs = 0;
 
     for (const std::string& name : config.pkgs_managers)
     {
@@ -75,36 +74,30 @@ std::string get_all_pkgs(const Config& config)
         {
             case "pacman"_fnv1a16:
                 for (const std::string& str : config.pacman_dirs)
-                    pkgs_count.pacman += get_num_count_dir(expandVar(str));
-                ADD_PKGS_COUNT(pacman);
+                    total_pkgs += get_num_count_dir(expandVar(str));
                 break;
 
             case "flatpak"_fnv1a16:
                 for (const std::string& str : config.flatpak_dirs)
-                    pkgs_count.flatpak += get_num_count_dir(expandVar(str));
-                ADD_PKGS_COUNT(flatpak);
+                    total_pkgs += get_num_count_dir(expandVar(str));
                 break;
 
             case "dpkg"_fnv1a16:
                 for (const std::string& str : config.dpkg_files)
-                    pkgs_count.dpkg += get_num_string_file(expandVar(str), "Status: install ok installed");
-                ADD_PKGS_COUNT(dpkg);
+                    total_pkgs += get_num_string_file(expandVar(str), "Status: install ok installed");
                 break;
 
             case "apk"_fnv1a16:
                 for (const std::string& str : config.apk_files)
-                    pkgs_count.apk += get_num_string_file(expandVar(str), "C:Q");
-                ADD_PKGS_COUNT(apk);
+                    total_pkgs += get_num_string_file(expandVar(str), "C:Q");
                 break;
         }
     }
 
-    if (ret.empty())
+    if (total_pkgs == 0)
         return MAGIC_LINE;
 
-    ret.erase(ret.length() - 2);  // remove last ", "
-
-    return ret;
+    return std::to_string(total_pkgs);
 }
 
 #undef ADD_PKGS_COUNT

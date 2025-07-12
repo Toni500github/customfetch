@@ -65,7 +65,6 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     }
 
     // clang-format off
-    // Idk but with `this->` looks more readable
     this->layout              = getValueArrayStr("config.layout", {});
     this->percentage_colors   = getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
     this->slow_query_warnings = getValue<bool>("config.slow-query-warnings", false);
@@ -85,7 +84,7 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->gui_bg_image        = expandVar(getValue<std::string>("gui.bg-image", "disable"));
     this->gui_css_file        = expandVar(getValue<std::string>("gui.gtk-css",  "disable"));
 
-    this->auto_disks_fmt      = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
+    this->auto_disks_fmt          = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
     this->auto_disks_show_dupl= getValue<bool>("auto.disk.show-duplicated", false); 
 
     this->uptime_d_fmt = expandVar(getValue<std::string>("os.uptime.days", " days"));
@@ -101,17 +100,17 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
 
     this->box_drawing_enabled = getValue<bool>("config.box-drawing-enabled", false);
     this->box_extra_padding = getValue<int>("config.box-extra-padding", 0);
-    this->box_chars.horizontal   = getValue<std::string>("config.box-chars.horizontal",   "─");
-    this->box_chars.vertical     = getValue<std::string>("config.box-chars.vertical",     "│");
+    this->box_chars.horizontal   = getValue<std::string>("config.box-chars.horizontal",    "─");
+    this->box_chars.vertical     = getValue<std::string>("config.box-chars.vertical",      "│");
 
-    colors.black       = getThemeValue("config.black",   "\033[1;30m");
-    colors.red         = getThemeValue("config.red",     "\033[1;31m");
-    colors.green       = getThemeValue("config.green",   "\033[1;32m");
-    colors.yellow      = getThemeValue("config.yellow",  "\033[1;33m");
-    colors.blue        = getThemeValue("config.blue",    "\033[1;34m");
-    colors.magenta     = getThemeValue("config.magenta", "\033[1;35m");
-    colors.cyan        = getThemeValue("config.cyan",    "\033[1;36m");
-    colors.white       = getThemeValue("config.white",   "\033[1;37m");
+    colors.black      = getThemeValue("config.black",   "\033[1;30m");
+    colors.red        = getThemeValue("config.red",     "\033[1;31m");
+    colors.green      = getThemeValue("config.green",   "\033[1;32m");
+    colors.yellow     = getThemeValue("config.yellow",  "\033[1;33m");
+    colors.blue       = getThemeValue("config.blue",    "\033[1;34m");
+    colors.magenta    = getThemeValue("config.magenta", "\033[1;35m");
+    colors.cyan       = getThemeValue("config.cyan",    "\033[1;36m");
+    colors.white      = getThemeValue("config.white",   "\033[1;37m");
 
     colors.gui_black   = getThemeValue("gui.black",   "!#000005");
     colors.gui_red     = getThemeValue("gui.red",     "!#ff2000");
@@ -121,6 +120,7 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     colors.gui_yellow  = getThemeValue("gui.yellow",  "!#ffff00");
     colors.gui_magenta = getThemeValue("gui.magenta", "!#ff11cc");
     colors.gui_white   = getThemeValue("gui.white",   "!#ffffff");
+    // clang-format on
 
     if (this->percentage_colors.size() < 3)
     {
@@ -158,7 +158,7 @@ void Config::addAliasColors(const std::string& str)
     const size_t pos = str.find('=');
     if (pos == std::string::npos)
         die(_("alias color '{}' does NOT have an equal sign '=' for separating color name and value\n"
-            "For more check with --help"), str);
+              "For more check with --help"), str);
 
     const std::string& name  = str.substr(0, pos);
     const std::string& value = str.substr(pos + 1);
@@ -181,13 +181,11 @@ void Config::overrideOption(const std::string& opt)
     const size_t pos = opt.find('=');
     if (pos == std::string::npos)
         die(_("override option '{}' does NOT have an equal sign '=' for separating config name and value\n"
-            "For more check with --help"), opt);
+              "For more check with --help"), opt);
 
     std::string name {opt.substr(0, pos)};
     const std::string& value = opt.substr(pos + 1);
 
-    // usually the user finds incovinient to write "config.foo"
-    // for general config options
     if (name.find('.') == name.npos)
         name.insert(0, "config.");
 
