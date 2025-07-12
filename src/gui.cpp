@@ -109,6 +109,7 @@ static std::vector<std::string> render_with_image(const Config& config)
         {
             layout.erase(layout.begin() + i);
             layout.insert(layout.begin() + i, tmp_layout.begin(), tmp_layout.end());
+            i += tmp_layout.size() - 1;
             tmp_layout.clear();
         }
     }

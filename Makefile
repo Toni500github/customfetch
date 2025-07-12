@@ -57,7 +57,7 @@ SRC_CC  	?= $(wildcard src/core-modules/*.cc src/core-modules/linux/*.cc src/cor
 OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
 OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
-LDFLAGS   	+= -Wl,-rpath,$(BUILDDIR) -L$(BUILDDIR) $(BUILDDIR)/libfmt.a -lcufetch -ldl
+LDFLAGS   	+= -L$(BUILDDIR) $(BUILDDIR)/libfmt.a -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/cufetch -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
