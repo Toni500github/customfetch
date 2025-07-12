@@ -23,6 +23,13 @@
  *
  */
 
+#include <linux/limits.h>
+#include <unistd.h>
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+#include <fstream>
+#include <string_view>
 #include "platform.hpp"
 #if CF_LINUX
 
@@ -105,10 +112,46 @@ GPU::GPU(const std::string& id, systemInfo_t& queried_gpus)
         return;
     }
 
+    char driver_path[PATH_MAX];
+    ssize_t driver_result_size = readlink((sys_path + "/device/driver/module").c_str(), driver_path, PATH_MAX);
+
+    char device_path[PATH_MAX];
+    ssize_t device_result_size = readlink((sys_path + "/device").c_str(), device_path, PATH_MAX);
+
+    bool driver_lookup_success = false;
+
+    if (driver_result_size > 0 && device_result_size > 0) {
+        char *driver_name = (char *)memrchr(driver_path, '/', (size_t)driver_result_size);
+        if (driver_name)
+            driver_name++;
+
+        char *device_pci = (char *)memrchr(device_path, '/', (size_t)device_result_size);
+        if (device_pci)
+            device_pci++;
+
+        if (driver_name && device_pci && strcmp(driver_name, "nvidia") == 0) {
+            char nvidia_info_path[2048];
+            snprintf(nvidia_info_path, 2048, "/proc/driver/nvidia/gpus/%s/information", device_pci);
+
+            std::ifstream nvidia_info(nvidia_info_path);
+
+            m_gpu_infos.vendor = "NVIDIA";
+
+            std::string line;
+            std::getline(nvidia_info, line);
+
+            /* 17: length of "Model: \t NVIDIA " */
+            m_gpu_infos.name = line.substr(17);
+
+            driver_lookup_success = true;
+        }
+    }
     m_vendor_id_s = read_by_syspath(sys_path + "/device/vendor");
     m_device_id_s = read_by_syspath(sys_path + "/device/device");
 
-    m_gpu_infos = get_gpu_infos(m_vendor_id_s, m_device_id_s);
+    if (!driver_lookup_success)
+        m_gpu_infos = get_gpu_infos(m_vendor_id_s, m_device_id_s);
+
     queried_gpus.insert(
         {id, {
             {"name",   variant(m_gpu_infos.name)},
