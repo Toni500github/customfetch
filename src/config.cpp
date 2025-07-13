@@ -62,7 +62,7 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
             err.source().begin.line, err.source().begin.column);
     }
 
-
+    // clang-format off
     // Idk but with `this->` looks more readable
     this->layout              = getValueArrayStr("config.layout", {});
     this->percentage_colors   = getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});

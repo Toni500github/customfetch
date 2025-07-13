@@ -54,7 +54,7 @@
 #include <vector>
 
 #include "core-modules.hh"
-#include "core-modules/linux/utils/boxd.hpp"
+#include "boxd.hpp"
 #include "fmt/core.h"
 #include "fmt/format.h"
 #include "parse.hpp"
