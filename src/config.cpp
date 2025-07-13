@@ -94,6 +94,9 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->flatpak_dirs = getValueArrayStr("os.pkgs.flatpak-dirs", {"/var/lib/flatpak/app", "~/.local/share/flatpak/app"});
     this->apk_files    = getValueArrayStr("os.pkgs.apk-files",    {"/var/lib/apk/db/installed"});
 
+    this->box_drawing_enabled  = getValue<bool>("config.box-drawing-enabled", false);
+    this->box_chars.horizontal = getValue<std::string>("config.box-drawing-char", "─");
+
     colors.black       = getThemeValue("config.black",   "\033[1;30m");
     colors.red         = getThemeValue("config.red",     "\033[1;31m");
     colors.green       = getThemeValue("config.green",   "\033[1;32m");

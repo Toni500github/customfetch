@@ -703,6 +703,10 @@ std::optional<std::string> parse_info_tag(Parser& parser, parse_args_t& parse_ar
 
     const std::string& module = parse(parser, parse_args, evaluate, '>');
 
+    if (module == "pin" || module == "fill" || module == "room" || module == "endroom") {
+        return "$<" + module + ">";
+    }
+
     if (!evaluate)
         return {};
 

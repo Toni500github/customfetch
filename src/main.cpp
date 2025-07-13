@@ -63,7 +63,7 @@
 
 using namespace std::string_view_literals;
 
-bool display_modules = false;
+bool display_modules    = false;
 bool display_list_logos = false;
 
 // Print the version and some other infos, then exit successfully
@@ -328,7 +328,7 @@ static void modules_list()
 
         // Split name into parts (e.g., "os.name.pretty" -> ["os", "name", "pretty"])
         size_t start = 0, end = module.name.find('.');
-        bool new_module = true;
+        bool   new_module = true;
         while (end != std::string::npos)
         {
             new_module = false;
@@ -360,13 +360,13 @@ static void modules_list()
     }
 }
 
+// clang-format off
 // Return true if optarg says something true
 static bool str_to_bool(const std::string_view str)
 {
     return (str == "true" || str == "1" || str == "enable");
 }
 
-// clang-format off
 // parseargs() but only for parsing the user config path trough args
 // and so we can directly construct Config
 static std::filesystem::path parse_config_path(int argc, char* argv[], const std::filesystem::path &configDir)
@@ -591,7 +591,7 @@ static void localize(void)
 }
 
 // clang-format on
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     const std::filesystem::path& configDir  = getConfigDir();
     const std::filesystem::path& configFile = parse_config_path(argc, argv, configDir);
@@ -602,7 +602,7 @@ int main(int argc, char *argv[])
     if (!parseargs(argc, argv, config, configFile))
         return 1;
     config.loadConfigFile(configFile);
-    std::vector<void *> plugins_handle;
+    std::vector<void*> plugins_handle;
 
     /* TODO(burntranch): track each library and unload them. */
     core_plugins_start(config);
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
         start(handle, config);
         plugins_handle.push_back(handle);
     }
-    
+
     if (display_modules)
     {
         modules_list();
@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
     }
     else if (display_list_logos)
     {
-        list_logos(config.data_dir+"/ascii");
+        list_logos(config.data_dir + "/ascii");
         return 0;
     }
 
@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
         enable_cursor();
 
     core_plugins_finish();
-    for (void *handle : plugins_handle)
+    for (void* handle : plugins_handle)
     {
         LOAD_LIB_SYMBOL(handle, void, finish, void*);
         if (dlerror())

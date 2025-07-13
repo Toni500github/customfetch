@@ -23,8 +23,6 @@
  *
  */
 
-// Implementation of the system behind displaying/rendering the information
-
 #include "display.hpp"
 
 #include <cstddef>
@@ -34,7 +32,7 @@
 #include "platform.hpp"
 
 #ifndef GUI_APP
-# define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 #endif
 
 #if CF_MACOS
@@ -49,11 +47,13 @@
 
 #include <algorithm>
 #include <array>
+#include <cwchar>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <vector>
 
+#include "boxd.hpp"
 #include "core-modules.hh"
 #include "fmt/core.h"
 #include "fmt/format.h"
@@ -62,6 +62,27 @@
 #include "stb_image.h"
 #include "utf8/checked.h"
 #include "util.hpp"
+
+size_t get_visual_width(const std::string& input)
+{
+    if (input.empty())
+    {
+        return 0;
+    }
+    std::wstring wstr;
+    try
+    {
+        utf8::utf8to16(input.begin(), input.end(), std::back_inserter(wstr));
+    }
+    catch (const utf8::exception&)
+    {
+        return input.length();  // Fallback on invalid UTF-8
+    }
+
+    int width = wcswidth(wstr.c_str(), wstr.length());
+
+    return (width < 0) ? input.length() : static_cast<size_t>(width);
+}
 
 std::string Display::detect_distro(const Config& config)
 {
@@ -98,7 +119,7 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
                                                   const Config& config, const std::filesystem::path& path,
                                                   const std::uint16_t font_width, const std::uint16_t font_height)
 {
-    int image_width, image_height, channels;
+    int image_width{}, image_height{}, channels{};
 
     // load the image and get its width and height
     unsigned char* img = stbi_load(path.c_str(), &image_width, &image_height, &channels, 0);
@@ -134,12 +155,10 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
         }
     }
 
-    // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
     const size_t width  = image_width / font_width;
     const size_t height = image_height / font_height;
 
@@ -289,6 +308,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         // clear screen
         write(STDOUT_FILENO, "\33[H\33[2J", 7);
 
+        // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
         const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
         const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
 
@@ -330,14 +350,14 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         if (!config.args_disable_colors)
             asciiArt_s += NOCOLOR;
 #else
-        // check parse.cpp
+
         const size_t pos = asciiArt_s.rfind("$ </");
         if (pos != std::string::npos)
             asciiArt_s.replace(pos, 2, "$");
 #endif
 
         asciiArt.push_back(asciiArt_s);
-        const size_t pureOutputLen = utf8::distance(pureOutput.begin(), pureOutput.end());
+        const size_t pureOutputLen = get_visual_width(pureOutput);
 
         if (static_cast<int>(pureOutputLen) > maxLineLength)
             maxLineLength = static_cast<int>(pureOutputLen);
@@ -346,11 +366,12 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         debug("asciiArt_s = {}", asciiArt_s);
     }
 
-    if (config.args_print_logo_only)
+    if (config.args_print_logo_only || layout.empty())
         return asciiArt;
 
-    std::string              _;
+    std::vector<std::string> parsed_layout;
     std::vector<std::string> tmp_layout;
+    std::string              _;
     parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
@@ -370,6 +391,10 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         }
     }
 
+    // Box Drawing
+    if (config.box_drawing_enabled)
+        layout = apply_box_drawing(std::move(layout), config);
+
     // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
@@ -383,38 +408,39 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         return layout;
     }
 
-    const unsigned int offset =
+    std::vector<std::string> final_render;
+    const unsigned int       offset_val =
         (config.offset.back() == '%')
-            ? calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), win.ws_col, maxLineLength)
-            : std::stoi(config.offset);
+                  ? calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), win.ws_col, maxLineLength)
+                  : std::stoi(config.offset);
+    const std::string offset_str(offset_val, ' ');
 
     size_t i;
-    for (i = 0; i < layout.size(); i++)
+    for (i = 0; i < layout.size(); ++i)
     {
-        size_t origin = config.logo_padding_left;
-
-        // The user-specified offset to be put before the logo
-        for (size_t j = 0; j < config.logo_padding_left; ++j)
-            layout.at(i).insert(0, " ");
+        std::string current_row;
 
         if (i < asciiArt.size())
         {
-            layout.at(i).insert(origin, asciiArt.at(i));
-            origin += asciiArt.at(i).length();
+            current_row.append(config.logo_padding_left, ' ');
+            current_row.append(asciiArt[i]);
+            size_t pure_width     = (i < pureAsciiArtLens.size()) ? pureAsciiArtLens[i] : 0;
+            size_t padding_needed = (maxLineLength > static_cast<int>(pure_width)) ? (maxLineLength - pure_width) : 0;
+            current_row.append(padding_needed, ' ');
+        }
+        else
+        {
+            current_row.append(config.logo_padding_left + maxLineLength, ' ');
         }
 
-        const size_t spaces = (maxLineLength + (config.args_disable_source ? 1 : offset)) -
-                              (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
+        current_row.append(offset_str);
 
-        debug("spaces: {}", spaces);
+        if (i < layout.size())
+        {
+            current_row.append(layout[i]);
+        }
 
-        for (size_t j = 0; j < spaces; j++)
-            layout.at(i).insert(origin, " ");
-
-#if !GUI_APP
-        if (!config.args_disable_colors)
-            layout.at(i) += NOCOLOR;
-#endif
+        final_render.push_back(current_row);
     }
 
     for (; i < asciiArt.size(); ++i)
@@ -422,10 +448,10 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         std::string line(config.logo_padding_left, ' ');
         line += asciiArt.at(i);
 
-        layout.push_back(line);
+        final_render.push_back(line);
     }
 
-    return layout;
+    return final_render;
 }
 
 void Display::display(const std::vector<std::string>& renderResult)
