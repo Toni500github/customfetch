@@ -222,11 +222,6 @@ layout = [
     "$<colors.light>" # light colors
 ]
 
-# Box drawing glyphs
-[box-drawing]
-enabled = false
-horizontal = "─"
-
 # display ascii-art or image/gif (GUI only) near layout
 # put "os" for displaying the OS ascii-art
 # or the "/path/to/file" for displaying custom files
@@ -311,6 +306,13 @@ alias-colors = ["purple=magenta"]
 # 2nd color for normal
 # 3rd color for bad
 percentage-colors = ["green", "yellow", "red"]
+
+# Box drawing glyphs
+box-drawing-enabled = false
+
+# The character to be used in $<fill>
+# in horizontal
+box-drawing-char = "─"
 
 # $<auto.disk> config
 [auto.disk]
