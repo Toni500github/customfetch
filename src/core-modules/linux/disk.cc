@@ -235,7 +235,6 @@ MODFUNC(auto_disk)
         callbackInfo->parse_args.tmp_layout.push_back(parse(format_auto_query_string(auto_disks_fmt, pDevice), callbackInfo->parse_args));
         if (fseek(mountsFile, old_position, SEEK_SET) == -1)
             die("Failed to seek back to saved position");
-        break; // Only process the first disk
     }
     return "";
 }
