@@ -22,9 +22,9 @@ file(GLOB
 	"src/*.cpp"
 	"src/core-modules/*.cc"
 	"src/core-modules/linux/*.cc"
-	"src/query/android/*.cpp"
-	"src/query/macos/*.cpp"
-	"src/core-modules/linux/utils/*.cpp"
+	"src/core-modules/android/*.cc"
+	"src/core-modules/macos/*.cc"
+	"src/core-modules/linux/utils/*.cc"
 	"src/libs/json/json.cpp"
 	"src/libs/toml++/toml.cpp")
 
