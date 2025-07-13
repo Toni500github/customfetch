@@ -53,8 +53,8 @@
 #include <iostream>
 #include <vector>
 
-#include "core-modules.hh"
 #include "boxd.hpp"
+#include "core-modules.hh"
 #include "fmt/core.h"
 #include "fmt/format.h"
 #include "parse.hpp"
@@ -410,10 +410,10 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
     }
 
     std::vector<std::string> final_render;
-    const unsigned int offset_val =
+    const unsigned int       offset_val =
         (config.offset.back() == '%')
-            ? calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), win.ws_col, maxLineLength)
-            : std::stoi(config.offset);
+                  ? calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), win.ws_col, maxLineLength)
+                  : std::stoi(config.offset);
     const std::string offset_str(offset_val, ' ');
 
     size_t i;

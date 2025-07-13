@@ -100,14 +100,14 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->box_drawing_enabled    = getValue<bool>("box-drawing.enabled", false);
     this->box_chars.horizontal   = getValue<std::string>("box-chars.horizontal", "─");
 
-    colors.black      = getThemeValue("config.black",   "\033[1;30m");
-    colors.red        = getThemeValue("config.red",     "\033[1;31m");
-    colors.green      = getThemeValue("config.green",   "\033[1;32m");
-    colors.yellow     = getThemeValue("config.yellow",  "\033[1;33m");
-    colors.blue       = getThemeValue("config.blue",    "\033[1;34m");
-    colors.magenta    = getThemeValue("config.magenta", "\033[1;35m");
-    colors.cyan       = getThemeValue("config.cyan",    "\033[1;36m");
-    colors.white      = getThemeValue("config.white",   "\033[1;37m");
+    colors.black       = getThemeValue("config.black",   "\033[1;30m");
+    colors.red         = getThemeValue("config.red",     "\033[1;31m");
+    colors.green       = getThemeValue("config.green",   "\033[1;32m");
+    colors.yellow      = getThemeValue("config.yellow",  "\033[1;33m");
+    colors.blue        = getThemeValue("config.blue",    "\033[1;34m");
+    colors.magenta     = getThemeValue("config.magenta", "\033[1;35m");
+    colors.cyan        = getThemeValue("config.cyan",    "\033[1;36m");
+    colors.white       = getThemeValue("config.white",   "\033[1;37m");
 
     colors.gui_black   = getThemeValue("gui.black",   "!#000005");
     colors.gui_red     = getThemeValue("gui.red",     "!#ff2000");
