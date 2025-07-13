@@ -1,3 +1,6 @@
+#include "platform.hpp"
+#if CF_MACOS
+
 #include <fstream>
 #include <string>
 #include "core-modules.hh"
@@ -123,3 +126,5 @@ unsigned long os_uptime()
 
     return time(NULL) - boot_time.tv_sec;
 }
+
+#endif
