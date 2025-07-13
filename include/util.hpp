@@ -78,6 +78,8 @@ struct byte_units_t
 
 #define UNLOAD_LIBRARY(handle) dlclose(handle);
 
+inline bool is_live_mode = false;
+
 /* https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
  * Check if substring exists at the end
  * @param fullString The string to lookup

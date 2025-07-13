@@ -34,11 +34,8 @@
 #include <filesystem>
 #include <fstream>
 
-#include "cufetch/config.hh"
 #include "display.hpp"
 #include "fmt/ranges.h"
-#include "parse.hpp"
-#include "query.hpp"
 #include "stb_image.h"
 #include "util.hpp"
 

@@ -18,7 +18,7 @@
  * SOFTWARE.
  */
 
-#include "term.hpp"
+#include "term.hh"
 
 #include <fstream>
 

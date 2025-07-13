@@ -42,7 +42,6 @@
 #include "fmt/ranges.h"
 #include "gui.hpp"
 #include "platform.hpp"
-#include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 

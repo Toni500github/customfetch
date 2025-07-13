@@ -42,7 +42,6 @@
 #include "cufetch/cufetch.hh"
 #include "fmt/color.h"
 #include "fmt/format.h"
-#include "query.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
@@ -88,27 +87,6 @@ public:
     size_t                 dollar_pos = 0;
     size_t                 pos        = 0;
 };
-
-// declarations of static members in query.hpp
-Query::System::System_t   Query::System::m_system_infos;
-Query::Theme::Theme_t     Query::Theme::m_theme_infos;
-Query::User::User_t       Query::User::m_users_infos;
-Query::Battery::Battery_t Query::Battery::m_battery_infos;
-Query::CPU::CPU_t         Query::CPU::m_cpu_infos;
-Query::RAM::RAM_t         Query::RAM::m_memory_infos;
-Query::GPU::GPU_t         Query::GPU::m_gpu_infos;
-Query::Disk::Disk_t       Query::Disk::m_disk_infos;
-
-struct utsname Query::System::m_uname_infos;
-struct passwd* Query::User::m_pPwd;
-unsigned long  Query::System::m_uptime;
-
-bool Query::System::m_bInit          = false;
-bool Query::RAM::m_bInit             = false;
-bool Query::CPU::m_bInit             = false;
-bool Query::User::m_bInit            = false;
-bool Query::Battery::m_bInit         = false;
-bool Query::User::m_bDont_query_dewm = false;
 
 // useless useful tmp string for parse() without using the original
 // pureOutput

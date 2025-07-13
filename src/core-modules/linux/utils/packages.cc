@@ -23,7 +23,7 @@
  *
  */
 
-#include "packages.hpp"
+#include "packages.hh"
 
 #include "util.hpp"
 #include <algorithm>

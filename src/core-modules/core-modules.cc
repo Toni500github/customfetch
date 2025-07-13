@@ -16,7 +16,7 @@
 #include "fmt/format.h"
 #include "util.hpp"
 
-#include "linux/utils/packages.hpp"
+#include "linux/utils/packages.hh"
 
 #if !CF_MACOS
 # include <mntent.h>

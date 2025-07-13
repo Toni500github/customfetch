@@ -30,8 +30,6 @@
 #include <string>
 
 #include "fmt/os.h"
-#include "query.hpp"
-#include "switch_fnv1a.hpp"
 #include "util.hpp"
 
 Config::Config(const std::filesystem::path& configFile, const std::filesystem::path& configDir)
@@ -85,9 +83,6 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->gui_bg_image        = expandVar(getValue<std::string>("gui.bg-image", "disable"));
     this->gui_css_file        = expandVar(getValue<std::string>("gui.gtk-css",  "disable"));
 
-    this->auto_disks_fmt      = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
-    this->auto_disks_show_dupl= getValue<bool>("auto.disk.show-duplicated", false); 
-
     this->uptime_d_fmt = expandVar(getValue<std::string>("os.uptime.days", " days"));
     this->uptime_h_fmt = expandVar(getValue<std::string>("os.uptime.hours", " hours"));
     this->uptime_m_fmt = expandVar(getValue<std::string>("os.uptime.mins", " mins"));
@@ -122,22 +117,6 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
         warn(_("the config array percentage-colors doesn't have 3 colors for being used in percentage tag and modules.\n"
                "Backing up to green, yellow and red"));
         this->percentage_colors = {"green", "yellow", "red"};
-    }
-
-    for (const std::string& str : this->getValueArrayStr("auto.disk.display-types", {"external", "regular", "read-only"}))
-    {
-        switch (fnv1a16::hash(str))
-        {
-            case "removable"_fnv1a16: // deprecated
-            case "external"_fnv1a16:
-                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_EXTERNAL; break;
-            case "regular"_fnv1a16:
-                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_REGULAR; break;
-            case "read-only"_fnv1a16:
-                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_READ_ONLY; break;
-            case "hidden"_fnv1a16:
-                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_HIDDEN; break;
-        }
     }
 
     for (const std::string& str : this->getValueArrayStr("config.alias-colors", {}))

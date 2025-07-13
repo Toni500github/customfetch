@@ -10,8 +10,8 @@
 #include "fmt/format.h"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
-#include "utils/dewm.hpp"
-#include "utils/term.hpp"
+#include "utils/dewm.hh"
+#include "utils/term.hh"
 
 #if __has_include(<sys/socket.h>) && __has_include(<wayland-client.h>)
 #include <sys/socket.h>
