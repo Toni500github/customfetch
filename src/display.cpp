@@ -70,26 +70,19 @@
 
 
 size_t get_visual_width(const std::string& input) {
-    if (input.empty())
+    if (input.empty()) {
         return 0;
-
-    size_t width = 0;
-    try {
-        utf8::iterator<std::string::const_iterator> it(input.begin(), input.begin(), input.end());
-        utf8::iterator<std::string::const_iterator> end(input.end(), input.begin(), input.end());
-
-        for (; it != end; ++it) {
-            wchar_t wch[2] = { static_cast<wchar_t>(*it), 0 };
-            int w = wcwidth(wch[0]);
-            if (w > 0) {
-                width += w;
-            }
-        }
-    } catch (const std::exception& e) {
-        // Fallback for invalid UTF-8 sequences
-        return input.length();
     }
-    return width;
+    std::wstring wstr;
+    try {
+        utf8::utf8to16(input.begin(), input.end(), std::back_inserter(wstr));
+    } catch (const utf8::exception&) {
+        return input.length(); // Fallback on invalid UTF-8
+    }
+    
+    int width = wcswidth(wstr.c_str(), wstr.length());
+    
+    return (width < 0) ? input.length() : static_cast<size_t>(width);
 }
 
 
@@ -386,13 +379,12 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
             asciiArt.push_back("");
         }
         asciiArt.push_back("Error: No layout found.");
-        asciiArt.push_back("Please check your configuration file (`customfetch.conf`).");
+        asciiArt.push_back("Please check your configuration file (`config.toml`).");
         asciiArt.push_back("The 'layout' array might be missing or empty, or there's a syntax error.");
         return asciiArt;
     }
 
     
-    // --- Layout Parsing and Expansion --- 
     std::vector<std::string> parsed_layout;
     std::vector<std::string> tmp_layout;
     std::string              _;
@@ -419,13 +411,13 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
     }
     layout = parsed_layout; // Replace original layout with the fully parsed one.
 
-    // --- Box Drawing --- 
+    //Box Drawing- 
     if (config.box_drawing_enabled)
     {
         layout = apply_box_drawing(std::move(layout), config);
     }
 
-    // --- Final Cleanup and Rendering --- 
+    //Final Cleanup and Rendering 
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());

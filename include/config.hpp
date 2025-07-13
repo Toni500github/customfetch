@@ -110,8 +110,6 @@ public:
     }
 };
 
-// MODIFICATION: The default config now lives entirely in the header file.
-// It also uses the new $<room> and $<pin> syntax for a robust default layout.
 inline constexpr std::string_view AUTOCONFIG = R"#([config]
 layout = [
     "$<title>",
@@ -136,11 +134,9 @@ layout = [
 ]
 
 box-drawing-enabled = true
-box-extra-padding = 1
 
 [config.box-chars]
 horizontal = "─"
-vertical   = "│"
 
 source-path = "os"
 data-dir = "/usr/share/customfetch"
