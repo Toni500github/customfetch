@@ -298,7 +298,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
     }
 
     std::vector<size_t> pureAsciiArtLens;
-    int                 maxLineLength = -1;
+    size_t              maxLineLength = 0;
 
     struct winsize win;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
@@ -359,8 +359,8 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         asciiArt.push_back(asciiArt_s);
         const size_t pureOutputLen = get_visual_width(pureOutput);
 
-        if (static_cast<int>(pureOutputLen) > maxLineLength)
-            maxLineLength = static_cast<int>(pureOutputLen);
+        if (pureOutputLen > maxLineLength)
+            maxLineLength = pureOutputLen;
 
         pureAsciiArtLens.push_back(pureOutputLen);
         debug("asciiArt_s = {}", asciiArt_s);
@@ -425,7 +425,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
             current_row.append(config.logo_padding_left, ' ');
             current_row.append(asciiArt[i]);
             size_t pure_width     = (i < pureAsciiArtLens.size()) ? pureAsciiArtLens[i] : 0;
-            size_t padding_needed = (maxLineLength > static_cast<int>(pure_width)) ? (maxLineLength - pure_width) : 0;
+            size_t padding_needed = (maxLineLength > pure_width) ? (maxLineLength - pure_width) : 0;
             current_row.append(padding_needed, ' ');
         }
         else
