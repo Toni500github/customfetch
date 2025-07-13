@@ -30,8 +30,6 @@
 #include <string>
 
 #include "fmt/os.h"
-#include "query.hpp"
-#include "switch_fnv1a.hpp"
 #include "util.hpp"
 
 Config::Config(const std::filesystem::path& configFile, const std::filesystem::path& configDir)
@@ -63,7 +61,8 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
             filename.string(), err.description(),
             err.source().begin.line, err.source().begin.column);
     }
-	// clang-format off
+
+
     // Idk but with `this->` looks more readable
     this->layout              = getValueArrayStr("config.layout", {});
     this->percentage_colors   = getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
@@ -84,7 +83,7 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->gui_bg_image        = expandVar(getValue<std::string>("gui.bg-image", "disable"));
     this->gui_css_file        = expandVar(getValue<std::string>("gui.gtk-css",  "disable"));
 
-    this->auto_disks_fmt          = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
+    this->auto_disks_fmt      = getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
     this->auto_disks_show_dupl= getValue<bool>("auto.disk.show-duplicated", false); 
 
     this->uptime_d_fmt = expandVar(getValue<std::string>("os.uptime.days", " days"));
@@ -98,8 +97,9 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->flatpak_dirs = getValueArrayStr("os.pkgs.flatpak-dirs", {"/var/lib/flatpak/app", "~/.local/share/flatpak/app"});
     this->apk_files    = getValueArrayStr("os.pkgs.apk-files",    {"/var/lib/apk/db/installed"});
 
-    this->box_drawing_enabled = getValue<bool>("config.box-drawing-enabled", false);
-    this->box_chars.horizontal   = getValue<std::string>("config.box-chars.horizontal",    "─");
+    this->box_drawing_enabled    = getValue<bool>("box-drawing.enabled", false);
+    this->box_chars.horizontal   = getValue<std::string>("box-chars.horizontal", "─");
+
     colors.black      = getThemeValue("config.black",   "\033[1;30m");
     colors.red        = getThemeValue("config.red",     "\033[1;31m");
     colors.green      = getThemeValue("config.green",   "\033[1;32m");
@@ -125,22 +125,6 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
         this->percentage_colors = {"green", "yellow", "red"};
     }
 
-    for (const std::string& str : this->getValueArrayStr("auto.disk.display-types", {"external", "regular", "read-only"}))
-    {
-        switch (fnv1a16::hash(str))
-        {
-            case "removable"_fnv1a16: // deprecated
-            case "external"_fnv1a16:
-                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_EXTERNAL; break;
-            case "regular"_fnv1a16:
-                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_REGULAR; break;
-            case "read-only"_fnv1a16:
-                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_READ_ONLY; break;
-            case "hidden"_fnv1a16:
-                this->auto_disks_types |= Query::DISK_VOLUME_TYPE_HIDDEN; break;
-        }
-    }
-
     for (const std::string& str : this->getValueArrayStr("config.alias-colors", {}))
         this->addAliasColors(str);
 
@@ -154,7 +138,7 @@ void Config::addAliasColors(const std::string& str)
     const size_t pos = str.find('=');
     if (pos == std::string::npos)
         die(_("alias color '{}' does NOT have an equal sign '=' for separating color name and value\n"
-              "For more check with --help"), str);
+            "For more check with --help"), str);
 
     const std::string& name  = str.substr(0, pos);
     const std::string& value = str.substr(pos + 1);
@@ -177,12 +161,13 @@ void Config::overrideOption(const std::string& opt)
     const size_t pos = opt.find('=');
     if (pos == std::string::npos)
         die(_("override option '{}' does NOT have an equal sign '=' for separating config name and value\n"
-              "For more check with --help"), opt);
+            "For more check with --help"), opt);
 
     std::string name {opt.substr(0, pos)};
     const std::string& value = opt.substr(pos + 1);
-	// usually the user finds incovinient to write "config.foo"
-	// for general config options
+
+    // usually the user finds incovinient to write "config.foo"
+    // for general config options
     if (name.find('.') == name.npos)
         name.insert(0, "config.");
 

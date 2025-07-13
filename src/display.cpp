@@ -23,8 +23,6 @@
  *
  */
 
-
-
 #include "display.hpp"
 
 #include <cstddef>
@@ -49,13 +47,14 @@
 
 #include <algorithm>
 #include <array>
+#include <cwchar>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <memory> // For std::make_unique
 
 #include "core-modules.hh"
+#include "core-modules/linux/utils/boxd.hpp"
 #include "fmt/core.h"
 #include "fmt/format.h"
 #include "parse.hpp"
@@ -63,28 +62,27 @@
 #include "stb_image.h"
 #include "utf8/checked.h"
 #include "util.hpp"
-#include "core-modules/linux/utils/boxd.hpp"
 
-#include <cwchar>
-#include <locale>
-
-
-size_t get_visual_width(const std::string& input) {
-    if (input.empty()) {
+size_t get_visual_width(const std::string& input)
+{
+    if (input.empty())
+    {
         return 0;
     }
     std::wstring wstr;
-    try {
+    try
+    {
         utf8::utf8to16(input.begin(), input.end(), std::back_inserter(wstr));
-    } catch (const utf8::exception&) {
-        return input.length(); // Fallback on invalid UTF-8
     }
-    
+    catch (const utf8::exception&)
+    {
+        return input.length();  // Fallback on invalid UTF-8
+    }
+
     int width = wcswidth(wstr.c_str(), wstr.length());
-    
+
     return (width < 0) ? input.length() : static_cast<size_t>(width);
 }
-
 
 std::string Display::detect_distro(const Config& config)
 {
@@ -121,13 +119,13 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
                                                   const Config& config, const std::filesystem::path& path,
                                                   const std::uint16_t font_width, const std::uint16_t font_height)
 {
-    int image_width, image_height, channels;
+    int image_width{}, image_height{}, channels{};
 
-    
+    // load the image and get its width and height
     unsigned char* img = stbi_load(path.c_str(), &image_width, &image_height, &channels, 0);
 
     if (!img)
-        die(_("Unable to load image \'{}\'"), path.string());
+        die(_("Unable to load image '{}'"), path.string());
 
     stbi_image_free(img);
     if (Display::ascii_logo_fd != -1)
@@ -136,12 +134,12 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
         close(Display::ascii_logo_fd);
     }
 
-    std::string                  _;
+    std::string              _;
     std::vector<std::string> tmp_layout;
-    parse_args_t                 parse_args{ modulesInfo, _, layout, tmp_layout, config, true };
+    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
-        layout[i]              = parse(layout[i], parse_args);
+        layout[i]                = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
 #if !GUI_APP
         if (!config.args_disable_colors)
@@ -152,18 +150,16 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
         {
             layout.erase(layout.begin() + i);
             layout.insert(layout.begin() + i, tmp_layout.begin(), tmp_layout.end());
-            
+
             i += tmp_layout.size() - 1;
             tmp_layout.clear();
         }
     }
 
-    
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    
     const size_t width  = image_width / font_width;
     const size_t height = image_height / font_height;
 
@@ -174,7 +170,7 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
     else if (config.args_image_backend == "viu")
         taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path.string() });
     else
-        die(_("The image backend \'{}\' isn\'t supported, only \'kitty\' and \'viu\'.\n"
+        die(_("The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
               "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),
             config.args_image_backend);
 
@@ -198,7 +194,8 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
     return layout;
 }
 
-
+// https://stackoverflow.com/a/50888457
+// with a little C++ modernizing
 static bool get_pos(int& y, int& x)
 {
     std::array<char, 32> buf;
@@ -257,7 +254,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
     {
         file.open(path.string(), std::ios::binary);
         if (!file.is_open())
-            die(_("Could not open logo file \'{}\'"), path.string());
+            die(_("Could not open logo file '{}'"), path.string());
 
         // first check if the file is an image
         // without even using the same library that "file" uses
@@ -288,11 +285,11 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
 
         debug("{} distro_path = {}", __FUNCTION__, distro_path);
 
-        
-        std::ifstream          distro_file(distro_path);
-        std::string            line, _;
+        // this is just for parse() to auto add the distro colors
+        std::ifstream            distro_file(distro_path);
+        std::string              line, _;
         std::vector<std::string> tmp_layout;
-        parse_args_t           parse_args{ moduleMap, _, layout, tmp_layout, config, false };
+        parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, false };
 
         while (std::getline(distro_file, line))
         {
@@ -309,9 +306,10 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
 
     if (isImage)
     {
-        
-        write(STDOUT_FILENO, "\033[H\033[2J", 7);
+        // clear screen
+        write(STDOUT_FILENO, "\33[H\33[2J", 7);
 
+        // took math from neofetch in get_term_size() and get_image_size(). seems to work nice
         const std::uint16_t font_width  = win.ws_xpixel / win.ws_col;
         const std::uint16_t font_height = win.ws_ypixel / win.ws_row;
 
@@ -353,7 +351,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         if (!config.args_disable_colors)
             asciiArt_s += NOCOLOR;
 #else
-        
+
         const size_t pos = asciiArt_s.rfind("$ </");
         if (pos != std::string::npos)
             asciiArt_s.replace(pos, 2, "$");
@@ -369,92 +367,89 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         debug("asciiArt_s = {}", asciiArt_s);
     }
 
-    if (config.args_print_logo_only)
+    if (config.args_print_logo_only || layout.empty())
         return asciiArt;
 
-    if (layout.empty())
-    {
-        debug("Layout is empty, returning only ASCII art with an error message. Check config parsing.");
-        if (!asciiArt.empty()) {
-            asciiArt.push_back("");
-        }
-        asciiArt.push_back("Error: No layout found.");
-        asciiArt.push_back("Please check your configuration file (`config.toml`).");
-        asciiArt.push_back("The 'layout' array might be missing or empty, or there's a syntax error.");
-        return asciiArt;
-    }
-
-    
     std::vector<std::string> parsed_layout;
     std::vector<std::string> tmp_layout;
     std::string              _;
     parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, true };
-
     for (size_t i = 0; i < layout.size(); ++i)
     {
-        std::string current_line = layout[i];
-        std::string parsed_line = parse(current_line, parse_args);
+        layout[i]                = parse(layout[i], parse_args);
+        parse_args.no_more_reset = false;
+#if !GUI_APP
+        if (!config.args_disable_colors)
+            layout[i].insert(0, NOCOLOR);
+#endif
 
         if (!tmp_layout.empty())
         {
-            // A multi-line module was used. It populated tmp_layout.
-            // Insert the contents of tmp_layout into our new layout.
-            parsed_layout.insert(parsed_layout.end(), tmp_layout.begin(), tmp_layout.end());
+            layout.erase(layout.begin() + i);
+            layout.insert(layout.begin() + i, tmp_layout.begin(), tmp_layout.end());
+            i += tmp_layout.size() - 1;
             tmp_layout.clear();
         }
-        else
-        {
-            // A single-line module was used. Add the parsed line.
-            parsed_layout.push_back(parsed_line);
-        }
-        parse_args.no_more_reset = false;
     }
-    layout = parsed_layout; // Replace original layout with the fully parsed one.
 
-    //Box Drawing- 
+    // Box Drawing
     if (config.box_drawing_enabled)
-    {
         layout = apply_box_drawing(std::move(layout), config);
-    }
 
-    //Final Cleanup and Rendering 
+    // erase each element for each instance of MAGIC_LINE
     layout.erase(std::remove_if(layout.begin(), layout.end(),
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    
+    if (config.logo_position == "top" || config.logo_position == "bottom")
+    {
+        if (!asciiArt.empty())
+            layout.insert(config.logo_position == "top" ? layout.begin() : layout.end(), asciiArt.begin(),
+                          asciiArt.end());
+        return layout;
+    }
+
     std::vector<std::string> final_render;
-    const size_t num_rows = std::max(asciiArt.size(), layout.size());
     const unsigned int offset_val =
         (config.offset.back() == '%')
             ? calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), win.ws_col, maxLineLength)
             : std::stoi(config.offset);
-    
     const std::string offset_str(offset_val, ' ');
 
-    for (size_t i = 0; i < num_rows; ++i) {
+    size_t i;
+    for (i = 0; i < layout.size(); ++i)
+    {
         std::string current_row;
 
-        
-        if (i < asciiArt.size()) {
+        if (i < asciiArt.size())
+        {
             current_row.append(config.logo_padding_left, ' ');
             current_row.append(asciiArt[i]);
-            size_t pure_width = (i < pureAsciiArtLens.size()) ? pureAsciiArtLens[i] : 0;
+            size_t pure_width     = (i < pureAsciiArtLens.size()) ? pureAsciiArtLens[i] : 0;
             size_t padding_needed = (maxLineLength > static_cast<int>(pure_width)) ? (maxLineLength - pure_width) : 0;
             current_row.append(padding_needed, ' ');
-        } else {
-            
+        }
+        else
+        {
             current_row.append(config.logo_padding_left + maxLineLength, ' ');
         }
-        
+
         current_row.append(offset_str);
 
-        
-        if (i < layout.size()) {
+        if (i < layout.size())
+        {
             current_row.append(layout[i]);
         }
-        
+
         final_render.push_back(current_row);
+    }
+
+    for (; i < asciiArt.size(); ++i)
+    {
+        std::string line(config.logo_padding_left, ' ');
+        line += asciiArt.at(i);
+
+        final_render.push_back(line);
     }
 
     return final_render;

@@ -37,16 +37,15 @@
 #include "cufetch/config.hh"
 #include "display.hpp"
 #include "fmt/ranges.h"
+#include "gdkmm/pixbufanimation.h"
+#include "glibmm/main.h"
+#include "glibmm/refptr.h"
+#include "gtkmm/cssprovider.h"
+#include "gtkmm/enums.h"
 #include "parse.hpp"
 #include "query.hpp"
 #include "stb_image.h"
 #include "util.hpp"
-
-#include "gdkmm/pixbufanimation.h"
-#include "glibmm/refptr.h"
-#include "gtkmm/cssprovider.h"
-#include "glibmm/main.h"
-#include "gtkmm/enums.h"
 
 using namespace GUI;
 
@@ -202,7 +201,7 @@ Window::Window(const Config& config, const std::filesystem::path& path, const mo
             die(_("Path to gtk css file '{}' doesn't exist"), config.gui_css_file);
 
         Glib::RefPtr<Gtk::CssProvider> css_provider = Gtk::CssProvider::create();
-        Glib::RefPtr<Gdk::Screen> screen = Gdk::Screen::get_default();
+        Glib::RefPtr<Gdk::Screen>      screen       = Gdk::Screen::get_default();
         try
         {
             css_provider->load_from_path(config.gui_css_file);
