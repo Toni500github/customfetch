@@ -63,8 +63,8 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
             filename.string(), err.description(),
             err.source().begin.line, err.source().begin.column);
     }
-
-    // clang-format off
+	// clang-format off
+    // Idk but with `this->` looks more readable
     this->layout              = getValueArrayStr("config.layout", {});
     this->percentage_colors   = getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
     this->slow_query_warnings = getValue<bool>("config.slow-query-warnings", false);
@@ -117,7 +117,6 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     colors.gui_yellow  = getThemeValue("gui.yellow",  "!#ffff00");
     colors.gui_magenta = getThemeValue("gui.magenta", "!#ff11cc");
     colors.gui_white   = getThemeValue("gui.white",   "!#ffffff");
-    // clang-format on
 
     if (this->percentage_colors.size() < 3)
     {
@@ -182,7 +181,8 @@ void Config::overrideOption(const std::string& opt)
 
     std::string name {opt.substr(0, pos)};
     const std::string& value = opt.substr(pos + 1);
-
+	// usually the user finds incovinient to write "config.foo"
+	// for general config options
     if (name.find('.') == name.npos)
         name.insert(0, "config.");
 
