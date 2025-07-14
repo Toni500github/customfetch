@@ -13,6 +13,7 @@
 #include "core-modules.hh"
 #include "cufetch/cufetch.hh"
 #include "config.hpp"
+#include "switch_fnv1a.hpp"
 #include "fmt/format.h"
 #include "util.hpp"
 
@@ -87,6 +88,45 @@ static std::string get_colors_symbol(const callbackInfo_t* callback, bool is_lig
                         "{0} ${{\033[35m}} {0} ${{\033[36m}} {0} ${{\033[37m}} {0} ${{0}}",
                         symbolArg->value),
             callback->parse_args);
+}
+
+static std::string prettify_de_name(const std::string_view de_name)
+{
+    switch (fnv1a16::hash(str_tolower(de_name.data())))
+    {
+        case "kde"_fnv1a16:
+        case "plasma"_fnv1a16:
+        case "plasmashell"_fnv1a16:
+        case "plasmawayland"_fnv1a16: return "KDE Plasma";
+
+        case "gnome"_fnv1a16:
+        case "gnome-shell"_fnv1a16: return "GNOME";
+
+        case "xfce"_fnv1a16:
+        case "xfce4"_fnv1a16:
+        case "xfce4-session"_fnv1a16: return "Xfce4";
+
+        case "mate"_fnv1a16:
+        case "mate-session"_fnv1a16: return "Mate";
+
+        case "lxqt"_fnv1a16:
+        case "lxqt-session"_fnv1a16: return "LXQt";
+    }
+
+    return de_name.data();
+}
+
+static std::string prettify_term_name(const std::string_view term_name)
+{
+    switch (fnv1a16::hash(str_tolower(term_name.data())))
+    {
+        case "gnome-terminal"_fnv1a16:
+        case "gnome terminal"_fnv1a16: return "GNOME Terminal";
+
+        case "gnome-console"_fnv1a16:
+        case "gnome console"_fnv1a16: return "GNOME console";
+    }
+    return term_name.data();
 }
 
 MODFUNC(disk_fmt)
@@ -302,7 +342,7 @@ void core_plugins_start(const Config& config)
         std::move(user_shell_version_module),
     }, [](unused _) {return user_shell_name(_) + " " + user_shell_version(_);}};
 
-    module_t user_term_name_module = {"name", "terminal name [alacritty]", {}, user_term_name};
+    module_t user_term_name_module = {"name", "terminal name [alacritty]", {}, [](unused _){ return prettify_term_name(user_term_name(_));}};
     module_t user_term_version_module = {"version", "terminal version [0.13.2]", {}, user_shell_version};
     module_t user_term_module = {"terminal", "terminal name and version [alacritty 0.13.2]", {
         std::move(user_term_version_module),
@@ -316,7 +356,7 @@ void core_plugins_start(const Config& config)
         std::move(user_wm_name_module)
     }, [](unused _) {return user_wm_name(_) + " " + user_wm_version(_);}};
 
-    module_t user_de_name_module = {"name", "Desktop Environment current session name [Plasma]", {}, user_de_name};
+    module_t user_de_name_module = {"name", "Desktop Environment current session name [Plasma]", {}, [](unused _){ return prettify_de_name(user_de_name(_)); }};
     module_t user_de_version_module = {"version", "Desktop Environment version (if available)", {}, user_de_version};
     module_t user_de_module = {"de", "Desktop Environment current session name and version", {
         std::move(user_de_version_module),

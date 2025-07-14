@@ -98,7 +98,7 @@ static int kbhit()
 static void version()
 {
     std::string version{ fmt::format(
-        "customfetch {} built from branch {} at {} commit {} ({}).\n"
+        "customfetch {} built from branch '{}' at {} commit '{}' ({}).\n"
         "Date: {}\n"
         "Tag: {}",
         VERSION, GIT_BRANCH, GIT_DIRTY, GIT_COMMIT_HASH, GIT_COMMIT_MESSAGE, GIT_COMMIT_DATE, GIT_TAG) };
