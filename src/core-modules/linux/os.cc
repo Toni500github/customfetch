@@ -37,8 +37,7 @@ static std::string read_value(const std::string_view name)
 
         char* end = strrchr(start, '"'); /* Get last occurence of " */
         if (!end)
-            end = line + strlen(line) - 1; /* Set to the end of the string -- no newline. (I heard Windows has a
-                                              different newline sequence.. *sigh*) */
+            end = line + strlen(line) - 1; /* Set to the end of the string -- no newline. */
 
         result.assign(start, end - start);
         break;
@@ -117,7 +116,7 @@ MODFUNC(os_initsys_version)
     std::ifstream f(path, std::ios::in);
     std::string   line;
 
-    const std::string& name = str_tolower(os_initsys_name(callbackInfo));
+    const std::string& name = str_tolower(os_initsys_name(nullptr));
     switch (fnv1a16::hash(name))
     {
         case "systemd"_fnv1a16:
