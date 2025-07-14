@@ -25,6 +25,8 @@
 
 #include <getopt.h>
 #include <unistd.h>
+#include <termios.h>
+#include <stdlib.h>
 
 #include <algorithm>
 #include <cerrno>
@@ -60,6 +62,32 @@
 // clang-format on
 
 using namespace std::string_view_literals;
+
+struct termios orig_termios;
+
+static void disable_raw_mode()
+{
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
+
+static void enable_raw_mode()
+{
+    tcgetattr(STDIN_FILENO, &orig_termios);
+    atexit(disable_raw_mode);
+
+    struct termios raw = orig_termios;
+    raw.c_lflag &= ~(ECHO | ICANON);  // Disable echo and canonical mode
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+
+static int kbhit()
+{
+    struct timeval tv = {0L, 0L};
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(STDIN_FILENO, &fds);
+    return select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv) > 0;
+}
 
 // Print the version and some other infos, then exit successfully
 static void version()
@@ -149,8 +177,8 @@ INFORMATIONAL:
     --list-logos                List available ASCII logos in --data-dir.
 
 LIVE MODE:
-    --loop-ms <NUM>             Run in live mode, updating every <NUM> milliseconds (min: 50).
-                                Use 0 to disable (default).
+    --loop-ms <NUM>             Run in live mode, updating every <NUM> milliseconds (min: 200).
+                                Press 'q' to exit.
 
 EXAMPLES:
     1. Minimal output with default logo:
@@ -789,7 +817,7 @@ int main(int argc, char *argv[])
         return 1;
     config.loadConfigFile(configFile, colors);
 
-    is_live_mode = (config.loop_ms > 50);
+    is_live_mode = (config.loop_ms >= 200);
 
     if (config.source_path.empty() || config.source_path == "off")
         config.args_disable_source = true;
@@ -832,7 +860,6 @@ int main(int argc, char *argv[])
     if (!config.wrap_lines)
     {
         // https://en.cppreference.com/w/c/program/exit
-        // if something goes wrong like a segfault, then re-enable the cursor again
         std::atexit(enable_cursor);
 
         // hide cursor and disable line wrapping
@@ -841,10 +868,23 @@ int main(int argc, char *argv[])
 
     if (is_live_mode)
     {
-        const std::chrono::milliseconds sleep_ms {config.loop_ms};
+        enable_raw_mode();
+        const std::chrono::milliseconds sleep_ms{ config.loop_ms };
 
         while (true)
         {
+            if (kbhit())
+            {
+                char c;
+                read(STDIN_FILENO, &c, 1);
+                if (c == 'q' || c == 'Q')
+                {
+                    info("exiting...\n");
+                    disable_raw_mode();
+                    break;
+                }
+            }
+
             // clear screen and go to position 0, 0
             write(STDOUT_FILENO, "\33[H\33[2J", 7);
             fmt::print("\033[0;0H");
