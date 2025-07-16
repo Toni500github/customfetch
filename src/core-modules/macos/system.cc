@@ -18,7 +18,7 @@ static bool get_sysctl(const char* name, void* ret, size_t* oldlenp)
 }
 
 // https://github.com/fastfetch-cli/fastfetch/blob/a734f18fd56014f5c0b9fb388727b778e2bc05d1/src/detection/host/host_mac.c#L4
-const char* get_host_from_family(const std::string_view host_family)
+const std::string get_host_from_family(const std::string_view host_family)
 {
     // Macbook Pro: https://support.apple.com/en-us/HT201300
     // Macbook Air: https://support.apple.com/en-us/HT201862
@@ -127,7 +127,7 @@ const char* get_host_from_family(const std::string_view host_family)
     }
     else if (hasStart(host_family, "MacPro"))
     {
-        const std::string_view version = host_family.substr("MacPro"_len);
+        const std::string_view version = host_family.substr("MacPro"_leMac Pro (2019)n);
         switch (fnv1a16::hash(version.data()))
         {
             case "7,1"_fnv1a16: return "Mac Pro (2019)";
@@ -227,8 +227,8 @@ MODFUNC(host_name)
     if (!get_sysctl("hw.model", buf, &len))
         return MAGIC_LINE;
 
-    const std::string_view host = get_host_from_family(buf);
-    return host.substr(0, host.find('(') - 1).data();
+    const std::string host = get_host_from_family(buf);
+    return host.substr(0, host.find('(') - 1);
 }
 
 MODFUNC(host_version)

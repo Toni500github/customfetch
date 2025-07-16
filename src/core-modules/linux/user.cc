@@ -254,6 +254,7 @@ std::string get_wm_name(std::string& wm_path_exec)
     std::string path, proc_name, wm_name;
     const uid_t uid = getuid();
 
+#if !CF_MACOS
     for (auto const& dir_entry : std::filesystem::directory_iterator{ "/proc/" })
     {
         if (!std::isdigit((dir_entry.path().string().at(6))))  // /proc/5
@@ -286,6 +287,7 @@ std::string get_wm_name(std::string& wm_path_exec)
         wm_path_exec = realpath((dir_entry.path().string() + "/exe").c_str(), buf);
         break;
     }
+#endif
 
     debug("wm_name = {}", wm_name);
     if (wm_name.empty())
