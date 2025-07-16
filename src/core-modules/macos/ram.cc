@@ -9,8 +9,8 @@
 
 #include "core-modules.hh"
 
-struct xsw_usage xsw;
-const  uint64_t xsw_length{sizeof(xsw)};
+xsw_usage xsw;
+size_t    xsw_length{sizeof(xsw)};
 
 static bool populate_xsw()
 {
@@ -25,7 +25,7 @@ double ram_total()
     size_t   length  = sizeof(amount);
     if (sysctl(name, 2, &amount, &length, NULL, 0) != 0)
         return 0.0;
-    return static_cast<double>(amount) / 1024;
+    return static_cast<double>(amount);
 }
 
 double ram_used()
@@ -49,7 +49,7 @@ double ram_used()
         + vmstat.compressor_page_count
         - vmstat.purgeable_count
         - vmstat.external_page_count
-    ) * page_size) / 1024;
+    ) * page_size);
 }
 
 double ram_free()

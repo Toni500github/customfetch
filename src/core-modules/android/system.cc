@@ -8,9 +8,9 @@
 #include "core-modules.hh"
 #include "util.hpp"
 
-static constexpr std::array<std::string_view, 8> vendors_prop_names = {
-        "ro.product.marketname",   "ro.vendor.product.display", "ro.config.devicename", "ro.config.marketing_name",
-        "ro.product.vendor.model", "ro.product.oppo_model",     "ro.oppo.market.name",  "ro.product.brand"
+static constexpr std::array<std::string_view, 9> vendors_prop_names = {
+        "ro.product.marketname",    "ro.vendor.product.display", "ro.vivo.market.name", "ro.config.devicename",
+        "ro.config.marketing_name", "ro.product.vendor.model", "ro.product.oppo_model", "ro.oppo.market.name",  "ro.product.brand"
     };
 
 MODFUNC(host)

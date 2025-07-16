@@ -1,12 +1,15 @@
 #include "platform.hpp"
 #if CF_MACOS
 
+#include <sys/sysctl.h>
 #include <fstream>
 #include <string>
+
 #include "core-modules.hh"
 #include "cufetch/common.hh"
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "switch_fnv1a.hpp"
+#include "util.hpp"
 
 std::ifstream f("/System/Library/CoreServices/SystemVersion.plist", std::ios::in);
 std::string buffer(std::istreambuf_iterator<char>{ f }, std::istreambuf_iterator<char>{});
@@ -86,6 +89,9 @@ static std::string get_plist_value(const std::string_view name)
 
 MODFUNC(os_name)
 { return get_plist_value("ProductName"); }
+
+MODFUNC(os_name_id)
+{ return "macos"; }
 
 MODFUNC(os_version_id)
 { return get_plist_value("ProductUserVisibleVersion"); }

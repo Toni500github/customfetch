@@ -1,5 +1,5 @@
 #include "platform.hpp"
-#if CF_LINUX
+#if CF_LINUX || CF_MACOS
 
 #include <unistd.h>
 
@@ -117,7 +117,7 @@ std::string get_terminal_pid()
 std::string get_terminal_name()
 {
     if (term_pid == MAGIC_LINE)
-        return MAGIC_LINE;
+        return get_term_name_env(true);
 
     std::ifstream f("/proc/" + term_pid + "/comm", std::ios::in);
     std::string   term_name;

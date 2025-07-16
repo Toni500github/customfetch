@@ -21,6 +21,9 @@ static bool get_sysctl(const char* name, void* ret, size_t* oldlenp)
     return (sysctlbyname(name, ret, oldlenp, NULL, 0) == 0);
 }
 
+float cpu_temp()
+{ return 0; }
+
 MODFUNC(cpu_name)
 {
     char   buf[1024];
@@ -43,7 +46,7 @@ MODFUNC(cpu_freq_cur)
     std::uint64_t freq = 0;
     size_t length = sizeof(freq);
     if (!get_sysctl("hw.cpufrequency", &freq, &length))
-        get_sysctl({ CTL_HW, HW_CPU_FREQ }, &freq, &length);
+        get_sysctl((int[2]){ CTL_HW, HW_CPU_FREQ }, &freq, &length);
 
     return fmt::to_string(static_cast<double>(freq) / std::giga().num);
 }

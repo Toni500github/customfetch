@@ -1,12 +1,15 @@
 #include "platform.hpp"
 #if CF_MACOS
 
-#include <sys/statfs.h>
+#include "cufetch/common.hh"
+#include "fmt/format.h"
+#include "util.hpp"
+#include "core-modules.hh"
+
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/mount.h>
 
-#include <cstring>
 #include <string>
 
 static std::string format_auto_query_string(std::string str, const struct statfs* fs)
@@ -38,6 +41,91 @@ static int get_disk_type(const int flags)
         type |= DISK_VOLUME_TYPE_READ_ONLY;
 
     return type;
+}
+
+static bool get_disk_info(const callbackInfo_t* callbackInfo, struct statfs *fs)
+{
+    if (callbackInfo->moduleArgs->name != "disk" ||
+        (callbackInfo->moduleArgs->name == "disk" && callbackInfo->moduleArgs->value.empty()))
+        die("Module disk doesn't have an argmument to the path/device to query");
+
+    const std::string& path = callbackInfo->moduleArgs->value;
+    return (statfs(path.c_str(), fs) != 0);
+}
+
+
+MODFUNC(disk_fsname)
+{
+    struct statfs fs;
+    if (!get_disk_info(callbackInfo, &fs))
+        return MAGIC_LINE;
+
+    return fs.f_fstypename;
+}
+
+MODFUNC(disk_device)
+{
+    struct statfs fs;
+    if (!get_disk_info(callbackInfo, &fs))
+        return MAGIC_LINE;
+
+    return fs.f_mntfromname;
+}
+
+MODFUNC(disk_mountdir)
+{
+    struct statfs fs;
+    if (!get_disk_info(callbackInfo, &fs))
+        return MAGIC_LINE;
+
+    return fs.f_mntonname;
+}
+
+MODFUNC(auto_disk)
+{ return MAGIC_LINE; }
+
+MODFUNC(disk_types)
+{
+    struct statfs fs;
+    if (!get_disk_info(callbackInfo, &fs))
+        return MAGIC_LINE;
+
+    const int   types = get_disk_type(fs.f_flags);
+    std::string str;
+    if (types & DISK_VOLUME_TYPE_EXTERNAL)
+        str += "External, ";
+    if (types & DISK_VOLUME_TYPE_HIDDEN)
+        str += "Hidden, ";
+    if (types & DISK_VOLUME_TYPE_READ_ONLY)
+        str += "Read-only, ";
+
+    if (!str.empty())
+        str.erase(str.length() - 2);
+
+    return str;
+}
+
+double disk_total(const callbackInfo_t* callbackInfo)
+{
+    struct statfs fs;
+    if (!get_disk_info(callbackInfo, &fs))
+        return 0;
+
+    return static_cast<double>(fs.f_blocks * fs.f_bsize);
+}
+
+double disk_free(const callbackInfo_t* callbackInfo)
+{
+    struct statfs fs;
+    if (!get_disk_info(callbackInfo, &fs))
+        return 0;
+
+    return static_cast<double>(fs.f_bfree * fs.f_bsize);
+}
+
+double disk_used(const callbackInfo_t *callbackInfo)
+{ 
+    return disk_total(callbackInfo) - disk_free(callbackInfo);
 }
 
 #endif
