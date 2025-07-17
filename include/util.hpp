@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-#include "cufetch/common.hh"
+#include "libcufetch/common.hh"
 #include "fmt/base.h"
 #include "fmt/color.h"
 #include "platform.hpp"

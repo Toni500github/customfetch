@@ -26,7 +26,7 @@
 #ifndef _PARSE_HPP
 #define _PARSE_HPP
 
-#include "cufetch/parse.hh"
+#include "libcufetch/parse.hh"
 
 // some times we don't want to use the original pureOutput,
 // so we have to create a tmp string just for the sake of the function arguments

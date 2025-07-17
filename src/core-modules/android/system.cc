@@ -5,7 +5,7 @@
 #include <string_view>
 
 #include "core-modules.hh"
-#include "cufetch/common.hh"
+#include "libcufetch/common.hh"
 #include "util.hpp"
 
 static constexpr std::array<std::string_view, 9> vendors_prop_names = {

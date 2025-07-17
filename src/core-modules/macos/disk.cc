@@ -8,7 +8,7 @@
 #include <string>
 
 #include "core-modules.hh"
-#include "cufetch/common.hh"
+#include "libcufetch/common.hh"
 #include "fmt/format.h"
 #include "util.hpp"
 

@@ -32,7 +32,7 @@
 #include <filesystem>
 #include <string_view>
 
-#include "cufetch/config.hh"
+#include "libcufetch/config.hh"
 #include "platform.hpp"
 
 class Config : public ConfigBase

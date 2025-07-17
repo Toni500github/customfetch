@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #define TOML_HEADER_ONLY 0
-#include "cufetch/common.hh"
+#include "libcufetch/common.hh"
 #include "toml++/toml.hpp"
 
 enum types

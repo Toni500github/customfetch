@@ -29,7 +29,7 @@
 #if GUI_APP
 
 #include "config.hpp"
-#include "cufetch/cufetch.hh"
+#include "libcufetch/cufetch.hh"
 #include "gdkmm/pixbuf.h"
 #include "gdkmm/pixbufanimation.h"
 #include "gtkmm/alignment.h"

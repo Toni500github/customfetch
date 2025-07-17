@@ -11,7 +11,7 @@
 #include <utility>
 
 #include "config.hpp"
-#include "cufetch/cufetch.hh"
+#include "libcufetch/cufetch.hh"
 #include "fmt/format.h"
 #include "linux/utils/packages.hh"
 #include "platform.hpp"

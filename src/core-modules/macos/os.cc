@@ -7,7 +7,7 @@
 #include <string>
 
 #include "core-modules.hh"
-#include "cufetch/common.hh"
+#include "libcufetch/common.hh"
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"

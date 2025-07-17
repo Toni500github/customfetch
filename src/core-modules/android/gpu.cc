@@ -4,7 +4,7 @@
 #include <string>
 
 #include "core-modules.hh"
-#include "cufetch/common.hh"
+#include "libcufetch/common.hh"
 #include "switch_fnv1a.hpp"
 
 // https://en.wikipedia.org/wiki/List_of_Qualcomm_Snapdragon_systems_on_chips

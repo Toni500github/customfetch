@@ -1,7 +1,7 @@
 CXX	?= g++
 SRC 	 = toml.cpp
 TARGET   = toml.o
-CXXFLAGS = -I../../../include/cufetch -fvisibility-inlines-hidden -fvisibility=hidden -fPIC -std=c++20
+CXXFLAGS = -I../../../include/ -fvisibility-inlines-hidden -fvisibility=hidden -fPIC -std=c++20
 
 all: $(TARGET)
 

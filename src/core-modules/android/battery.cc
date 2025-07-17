@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "core-modules.hh"
-#include "cufetch/common.hh"
-#include "cufetch/fmt/format.h"
+#include "libcufetch/common.hh"
+#include "libcufetch/fmt/format.h"
 #include "json.h"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"

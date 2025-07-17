@@ -1,4 +1,4 @@
-#include "cufetch/cufetch.hh"
+#include "libcufetch/cufetch.hh"
 
 static std::vector<module_t> modules;
 

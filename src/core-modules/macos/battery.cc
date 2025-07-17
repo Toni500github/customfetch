@@ -2,7 +2,7 @@
 #if CF_MACOS
 
 #include "core-modules.hh"
-#include "cufetch/common.hh"
+#include "libcufetch/common.hh"
 
 MODFUNC(battery_modelname)
 { return MAGIC_LINE; }

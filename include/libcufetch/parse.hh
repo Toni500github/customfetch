@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "cufetch/common.hh"
-#include "cufetch/config.hh"
+#include "libcufetch/common.hh"
+#include "libcufetch/config.hh"
 
 struct module_t;
 

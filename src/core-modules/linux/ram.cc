@@ -6,7 +6,7 @@
 #include <string_view>
 
 #include "core-modules.hh"
-#include "cufetch/common.hh"
+#include "libcufetch/common.hh"
 
 static double read_value(const std::string_view key)
 {

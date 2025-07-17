@@ -23,7 +23,7 @@
  *
  */
 
-#include "cufetch/config.hh"
+#include "libcufetch/config.hh"
 
 template int ConfigBase::getValue<int>(const std::string_view, const int&&) const;
 template std::string ConfigBase::getValue<std::string>(const std::string_view, const std::string&&) const;

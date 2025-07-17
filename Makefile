@@ -53,7 +53,7 @@ OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
 LDFLAGS   	+= -L$(BUILDDIR) $(BUILDDIR)/libfmt.a -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/cufetch -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
+CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/libcufetch -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
 all: genver fmt toml json libcufetch $(TARGET)
 
@@ -127,8 +127,8 @@ install-common: libcufetch locale
 	cd assets/icons && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(ICONPREFIX)/$(NAME)/{}" \;
 	find examples/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/$(NAME)/{}" \;
 	find locale/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
-	mkdir -p $(DESTDIR)$(PREFIX)/include/cufetch/
-	cd include/cufetch && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/cufetch/{}" \;
+	mkdir -p $(DESTDIR)$(PREFIX)/include/libcufetch/
+	cd include/libcufetch && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/libcufetch/{}" \;
 	install -Dm 755 $(BUILDDIR)/libcufetch.so $(DESTDIR)$(PREFIX)/lib/libcufetch.so.1
 	install -Dm 755 $(BUILDDIR)/libfmt.a $(DESTDIR)$(PREFIX)/lib/libcufetch-fmt.a
 ifeq ($(GUI_APP), 1)

@@ -1,6 +1,7 @@
 #include <cstring>
 #include <string_view>
-#include "common.hpp"
+
+#include "libcufetch/common.hpp"
 #include "fmt/base.h"
 
 bool download_git(const std::string_view url);

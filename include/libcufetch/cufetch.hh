@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "cufetch/parse.hh"
+#include "libcufetch/parse.hh"
 
 // Map from a modules name to its pointer.
 using moduleMap_t = std::unordered_map<std::string, const module_t&>;

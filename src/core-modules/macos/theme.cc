@@ -2,7 +2,7 @@
 #if CF_MACOS
 
 #include "core-modules.hh"
-#include "cufetch/common.hh"
+#include "libcufetch/common.hh"
 
 MODFUNC(theme_gtk_name) { return MAGIC_LINE; }
 MODFUNC(theme_gtk_icon) { return MAGIC_LINE; }

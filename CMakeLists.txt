@@ -10,7 +10,7 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 include_directories(include)
-include_directories(include/cufetch)
+include_directories(include/libcufetch)
 
 set_source_files_properties(
     "src/libs/toml++/toml.cpp"
@@ -94,9 +94,9 @@ target_link_libraries(${TARGET_NAME} PUBLIC fmt)
 
 # libcufetch
 set(CUFETCH_HEADERS
-    include/cufetch/config.hh
-    include/cufetch/common.hh
-    include/cufetch/cufetch.hh
+    include/libcufetch/config.hh
+    include/libcufetch/common.hh
+    include/libcufetch/cufetch.hh
 )
 
 add_library(cufetch SHARED
@@ -166,8 +166,8 @@ install(TARGETS cufetch
     COMPONENT runtime
 )
 
-install(DIRECTORY include/cufetch/
-    DESTINATION include/cufetch
+install(DIRECTORY include/libcufetch/
+    DESTINATION include/libcufetch
     COMPONENT development
 )
 

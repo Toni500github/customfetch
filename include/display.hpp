@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "config.hpp"
-#include "cufetch/cufetch.hh"
+#include "libcufetch/cufetch.hh"
 #include "platform.hpp"
 
 #if CF_MACOS

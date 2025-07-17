@@ -9,8 +9,8 @@
 #include <cstdio>
 
 #include "core-modules.hh"
-#include "cufetch/common.hh"
-#include "cufetch/config.hh"
+#include "libcufetch/common.hh"
+#include "libcufetch/config.hh"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 

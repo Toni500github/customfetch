@@ -4,7 +4,7 @@
 #include <sys/utsname.h>
 
 #include "config.hpp"
-#include "cufetch/cufetch.hh"
+#include "libcufetch/cufetch.hh"
 
 #define MODFUNC(name) std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo)
 
