@@ -15,11 +15,11 @@ endif
 
 CXX		?= g++
 GUI_APP         ?= 0
-SRC             = $(wildcard *.cc)
-OBJ             = $(SRC:.cc=.o) ../$(BUILDDIR)/toml.o
-FMT_STATIC      = ../$(BUILDDIR)/libfmt.a
-CXXFLAGS 	+= -ggdb3 -I../include -fPIC -DGUI_APP=$(GUI_APP)
+SRC              = $(wildcard *.cc)
+OBJ              = $(SRC:.cc=.o) ../$(BUILDDIR)/toml.o
+FMT_STATIC       = ../$(BUILDDIR)/libfmt.a
 OUTPUT		:= ../$(BUILDDIR)/$(LIBNAME)
+CXXFLAGS 	+= -fvisibility-inlines-hidden -fvisibility=hidden -I../include -fPIC -DGUI_APP=$(GUI_APP)
 
 all: $(OUTPUT)
 	@if [ "$(UNAME_S)" = "Linux" ]; then \
