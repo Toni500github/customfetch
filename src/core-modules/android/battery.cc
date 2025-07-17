@@ -5,14 +5,14 @@
 #include <string_view>
 #include <vector>
 
-#include "cufetch/fmt/format.h"
 #include "core-modules.hh"
-#include "switch_fnv1a.hpp"
 #include "cufetch/common.hh"
+#include "cufetch/fmt/format.h"
 #include "json.h"
+#include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-static json::jobject doc;
+static json::jobject            doc;
 static std::vector<std::string> dumpsys;
 
 static bool assert_doc()

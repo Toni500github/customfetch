@@ -39,5 +39,4 @@ std::string parse(const std::string& input, std::string& _, parse_args_t& parse_
  */
 std::string getInfoFromName(parse_args_t& parse_args, const std::string& moduleName);
 
-
 #endif

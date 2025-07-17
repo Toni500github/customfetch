@@ -3,8 +3,8 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 
-#include "cufetch/cufetch.hh"
 #include "config.hpp"
+#include "cufetch/cufetch.hh"
 
 #define MODFUNC(name) std::string name(__attribute__((unused)) const callbackInfo_t* callbackInfo)
 
@@ -16,7 +16,7 @@ MODFUNC(host_version);
 MODFUNC(host_vendor);
 
 // os.cc
-inline utsname g_uname_infos;
+inline utsname    g_uname_infos;
 inline std::FILE* os_release;
 MODFUNC(os_name);
 MODFUNC(os_pretty_name);
@@ -36,7 +36,7 @@ MODFUNC(cpu_freq_cur);
 MODFUNC(cpu_freq_max);
 MODFUNC(cpu_freq_min);
 MODFUNC(cpu_freq_bios);
-float   cpu_temp();
+float cpu_temp();
 MODFUNC(cpu_nproc);
 MODFUNC(cpu_name);
 MODFUNC(android_cpu_vendor);

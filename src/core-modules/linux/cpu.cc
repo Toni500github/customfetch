@@ -2,11 +2,11 @@
 #if CF_ANDROID || CF_LINUX
 #include <unistd.h>
 
-#include <string>
 #include <cstring>
+#include <string>
 
-#include "cufetch/common.hh"
 #include "core-modules.hh"
+#include "cufetch/common.hh"
 #include "fmt/format.h"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -565,7 +565,7 @@ MODFUNC(cpu_name)
 #elif CF_ANDROID
     if (!read_value("model name", "model name"_len, true, name, sizeof(name)))
     {
-        const std::string& vendor = android_cpu_vendor(nullptr);
+        const std::string& vendor     = android_cpu_vendor(nullptr);
         const std::string& model_name = android_cpu_model_name(nullptr);
         if (vendor == "QTI" || vendor == "QUALCOMM")
             strcpy(name, fmt::format("Qualcomm {} [{}]", detect_qualcomm(model_name), model_name).c_str());

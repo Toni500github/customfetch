@@ -1,16 +1,16 @@
 #include "platform.hpp"
 #if CF_MACOS
 
+#include <sys/mount.h>
+#include <sys/param.h>
+#include <sys/types.h>
+
+#include <string>
+
+#include "core-modules.hh"
 #include "cufetch/common.hh"
 #include "fmt/format.h"
 #include "util.hpp"
-#include "core-modules.hh"
-
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/mount.h>
-
-#include <string>
 
 static std::string format_auto_query_string(std::string str, const struct statfs* fs)
 {
@@ -43,7 +43,7 @@ static int get_disk_type(const int flags)
     return type;
 }
 
-static bool get_disk_info(const callbackInfo_t* callbackInfo, struct statfs *fs)
+static bool get_disk_info(const callbackInfo_t* callbackInfo, struct statfs* fs)
 {
     if (callbackInfo->moduleArgs->name != "disk" ||
         (callbackInfo->moduleArgs->name == "disk" && callbackInfo->moduleArgs->value.empty()))
@@ -52,7 +52,6 @@ static bool get_disk_info(const callbackInfo_t* callbackInfo, struct statfs *fs)
     const std::string& path = callbackInfo->moduleArgs->value;
     return (statfs(path.c_str(), fs) != 0);
 }
-
 
 MODFUNC(disk_fsname)
 {

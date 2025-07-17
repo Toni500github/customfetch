@@ -25,13 +25,13 @@
 
 #include "packages.hh"
 
-#include "util.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <string>
 
 #include "switch_fnv1a.hpp"
+#include "util.hpp"
 
 static size_t get_num_count_dir(const std::string_view path)
 {

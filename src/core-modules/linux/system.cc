@@ -7,15 +7,15 @@
 #include <string>
 #include <string_view>
 
-#include "cufetch/common.hh"
 #include "core-modules.hh"
+#include "cufetch/common.hh"
 #include "util.hpp"
 
 MODFUNC(host)
 {
     const std::string syspath = "/sys/devices/virtual/dmi/id";
 
-    std::string board_name{UNKNOWN}, board_version{UNKNOWN}, board_vendor{UNKNOWN};
+    std::string board_name{ UNKNOWN }, board_version{ UNKNOWN }, board_vendor{ UNKNOWN };
 
     if (std::filesystem::exists(syspath + "/board_name"))
     {

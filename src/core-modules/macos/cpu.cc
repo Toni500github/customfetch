@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 #include <cstdint>
-#include <string>
 #include <ratio>
 #include <string>
 
@@ -43,8 +42,8 @@ MODFUNC(cpu_nproc)
 
 MODFUNC(cpu_freq_cur)
 {
-    std::uint64_t freq = 0;
-    size_t length = sizeof(freq);
+    std::uint64_t freq   = 0;
+    size_t        length = sizeof(freq);
     if (!get_sysctl("hw.cpufrequency", &freq, &length))
         get_sysctl((int[2]){ CTL_HW, HW_CPU_FREQ }, &freq, &length);
 
@@ -53,8 +52,8 @@ MODFUNC(cpu_freq_cur)
 
 MODFUNC(cpu_freq_min)
 {
-    std::uint64_t freq = 0;
-    size_t length = sizeof(freq);
+    std::uint64_t freq   = 0;
+    size_t        length = sizeof(freq);
     get_sysctl("hw.cpufrequency_min", &freq, &length);
 
     return fmt::to_string(static_cast<double>(freq) / std::giga().num);
@@ -62,8 +61,8 @@ MODFUNC(cpu_freq_min)
 
 MODFUNC(cpu_freq_max)
 {
-    std::uint64_t freq = 0;
-    size_t length = sizeof(freq);
+    std::uint64_t freq   = 0;
+    size_t        length = sizeof(freq);
     get_sysctl("hw.cpufrequency_max", &freq, &length);
 
     return fmt::to_string(static_cast<double>(freq) / std::giga().num);

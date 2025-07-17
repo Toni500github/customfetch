@@ -8,4 +8,4 @@ void get_term_version_exec(const std::string_view term, std::string& ret, bool _
 bool fast_detect_konsole_ver(std::string& ret);
 bool fast_detect_st_ver(std::string& ret);
 
-#endif // _TERM_HPP
+#endif  // _TERM_HPP

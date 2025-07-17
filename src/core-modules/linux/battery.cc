@@ -5,8 +5,8 @@
 
 #include <string>
 
-#include "cufetch/common.hh"
 #include "core-modules.hh"
+#include "cufetch/common.hh"
 #include "util.hpp"
 
 static std::string read_strip_syspath(const std::string_view path)

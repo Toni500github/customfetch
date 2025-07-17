@@ -26,14 +26,14 @@
 #ifndef _CONFIG_HPP
 #define _CONFIG_HPP
 
-#undef  TOML_HEADER_ONLY
+#undef TOML_HEADER_ONLY
 #define TOML_HEADER_ONLY 0
 
 #include <filesystem>
 #include <string_view>
 
-#include "platform.hpp"
 #include "cufetch/config.hh"
+#include "platform.hpp"
 
 class Config : public ConfigBase
 {
@@ -165,17 +165,16 @@ public:
         }
         else if constexpr (std::is_convertible_v<T, std::string>)
         {
-            o.value_type = STR;
+            o.value_type   = STR;
             o.string_value = value;
         }
         else if constexpr (std::is_convertible_v<T, int>)
         {
             o.value_type = INT;
-            o.int_value = value;
+            o.int_value  = value;
         }
         overrides[key] = std::move(o);
     }
-
 };
 
 // default config

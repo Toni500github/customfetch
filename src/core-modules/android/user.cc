@@ -2,6 +2,7 @@
 #if CF_ANDROID
 
 #include <linux/limits.h>
+
 #include <string>
 
 #include "core-modules.hh"
@@ -24,7 +25,7 @@ MODFUNC(user_shell_name)
 MODFUNC(user_shell_version)
 {
     const std::string& shell_name = user_shell_name(callbackInfo);
-    std::string ret;
+    std::string        ret;
 
     if (shell_name == "nu")
         ret = read_shell_exec("nu -c \"version | get version\"");

@@ -39,9 +39,9 @@ const std::string  gsetting_interface = (user_de_name(NULL) == "cinnamon") ? "or
                                         : (de_name == "mate")              ? "org.mate.interface"
                                                                            : "org.gnome.desktop.interface";
 
-const std::string  dconf_interface    = (user_de_name(NULL) == "cinnamon") ? "/org/cinnamon/desktop/interface"
-                                        : (de_name == "mate")              ? "/org/mate/interface"
-                                                                           : "/org/gnome/desktop/interface";
+const std::string dconf_interface = (user_de_name(NULL) == "cinnamon") ? "/org/cinnamon/desktop/interface"
+                                    : (de_name == "mate")              ? "/org/mate/interface"
+                                                                       : "/org/gnome/desktop/interface";
 
 static std::string get_xsettings_xfce4(const std::string_view property, const std::string_view subproperty)
 {
@@ -377,8 +377,9 @@ const std::string& wmde_name =
 
 MODFUNC(theme_gtk_name)
 {
-    const moduleArgs_t *moduleArg = callbackInfo->moduleArgs;
-    for (; moduleArg && moduleArg->name != "gtk"; moduleArg = moduleArg->next);
+    const moduleArgs_t* moduleArg = callbackInfo->moduleArgs;
+    for (; moduleArg && moduleArg->name != "gtk"; moduleArg = moduleArg->next)
+        ;
     if (!moduleArg)
         die("GTK version not provided");
     int ver = std::stoi(moduleArg->value);
@@ -390,8 +391,9 @@ MODFUNC(theme_gtk_name)
 
 MODFUNC(theme_gtk_icon)
 {
-    const moduleArgs_t *moduleArg = callbackInfo->moduleArgs;
-    for (; moduleArg && moduleArg->name != "gtk"; moduleArg = moduleArg->next);
+    const moduleArgs_t* moduleArg = callbackInfo->moduleArgs;
+    for (; moduleArg && moduleArg->name != "gtk"; moduleArg = moduleArg->next)
+        ;
     if (!moduleArg)
         die("GTK version not provided");
     int ver = std::stoi(moduleArg->value);
@@ -403,8 +405,9 @@ MODFUNC(theme_gtk_icon)
 
 MODFUNC(theme_gtk_font)
 {
-    const moduleArgs_t *moduleArg = callbackInfo->moduleArgs;
-    for (; moduleArg && moduleArg->name != "gtk"; moduleArg = moduleArg->next);
+    const moduleArgs_t* moduleArg = callbackInfo->moduleArgs;
+    for (; moduleArg && moduleArg->name != "gtk"; moduleArg = moduleArg->next)
+        ;
     if (!moduleArg)
         die("GTK version not provided");
     int ver = std::stoi(moduleArg->value);

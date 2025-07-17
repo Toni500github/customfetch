@@ -10,7 +10,7 @@
 #include "core-modules.hh"
 
 xsw_usage xsw;
-size_t    xsw_length{sizeof(xsw)};
+size_t    xsw_length{ sizeof(xsw) };
 
 static bool populate_xsw()
 {
@@ -30,13 +30,13 @@ double ram_total()
 
 double ram_used()
 {
-    int      name[2] = { CTL_HW, HW_PAGESIZE };
-    uint64_t amount  = 0, page_size = 0;
-    size_t   length  = sizeof(amount);
-    mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+    int                    name[2] = { CTL_HW, HW_PAGESIZE };
+    uint64_t               amount = 0, page_size = 0;
+    size_t                 length = sizeof(amount);
+    mach_msg_type_number_t count  = HOST_VM_INFO64_COUNT;
     vm_statistics64_data_t vmstat;
 
-    sysctl(name, 2, &page_size, &length, NULL, 0);    
+    sysctl(name, 2, &page_size, &length, NULL, 0);
     if (host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info64_t)(&vmstat), &count) != KERN_SUCCESS)
         return 0.0;
 

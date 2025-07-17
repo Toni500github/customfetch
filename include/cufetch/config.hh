@@ -4,9 +4,8 @@
 #include <unordered_map>
 
 #define TOML_HEADER_ONLY 0
-#include "toml++/toml.hpp"
-
 #include "cufetch/common.hh"
+#include "toml++/toml.hpp"
 
 enum types
 {
@@ -26,7 +25,6 @@ struct override_configs_types
 class EXPORT ConfigBase
 {
 public:
-
     /**
      * Get value of config variables
      * @param value The config variable "path" (e.g "config.source-path")
@@ -70,20 +68,18 @@ public:
      * @param value The config variable "path" (e.g "config.gui-red")
      * @param fallback Default value if couldn't retrive value
      */
-    std::vector<std::string> getValueArrayStr(const std::string_view value, const std::vector<std::string>& fallback) const
+    std::vector<std::string> getValueArrayStr(const std::string_view          value,
+                                              const std::vector<std::string>& fallback) const
     {
         std::vector<std::string> ret;
 
         // https://stackoverflow.com/a/78266628
         if (const toml::array* array_it = tbl.at_path(value).as_array())
         {
-            array_it->for_each(
-                [&ret](auto&& el)
-                {
-                    if (const toml::value<std::string>* str_elem = el.as_string())
-                        ret.push_back((*str_elem)->data());
-                }
-            );
+            array_it->for_each([&ret](auto&& el) {
+                if (const toml::value<std::string>* str_elem = el.as_string())
+                    ret.push_back((*str_elem)->data());
+            });
 
             return ret;
         }

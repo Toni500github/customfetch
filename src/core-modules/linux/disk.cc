@@ -8,8 +8,8 @@
 
 #include <cstdio>
 
-#include "cufetch/common.hh"
 #include "core-modules.hh"
+#include "cufetch/common.hh"
 #include "cufetch/config.hh"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
@@ -194,22 +194,19 @@ MODFUNC(disk_types)
 MODFUNC(auto_disk)
 {
     static std::vector<std::string> queried_devices;
-    const ConfigBase& config = callbackInfo->parse_args.config;
+    const ConfigBase&               config = callbackInfo->parse_args.config;
     const std::string& auto_disks_fmt = config.getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
-    int auto_disks_types = 0;
-    for (const std::string& str : config.getValueArrayStr("auto.disk.display-types", {"external", "regular", "read-only"}))
+    int                auto_disks_types = 0;
+    for (const std::string& str :
+         config.getValueArrayStr("auto.disk.display-types", { "external", "regular", "read-only" }))
     {
         switch (fnv1a16::hash(str))
         {
-            case "removable"_fnv1a16: // deprecated
-            case "external"_fnv1a16:
-                auto_disks_types |= DISK_VOLUME_TYPE_EXTERNAL; break;
-            case "regular"_fnv1a16:
-                auto_disks_types |= DISK_VOLUME_TYPE_REGULAR; break;
-            case "read-only"_fnv1a16:
-                auto_disks_types |= DISK_VOLUME_TYPE_READ_ONLY; break;
-            case "hidden"_fnv1a16:
-                auto_disks_types |= DISK_VOLUME_TYPE_HIDDEN; break;
+            case "removable"_fnv1a16:  // deprecated
+            case "external"_fnv1a16:  auto_disks_types |= DISK_VOLUME_TYPE_EXTERNAL; break;
+            case "regular"_fnv1a16:   auto_disks_types |= DISK_VOLUME_TYPE_REGULAR; break;
+            case "read-only"_fnv1a16: auto_disks_types |= DISK_VOLUME_TYPE_READ_ONLY; break;
+            case "hidden"_fnv1a16:    auto_disks_types |= DISK_VOLUME_TYPE_HIDDEN; break;
         }
     }
 
@@ -232,7 +229,8 @@ MODFUNC(auto_disk)
 
         debug("AUTO: pDevice->mnt_dir = {} && pDevice->mnt_fsname = {}", pDevice->mnt_dir, pDevice->mnt_fsname);
         callbackInfo->parse_args.no_more_reset = false;
-        callbackInfo->parse_args.tmp_layout.push_back(parse(format_auto_query_string(auto_disks_fmt, pDevice), callbackInfo->parse_args));
+        callbackInfo->parse_args.tmp_layout.push_back(
+            parse(format_auto_query_string(auto_disks_fmt, pDevice), callbackInfo->parse_args));
         if (fseek(mountsFile, old_position, SEEK_SET) == -1)
             die("Failed to seek back to saved position");
     }

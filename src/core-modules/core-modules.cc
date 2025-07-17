@@ -1,4 +1,4 @@
-#include "platform.hpp"
+#include "core-modules.hh"
 
 #include <dlfcn.h>
 #include <unistd.h>
@@ -10,17 +10,16 @@
 #include <string_view>
 #include <utility>
 
-#include "core-modules.hh"
-#include "cufetch/cufetch.hh"
 #include "config.hpp"
-#include "switch_fnv1a.hpp"
+#include "cufetch/cufetch.hh"
 #include "fmt/format.h"
+#include "linux/utils/packages.hh"
+#include "platform.hpp"
+#include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-#include "linux/utils/packages.hh"
-
 #if !CF_MACOS
-# include <mntent.h>
+#include <mntent.h>
 #endif
 
 using unused = const callbackInfo_t*;
@@ -68,8 +67,7 @@ static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t
 static std::string get_colors_symbol(const callbackInfo_t* callback, bool is_light)
 {
     const moduleArgs_t* symbolArg;
-    for (symbolArg = callback->moduleArgs; symbolArg && symbolArg->name != "symbol";
-         symbolArg = symbolArg->next)
+    for (symbolArg = callback->moduleArgs; symbolArg && symbolArg->name != "symbol"; symbolArg = symbolArg->next)
         ;
     if (symbolArg->value.empty())
         die(
@@ -131,11 +129,10 @@ static std::string prettify_term_name(const std::string_view term_name)
 
 MODFUNC(disk_fmt)
 {
-    const callbackInfo_t *callback = callbackInfo;
-    const double used  = disk_used(callback);
-    const double total = disk_total(callback);
-    const std::string& perc =
-                get_and_color_percentage(used, total, callback->parse_args, false);
+    const callbackInfo_t* callback = callbackInfo;
+    const double          used     = disk_used(callback);
+    const double          total    = disk_total(callback);
+    const std::string&    perc     = get_and_color_percentage(used, total, callback->parse_args, false);
 
     // clang-format off
     std::string result {fmt::format("{} / {} {}",
@@ -147,7 +144,7 @@ MODFUNC(disk_fmt)
     const std::string& fsname = disk_fsname(callback);
     if (fsname != MAGIC_LINE)
         result += " - " + fsname;
-    
+
     const std::string& types = disk_types(callback);
     if (!types.empty())
         result += " [" + types + "]";
@@ -157,11 +154,10 @@ MODFUNC(disk_fmt)
 
 MODFUNC(ram_fmt)
 {
-    const callbackInfo_t *callback = callbackInfo;
-    const double used  = ram_used();
-    const double total = ram_total();
-    const std::string& perc =
-                get_and_color_percentage(used, total, callback->parse_args, false);
+    const callbackInfo_t* callback = callbackInfo;
+    const double          used     = ram_used();
+    const double          total    = ram_total();
+    const std::string&    perc     = get_and_color_percentage(used, total, callback->parse_args, false);
 
     // clang-format off
     return fmt::format("{} / {} {}",
@@ -174,14 +170,13 @@ MODFUNC(ram_fmt)
 
 MODFUNC(swap_fmt)
 {
-    const callbackInfo_t *callback = callbackInfo;
-    const double used  = swap_used();
-    const double total = swap_total();
+    const callbackInfo_t* callback = callbackInfo;
+    const double          used     = swap_used();
+    const double          total    = swap_total();
     if (used < 1)
         return "Disabled";
 
-    const std::string& perc =
-                get_and_color_percentage(used, total, callback->parse_args, false);
+    const std::string& perc = get_and_color_percentage(used, total, callback->parse_args, false);
 
     // clang-format off
     return fmt::format("{} / {} {}",
@@ -194,7 +189,9 @@ MODFUNC(swap_fmt)
 
 MODFUNC(battery_fmt)
 {
-    return fmt::format("{} [{}]", get_and_color_percentage(std::stod(battery_perc(callbackInfo)), 100, callbackInfo->parse_args, true), battery_status(callbackInfo));
+    return fmt::format(
+        "{} [{}]", get_and_color_percentage(std::stod(battery_perc(callbackInfo)), 100, callbackInfo->parse_args, true),
+        battery_status(callbackInfo));
 }
 
 void core_plugins_start(const Config& config)

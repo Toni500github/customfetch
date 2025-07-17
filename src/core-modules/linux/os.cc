@@ -8,8 +8,8 @@
 #include <string>
 #include <string_view>
 
-#include "cufetch/common.hh"
 #include "core-modules.hh"
+#include "cufetch/common.hh"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 

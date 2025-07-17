@@ -2,6 +2,7 @@
 #if CF_MACOS
 
 #include <sys/sysctl.h>
+
 #include <fstream>
 #include <string>
 
@@ -11,8 +12,8 @@
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
-std::ifstream f("/System/Library/CoreServices/SystemVersion.plist", std::ios::in);
-std::string buffer(std::istreambuf_iterator<char>{ f }, std::istreambuf_iterator<char>{});
+std::ifstream            f("/System/Library/CoreServices/SystemVersion.plist", std::ios::in);
+std::string              buffer(std::istreambuf_iterator<char>{ f }, std::istreambuf_iterator<char>{});
 rapidxml::xml_document<> doc;
 
 static std::string get_codename(const std::string_view os_version_id)

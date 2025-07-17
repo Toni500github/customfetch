@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdlib>
+
 #include "fmt/color.h"
 #include "fmt/core.h"
 
