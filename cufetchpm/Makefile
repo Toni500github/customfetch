@@ -24,11 +24,11 @@ NAME		 = cufetchpm
 TARGET		?= $(NAME)
 OLDVERSION	 = 0.0.0
 VERSION    	 = 0.0.1
-SRC 	   	 = $(wildcard src/*.cpp ../src/util.cpp)
+SRC 	   	 = $(wildcard src/*.cpp src/manager/*.cpp  ../src/util.cpp)
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility=hidden -I../include -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\"
+CXXFLAGS        += -fvisibility=hidden -I../include -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\"
 
 all: fmt toml $(TARGET)
 

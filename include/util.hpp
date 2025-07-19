@@ -286,6 +286,19 @@ EXPORT std::filesystem::path getHomeConfigDir();
  */
 EXPORT std::filesystem::path getConfigDir();
 
+/*
+ * Get the user cache directory
+ * either from $XDG_CACHE_HOME or from $HOME/.cache/
+ * @return user's cache directory
+ */
+EXPORT std::filesystem::path getHomeCacheDir();
+
+/*
+ * Get the customfetch cache directory
+ * @return customfetch's cache directory
+ */
+EXPORT std::filesystem::path getCacheDir();
+
 #if CF_ANDROID
 /* Get android property name such as "ro.product.marketname"
  * @param name The property name

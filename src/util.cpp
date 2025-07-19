@@ -609,7 +609,6 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
     return description.substr(first, (last - first + 1));
 }
 
-// clang-format off
 std::filesystem::path getHomeConfigDir()
 {
     const char* dir = std::getenv("XDG_CONFIG_HOME");
@@ -632,3 +631,26 @@ std::filesystem::path getHomeConfigDir()
 
 std::filesystem::path getConfigDir()
 { return getHomeConfigDir() / "customfetch"; }
+
+std::filesystem::path getHomeCacheDir()
+{
+    const char* dir = std::getenv("XDG_CACHE_HOME");
+    if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
+    {
+        std::string str_dir(dir);
+        if (str_dir.back() == '/')
+            str_dir.pop_back();
+        return str_dir;
+    }
+    else
+    {
+        const char* home = std::getenv("HOME");
+        if (home == nullptr)
+            die(_("Failed to find $HOME, set it to your home directory!"));
+
+        return std::filesystem::path(home) / ".cache";
+    }
+}
+
+std::filesystem::path getCacheDir()
+{ return getHomeCacheDir() / "customfetch"; }
