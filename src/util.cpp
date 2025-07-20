@@ -32,21 +32,19 @@
 
 #include <algorithm>
 #include <array>
-#include <cerrno>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <memory>
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <tuple>
 #include <vector>
 
-#include "fmt/color.h"
+#include "tiny-process-library/process.hpp"
 #include "fmt/ranges.h"
+#include "fmt/color.h"
 #include "pci.ids.hpp"
 #include "platform.hpp"
 
@@ -356,107 +354,25 @@ void replace_str(std::string& str, const std::string_view from, const std::strin
     }
 }
 
-bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr, bool noerror_print)
+bool read_exec(std::vector<std::string> cmd, std::string& output, bool useStdErr, bool noerror_print)
 {
     debug("{} cmd = {}", __func__, cmd);
-    std::array<int, 2> pipeout;
+    TinyProcessLib::Process proc(cmd, "", [&](const char *bytes, size_t n) {
+        if (!useStdErr)
+            output += std::string(bytes, n);
+    }, [&](const char *bytes, size_t n) {
+        if (useStdErr)
+            output += std::string(bytes, n);
+        else if (!noerror_print)
+            error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
+    });
 
-    if (pipe(pipeout.data()) < 0)
-        die(_("pipe() failed: {}"), strerror(errno));
+    if (!output.empty() && output.back() == '\n')
+        output.pop_back();
 
-    const pid_t pid = fork();
-
-    // we wait for the command to finish then start executing the rest
-    if (pid > 0)
-    {
-        close(pipeout.at(1));
-
-        int status;
-        waitpid(pid, &status, 0);  // Wait for the child to finish
-
-        if (WIFEXITED(status) && (WEXITSTATUS(status) == 0 || useStdErr))
-        {
-            // read stdout
-            debug("reading stdout");
-            char c;
-            while (read(pipeout.at(0), &c, 1) == 1)
-                output += c;
-
-            close(pipeout.at(0));
-            if (!output.empty() && output.back() == '\n')
-                output.pop_back();
-
-            return true;
-        }
-        else
-        {
-            if (!noerror_print)
-                error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
-        }
-    }
-    else if (pid == 0)
-    {
-        int nullFile = open("/dev/null", O_WRONLY | O_CLOEXEC);
-        dup2(pipeout.at(1), useStdErr ? STDERR_FILENO : STDOUT_FILENO);
-        dup2(nullFile, useStdErr ? STDOUT_FILENO : STDERR_FILENO);
-
-        setenv("LANG", "C", 1);
-        cmd.push_back(nullptr);
-        execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
-
-        die(_("An error has occurred with execvp: {}"), strerror(errno));
-    }
-    else
-    {
-        close(pipeout.at(0));
-        close(pipeout.at(1));
-        die(_("fork() failed: {}"), strerror(errno));
-    }
-
-    close(pipeout.at(0));
-    close(pipeout.at(1));
-
-    return false;
+    return proc.get_exit_status() == 0;
 }
 
-bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_print)
-{
-    std::vector<const char*> cmd;
-    for (const std::string_view str : cmd_str)
-        cmd.push_back(str.data());
-
-    int pid = fork();
-
-    if (pid < 0)
-    {
-        die(_("fork() failed: {}"), strerror(errno));
-    }
-
-    if (pid == 0)
-    {
-        debug("running {}", cmd);
-        cmd.push_back(nullptr);
-        execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
-
-        // execvp() returns instead of exiting when failed
-        die(_("An error has occurred: {}: {}"), cmd.at(0), strerror(errno));
-    }
-    else if (pid > 0)
-    {  // we wait for the command to finish then start executing the rest
-        int status;
-        waitpid(pid, &status, 0);  // Wait for the child to finish
-
-        if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
-            return true;
-        else
-        {
-            if (!noerror_print)
-                error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
-        }
-    }
-
-    return false;
-}
 std::string str_tolower(std::string str)
 {
     for (char& x : str)
@@ -549,30 +465,6 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
     // "val" can be placed without affecting the order of the string (binary search stuff) so we have to find from the
     // point onwards to find the actual line, it is still a shortcut, better than searching from 0.
     return vendor_from_entry(vendors_location, vendor_id);
-}
-
-std::string read_shell_exec(const std::string_view cmd)
-{
-    std::array<char, 4096>                 buffer;
-    std::string                            result;
-    std::unique_ptr<FILE, void (*)(FILE*)> pipe(popen(cmd.data(), "r"), [](FILE* f) -> void {
-        // wrapper to ignore the return value from pclose().
-        // Is needed with newer versions of gnu g++
-        std::ignore = pclose(f);
-    });
-
-    if (!pipe)
-        die(_("popen() failed: {}"), std::strerror(errno));
-
-    result.reserve(buffer.size());
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-        result += buffer.data();
-
-    // why there is a '\n' at the end??
-    if (!result.empty() && result.back() == '\n')
-        result.pop_back();
-
-    return result;
 }
 
 std::string name_from_entry(size_t dev_entry_pos)

@@ -5,8 +5,11 @@
 
 #include <string>
 
+#include "tiny-process-library/process.hpp"
 #include "core-modules.hh"
 #include "util.hpp"
+
+using namespace TinyProcessLib;
 
 MODFUNC(user_name)
 { return g_pwd->pw_name; }
@@ -28,9 +31,9 @@ MODFUNC(user_shell_version)
     std::string        ret;
 
     if (shell_name == "nu")
-        ret = read_shell_exec("nu -c \"version | get version\"");
+        Process("nu -c \"version | get version\"", "", [&](const char *bytes, size_t n){ ret.assign(bytes, n); });
     else
-        ret = read_shell_exec(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())));
+        Process(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())), "", [&](const char *bytes, size_t n){ ret.assign(bytes, n); });
 
     strip(ret);
     return ret;

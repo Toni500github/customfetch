@@ -122,12 +122,6 @@ EXPORT std::string binarySearchPCIArray(const std::string_view vendor_id_s, cons
  */
 EXPORT std::string binarySearchPCIArray(const std::string_view vendor_id_s);
 
-/* http://stackoverflow.com/questions/478898/ddg#478960
- * Execute shell command and read its output from stdout.
- * @param cmd The command to execute
- */
-EXPORT std::string read_shell_exec(const std::string_view cmd);
-
 /* Get file value from a file and trim quotes and double-quotes
  * @param iterIndex The iteration index used for getting the necessary value only tot times
  * @param line The string used in std::getline
@@ -166,13 +160,6 @@ EXPORT void ctrl_d_handler(const std::istream& cin);
  * @return The modified string
  */
 EXPORT std::string expandVar(std::string ret, bool dont = false);
-
-/* Executes commands with execvp() and keep the program running without existing
- * @param cmd_str The command to execute
- * @param exitOnFailure Whether to call exit(1) on command failure.
- * @return true if the command successed, else false
- */
-EXPORT bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_print = true);
 
 /* Get a relative path from an enviroment variable (PATH, XDG_DATA_DIRS, ...)
  * Either path of an executable, directory, etc...
@@ -236,7 +223,7 @@ EXPORT void replace_str(std::string& str, const std::string_view from, const std
  * @param noerror_print Print errors (default true)
  * @return true if the command successed, else false
  */
-EXPORT bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr = false, bool noerror_print = true);
+EXPORT bool read_exec(std::vector<std::string> cmd, std::string& output, bool useStdErr = false, bool noerror_print = true);
 
 /* Make whole string lowercase
  * @param str The string to use

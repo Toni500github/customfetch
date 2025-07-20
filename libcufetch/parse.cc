@@ -37,6 +37,7 @@
 #include <string_view>
 #include <vector>
 
+#include "tiny-process-library/process.hpp"
 #include "libcufetch/common.hh"
 #include "libcufetch/config.hh"
 #include "libcufetch/cufetch.hh"
@@ -354,7 +355,8 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     if (removetag)
         command.erase(0, 1);
 
-    const std::string& cmd_output = read_shell_exec(command);
+    std::string cmd_output;
+    TinyProcessLib::Process proc(command, "", [&](const char* bytes, size_t n){cmd_output.assign(bytes, n);});
     if (!parse_args.parsingLayout && !removetag && parser.dollar_pos != std::string::npos)
         parse_args.pureOutput.replace(parser.dollar_pos, command.length() + "$()"_len, cmd_output);
 

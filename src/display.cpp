@@ -62,6 +62,7 @@
 #include "stb_image.h"
 #include "utf8/checked.h"
 #include "util.hpp"
+#include "tiny-process-library/process.hpp"
 
 std::string Display::detect_distro(const Config& config)
 {
@@ -144,11 +145,11 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
     const size_t height = image_height / font_height;
 
     if (config.args_image_backend == "kitty")
-        taur_exec({ "kitty", "+kitten", "icat",
+        TinyProcessLib::Process({ "kitty", "+kitten", "icat",
                     "--align", (config.logo_position == "top" ? "center" : config.logo_position),
                     "--place", fmt::format("{}x{}@0x0", width, height), path.string() });
     else if (config.args_image_backend == "viu")
-        taur_exec({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path.string() });
+        TinyProcessLib::Process({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path.string() });
     else
         die(_("The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
               "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),

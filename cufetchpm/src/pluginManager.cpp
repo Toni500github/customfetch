@@ -59,7 +59,7 @@ void PluginManager::add_repo_plugins(const std::string& repo)
     std::filesystem::create_directories(working_dir);
 
     status("Cloning repository '{}' at '{}'", repo, working_dir.string());
-    if (!taur_exec({"git", "clone", "--recursive", repo, working_dir.string()}, false))
+    if (Process({"git", "clone", "--recursive", repo, working_dir.string()}).get_exit_status() != 0)
     {
         std::filesystem::remove_all(working_dir);
         die("Failed to clone at directory '{}'", working_dir.string());

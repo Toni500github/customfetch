@@ -5,6 +5,7 @@
 
 #include <fstream>
 
+#include "tiny-process-library/process.hpp"
 #include "core-modules.hh"
 #include "libcufetch/common.hh"
 #include "fmt/format.h"
@@ -17,6 +18,8 @@
 #include <sys/socket.h>
 #include <wayland-client.h>
 #endif
+
+using namespace TinyProcessLib;
 
 // clang-format off
 static std::string get_term_name_env(bool get_default = false)
@@ -83,9 +86,9 @@ MODFUNC(user_shell_version)
     std::string        ret;
 
     if (shell_name == "nu")
-        ret = read_shell_exec("nu -c \"version | get version\"");
+        Process("nu -c \"version | get version\"", "", [&](const char *bytes, size_t n){ ret.assign(bytes, n); });
     else
-        ret = read_shell_exec(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())));
+        Process(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())), "", [&](const char *bytes, size_t n){ ret.assign(bytes, n); });
 
     strip(ret);
     return ret;
