@@ -1,7 +1,11 @@
-#include <cstring>
-#include <string_view>
+#include "stateManager.hpp"
+#include "pluginManager.hpp"
 
-#include "fmt/base.h"
-#include "libcufetch/common.hh"
-
-bool download_git(const std::string_view url);
+int main (int argc, char *argv[])
+{
+    std::filesystem::create_directories({getHomeCacheDir()/"cufetchpm"/"plugins"});
+    StateManager state;
+    PluginManager man(state);
+    man.add_repo_plugins(argv[2]);
+    return 0;
+}

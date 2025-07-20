@@ -1,3 +1,6 @@
+#ifndef _STATE_MANAGER_HPP_
+#define _STATE_MANAGER_HPP_
+
 #include <filesystem>
 
 #include "toml++/toml.hpp"
@@ -14,6 +17,8 @@ public:
     toml::table get_state() { return m_state; }
 
 private:
-    const std::filesystem::path m_path{getConfigDir()/"plugins"/"state.toml"};
+    const std::filesystem::path m_path{getHomeCacheDir()/"cufetchpm"/"state.toml"};
     toml::table                 m_state;
 };
+
+#endif

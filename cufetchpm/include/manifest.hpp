@@ -1,3 +1,6 @@
+#ifndef _MANIFEST_HPP_
+#define _MANIFEST_HPP_
+
 #include <optional>
 #include <string>
 #include <string_view>
@@ -13,7 +16,7 @@ struct manifest_t
     std::string description;
     std::string output_dir;
     std::vector<std::string> authors;
-    std::vector<std::string> build;
+    std::vector<std::string> build_steps;
 };
 
 const char* const MANIFEST_NAME = "cufetchpm.toml";
@@ -28,6 +31,8 @@ public:
     ~CManifest() = default;
 
     manifest_t get_plugin(const std::string_view name);
+    std::vector<manifest_t> get_all_plugins();
+
 private:
     toml::table m_tbl;
     bool m_is_state = true;
@@ -56,3 +61,5 @@ private:
         return {};
     }
 };
+
+#endif // !_MANIFEST_HPP_;

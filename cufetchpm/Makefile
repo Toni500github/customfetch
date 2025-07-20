@@ -26,11 +26,11 @@ OLDVERSION	 = 0.0.0
 VERSION    	 = 0.0.1
 SRC 	   	 = $(wildcard src/*.cpp src/manager/*.cpp  ../src/util.cpp)
 OBJ 	   	 = $(SRC:.cpp=.o)
-LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt
+LDLIBS   	+= $(BUILDDIR)/libfmt.a $(BUILDDIR)/libtiny-process-library.a
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility=hidden -I../include -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\"
+CXXFLAGS        += -fvisibility=hidden -I../include -I../src/libs/ -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\"
 
-all: fmt toml $(TARGET)
+all: fmt toml tpl $(TARGET)
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/libfmt.a),)
@@ -44,9 +44,15 @@ ifeq ($(wildcard $(BUILDDIR)/toml.o),)
 	make -C ../src/libs/toml++ BUILDDIR=cufetchpm/$(BUILDDIR)
 endif
 
-$(TARGET): fmt toml $(OBJ)
+tpl:
+ifeq ($(wildcard $(BUILDDIR)/libtiny-process-library.a),)
 	mkdir -p $(BUILDDIR)
-	$(CXX) $(OBJ) $(BUILDDIR)/*.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
+	make -C ../src/libs/tiny-process-library BUILDDIR=cufetchpm/$(BUILDDIR)
+endif
+
+$(TARGET): fmt toml tpl $(OBJ)
+	mkdir -p $(BUILDDIR)
+	$(CXX) $(OBJ) $(BUILDDIR)/*.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS) $(LDLIBS)
 
 clean:
 	rm -rf $(BUILDDIR)/$(TARGET) $(OBJ)

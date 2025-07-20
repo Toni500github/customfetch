@@ -51,11 +51,12 @@ SRC_CC  	 = $(wildcard src/core-modules/*.cc src/core-modules/linux/*.cc src/cor
 OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
 OBJ_CC  	 = $(SRC_CC:.cc=.o)
 OBJ		 = $(OBJ_CPP) $(OBJ_CC)
-LDFLAGS   	+= -L$(BUILDDIR) $(BUILDDIR)/libfmt.a -lcufetch -ldl
+LDFLAGS   	+= -L$(BUILDDIR)
+LDLIBS		+= $(BUILDDIR)/libfmt.a $(BUILDDIR)/libtiny-process-library.a -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/libcufetch -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
-all: genver fmt toml json libcufetch $(TARGET)
+all: genver fmt toml tpl json libcufetch $(TARGET)
 
 libcufetch: fmt toml
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
@@ -73,6 +74,11 @@ ifeq ($(wildcard $(BUILDDIR)/toml.o),)
 	make -C src/libs/toml++ BUILDDIR=$(BUILDDIR)
 endif
 
+tpl:
+ifeq ($(wildcard $(BUILDDIR)/libtiny-process-library.a),)
+	make -C src/libs/tiny-process-library BUILDDIR=$(BUILDDIR)
+endif
+
 json:
 ifeq ($(wildcard $(BUILDDIR)/json.o),)
 	make -C src/libs/json BUILDDIR=$(BUILDDIR)
@@ -86,7 +92,7 @@ endif
 $(TARGET): genver fmt toml json libcufetch $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
-	$(CXX) -o $(BUILDDIR)/$(TARGET) $(OBJ) $(BUILDDIR)/*.o $(LDFLAGS)
+	$(CXX) -o $(BUILDDIR)/$(TARGET) $(OBJ) $(BUILDDIR)/*.o $(LDFLAGS) $(LDLIBS)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
 locale:
