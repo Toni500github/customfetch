@@ -19,7 +19,7 @@ SRC              = $(wildcard *.cc)
 OBJ              = $(SRC:.cc=.o) ../$(BUILDDIR)/toml.o
 FMT_STATIC       = ../$(BUILDDIR)/libfmt.a
 OUTPUT		:= ../$(BUILDDIR)/$(LIBNAME)
-CXXFLAGS 	+= -flto=auto -ffat-lto-objects -fvisibility-inlines-hidden -fvisibility=hidden -I../include -fPIC -DGUI_APP=$(GUI_APP)
+CXXFLAGS 	+= -flto=auto -ffat-lto-objects -fvisibility-inlines-hidden -fvisibility=hidden -I../include -I../include/libs -fPIC -DGUI_APP=$(GUI_APP)
 
 all: $(OUTPUT)
 	@if [ "$(UNAME_S)" = "Linux" ]; then \

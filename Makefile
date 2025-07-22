@@ -54,7 +54,7 @@ OBJ		 = $(OBJ_CPP) $(OBJ_CC)
 LDFLAGS   	+= -L$(BUILDDIR) -flto=auto -ffat-lto-objects
 LDLIBS		+= $(BUILDDIR)/libfmt.a $(BUILDDIR)/libtiny-process-library.a -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -flto=auto -ffat-lto-objects -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/libcufetch -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
+CXXFLAGS        += -flto=auto -ffat-lto-objects -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/libcufetch -Iinclude/libs -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
 all: genver fmt toml tpl json libcufetch $(TARGET)
 

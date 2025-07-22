@@ -11,6 +11,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 include_directories(include)
 include_directories(include/libcufetch)
+include_directories(include/libs)
 
 set_source_files_properties(
     "src/libs/toml++/toml.cpp"
