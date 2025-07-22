@@ -195,7 +195,7 @@ layout = [
 #if !CF_ANDROID
                                                R"#(
     "${auto}Theme: $<theme.gtk.all.name>",
-    "${auto}Icons: $<theme.gtk.all.icons>",
+    "${auto}Icons: $<theme.gtk.all.icon>",
     "${auto}Font: $<theme.gtk.all.font>",
     "${auto}Cursor: $<theme.cursor>",
     "${auto}WM: $<user.wm.name>",

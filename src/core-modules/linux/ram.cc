@@ -39,7 +39,7 @@ static double read_value(const std::string_view key)
 
     free(line);
     rewind(meminfo);
-    return std::stod(result);
+    return std::stod(result) * 1024.0f;
 }
 
 double ram_free()

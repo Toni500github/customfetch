@@ -54,7 +54,7 @@ static std::string get_xsettings_xfce4(const std::string_view property, const st
         const std::string& path = configDir + "/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml";
         std::ifstream      f(path, std::ios::in);
         if (!f.is_open())
-            return UNKNOWN;
+            return MAGIC_LINE;
 
         buffer.assign(std::istreambuf_iterator<char>{ f }, std::istreambuf_iterator<char>());
         buffer.push_back('\0');
@@ -75,7 +75,7 @@ static std::string get_xsettings_xfce4(const std::string_view property, const st
             return node2->first_attribute("value")->value();
     }
 
-    return UNKNOWN;
+    return MAGIC_LINE;
 }
 
 static std::string get_auto_gtk_format(const std::string_view gtk2, const std::string_view gtk3,
@@ -125,7 +125,7 @@ static std::string get_auto_gtk_format(const std::string_view gtk2, const std::s
 //
 static CursorInfo get_cursor_xresources()
 {
-    std::string        cursor_name{ UNKNOWN }, cursor_size{ UNKNOWN };
+    std::string        cursor_name{ MAGIC_LINE }, cursor_size{ MAGIC_LINE };
     const std::string& path = expandVar("~/.Xresources");
     std::ifstream      f(path, std::ios::in);
     if (!f.is_open())
@@ -153,11 +153,11 @@ static CursorInfo get_cursor_xresources()
 
 static CursorInfo get_cursor_dconf()
 {
-    std::string cursor{ UNKNOWN }, cursor_size{ UNKNOWN };
+    std::string cursor{ MAGIC_LINE }, cursor_size{ MAGIC_LINE };
 #if USE_DCONF
     void* handle = LOAD_LIBRARY("libdconf.so");
     if (!handle)
-        return { UNKNOWN, UNKNOWN };
+        return { MAGIC_LINE, MAGIC_LINE };
 
     LOAD_LIB_SYMBOL(handle, DConfClient*, dconf_client_new, void);
     LOAD_LIB_SYMBOL(handle, GVariant*, dconf_client_read, DConfClient*, const char*);
@@ -182,7 +182,7 @@ static CursorInfo get_cursor_dconf()
 static CursorInfo get_cursor_gsettings()
 {
     const CursorInfo& dconf = get_cursor_dconf();
-    if (dconf != CursorInfo{ UNKNOWN, UNKNOWN })
+    if (dconf != CursorInfo{ MAGIC_LINE, MAGIC_LINE })
         return dconf;
 
     std::string cursor;
@@ -194,15 +194,15 @@ static CursorInfo get_cursor_gsettings()
     cursor_size.erase(std::remove(cursor_size.begin(), cursor_size.end(), '\''), cursor_size.end());
 
     if (cursor.empty())
-        cursor = UNKNOWN;
+        cursor = MAGIC_LINE;
     if (cursor_size.empty())
-        cursor_size = UNKNOWN;
+        cursor_size = MAGIC_LINE;
     return { cursor, cursor_size };
 }
 
 static CursorInfo get_gtk_cursor_config(const std::string_view path)
 {
-    std::string   cursor{ UNKNOWN }, cursor_size{ UNKNOWN };
+    std::string   cursor{ MAGIC_LINE }, cursor_size{ MAGIC_LINE };
     std::ifstream f(path.data(), std::ios::in);
     if (!f.is_open())
         return { cursor, cursor_size };
@@ -233,10 +233,10 @@ static CursorInfo get_cursor_from_gtk_configs(const std::uint8_t ver)
     for (const std::string& path : paths)
     {
         const CursorInfo& result = get_gtk_cursor_config(path);
-        if (result != CursorInfo{ UNKNOWN, UNKNOWN })
+        if (result != CursorInfo{ MAGIC_LINE, MAGIC_LINE })
             return result;
     }
-    return { UNKNOWN, UNKNOWN };
+    return { MAGIC_LINE, MAGIC_LINE };
 }
 
 static CursorInfo get_de_cursor(const std::string_view de_name)
@@ -250,7 +250,7 @@ static CursorInfo get_de_cursor(const std::string_view de_name)
             return { get_xsettings_xfce4("Gtk", "CursorThemeName"), get_xsettings_xfce4("Gtk", "CursorThemeSize") };
         }
     }
-    return { UNKNOWN, UNKNOWN };
+    return { MAGIC_LINE, MAGIC_LINE };
 }
 
 //
@@ -259,7 +259,7 @@ static CursorInfo get_de_cursor(const std::string_view de_name)
 //
 static ThemeInfo get_gtk_theme_config(const std::string_view path)
 {
-    std::string   theme{ UNKNOWN }, icon_theme{ UNKNOWN }, font{ UNKNOWN };
+    std::string   theme{ MAGIC_LINE }, icon_theme{ MAGIC_LINE }, font{ MAGIC_LINE };
     std::ifstream f(path.data(), std::ios::in);
     if (!f.is_open())
         return { theme, icon_theme, font };
@@ -283,7 +283,7 @@ static ThemeInfo get_gtk_theme_config(const std::string_view path)
 
 static ThemeInfo get_gtk_theme_dconf()
 {
-    std::string theme{ UNKNOWN }, icon_theme{ UNKNOWN }, font{ UNKNOWN };
+    std::string theme{ MAGIC_LINE }, icon_theme{ MAGIC_LINE }, font{ MAGIC_LINE };
 #if USE_DCONF
     void* handle = LOAD_LIBRARY("libdconf.so");
     if (!handle)
@@ -316,7 +316,7 @@ static ThemeInfo get_gtk_theme_dconf()
 static ThemeInfo get_gtk_theme_gsettings()
 {
     const ThemeInfo& dconf = get_gtk_theme_dconf();
-    if (dconf != ThemeInfo{ UNKNOWN, UNKNOWN, UNKNOWN })
+    if (dconf != ThemeInfo{ MAGIC_LINE, MAGIC_LINE, MAGIC_LINE })
         return dconf;
 
     std::string theme, icon_theme, font;
@@ -331,11 +331,11 @@ static ThemeInfo get_gtk_theme_gsettings()
     font.erase(std::remove(font.begin(), font.end(), '\''), font.end());
 
     if (theme.empty())
-        theme = UNKNOWN;
+        theme = MAGIC_LINE;
     if (icon_theme.empty())
-        icon_theme = UNKNOWN;
+        icon_theme = MAGIC_LINE;
     if (font.empty())
-        font = UNKNOWN;
+        font = MAGIC_LINE;
     return { theme, icon_theme, font };
 }
 
@@ -351,7 +351,7 @@ static ThemeInfo get_gtk_theme_from_configs(const std::uint8_t ver)
     for (const auto& path : paths)
     {
         const ThemeInfo& result = get_gtk_theme_config(path);
-        if (result != ThemeInfo{ UNKNOWN, UNKNOWN, UNKNOWN })
+        if (result != ThemeInfo{ MAGIC_LINE, MAGIC_LINE, MAGIC_LINE })
             return result;
     }
     return get_gtk_theme_gsettings();
@@ -386,7 +386,7 @@ MODFUNC(theme_gtk_name)
 
     const ThemeInfo& result = is_tty ? get_gtk_theme_from_configs(ver) : get_de_gtk_theme(wmde_name, ver);
 
-    return result[THEME_NAME] == UNKNOWN ? MAGIC_LINE : result[THEME_NAME];
+    return result[THEME_NAME];
 }
 
 MODFUNC(theme_gtk_icon)
@@ -400,7 +400,7 @@ MODFUNC(theme_gtk_icon)
 
     const ThemeInfo& result = is_tty ? get_gtk_theme_from_configs(ver) : get_de_gtk_theme(wmde_name, ver);
 
-    return result[THEME_ICON] == UNKNOWN ? MAGIC_LINE : result[THEME_ICON];
+    return result[THEME_ICON];
 }
 
 MODFUNC(theme_gtk_font)
@@ -414,7 +414,7 @@ MODFUNC(theme_gtk_font)
 
     const ThemeInfo& result = is_tty ? get_gtk_theme_from_configs(ver) : get_de_gtk_theme(wmde_name, ver);
 
-    return result[THEME_FONT] == UNKNOWN ? MAGIC_LINE : result[THEME_FONT];
+    return result[THEME_FONT];
 }
 
 MODFUNC(theme_gtk_all_name)
@@ -447,31 +447,31 @@ MODFUNC(theme_gtk_all_font)
 MODFUNC(theme_gsettings_name)
 {
     const ThemeInfo& result = get_gtk_theme_gsettings();
-    return result[THEME_NAME] == UNKNOWN ? MAGIC_LINE : result[THEME_NAME];
+    return result[THEME_NAME];
 }
 
 MODFUNC(theme_gsettings_icon)
 {
     const ThemeInfo& result = get_gtk_theme_gsettings();
-    return result[THEME_ICON] == UNKNOWN ? MAGIC_LINE : result[THEME_ICON];
+    return result[THEME_ICON];
 }
 
 MODFUNC(theme_gsettings_font)
 {
     const ThemeInfo& result = get_gtk_theme_gsettings();
-    return result[THEME_FONT] == UNKNOWN ? MAGIC_LINE : result[THEME_FONT];
+    return result[THEME_FONT];
 }
 
 MODFUNC(theme_gsettings_cursor_name)
 {
     const CursorInfo& result = get_cursor_gsettings();
-    return result[CURSOR_NAME] == UNKNOWN ? MAGIC_LINE : result[CURSOR_NAME];
+    return result[CURSOR_NAME];
 }
 
 MODFUNC(theme_gsettings_cursor_size)
 {
     const CursorInfo& result = get_cursor_gsettings();
-    return result[CURSOR_SIZE] == UNKNOWN ? MAGIC_LINE : result[CURSOR_SIZE];
+    return result[CURSOR_SIZE];
 }
 
 const std::array<std::function<CursorInfo()>, 6> funcs{
@@ -490,11 +490,11 @@ MODFUNC(theme_cursor_name)
     for (const auto& method : funcs)
     {
         result = method();
-        if (result != CursorInfo{ UNKNOWN, UNKNOWN })
+        if (result != CursorInfo{ MAGIC_LINE, MAGIC_LINE })
             break;
     }
 
-    if (result[CURSOR_NAME] == UNKNOWN)
+    if (result[CURSOR_NAME] == MAGIC_LINE)
         return MAGIC_LINE;
 
     std::string& cursor_name = result[CURSOR_NAME];
@@ -514,11 +514,11 @@ MODFUNC(theme_cursor_size)
     for (const auto& method : funcs)
     {
         result = method();
-        if (result != CursorInfo{ UNKNOWN, UNKNOWN })
+        if (result != CursorInfo{ MAGIC_LINE, MAGIC_LINE })
             break;
     }
 
-    if (result[CURSOR_SIZE] == UNKNOWN)
+    if (result[CURSOR_SIZE] == MAGIC_LINE)
         return MAGIC_LINE;
 
     std::string& cursor_size = result[CURSOR_SIZE];
