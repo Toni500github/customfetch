@@ -128,7 +128,7 @@ public:
           bool open_stdin = false,
           const Config &config = {});
 #endif
-  ~Process() noexcept;
+  __attribute__((visibility("default"))) ~Process() noexcept;
 
   /// Get the process id of the started process.
   id_type get_id() const noexcept;

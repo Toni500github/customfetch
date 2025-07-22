@@ -1,6 +1,6 @@
 CXX		?= g++
 CXX_INCLUDES 	 = -I../../../include
-CXX_FLAGS 	 = -O3 -DNDEBUG -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
+CXX_FLAGS 	 = -O3 -DNDEBUG -flto=auto -ffat-lto-objects -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
 
 UNAME_S := $(shell uname -s)
 

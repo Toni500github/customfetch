@@ -5,7 +5,7 @@
 CXX		?= g++
 # CXX_DEFINES 	= -DFMT_LIB_EXPORT -Dfmt_EXPORTS
 CXX_INCLUDES 	= -I../../../include
-CXX_FLAGS 	= -O3 -DNDEBUG -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
+CXX_FLAGS 	= -O3 -DNDEBUG -flto=auto -ffat-lto-objects -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
 
 all: fmt
 
