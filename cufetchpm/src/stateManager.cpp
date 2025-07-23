@@ -1,8 +1,26 @@
+#include "stateManager.hpp"
+
 #include <filesystem>
+#include <fstream>
+#include <sstream>
 
 #include "fmt/os.h"
 #include "libcufetch/common.hh"
-#include "stateManager.hpp"
+
+// https://github.com/hyprwm/Hyprland/blob/2d2a5bebff72c73cd27db3b9e954b8fa2a7623e8/hyprpm/src/core/DataState.cpp#L24
+static bool writeState(const std::string& str, const std::string& to)
+{
+    // create temp file in a safe temp root
+    const std::filesystem::path& temp_state = (std::filesystem::temp_directory_path() / ".temp-state");
+    std::ofstream                of(temp_state, std::ios::trunc);
+    if (!of.good())
+        return false;
+
+    of << str;
+    of.close();
+
+    return std::filesystem::copy_file(temp_state, to, std::filesystem::copy_options::overwrite_existing);
+}
 
 StateManager::StateManager()
 {
@@ -25,7 +43,29 @@ StateManager::StateManager()
         die(_("Failed to parse state file at '{}':\n"
               "{}\n"
               "\t(error occurred at line {} column {})"),
-            m_path.string(), err.description(),
-            err.source().begin.line, err.source().begin.column);
+            m_path.string(), err.description(), err.source().begin.line, err.source().begin.column);
     }
+}
+
+void StateManager::add_new_plugin(const plugin_t& manifest)
+{
+    toml::array authors_arr, licenses_arr;
+    for (const std::string& str : manifest.authors)
+        authors_arr.push_back(str);
+    for (const std::string& str : manifest.licenses)
+        licenses_arr.push_back(str);
+
+    toml::table plugin_state_entry{ { "description", manifest.description },
+                                    { "authors", authors_arr },
+                                    { "license", licenses_arr },
+                                    { "output-dir", manifest.output_dir } };
+
+    // Add or replace plugin entry
+    m_state.insert_or_assign(manifest.name, plugin_state_entry);
+
+    std::stringstream ss;
+    ss << m_state;
+
+    if (!writeState(ss.str(), m_path))
+        die("Failed to write plugin state of '{}'", manifest.name);
 }

@@ -28,7 +28,7 @@ SRC 	   	 = $(wildcard src/*.cpp src/manager/*.cpp  ../src/util.cpp)
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDLIBS   	+= $(BUILDDIR)/libfmt.a $(BUILDDIR)/libtiny-process-library.a
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility=hidden -I../include -I../src/libs/ -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\"
+CXXFLAGS        += -fvisibility=hidden -I../include -I../include/libs/ -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\"
 
 all: fmt toml tpl $(TARGET)
 

@@ -6,36 +6,57 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+
 #include "libcufetch/common.hh"
 #include "toml++/toml.hpp"
 
-struct manifest_t
+struct plugin_t
 {
+    // The plugin name.
     std::string name;
-    std::string license;
+
+    // The plugin description.
     std::string description;
+
+    // The plugin build directory,
+    // where we'll retrive the built plugin
     std::string output_dir;
+
+    // The plugin multiple SPDX License Identifier (MIT, GPL-2.0, ...)
+    // NOTE: it doesn't actually check if they are correct or not.
+    std::vector<std::string> licenses;
+
+    // Which plugins can be conflicting by name / modules.
+    // TODO: choose if check either name or git url.
+    std::vector<std::string> conflicts;
+
+    // The plugin authors.
     std::vector<std::string> authors;
+
+    // A list of commands to be executed for building the plugin.
+    // Kinda like a Makefile target instructions.
+    // Each command will be executed from a different shell session.
     std::vector<std::string> build_steps;
+
+    // A list of root modules that the plugin will be used for querying its modules
+    std::vector<std::string> prefixes;
 };
 
 const char* const MANIFEST_NAME = "cufetchpm.toml";
 
-class CManifest {
+class CManifest
+{
 public:
     CManifest(const std::string_view path);
-    CManifest(toml::table&& tbl) : m_tbl(tbl){}
-    CManifest(const toml::table& tbl) : m_tbl(std::move(tbl)){}
-    CManifest &operator=(CManifest &&) = default;
-    CManifest &operator=(const CManifest &) = default;
-    ~CManifest() = default;
+    CManifest(toml::table&& tbl) : m_tbl(std::move(tbl)) {}
+    CManifest(const toml::table& tbl) : m_tbl(tbl) {}
 
-    manifest_t get_plugin(const std::string_view name);
-    std::vector<manifest_t> get_all_plugins();
+    plugin_t              get_plugin(const std::string_view name);
+    std::vector<plugin_t> get_all_plugins();
 
 private:
     toml::table m_tbl;
-    bool m_is_state = true;
+    bool        m_is_state = true;
 
     template <typename T>
     T getValue(const std::string_view name, const std::string_view value) const
@@ -62,4 +83,4 @@ private:
     }
 };
 
-#endif // !_MANIFEST_HPP_;
+#endif  // !_MANIFEST_HPP_;

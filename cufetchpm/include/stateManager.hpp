@@ -3,6 +3,7 @@
 
 #include <filesystem>
 
+#include "manifest.hpp"
 #include "toml++/toml.hpp"
 #include "util.hpp"
 
@@ -14,10 +15,11 @@ public:
     StateManager(const StateManager&) = default;
     ~StateManager()                   = default;
 
+    void        add_new_plugin(const plugin_t& manifest);
     toml::table get_state() { return m_state; }
 
 private:
-    const std::filesystem::path m_path{getHomeCacheDir()/"cufetchpm"/"state.toml"};
+    const std::filesystem::path m_path{ getHomeCacheDir() / "cufetchpm" / "state.toml" };
     toml::table                 m_state;
 };
 
