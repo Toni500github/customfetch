@@ -15,6 +15,7 @@ include_directories(include/libs)
 
 set_source_files_properties(
     "src/libs/toml++/toml.cpp"
+    "src/libs/tiny-process-library/process.cpp"
     PROPERTIES COMPILE_FLAGS "-fvisibility=default"
 )
 
@@ -92,6 +93,36 @@ add_library(fmt STATIC
 
 set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(${TARGET_NAME} PUBLIC fmt)
+
+# tiny-process-library (integrated from its own CMakeLists.txt)
+add_library(tiny-process-library STATIC
+    "src/libs/tiny-process-library/process.cpp")
+add_library(tiny-process-library::tiny-process-library ALIAS tiny-process-library)
+
+if(MSVC)
+    target_compile_definitions(tiny-process-library PRIVATE /D_CRT_SECURE_NO_WARNINGS)
+else()
+    target_compile_options(tiny-process-library PRIVATE -std=c++11 -Wall -Wextra)
+endif()
+
+if(WIN32)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    target_sources(tiny-process-library PRIVATE "src/libs/tiny-process-library/process_win.cpp")
+    # If compiled using MSYS2, use sh to run commands
+    if(MSYS)
+        target_compile_definitions(tiny-process-library PUBLIC MSYS_PROCESS_USE_SH)
+    endif()
+else()
+    target_sources(tiny-process-library PRIVATE "src/libs/tiny-process-library/process_unix.cpp")
+endif()
+
+find_package(Threads REQUIRED)
+target_link_libraries(tiny-process-library Threads::Threads)
+target_include_directories(tiny-process-library PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libs/tiny-process-library>
+    $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(${TARGET_NAME} PUBLIC tiny-process-library)
 
 # libcufetch
 set(CUFETCH_HEADERS

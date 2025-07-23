@@ -32,9 +32,23 @@ static int portable_execvpe(const char *file, char *const argv[], char *const en
   const char *path = getenv("PATH");
   char cspath[PATH_MAX + 1] = {};
   if(!path) {
+// small patch for android
+#ifndef __ANDROID__
     // If env variable is not set, use static path string.
     confstr(_CS_PATH, cspath, sizeof(cspath));
     path = cspath;
+#else
+    // we are certainly on termux, thus android,
+    // and it doesn't have _CS_PATH, so here's a fix/workaround
+    char *prefix = getenv("PREFIX");
+    if (prefix) {
+      strncat(prefix, "/bin", 6);
+      path = prefix;
+    }
+    else {
+      path = "/data/data/com.termux/files/usr/bin";
+    }
+#endif
   }
 
   const size_t path_len = strlen(path);
