@@ -29,7 +29,6 @@
 #if GUI_APP
 
 #include "config.hpp"
-#include "libcufetch/cufetch.hh"
 #include "gdkmm/pixbuf.h"
 #include "gdkmm/pixbufanimation.h"
 #include "gtkmm/alignment.h"
@@ -39,6 +38,7 @@
 #include "gtkmm/label.h"
 #include "gtkmm/overlay.h"
 #include "gtkmm/window.h"
+#include "libcufetch/cufetch.hh"
 
 namespace GUI
 {

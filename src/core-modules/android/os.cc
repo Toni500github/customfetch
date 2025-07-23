@@ -4,6 +4,7 @@
 #include "core-modules.hh"
 #include "util.hpp"
 
+// clang-format off
 MODFUNC(os_name)
 { return "Android"; }
 

@@ -36,9 +36,9 @@
 #include <string>
 #include <vector>
 
-#include "libcufetch/common.hh"
 #include "fmt/base.h"
 #include "fmt/color.h"
+#include "libcufetch/common.hh"
 #include "platform.hpp"
 
 // clang-format off

@@ -34,14 +34,13 @@
 #include <filesystem>
 #include <fstream>
 
-#include "gdkmm/pixbufanimation.h"
-#include "glibmm/refptr.h"
-#include "gtkmm/cssprovider.h"
-#include "glibmm/main.h"
-#include "gtkmm/enums.h"
-
 #include "display.hpp"
 #include "fmt/ranges.h"
+#include "gdkmm/pixbufanimation.h"
+#include "glibmm/main.h"
+#include "glibmm/refptr.h"
+#include "gtkmm/cssprovider.h"
+#include "gtkmm/enums.h"
 #include "stb_image.h"
 #include "util.hpp"
 

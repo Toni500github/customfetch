@@ -8,8 +8,8 @@
 #include <string>
 
 #include "core-modules.hh"
-#include "libcufetch/common.hh"
 #include "fmt/format.h"
+#include "libcufetch/common.hh"
 #include "util.hpp"
 
 static std::string format_auto_query_string(std::string str, const struct statfs* fs)

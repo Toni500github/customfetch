@@ -277,7 +277,7 @@ std::string get_cinnamon_version()
 
 static std::string get_xfce4_version_lib()
 {
-    void *handle = LOAD_LIBRARY("libxfce4util.so")
+    void* handle = LOAD_LIBRARY("libxfce4util.so");
     if (!handle)
         return UNKNOWN;
 

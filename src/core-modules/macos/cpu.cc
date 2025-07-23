@@ -20,8 +20,7 @@ static bool get_sysctl(const char* name, void* ret, size_t* oldlenp)
     return (sysctlbyname(name, ret, oldlenp, NULL, 0) == 0);
 }
 
-float cpu_temp()
-{ return 0; }
+float cpu_temp() { return 0; }
 
 MODFUNC(cpu_name)
 {
@@ -68,7 +67,6 @@ MODFUNC(cpu_freq_max)
     return fmt::to_string(static_cast<double>(freq) / std::giga().num);
 }
 
-MODFUNC(cpu_freq_bios)
-{ return MAGIC_LINE; }
+MODFUNC(cpu_freq_bios) { return MAGIC_LINE; }
 
 #endif

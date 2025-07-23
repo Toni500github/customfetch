@@ -6,8 +6,8 @@
 #include <string>
 
 #include "core-modules.hh"
-#include "libcufetch/common.hh"
 #include "fmt/format.h"
+#include "libcufetch/common.hh"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 

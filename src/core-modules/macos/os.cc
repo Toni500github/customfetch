@@ -88,6 +88,26 @@ static std::string get_plist_value(const std::string_view name)
     return UNKNOWN;
 }
 
+MODFUNC(os_pretty_name)
+{
+    const std::string& codename = os_version_codename(nullptr);
+    if (codename != UNKNOWN)
+        return os_name(nullptr) + " " + os_version_id(nullptr) + " (" + codename + ")";
+    return os_name(nullptr) + " " + os_version_id(nullptr);
+}
+
+unsigned long os_uptime()
+{
+    struct timeval boot_time;
+    size_t         size   = sizeof(boot_time);
+    int            name[] = { CTL_KERN, KERN_BOOTTIME };
+    if (sysctl(name, 2, &boot_time, &size, NULL, 0) != 0)
+        die(_("failed to get uptime"));
+
+    return time(NULL) - boot_time.tv_sec;
+}
+
+// clang-format off
 MODFUNC(os_name)
 { return get_plist_value("ProductName"); }
 
@@ -99,14 +119,6 @@ MODFUNC(os_version_id)
 
 MODFUNC(os_version_codename)
 { return get_codename(os_version_id(nullptr)); }
-
-MODFUNC(os_pretty_name)
-{
-    const std::string& codename = os_version_codename(nullptr);
-    if (codename != UNKNOWN)
-        return os_name(nullptr) + " " + os_version_id(nullptr) + " (" + codename + ")";
-    return os_name(nullptr) + " " + os_version_id(nullptr);
-}
 
 MODFUNC(os_kernel_name)
 { return g_uname_infos.sysname; }
@@ -122,16 +134,5 @@ MODFUNC(os_initsys_name)
 
 MODFUNC(os_initsys_version)
 { return UNKNOWN; }
-
-unsigned long os_uptime()
-{
-    struct timeval boot_time;
-    size_t         size   = sizeof(boot_time);
-    int            name[] = { CTL_KERN, KERN_BOOTTIME };
-    if (sysctl(name, 2, &boot_time, &size, NULL, 0) != 0)
-        die(_("failed to get uptime"));
-
-    return time(NULL) - boot_time.tv_sec;
-}
 
 #endif

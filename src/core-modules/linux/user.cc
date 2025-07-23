@@ -5,11 +5,11 @@
 
 #include <fstream>
 
-#include "tiny-process-library/process.hpp"
 #include "core-modules.hh"
-#include "libcufetch/common.hh"
 #include "fmt/format.h"
+#include "libcufetch/common.hh"
 #include "switch_fnv1a.hpp"
+#include "tiny-process-library/process.hpp"
 #include "util.hpp"
 #include "utils/dewm.hh"
 #include "utils/term.hh"
@@ -86,9 +86,10 @@ MODFUNC(user_shell_version)
     std::string        ret;
 
     if (shell_name == "nu")
-        Process("nu -c \"version | get version\"", "", [&](const char *bytes, size_t n){ ret.assign(bytes, n); });
+        Process("nu -c \"version | get version\"", "", [&](const char* bytes, size_t n) { ret.assign(bytes, n); });
     else
-        Process(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())), "", [&](const char *bytes, size_t n){ ret.assign(bytes, n); });
+        Process(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())), "",
+                [&](const char* bytes, size_t n) { ret.assign(bytes, n); });
 
     strip(ret);
     return ret;

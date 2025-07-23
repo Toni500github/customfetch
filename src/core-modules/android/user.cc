@@ -5,14 +5,11 @@
 
 #include <string>
 
-#include "tiny-process-library/process.hpp"
 #include "core-modules.hh"
+#include "tiny-process-library/process.hpp"
 #include "util.hpp"
 
 using namespace TinyProcessLib;
-
-MODFUNC(user_name)
-{ return g_pwd->pw_name; }
 
 MODFUNC(user_shell_path)
 {
@@ -31,15 +28,20 @@ MODFUNC(user_shell_version)
     std::string        ret;
 
     if (shell_name == "nu")
-        Process("nu -c \"version | get version\"", "", [&](const char *bytes, size_t n){ ret.assign(bytes, n); });
+        Process("nu -c \"version | get version\"", "", [&](const char* bytes, size_t n) { ret.assign(bytes, n); });
     else
-        Process(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())), "", [&](const char *bytes, size_t n){ ret.assign(bytes, n); });
+        Process(fmt::format("{} -c 'echo \"${}_VERSION\"'", shell_name, str_toupper(shell_name.data())), "",
+                [&](const char* bytes, size_t n) { ret.assign(bytes, n); });
 
     strip(ret);
     return ret;
 }
 
-MODFUNC(user_term_name)
+// clang-format off
+MMODFUNC(user_name)
+{ return g_pwd->pw_name; }
+
+ODFUNC(user_term_name)
 { return "Termux"; }
 
 MODFUNC(user_term_version)

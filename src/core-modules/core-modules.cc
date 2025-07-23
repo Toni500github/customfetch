@@ -11,8 +11,8 @@
 #include <utility>
 
 #include "config.hpp"
-#include "libcufetch/cufetch.hh"
 #include "fmt/format.h"
+#include "libcufetch/cufetch.hh"
 #include "linux/utils/packages.hh"
 #include "platform.hpp"
 #include "switch_fnv1a.hpp"
@@ -555,8 +555,12 @@ void core_plugins_start(const Config& config)
 
 void core_plugins_finish()
 {
-    if (mountsFile) fclose(mountsFile);
-    if (os_release) fclose(os_release);
-    if (meminfo)    fclose(meminfo);
-    if (cpuinfo)    fclose(cpuinfo);
+    if (mountsFile)
+        fclose(mountsFile);
+    if (os_release)
+        fclose(os_release);
+    if (meminfo)
+        fclose(meminfo);
+    if (cpuinfo)
+        fclose(cpuinfo);
 }

@@ -164,6 +164,7 @@ static bool get_disk_usage_info(const callbackInfo_t* callbackInfo, struct statv
     return (statvfs(statpath.c_str(), fs) == 0);
 }
 
+// clang-format off
 // don't get confused by the name pls
 MODFUNC(disk_fsname)
 { return get_disk_info(callbackInfo)->mnt_type; }
@@ -174,6 +175,7 @@ MODFUNC(disk_device)
 MODFUNC(disk_mountdir)
 { return get_disk_info(callbackInfo)->mnt_dir; }
 
+// clang-format on
 MODFUNC(disk_types)
 {
     const int   types = get_disk_type(get_disk_info(callbackInfo));

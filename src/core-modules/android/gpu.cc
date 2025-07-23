@@ -168,6 +168,7 @@ static std::string detect_adreno(const std::string& cpu_model_name)
     return MAGIC_LINE;
 }
 
+// clang-format off
 MODFUNC(gpu_name)
 {
     const std::string& vendor = android_cpu_vendor(nullptr);
@@ -178,8 +179,6 @@ MODFUNC(gpu_name)
 }
 
 MODFUNC(gpu_vendor)
-{
-    return android_cpu_vendor(nullptr);
-}
+{ return android_cpu_vendor(nullptr); }
 
 #endif

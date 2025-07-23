@@ -34,7 +34,7 @@
 #include "platform.hpp"
 
 #ifndef GUI_APP
-# define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 #endif
 
 #if CF_MACOS
@@ -60,9 +60,9 @@
 #include "parse.hpp"
 #include "platform.hpp"
 #include "stb_image.h"
+#include "tiny-process-library/process.hpp"
 #include "utf8/checked.h"
 #include "util.hpp"
-#include "tiny-process-library/process.hpp"
 
 std::string Display::detect_distro(const Config& config)
 {

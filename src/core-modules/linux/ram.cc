@@ -42,6 +42,7 @@ static double read_value(const std::string_view key)
     return std::stod(result) * 1024.0f;
 }
 
+// clang-format off
 double ram_free()
 { return read_value("MemAvailable:"); }
 

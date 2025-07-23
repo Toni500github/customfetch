@@ -6,9 +6,9 @@
 #include <vector>
 
 #include "core-modules.hh"
+#include "json.h"
 #include "libcufetch/common.hh"
 #include "libcufetch/fmt/format.h"
-#include "json.h"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"
 
@@ -66,6 +66,7 @@ static std::string read_value_dumpsys(const std::string_view name, const bool is
     return MAGIC_LINE;
 }
 
+// clang-format off
 MODFUNC(battery_modelname)
 { return MAGIC_LINE; }
 
@@ -75,6 +76,7 @@ MODFUNC(battery_vendor)
 MODFUNC(battery_capacity_level)
 { return MAGIC_LINE; }
 
+// clang-format on
 MODFUNC(battery_status)
 {
     if (!assert_doc())
@@ -84,10 +86,10 @@ MODFUNC(battery_status)
     charge_status.at(0) = toupper(charge_status.at(0));
     switch (fnv1a16::hash(doc["plugged"].as_string()))
     {
-        case "PLUGGED_AC"_fnv1a16:       return "AC Connected, "      + charge_status;
-        case "PLUGGED_USB"_fnv1a16:      return "USB Connected, "     + charge_status;
-        case "PLUGGED_WIRELESS"_fnv1a16: return "Wireless Connected, "+ charge_status;
-        default: return charge_status;
+        case "PLUGGED_AC"_fnv1a16:       return "AC Connected, " + charge_status;
+        case "PLUGGED_USB"_fnv1a16:      return "USB Connected, " + charge_status;
+        case "PLUGGED_WIRELESS"_fnv1a16: return "Wireless Connected, " + charge_status;
+        default:                         return charge_status;
     }
 }
 

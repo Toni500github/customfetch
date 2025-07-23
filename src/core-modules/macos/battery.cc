@@ -4,6 +4,7 @@
 #include "core-modules.hh"
 #include "libcufetch/common.hh"
 
+// clang-format off
 MODFUNC(battery_modelname)
 { return MAGIC_LINE; }
 

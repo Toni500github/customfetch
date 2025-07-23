@@ -46,6 +46,7 @@ static std::string get_battery_info(const std::string& file)
     return UNKNOWN;
 }
 
+// clang-format off
 MODFUNC(battery_modelname)
 { return get_battery_info("model_name"); }
 

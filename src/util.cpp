@@ -42,11 +42,11 @@
 #include <string_view>
 #include <vector>
 
-#include "tiny-process-library/process.hpp"
-#include "fmt/ranges.h"
 #include "fmt/color.h"
+#include "fmt/ranges.h"
 #include "pci.ids.hpp"
 #include "platform.hpp"
+#include "tiny-process-library/process.hpp"
 
 bool hasEnding(const std::string_view fullString, const std::string_view ending)
 {
@@ -357,15 +357,18 @@ void replace_str(std::string& str, const std::string_view from, const std::strin
 bool read_exec(std::vector<std::string> cmd, std::string& output, bool useStdErr, bool noerror_print)
 {
     debug("{} cmd = {}", __func__, cmd);
-    TinyProcessLib::Process proc(cmd, "", [&](const char *bytes, size_t n) {
-        if (!useStdErr)
-            output += std::string(bytes, n);
-    }, [&](const char *bytes, size_t n) {
-        if (useStdErr)
-            output += std::string(bytes, n);
-        else if (!noerror_print)
-            error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
-    });
+    TinyProcessLib::Process proc(
+        cmd, "",
+        [&](const char* bytes, size_t n) {
+            if (!useStdErr)
+                output += std::string(bytes, n);
+        },
+        [&](const char* bytes, size_t n) {
+            if (useStdErr)
+                output += std::string(bytes, n);
+            else if (!noerror_print)
+                error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
+        });
 
     if (!output.empty() && output.back() == '\n')
         output.pop_back();
