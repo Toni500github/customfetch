@@ -124,7 +124,7 @@ static void help(bool invalid_opt = false)
 {
     constexpr std::string_view help(
         R"(Usage: customfetch [OPTIONS]...
-A command-line, GUI, and Android widget system information tool (like neofetch) focused on customizability and performance.
+A command-line, GUI app, and Android widget system information tool (like neofetch) focused on customizability and performance.
 
 NOTE: Boolean flags [<BOOL>] accept: "true", 1, "enable", or empty. Any other value is treated as false.
 

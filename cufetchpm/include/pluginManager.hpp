@@ -1,7 +1,6 @@
 #ifndef _PLUGIN_MANAGER_HPP_
 #define _PLUGIN_MANAGER_HPP_
 
-#include <array>
 #include <filesystem>
 #include <string>
 #include <string_view>
@@ -10,7 +9,7 @@
 #include "stateManager.hpp"
 #include "util.hpp"
 
-constexpr std::array<std::string_view, 1> dependencies = { "git" };  // expand in the future, maybe
+constexpr std::string_view dependencies[] = { "git" };  // expand in the future, maybe
 
 #define BOLD_COLOR(x) (fmt::emphasis::bold | fmt::fg(fmt::rgb(x)))
 
