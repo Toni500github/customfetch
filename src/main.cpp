@@ -634,9 +634,9 @@ int main(int argc, char* argv[])
 
     /* TODO(burntranch): track each library and unload them. */
     core_plugins_start(config);
-    const std::filesystem::path plguinDir = configDir / "plugins";
-    std::filesystem::create_directories(plguinDir);
-    for (const auto& entry : std::filesystem::directory_iterator{ plguinDir })
+    const std::filesystem::path pluginDir = configDir / "plugins";
+    std::filesystem::create_directories(pluginDir);
+    for (const auto& entry : std::filesystem::recursive_directory_iterator{ pluginDir })
     {
         debug("loading plugin at {}!", entry.path().string());
 
@@ -644,7 +644,7 @@ int main(int argc, char* argv[])
         if (!handle)
         {
             // dlerror() is pretty formatted
-            warn("Failed to load plugin at {}: {}", entry.path().string(), dlerror());
+            warn("Failed to load plugin at '{}': {}", entry.path().string(), dlerror());
             dlerror();
             continue;
         }
@@ -652,7 +652,7 @@ int main(int argc, char* argv[])
         LOAD_LIB_SYMBOL(handle, void, start, void*, const ConfigBase&);
         if (dlerror())
         {
-            warn("Failed to load plugin at {}: Missing function 'start'", entry.path().string());
+            warn("Failed to load plugin at '{}': Missing function 'start'", entry.path().string());
             dlclose(handle);
             continue;
         }

@@ -7,13 +7,13 @@
 #include "libcufetch/common.hh"
 #include "util.hpp"
 
-static bool validManifestName(const std::string_view n)
+static bool is_valid_name(const std::string_view n)
 {
     return std::ranges::all_of(n,
                                [](const unsigned char c) { return (isalnum(c) || c == '-' || c == '_' || c == '='); });
 }
 
-CManifest::CManifest(const std::string_view path) : m_is_state(false)
+CManifest::CManifest(const std::string_view path)
 {
     try
     {
@@ -21,38 +21,46 @@ CManifest::CManifest(const std::string_view path) : m_is_state(false)
     }
     catch (const toml::parse_error& err)
     {
-        die(_("Failed to parse state file at '{}':\n"
+        die(_("Failed to parse manifest file at '{}':\n"
               "{}\n"
               "\t(error occurred at line {} column {})"),
             path, err.description(), err.source().begin.line, err.source().begin.column);
     }
+
+    parse_manifest();
 }
 
-std::vector<plugin_t> CManifest::get_all_plugins()
+void CManifest::parse_manifest()
 {
-    std::vector<plugin_t> plugins;
-    for (auto const& [name, _] : m_tbl)
+    m_repo.name = getStrValue("repository", "name");
+    m_repo.url  = getStrValue("repository", "url");
+    if (m_repo.name == UNKNOWN)
+        die("Couldn't find manifest repository name");
+    if (!is_valid_name(m_repo.name))
+        die("Manifest repository name '{}' is invalid. Only alphanumeric and '-', '_', '=' are allowed in the name",
+            m_repo.name);
+
+    for (const auto& [name, _] : m_tbl)
     {
         if (name.str() == "repository")
             continue;
 
-        if (!validManifestName(name.str()))
+        if (!is_valid_name(name.str()))
         {
             warn("Plugin '{}' has an invalid name. Only alphanumeric and '-', '_', '=' are allowed in the name",
                  name.str());
             continue;
         }
 
-        plugins.push_back({ .name        = name.data(),
-                            .description = getValue<std::string>(name, "description"),
-                            .output_dir  = getValue<std::string>(name, "license"),
-                            .licenses    = getValueArrayStr(name, "licenses"),
-                            .conflicts   = getValueArrayStr(name, "conflicts"),
-                            .authors     = getValueArrayStr(name, "authors"),
-                            .build_steps = getValueArrayStr(name, "build-steps"),
-                            .prefixes    = getValueArrayStr(name, "prefixes") });
+        m_repo.plugins.push_back({ .name        = name.data(),
+                                   .description = getStrValue(name, "description"),
+                                   .output_dir  = getStrValue(name, "output-dir"),
+                                   .licenses    = getStrArrayValue(name, "licenses"),
+                                   .conflicts   = getStrArrayValue(name, "conflicts"),
+                                   .authors     = getStrArrayValue(name, "authors"),
+                                   .build_steps = getStrArrayValue(name, "build-steps"),
+                                   .prefixes    = getStrArrayValue(name, "prefixes") });
     }
-    return plugins;
 }
 
 plugin_t CManifest::get_plugin(const std::string_view name)
@@ -61,11 +69,11 @@ plugin_t CManifest::get_plugin(const std::string_view name)
         die("Couldn't find such plugin '{}' in manifest", name);
 
     return { .name        = name.data(),
-             .description = getValue<std::string>(name, "description"),
-             .output_dir  = getValue<std::string>(name, "license"),
-             .licenses    = getValueArrayStr(name, "licenses"),
-             .conflicts   = getValueArrayStr(name, "conflicts"),
-             .authors     = getValueArrayStr(name, "authors"),
-             .build_steps = getValueArrayStr(name, "build-steps"),
-             .prefixes    = getValueArrayStr(name, "prefixes") };
+             .description = getStrValue(name, "description"),
+             .output_dir  = getStrValue(name, "output-dir"),
+             .licenses    = getStrArrayValue(name, "licenses"),
+             .conflicts   = getStrArrayValue(name, "conflicts"),
+             .authors     = getStrArrayValue(name, "authors"),
+             .build_steps = getStrArrayValue(name, "build-steps"),
+             .prefixes    = getStrArrayValue(name, "prefixes") };
 }

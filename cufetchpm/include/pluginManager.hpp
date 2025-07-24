@@ -8,7 +8,6 @@
 #include <utility>
 
 #include "stateManager.hpp"
-#include "toml++/toml.hpp"
 #include "util.hpp"
 
 constexpr std::array<std::string_view, 1> dependencies = { "git" };  // expand in the future, maybe
@@ -42,9 +41,9 @@ public:
     bool has_deps();
 
 private:
-    StateManager                m_state;
-    const std::filesystem::path m_cache_path{ getHomeCacheDir() / "cufetchpm" / "plugins" };
-    toml::table                 m_manifest;
+    StateManager          m_state;
+    std::filesystem::path m_config_path{ getConfigDir() / "plugins" };
+    std::filesystem::path m_cache_path{ getHomeCacheDir() / "cufetchpm" / "plugins" };
 };
 
 #endif
