@@ -473,7 +473,7 @@ static bool parseargs(int argc, char* argv[], Config& config, const std::filesys
     };
 
     /* parse operation */
-    optind = 0;
+    optind = 1;
     while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1)
     {
         switch (opt)
