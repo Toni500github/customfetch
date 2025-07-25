@@ -1,6 +1,6 @@
 #include <cstring>
+
 #include "libcufetch/common.hh"
-#include "libs/switch_fnv1a.hpp"
 #include "pluginManager.hpp"
 #include "stateManager.hpp"
 
@@ -12,17 +12,18 @@
 
 #include "getopt_port/getopt.h"
 
-enum {
+static int op = 0;
+enum
+{
     INSTALL,
     REMOVE,
     LIST
 };
 
-static struct operations_t
+static struct operations_install_t
 {
-    int name;
     std::vector<std::string> args;
-} op;
+} install_op;
 
 static void version()
 {
@@ -44,7 +45,7 @@ Manage plugins for customfetch.
 NOTE: the operations must be the first argument to pass
 
 OPERATIONS:
-    install - Install a new plugin repository. Takes as an argument the git url to be cloned.
+    install  - Install a new plugin repository. Takes as an argument the git url to be cloned.
 
 GENERAL OPTIONS
     -h, --help          Print this help menu.
@@ -76,19 +77,19 @@ static bool parseargs(int argc, char* argv[])
     {
         if (strncmp(argv[i], "install", 7) == 0 || strncmp(argv[i], "i", 1) == 0)
         {
-            op.name = INSTALL;
+            op = INSTALL;
             optind++;
             break;
         }
-        if (strncmp(argv[i], "list", 4) == 0|| strncmp(argv[i], "l", 1) == 0)
+        if (strncmp(argv[i], "list", 4) == 0 || strncmp(argv[i], "l", 1) == 0)
         {
-            op.name = LIST;
+            op = LIST;
             optind++;
             break;
         }
         if (strncmp(argv[i], "remove", 6) == 0 || strncmp(argv[i], "r", 1) == 0)
         {
-            op.name = REMOVE;
+            op = REMOVE;
             optind++;
             break;
         }
@@ -107,8 +108,12 @@ static bool parseargs(int argc, char* argv[])
         }
     }
 
-    for (int i = optind; i < argc; ++i)
-        op.args.push_back(argv[i]);
+    switch (op)
+    {
+        case INSTALL:
+            for (int i = optind; i < argc; ++i)
+                install_op.args.push_back(argv[i]);
+    }
 
     return true;
 }
@@ -119,18 +124,18 @@ int main(int argc, char* argv[])
         return -1;
 
     fs::create_directories({ getHomeCacheDir() / "cufetchpm" / "plugins" });
-    StateManager  state;
-    PluginManager plugin_manager(std::move(state));
-    switch (op.name)
+    switch (op)
     {
-        case INSTALL: 
-            {
-                if (op.args.size() != 1)
-                    die("Please provide a singular git url repository");
-                plugin_manager.add_repo_plugins(op.args[0]); break;
-            }
-        default:
-            warn("Not yet implemented");
+        case INSTALL:
+        {
+            if (install_op.args.size() != 1)
+                die("Please provide a singular git url repository");
+            StateManager  state;
+            PluginManager plugin_manager(std::move(state));
+            plugin_manager.add_repo_plugins(install_op.args[0]);
+            break;
+        }
+        default: warn("Not yet implemented");
     }
 
     return 0;

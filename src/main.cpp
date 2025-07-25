@@ -638,6 +638,9 @@ int main(int argc, char* argv[])
     std::filesystem::create_directories(pluginDir);
     for (const auto& entry : std::filesystem::recursive_directory_iterator{ pluginDir })
     {
+        if (entry.is_regular_file() && entry.path().has_extension() && entry.path().extension() == LIBRARY_EXTENSION){}
+        else {continue;}
+
         debug("loading plugin at {}!", entry.path().string());
 
         void* handle = LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str());

@@ -22,8 +22,8 @@ public:
     toml::table get_state() { return m_state; }
 
 private:
-    const fs::path m_path{ getHomeCacheDir() / "cufetchpm" / "state.toml" };
-    toml::table                 m_state;
+    const fs::path m_path{ getConfigDir() / "plugins" / "state.toml" };
+    toml::table    m_state;
 };
 
 #endif

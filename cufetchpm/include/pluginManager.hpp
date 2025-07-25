@@ -42,9 +42,9 @@ public:
     bool has_deps();
 
 private:
-    StateManager          m_state;
-    fs::path m_config_path{ getConfigDir() / "plugins" };
-    fs::path m_cache_path{ getHomeCacheDir() / "cufetchpm" / "plugins" };
+    StateManager m_state;
+    fs::path     m_config_path{ getConfigDir() / "plugins" };
+    fs::path     m_cache_path{ getHomeCacheDir() / "cufetchpm" / "plugins" };
 };
 
 #endif

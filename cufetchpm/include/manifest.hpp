@@ -77,8 +77,8 @@ public:
     { return m_repo.plugins; }
 
 private:
-    toml::table  m_tbl;
-    manifest_t   m_repo;
+    toml::table m_tbl;
+    manifest_t  m_repo;
 
     void parse_manifest();
 

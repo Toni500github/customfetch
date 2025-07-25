@@ -78,6 +78,14 @@ struct byte_units_t
 
 #define UNLOAD_LIBRARY(handle) dlclose(handle);
 
+#if CF_WINDOWS
+    constexpr char LIBRARY_EXTENSION[] = ".dll";
+#elif CF_MACOS
+    constexpr char LIBRARY_EXTENSION[] = ".dylib";
+#else
+    constexpr char LIBRARY_EXTENSION[] = ".so";
+#endif
+
 inline bool is_live_mode = false;
 
 /* https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c#874160
