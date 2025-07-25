@@ -56,7 +56,7 @@ LDLIBS		+= $(BUILDDIR)/libfmt.a $(BUILDDIR)/libtiny-process-library.a -lcufetch 
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -flto=auto -ffat-lto-objects -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/libcufetch -Iinclude/libs -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
-all: genver fmt toml tpl json libcufetch $(TARGET)
+all: genver fmt toml tpl getopt-port json libcufetch $(TARGET)
 
 libcufetch: fmt toml
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
@@ -79,6 +79,11 @@ ifeq ($(wildcard $(BUILDDIR)/libtiny-process-library.a),)
 	make -C src/libs/tiny-process-library BUILDDIR=$(BUILDDIR)
 endif
 
+getopt-port:
+ifeq ($(wildcard $(BUILDDIR)/getopt.o),)
+	make -C src/libs/getopt_port BUILDDIR=$(BUILDDIR)
+endif
+
 json:
 ifeq ($(wildcard $(BUILDDIR)/json.o),)
 	make -C src/libs/json BUILDDIR=$(BUILDDIR)
@@ -89,7 +94,7 @@ ifeq ($(wildcard include/version.h),)
 	./scripts/generateVersion.sh
 endif
 
-$(TARGET): genver fmt toml json tpl libcufetch $(OBJ)
+$(TARGET): genver fmt toml tpl getopt-port json libcufetch $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
 	$(CXX) -o $(BUILDDIR)/$(TARGET) $(OBJ) $(BUILDDIR)/*.o $(LDFLAGS) $(LDLIBS)

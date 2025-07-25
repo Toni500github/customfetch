@@ -1,5 +1,3 @@
-#include <getopt.h>
-
 #include "pluginManager.hpp"
 #include "stateManager.hpp"
 #if (!__has_include("version.h"))
@@ -7,6 +5,8 @@
 #else
 #include "version.h"
 #endif
+
+#include "getopt_port/getopt.h"
 
 static void version()
 {

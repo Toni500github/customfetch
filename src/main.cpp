@@ -24,7 +24,6 @@
  */
 
 #include <dlfcn.h>
-#include <getopt.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
@@ -38,6 +37,7 @@
 #include <thread>
 #include <vector>
 
+#include "getopt_port/getopt.h"
 #include "core-modules.hh"
 #include "display.hpp"
 #include "fmt/base.h"

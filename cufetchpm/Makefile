@@ -30,7 +30,7 @@ LDLIBS   	+= $(BUILDDIR)/libfmt.a $(BUILDDIR)/libtiny-process-library.a
 CXXFLAGS  	?= -mtune=generic -march=native
 CXXFLAGS        += -fvisibility=hidden -I../include -I../include/libs/ -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\"
 
-all: fmt toml tpl $(TARGET)
+all: fmt toml getopt-port tpl $(TARGET)
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/libfmt.a),)
@@ -44,13 +44,19 @@ ifeq ($(wildcard $(BUILDDIR)/toml.o),)
 	make -C ../src/libs/toml++ BUILDDIR=cufetchpm/$(BUILDDIR)
 endif
 
+getopt-port:
+ifeq ($(wildcard $(BUILDDIR)/getopt.o),)
+	mkdir -p $(BUILDDIR)
+	make -C ../src/libs/getopt_port BUILDDIR=$(BUILDDIR)
+endif
+
 tpl:
 ifeq ($(wildcard $(BUILDDIR)/libtiny-process-library.a),)
 	mkdir -p $(BUILDDIR)
 	make -C ../src/libs/tiny-process-library BUILDDIR=cufetchpm/$(BUILDDIR)
 endif
 
-$(TARGET): fmt toml tpl $(OBJ)
+$(TARGET): fmt toml getopt-port tpl $(OBJ)
 	mkdir -p $(BUILDDIR)
 	$(CXX) $(OBJ) $(BUILDDIR)/*.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS) $(LDLIBS)
 
