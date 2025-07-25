@@ -27,11 +27,13 @@ static void help(int invalid_opt = false)
 Manage plugins for customfetch.
 NOTE: the operations must be the first argument to pass
 
+OPERATIONS:
+    add - Add a new plugin repository. Takes as an argument the git url to be cloned.
+
+GENERAL OPTIONS
     -h, --help          Print this help menu.
     -V, --version       Print version and other infos about the build.
 
-OPERATIONS:
-    add - Add a new plugin repository. Takes as an argument the git url to be cloned.
 )");
 
     fmt::print("{}", help);
@@ -41,6 +43,7 @@ OPERATIONS:
 
 static bool parseargs(int argc, char* argv[])
 {
+    // clang-format off
     int opt = 0;
     int option_index = 0;
     const char *optstring = "-Vh";
@@ -51,8 +54,8 @@ static bool parseargs(int argc, char* argv[])
         {0,0,0,0}
     };
 
-    /* parse operation */
-    optind = 0;
+    // clang-format on
+    optind = 1;
     while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1)
     {
         switch (opt)

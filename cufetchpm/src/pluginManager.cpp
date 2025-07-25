@@ -38,7 +38,7 @@ void PluginManager::add_repo_plugins(const std::string& repo)
 
     static std::random_device              rd;
     static std::mt19937                    gen(rd());
-    static std::uniform_int_distribution<> dist(100000, 999999);
+    static std::uniform_int_distribution<> dist(0, 999999);
 
     // create temponary directory
     const std::filesystem::path& working_dir = m_cache_path / ("plugin_" + std::to_string(dist(gen)));
@@ -86,8 +86,8 @@ void PluginManager::add_repo_plugins(const std::string& repo)
             }
         }
         success("Successfully built '{}' into '{}'", plugin.name, plugin.output_dir);
-        m_state.add_new_plugin(plugin);
     }
+    m_state.add_new_repo(manifest);
 
     // we built all plugins. let's rename the working directory to its actual manifest name,
     success("Repository plugins successfully built! Moving to '{}'...", repo_path.string());

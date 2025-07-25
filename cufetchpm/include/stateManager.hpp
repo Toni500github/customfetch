@@ -15,6 +15,7 @@ public:
     StateManager(const StateManager&) = default;
     ~StateManager()                   = default;
 
+    void        add_new_repo(const CManifest& manifest);
     void        add_new_plugin(const plugin_t& manifest);
     toml::table get_state() { return m_state; }
 

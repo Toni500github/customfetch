@@ -47,7 +47,7 @@ endif
 getopt-port:
 ifeq ($(wildcard $(BUILDDIR)/getopt.o),)
 	mkdir -p $(BUILDDIR)
-	make -C ../src/libs/getopt_port BUILDDIR=$(BUILDDIR)
+	make -C ../src/libs/getopt_port BUILDDIR=cufetchpm/$(BUILDDIR)
 endif
 
 tpl:

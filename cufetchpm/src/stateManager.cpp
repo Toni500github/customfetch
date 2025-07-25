@@ -3,9 +3,11 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 #include "fmt/os.h"
 #include "libcufetch/common.hh"
+#include "manifest.hpp"
 
 // https://github.com/hyprwm/Hyprland/blob/2d2a5bebff72c73cd27db3b9e954b8fa2a7623e8/hyprpm/src/core/DataState.cpp#L24
 static bool writeState(const std::string& str, const std::string& to)
@@ -20,6 +22,25 @@ static bool writeState(const std::string& str, const std::string& to)
     of.close();
 
     return std::filesystem::copy_file(temp_state, to, std::filesystem::copy_options::overwrite_existing);
+}
+
+// Ensures a sub-table exists for a given key. Returns a reference to the sub-table.
+static toml::table& ensure_table(toml::table& parent, std::string_view key)
+{
+    if (toml::node* node = parent[key].node())
+        if (auto* tbl = node->as_table())
+            return *tbl;
+
+    auto [it, inserted] = parent.insert(key, toml::table{});
+    return *it->second.as_table();
+}
+
+static toml::array vector_to_array(const std::vector<std::string> vec)
+{
+    toml::array ret;
+    for (const std::string& str : vec)
+        ret.push_back(str);
+    return ret;
 }
 
 StateManager::StateManager()
@@ -47,6 +68,34 @@ StateManager::StateManager()
     }
 }
 
+void StateManager::add_new_repo(const CManifest& manifest)
+{
+    toml::table& repositories = ensure_table(m_state, "repositories");
+    toml::table& repo         = ensure_table(repositories, manifest.get_repo_name());
+    repo.insert_or_assign("url", manifest.get_repo_url());
+
+    toml::array plugins_arr;
+    for (const plugin_t& plugin : manifest.get_all_plugins())
+    {
+        toml::table entry{ { "name", plugin.name },
+                                        { "description", plugin.description },
+                                        { "authors", vector_to_array(plugin.authors) },
+                                        { "licenses", vector_to_array(plugin.licenses) },
+                                        { "output-dir", plugin.output_dir },
+                                        { "conflicts", vector_to_array(plugin.conflicts) },
+                                        { "prefixes", vector_to_array(plugin.prefixes) } };
+
+        plugins_arr.push_back(std::move(entry));
+    }
+
+    repo.insert_or_assign("plugins", std::move(plugins_arr));
+    std::stringstream ss;
+    ss << m_state;
+
+    if (!writeState(ss.str(), m_path))
+        die("Failed to write plugin state of repository '{}'", manifest.get_repo_name());
+}
+
 void StateManager::add_new_plugin(const plugin_t& manifest)
 {
     toml::array authors_arr, licenses_arr;
@@ -57,11 +106,11 @@ void StateManager::add_new_plugin(const plugin_t& manifest)
 
     toml::table plugin_state_entry{ { "description", manifest.description },
                                     { "authors", authors_arr },
-                                    { "license", licenses_arr },
+                                    { "licenses", licenses_arr },
                                     { "output-dir", manifest.output_dir } };
 
     // Add or replace plugin entry
-    m_state.insert_or_assign(manifest.name, plugin_state_entry);
+    m_state.insert_or_assign(manifest.name, std::move(plugin_state_entry));
 
     std::stringstream ss;
     ss << m_state;

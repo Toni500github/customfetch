@@ -67,13 +67,13 @@ public:
 
     plugin_t get_plugin(const std::string_view name);
 
-    const std::string& get_repo_name()
+    const std::string& get_repo_name() const
     { return m_repo.name; }
 
-    const std::string& get_repo_url()
+    const std::string& get_repo_url() const
     { return m_repo.url; }
 
-    const std::vector<plugin_t>& get_all_plugins()
+    const std::vector<plugin_t>& get_all_plugins() const
     { return m_repo.plugins; }
 
 private:
