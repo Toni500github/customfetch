@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     if (!parseargs(argc, argv))
         return -1;
 
-    std::filesystem::create_directories({ getHomeCacheDir() / "cufetchpm" / "plugins" });
+    fs::create_directories({ getHomeCacheDir() / "cufetchpm" / "plugins" });
     StateManager  state;
     PluginManager man(std::move(state));
     man.add_repo_plugins(argv[2]);

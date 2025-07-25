@@ -7,6 +7,8 @@
 #include "toml++/toml.hpp"
 #include "util.hpp"
 
+namespace fs = std::filesystem;
+
 class StateManager
 {
 public:
@@ -20,7 +22,7 @@ public:
     toml::table get_state() { return m_state; }
 
 private:
-    const std::filesystem::path m_path{ getHomeCacheDir() / "cufetchpm" / "state.toml" };
+    const fs::path m_path{ getHomeCacheDir() / "cufetchpm" / "state.toml" };
     toml::table                 m_state;
 };
 

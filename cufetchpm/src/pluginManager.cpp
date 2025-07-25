@@ -12,6 +12,7 @@
 #include "libcufetch/common.hh"
 #include "manifest.hpp"
 #include "tiny-process-library/process.hpp"
+#include "util.hpp"
 // #include "fmt/ranges.h"
 
 using namespace TinyProcessLib;
@@ -20,10 +21,9 @@ bool PluginManager::has_deps()
 {
     for (const std::string_view bin : dependencies)
     {
-        Process proc(fmt::format("command -v {}", bin),
-                     "",
-                    [](const char*, size_t) {},   // discard stdout
-                    [](const char*, size_t) {});  // discard stderr
+        Process proc(
+            fmt::format("command -v {}", bin), "", [](const char*, size_t) {},  // discard stdout
+            [](const char*, size_t) {});                                        // discard stderr
         if (proc.get_exit_status() != 0)
             return false;
     }
@@ -41,34 +41,35 @@ void PluginManager::add_repo_plugins(const std::string& repo)
     static std::uniform_int_distribution<> dist(0, 999999);
 
     // create temponary directory
-    const std::filesystem::path& working_dir = m_cache_path / ("plugin_" + std::to_string(dist(gen)));
-    std::filesystem::create_directories(working_dir);
+    const fs::path& working_dir = m_cache_path / ("plugin_" + std::to_string(dist(gen)));
+    fs::create_directories(working_dir);
 
     // and lets clone the repository
     status("Cloning repository '{}' at '{}'", repo, working_dir.string());
     if (Process({ "git", "clone", "--recursive", repo, working_dir.string() }).get_exit_status() != 0)
     {
-        std::filesystem::remove_all(working_dir);
+        fs::remove_all(working_dir);
         die("Failed to clone at directory '{}'", working_dir.string());
     }
     success("Successfully cloned. Changing current directory to '{}'", working_dir.string());
 
     // cd to the working directory and parse its manifest
-    std::filesystem::current_path(working_dir);
+    fs::current_path(working_dir);
     CManifest manifest(MANIFEST_NAME);
 
     // though lets check if we have already installed the plugin in the cache
-    const std::filesystem::path& repo_path = (m_cache_path / manifest.get_repo_name());
-    if (std::filesystem::exists(repo_path))
+    const fs::path& repo_cache_path    = (m_cache_path / manifest.get_repo_name());
+    const fs::path& plugin_config_path = (m_config_path / manifest.get_repo_name());
+    if (fs::exists(repo_cache_path))
     {
-        warn("Repository '{}' already exists in '{}'", manifest.get_repo_name(), repo_path.string());
+        warn("Repository '{}' already exists in '{}'", manifest.get_repo_name(), repo_cache_path.string());
         return;
     }
 
     // So we don't have any plugins in the manifest uh
     if (manifest.get_all_plugins().empty())
     {
-        std::filesystem::remove_all(working_dir);
+        fs::remove_all(working_dir);
         die("Looks like there are no plugins to build with '{}'", manifest.get_repo_name());
     }
 
@@ -81,7 +82,7 @@ void PluginManager::add_repo_plugins(const std::string& repo)
         {
             if (Process(bs, "").get_exit_status() != 0)
             {
-                std::filesystem::remove_all(working_dir);
+                fs::remove_all(working_dir);
                 die("Failed to build plugin '{}' from '{}'", plugin.name, repo);
             }
         }
@@ -90,23 +91,30 @@ void PluginManager::add_repo_plugins(const std::string& repo)
     m_state.add_new_repo(manifest);
 
     // we built all plugins. let's rename the working directory to its actual manifest name,
-    success("Repository plugins successfully built! Moving to '{}'...", repo_path.string());
-    std::filesystem::create_directories(repo_path);
-    std::filesystem::rename(working_dir, repo_path);
+    success("Repository plugins successfully built! Moving to '{}'...", repo_cache_path.string());
+    fs::create_directories(repo_cache_path);
+    fs::rename(working_dir, repo_cache_path);
 
     // and then we symlink each plugin built library from its output-dir
-    const std::filesystem::path& plugin_config_path = (m_config_path / manifest.get_repo_name());
-    std::filesystem::create_directories(plugin_config_path);
+    fs::create_directories(plugin_config_path);
     status("Linking each built plugin to '{}'", plugin_config_path.string());
     for (const plugin_t& plugin : manifest.get_all_plugins())
     {
-        if (!std::filesystem::exists(plugin.output_dir))
+        if (!fs::exists(plugin.output_dir))
             die("Plugin '{}' output-dir '{}' doesn't exist", plugin.name, plugin.output_dir);
-        for (const auto& library : std::filesystem::directory_iterator{ plugin.output_dir })
+        for (const auto& library : fs::directory_iterator{ plugin.output_dir })
         {
+            const fs::path& library_config_path = plugin_config_path / library.path().filename();
+            if (fs::exists(library_config_path))
+            {
+                if (askUserYorN(false, "Library plugin '{}' already exists. Replace it?", library_config_path.string()))
+                    fs::remove_all(library_config_path);
+                else
+                    continue;
+            }
+
             if (library.is_regular_file() || library.is_symlink())
-                std::filesystem::create_symlink(std::filesystem::canonical(library),
-                                                plugin_config_path / library.path().filename());
+                fs::create_symlink(fs::canonical(library), library_config_path);
             else
                 error("Built library '{}' is not a regular file", library.path().string());
         }

@@ -9,6 +9,8 @@
 #include "stateManager.hpp"
 #include "util.hpp"
 
+namespace fs = std::filesystem;
+
 constexpr std::string_view dependencies[] = { "git" };  // expand in the future, maybe
 
 #define BOLD_COLOR(x) (fmt::emphasis::bold | fmt::fg(fmt::rgb(x)))
@@ -41,8 +43,8 @@ public:
 
 private:
     StateManager          m_state;
-    std::filesystem::path m_config_path{ getConfigDir() / "plugins" };
-    std::filesystem::path m_cache_path{ getHomeCacheDir() / "cufetchpm" / "plugins" };
+    fs::path m_config_path{ getConfigDir() / "plugins" };
+    fs::path m_cache_path{ getHomeCacheDir() / "cufetchpm" / "plugins" };
 };
 
 #endif
