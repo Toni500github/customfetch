@@ -63,6 +63,7 @@ void PluginManager::add_repo_plugins(const std::string& repo)
     if (fs::exists(repo_cache_path))
     {
         warn("Repository '{}' already exists in '{}'", manifest.get_repo_name(), repo_cache_path.string());
+        fs::remove_all(working_dir);
         return;
     }
 
