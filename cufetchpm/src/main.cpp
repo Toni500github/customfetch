@@ -1,4 +1,4 @@
-#include <cstring>
+#include <cstdlib>
 
 #include "libcufetch/common.hh"
 #include "pluginManager.hpp"
@@ -12,20 +12,16 @@
 
 #include "getopt_port/getopt.h"
 
-static int op = 0;
-enum
+enum Ops
 {
+    NONE,
     INSTALL,
-    REMOVE,
     LIST
-};
+} op = NONE;
 
-static struct operations_install_t
-{
-    std::vector<std::string> args;
-} install_op;
+static std::vector<std::string> arguments;
 
-static void version()
+void version()
 {
     fmt::print(
         "cufetchpm {} built from branch '{}' at {} commit '{}' ({}).\n"
@@ -37,25 +33,104 @@ static void version()
     std::exit(EXIT_SUCCESS);
 }
 
-static void help(int invalid_opt = false)
+void help(int invalid_opt = false)
 {
-    constexpr std::string_view help(
-        R"(Usage: cufetchpm [OPERATION] [ARGUMENTS] [OPTIONS]...
+    fmt::print(R"(Usage: cufetchpm <command> [options]
 Manage plugins for customfetch.
 NOTE: the operations must be the first argument to pass
 
-OPERATIONS:
-    install  - Install a new plugin repository. Takes as an argument the git url to be cloned.
+Commands:
+    install [options] <repo>    Install a new plugin repository. Takes as an argument the git url to be cloned.
 
-GENERAL OPTIONS
+Global options:
     -h, --help          Print this help menu.
     -V, --version       Print version and other infos about the build.
 
 )");
 
-    fmt::print("{}", help);
-    fmt::print("\n");
     std::exit(invalid_opt);
+}
+
+void help_install(int invalid_opt = false)
+{
+    fmt::print(R"(Usage: cufetchpm install [options] <repo>
+
+Options:
+  -f, --force        Force installation
+  -h, --help         Show help for install
+)");
+
+    std::exit(invalid_opt);
+}
+
+void help_list(int invalid_opt = false)
+{
+    fmt::print(R"(Usage: cufetchpm list [options]
+
+Options:
+  -v, --verbose      Show detailed info
+  -h, --help         Show help for list
+)");
+
+    std::exit(invalid_opt);
+}
+
+bool parse_install_args(int argc, char* argv[])
+{
+    bool force = false;
+
+    // clang-format off
+    const struct option long_opts[] = {
+        {"force", no_argument, nullptr, 'f'},
+        {"help",  no_argument, nullptr, 'h'},
+        {0, 0, 0, 0}
+    };
+    // clang-format on
+
+    int opt;
+    while ((opt = getopt_long(argc, argv, "-fh", long_opts, nullptr)) != -1)
+    {
+        switch (opt)
+        {
+            case 'f': force = true; break;
+            case 'h': help_install(EXIT_SUCCESS); break;
+            case '?': help_install(EXIT_FAILURE); break;
+        }
+    }
+
+    for (int i = optind; i < argc; ++i)
+        arguments.emplace_back(argv[i]);
+
+    if (arguments.empty())
+        die("install: no repositories given");
+
+    return true;
+}
+
+bool parse_list_args(int argc, char* argv[])
+{
+    bool verbose = false;
+
+    // clang-format off
+    const struct option long_opts[] = {
+        {"verbose", no_argument, nullptr, 'v'},
+        {"help",    no_argument, nullptr, 'h'},
+        {0, 0, 0, 0}
+    };
+    // clang-format on
+
+    int opt;
+    while ((opt = getopt_long(argc, argv, "-vh", long_opts, nullptr)) != -1)
+    {
+        switch (opt)
+        {
+            case 'v': verbose = true; break;
+            case 'h': help_list(EXIT_SUCCESS); break;
+            case '?': help_list(EXIT_FAILURE); break;
+        }
+    }
+
+    return true;
 }
 
 static bool parseargs(int argc, char* argv[])
@@ -73,28 +148,6 @@ static bool parseargs(int argc, char* argv[])
 
     // clang-format on
     optind = 1;
-    for (int i = 1; i < argc; ++i)
-    {
-        if (strncmp(argv[i], "install", 7) == 0 || strncmp(argv[i], "i", 1) == 0)
-        {
-            op = INSTALL;
-            optind++;
-            break;
-        }
-        if (strncmp(argv[i], "list", 4) == 0 || strncmp(argv[i], "l", 1) == 0)
-        {
-            op = LIST;
-            optind++;
-            break;
-        }
-        if (strncmp(argv[i], "remove", 6) == 0 || strncmp(argv[i], "r", 1) == 0)
-        {
-            op = REMOVE;
-            optind++;
-            break;
-        }
-    }
-
     while ((opt = getopt_long(argc, argv, optstring, opts, &option_index)) != -1)
     {
         switch (opt)
@@ -108,11 +161,40 @@ static bool parseargs(int argc, char* argv[])
         }
     }
 
-    switch (op)
+    if (optind >= argc)
+        help(EXIT_FAILURE);  // no subcommand
+
+    std::string_view cmd      = argv[optind];
+    int              sub_argc = argc - optind - 1;
+    char**           sub_argv = argv + optind + 1;
+    if (cmd == "install" || cmd == "i")
     {
-        case INSTALL:
-            for (int i = optind; i < argc; ++i)
-                install_op.args.push_back(argv[i]);
+        op     = INSTALL;
+        optind = 0;
+        return parse_install_args(sub_argc, sub_argv);
+    }
+    else if (cmd == "list" || cmd == "l")
+    {
+        op     = LIST;
+        optind = 0;
+        return parse_list_args(sub_argc, sub_argv);
+    }
+    else if (cmd == "help")
+    {
+        if (sub_argc >= 1)
+        {
+            std::string_view target = sub_argv[0];
+            if (target == "install")
+                help_install();
+            else if (target == "list")
+                help_list();
+            else
+                die("Unknown subcommand '{}'", cmd);
+        }
+        else
+        {
+            help(EXIT_FAILURE);
+        }
     }
 
     return true;
@@ -128,14 +210,14 @@ int main(int argc, char* argv[])
     {
         case INSTALL:
         {
-            if (install_op.args.size() != 1)
+            if (arguments.size() < 1)
                 die("Please provide a singular git url repository");
             StateManager  state;
             PluginManager plugin_manager(std::move(state));
-            plugin_manager.add_repo_plugins(install_op.args[0]);
+            plugin_manager.add_repo_plugins(arguments[0]);
             break;
         }
-        default: warn("Not yet implemented");
+        default: warn("uh?");
     }
 
     return 0;
