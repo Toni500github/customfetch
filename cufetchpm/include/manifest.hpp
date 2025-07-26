@@ -1,13 +1,11 @@
 #ifndef _MANIFEST_HPP_
 #define _MANIFEST_HPP_
 
-#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 
-#include "libcufetch/common.hh"
 #include "toml++/toml.hpp"
 
 struct plugin_t
@@ -58,6 +56,13 @@ struct manifest_t
 
 constexpr char const MANIFEST_NAME[] = "cufetchpm.toml";
 
+namespace ManifestSpace {
+std::string getStrValue(const toml::table& tbl, const std::string_view name, const std::string_view key);
+std::string getStrValue(const toml::table& tbl, const std::string_view path);
+std::vector<std::string> getStrArrayValue(const toml::table& tbl, const std::string_view name, const std::string_view value);
+std::vector<std::string> getStrArrayValue(const toml::table& tbl, const std::string_view path);
+}
+
 class CManifest
 {
 public:
@@ -81,34 +86,21 @@ private:
     manifest_t  m_repo;
 
     void parse_manifest();
+    void parse_manifest_state();
 
     std::string getStrValue(const std::string_view name, const std::string_view key) const
     {
-        const std::optional<std::string>& ret = m_tbl[name][key].value<std::string>();
-        return ret.value_or(UNKNOWN);
+        return ManifestSpace::getStrValue(m_tbl, name, key);
     }
 
     std::string getStrValue(const std::string_view path) const
     {
-        const std::optional<std::string>& ret = m_tbl.at_path(path).value<std::string>();
-        return ret.value_or(UNKNOWN);
+        return ManifestSpace::getStrValue(m_tbl, path);
     }
 
     std::vector<std::string> getStrArrayValue(const std::string_view name, const std::string_view value) const
     {
-        std::vector<std::string> ret;
-
-        // https://stackoverflow.com/a/78266628
-        if (const toml::array* array_it = m_tbl[name][value].as_array())
-        {
-            array_it->for_each([&ret](auto&& el) {
-                if (const toml::value<std::string>* str_elem = el.as_string())
-                    ret.push_back((*str_elem)->data());
-            });
-
-            return ret;
-        }
-        return {};
+        return ManifestSpace::getStrArrayValue(m_tbl, name, value);
     }
 };
 

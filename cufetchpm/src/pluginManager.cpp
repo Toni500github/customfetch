@@ -52,7 +52,11 @@ void PluginManager::add_repo_plugins(const std::string& repo)
         die("Failed to clone at directory '{}'", working_dir.string());
     }
     success("Successfully cloned. Changing current directory to '{}'", working_dir.string());
+    build_plugins(working_dir);
+}
 
+void PluginManager::build_plugins(const fs::path& working_dir)
+{
     // cd to the working directory and parse its manifest
     fs::current_path(working_dir);
     CManifest manifest(MANIFEST_NAME);
@@ -84,7 +88,7 @@ void PluginManager::add_repo_plugins(const std::string& repo)
             if (Process(bs, "").get_exit_status() != 0)
             {
                 fs::remove_all(working_dir);
-                die("Failed to build plugin '{}' from '{}'", plugin.name, repo);
+                die("Failed to build plugin '{}'", plugin.name);
             }
         }
         success("Successfully built '{}' into '{}'", plugin.name, plugin.output_dir);

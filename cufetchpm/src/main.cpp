@@ -1,5 +1,8 @@
 #include <cstdlib>
+#include <filesystem>
 
+#include "fmt/base.h"
+#include "fmt/ranges.h"
 #include "libcufetch/common.hh"
 #include "pluginManager.hpp"
 #include "stateManager.hpp"
@@ -19,8 +22,6 @@ enum Ops
     LIST
 } op = NONE;
 
-static std::vector<std::string> arguments;
-
 void version()
 {
     fmt::print(
@@ -37,14 +38,14 @@ void help(int invalid_opt = false)
 {
     fmt::print(R"(Usage: cufetchpm <command> [options]
 Manage plugins for customfetch.
-NOTE: the operations must be the first argument to pass
 
 Commands:
-    install [options] <repo>    Install a new plugin repository. Takes as an argument the git url to be cloned.
+    install [options] <repo/path>...   Install one or more plugin sources from a Git repo or local path.
+    help <command>                     Show help for a specific command.
 
 Global options:
-    -h, --help          Print this help menu.
-    -V, --version       Print version and other infos about the build.
+    -h, --help          Show this help message.
+    -V, --version       Show version and build information.
 
 )");
 
@@ -53,11 +54,17 @@ Global options:
 
 void help_install(int invalid_opt = false)
 {
-    fmt::print(R"(Usage: cufetchpm install [options] <repo>
+    fmt::print(R"(Usage: cufetchpm install [options] <repo/path>...
+
+Install one or more plugin sources. If a given argument exists on disk,
+it is treated as a local directory. Otherwise, it is treated as a Git
+repository URL and will be cloned.
+
+All plugins found within the source will be installed.
 
 Options:
-  -f, --force        Force installation
-  -h, --help         Show help for install
+    -f, --force        Force installation, even if already installed.
+    -h, --help         Show help for this command.
 )");
 
     std::exit(invalid_opt);
@@ -66,10 +73,11 @@ Options:
 void help_list(int invalid_opt = false)
 {
     fmt::print(R"(Usage: cufetchpm list [options]
+List all installed plugins.
 
 Options:
-  -v, --verbose      Show detailed info
-  -h, --help         Show help for list
+    -v, --verbose      Show detailed plugin information.
+    -h, --help         Show help for this command.
 )");
 
     std::exit(invalid_opt);
@@ -77,8 +85,6 @@ Options:
 
 bool parse_install_args(int argc, char* argv[])
 {
-    bool force = false;
-
     // clang-format off
     const struct option long_opts[] = {
         {"force", no_argument, nullptr, 'f'},
@@ -92,25 +98,23 @@ bool parse_install_args(int argc, char* argv[])
     {
         switch (opt)
         {
-            case 'f': force = true; break;
+            case 'f': options.install_force = true; break;
             case 'h': help_install(EXIT_SUCCESS); break;
             case '?': help_install(EXIT_FAILURE); break;
         }
     }
 
     for (int i = optind; i < argc; ++i)
-        arguments.emplace_back(argv[i]);
+        options.arguments.emplace_back(argv[i]);
 
-    if (arguments.empty())
-        die("install: no repositories given");
+    if (options.arguments.empty())
+        die("install: no repositories/paths given");
 
     return true;
 }
 
 bool parse_list_args(int argc, char* argv[])
 {
-    bool verbose = false;
-
     // clang-format off
     const struct option long_opts[] = {
         {"verbose", no_argument, nullptr, 'v'},
@@ -124,7 +128,7 @@ bool parse_list_args(int argc, char* argv[])
     {
         switch (opt)
         {
-            case 'v': verbose = true; break;
+            case 'v': options.list_verbose = true; break;
             case 'h': help_list(EXIT_SUCCESS); break;
             case '?': help_list(EXIT_FAILURE); break;
         }
@@ -206,15 +210,42 @@ int main(int argc, char* argv[])
         return -1;
 
     fs::create_directories({ getHomeCacheDir() / "cufetchpm" / "plugins" });
+    fs::create_directories({ getConfigDir() / "plugins" });
+    StateManager state;
     switch (op)
     {
         case INSTALL:
         {
-            if (arguments.size() < 1)
+            if (options.arguments.size() < 1)
                 die("Please provide a singular git url repository");
-            StateManager  state;
             PluginManager plugin_manager(std::move(state));
-            plugin_manager.add_repo_plugins(arguments[0]);
+            for (const std::string& arg : options.arguments)
+            {
+                if (arg.find("://") == arg.npos && fs::exists(arg))
+                    plugin_manager.build_plugins(arg);
+                else
+                    plugin_manager.add_repo_plugins(arg);
+            }
+            break;
+        }
+        case LIST:
+        {
+            for (const manifest_t& manifest : state.get_all_repos())
+            {
+                fmt::println("\033[1;32mRepository:\033[0m {}", manifest.name);
+                fmt::println("\033[1;33mURL:\033[0m {}", manifest.url);
+                fmt::println("\033[1;34mPlugins:");
+                for (const plugin_t& plugin : manifest.plugins)
+                {
+                    fmt::println("\033[1;34m - {}\033[0m", plugin.name);
+                    fmt::println("\t\033[1;35mDescription:\033[0m {}", plugin.description);
+                    fmt::println("\t\033[1;36mAuthor(s):\033[0m {}", fmt::join(plugin.authors, ", "));
+                    fmt::println("\t\033[1;38;2;220;220;220mLicense(s):\033[0m {}", fmt::join(plugin.licenses, ", "));
+                    fmt::println("\t\033[1;38;2;144;238;144mPrefixe(s):\033[0m {}", fmt::join(plugin.prefixes, ", "));
+                    fmt::print("\n");
+                }
+                fmt::print("\033[0m");
+            }
             break;
         }
         default: warn("uh?");
