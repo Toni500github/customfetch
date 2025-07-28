@@ -42,7 +42,8 @@ std::vector<std::string> ManifestSpace::getStrArrayValue(const toml::table& tbl,
     return {};
 }
 
-std::vector<std::string> ManifestSpace::getStrArrayValue(const toml::table& tbl, const std::string_view name, const std::string_view value)
+std::vector<std::string> ManifestSpace::getStrArrayValue(const toml::table& tbl, const std::string_view name,
+                                                         const std::string_view value)
 {
     std::vector<std::string> ret;
 

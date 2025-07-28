@@ -36,12 +36,12 @@ void version()
 
 void help(int invalid_opt = false)
 {
-    fmt::print(R"(Usage: cufetchpm <command> [options]
+    fmt::print(R"(Usage: cufetchpm <COMMAND> [OPTIONS]...
 Manage plugins for customfetch.
 
 Commands:
-    install [options] <repo/path>...   Install one or more plugin sources from a Git repo or local path.
-    help <command>                     Show help for a specific command.
+    install [OPTIONS] <repo/path>...   Install one or more plugin sources from a Git repo or local path.
+    help <COMMAND>                     Show help for a specific command.
 
 Global options:
     -h, --help          Show this help message.
@@ -217,11 +217,11 @@ int main(int argc, char* argv[])
         case INSTALL:
         {
             if (options.arguments.size() < 1)
-                die("Please provide a singular git url repository");
+                die("Please provide a git url repository");
             PluginManager plugin_manager(std::move(state));
             for (const std::string& arg : options.arguments)
             {
-                if (arg.find("://") == arg.npos && fs::exists(arg))
+                if (fs::exists(arg))
                     plugin_manager.build_plugins(arg);
                 else
                     plugin_manager.add_repo_plugins(arg);
@@ -230,21 +230,37 @@ int main(int argc, char* argv[])
         }
         case LIST:
         {
-            for (const manifest_t& manifest : state.get_all_repos())
+            if (options.list_verbose)
             {
-                fmt::println("\033[1;32mRepository:\033[0m {}", manifest.name);
-                fmt::println("\033[1;33mURL:\033[0m {}", manifest.url);
-                fmt::println("\033[1;34mPlugins:");
-                for (const plugin_t& plugin : manifest.plugins)
+                for (const manifest_t& manifest : state.get_all_repos())
                 {
-                    fmt::println("\033[1;34m - {}\033[0m", plugin.name);
-                    fmt::println("\t\033[1;35mDescription:\033[0m {}", plugin.description);
-                    fmt::println("\t\033[1;36mAuthor(s):\033[0m {}", fmt::join(plugin.authors, ", "));
-                    fmt::println("\t\033[1;38;2;220;220;220mLicense(s):\033[0m {}", fmt::join(plugin.licenses, ", "));
-                    fmt::println("\t\033[1;38;2;144;238;144mPrefixe(s):\033[0m {}", fmt::join(plugin.prefixes, ", "));
-                    fmt::print("\n");
+                    fmt::println("\033[1;32mRepository:\033[0m {}", manifest.name);
+                    fmt::println("\033[1;33mURL:\033[0m {}", manifest.url);
+                    fmt::println("\033[1;34mPlugins:");
+                    for (const plugin_t& plugin : manifest.plugins)
+                    {
+                        fmt::println("\033[1;34m - {}\033[0m", plugin.name);
+                        fmt::println("\t\033[1;35mDescription:\033[0m {}", plugin.description);
+                        fmt::println("\t\033[1;36mAuthor(s):\033[0m {}", fmt::join(plugin.authors, ", "));
+                        fmt::println("\t\033[1;38;2;220;220;220mLicense(s):\033[0m {}",
+                                     fmt::join(plugin.licenses, ", "));
+                        fmt::println("\t\033[1;38;2;144;238;144mPrefixe(s):\033[0m {}",
+                                     fmt::join(plugin.prefixes, ", "));
+                        fmt::print("\n");
+                    }
+                    fmt::print("\033[0m");
                 }
-                fmt::print("\033[0m");
+            }
+            else
+            {
+                for (const manifest_t& manifest : state.get_all_repos())
+                {
+                    fmt::println("\033[1;32mRepository:\033[0m {} (\033[1;33m{}\033[0m)", manifest.name, manifest.url);
+                    fmt::println("\033[1;34mPlugins:");
+                    for (const plugin_t& plugin : manifest.plugins)
+                        fmt::println("   \033[1;34m{} - \033[1;35m{}\n", plugin.name, plugin.description);
+                    fmt::print("\033[0m");
+                }
             }
             break;
         }

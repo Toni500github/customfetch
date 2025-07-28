@@ -96,13 +96,13 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     m_state.add_new_repo(manifest);
 
     // we built all plugins. let's rename the working directory to its actual manifest name,
-    success("Repository plugins successfully built! Moving to '{}'...", repo_cache_path.string());
+    success("Repository plugins successfully built! Renaming to '{}'...", repo_cache_path.string());
     fs::create_directories(repo_cache_path);
     fs::rename(working_dir, repo_cache_path);
 
-    // and then we symlink each plugin built library from its output-dir
+    // and then we move each plugin built library from its output-dir
     fs::create_directories(plugin_config_path);
-    status("Linking each built plugin to '{}'", plugin_config_path.string());
+    status("Moving each built plugin to '{}'", plugin_config_path.string());
     for (const plugin_t& plugin : manifest.get_all_plugins())
     {
         if (!fs::exists(plugin.output_dir))
@@ -119,7 +119,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
             }
 
             if (library.is_regular_file() || library.is_symlink())
-                fs::create_symlink(fs::canonical(library), library_config_path);
+                fs::rename(fs::canonical(library), library_config_path);
             else
                 error("Built library '{}' is not a regular file", library.path().string());
         }
