@@ -6,6 +6,7 @@ APPPREFIX 	?= $(PREFIX)/share/applications
 LOCALEDIR	?= $(PREFIX)/share/locale
 ICONPREFIX 	?= $(PREFIX)/share/pixmaps
 VARS  	  	?= -DENABLE_NLS=1
+CXXSTD		?= c++20
 
 DEBUG 		?= 1
 GUI_APP         ?= 0
@@ -15,7 +16,8 @@ USE_DCONF	?= 1
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
         BUILDDIR  = build/debug
-        CXXFLAGS := -ggdb3 -Wall -Wextra -Wpedantic -Wno-unused-parameter -DDEBUG=1 -fno-omit-frame-pointer -fsanitize=address $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+        CXXFLAGS := -ggdb3 -Wall -Wextra -pedantic -Wno-unused-parameter -fsanitize=address \
+			-DDEBUG=1 -fno-omit-frame-pointer -O1 -fno-lto $(DEBUG_CXXFLAGS) $(CXXFLAGS)
         LDFLAGS	 += -fsanitize=address
 else
 	# Check if an optimization flag is not already set
@@ -24,6 +26,7 @@ else
 	else
     		CXXFLAGS := -O3 $(CXXFLAGS)
 	endif
+	CXXFLAGS += -flto=auto -ffat-lto-objects
         BUILDDIR  = build/release
 endif
 
@@ -54,29 +57,29 @@ OBJ		 = $(OBJ_CPP) $(OBJ_CC)
 LDFLAGS   	+= -L$(BUILDDIR) -flto=auto -ffat-lto-objects
 LDLIBS		+= $(BUILDDIR)/libfmt.a $(BUILDDIR)/libtiny-process-library.a -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -flto=auto -ffat-lto-objects -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/libcufetch -Iinclude/libs -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
+CXXFLAGS        += -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/libcufetch -Iinclude/libs -std=$(CXXSTD) $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
 all: genver fmt toml tpl getopt-port json libcufetch $(TARGET)
 
 libcufetch: fmt toml
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
-	make -C libcufetch BUILDDIR=$(BUILDDIR) GUI_APP=$(GUI_APP)
+	make -C libcufetch BUILDDIR=$(BUILDDIR) GUI_APP=$(GUI_APP) CXXSTD=$(CXXSTD)
 endif
 
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/libfmt.a),)
 	mkdir -p $(BUILDDIR)
-	make -C src/libs/fmt BUILDDIR=$(BUILDDIR)
+	make -C src/libs/fmt BUILDDIR=$(BUILDDIR) CXXSTD=$(CXXSTD)
 endif
 
 toml:
 ifeq ($(wildcard $(BUILDDIR)/toml.o),)
-	make -C src/libs/toml++ BUILDDIR=$(BUILDDIR)
+	make -C src/libs/toml++ BUILDDIR=$(BUILDDIR) CXXSTD=$(CXXSTD)
 endif
 
 tpl:
 ifeq ($(wildcard $(BUILDDIR)/libtiny-process-library.a),)
-	make -C src/libs/tiny-process-library BUILDDIR=$(BUILDDIR)
+	make -C src/libs/tiny-process-library BUILDDIR=$(BUILDDIR) CXXSTD=$(CXXSTD)
 endif
 
 getopt-port:
@@ -86,7 +89,7 @@ endif
 
 json:
 ifeq ($(wildcard $(BUILDDIR)/json.o),)
-	make -C src/libs/json BUILDDIR=$(BUILDDIR)
+	make -C src/libs/json BUILDDIR=$(BUILDDIR) CXXSTD=$(CXXSTD)
 endif
 
 genver: ./scripts/generateVersion.sh

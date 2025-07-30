@@ -35,6 +35,13 @@ struct module_t
     std::function<std::string(const callbackInfo_t*)> handler;
 };
 
+// C ABI is needed to prevent symbol mangling, but we don't actually need C compatibility,
+// so we ignore this warning about return types that are potentially incompatible with C.
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+#endif
+
 /* Register a module, and its submodules, to customfetch. */
 APICALL EXPORT void cfRegisterModule(const module_t& module);
 

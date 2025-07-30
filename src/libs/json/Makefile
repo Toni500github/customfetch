@@ -1,7 +1,8 @@
 CXX	?= g++
 SRC 	 = json.cpp
 TARGET   = json.o
-CXXFLAGS = -I../../../include/libs -flto=auto -ffat-lto-objects -std=c++20 -fPIC
+CXXSTD	?= c++20
+CXXFLAGS = -I../../../include/libs -flto=auto -ffat-lto-objects -std=$(CXXSTD) -fPIC
 
 all: $(TARGET)
 

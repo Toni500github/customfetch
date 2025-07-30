@@ -2,6 +2,7 @@ CXX       	?= g++
 PREFIX	  	?= /usr
 MANPREFIX	?= $(PREFIX)/share/man
 VARS  	  	?= -DENABLE_NLS=1
+CXXSTD		?= c++20
 
 DEBUG 		?= 1
 # https://stackoverflow.com/a/1079861
@@ -35,13 +36,13 @@ all: fmt toml getopt-port tpl $(TARGET)
 fmt:
 ifeq ($(wildcard $(BUILDDIR)/libfmt.a),)
 	mkdir -p $(BUILDDIR)
-	make -C ../src/libs/fmt BUILDDIR=cufetchpm/$(BUILDDIR)
+	make -C ../src/libs/fmt BUILDDIR=cufetchpm/$(BUILDDIR) CXXSTD=$(CXXSTD)
 endif
 
 toml:
 ifeq ($(wildcard $(BUILDDIR)/toml.o),)
 	mkdir -p $(BUILDDIR)
-	make -C ../src/libs/toml++ BUILDDIR=cufetchpm/$(BUILDDIR)
+	make -C ../src/libs/toml++ BUILDDIR=cufetchpm/$(BUILDDIR) CXXSTD=$(CXXSTD)
 endif
 
 getopt-port:
@@ -53,7 +54,7 @@ endif
 tpl:
 ifeq ($(wildcard $(BUILDDIR)/libtiny-process-library.a),)
 	mkdir -p $(BUILDDIR)
-	make -C ../src/libs/tiny-process-library BUILDDIR=cufetchpm/$(BUILDDIR)
+	make -C ../src/libs/tiny-process-library BUILDDIR=cufetchpm/$(BUILDDIR) CXXSTD=$(CXXSTD)
 endif
 
 $(TARGET): fmt toml getopt-port tpl $(OBJ)

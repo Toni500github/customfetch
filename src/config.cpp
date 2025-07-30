@@ -166,14 +166,14 @@ void Config::overrideOption(const std::string& opt)
         name.insert(0, "config.");
 
     if (value == "true")
-        overrides[name] = {.value_type = BOOL, .bool_value = true};
+        overrides[name] = {BOOL, "", true, 0};
     else if (value == "false")
-        overrides[name] = {.value_type = BOOL, .bool_value = false};
+        overrides[name] = {BOOL, "", false, 0};
     else if ((value[0] == '"' && value.back() == '"') ||
              (value[0] == '\'' && value.back() == '\''))
-        overrides[name] = {.value_type = STR, .string_value = value.substr(1, value.size()-2)};
+        overrides[name] = {STR, value.substr(1, value.size()-2), false, 0};
     else if (is_str_digital(value))
-        overrides[name] = {.value_type = INT, .int_value = std::stoi(value)};
+        overrides[name] = {INT, "", false, std::stoi(value)};
     else
         die(_("looks like override value '{}' from '{}' is neither a bool, int or string value"), 
             value, name);

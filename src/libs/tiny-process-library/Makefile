@@ -1,5 +1,6 @@
 CXX		?= g++
-CXXFLAGS 	 = -I../../../include/libs/tiny-process-library -O3 -DNDEBUG -flto=auto -ffat-lto-objects -fvisibility=default -fvisibility-inlines-hidden -fPIC
+CXXSTD		?= c++20
+CXXFLAGS 	 = -I../../../include/libs/tiny-process-library -std=$(CXXSTD) -O3 -DNDEBUG -flto=auto -ffat-lto-objects -fvisibility=default -fvisibility-inlines-hidden -fPIC
 
 UNAME_S := $(shell uname -s)
 

@@ -3,8 +3,9 @@
 # cmd: cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
 
 CXX		?= g++
+CXXSTD		?= c++20
 # CXX_DEFINES 	= -DFMT_LIB_EXPORT -Dfmt_EXPORTS
-CXXFLAGS 	= -I../../../include/libs -O3 -DNDEBUG -flto=auto -ffat-lto-objects -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
+CXXFLAGS 	= -I../../../include/libs -O3 -std=$(CXXSTD) -DNDEBUG -flto=auto -ffat-lto-objects -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
 
 all: fmt
 
