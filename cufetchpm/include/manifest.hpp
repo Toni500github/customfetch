@@ -56,12 +56,14 @@ struct manifest_t
 
 constexpr char const MANIFEST_NAME[] = "cufetchpm.toml";
 
-namespace ManifestSpace {
-std::string getStrValue(const toml::table& tbl, const std::string_view name, const std::string_view key);
-std::string getStrValue(const toml::table& tbl, const std::string_view path);
-std::vector<std::string> getStrArrayValue(const toml::table& tbl, const std::string_view name, const std::string_view value);
+namespace ManifestSpace
+{
+std::string              getStrValue(const toml::table& tbl, const std::string_view name, const std::string_view key);
+std::string              getStrValue(const toml::table& tbl, const std::string_view path);
+std::vector<std::string> getStrArrayValue(const toml::table& tbl, const std::string_view name,
+                                          const std::string_view value);
 std::vector<std::string> getStrArrayValue(const toml::table& tbl, const std::string_view path);
-}
+}  // namespace ManifestSpace
 
 class CManifest
 {

@@ -62,13 +62,18 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     CManifest manifest(MANIFEST_NAME);
 
     // though lets check if we have already installed the plugin in the cache
-    const fs::path& repo_cache_path    = (m_cache_path / manifest.get_repo_name());
-    const fs::path& plugin_config_path = (m_config_path / manifest.get_repo_name());
+    const fs::path& repo_cache_path     = (m_cache_path / manifest.get_repo_name());
+    const fs::path& plugins_config_path = (m_config_path / manifest.get_repo_name());
     if (fs::exists(repo_cache_path))
     {
-        warn("Repository '{}' already exists in '{}'", manifest.get_repo_name(), repo_cache_path.string());
-        fs::remove_all(working_dir);
-        return;
+        if (!options.install_force)
+        {
+            warn("Repository '{}' already exists in '{}'", manifest.get_repo_name(), repo_cache_path.string());
+            fs::remove_all(working_dir);
+            return;
+        }
+
+        fs::remove_all(repo_cache_path);
     }
 
     // So we don't have any plugins in the manifest uh
@@ -93,7 +98,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         }
         success("Successfully built '{}' into '{}'", plugin.name, plugin.output_dir);
     }
-    m_state.add_new_repo(manifest);
+    m_state_manager.add_new_repo(manifest);
 
     // we built all plugins. let's rename the working directory to its actual manifest name,
     success("Repository plugins successfully built! Renaming to '{}'...", repo_cache_path.string());
@@ -101,28 +106,50 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     fs::rename(working_dir, repo_cache_path);
 
     // and then we move each plugin built library from its output-dir
-    fs::create_directories(plugin_config_path);
-    status("Moving each built plugin to '{}'", plugin_config_path.string());
+    // and we'll declare all plugins we have moved.
+    fs::create_directories(plugins_config_path);
+    status("Moving each built plugin to '{}'", plugins_config_path.string());
     for (const plugin_t& plugin : manifest.get_all_plugins())
     {
+        // ugh, devs fault. Report this error to them
         if (!fs::exists(plugin.output_dir))
-            die("Plugin '{}' output-dir '{}' doesn't exist", plugin.name, plugin.output_dir);
+        {
+            error("Plugin '{}' output-dir '{}' doesn't exist", plugin.name, plugin.output_dir);
+            continue;
+        }
+
+        toml::array built_libraries;
         for (const auto& library : fs::directory_iterator{ plugin.output_dir })
         {
-            const fs::path& library_config_path = plugin_config_path / library.path().filename();
+            // ~/.config/customfetch/plugins/<plugin-directory>/<plugin-filename>
+            const fs::path& library_config_path = plugins_config_path / library.path().filename();
             if (fs::exists(library_config_path))
             {
-                if (askUserYorN(false, "Library plugin '{}' already exists. Replace it?", library_config_path.string()))
+                if (askUserYorN(false, "Plugin '{}' already exists. Replace it?", library_config_path.string()))
                     fs::remove_all(library_config_path);
                 else
                     continue;
             }
 
             if (library.is_regular_file() || library.is_symlink())
-                fs::rename(fs::canonical(library), library_config_path);
+            {
+                std::error_code er;
+                fs::rename(fs::canonical(library), library_config_path, er);
+                if (er)
+                {
+                    error("Failed to move '{}' to '{}': {}", fs::canonical(library).string(),
+                          library_config_path.string(), er.message());
+                    continue;
+                }
+                built_libraries.push_back(library_config_path.string());
+            }
             else
+            {
                 error("Built library '{}' is not a regular file", library.path().string());
+            }
         }
+        m_state_manager.insert_or_assign_at_plugin(manifest.get_repo_name(), plugin.name, "libraries",
+                                                   std::move(built_libraries));
     }
     success("Enjoy the new plugins from {}", manifest.get_repo_name());
 }

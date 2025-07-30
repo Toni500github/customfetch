@@ -41,8 +41,8 @@ void status(const std::string_view fmt, Args&&... args) noexcept
 class PluginManager
 {
 public:
-    PluginManager(const StateManager& state) : m_state(state) {}
-    PluginManager(StateManager&& state) : m_state(std::move(state)) {}
+    PluginManager(const StateManager& state_manager) : m_state_manager(state_manager) {}
+    PluginManager(StateManager&& state_manager) : m_state_manager(std::move(state_manager)) {}
 
     void add_repo_plugins(const std::string& repo);
     void build_plugins(const fs::path& working_dir);
@@ -50,7 +50,7 @@ public:
     bool has_deps();
 
 private:
-    StateManager m_state;
+    StateManager m_state_manager;
     fs::path     m_config_path{ getConfigDir() / "plugins" };
     fs::path     m_cache_path{ getHomeCacheDir() / "cufetchpm" / "plugins" };
 };
