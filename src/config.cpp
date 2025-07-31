@@ -29,6 +29,7 @@
 #include <filesystem>
 #include <string>
 
+#include "texts.hpp"
 #include "fmt/os.h"
 #include "util.hpp"
 

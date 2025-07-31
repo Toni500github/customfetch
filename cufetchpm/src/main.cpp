@@ -1,11 +1,13 @@
 #include <cstdlib>
 #include <filesystem>
 
-#include "fmt/base.h"
 #include "fmt/ranges.h"
 #include "libcufetch/common.hh"
+#include "fmt/os.h"
+#include "fmt/compile.h"
 #include "pluginManager.hpp"
 #include "stateManager.hpp"
+#include "texts.hpp"
 
 #if (!__has_include("version.h"))
 #error "version.h not found, please generate it with ./scripts/generateVersion.sh"
@@ -19,7 +21,8 @@ enum Ops
 {
     NONE,
     INSTALL,
-    LIST
+    LIST,
+    GEN_MANIFEST,
 } op = NONE;
 
 void version()
@@ -36,49 +39,21 @@ void version()
 
 void help(int invalid_opt = false)
 {
-    fmt::print(R"(Usage: cufetchpm <COMMAND> [OPTIONS]...
-Manage plugins for customfetch.
-
-Commands:
-    install [OPTIONS] <repo/path>...   Install one or more plugin sources from a Git repo or local path.
-    help <COMMAND>                     Show help for a specific command.
-
-Global options:
-    -h, --help          Show this help message.
-    -V, --version       Show version and build information.
-
-)");
+    fmt::print(FMT_COMPILE("{}"), cufetchpm_help);
 
     std::exit(invalid_opt);
 }
 
 void help_install(int invalid_opt = false)
 {
-    fmt::print(R"(Usage: cufetchpm install [options] <repo/path>...
-
-Install one or more plugin sources. If a given argument exists on disk,
-it is treated as a local directory. Otherwise, it is treated as a Git
-repository URL and will be cloned.
-
-All plugins found within the source will be installed.
-
-Options:
-    -f, --force        Force installation, even if already installed.
-    -h, --help         Show help for this command.
-)");
+    fmt::print(FMT_COMPILE("{}"), cufetchpm_help_install);
 
     std::exit(invalid_opt);
 }
 
 void help_list(int invalid_opt = false)
 {
-    fmt::print(R"(Usage: cufetchpm list [options]
-List all installed plugins.
-
-Options:
-    -v, --verbose      Show detailed plugin information.
-    -h, --help         Show help for this command.
-)");
+    fmt::print(FMT_COMPILE("{}"), cufetchpm_help_list);
 
     std::exit(invalid_opt);
 }
@@ -183,6 +158,11 @@ static bool parseargs(int argc, char* argv[])
         optind = 0;
         return parse_list_args(sub_argc, sub_argv);
     }
+    else if (cmd == "gen-manifest")
+    {
+        op     = GEN_MANIFEST;
+        optind = 0;
+    }
     else if (cmd == "help")
     {
         if (sub_argc >= 1)
@@ -262,6 +242,13 @@ int main(int argc, char* argv[])
                     fmt::print("\033[0m");
                 }
             }
+            break;
+        }
+        case GEN_MANIFEST:
+        {
+            auto f = fmt::output_file("cufetchpm.toml", fmt::file::CREATE | fmt::file::WRONLY);
+            f.print("{}", AUTO_MANIFEST);
+            f.close();
             break;
         }
         default: warn("uh?");

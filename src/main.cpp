@@ -37,6 +37,8 @@
 #include <thread>
 #include <vector>
 
+#include "libcufetch/fmt/compile.h"
+#include "texts.hpp"
 #include "getopt_port/getopt.h"
 #include "core-modules.hh"
 #include "display.hpp"
@@ -122,86 +124,7 @@ static void version()
 // Print the args help menu, then exit with code depending if it's from invalid or -h arg
 static void help(bool invalid_opt = false)
 {
-    constexpr std::string_view help(
-        R"(Usage: customfetch [OPTIONS]...
-A command-line, GUI app, and Android widget system information tool (like neofetch) focused on customizability and performance.
-
-NOTE: Boolean flags [<BOOL>] accept: "true", 1, "enable", or empty. Any other value is treated as false.
-
-GENERAL OPTIONS:
-    -h, --help                  Print this help menu.
-    -V, --version               Print version and other infos about the build.
-    -C, --config <PATH>         Path to the config file (default: ~/.config/customfetch/config.toml).
-
-    --gen-config [<PATH>]       Generate default config file. If PATH is omitted, saves to default location.
-                                Prompts before overwriting.
-
-LOGO OPTIONS:
-    -n, --no-logo               Disable logo display.
-    -L, --logo-only             Print only the logo (skip layout completely).
-    -s, --source-path <PATH>    Path to custom ASCII art/image file.
-
-    -a, --ascii-logo-type <TYPE>
-                                Type of ASCII art (typically "small", "old", or empty for default).
-                                Example: "-d arch -a older" looks for "arch_older.txt".
-
-    -D, --data-dir <PATH>       Path to data directory containing "ascii/" subfolder with distro logos.
-    -d, --distro <NAME>         Use a custom distro logo (case-insensitive, e.g., "windows 11" or "ArCh").
-    -p, --logo-position <POS>   Logo position: "top" (default), "left", or "bottom".
-    -o, --offset <NUM>          Space between logo and layout (default: 5).
-    --logo-padding-top <NUM>    Logo padding from top (default: 0).
-    --logo-padding-left <NUM>   Logo padding from left (default: 0).
-
-LAYOUT & FORMATTING:
-    -m, --layout-line <STRING>  Override config layout with custom line(s).
-                                Example: `-m "${auto}OS: $<os.name>" -m "${auto}CPU: $<cpu>"`.
-
-    -N, --no-color              Disable all colors (useful for pipes/scripts).
-    --layout-padding-top <NUM>	Layout padding from top (default: 0).
-    --wrap-lines=[<BOOL>]       Enable terminal line wrapping (default: false).
-    --title-sep <STRING>        String to use for $<title.sep> (default: "-").
-    --sep-reset <STRING>        String that resets color (default: ":").
-    --sep-reset-after=[<BOOL>]  Reset color after (default) or before 'sep-reset'.
-
-GUI/TERMINAL OPTIONS:
-    -f, --font <STRING>         GUI font (format: "FAMILY STYLE SIZE", e.g., "Liberation Mono Normal 12").
-    -i, --image-backend <NAME>  Terminal image backend ("kitty" or "viu").
-    --bg-image <PATH>           GUI background image path ("disable" to turn off).
-
-CONFIG:
-    -O, --override <STRING>     Override a config value (non-array). Syntax: "name=value" (no spaces around "=").
-                                Example: "auto.disk.fmt='Disk(%1): %6'".
-                                Note: Names without dots (e.g., "sep-reset-after") gets auto-appended to "config.".
-
-    --color <STRING>            Replace a color globally. Syntax: "name=value" (no spaces around "=").
-                                Example: "--color magenta=#FF00FF".
-
-    --disallow-command-tag      Do not allow command tags $() to be executed.
-                                This is a safety measure for preventing malicious code to be executed because you didn't want to check the config first.
-
-INFORMATIONAL:
-    -l, --list-modules          List all available info tag modules (e.g., $<cpu> or $<os.name>).
-    -w, --how-it-works          Explain tags and general customization.
-    --list-logos                List available ASCII logos in --data-dir.
-
-LIVE MODE:
-    --loop-ms <NUM>             Run in live mode, updating every <NUM> milliseconds (min: 50).
-                                Use inferior <NUM> than 200 to disable. Press 'q' to exit.
-
-EXAMPLES:
-    1. Minimal output with default logo:
-       customfetch --no-color
-
-    2. Custom distro logo with live updates:
-       customfetch --distro "arch" --loop-ms 1000
-
-    3. Override layout and colors:
-       customfetch -m "${magenta}OS: $<os.name>" --color "magenta=#FF00FF"
-
-For details, see `man customfetch` or run `--how-it-works`.
-)");
-
-    fmt::print("{}", help);
+    fmt::print(FMT_COMPILE("{}"), customfetch_help);
     fmt::print("\n");
     std::exit(invalid_opt);
 }
@@ -209,119 +132,7 @@ For details, see `man customfetch` or run `--how-it-works`.
 // Print how customfetch works, then exit successfully
 static void explain_how_this_works()
 {
-    constexpr std::string_view str(
-        R"(
-customfetch is designed for maximum customizability, allowing users to display system information exactly how they want it.
-The layout and logo is controlled through special tags that can output system info, execute commands, apply conditional logic, add colors, and calculate percentages with some colors.
-
-Tag References:
-1. Information Tag ($<>)
-    Retrieves system information from modules.
-
-    Syntax: $<module.submodule.sub...> or $<module>
-
-    Examples:
-    - $<user.name>       # Displays login username
-    - $<os.kernel.name>  # Shows kernel name only
-    - $<ram>             # Shows formatted RAM usage
-
-    Use `--list-modules` to see all available modules and members.
-
-2. Bash Command Tag ($())
-    Executes shell commands and outputs the result.
-    Supports full shell syntax including pipes and redirection.
-
-    Syntax: $(command)
-
-    Examples:
-    - $(echo "hello")             # Outputs: hello
-    - $(date +%F)                 # Shows current date
-    - $(uname -r | cut -d'-' -f1) # Shows kernel version number only
-
-3. Conditional Tag ($[])
-    Displays different outputs based on conditions.
-    
-    Syntax: $[condition,comparison,true_output,false_output]
-    
-    Examples:
-    - $[$<user.name>,toni,Welcome back!,Access denied]
-    - $[$(date +%m-%d),12-25,Merry Christmas!,]
-    - $[$<os.name.id>,arch,${green}I use arch btw,${red}Non-arch user]
-
-4. Color Tag (${})
-    Applies colors and text formatting.
-    
-    Basic syntax: ${color} or ${modifiers#RRGGBB}
-
-    Color options:
-    - Named colors from config
-    - Hex colors: ${#ff00cc}
-    - Special colors: ${auto} (uses logo colors)
-    - Reset styles: ${0} (normal), ${1} (bold reset)
-
-    Formatting modifiers (prefix before hexcolor):
-    - ! = Bold
-    - u = Underline
-    - i = Italic
-    - s = Strikethrough
-    - l = Blink (terminal only)
-    - b = Background color
-
-    Advanced GUI-only modifiers:
-    - o        = Overline
-    - a(value) = Foreground alpha (1-65536 or 0%-100%)
-    - L(value) = Underline style (none/single/double/low/error)
-    - U(color) = Underline color (hex)
-    - B(color) = Background color (hex)
-    - S(color) = Strikethrough color (hex)
-    - O(color) = Overline color (hex)
-    - A(value) = Background alpha (1-65536 or 0%-100%)
-    - w(value) = Font weight (light/normal/bold/ultrabold or 100-1000)
-    
-    Examples:
-    GUI App only:
-        ${oU(#ff0000)L(double)}Error            # Double red underline
-        ${a(50%)#00ff00}Semi-transparent green
-    Cross-platform:
-        ${\e[1;33m}Bold yellow
-        ${b#222222}${white}White on gray
-        ${auto3}The 3rd logo color
-
-    Notes:
-    - customfetch will try to convert ANSI escape codes to GUI app equivalent
-    - customfetch will ignore GUI-specific modifiers on terminal.
-    - if you're using the GUI app and want to display a custom logo that's an image, all the auto colors will be the same colors as the distro ones.
-
-5. Percentage Tag ($%%)
-    Calculates and displays colored percentages.
-    
-    Syntax: $%value,total% or $%!value,total% (inverted colors)
-    
-    Examples:
-    - $%$<ram.used>,$<ram.total>%
-    - $%!50,100% (shows red if low)
-    - $%$(cat /sys/class/power_supply/BAT0/capacity),100%
-
-Pro Tip:
-- Combine tags for powerful formatting:
-  ${u#5522dd}$[$(date +%H),12,Good ${yellow}morning,Good ${#ff8800}afternoon]
-
-FAQ:
-Q: Why do special characters (&, <) break the GUI display?
-A: Escape these characters with \\ (e.g replace "<" with "\\<" from both config and ASCII art):
-   This doesn't affect terminal output.
-
-Q: How can I use cbonsai as ASCII art?
-A: 1. Create a text file containing: $(!cbonsai -p)
-   2. Use: customfetch -s "/path/to/file.txt"
-   3. Adjust offset for proper alignment
-
-Q: Does customfetch support nested tags?
-A: Yes! Complex nesting is supported, for example:
-   $<disk($<disk($[1,1,$(echo -n $<disk(/).mountdir>),23]).mountdir>)>
-)");
-
-    fmt::print("{}", str);
+    fmt::print(FMT_COMPILE("{}"), explain_customfetch);
     fmt::print("\n");
     std::exit(EXIT_SUCCESS);
 }
