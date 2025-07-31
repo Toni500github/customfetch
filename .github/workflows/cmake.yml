@@ -2,9 +2,9 @@ name: CMake CI (Test customfetch)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "plugins" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "plugins" ]
 
 jobs:
   build-ubuntu_22-04:
@@ -45,7 +45,7 @@ jobs:
         printf "getting 0x5353 hexcode\n" && grep -nri "5353" /sys/class/ || true
        
     - name: Test customfetch
-      run: customfetch --wrap-lines
+      run: LD_LIBRARY_PATH="./build:$LD_LIBRARY_PATH" customfetch --wrap-lines
 
     - name: Upload to github artifacts
       uses: actions/upload-artifact@v4
@@ -83,7 +83,7 @@ jobs:
       run: neofetch
        
     - name: Test customfetch
-      run: customfetch-gui --version
+      run: LD_LIBRARY_PATH="./build:$LD_LIBRARY_PATH" customfetch-gui --version
 
     - name: Upload to github artifacts
       uses: actions/upload-artifact@v4
@@ -136,7 +136,7 @@ jobs:
         printf "/etc/os-release\n" && cat /etc/os-release
 
     - name: Test customfetch
-      run: customfetch --wrap-lines
+      run: LD_LIBRARY_PATH="./build:$LD_LIBRARY_PATH" customfetch --wrap-lines
 
   build-macos:
     runs-on: macos-latest
@@ -169,7 +169,7 @@ jobs:
         run: fastfetch
 
       - name: Test customfetch
-        run: ./build/customfetch -D assets
+        run: LD_LIBRARY_PATH="./build:$LD_LIBRARY_PATH" ./build/customfetch -D assets
 
       - name: Upload to github artifacts
         uses: actions/upload-artifact@v4
