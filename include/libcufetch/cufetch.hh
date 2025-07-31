@@ -6,9 +6,6 @@
 
 #include "libcufetch/parse.hh"
 
-// Map from a modules name to its pointer.
-using moduleMap_t = std::unordered_map<std::string, const module_t&>;
-
 /* A linked list including module arguments. An argument may be specified for any part of the module path (e.g.
  * `disk(/).used(GiB)`, `test(a).hi`) */
 struct moduleArgs_t

@@ -72,7 +72,7 @@ CXXFLAGS        += $(LTO_FLAGS) -fvisibility-inlines-hidden -fvisibility=hidden 
 
 all: genver fmt toml tpl getopt-port json libcufetch $(TARGET)
 
-libcufetch: tpl fmt toml
+libcufetch: fmt tpl toml
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
 	$(MAKE) -C libcufetch BUILDDIR=$(BUILDDIR) GUI_APP=$(GUI_APP) CXXSTD=$(CXXSTD)
 endif

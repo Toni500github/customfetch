@@ -19,7 +19,7 @@ SRC              = $(wildcard *.cc)
 OBJ              = $(SRC:.cc=.o) ../$(BUILDDIR)/toml.o
 LDLIBS	        := ../$(BUILDDIR)/libfmt.a ../$(BUILDDIR)/libtiny-process-library.a
 OUTPUT		:= ../$(BUILDDIR)/$(LIBNAME)
-CXXFLAGS 	+= -fvisibility-inlines-hidden -fvisibility=hidden -I../include -I../include/libs -fPIC -DGUI_APP=$(GUI_APP)
+CXXFLAGS 	+= -fvisibility-inlines-hidden -fvisibility=hidden -std=$(CXXSTD) -I../include -I../include/libs -fPIC -DGUI_APP=$(GUI_APP)
 
 all: $(OUTPUT)
 	@if [ "$(UNAME_S)" = "Linux" ]; then \
