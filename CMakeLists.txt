@@ -43,13 +43,13 @@ execute_process(COMMAND ./scripts/generateVersion.sh
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # https://github.com/libcpr/cpr/blob/5f475522597b8f3721e2440daddeced7a969f24c/CMakeLists.txt#L39
-macro(add_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
+macro(add_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT DEFINE_OPTION)
     option(${OPTION_NAME} ${OPTION_TEXT} ${OPTION_DEFAULT})
     if(DEFINED ENV{${OPTION_NAME}})
         # Allow overriding the option through an environment variable
         set(${OPTION_NAME} $ENV{${OPTION_NAME}})
     endif()
-    if(${OPTION_NAME})
+    if(${OPTION_NAME} AND DEFINE_OPTION)
         add_definitions(-D${OPTION_NAME})
     endif()
     message(STATUS "  ${OPTION_NAME}: ${${OPTION_NAME}}")
@@ -57,9 +57,9 @@ endmacro()
 
 message(STATUS "Set flags:")
 message(STATUS "=================")
-add_option(GUI_APP "Build GTK3 application" 0)
-add_option(USE_DCONF "Compile customfetch with dconf support" 1)
-add_option(VARS "Add additional flags at CXXFLAGS" "")
+add_option(GUI_APP "Build GTK3 application" 0 1)
+add_option(USE_DCONF "Compile customfetch with dconf support" 1 0)
+add_option(VARS "Add additional flags at CXXFLAGS" "" 1)
 message(STATUS "=================")
 
 if(GUI_APP)
@@ -135,6 +135,8 @@ add_library(cufetch SHARED
     libcufetch/config.cc
     libcufetch/cufetch.cc
     libcufetch/parse.cc
+    src/libs/toml++/toml.cpp
+    src/util.cpp
 )
 
 set_target_properties(cufetch PROPERTIES
@@ -144,6 +146,7 @@ set_target_properties(cufetch PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
+target_link_libraries(cufetch PUBLIC tiny-process-library)
 target_link_libraries(cufetch PUBLIC fmt)
 target_link_libraries(${TARGET_NAME} PUBLIC cufetch)
 

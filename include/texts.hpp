@@ -176,9 +176,9 @@ Tag References:
 
 3. Conditional Tag ($[])
     Displays different outputs based on conditions.
-    
+
     Syntax: $[condition,comparison,true_output,false_output]
-    
+
     Examples:
     - $[$<user.name>,toni,Welcome back!,Access denied]
     - $[$(date +%m-%d),12-25,Merry Christmas!,]
@@ -271,7 +271,9 @@ layout = [
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
-    "${auto}Uptime: $<os.uptime>",)#"
+    "${auto}Uptime: $<os.uptime>",
+    "${auto}Terminal: $<user.terminal>",
+    "${auto}Shell: $<user.shell>",)#"
 #if !CF_ANDROID
                                                R"#(
     "${auto}Theme: $<theme.gtk.all.name>",

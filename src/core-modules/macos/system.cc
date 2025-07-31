@@ -152,7 +152,7 @@ const std::string get_host_from_family(const std::string_view host_family)
     }
     else if (hasStart(host_family, "MacPro"))
     {
-        const std::string_view version = host_family.substr("MacPro"_leMac Pro(2019) n);
+        const std::string_view version = host_family.substr("MacPro"_len);
         switch (fnv1a16::hash(version.data()))
         {
             case "7,1"_fnv1a16: return "Mac Pro (2019)";
