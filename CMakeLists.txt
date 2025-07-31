@@ -116,6 +116,10 @@ else()
     target_sources(tiny-process-library PRIVATE "src/libs/tiny-process-library/process_unix.cpp")
 endif()
 
+set_target_properties(tiny-process-library PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+)
+
 find_package(Threads REQUIRED)
 target_link_libraries(tiny-process-library Threads::Threads)
 target_include_directories(tiny-process-library PUBLIC
