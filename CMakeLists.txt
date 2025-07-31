@@ -28,15 +28,37 @@ file(GLOB
 	"src/core-modules/macos/*.cc"
 	"src/core-modules/linux/utils/*.cc"
 	"src/libs/json/json.cpp"
-	"src/libs/toml++/toml.cpp")
+	"src/libs/toml++/toml.cpp"
+	"src/libs/getopt_port/getopt.c")
+
+function(enable_lto target)
+    if (NOT TARGET ${target})
+        message(FATAL_ERROR "enable_lto called on non-existent target: ${target}")
+    endif()
+
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        	# GCC supports -ffat-lto-objects for archives
+        	target_compile_options(${target} PRIVATE -flto=auto -ffat-lto-objects)
+        	target_link_options(${target} PRIVATE -flto=auto)
+    	elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        	# Use ThinLTO on Clang (better incremental builds)
+        	target_compile_options(${target} PRIVATE -flto=thin)
+        	target_link_options(${target} PRIVATE -flto=thin)
+	else()
+		message(WARNING "LTO not configured for compiler: ${CMAKE_CXX_COMPILER_ID}")
+	endif()
+    endif()
+endfunction()
 
 if(GUI_APP)
-	set(TARGET_NAME customfetch-gui)
+        set(TARGET_NAME customfetch-gui)
 else()
-	set(TARGET_NAME customfetch)
+        set(TARGET_NAME customfetch)
 endif()
 
 add_executable(${TARGET_NAME} ${SRC})
+enable_lto(${TARGET_NAME})
 
 # Get git info hash and branch
 execute_process(COMMAND ./scripts/generateVersion.sh
@@ -92,6 +114,7 @@ add_library(fmt STATIC
 	"src/libs/fmt/format.cc")
 
 set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE ON)
+enable_lto(fmt)
 target_link_libraries(${TARGET_NAME} PUBLIC fmt)
 
 # tiny-process-library (integrated from its own CMakeLists.txt)
@@ -126,6 +149,7 @@ target_include_directories(tiny-process-library PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libs/tiny-process-library>
     $<INSTALL_INTERFACE:include>
 )
+enable_lto(tiny-process-library)
 target_link_libraries(${TARGET_NAME} PUBLIC tiny-process-library)
 
 # libcufetch

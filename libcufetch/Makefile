@@ -17,9 +17,9 @@ CXX		?= g++
 GUI_APP         ?= 0
 SRC              = $(wildcard *.cc)
 OBJ              = $(SRC:.cc=.o) ../$(BUILDDIR)/toml.o
-FMT_STATIC       = ../$(BUILDDIR)/libfmt.a
+LDLIBS	        := ../$(BUILDDIR)/libfmt.a ../$(BUILDDIR)/libtiny-process-library.a
 OUTPUT		:= ../$(BUILDDIR)/$(LIBNAME)
-CXXFLAGS 	+= -flto=auto -ffat-lto-objects -fvisibility-inlines-hidden -fvisibility=hidden -I../include -I../include/libs -fPIC -DGUI_APP=$(GUI_APP)
+CXXFLAGS 	+= -fvisibility-inlines-hidden -fvisibility=hidden -I../include -I../include/libs -fPIC -DGUI_APP=$(GUI_APP)
 
 all: $(OUTPUT)
 	@if [ "$(UNAME_S)" = "Linux" ]; then \
@@ -33,11 +33,10 @@ all: $(OUTPUT)
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(OUTPUT): $(OBJ) $(FMT_STATIC)
+$(OUTPUT): $(OBJ) $(LDLIBS)
 	$(CXX) $(SHARED_FLAG) $(CXXFLAGS) $(OBJ) \
-		$(FMT_STATIC) \
 		$(SONAME_FLAGS) $(INSTALL_NAME) \
-		-o $@
+		-o $@ $(LDLIBS)
 
 clean:
 	rm -f *.o *.so *.a ../$(BUILDDIR)/libcufetch.so

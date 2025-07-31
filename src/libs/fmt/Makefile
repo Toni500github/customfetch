@@ -5,7 +5,7 @@
 CXX		?= g++
 CXXSTD		?= c++20
 # CXX_DEFINES 	= -DFMT_LIB_EXPORT -Dfmt_EXPORTS
-CXXFLAGS 	= -I../../../include/libs -O3 -std=$(CXXSTD) -DNDEBUG -flto=auto -ffat-lto-objects -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
+CXXFLAGS 	= -I../../../include/libs -O3 -std=$(CXXSTD) -DNDEBUG $(LTO_FLAGS) -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
 
 all: fmt
 

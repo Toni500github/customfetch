@@ -2,7 +2,7 @@ CXX	?= g++
 CXXSTD	?= c++20
 SRC 	 = toml.cpp
 TARGET   = toml.o
-CXXFLAGS = -I../../../include/libs -flto=auto -ffat-lto-objects -fvisibility-inlines-hidden -fvisibility=default -fPIC -std=$(CXXSTD)
+CXXFLAGS = -I../../../include/libs $(LTO_FLAGS) -fvisibility-inlines-hidden -fvisibility=default -fPIC -std=$(CXXSTD)
 
 all: $(TARGET)
 

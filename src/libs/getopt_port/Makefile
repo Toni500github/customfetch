@@ -1,7 +1,7 @@
 CC	?= cc
 SRC 	 = getopt.c
 TARGET   = getopt.o
-CFLAGS 	 = -I../../../include/libs -flto=auto -ffat-lto-objects -fvisibility=hidden -fPIC
+CFLAGS 	 = -I../../../include/libs $(LTO_FLAGS) -fvisibility=hidden -fPIC
 
 all: $(TARGET)
 

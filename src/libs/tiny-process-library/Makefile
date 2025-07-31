@@ -1,6 +1,6 @@
 CXX		?= g++
 CXXSTD		?= c++20
-CXXFLAGS 	 = -I../../../include/libs/tiny-process-library -std=$(CXXSTD) -O3 -DNDEBUG -flto=auto -ffat-lto-objects -fvisibility=default -fvisibility-inlines-hidden -fPIC
+CXXFLAGS 	 = -I../../../include/libs/tiny-process-library -std=$(CXXSTD) -O3 -DNDEBUG $(LTO_FLAGS) -fvisibility=default -fvisibility-inlines-hidden -fPIC
 
 UNAME_S := $(shell uname -s)
 
@@ -13,12 +13,12 @@ ifeq ($(UNAME_S),Windows)
     endif
     LIBNAME 	= tiny-process-library.lib
 else
-    CXXFLAGS 	+= -std=c++11 -Wall -Wextra
+    CXXFLAGS 	+= -Wall -Wextra
     SRC 	+= process_unix.cpp
     LIBNAME 	= libtiny-process-library.a
 endif
 
-SRC             += process.cpp
+SRC            += process.cpp
 OBJ		= $(SRC:.cpp=.o)
 
 all: $(LIBNAME)
