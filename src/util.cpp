@@ -48,6 +48,12 @@
 #include "platform.hpp"
 #include "tiny-process-library/process.hpp"
 
+#if !CF_ANDROID
+const std::string& all_ids = get_pci_ids();
+#else
+const std::string& all_ids = "";
+#endif
+
 bool hasEnding(const std::string_view fullString, const std::string_view ending)
 {
     if (ending.length() > fullString.length())
