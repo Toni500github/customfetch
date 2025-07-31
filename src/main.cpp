@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
+#include <termios.h>
+#include <stdlib.h>
 
 #include <algorithm>
 #include <cerrno>
@@ -91,6 +93,7 @@ static int kbhit()
 {
     struct timeval tv = { 0L, 0L };
     fd_set         fds;
+
     FD_ZERO(&fds);
     FD_SET(STDIN_FILENO, &fds);
     return select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv) > 0;

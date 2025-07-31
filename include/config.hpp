@@ -69,8 +69,8 @@ public:
     std::string              data_dir;
     std::string              sep_reset;
     std::string              title_sep;
-    std::string              gui_css_file;
     std::string              gui_bg_image;
+    std::string              gui_css_file;
     std::string              ascii_logo_type;
     std::string              logo_position;
     std::string              offset;
