@@ -1,10 +1,10 @@
 #include <cstdlib>
 #include <filesystem>
 
+#include "fmt/compile.h"
+#include "fmt/os.h"
 #include "fmt/ranges.h"
 #include "libcufetch/common.hh"
-#include "fmt/os.h"
-#include "fmt/compile.h"
 #include "pluginManager.hpp"
 #include "stateManager.hpp"
 #include "texts.hpp"

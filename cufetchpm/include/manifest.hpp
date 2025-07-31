@@ -6,7 +6,16 @@
 #include <utility>
 #include <vector>
 
+#include "platform.hpp"
 #include "toml++/toml.hpp"
+
+#if CF_LINUX
+constexpr char PLATFORM[] = "linux";
+#elif CF_MACOS
+constexpr char PLATFORM[] = "macos";
+#elif CF_ANDROID
+constexpr char PLATFORM[] = "android";
+#endif
 
 struct plugin_t
 {
@@ -26,6 +35,7 @@ struct plugin_t
     std::vector<std::string> licenses;
 
     // Which plugins can be conflicting by name / modules, using the git url.
+    // right now not used.
     std::vector<std::string> conflicts;
 
     // The plugin authors.
@@ -39,6 +49,10 @@ struct plugin_t
     // A list of registered root modules that the plugin will be used for querying its submodules.
     // For example: 'github.followers' the root module is indeed 'github' and 'followers' is the submodule.
     std::vector<std::string> prefixes;
+
+    // Platforms that are supported by the plugin.
+    // Make it a string and put 'all' for being cross-platform.
+    std::vector<std::string> platforms;
 };
 
 struct manifest_t
@@ -47,11 +61,16 @@ struct manifest_t
     // It must be conform to the function is_valid_name()
     std::string name;
 
-    // The repository git/homepage url
+    // The repository git url
     std::string url;
 
     // An array of all the plugins that are declared in the manifest
     std::vector<plugin_t> plugins;
+
+    // An array for storing the dependencies for 'all' and current platforms.
+    // first -> platform string name
+    // seconds -> platform dependencies vector names
+    std::vector<std::string> dependencies;
 };
 
 constexpr char const MANIFEST_NAME[] = "cufetchpm.toml";
@@ -82,6 +101,9 @@ public:
 
     const std::vector<plugin_t>& get_all_plugins() const
     { return m_repo.plugins; }
+
+    const std::vector<std::string>& get_dependencies() const
+    { return m_repo.dependencies; }
 
 private:
     toml::table m_tbl;

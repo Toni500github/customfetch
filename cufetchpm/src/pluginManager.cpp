@@ -1,5 +1,6 @@
 #include "pluginManager.hpp"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -9,17 +10,17 @@
 #include <vector>
 
 #include "fmt/format.h"
+#include "fmt/ranges.h"
 #include "libcufetch/common.hh"
 #include "manifest.hpp"
 #include "tiny-process-library/process.hpp"
 #include "util.hpp"
-// #include "fmt/ranges.h"
 
 using namespace TinyProcessLib;
 
-bool PluginManager::has_deps()
+bool PluginManager::has_deps(const std::vector<std::string>& dependencies)
 {
-    for (const std::string_view bin : dependencies)
+    for (const std::string& bin : dependencies)
     {
         Process proc(
             fmt::format("command -v {}", bin), "", [](const char*, size_t) {},  // discard stdout
@@ -33,8 +34,8 @@ bool PluginManager::has_deps()
 
 void PluginManager::add_repo_plugins(const std::string& repo)
 {
-    if (!has_deps())
-        die("Not all dependencies have been installed. You'll need to install git");  // fmt::join(dependencies, ", "));
+    if (!has_deps(core_dependencies))
+        die("Some core dependencies are not installed. You'll need to install: {}", fmt::join(core_dependencies, ", "));
 
     static std::random_device              rd;
     static std::mt19937                    gen(rd());
@@ -57,6 +58,8 @@ void PluginManager::add_repo_plugins(const std::string& repo)
 
 void PluginManager::build_plugins(const fs::path& working_dir)
 {
+    std::vector<std::string> non_supported_plugins;
+
     // cd to the working directory and parse its manifest
     fs::current_path(working_dir);
     CManifest manifest(MANIFEST_NAME);
@@ -83,10 +86,33 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         die("Looks like there are no plugins to build with '{}'", manifest.get_repo_name());
     }
 
+    if (!has_deps(manifest.get_dependencies()))
+    {
+        fs::remove_all(working_dir);
+        die("Some dependencies for repository '{}' are not installed. The repository requires the following: {}",
+            manifest.get_repo_name(), fmt::join(manifest.get_dependencies(), ", "));
+    }
+
     // build each plugin from the manifest
     // and add the infos to the state.toml
     for (const plugin_t& plugin : manifest.get_all_plugins())
     {
+        bool found_platform = false;
+
+        if (plugin.platforms[0] != "all")
+        {
+            for (const std::string& plugin_platform : plugin.platforms)
+                if (plugin_platform == PLATFORM)
+                    found_platform = true;
+
+            if (!found_platform)
+            {
+                warn("Plugin '{}' doesn't support the platform '{}'. Skipping", plugin.name, PLATFORM);
+                non_supported_plugins.push_back(plugin.name);
+                continue;
+            }
+        }
+
         status("Trying to build plugin '{}'", plugin.name);
         for (const std::string& bs : plugin.build_steps)
         {
@@ -111,6 +137,11 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     status("Moving each built plugin to '{}'", plugins_config_path.string());
     for (const plugin_t& plugin : manifest.get_all_plugins())
     {
+        // already told before
+        if (std::find(non_supported_plugins.begin(), non_supported_plugins.end(), plugin.name) !=
+            non_supported_plugins.end())
+            continue;
+
         // ugh, devs fault. Report this error to them
         if (!fs::exists(plugin.output_dir))
         {
@@ -123,7 +154,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         {
             // ~/.config/customfetch/plugins/<plugin-directory>/<plugin-filename>
             const fs::path& library_config_path = plugins_config_path / library.path().filename();
-            if (fs::exists(library_config_path))
+            if (fs::exists(library_config_path) && !options.install_force)
             {
                 if (askUserYorN(false, "Plugin '{}' already exists. Replace it?", library_config_path.string()))
                     fs::remove_all(library_config_path);

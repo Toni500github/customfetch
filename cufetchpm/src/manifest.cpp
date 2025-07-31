@@ -87,9 +87,28 @@ void CManifest::parse_manifest()
         die("Manifest repository name '{}' is invalid. Only alphanumeric and '-', '_', '=' are allowed in the name",
             m_repo.name);
 
+    if (auto deps = m_tbl["dependencies"].as_table())
+    {
+        // Collect "all" dependencies
+        if (auto arr = (*deps)["all"].as_array())
+        {
+            for (auto&& pkg : *arr)
+                if (auto s = pkg.value<std::string>())
+                    m_repo.dependencies.push_back(*s);
+        }
+
+        // Collect platform-specific dependencies
+        if (auto arr = (*deps)[PLATFORM].as_array())
+        {
+            for (auto&& pkg : *arr)
+                if (auto s = pkg.value<std::string>())
+                    m_repo.dependencies.push_back(*s);
+        }
+    }
+
     for (const auto& [name, _] : m_tbl)
     {
-        if (name.str() == "repository")
+        if (name.str() == "repository" || name.str() == "dependencies")
             continue;
 
         if (!is_valid_name(name.str()))
@@ -99,21 +118,14 @@ void CManifest::parse_manifest()
             continue;
         }
 
-        m_repo.plugins.push_back({ .name        = name.data(),
-                                   .description = getStrValue(name, "description"),
-                                   .output_dir  = getStrValue(name, "output-dir"),
-                                   .licenses    = getStrArrayValue(name, "licenses"),
-                                   .conflicts   = getStrArrayValue(name, "conflicts"),
-                                   .authors     = getStrArrayValue(name, "authors"),
-                                   .build_steps = getStrArrayValue(name, "build-steps"),
-                                   .prefixes    = getStrArrayValue(name, "prefixes") });
+        m_repo.plugins.push_back(get_plugin(name));
     }
 }
 
 plugin_t CManifest::get_plugin(const std::string_view name)
 {
-    if (!m_tbl[name].is_table())
-        die("Couldn't find such plugin '{}' in manifest", name);
+    // if (!m_tbl[name].is_table())
+    //   die("Couldn't find such plugin '{}' in manifest", name);
 
     return { .name        = name.data(),
              .description = getStrValue(name, "description"),
@@ -122,5 +134,6 @@ plugin_t CManifest::get_plugin(const std::string_view name)
              .conflicts   = getStrArrayValue(name, "conflicts"),
              .authors     = getStrArrayValue(name, "authors"),
              .build_steps = getStrArrayValue(name, "build-steps"),
-             .prefixes    = getStrArrayValue(name, "prefixes") };
+             .prefixes    = getStrArrayValue(name, "prefixes"),
+             .platforms   = getStrArrayValue(name, "platforms") };
 }

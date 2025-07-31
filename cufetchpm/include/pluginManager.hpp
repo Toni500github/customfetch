@@ -11,7 +11,7 @@
 
 namespace fs = std::filesystem;
 
-constexpr std::string_view dependencies[] = { "git" };  // expand in the future, maybe
+inline const std::vector<std::string> core_dependencies = { "git" };  // expand in the future, maybe
 
 inline struct operations_t
 {
@@ -47,7 +47,7 @@ public:
     void add_repo_plugins(const std::string& repo);
     void build_plugins(const fs::path& working_dir);
     bool add_plugin(const std::string&);
-    bool has_deps();
+    bool has_deps(const std::vector<std::string>& dependencies);
 
 private:
     StateManager m_state_manager;
