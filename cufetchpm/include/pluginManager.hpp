@@ -69,15 +69,16 @@ public:
     PluginManager(const StateManager& state_manager) : m_state_manager(state_manager) {}
     PluginManager(StateManager&& state_manager) : m_state_manager(std::move(state_manager)) {}
 
-    void add_repo_plugins(const std::string& repo);
+    void add_source_repo_plugins(const std::string& repo);
     void build_plugins(const fs::path& working_dir);
     bool add_plugin(const std::string&);
+    void remove_plugins_source(const std::string& source_name);
     bool has_deps(const std::vector<std::string>& dependencies);
 
 private:
     StateManager m_state_manager;
     fs::path     m_config_path{ getConfigDir() / "plugins" };
-    fs::path     m_cache_path{ getHomeCacheDir() / "cufetchpm" / "plugins" };
+    fs::path     m_cache_path{ getHomeCacheDir() / "cufetchpm" };
 };
 
 #endif

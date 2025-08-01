@@ -112,7 +112,7 @@ void CManifest::parse_manifest()
         die("Manifest repository name '{}' is invalid. Only alphanumeric and '-', '_', '=' are allowed in the name",
             m_repo.name);
 
-    if (auto deps = m_tbl["dependencies"].as_table())
+    if (auto* deps = m_tbl["dependencies"].as_table())
     {
         // Collect "all" dependencies
         if (auto arr = (*deps)["all"].as_array())

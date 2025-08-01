@@ -50,6 +50,7 @@ enum Ops
     LIST,
     ENABLE,
     DISABLE,
+    UNINSTALL,
     GEN_MANIFEST,
 } op = NONE;
 
@@ -140,7 +141,7 @@ bool parse_list_args(int argc, char* argv[])
     return true;
 }
 
-bool parse_switch_plugin_args(int argc, char* argv[])
+bool parse_general_command_args(int argc, char* argv[])
 {
     // clang-format off
     const struct option long_opts[] = {
@@ -223,13 +224,19 @@ static bool parseargs(int argc, char* argv[])
     {
         op     = ENABLE;
         optind = 0;
-        return parse_switch_plugin_args(sub_argc, sub_argv);
+        return parse_general_command_args(sub_argc, sub_argv);
     }
     else if (cmd == "disable")
     {
         op     = DISABLE;
         optind = 0;
-        return parse_switch_plugin_args(sub_argc, sub_argv);
+        return parse_general_command_args(sub_argc, sub_argv);
+    }
+    else if (cmd == "uninstall")
+    {
+        op     = UNINSTALL;
+        optind = 0;
+        return parse_general_command_args(sub_argc, sub_argv);
     }
     else if (cmd == "help")
     {
@@ -277,9 +284,8 @@ void switch_plugin(StateManager&& state, bool switch_)
                 if (!plugin_tbl || ManifestSpace::getStrValue(*plugin_tbl, "name") != plugin)
                     continue;
 
-                for (const fs::path path : ManifestSpace::getStrArrayValue(*plugin_tbl, "libraries"))
+                for (fs::path base_path : ManifestSpace::getStrArrayValue(*plugin_tbl, "libraries"))
                 {
-                    fs::path base_path = path;
                     if (base_path.extension() == ".disabled")
                         base_path.replace_extension();  // normalize to enabled form
 
@@ -351,7 +357,7 @@ int main(int argc, char* argv[])
     if (!parseargs(argc, argv))
         return -1;
 
-    fs::create_directories({ getHomeCacheDir() / "cufetchpm" / "plugins" });
+    fs::create_directories({ getHomeCacheDir() / "cufetchpm" });
     fs::create_directories({ getConfigDir() / "plugins" });
     StateManager state;
     switch (op)
@@ -366,7 +372,7 @@ int main(int argc, char* argv[])
                 if (fs::exists(arg))
                     plugin_manager.build_plugins(arg);
                 else
-                    plugin_manager.add_repo_plugins(arg);
+                    plugin_manager.add_source_repo_plugins(arg);
             }
             break;
         }
@@ -390,6 +396,16 @@ int main(int argc, char* argv[])
         case DISABLE:
         {
             switch_plugin(std::move(state), false);
+            break;
+        }
+        case UNINSTALL:
+        {
+            if (options.arguments.size() < 1)
+                die("Please provide a plugin source to uninstall");
+
+            PluginManager plugin_manager(std::move(state));
+            for (const std::string& arg : options.arguments)
+                plugin_manager.remove_plugins_source(arg);
             break;
         }
         default: warn("uh?");

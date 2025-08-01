@@ -32,6 +32,7 @@
 #include <random>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <vector>
 
 #include "fmt/format.h"
@@ -57,7 +58,7 @@ bool PluginManager::has_deps(const std::vector<std::string>& dependencies)
     return true;
 }
 
-void PluginManager::add_repo_plugins(const std::string& repo)
+void PluginManager::add_source_repo_plugins(const std::string& repo)
 {
     if (!has_deps(core_dependencies))
         die("Some core dependencies are not installed. You'll need to install: {}", fmt::join(core_dependencies, ", "));
@@ -91,7 +92,6 @@ void PluginManager::build_plugins(const fs::path& working_dir)
 
     // though lets check if we have already installed the plugin in the cache
     const fs::path& repo_cache_path     = (m_cache_path / manifest.get_repo_name());
-    const fs::path& plugins_config_path = (m_config_path / manifest.get_repo_name());
     if (fs::exists(repo_cache_path))
     {
         if (!options.install_force)
@@ -124,7 +124,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     {
         bool found_platform = false;
 
-        if (plugin.platforms[0] != "all")
+        if (!plugin.platforms.empty() && plugin.platforms.at(0) != "all")
         {
             for (const std::string& plugin_platform : plugin.platforms)
                 if (plugin_platform == PLATFORM)
@@ -158,8 +158,9 @@ void PluginManager::build_plugins(const fs::path& working_dir)
 
     // and then we move each plugin built library from its output-dir
     // and we'll declare all plugins we have moved.
-    fs::create_directories(plugins_config_path);
-    status("Moving each built plugin to '{}'", plugins_config_path.string());
+    const fs::path& manifest_config_path = (m_config_path / manifest.get_repo_name());
+    fs::create_directories(manifest_config_path);
+    status("Moving each built plugin to '{}'", manifest_config_path.string());
     for (const plugin_t& plugin : manifest.get_all_plugins())
     {
         // already told before
@@ -177,8 +178,8 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         toml::array built_libraries;
         for (const auto& library : fs::directory_iterator{ plugin.output_dir })
         {
-            // ~/.config/customfetch/plugins/<plugin-directory>/<plugin-filename>
-            const fs::path& library_config_path = plugins_config_path / library.path().filename();
+            // ~/.config/customfetch/plugins/<manifest-directory>/<plugin-filename>
+            const fs::path& library_config_path = manifest_config_path / library.path().filename();
             if (fs::exists(library_config_path) && !options.install_force)
             {
                 if (askUserYorN(false, "Plugin '{}' already exists. Replace it?", library_config_path.string()))
@@ -208,4 +209,19 @@ void PluginManager::build_plugins(const fs::path& working_dir)
                                                    std::move(built_libraries));
     }
     success("Enjoy the new plugins from {}", manifest.get_repo_name());
+}
+
+void PluginManager::remove_plugins_source(const std::string& source_name)
+{
+    std::error_code ec;
+    fs::remove_all(m_cache_path / source_name, ec);
+    if (ec)
+        warn("Failed to remove plugin source cache path '{}'", (m_cache_path / source_name).string());
+
+    fs::remove_all(m_config_path / source_name, ec);
+    if (ec)
+        warn("Failed to remove plugin source config path '{}'", (m_config_path / source_name).string());
+
+    m_state_manager.remove_repo(source_name);
+    success("Removed plugin source '{}'", source_name);
 }

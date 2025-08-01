@@ -32,16 +32,28 @@
 // cufetchpm
 inline constexpr std::string_view cufetchpm_help = (R"(Usage: cufetchpm <COMMAND> [OPTIONS]...
 Manage plugins for customfetch.
+
 Terms:
-    - SOURCE: the Git repositry or local path where all the plugins and manifest are stored.
+    SOURCE:
+        - With 'install': a Git repository URL or local path containing plugins and a manifest.
+        - With 'enable'/'disable': the name of a source already installed (as listed in state.toml).
+
+Examples:
+    Install from GitHub:
+        cufetchpm install https://github.com/user/customfetch-plugins-github
+    Disable a plugin from an installed source:
+        cufetchpm disable customfetch-plugins-github/github-user-fetch
+    Uninstall an entire source:
+        cufetchpm uninstall customfetch-plugins-github
 
 Commands:
     help <COMMAND>                     Show help for a specific command.
     install [OPTIONS] <SOURCE>...      Install one or more plugin sources from a Git repo or local path.
-    enable <SOURCE/PLUGIN>...          Enable one or more plugins from given source (e.g "source1/pluginA")
-    disable <SOURCE/PLUGIN>...         Disnable one or more plugins from given source (e.g "source2/pluginB")
-    list                               List of information about all plugins installed through state.toml
-    gen-manifest                       Auto generate an example manifest "cufetchpm.toml" that'll you need to modify it yourself
+    uninstall <SOURCE>...              Uninstall one or more installed plugin sources.
+    enable <SOURCE/PLUGIN>...          Enable one or more plugins from an installed source.
+    disable <SOURCE/PLUGIN>...         Disable one or more plugins from an installed source.
+    list                               Show all plugins installed via state.toml.
+    gen-manifest                       Generate a template 'cufetchpm.toml' file.
 
 Global options:
     -h, --help          Show this help message.
