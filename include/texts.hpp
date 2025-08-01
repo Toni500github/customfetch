@@ -32,10 +32,14 @@
 // cufetchpm
 inline constexpr std::string_view cufetchpm_help = (R"(Usage: cufetchpm <COMMAND> [OPTIONS]...
 Manage plugins for customfetch.
+Terms:
+    - SOURCE: the Git repositry or local path where all the plugins and manifest are stored.
 
 Commands:
     help <COMMAND>                     Show help for a specific command.
-    install [OPTIONS] <repo/path>...   Install one or more plugin sources from a Git repo or local path.
+    install [OPTIONS] <SOURCE>...      Install one or more plugin sources from a Git repo or local path.
+    enable <SOURCE/PLUGIN>...          Enable one or more plugins from given source (e.g "source1/pluginA")
+    disable <SOURCE/PLUGIN>...         Disnable one or more plugins from given source (e.g "source2/pluginB")
     list                               List of information about all plugins installed through state.toml
     gen-manifest                       Auto generate an example manifest "cufetchpm.toml" that'll you need to modify it yourself
 
@@ -45,7 +49,7 @@ Global options:
 
 )");
 
-inline constexpr std::string_view cufetchpm_help_install = (R"(Usage: cufetchpm install [options] <repo/path>...
+inline constexpr std::string_view cufetchpm_help_install = (R"(Usage: cufetchpm install [options] <source>...
 
 Install one or more plugin sources. If a given argument exists on disk,
 it is treated as a local directory. Otherwise, it is treated as a Git

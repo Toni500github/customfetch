@@ -30,6 +30,7 @@
 #include "fmt/os.h"
 #include "fmt/ranges.h"
 #include "libcufetch/common.hh"
+#include "manifest.hpp"
 #include "pluginManager.hpp"
 #include "stateManager.hpp"
 #include "texts.hpp"
@@ -47,6 +48,8 @@ enum Ops
     NONE,
     INSTALL,
     LIST,
+    ENABLE,
+    DISABLE,
     GEN_MANIFEST,
 } op = NONE;
 
@@ -137,6 +140,34 @@ bool parse_list_args(int argc, char* argv[])
     return true;
 }
 
+bool parse_switch_plugin_args(int argc, char* argv[])
+{
+    // clang-format off
+    const struct option long_opts[] = {
+        {"help",  no_argument, nullptr, 'h'},
+        {0, 0, 0, 0}
+    };
+    // clang-format on
+
+    int opt;
+    while ((opt = getopt_long(argc, argv, "-h", long_opts, nullptr)) != -1)
+    {
+        switch (opt)
+        {
+            case 'h': help(EXIT_SUCCESS); break;
+            case '?': help_install(EXIT_FAILURE); break;
+        }
+    }
+
+    for (int i = optind; i < argc; ++i)
+        options.arguments.emplace_back(argv[i]);
+
+    if (options.arguments.empty())
+        die("Please provide a source/plugin to enable/disable");
+
+    return true;
+}
+
 static bool parseargs(int argc, char* argv[])
 {
     // clang-format off
@@ -188,6 +219,18 @@ static bool parseargs(int argc, char* argv[])
         op     = GEN_MANIFEST;
         optind = 0;
     }
+    else if (cmd == "enable")
+    {
+        op     = ENABLE;
+        optind = 0;
+        return parse_switch_plugin_args(sub_argc, sub_argv);
+    }
+    else if (cmd == "disable")
+    {
+        op     = DISABLE;
+        optind = 0;
+        return parse_switch_plugin_args(sub_argc, sub_argv);
+    }
     else if (cmd == "help")
     {
         if (sub_argc >= 1)
@@ -198,7 +241,7 @@ static bool parseargs(int argc, char* argv[])
             else if (target == "list")
                 help_list();
             else
-                die("Unknown subcommand '{}'", cmd);
+                die("Couldn't find help text for subcommand '{}'", cmd);
         }
         else
         {
@@ -207,6 +250,100 @@ static bool parseargs(int argc, char* argv[])
     }
 
     return true;
+}
+
+void switch_plugin(StateManager&& state, bool switch_)
+{
+    const char*        switch_str = switch_ ? "Enabl" : "Disabl";  // e/ed/ing
+    const toml::table& tbl        = state.get_state();
+
+    for (const std::string& arg : options.arguments)
+    {
+        const size_t pos = arg.find('/');
+        if (pos == arg.npos)
+            die("Plugin to {}e '{}' doesn't have a slash '/' to separate source and plugin", switch_str, arg);
+
+        const std::string& source = arg.substr(0, pos);
+        const std::string& plugin = arg.substr(pos + 1);
+
+        const auto* source_tbl = tbl["repositories"][source].as_table();
+        if (!source_tbl)
+            die("Couldn't find source '{}'", source);
+        if (const auto* plugins_arr_tbl = source_tbl->get_as<toml::array>("plugins"))
+        {
+            for (const auto& plugin_node : *plugins_arr_tbl)
+            {
+                const toml::table* plugin_tbl = plugin_node.as_table();
+                if (!plugin_tbl || ManifestSpace::getStrValue(*plugin_tbl, "name") != plugin)
+                    continue;
+
+                for (const fs::path path : ManifestSpace::getStrArrayValue(*plugin_tbl, "libraries"))
+                {
+                    fs::path base_path = path;
+                    if (base_path.extension() == ".disabled")
+                        base_path.replace_extension();  // normalize to enabled form
+
+                    const fs::path& enabled_path  = base_path;
+                    const fs::path& disabled_path = base_path.string() + ".disabled";
+
+                    fs::path current_path;
+                    if (fs::exists(enabled_path))
+                        current_path = enabled_path;
+                    else if (fs::exists(disabled_path))
+                        current_path = disabled_path;
+                    else
+                    {
+                        warn("Plugin library '{}' not found. Skipping", base_path.string());
+                        continue;
+                    }
+
+                    const fs::path& target_path = switch_ ? enabled_path : disabled_path;
+                    if (current_path == target_path)
+                    {
+                        warn("{} is already {}ed", arg, switch_str);
+                        continue;
+                    }
+
+                    fs::rename(current_path, target_path);
+                    info("{}ed {}!", switch_str, arg);
+                }
+            }
+        }
+    }
+}
+
+void list_all_plugins(StateManager&& state)
+{
+    if (options.list_verbose)
+    {
+        for (const manifest_t& manifest : state.get_all_repos())
+        {
+            fmt::println("\033[1;32mRepository:\033[0m {}", manifest.name);
+            fmt::println("\033[1;33mURL:\033[0m {}", manifest.url);
+            fmt::println("\033[1;34mPlugins:");
+            for (const plugin_t& plugin : manifest.plugins)
+            {
+                fmt::println("\033[1;34m - {}\033[0m", plugin.name);
+                fmt::println("\t\033[1;35mDescription:\033[0m {}", plugin.description);
+                fmt::println("\t\033[1;36mAuthor(s):\033[0m {}", fmt::join(plugin.authors, ", "));
+                fmt::println("\t\033[1;38;2;220;220;220mLicense(s):\033[0m {}", fmt::join(plugin.licenses, ", "));
+                fmt::println("\t\033[1;38;2;144;238;144mPrefixe(s):\033[0m {}", fmt::join(plugin.prefixes, ", "));
+                fmt::print("\n");
+            }
+            fmt::print("\033[0m");
+        }
+    }
+    else
+    {
+        for (const manifest_t& manifest : state.get_all_repos())
+        {
+            fmt::println("\033[1;32mRepository:\033[0m {} (\033[1;33m{}\033[0m)", manifest.name, manifest.url);
+            fmt::println("\033[1;34mPlugins:");
+            for (const plugin_t& plugin : manifest.plugins)
+                fmt::println("   \033[1;34m{} - \033[1;35m{}\n", plugin.name, plugin.description);
+            fmt::print("\033[0m");
+        }
+    }
 }
 
 int main(int argc, char* argv[])
@@ -235,38 +372,7 @@ int main(int argc, char* argv[])
         }
         case LIST:
         {
-            if (options.list_verbose)
-            {
-                for (const manifest_t& manifest : state.get_all_repos())
-                {
-                    fmt::println("\033[1;32mRepository:\033[0m {}", manifest.name);
-                    fmt::println("\033[1;33mURL:\033[0m {}", manifest.url);
-                    fmt::println("\033[1;34mPlugins:");
-                    for (const plugin_t& plugin : manifest.plugins)
-                    {
-                        fmt::println("\033[1;34m - {}\033[0m", plugin.name);
-                        fmt::println("\t\033[1;35mDescription:\033[0m {}", plugin.description);
-                        fmt::println("\t\033[1;36mAuthor(s):\033[0m {}", fmt::join(plugin.authors, ", "));
-                        fmt::println("\t\033[1;38;2;220;220;220mLicense(s):\033[0m {}",
-                                     fmt::join(plugin.licenses, ", "));
-                        fmt::println("\t\033[1;38;2;144;238;144mPrefixe(s):\033[0m {}",
-                                     fmt::join(plugin.prefixes, ", "));
-                        fmt::print("\n");
-                    }
-                    fmt::print("\033[0m");
-                }
-            }
-            else
-            {
-                for (const manifest_t& manifest : state.get_all_repos())
-                {
-                    fmt::println("\033[1;32mRepository:\033[0m {} (\033[1;33m{}\033[0m)", manifest.name, manifest.url);
-                    fmt::println("\033[1;34mPlugins:");
-                    for (const plugin_t& plugin : manifest.plugins)
-                        fmt::println("   \033[1;34m{} - \033[1;35m{}\n", plugin.name, plugin.description);
-                    fmt::print("\033[0m");
-                }
-            }
+            list_all_plugins(std::move(state));
             break;
         }
         case GEN_MANIFEST:
@@ -274,6 +380,16 @@ int main(int argc, char* argv[])
             auto f = fmt::output_file("cufetchpm.toml", fmt::file::CREATE | fmt::file::WRONLY);
             f.print("{}", AUTO_MANIFEST);
             f.close();
+            break;
+        }
+        case ENABLE:
+        {
+            switch_plugin(std::move(state), true);
+            break;
+        }
+        case DISABLE:
+        {
+            switch_plugin(std::move(state), false);
             break;
         }
         default: warn("uh?");
