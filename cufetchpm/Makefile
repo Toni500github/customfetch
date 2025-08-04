@@ -9,8 +9,9 @@ DEBUG 		?= 1
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
         BUILDDIR  = build/debug
-        CXXFLAGS := -ggdb3 -Wall -Wextra -Wpedantic -Wno-unused-parameter -DDEBUG=1 -fsanitize=address $(DEBUG_CXXFLAGS) $(CXXFLAGS)
-        LDFLAGS	 += -fsanitize=address
+	CXXFLAGS  := -ggdb3 -Wall -Wextra -pedantic -Wno-unused-parameter -fsanitize=address \
+                     -DDEBUG=1 -fno-omit-frame-pointer $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+	LDFLAGS   += -fsanitize=address -fno-lto
 else
 	# Check if an optimization flag is not already set
 	ifneq ($(filter -O%,$(CXXFLAGS)),)

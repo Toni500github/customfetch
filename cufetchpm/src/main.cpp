@@ -98,7 +98,7 @@ bool parse_install_args(int argc, char* argv[])
     // clang-format on
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "-fh", long_opts, nullptr)) != -1)
+    while ((opt = getopt_long(argc, argv, "+fh", long_opts, nullptr)) != -1)
     {
         switch (opt)
         {
@@ -128,7 +128,7 @@ bool parse_list_args(int argc, char* argv[])
     // clang-format on
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "-vh", long_opts, nullptr)) != -1)
+    while ((opt = getopt_long(argc, argv, "+vh", long_opts, nullptr)) != -1)
     {
         switch (opt)
         {
@@ -151,7 +151,7 @@ bool parse_general_command_args(int argc, char* argv[])
     // clang-format on
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "-h", long_opts, nullptr)) != -1)
+    while ((opt = getopt_long(argc, argv, "+h", long_opts, nullptr)) != -1)
     {
         switch (opt)
         {
@@ -174,7 +174,7 @@ static bool parseargs(int argc, char* argv[])
     // clang-format off
     int opt = 0;
     int option_index = 0;
-    const char *optstring = "-Vh";
+    const char *optstring = "+Vh";
     static const struct option opts[] = {
         {"version", no_argument, 0, 'V'},
         {"help",    no_argument, 0, 'h'},

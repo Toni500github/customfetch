@@ -35,11 +35,11 @@ Manage plugins for customfetch.
 
 Terms:
     SOURCE:
-        - With 'install': a Git repository URL or local path containing plugins and a manifest.
-        - With 'enable'/'disable': the name of a source already installed (as listed in state.toml).
+        - With install: a Git repository URL or local path containing plugins and a manifest.
+        - With enable OR disable: the name of a source already installed (as listed in state.toml).
 
 Examples:
-    Install from GitHub:
+    Install a source from GitHub:
         cufetchpm install https://github.com/user/customfetch-plugins-github
     Disable a plugin from an installed source:
         cufetchpm disable customfetch-plugins-github/github-user-fetch
@@ -494,7 +494,7 @@ url = "https://github.com/user/repo"
 all     = ["pkg-config", "cmake"]
 linux   = ["wayland-protocols", "xorg-dev"]
 android = ["ndk-build"]
-macos   = ["brew:gtk+3"]
+macos   = ["gtk+3"]
 
 # From now on, each table that is neiter "repository" nor "dependencies" will be treated as a plugin entry.
 # The tables' names still must conform alpha-numeric characters and symbols such as '-' or '_'
@@ -523,12 +523,13 @@ platforms = ["all"]
 output-dir = "build/plugin-dir/"
 
 # A list of commands to be executed for building the plugin.
-# Kinda like a Makefile target instructions.
-# Each command runs independently (not in a shared shell). Use absolute paths or repeat exports if needed.
+# All commands are executed in a single shared shell session,
+# so environment variables, `cd`, and other shell state persist across steps.
+# Commands are executed in order and stop at the first failure.
 build-steps = [
-        "make -C ./test-plugin-entry/",
-        "mkdir -p ./build/plugin-dir/",
-        "mv ./test-plugin-entry/library.so ./build/plugin-dir/library.so"
+    "make -C ./test-plugin-entry/",
+    "mkdir -p ./build/plugin-dir/",
+    "mv ./test-plugin-entry/library.so ./build/plugin-dir/library.so"
 ])";
 
 #endif // !_TEXTS_HPP_

@@ -139,14 +139,14 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         }
 
         status("Trying to build plugin '{}'", plugin.name);
-        for (const std::string& bs : plugin.build_steps)
+        // make the shell stop at the first failure
+        Process process({"bash", "-c", fmt::format("set -e; {}", fmt::join(plugin.build_steps, " && "))}, "");
+        if (process.get_exit_status() != 0)
         {
-            if (Process(bs, "").get_exit_status() != 0)
-            {
-                fs::remove_all(working_dir);
-                die("Failed to build plugin '{}'", plugin.name);
-            }
+            fs::remove_all(working_dir);
+            die("Failed to build plugin '{}'", plugin.name);
         }
+
         success("Successfully built '{}' into '{}'", plugin.name, plugin.output_dir);
     }
     m_state_manager.add_new_repo(manifest);
