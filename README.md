@@ -3,7 +3,7 @@
 </p>
 <h2></h2> <!-- add a separating line -->
 <p align="center">
-    A system information fetch tool (or neofetch-like program), which its focus point is the performance and <b>customizability</b>
+    A modular information fetching (neofetch-like) tool, which its focus point is the performance and <b>customizability</b>
 </p>
 
 <p align="center">
@@ -34,8 +34,8 @@
 
 ## Key Features
 * Run customfetch as a **terminal** or **GTK3 application** or even as an [android widget](https://github.com/Toni500github/customfetch-android-app)
-* Really easy to customize (check [Config (with explanation)](#config-with-explanation) section)
-* Fast (maybe) as [fastfetch](https://github.com/fastfetch-cli/fastfetch)
+* Really easy to [customize](#How-to-customize)
+* Incredibly extensible information fetchings via external plugins
 * Super lightweight, 3.3MB max (GTK3 application)
 
 # Dependencies
@@ -73,7 +73,7 @@ yay -S customfetch-gui-bin
 
 ## General Distros (Manual installation)
 Download the latest `.tar.gz` tarball file in [releases](https://github.com/Toni500github/customfetch/releases/latest) \
-It contains the `/usr` directory where you'll install it in your distro. Useful for package managers too
+It contains the `/usr` directory where you'll install it in your distro. Useful for package managers too.
 
 ## Arch and based (AUR) (source)
 ```bash
@@ -96,7 +96,7 @@ yay -S customfetch-gui-git
 ## Compile from (source) (unstable)
 ```bash
 # clone the git dir
-git clone https://github.com/Toni500github/customfetch
+git clone --depth=1 https://github.com/Toni500github/customfetch
 cd customfetch
 
 # DEBUG=0 for release build
@@ -107,7 +107,7 @@ make install DEBUG=0 GUI_APP=0
 customfetch
 ```
 
-## Config (with explanation)
+## How to customize
 
 Read the manual `customfetch.1` or execute customfetch with the arg `-w` for knowing more about the configuration in customfetch.\
 This is only an explaination about tags and preview, that can be always found in the documentation.
@@ -122,7 +122,7 @@ Here's an example using my config
 # The array for displaying the system infos
 layout = [
     "$<title>",
-    "$<title_sep>",
+    "$<title.sep>",
     "${auto}OS: $<os.name> $<system.arch>",
     "${auto}Host: $<system.host>",
     "${auto}Kernel: $<os.kernel>",
@@ -130,12 +130,12 @@ layout = [
     "${auto}Terminal: $<user.terminal>",
     "${auto}Shell: $<user.shell>",
     "${auto}Packages: $<os.pkgs>",
-    "${auto}Theme: $<theme-gtk-all.name>",
-    "${auto}Icons: $<theme-gtk-all.icons>",
-    "${auto}Font: $<theme-gtk-all.font>",
+    "${auto}Theme: $<theme.gtk.all.name>",
+    "${auto}Icons: $<theme.gtk.all.icons>",
+    "${auto}Font: $<theme.gtk.all.font>",
     "${auto}Cursor: $<theme.cursor>",
-    "${auto}WM: $<user.wm_name> $<user.wm_version>",
-    "${auto}DE: $<user.de_name> $<user.de_version>",
+    "${auto}WM: $<user.wm.name> $<user.wm.version>",
+    "${auto}DE: $<user.de.name> $<user.de.version>",
     "$<auto.disk>",
     "${auto}Swap: $<swap>",
     "${auto}CPU: $<cpu>",
@@ -143,7 +143,7 @@ layout = [
     "${auto}RAM: $<ram>",
     "",
     "$<colors>", # normal colors palette
-    "$<colors_light>" # light colors palette
+    "$<colors.light>" # light colors palette
 ]
 
 
@@ -151,16 +151,16 @@ layout = [
 
 In the config we got an array variable called "layout". That's the variable where you customize how the infos should be displayed.\
 There are 5 tags:
-* `$<module.member>` - Used for printing the system info value of a member of a module.
-* `${color}` - Used for displaying text in a specific color.
+* `$<info.module>` - Used for printing the value of a module or its submembers.
+* `${color}` - Used for displaying text in a specific color after it.
 * `$(bash command)` - Used to execute bash commands and print the output.
 * `$[something,equalToSomethingElse,iftrue,ifalse]` - Conditional tag to display different outputs based on the comparison.
 * `$%n1,n2%` - Used to print the percentage and print with colors
 
 They can be used in the ascii art text file and layout, but how to use them?
 
-* **The info tag (`$<>`)** will print a value of a member of a module\
- e.g `$<user.name>` will print the username, `$<os.kernel_version>` will print the kernel version and so on.\
+* **The info tag (`$<>`)** will print a value of a member of a module.\
+ e.g `$<user.name>` will print the username, `$<os.kernel.version>` will print the kernel version and so on.\
  All the modules and their members are listed in the `--list-modules` argument
 
 * **The bash command tag (`$()`)** let's you execute bash commands and print the output\
@@ -214,8 +214,8 @@ They can be used in the ascii art text file and layout, but how to use them?
 
 Any `$` or brackets can be escaped with a backslash `\`. You need to escape backslashes too :(\
 **NOTE:** For having compatibility with the GUI app, you need to escape `<` (EXCEPT if you are using in a info tag, like `$<os.name>`) and `&`\
-e.g `the number 50 is \< than 100 \& 98`
-Won't affect the printing in terminal
+e.g `the number 50 is \\< than 100 \\&\\& 98`
+Won't affect the printing in terminal.
 
 ## Star History
 
@@ -228,8 +228,8 @@ Won't affect the printing in terminal
 </a>
 
 # TODOs
-* ~~release v1.0.0~~
-Empty so far!
+* release v2.0.0
+* work on the android app (later)
 
 # Thanks
 I would like to thanks:
