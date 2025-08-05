@@ -29,7 +29,7 @@ ifeq ($(DEBUG), 1)
 	LTO_FLAGS  = -fno-lto
         CXXFLAGS  := -ggdb3 -Wall -Wextra -pedantic -Wno-unused-parameter -fsanitize=address \
 			-DDEBUG=1 -fno-omit-frame-pointer $(DEBUG_CXXFLAGS) $(CXXFLAGS)
-        LDFLAGS	  += -fsanitize=address -fno-lto
+        LDFLAGS	  += -fsanitize=address -fno-lto -Wl,-rpath,$(BUILDDIR)
 else
 	# Check if an optimization flag is not already set
 	ifneq ($(filter -O%,$(CXXFLAGS)),)
