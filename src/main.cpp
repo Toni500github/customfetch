@@ -444,10 +444,8 @@ int main(int argc, char* argv[])
     if (!parseargs(argc, argv, config, configFile))
         return 1;
     config.loadConfigFile(configFile);
-    std::vector<void*> plugins_handle;
 
-    /* TODO(burntranch): track each library and unload them. */
-    core_plugins_start(config);
+    std::vector<void*> plugins_handle;
     const std::filesystem::path pluginDir = configDir / "plugins";
     std::filesystem::create_directories(pluginDir);
     for (const auto& entry : std::filesystem::recursive_directory_iterator{ pluginDir })
@@ -477,6 +475,10 @@ int main(int argc, char* argv[])
         start(handle, config);
         plugins_handle.push_back(handle);
     }
+
+    // The "conflicting" modules won't be overwritten by the main ones.
+    // First the external modules, then the core ones.
+    core_plugins_start(config);
 
     if (display_modules)
     {
