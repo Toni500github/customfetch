@@ -158,6 +158,7 @@ std::vector<manifest_t> StateManager::get_all_repos()
                 plugin.output_dir  = getStrValue(*plugin_tbl, "output-dir");
                 plugin.authors     = getStrArrayValue(*plugin_tbl, "authors");
                 plugin.licenses    = getStrArrayValue(*plugin_tbl, "licenses");
+                plugin.prefixes    = getStrArrayValue(*plugin_tbl, "prefixes");
 
                 manifest.plugins.push_back(std::move(plugin));
             }

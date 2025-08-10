@@ -334,7 +334,6 @@ void list_all_plugins(StateManager&& state)
                 fmt::println("\t\033[1;36mAuthor(s):\033[0m {}", fmt::join(plugin.authors, ", "));
                 fmt::println("\t\033[1;38;2;220;220;220mLicense(s):\033[0m {}", fmt::join(plugin.licenses, ", "));
                 fmt::println("\t\033[1;38;2;144;238;144mPrefixe(s):\033[0m {}", fmt::join(plugin.prefixes, ", "));
-                fmt::print("\n");
             }
             fmt::print("\033[0m");
         }
@@ -346,7 +345,7 @@ void list_all_plugins(StateManager&& state)
             fmt::println("\033[1;32mRepository:\033[0m {} (\033[1;33m{}\033[0m)", manifest.name, manifest.url);
             fmt::println("\033[1;34mPlugins:");
             for (const plugin_t& plugin : manifest.plugins)
-                fmt::println("   \033[1;34m{} - \033[1;35m{}\n", plugin.name, plugin.description);
+                fmt::println("   \033[1;34m{} - \033[1;35m{}", plugin.name, plugin.description);
             fmt::print("\033[0m");
         }
     }
