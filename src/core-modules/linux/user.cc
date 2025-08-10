@@ -313,7 +313,11 @@ std::string get_wm_name(std::string& wm_path_exec)
             continue;
 
         char buf[PATH_MAX];
-        wm_path_exec = realpath((dir_entry.path().string() + "/exe").c_str(), buf);
+        if (realpath((dir_entry.path().string() + "/exe").c_str(), buf))
+            wm_path_exec = buf;
+        else
+            wm_path_exec = UNKNOWN;
+
         break;
     }
 #endif
