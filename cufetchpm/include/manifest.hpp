@@ -35,11 +35,11 @@
 #include "toml++/toml.hpp"
 
 #if CF_LINUX
-constexpr char PLATFORM[] = "linux";
+constexpr char const PLATFORM[] = "linux";
 #elif CF_MACOS
-constexpr char PLATFORM[] = "macos";
+constexpr char const PLATFORM[] = "macos";
 #elif CF_ANDROID
-constexpr char PLATFORM[] = "android";
+constexpr char const PLATFORM[] = "android";
 #endif
 
 struct plugin_t
@@ -52,16 +52,12 @@ struct plugin_t
     std::string description;
 
     // The plugin build directory,
-    // where we'll retrive the built plugin
+    // where we'll retrive the built plugin libraries.
     std::string output_dir;
 
     // The plugin multiple SPDX License Identifier (MIT, GPL-2.0, ...)
     // NOTE: it doesn't actually check if they are correct or not.
     std::vector<std::string> licenses;
-
-    // Which plugins can be conflicting by name / modules, using the git url.
-    // right now not used.
-    std::vector<std::string> conflicts;
 
     // The plugin authors.
     std::vector<std::string> authors;

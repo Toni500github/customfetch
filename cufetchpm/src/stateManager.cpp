@@ -112,7 +112,6 @@ void StateManager::add_new_repo(const CManifest& manifest)
                            { "description", plugin.description },
                            { "authors", vector_to_array(plugin.authors) },
                            { "licenses", vector_to_array(plugin.licenses) },
-                           { "conflicts", vector_to_array(plugin.conflicts) },
                            { "prefixes", vector_to_array(plugin.prefixes) } };
 
         plugins_arr.push_back(std::move(entry));

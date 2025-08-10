@@ -36,8 +36,6 @@
 
 namespace fs = std::filesystem;
 
-inline const std::vector<std::string> core_dependencies = { "git" };  // expand in the future, maybe
-
 inline struct operations_t
 {
     bool                     install_force = false;
@@ -72,8 +70,8 @@ public:
     void add_source_repo_plugins(const std::string& repo);
     void build_plugins(const fs::path& working_dir);
     bool add_plugin(const std::string&);
+    bool is_plugin_conflicting(const plugin_t& plugin);
     void remove_plugins_source(const std::string& source_name);
-    bool has_deps(const std::vector<std::string>& dependencies);
 
 private:
     StateManager m_state_manager;

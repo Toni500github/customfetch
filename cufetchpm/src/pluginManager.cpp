@@ -42,9 +42,11 @@
 #include "tiny-process-library/process.hpp"
 #include "util.hpp"
 
+static const std::vector<std::string> core_dependencies = { "git" };  // expand in the future, maybe
+
 using namespace TinyProcessLib;
 
-bool PluginManager::has_deps(const std::vector<std::string>& dependencies)
+static bool has_deps(const std::vector<std::string>& dependencies)
 {
     for (const std::string& bin : dependencies)
     {
@@ -56,6 +58,14 @@ bool PluginManager::has_deps(const std::vector<std::string>& dependencies)
     }
 
     return true;
+}
+
+static bool find_plugin_prefix(const plugin_t& plugin, const plugin_t& pending_plugin)
+{
+    for (const auto& prefix : pending_plugin.prefixes)
+        if (std::find(plugin.prefixes.begin(), plugin.prefixes.end(), prefix) != plugin.prefixes.end())
+            return true;
+    return false;
 }
 
 void PluginManager::add_source_repo_plugins(const std::string& repo)
@@ -82,6 +92,15 @@ void PluginManager::add_source_repo_plugins(const std::string& repo)
     build_plugins(working_dir);
 }
 
+bool PluginManager::is_plugin_conflicting(const plugin_t& pending_plugin)
+{
+    for (const auto& manifest : m_state_manager.get_all_repos())
+        for (const auto& plugin : manifest.plugins)
+            if (find_plugin_prefix(plugin, pending_plugin))
+                return true;
+    return false;
+}
+
 void PluginManager::build_plugins(const fs::path& working_dir)
 {
     std::vector<std::string> non_supported_plugins;
@@ -91,7 +110,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     CManifest manifest(MANIFEST_NAME);
 
     // though lets check if we have already installed the plugin in the cache
-    const fs::path& repo_cache_path     = (m_cache_path / manifest.get_repo_name());
+    const fs::path& repo_cache_path = (m_cache_path / manifest.get_repo_name());
     if (fs::exists(repo_cache_path))
     {
         if (!options.install_force)
@@ -108,14 +127,14 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     if (manifest.get_all_plugins().empty())
     {
         fs::remove_all(working_dir);
-        die("Looks like there are no plugins to build with '{}'", manifest.get_repo_name());
+        die("Looks like there are no plugins to build in repository '{}'", manifest.get_repo_name());
     }
 
-    if (!has_deps(manifest.get_dependencies()))
+    if (!manifest.get_dependencies().empty())
     {
-        fs::remove_all(working_dir);
-        die("Some dependencies for repository '{}' are not installed. The repository requires the following: {}",
-            manifest.get_repo_name(), fmt::join(manifest.get_dependencies(), ", "));
+        info("The repository {} requires the following dependencies, check if you have them installed: {}", manifest.get_repo_name(), fmt::join(manifest.get_dependencies(), ", "));
+        if (!askUserYorN(true, "Are the dependencies installed?"))
+            die("Balling out, re-install the repository again after installing all dependencies.");
     }
 
     // build each plugin from the manifest
@@ -138,9 +157,17 @@ void PluginManager::build_plugins(const fs::path& working_dir)
             }
         }
 
+        if (is_plugin_conflicting(plugin))
+        {
+            fs::remove_all(working_dir);
+            error("Plugin '{}' has conflicting prefixes with other plugins.");
+            error("Check with 'cufetcpm list' the plugins that have one of the following prefixes: {}", plugin.prefixes);
+            die("Balling out");
+        }
+
         status("Trying to build plugin '{}'", plugin.name);
         // make the shell stop at the first failure
-        Process process({"bash", "-c", fmt::format("set -e; {}", fmt::join(plugin.build_steps, " && "))}, "");
+        Process process({ "bash", "-c", fmt::format("set -e; {}", fmt::join(plugin.build_steps, " && ")) }, "");
         if (process.get_exit_status() != 0)
         {
             fs::remove_all(working_dir);

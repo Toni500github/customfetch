@@ -156,7 +156,6 @@ plugin_t CManifest::get_plugin(const std::string_view name)
              .description = getStrValue(name, "description"),
              .output_dir  = getStrValue(name, "output-dir"),
              .licenses    = getStrArrayValue(name, "licenses"),
-             .conflicts   = getStrArrayValue(name, "conflicts"),
              .authors     = getStrArrayValue(name, "authors"),
              .build_steps = getStrArrayValue(name, "build-steps"),
              .prefixes    = getStrArrayValue(name, "prefixes"),
