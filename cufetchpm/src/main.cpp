@@ -320,6 +320,26 @@ void switch_plugin(StateManager&& state, bool switch_)
 
 void list_all_plugins(StateManager&& state)
 {
+    const auto& is_plugin_disabled = [&](const std::string& manifest_name, const std::string& plugin_name) {
+        const auto* source_tbl = state.get_state()["repositories"][manifest_name].as_table();
+        if (!source_tbl)
+            die("Couldn't find source '{}'", manifest_name);
+        if (const auto* plugins_arr_tbl = source_tbl->get_as<toml::array>("plugins"))
+        {
+            for (const auto& plugin_node : *plugins_arr_tbl)
+            {
+                const toml::table* plugin_tbl = plugin_node.as_table();
+                if (!plugin_tbl || ManifestSpace::getStrValue(*plugin_tbl, "name") != plugin_name)
+                    continue;
+
+                for (fs::path base_path : ManifestSpace::getStrArrayValue(*plugin_tbl, "libraries"))
+                    if (fs::exists(base_path += ".disabled"))
+                        return true;
+            }
+        }
+        return false;
+    };
+
     if (options.list_verbose)
     {
         for (const manifest_t& manifest : state.get_all_repos())
@@ -332,6 +352,7 @@ void list_all_plugins(StateManager&& state)
                 fmt::println("\033[1;34m - {}\033[0m", plugin.name);
                 fmt::println("\t\033[1;35mDescription:\033[0m {}", plugin.description);
                 fmt::println("\t\033[1;36mAuthor(s):\033[0m {}", fmt::join(plugin.authors, ", "));
+                fmt::println("\t\033[1;38;2;255;100;220mDisabled:\033[0m {}", is_plugin_disabled(manifest.name, plugin.name));
                 fmt::println("\t\033[1;38;2;220;220;220mLicense(s):\033[0m {}", fmt::join(plugin.licenses, ", "));
                 fmt::println("\t\033[1;38;2;144;238;144mPrefixe(s):\033[0m {}", fmt::join(plugin.prefixes, ", "));
             }
@@ -345,7 +366,12 @@ void list_all_plugins(StateManager&& state)
             fmt::println("\033[1;32mRepository:\033[0m {} (\033[1;33m{}\033[0m)", manifest.name, manifest.url);
             fmt::println("\033[1;34mPlugins:");
             for (const plugin_t& plugin : manifest.plugins)
-                fmt::println("   \033[1;34m{} - \033[1;35m{}", plugin.name, plugin.description);
+            {
+                fmt::print("   \033[1;34m{} - \033[1;35m{}", plugin.name, plugin.description);
+                if (is_plugin_disabled(manifest.name, plugin.name))
+                    fmt::print(" \033[1;31m(DISABLED)");
+                 fmt::print("\n");
+            }
             fmt::print("\033[0m");
         }
     }
