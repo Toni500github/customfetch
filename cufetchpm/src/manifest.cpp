@@ -27,10 +27,14 @@
 
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
 #include <vector>
 
 #include "libcufetch/common.hh"
+#include "tiny-process-library/process.hpp"
 #include "util.hpp"
+
+namespace fs = std::filesystem;
 
 static bool is_valid_name(const std::string_view n)
 {
@@ -85,24 +89,24 @@ std::vector<std::string> ManifestSpace::getStrArrayValue(const toml::table& tbl,
     return {};
 }
 
-CManifest::CManifest(const std::string_view path)
+CManifest::CManifest(const fs::path& path)
 {
     try
     {
-        this->m_tbl = toml::parse_file(path);
+        this->m_tbl = toml::parse_file(path.string());
     }
     catch (const toml::parse_error& err)
     {
         die(_("Failed to parse manifest file at '{}':\n"
               "{}\n"
               "\t(error occurred at line {} column {})"),
-            path, err.description(), err.source().begin.line, err.source().begin.column);
+            path.string(), err.description(), err.source().begin.line, err.source().begin.column);
     }
 
-    parse_manifest();
+    parse_manifest(path);
 }
 
-void CManifest::parse_manifest()
+void CManifest::parse_manifest(const fs::path& path)
 {
     m_repo.name = getStrValue("repository", "name");
     m_repo.url  = getStrValue("repository", "url");
@@ -111,6 +115,12 @@ void CManifest::parse_manifest()
     if (!is_valid_name(m_repo.name))
         die("Manifest repository name '{}' is invalid. Only alphanumeric and '-', '_', '=' are allowed in the name",
             m_repo.name);
+
+    TinyProcessLib::Process proc(fmt::format("git -C {} rev-parse HEAD", path.parent_path().string()), "",
+                                 [&](const char* buf, size_t len) { m_repo.git_hash.assign(buf, len); });
+    if (proc.get_exit_status() != 0)
+        die("manifest: Failed to get repository hash");
+    m_repo.git_hash.erase(std::remove(m_repo.git_hash.begin(), m_repo.git_hash.end(), '\n'), m_repo.git_hash.end());
 
     if (auto* deps = m_tbl["dependencies"].as_table())
     {

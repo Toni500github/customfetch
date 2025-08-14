@@ -68,6 +68,8 @@ static bool find_plugin_prefix(const plugin_t& plugin, const plugin_t& pending_p
     return false;
 }
 
+static bool is_update = false;
+
 void PluginManager::add_source_repo_plugins(const std::string& repo)
 {
     if (!has_deps(core_dependencies))
@@ -101,17 +103,69 @@ bool PluginManager::is_plugin_conflicting(const plugin_t& pending_plugin)
     return false;
 }
 
+void PluginManager::update_repos()
+{
+    for (const manifest_t& repo : m_state_manager.get_all_repos())
+    {
+        std::string output;
+        auto func = [&](const char *buf, size_t len){output.assign(buf, len);};
+        // the user didn't remove the cache directory, right?
+        if (fs::exists(m_cache_path / repo.name))
+        {
+            debug("Repo '{}' cache path exists", repo.name);
+            fs::current_path(m_cache_path / repo.name);
+            if (Process({ "git", "pull", "--rebase"}, "", func, func).get_exit_status() != 0)
+                die("Failed to 'git pull --rebase' repository {}: {}", repo.name, output);
+            debug("git output = {}", output);
+
+            std::string remote;
+            if (Process({ "git", "rev-parse", "@{u}"}, "", [&](const char *buf, size_t len){remote.assign(buf, len);}, func).get_exit_status() != 0)
+                die("Failed to retrieve upstream hash from repository {}: {}", repo.name, output);
+
+            debug("remote = {} && git_hash = {}", remote, repo.git_hash);
+            // let's avoid any spaces or newlines
+            if (hasStart(remote, repo.git_hash))
+            {
+                info("{} is already up-to-date.", repo.name);
+                continue;
+            }
+
+            status("Updating {}", repo.name);
+            is_update = true;
+            build_plugins(m_cache_path / repo.name);
+        }
+        // they did, dammit
+        else
+        {
+            debug("Repo '{}' cache path got deleted/not found", repo.name);
+            if (Process({ "git", "ls-remote", repo.url, "HEAD" }, "", func, func).get_exit_status() != 0)
+                die("Failed to retrieve latest commit from url {}: {}", repo.url, output);
+
+            debug("git output = {}", output);
+            // let's avoid any spaces or newlines
+            if (hasStart(output, repo.git_hash))
+            {
+                info("{} is already up-to-date.", repo.name);
+                continue;
+            }
+            status("Cloning and then updating {}", repo.name);
+            is_update = true;
+            add_source_repo_plugins(repo.url);
+        }
+    }
+}
+
 void PluginManager::build_plugins(const fs::path& working_dir)
 {
     std::vector<std::string> non_supported_plugins;
 
     // cd to the working directory and parse its manifest
     fs::current_path(working_dir);
-    CManifest manifest(MANIFEST_NAME);
+    CManifest manifest(working_dir / MANIFEST_NAME);
 
     // though lets check if we have already installed the plugin in the cache
     const fs::path& repo_cache_path = (m_cache_path / manifest.get_repo_name());
-    if (fs::exists(repo_cache_path))
+    if (fs::exists(repo_cache_path) && !is_update)
     {
         if (!options.install_force)
         {
@@ -119,8 +173,6 @@ void PluginManager::build_plugins(const fs::path& working_dir)
             fs::remove_all(working_dir);
             return;
         }
-
-        fs::remove_all(repo_cache_path);
     }
 
     // So we don't have any plugins in the manifest uh
@@ -132,7 +184,8 @@ void PluginManager::build_plugins(const fs::path& working_dir)
 
     if (!manifest.get_dependencies().empty())
     {
-        info("The repository {} requires the following dependencies, check if you have them installed: {}", manifest.get_repo_name(), fmt::join(manifest.get_dependencies(), ", "));
+        info("The repository {} requires the following dependencies, check if you have them installed: {}",
+             manifest.get_repo_name(), fmt::join(manifest.get_dependencies(), ", "));
         if (!askUserYorN(true, "Are the dependencies installed?"))
             die("Balling out, re-install the repository again after installing all dependencies.");
     }
@@ -157,11 +210,12 @@ void PluginManager::build_plugins(const fs::path& working_dir)
             }
         }
 
-        if (is_plugin_conflicting(plugin))
+        if (is_plugin_conflicting(plugin) && !is_update)
         {
             fs::remove_all(working_dir);
-            error("Plugin '{}' has conflicting prefixes with other plugins.");
-            error("Check with 'cufetcpm list' the plugins that have one of the following prefixes: {}", plugin.prefixes);
+            error("Plugin '{}' has conflicting prefixes with other plugins.", plugin.name);
+            error("Check with 'cufetchpm list' the plugins that have one of the following prefixes: {}",
+                  plugin.prefixes);
             die("Balling out");
         }
 
@@ -207,7 +261,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         {
             // ~/.config/customfetch/plugins/<manifest-directory>/<plugin-filename>
             const fs::path& library_config_path = manifest_config_path / library.path().filename();
-            if (fs::exists(library_config_path) && !options.install_force)
+            if (fs::exists(library_config_path) && (!options.install_force || !is_update))
             {
                 if (askUserYorN(false, "Plugin '{}' already exists. Replace it?", library_config_path.string()))
                     fs::remove_all(library_config_path);

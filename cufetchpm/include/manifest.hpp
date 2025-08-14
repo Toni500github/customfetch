@@ -26,9 +26,9 @@
 #ifndef _MANIFEST_HPP_
 #define _MANIFEST_HPP_
 
+#include <filesystem>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 #include "platform.hpp"
@@ -85,6 +85,10 @@ struct manifest_t
     // The repository git url
     std::string url;
 
+    // NOTE: INTERNAL ONLY
+    // The repository latest commit hash.
+    std::string git_hash;
+
     // An array of all the plugins that are declared in the manifest
     std::vector<plugin_t> plugins;
 
@@ -108,9 +112,7 @@ std::vector<std::string> getStrArrayValue(const toml::table& tbl, const std::str
 class CManifest
 {
 public:
-    CManifest(const std::string_view path);
-    CManifest(toml::table&& tbl) : m_tbl(std::move(tbl)) { parse_manifest(); }
-    CManifest(const toml::table& tbl) : m_tbl(tbl) { parse_manifest(); }
+    CManifest(const std::filesystem::path& path);
 
     plugin_t get_plugin(const std::string_view name);
 
@@ -119,6 +121,9 @@ public:
 
     const std::string& get_repo_url() const
     { return m_repo.url; }
+
+    const std::string& get_repo_hash() const
+    { return m_repo.git_hash; }
 
     const std::vector<plugin_t>& get_all_plugins() const
     { return m_repo.plugins; }
@@ -130,8 +135,7 @@ private:
     toml::table m_tbl;
     manifest_t  m_repo;
 
-    void parse_manifest();
-    void parse_manifest_state();
+    void parse_manifest(const std::filesystem::path& path);
 
     std::string getStrValue(const std::string_view name, const std::string_view key) const
     {

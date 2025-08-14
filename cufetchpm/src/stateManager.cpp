@@ -103,6 +103,7 @@ void StateManager::add_new_repo(const CManifest& manifest)
     toml::table& repositories = ensure_table(m_state, "repositories");
     toml::table& repo         = ensure_table(repositories, manifest.get_repo_name());
     repo.insert_or_assign("url", manifest.get_repo_url());
+    repo.insert_or_assign("git-hash", manifest.get_repo_hash());
 
     toml::array plugins_arr;
     for (const plugin_t& plugin : manifest.get_all_plugins())
@@ -143,6 +144,7 @@ std::vector<manifest_t> StateManager::get_all_repos()
         manifest_t manifest;
         manifest.name = repo_name.str();
         manifest.url  = getStrValue(*repo_tbl, "url");
+        manifest.git_hash = getStrValue(*repo_tbl, "git-hash");
 
         if (const toml::array* plugins = repo_tbl->get_as<toml::array>("plugins"))
         {

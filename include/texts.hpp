@@ -53,6 +53,7 @@ Commands:
     enable <SOURCE/PLUGIN>...          Enable one or more plugins from an installed source.
     disable <SOURCE/PLUGIN>...         Disable one or more plugins from an installed source.
     list                               Show all plugins installed via state.toml.
+    update                             Update and upgrade all repositories
     gen-manifest                       Generate a template 'cufetchpm.toml' file.
 
 Global options:

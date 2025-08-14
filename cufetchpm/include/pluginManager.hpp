@@ -70,6 +70,7 @@ public:
     void add_source_repo_plugins(const std::string& repo);
     void build_plugins(const fs::path& working_dir);
     bool add_plugin(const std::string&);
+    void update_repos();
     bool is_plugin_conflicting(const plugin_t& plugin);
     void remove_plugins_source(const std::string& source_name);
 

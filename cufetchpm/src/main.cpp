@@ -25,6 +25,7 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <unordered_map>
 
 #include "fmt/compile.h"
 #include "fmt/os.h"
@@ -36,23 +37,42 @@
 #include "texts.hpp"
 
 #if (!__has_include("version.h"))
-#error "version.h not found, please generate it with ./scripts/generateVersion.sh"
+#error "version.h not found, please generate it with ../scripts/generateVersion.sh"
 #else
 #include "version.h"
 #endif
 
 #include "getopt_port/getopt.h"
 
-enum Ops
+enum OPs
 {
     NONE,
     INSTALL,
+    UPDATE,
     LIST,
     ENABLE,
     DISABLE,
     UNINSTALL,
     GEN_MANIFEST,
+    HELP
 } op = NONE;
+
+const std::unordered_map<std::string_view, OPs> map{
+    { "install", INSTALL },
+    { "update", UPDATE },
+    { "list", LIST },
+    { "help", HELP },
+    { "enable", ENABLE },
+    { "disable", UNINSTALL },
+    { "gen-manifest", GEN_MANIFEST },
+};
+
+OPs str_to_enum(const std::string_view name)
+{
+    if (auto it = map.find(name); it != map.end())
+        return it->second;
+    return NONE;
+}
 
 void version()
 {
@@ -163,9 +183,6 @@ bool parse_general_command_args(int argc, char* argv[])
     for (int i = optind; i < argc; ++i)
         options.arguments.emplace_back(argv[i]);
 
-    if (options.arguments.empty())
-        die("Please provide a source/plugin to enable/disable");
-
     return true;
 }
 
@@ -203,42 +220,17 @@ static bool parseargs(int argc, char* argv[])
     std::string_view cmd      = argv[optind];
     int              sub_argc = argc - optind - 1;
     char**           sub_argv = argv + optind + 1;
-    if (cmd == "install" || cmd == "i")
+
+    op = str_to_enum(cmd);
+    switch (op)
     {
-        op     = INSTALL;
-        optind = 0;
-        return parse_install_args(sub_argc, sub_argv);
+        case INSTALL: optind = 0; return parse_install_args(sub_argc, sub_argv);
+        case LIST:    optind = 0; return parse_list_args(sub_argc, sub_argv);
+        case HELP:    break;
+        default:      optind = 0; return parse_general_command_args(sub_argc, sub_argv);
     }
-    else if (cmd == "list" || cmd == "l")
-    {
-        op     = LIST;
-        optind = 0;
-        return parse_list_args(sub_argc, sub_argv);
-    }
-    else if (cmd == "gen-manifest")
-    {
-        op     = GEN_MANIFEST;
-        optind = 0;
-    }
-    else if (cmd == "enable")
-    {
-        op     = ENABLE;
-        optind = 0;
-        return parse_general_command_args(sub_argc, sub_argv);
-    }
-    else if (cmd == "disable")
-    {
-        op     = DISABLE;
-        optind = 0;
-        return parse_general_command_args(sub_argc, sub_argv);
-    }
-    else if (cmd == "uninstall")
-    {
-        op     = UNINSTALL;
-        optind = 0;
-        return parse_general_command_args(sub_argc, sub_argv);
-    }
-    else if (cmd == "help")
+
+    if (op == HELP)
     {
         if (sub_argc >= 1)
         {
@@ -352,7 +344,8 @@ void list_all_plugins(StateManager&& state)
                 fmt::println("\033[1;34m - {}\033[0m", plugin.name);
                 fmt::println("\t\033[1;35mDescription:\033[0m {}", plugin.description);
                 fmt::println("\t\033[1;36mAuthor(s):\033[0m {}", fmt::join(plugin.authors, ", "));
-                fmt::println("\t\033[1;38;2;255;100;220mDisabled:\033[0m {}", is_plugin_disabled(manifest.name, plugin.name));
+                fmt::println("\t\033[1;38;2;255;100;220mDisabled:\033[0m {}",
+                             is_plugin_disabled(manifest.name, plugin.name));
                 fmt::println("\t\033[1;38;2;220;220;220mLicense(s):\033[0m {}", fmt::join(plugin.licenses, ", "));
                 fmt::println("\t\033[1;38;2;144;238;144mPrefixe(s):\033[0m {}", fmt::join(plugin.prefixes, ", "));
             }
@@ -370,7 +363,7 @@ void list_all_plugins(StateManager&& state)
                 fmt::print("   \033[1;34m{} - \033[1;35m{}", plugin.name, plugin.description);
                 if (is_plugin_disabled(manifest.name, plugin.name))
                     fmt::print(" \033[1;31m(DISABLED)");
-                 fmt::print("\n");
+                fmt::print("\n");
             }
             fmt::print("\033[0m");
         }
@@ -421,6 +414,12 @@ int main(int argc, char* argv[])
         case DISABLE:
         {
             switch_plugin(std::move(state), false);
+            break;
+        }
+        case UPDATE:
+        {
+            PluginManager plugin_manager(std::move(state));
+            plugin_manager.update_repos();
             break;
         }
         case UNINSTALL:
