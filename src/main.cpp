@@ -450,24 +450,27 @@ int main(int argc, char* argv[])
     std::filesystem::create_directories(pluginDir);
     for (const auto& entry : std::filesystem::recursive_directory_iterator{ pluginDir })
     {
+        const char *dlerror_str;
         if (entry.is_regular_file() && entry.path().has_extension() && entry.path().extension() == LIBRARY_EXTENSION){}
         else {continue;}
 
         debug("loading plugin at {}!", entry.path().string());
 
         void* handle = LOAD_LIBRARY(std::filesystem::absolute(entry.path()).c_str());
+        dlerror_str = dlerror();
         if (!handle)
         {
             // dlerror() is pretty formatted
-            warn("Failed to load plugin at '{}': {}", entry.path().string(), dlerror());
+            warn("Failed to load plugin at '{}': {}", entry.path().string(), dlerror_str);
             dlerror();
             continue;
         }
 
         LOAD_LIB_SYMBOL(handle, void, start, void*, const ConfigBase&);
-        if (dlerror())
+        dlerror_str = dlerror();
+        if (dlerror_str)
         {
-            warn("Failed to load plugin at '{}': Missing function 'start'", entry.path().string());
+            warn("Failed to load plugin at '{}': {}", entry.path().string(), dlerror_str);
             dlclose(handle);
             continue;
         }

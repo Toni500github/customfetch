@@ -59,15 +59,16 @@ enum OPs
 
 const std::unordered_map<std::string_view, OPs> map{
     { "install", INSTALL },
+    { "uninstall", UNINSTALL},
     { "update", UPDATE },
     { "list", LIST },
     { "help", HELP },
     { "enable", ENABLE },
-    { "disable", UNINSTALL },
+    { "disable", DISABLE },
     { "gen-manifest", GEN_MANIFEST },
 };
 
-OPs str_to_enum(const std::string_view name)
+OPs str_to_enum(const std::string& name)
 {
     if (auto it = map.find(name); it != map.end())
         return it->second;
@@ -221,7 +222,7 @@ static bool parseargs(int argc, char* argv[])
     int              sub_argc = argc - optind - 1;
     char**           sub_argv = argv + optind + 1;
 
-    op = str_to_enum(cmd);
+    op = str_to_enum(cmd.data());
     switch (op)
     {
         case INSTALL: optind = 0; return parse_install_args(sub_argc, sub_argv);
