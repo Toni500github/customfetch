@@ -175,6 +175,14 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         }
     }
 
+    warn("{}", "You should never blindilly trust anything in life that you never saw/know about.\n"
+    "       Right now you are installing something off of the internet that can be a \033[1;31mPOTENTIAL trojan or any malware.\033[0m\n"
+    "       \033[1;36mPlease make sure that you trust every plugin you put to compile and install.\n"
+    "       \033[1;33mYOU ARE THE SOLE RESPONSABLE FOR ANY DAMAGES DONE ON YOUR MACHINE."
+         );
+    if (!askUserYorN(false, "Do you want to continue installing these plugins?"))
+        die("Operation cancelled from the user");
+
     // So we don't have any plugins in the manifest uh
     if (manifest.get_all_plugins().empty())
     {
@@ -184,9 +192,9 @@ void PluginManager::build_plugins(const fs::path& working_dir)
 
     if (!manifest.get_dependencies().empty())
     {
-        info("The repository {} requires the following dependencies, check if you have them installed: {}",
+        info("The repository {} requires the following dependencies, check if you have them installed:\n    {}",
              manifest.get_repo_name(), fmt::join(manifest.get_dependencies(), ", "));
-        if (!askUserYorN(true, "Are the dependencies installed?"))
+        if (!askUserYorN(true, "Are these dependencies installed?"))
             die("Balling out, re-install the repository again after installing all dependencies.");
     }
 
@@ -212,11 +220,14 @@ void PluginManager::build_plugins(const fs::path& working_dir)
 
         if (is_plugin_conflicting(plugin) && !is_update)
         {
-            fs::remove_all(working_dir);
-            error("Plugin '{}' has conflicting prefixes with other plugins.", plugin.name);
-            error("Check with 'cufetchpm list' the plugins that have one of the following prefixes: {}",
-                  plugin.prefixes);
-            die("Balling out");
+            warn("Plugin '{}' has conflicting prefixes with other plugins.", plugin.name);
+            warn("Check with 'cufetchpm list' the plugins that have one of the following prefixes: {}",
+                  fmt::join(plugin.prefixes, ", "));
+            if (!askUserYorN(false, "Wanna continue?"))
+            {
+                fs::remove_all(working_dir);
+                die("Balling out");
+            }
         }
 
         status("Trying to build plugin '{}'", plugin.name);
@@ -233,7 +244,8 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     m_state_manager.add_new_repo(manifest);
 
     // we built all plugins. let's rename the working directory to its actual manifest name,
-    success("Repository plugins successfully built! Renaming to '{}'...", repo_cache_path.string());
+    success("Repository plugins are successfully built! Renaming directory to '{}'...", repo_cache_path.string());
+    fs::remove_all(repo_cache_path);
     fs::create_directories(repo_cache_path);
     fs::rename(working_dir, repo_cache_path);
 
