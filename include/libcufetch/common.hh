@@ -31,14 +31,15 @@
 
 constexpr const char NOCOLOR[]      = "\033[0m";
 constexpr const char NOCOLOR_BOLD[] = "\033[0m\033[1m";
+
+// Didn't find what you were looking for.
 constexpr const char UNKNOWN[]      = "(unknown)";
 
-// Usually in neofetch/fastfetch when some infos couldn't be queried,
-// they remove it from the display. With customfetch is kinda difficult to know when to remove
-// the info to display, since it's all modular with tags, so I have created
-// magic line to be sure that I don't cut the wrong line.
+// Usually in neofetch/fastfetch when some infos couldn't be queried, they remove it from the display.
+// With customfetch is kinda difficult to know when to remove the info to display,
+// since it's all modular with tags, so I have created a "magic line" to be sure that I don't cut the wrong line.
 //
-// Every instance of this string in a layout line, the whole line will be erased.
+// Every instance of this string found in a layout line, the whole line will be erased.
 constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
 
 #define APICALL extern "C"
@@ -52,6 +53,8 @@ inline bool debug_print = true;
 inline bool debug_print = false;
 #endif
 
+// std::format function arguments
+// Print to stderr an error with header 'ERROR:' in red
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
 {
@@ -59,32 +62,41 @@ void error(const std::string_view fmt, Args&&... args) noexcept
                fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
+// std::format function arguments
+// Print to stderr an error with header 'FATAL:' in red and exit with failure code
 template <typename... Args>
 void die(const std::string_view fmt, Args&&... args) noexcept
 {
     fmt::print(stderr, "\033[1;31mFATAL: {}\033[0m\n",
                fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
-    std::exit(1);
+    std::exit(EXIT_FAILURE);
 }
 
+// std::format function arguments
+// Print to stdout a debug msg with header '[DEBUG]' in hot-pink color
+// only if debug_print is set (do not modify it).
 template <typename... Args>
 void debug(const std::string_view fmt, Args&&... args) noexcept
 {
     if (debug_print)
-        fmt::print("\033[1;38;2;255;105;180m[DEBUG]:\033[0m {}\n",
+        fmt::print(stdout, "\033[1;38;2;255;105;180m[DEBUG]:\033[0m {}\n",
                    fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
+// std::format function arguments
+// Print to stderr a warning with header 'WARNING:' in yellow
 template <typename... Args>
 void warn(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print("\033[1;33mWARNING: {}\033[0m\n",
+    fmt::print(stderr, "\033[1;33mWARNING: {}\033[0m\n",
                fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
+// std::format function arguments
+// Print to stdout an info msg with header 'INFO:' in cyan
 template <typename... Args>
 void info(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print("\033[1;36mINFO: {}\033[0m\n",
+    fmt::print(stdout, "\033[1;36mINFO: {}\033[0m\n",
                fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
