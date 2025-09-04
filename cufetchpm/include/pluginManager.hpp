@@ -39,7 +39,7 @@ namespace fs = std::filesystem;
 inline struct operations_t
 {
     bool                     install_force   = false;
-    bool                     install_no_warn = false;
+    bool                     install_shut_up = false;
     bool                     list_verbose    = false;
     std::vector<std::string> arguments;
 } options;

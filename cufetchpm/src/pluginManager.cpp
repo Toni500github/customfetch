@@ -62,7 +62,7 @@ static bool has_deps(const std::vector<std::string>& dependencies)
 
 static bool find_plugin_prefix(const plugin_t& plugin, const plugin_t& pending_plugin)
 {
-    for (const auto& prefix : pending_plugin.prefixes)
+    for (const std::string& prefix : pending_plugin.prefixes)
         if (std::find(plugin.prefixes.begin(), plugin.prefixes.end(), prefix) != plugin.prefixes.end())
             return true;
     return false;
@@ -178,7 +178,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         }
     }
 
-    if (!options.install_no_warn)
+    if (!options.install_shut_up)
     {
         warn("{}",
              "You should never blindly trust anything in life that you never saw/know about.\n"
@@ -199,9 +199,9 @@ void PluginManager::build_plugins(const fs::path& working_dir)
 
     if (!manifest.get_dependencies().empty())
     {
-        info("The repository {} requires the following dependencies, check if you have them installed:\n    {}",
+        info("The plugin repository {} requires the following dependencies, check if you have them installed:\n    {}",
              manifest.get_repo_name(), fmt::join(manifest.get_dependencies(), ", "));
-        if (!askUserYorN(true, "Are these dependencies installed?"))
+        if (!options.install_shut_up && !askUserYorN(true, "Are these dependencies installed?"))
             die("Balling out, re-install the repository again after installing all dependencies.");
     }
 
@@ -230,7 +230,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
             warn("Plugin '{}' has conflicting prefixes with other plugins.", plugin.name);
             warn("Check with 'cufetchpm list' the plugins that have one of the following prefixes: {}",
                  fmt::join(plugin.prefixes, ", "));
-            if (!askUserYorN(false, "Wanna continue?"))
+            if (!options.install_shut_up && !askUserYorN(false, "Wanna continue?"))
             {
                 fs::remove_all(working_dir);
                 die("Balling out");
@@ -283,7 +283,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
             const fs::path& library_config_path = manifest_config_path / library.path().filename();
             if (fs::exists(library_config_path) && (!options.install_force || !is_update))
             {
-                if (askUserYorN(false, "Plugin '{}' already exists. Replace it?", library_config_path.string()))
+                if (options.install_shut_up || askUserYorN(false, "Plugin '{}' already exists. Replace it?", library_config_path.string()))
                     fs::remove_all(library_config_path);
                 else
                     continue;

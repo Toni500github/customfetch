@@ -109,7 +109,7 @@ bool parse_install_args(int argc, char* argv[])
     const struct option long_opts[] = {
         {"force",           no_argument, nullptr, 'f'},
         {"help",            no_argument, nullptr, 'h'},
-        {"silence-warning", no_argument, nullptr, 'w'},
+        {"yes",             no_argument, nullptr, 'y'},
         {0, 0, 0, 0}
     };
     // clang-format on
@@ -123,7 +123,7 @@ bool parse_install_args(int argc, char* argv[])
             case '?': help_install(EXIT_FAILURE); break;
 
             case 'f': options.install_force = true; break;
-            case 'w': options.install_no_warn = true; break;
+            case 'y': options.install_shut_up = true; break;
         }
     }
 
