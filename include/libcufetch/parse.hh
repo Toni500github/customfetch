@@ -6,7 +6,6 @@
 
 #include "libcufetch/common.hh"
 #include "libcufetch/config.hh"
-#include "libcufetch/cufetch.hh"
 
 // C ABI is needed to prevent symbol mangling, but we don't actually need C compatibility,
 // so we ignore this warning about return types that are potentially incompatible with C.
@@ -14,6 +13,8 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
 #endif
+
+struct module_t;
 
 // Map from a modules name to its pointer.
 using moduleMap_t = std::unordered_map<std::string, const module_t&>;

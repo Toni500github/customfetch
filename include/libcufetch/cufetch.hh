@@ -4,8 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "libcufetch/common.hh"
-struct parse_args_t;
+#include "libcufetch/parse.hh"
 
 /* A linked list including module arguments. An argument may be specified for any part of the module path (e.g.
  * `disk(/).used(GiB)`, `test.hi(a)`) */
