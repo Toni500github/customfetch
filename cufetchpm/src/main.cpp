@@ -58,14 +58,8 @@ enum OPs
 } op = NONE;
 
 const std::unordered_map<std::string_view, OPs> map{
-    { "install", INSTALL },
-    { "update", UPDATE },
-    { "list", LIST },
-    { "help", HELP },
-    { "enable", ENABLE },
-    { "disable", DISABLE },
-    { "uninstall", UNINSTALL },
-    { "gen-manifest", GEN_MANIFEST },
+    { "install", INSTALL }, { "update", UPDATE },   { "list", LIST },           { "help", HELP },
+    { "enable", ENABLE },   { "disable", DISABLE }, { "uninstall", UNINSTALL }, { "gen-manifest", GEN_MANIFEST },
 };
 
 OPs str_to_enum(const std::string_view name)
@@ -112,20 +106,23 @@ bool parse_install_args(int argc, char* argv[])
 {
     // clang-format off
     const struct option long_opts[] = {
-        {"force", no_argument, nullptr, 'f'},
-        {"help",  no_argument, nullptr, 'h'},
+        {"force",           no_argument, nullptr, 'f'},
+        {"help",            no_argument, nullptr, 'h'},
+        {"silence-warning", no_argument, nullptr, 'w'},
         {0, 0, 0, 0}
     };
     // clang-format on
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "+fh", long_opts, nullptr)) != -1)
+    while ((opt = getopt_long(argc, argv, "+wfh", long_opts, nullptr)) != -1)
     {
         switch (opt)
         {
-            case 'f': options.install_force = true; break;
             case 'h': help_install(EXIT_SUCCESS); break;
             case '?': help_install(EXIT_FAILURE); break;
+
+            case 'f': options.install_force = true; break;
+            case 'w': options.install_no_warn = true; break;
         }
     }
 

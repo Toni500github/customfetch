@@ -108,18 +108,21 @@ void PluginManager::update_repos()
     for (const manifest_t& repo : m_state_manager.get_all_repos())
     {
         std::string output;
-        auto func = [&](const char *buf, size_t len){output.assign(buf, len);};
+        auto        func = [&](const char* buf, size_t len) { output.assign(buf, len); };
         // the user didn't remove the cache directory, right?
         if (fs::exists(m_cache_path / repo.name))
         {
             debug("Repo '{}' cache path exists", repo.name);
             fs::current_path(m_cache_path / repo.name);
-            if (Process({ "git", "pull", "--rebase"}, "", func, func).get_exit_status() != 0)
+            if (Process({ "git", "pull", "--rebase" }, "", func, func).get_exit_status() != 0)
                 die("Failed to 'git pull --rebase' repository {}: {}", repo.name, output);
             debug("git output = {}", output);
 
             std::string remote;
-            if (Process({ "git", "rev-parse", "@{u}"}, "", [&](const char *buf, size_t len){remote.assign(buf, len);}, func).get_exit_status() != 0)
+            if (Process(
+                    { "git", "rev-parse", "@{u}" }, "", [&](const char* buf, size_t len) { remote.assign(buf, len); },
+                    func)
+                    .get_exit_status() != 0)
                 die("Failed to retrieve upstream hash from repository {}: {}", repo.name, output);
 
             debug("remote = {} && git_hash = {}", remote, repo.git_hash);
@@ -175,13 +178,17 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         }
     }
 
-    warn("{}", "You should never blindilly trust anything in life that you never saw/know about.\n"
-    "       Right now you are installing something off of the internet that can be a \033[1;31mPOTENTIAL trojan or any malware.\033[0m\n"
-    "       \033[1;36mPlease make sure that you trust every plugin you put to compile and install.\n"
-    "       \033[1;33mYOU ARE THE SOLE RESPONSABLE FOR ANY DAMAGES DONE ON YOUR MACHINE."
-         );
-    if (!askUserYorN(false, "Do you want to continue installing these plugins?"))
-        die("Operation cancelled from the user");
+    if (!options.install_no_warn)
+    {
+        warn("{}",
+             "You should never blindly trust anything in life that you never saw/know about.\n"
+             "       Right now you are installing something that can be a \033[1;31mPOTENTIAL trojan or any "
+             "malware.\033[0m\n"
+             "       \033[1;36mPlease make sure that you trust every plugin you put to compile and install.\n"
+             "       \033[1;33mYOU ARE THE SOLE RESPONSABLE FOR ANY DAMAGES DONE ON YOUR MACHINE.");
+        if (!askUserYorN(false, "Do you want to continue installing these plugins?"))
+            die("Operation cancelled from the user");
+    }
 
     // So we don't have any plugins in the manifest uh
     if (manifest.get_all_plugins().empty())
@@ -222,7 +229,7 @@ void PluginManager::build_plugins(const fs::path& working_dir)
         {
             warn("Plugin '{}' has conflicting prefixes with other plugins.", plugin.name);
             warn("Check with 'cufetchpm list' the plugins that have one of the following prefixes: {}",
-                  fmt::join(plugin.prefixes, ", "));
+                 fmt::join(plugin.prefixes, ", "));
             if (!askUserYorN(false, "Wanna continue?"))
             {
                 fs::remove_all(working_dir);
@@ -244,7 +251,8 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     m_state_manager.add_new_repo(manifest);
 
     // we built all plugins. let's rename the working directory to its actual manifest name,
-    success("Repository plugins are successfully built! Renaming directory to '{}'...", repo_cache_path.string());
+    success("Repository plugins are successfully built!", repo_cache_path.string());
+    status("Renaming directory working directory to '{}'", repo_cache_path.string());
     fs::remove_all(repo_cache_path);
     fs::create_directories(repo_cache_path);
     fs::rename(working_dir, repo_cache_path);

@@ -142,8 +142,8 @@ std::vector<manifest_t> StateManager::get_all_repos()
             continue;
 
         manifest_t manifest;
-        manifest.name = repo_name.str();
-        manifest.url  = getStrValue(*repo_tbl, "url");
+        manifest.name     = repo_name.str();
+        manifest.url      = getStrValue(*repo_tbl, "url");
         manifest.git_hash = getStrValue(*repo_tbl, "git-hash");
 
         if (const toml::array* plugins = repo_tbl->get_as<toml::array>("plugins"))

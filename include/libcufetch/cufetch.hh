@@ -7,7 +7,7 @@
 #include "libcufetch/parse.hh"
 
 /* A linked list including module arguments. An argument may be specified for any part of the module path (e.g.
- * `disk(/).used(GiB)`, `test(a).hi`) */
+ * `disk(/).used(GiB)`, `test.hi(a)`) */
 struct moduleArgs_t
 {
     struct moduleArgs_t* prev = nullptr;
@@ -18,6 +18,7 @@ struct moduleArgs_t
     struct moduleArgs_t* next = nullptr;
 };
 
+// Struct used in modules callback functions (handler in module_t)
 struct callbackInfo_t
 {
     const moduleArgs_t* moduleArgs;

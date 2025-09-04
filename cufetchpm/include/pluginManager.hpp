@@ -38,23 +38,22 @@ namespace fs = std::filesystem;
 
 inline struct operations_t
 {
-    bool                     install_force = false;
-    bool                     list_verbose  = false;
+    bool                     install_force   = false;
+    bool                     install_no_warn = false;
+    bool                     list_verbose    = false;
     std::vector<std::string> arguments;
 } options;
 
 template <typename... Args>
 void success(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print("\033[1;32m==> {}\033[0m\n",
-               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+    fmt::print("\033[1;32m==> {}\033[0m\n", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void status(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print("\033[1;34m==> {} ...\033[0m\n",
-               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+    fmt::print("\033[1;34m==> {} ...\033[0m\n", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 class PluginManager
