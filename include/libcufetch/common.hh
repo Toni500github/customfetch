@@ -27,7 +27,6 @@
 
 #include <cstdlib>
 
-#include "fmt/color.h"
 #include "fmt/core.h"
 
 constexpr const char NOCOLOR[]      = "\033[0m";
@@ -47,8 +46,6 @@ constexpr const char MAGIC_LINE[] = "(cut this line NOW!! RAHHH)";
 #define PLUGIN_INIT void start
 #define PLUGIN_FINISH void finish
 
-#define BOLD_COLOR(x) (fmt::emphasis::bold | fmt::fg(fmt::rgb(x)))
-
 #if DEBUG
 inline bool debug_print = true;
 #else
@@ -58,14 +55,14 @@ inline bool debug_print = false;
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(stderr, BOLD_COLOR(fmt::color::red), "ERROR: {}\033[0m\n",
+    fmt::print(stderr, "\033[1;31mERROR: {}\033[0m\n",
                fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void die(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(stderr, BOLD_COLOR(fmt::color::red), "FATAL: {}\033[0m\n",
+    fmt::print(stderr, "\033[1;31mFATAL: {}\033[0m\n",
                fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
     std::exit(1);
 }
@@ -74,22 +71,20 @@ template <typename... Args>
 void debug(const std::string_view fmt, Args&&... args) noexcept
 {
     if (debug_print)
-        fmt::print(BOLD_COLOR((fmt::color::hot_pink)), "[DEBUG]:\033[0m {}\n",
+        fmt::print("\033[1;38;2;255;105;180m[DEBUG]:\033[0m {}\n",
                    fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void warn(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(BOLD_COLOR((fmt::color::yellow)), "WARNING: {}\033[0m\n",
+    fmt::print("\033[1;33mWARNING: {}\033[0m\n",
                fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 template <typename... Args>
 void info(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(BOLD_COLOR((fmt::color::cyan)), "INFO: {}\033[0m\n",
+    fmt::print("\033[1;36mINFO: {}\033[0m\n",
                fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
-
-#undef BOLD_COLOR

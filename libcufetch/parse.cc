@@ -41,7 +41,6 @@
 #include "libcufetch/common.hh"
 #include "libcufetch/config.hh"
 #include "libcufetch/cufetch.hh"
-#include "fmt/color.h"
 #include "fmt/format.h"
 #include "switch_fnv1a.hpp"
 #include "util.hpp"

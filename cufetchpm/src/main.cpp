@@ -63,7 +63,8 @@ const std::unordered_map<std::string_view, OPs> map{
     { "list", LIST },
     { "help", HELP },
     { "enable", ENABLE },
-    { "disable", UNINSTALL },
+    { "disable", DISABLE },
+    { "uninstall", UNINSTALL },
     { "gen-manifest", GEN_MANIFEST },
 };
 

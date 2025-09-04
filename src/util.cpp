@@ -262,7 +262,7 @@ std::string shorten_vendor_name(std::string vendor)
 fmt::rgb hexStringToColor(const std::string_view hexstr)
 {
     std::stringstream ss;
-    ss << std::hex << hexstr.substr(1).data();
+    ss << std::hex << ((hexstr[0] == '#') ? hexstr.substr(1).data() : hexstr.data());
 
     uint value;
     ss >> value;
