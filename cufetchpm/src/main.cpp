@@ -35,6 +35,7 @@
 #include "pluginManager.hpp"
 #include "stateManager.hpp"
 #include "texts.hpp"
+#include "util.hpp"
 
 #if (!__has_include("version.h"))
 #error "version.h not found, please generate it with ../scripts/generateVersion.sh"
@@ -258,15 +259,15 @@ void switch_plugin(StateManager&& state, bool switch_)
     {
         const size_t pos = arg.find('/');
         if (pos == arg.npos)
-            die("Plugin to {}e '{}' doesn't have a slash '/' to separate source and plugin", switch_str, arg);
+            die("Plugin to {}e '{}' doesn't have a slash '/' to separate repository and plugin", switch_str, arg);
 
-        const std::string& source = arg.substr(0, pos);
+        const std::string& repo = arg.substr(0, pos);
         const std::string& plugin = arg.substr(pos + 1);
 
-        const auto* source_tbl = tbl["repositories"][source].as_table();
-        if (!source_tbl)
-            die("Couldn't find source '{}'", source);
-        if (const auto* plugins_arr_tbl = source_tbl->get_as<toml::array>("plugins"))
+        const auto* repo_tbl = tbl["repositories"][repo].as_table();
+        if (!repo_tbl)
+            die("No such repository '{}'", repo);
+        if (const auto* plugins_arr_tbl = repo_tbl->get_as<toml::array>("plugins"))
         {
             for (const auto& plugin_node : *plugins_arr_tbl)
             {
@@ -311,10 +312,10 @@ void switch_plugin(StateManager&& state, bool switch_)
 void list_all_plugins(StateManager&& state)
 {
     const auto& is_plugin_disabled = [&](const std::string& manifest_name, const std::string& plugin_name) {
-        const auto* source_tbl = state.get_state()["repositories"][manifest_name].as_table();
-        if (!source_tbl)
-            die("Couldn't find source '{}'", manifest_name);
-        if (const auto* plugins_arr_tbl = source_tbl->get_as<toml::array>("plugins"))
+        const auto* repo_tbl = state.get_state()["repositories"][manifest_name].as_table();
+        if (!repo_tbl)
+            die("No such repository '{}'", manifest_name);
+        if (const auto* plugins_arr_tbl = repo_tbl->get_as<toml::array>("plugins"))
         {
             for (const auto& plugin_node : *plugins_arr_tbl)
             {
@@ -381,14 +382,14 @@ int main(int argc, char* argv[])
         case INSTALL:
         {
             if (options.arguments.size() < 1)
-                die("Please provide a git url repository");
+                die("Please provide a plugin repository to install");
             PluginManager plugin_manager(std::move(state));
             for (const std::string& arg : options.arguments)
             {
                 if (fs::exists(arg))
                     plugin_manager.build_plugins(arg);
                 else
-                    plugin_manager.add_source_repo_plugins(arg);
+                    plugin_manager.add_plugins_repo(arg);
             }
             break;
         }
@@ -399,7 +400,9 @@ int main(int argc, char* argv[])
         }
         case GEN_MANIFEST:
         {
-            auto f = fmt::output_file("cufetchpm.toml", fmt::file::CREATE | fmt::file::WRONLY);
+            if (fs::exists(MANIFEST_NAME) && !askUserYorN(false, "{} already exists. Overwrite it?", MANIFEST_NAME))
+                return EXIT_FAILURE;
+            auto f = fmt::output_file(MANIFEST_NAME, fmt::file::CREATE | fmt::file::WRONLY | fmt::file::TRUNC);
             f.print("{}", AUTO_MANIFEST);
             f.close();
             break;
@@ -423,15 +426,15 @@ int main(int argc, char* argv[])
         case UNINSTALL:
         {
             if (options.arguments.size() < 1)
-                die("Please provide a plugin source to uninstall");
+                die("Please provide a plugin repository to uninstall");
 
             PluginManager plugin_manager(std::move(state));
             for (const std::string& arg : options.arguments)
-                plugin_manager.remove_plugins_source(arg);
+                plugin_manager.remove_repo(arg);
             break;
         }
         default: warn("uh?");
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -70,7 +70,7 @@ static bool find_plugin_prefix(const plugin_t& plugin, const plugin_t& pending_p
 
 static bool is_update = false;
 
-void PluginManager::add_source_repo_plugins(const std::string& repo)
+void PluginManager::add_plugins_repo(const std::string& repo)
 {
     if (!has_deps(core_dependencies))
         die("Some core dependencies are not installed. You'll need to install: {}", fmt::join(core_dependencies, ", "));
@@ -153,7 +153,7 @@ void PluginManager::update_repos()
             }
             status("Cloning and then updating {}", repo.name);
             is_update = true;
-            add_source_repo_plugins(repo.url);
+            add_plugins_repo(repo.url);
         }
     }
 }
@@ -312,17 +312,17 @@ void PluginManager::build_plugins(const fs::path& working_dir)
     success("Enjoy the new plugins from {}", manifest.get_repo_name());
 }
 
-void PluginManager::remove_plugins_source(const std::string& source_name)
+void PluginManager::remove_repo(const std::string& repo_name)
 {
     std::error_code ec;
-    fs::remove_all(m_cache_path / source_name, ec);
+    fs::remove_all(m_cache_path / repo_name, ec);
     if (ec)
-        warn("Failed to remove plugin source cache path '{}'", (m_cache_path / source_name).string());
+        warn("Failed to remove plugin repository cache path '{}'", (m_cache_path / repo_name).string());
 
-    fs::remove_all(m_config_path / source_name, ec);
+    fs::remove_all(m_config_path / repo_name, ec);
     if (ec)
-        warn("Failed to remove plugin source config path '{}'", (m_config_path / source_name).string());
+        warn("Failed to remove plugin repository config path '{}'", (m_config_path / repo_name).string());
 
-    m_state_manager.remove_repo(source_name);
-    success("Removed plugin source '{}'", source_name);
+    m_state_manager.remove_repo(repo_name);
+    success("Removed plugin repository '{}'", repo_name);
 }

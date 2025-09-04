@@ -62,12 +62,12 @@ public:
     PluginManager(const StateManager& state_manager) : m_state_manager(state_manager) {}
     PluginManager(StateManager&& state_manager) : m_state_manager(std::move(state_manager)) {}
 
-    void add_source_repo_plugins(const std::string& repo);
+    void add_plugins_repo(const std::string& repo);
     void build_plugins(const fs::path& working_dir);
     bool add_plugin(const std::string&);
     void update_repos();
     bool is_plugin_conflicting(const plugin_t& plugin);
-    void remove_plugins_source(const std::string& source_name);
+    void remove_repo(const std::string& repo_name);
 
 private:
     StateManager m_state_manager;

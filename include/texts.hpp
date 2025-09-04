@@ -34,24 +34,24 @@ inline constexpr std::string_view cufetchpm_help = (R"(Usage: cufetchpm <COMMAND
 Manage plugins for customfetch.
 
 Terms:
-    SOURCE:
-        - With install: a Git repository URL or local path containing plugins and a manifest.
-        - With enable OR disable: the name of a source already installed (as listed in state.toml).
+    REPO:
+        - With install: a Git repository, either URL or local path, both containing plugins and a 'cufetchpm.toml' manifest.
+        - With enable OR disable: the name of a repository already installed (as listed with 'cufetchpm list').
 
 Examples:
-    Install a source from GitHub:
-        cufetchpm install https://github.com/user/customfetch-plugins-github
-    Disable a plugin from an installed source:
+    Install a plugin repository from GitHub:
+        cufetchpm install https://github.com/Toni500github/customfetch-plugins-github
+    Disable a plugin from an installed repository:
         cufetchpm disable customfetch-plugins-github/github-user-fetch
-    Uninstall an entire source:
+    Uninstall an entire plugin repository:
         cufetchpm uninstall customfetch-plugins-github
 
 Commands:
     help <COMMAND>                     Show help for a specific command.
-    install [OPTIONS] <SOURCE>...      Install one or more plugin sources from a Git repo or local path.
-    uninstall <SOURCE>...              Uninstall one or more installed plugin sources.
-    enable <SOURCE/PLUGIN>...          Enable one or more plugins from an installed source.
-    disable <SOURCE/PLUGIN>...         Disable one or more plugins from an installed source.
+    install [OPTIONS] <REPO(s)>...     Install one or more plugin repository from a Git repo or local path.
+    uninstall <REPO(s)>...             Uninstall one or more installed plugin repository.
+    enable <REPO/PLUGIN>...            Enable one or more plugins from an installed repository.
+    disable <REPO/PLUGIN>...           Disable one or more plugins from an installed repository.
     list                               Show all plugins installed via state.toml.
     update                             Update and upgrade all repositories
     gen-manifest                       Generate a template 'cufetchpm.toml' file.
@@ -62,13 +62,13 @@ Global options:
 
 )");
 
-inline constexpr std::string_view cufetchpm_help_install = (R"(Usage: cufetchpm install [options] <source>...
+inline constexpr std::string_view cufetchpm_help_install = (R"(Usage: cufetchpm install [OPTIONS] <REPO>...
 
-Install one or more plugin sources. If a given argument exists on disk,
+Install one or more plugin repositories. If a given argument exists on disk,
 it is treated as a local directory. Otherwise, it is treated as a Git
 repository URL and will be cloned.
 
-All plugins found within the source will be installed.
+All plugins found within the repository will be installed.
 
 Options:
     -f, --force        Force installation, even if already installed.
