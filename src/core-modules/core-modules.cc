@@ -484,49 +484,49 @@ void core_plugins_start(const Config& config)
     cfRegisterModule(battery_module);
 
     // $<theme>
-    module_t theme_gtk_all_name_module = {"name", "", {}, theme_gtk_all_name};
-    module_t theme_gtk_all_font_module = {"font", "", {}, theme_gtk_all_font};
-    module_t theme_gtk_all_icon_module = {"icon", "", {}, theme_gtk_all_icon};
-    module_t theme_gtk_all_module = {"all", "", {
+    module_t theme_gtk_all_name_module = {"name", "all GTK theme name [Arc-Dark [GTK2/3/4]]", {}, theme_gtk_all_name};
+    module_t theme_gtk_all_font_module = {"font", "all GTK icons theme name [Papirus-Dark [GTK2/3], Qogir [GTK4]]", {}, theme_gtk_all_font};
+    module_t theme_gtk_all_icon_module = {"icon", "all GTK fonts theme name [Hack Nerd Font 13 [GTK2], Noto Sans 10 [GTK3/4]]", {}, theme_gtk_all_icon};
+    module_t theme_gtk_all_module = {"all", "Auto format module for all GTK versions", {
         std::move(theme_gtk_all_name_module),
         std::move(theme_gtk_all_font_module),
         std::move(theme_gtk_all_icon_module)
     }, NULL};
 
-    module_t theme_gtk_name_module = {"name", "", {}, theme_gtk_name};
-    module_t theme_gtk_font_module = {"font", "", {}, theme_gtk_font};
-    module_t theme_gtk_icon_module = {"icon", "", {}, theme_gtk_icon};
-    module_t theme_gtk_module = {"gtk", "", {
+    module_t theme_gtk_name_module = {"name", "GTK theme name [Arc-Dark]", {}, theme_gtk_name};
+    module_t theme_gtk_font_module = {"font", "GTK icons theme name [Qogir-Dark]", {}, theme_gtk_font};
+    module_t theme_gtk_icon_module = {"icon", "GTK font theme name [Noto Sans 10]", {}, theme_gtk_icon};
+    module_t theme_gtk_module = {"gtk", "GTK module (take as argument the desidered GTK version to query (2,3,4))", {
         std::move(theme_gtk_name_module),
         std::move(theme_gtk_font_module),
         std::move(theme_gtk_icon_module),
         std::move(theme_gtk_all_module)
     }, NULL};
 
-    module_t theme_gsettings_name_module = {"name", "", {}, theme_gsettings_name};
-    module_t theme_gsettings_font_module = {"font", "", {}, theme_gsettings_font};
-    module_t theme_gsettings_icon_module = {"icon", "", {}, theme_gsettings_icon};
-    module_t theme_gsettings_cursor_name_module = {"name", "", {}, theme_gsettings_cursor_name};
-    module_t theme_gsettings_cursor_size_module = {"size", "", {}, theme_gsettings_cursor_size};
-    module_t theme_gsettings_cursor_module = {"cursor", "", {
+    module_t theme_gsettings_name_module = {"name", "Gsettings theme name [Decay-Green]", {}, theme_gsettings_name};
+    module_t theme_gsettings_font_module = {"font", "Gsettings icons theme name [Papirus-Dark]", {}, theme_gsettings_font};
+    module_t theme_gsettings_icon_module = {"icon", "Gsettings font theme name [Cantarell 10]", {}, theme_gsettings_icon};
+    module_t theme_gsettings_cursor_name_module = {"name", "Gsettings cursor name [Bibata-Modern-Ice]", {}, theme_gsettings_cursor_name};
+    module_t theme_gsettings_cursor_size_module = {"size", "Gsettings cursor size (in px) [16]", {}, theme_gsettings_cursor_size};
+    module_t theme_gsettings_cursor_module = {"cursor", "Gsettings cursor name with its size (if queried) [Bibata-Modern-Ice (16px)]", {
         std::move(theme_gsettings_cursor_size_module),
         std::move(theme_gsettings_cursor_name_module),
     }, NULL};
-    module_t theme_gsettings_module = {"gsettings", "", {
+    module_t theme_gsettings_module = {"gsettings", "If USE_DCONF flag is set, then we're going to use dconf, else backing up to gsettings command", {
         std::move(theme_gsettings_name_module),
         std::move(theme_gsettings_font_module),
         std::move(theme_gsettings_icon_module),
         std::move(theme_gsettings_cursor_module)
     }, NULL};
 
-    module_t theme_cursor_name_module = {"name", "", {}, theme_cursor_name};
-    module_t theme_cursor_size_module = {"size", "", {}, theme_cursor_size};
-    module_t theme_cursor_module = {"cursor", "", {
+    module_t theme_cursor_name_module = {"name", "cursor name [Bibata-Modern-Ice]", {}, theme_cursor_name};
+    module_t theme_cursor_size_module = {"size", "cursor size (in px) [16]", {}, theme_cursor_size};
+    module_t theme_cursor_module = {"cursor", "Gsettings cursor name with its size (if queried) [Bibata-Modern-Ice (16px)]", {
         std::move(theme_cursor_size_module),
         std::move(theme_cursor_name_module),
     }, theme_cursor_fmt};
 
-    module_t theme_module = {"theme", "", {
+    module_t theme_module = {"theme", "module used for generic theme stuff such as cursor", {
         std::move(theme_gtk_module),
         std::move(theme_gsettings_module),
         std::move(theme_cursor_module),
