@@ -219,6 +219,16 @@ MODFUNC(battery_fmt)
         battery_status(callbackInfo));
 }
 
+MODFUNC(theme_cursor_fmt)
+{
+    const std::string& size = theme_cursor_size(callbackInfo);
+    const std::string& name = theme_cursor_name(callbackInfo);
+    if (size == UNKNOWN || size == MAGIC_LINE)
+        return name;
+
+    return fmt::format("{} ({}px)", name, size);
+}
+
 void core_plugins_start(const Config& config)
 {
     // ------------ INIT STUFF ------------
@@ -514,7 +524,7 @@ void core_plugins_start(const Config& config)
     module_t theme_cursor_module = {"cursor", "", {
         std::move(theme_cursor_size_module),
         std::move(theme_cursor_name_module),
-    }, NULL};
+    }, theme_cursor_fmt};
 
     module_t theme_module = {"theme", "", {
         std::move(theme_gtk_module),
