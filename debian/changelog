@@ -1,3 +1,42 @@
+customfetch (2.0.0-beta1) unstable; urgency=medium
+
+  * project: merge 'plugins' branch (#4) - Plugin-based Modules Loader
+  * project: add macos support (some things WIP)
+  * misc: create a temponary file when unable to get distro path
+  * misc: add fastfetch license + update copyright license year
+  * misc: steal version system from Hyprland (I kinda contributed to that tho)
+  * config: make offset accept % (super unstable might remove it)
+  * android widget: trying to refactor c++ code to pure kotlin
+  * gui: add light colors in pango
+  * gui: fix crash with empty string and checking for $ at the start, also try to escape more &
+  * config: deprecate "removable" in favor of "external" in auto.disk.display-types
+  * config: fix overwrite from arguments
+  * query: system: fix uptime on android
+  * args: add --debug
+  * misc: use compile-time `GUI_APP` instead of runtime config.gui
+  * android app: move it to https://github.com/Toni500github/customfetch-android-app
+  * project: add official logos/icons
+  * tests: add these (stolen from TabAUR)
+  * workflow: add cmake.yml + cmake: fix build and add install target
+  * build: add icon prefix + improve uninstall targets
+  * gui: add icon logo
+  * args: add --disallow-command-tag
+  * doc: refactor --help and --how-it-works
+  * display: don't open the same source-path twice
+  * assets: fix some ascii art that have single backslash escape
+  * gui: add gtk css support
+  * workaround a conflict between the Radeon RX 5500 XT and the (Oland PRO?) Radeon R7 340
+  * args: exit --loop-ms with 'q' and increase from 50 to 200 ms
+  * makefile: force link with fmt static library
+  * misc: remove `VENDOR_TEST` and `DEVICE_TEST`
+  * docs: fix some -h incorrections
+  * misc: fix some things
+  * misc: ditch selfmade command execute functions in favour of cross-platform tiny-proccess-library
+  * args: migrate GNU getopt to `getopt_port`
+  * misc: fix crash with really big `all_ids` string in pci.ids.hpp
+
+ -- toni500 <tonino512@linuxmail.org>  Sat, 06 Sep 2025 22:03:03 +0100
+
 customfetch (1.0.0-1) unstable; urgency=medium
 
   * project: add stable support for android.

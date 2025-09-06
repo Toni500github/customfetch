@@ -58,8 +58,8 @@ endif
 
 NAME		 = customfetch
 TARGET		?= $(NAME)
-OLDVERSION	 = 0.10.2
-VERSION    	 = 1.0.0
+OLDVERSION	 = 1.0.0
+VERSION    	 = 2.0.0-beta1
 SRC_CPP 	 = $(wildcard src/*.cpp)
 SRC_CC  	 = $(wildcard src/core-modules/*.cc src/core-modules/linux/*.cc src/core-modules/linux/utils/*.cc src/core-modules/android/*.cc src/core-modules/macos/*.cc)
 OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)

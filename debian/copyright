@@ -6,19 +6,19 @@ Files: *
 Copyright: 2025, Toni500
 License: BSD-3-Clause
 
-Files: src/query/*
+Files: src/core-modules/**/*
 Copyright: 2021 - 2023, Linus Dierheimer
 Copyright: 2022 - 2025, Carter Li
 License: MIT
 
-Files: include/rapidxml-1.13/*
+Files: include/libs/rapidxml-1.13/*
 Copyright: 2006 - 2009, Marcin Kalicinski
 License: MIT
 
-Files: include/toml++/toml.hpp
+Files: include/libs/toml++/toml.hpp
 Copyright: Mark Gillard
 License: MIT
 
-Files: src/fmt/os.cc src/fmt/format.cc include/fmt/*
+Files: src/libs/fmt/os.cc src/libs/fmt/format.cc include/libs/fmt/*
 Copyright: 2012 - present, Victor Zverovich
 License: MIT
