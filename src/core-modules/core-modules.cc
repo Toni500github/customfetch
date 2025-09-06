@@ -458,7 +458,7 @@ void core_plugins_start(const Config& config)
     // $<battery>
     module_t battery_modelname_module = {"name", "battery model name", {}, battery_modelname};
     module_t battery_status_module = {"status", "battery current status [Discharging, AC Connected]", {}, battery_status};
-    module_t battery_capacity_level_module = {"capacity_level", "battery capacity level [Normal, Critical]", {}, battery_capacity_level};
+    module_t battery_capacity_module = {"capacity", "battery capacity level [Normal, Critical]", {}, battery_capacity_level};
     module_t battery_technology_module = {"technology", "battery technology [Li-lion]", {}, battery_technology};
     module_t battery_vendor_module = {"manufacturer", "battery manufacturer name", {}, battery_vendor};
     module_t battery_perc_module = {"perc", "battery current percentage", {}, battery_perc};
@@ -475,7 +475,7 @@ void core_plugins_start(const Config& config)
     module_t battery_module = {"battery", "battery current percentage and status [50.00% [Discharging]]", {
         std::move(battery_modelname_module),
         std::move(battery_status_module),
-        std::move(battery_capacity_level_module),
+        std::move(battery_capacity_module),
         std::move(battery_technology_module),
         std::move(battery_vendor_module),
         std::move(battery_perc_module),

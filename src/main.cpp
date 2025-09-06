@@ -164,6 +164,17 @@ static void list_logos(const std::string& data_dir)
 // Print all info modules you can put in $<>, then exit successfully
 static void modules_list()
 {
+    fmt::print("{}", R"(===============================================================================================
+| Syntax:                                                                                     |
+| when "[NO QUERY]" is present, it means you should call only the children modules (if any)   |
+|                                                                                             |
+| module - Root module description [NO QUERY]                                                 |
+|  foo		- Submodule with no children description                                      |
+|  subfoo	- Submodule with children description                                         |
+|    subbar	- Submodule children of "subfoo"                                              |
+===============================================================================================
+)");
+
     for (const module_t& module : cfGetModules())
     {
         std::vector<std::string> parts;
@@ -191,6 +202,9 @@ static void modules_list()
                     fmt::print("{} - {}", parts[depth], module.description);
                 else
                     fmt::print("{:<6} \t- {}", parts[depth], module.description);
+
+                if (!module.handler)
+                    fmt::print(" [NO QUERY]");
             }
             else
             {

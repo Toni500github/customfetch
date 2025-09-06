@@ -160,7 +160,6 @@ set(CUFETCH_HEADERS
 )
 
 add_library(cufetch SHARED
-    libcufetch/config.cc
     libcufetch/cufetch.cc
     libcufetch/parse.cc
     src/libs/toml++/toml.cpp
