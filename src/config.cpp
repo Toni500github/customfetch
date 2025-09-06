@@ -95,23 +95,23 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->flatpak_dirs = getValueArrayStr("os.pkgs.flatpak-dirs", {"/var/lib/flatpak/app", "~/.local/share/flatpak/app"});
     this->apk_files    = getValueArrayStr("os.pkgs.apk-files",    {"/var/lib/apk/db/installed"});
 
-    colors.black       = getThemeValue("config.black",   "\033[1;30m");
-    colors.red         = getThemeValue("config.red",     "\033[1;31m");
-    colors.green       = getThemeValue("config.green",   "\033[1;32m");
-    colors.yellow      = getThemeValue("config.yellow",  "\033[1;33m");
-    colors.blue        = getThemeValue("config.blue",    "\033[1;34m");
-    colors.magenta     = getThemeValue("config.magenta", "\033[1;35m");
-    colors.cyan        = getThemeValue("config.cyan",    "\033[1;36m");
-    colors.white       = getThemeValue("config.white",   "\033[1;37m");
+    colors.black       = getValue<std::string>("config.black",   "\033[1;30m");
+    colors.red         = getValue<std::string>("config.red",     "\033[1;31m");
+    colors.green       = getValue<std::string>("config.green",   "\033[1;32m");
+    colors.yellow      = getValue<std::string>("config.yellow",  "\033[1;33m");
+    colors.blue        = getValue<std::string>("config.blue",    "\033[1;34m");
+    colors.magenta     = getValue<std::string>("config.magenta", "\033[1;35m");
+    colors.cyan        = getValue<std::string>("config.cyan",    "\033[1;36m");
+    colors.white       = getValue<std::string>("config.white",   "\033[1;37m");
 
-    colors.gui_black   = getThemeValue("gui.black",   "!#000005");
-    colors.gui_red     = getThemeValue("gui.red",     "!#ff2000");
-    colors.gui_green   = getThemeValue("gui.green",   "!#00ff00");
-    colors.gui_blue    = getThemeValue("gui.blue",    "!#00aaff");
-    colors.gui_cyan    = getThemeValue("gui.cyan",    "!#00ffff");
-    colors.gui_yellow  = getThemeValue("gui.yellow",  "!#ffff00");
-    colors.gui_magenta = getThemeValue("gui.magenta", "!#ff11cc");
-    colors.gui_white   = getThemeValue("gui.white",   "!#ffffff");
+    colors.gui_black   = getValue<std::string>("gui.black",   "!#000005");
+    colors.gui_red     = getValue<std::string>("gui.red",     "!#ff2000");
+    colors.gui_green   = getValue<std::string>("gui.green",   "!#00ff00");
+    colors.gui_blue    = getValue<std::string>("gui.blue",    "!#00aaff");
+    colors.gui_cyan    = getValue<std::string>("gui.cyan",    "!#00ffff");
+    colors.gui_yellow  = getValue<std::string>("gui.yellow",  "!#ffff00");
+    colors.gui_magenta = getValue<std::string>("gui.magenta", "!#ff11cc");
+    colors.gui_white   = getValue<std::string>("gui.white",   "!#ffffff");
 
     if (this->percentage_colors.size() < 3)
     {

@@ -31,36 +31,25 @@ public:
      * @param fallback Default value if couldn't retrive value
      */
     template <typename T>
-    T getValue(const std::string_view value, const T&& fallback) const
+    T getValue(const std::string_view value, const T& fallback) const
     {
         const auto& overridePos = overrides.find(value.data());
 
         // user wants a bool (overridable), we found an override matching the name, and the override is a bool.
-        if constexpr (std::is_convertible<T, bool>())
+        if constexpr (std::is_convertible_v<T, bool>)
             if (overridePos != overrides.end() && overrides.at(value.data()).value_type == BOOL)
                 return overrides.at(value.data()).bool_value;
 
-        if constexpr (std::is_convertible<T, std::string>())
+        if constexpr (std::is_convertible_v<T, std::string>)
             if (overridePos != overrides.end() && overrides.at(value.data()).value_type == STR)
                 return overrides.at(value.data()).string_value;
 
-        if constexpr (std::is_convertible<T, int>())
+        if constexpr (std::is_convertible_v<T, int>)
             if (overridePos != overrides.end() && overrides.at(value.data()).value_type == INT)
                 return overrides.at(value.data()).int_value;
 
         const std::optional<T>& ret = this->tbl.at_path(value).value<T>();
         return ret.value_or(fallback);
-    }
-
-    /**
-     * getValue() but don't want to specify the template, so it's std::string,
-     * and thus the name, only used when retriving the colors for terminal and GUI
-     * @param value The config variable "path" (e.g "config.gui-red")
-     * @param fallback Default value if couldn't retrive value
-     */
-    std::string getThemeValue(const std::string_view value, const std::string_view fallback) const
-    {
-        return this->tbl.at_path(value).value<std::string>().value_or(fallback.data());
     }
 
     /**

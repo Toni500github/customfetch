@@ -123,14 +123,14 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view noesc_st
     // clang-format off
     switch (col.back())
     {
-        case '0': col = config.getThemeValue("gui.black",   "!#000005"); break;
-        case '1': col = config.getThemeValue("gui.red",     "!#ff2000"); break;
-        case '2': col = config.getThemeValue("gui.green",   "!#00ff00"); break;
-        case '3': col = config.getThemeValue("gui.yellow",  "!#ffff00"); break;
-        case '4': col = config.getThemeValue("gui.blue",    "!#00aaff"); break;
-        case '5': col = config.getThemeValue("gui.magenta", "!#ff11cc"); break;
-        case '6': col = config.getThemeValue("gui.cyan",    "!#00ffff"); break;
-        case '7': col = config.getThemeValue("gui.white",   "!#ffffff"); break;
+        case '0': col = config.getValue<std::string>("gui.black",   "!#000005"); break;
+        case '1': col = config.getValue<std::string>("gui.red",     "!#ff2000"); break;
+        case '2': col = config.getValue<std::string>("gui.green",   "!#00ff00"); break;
+        case '3': col = config.getValue<std::string>("gui.yellow",  "!#ffff00"); break;
+        case '4': col = config.getValue<std::string>("gui.blue",    "!#00aaff"); break;
+        case '5': col = config.getValue<std::string>("gui.magenta", "!#ff11cc"); break;
+        case '6': col = config.getValue<std::string>("gui.cyan",    "!#00ffff"); break;
+        case '7': col = config.getValue<std::string>("gui.white",   "!#ffffff"); break;
     }
 
     if (col.at(0) != '#')
@@ -459,14 +459,14 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 #if GUI_APP
         switch (fnv1a16::hash(color))
         {
-            case "black"_fnv1a16:   str_clr = config.getThemeValue("gui.black",   "!#000005"); break;
-            case "red"_fnv1a16:     str_clr = config.getThemeValue("gui.red",     "!#ff2000"); break;
-            case "green"_fnv1a16:   str_clr = config.getThemeValue("gui.green",   "!#00ff00"); break;
-            case "yellow"_fnv1a16:  str_clr = config.getThemeValue("gui.yellow",  "!#ffff00"); break;
-            case "blue"_fnv1a16:    str_clr = config.getThemeValue("gui.blue",    "!#00aaff"); break;
-            case "magenta"_fnv1a16: str_clr = config.getThemeValue("gui.magenta", "!#ff11cc"); break;
-            case "cyan"_fnv1a16:    str_clr = config.getThemeValue("gui.cyan",    "!#00ffff"); break;
-            case "white"_fnv1a16:   str_clr = config.getThemeValue("gui.white",   "!#ffffff"); break;
+            case "black"_fnv1a16:   str_clr = config.getValue<std::string>("gui.black",   "!#000005"); break;
+            case "red"_fnv1a16:     str_clr = config.getValue<std::string>("gui.red",     "!#ff2000"); break;
+            case "green"_fnv1a16:   str_clr = config.getValue<std::string>("gui.green",   "!#00ff00"); break;
+            case "yellow"_fnv1a16:  str_clr = config.getValue<std::string>("gui.yellow",  "!#ffff00"); break;
+            case "blue"_fnv1a16:    str_clr = config.getValue<std::string>("gui.blue",    "!#00aaff"); break;
+            case "magenta"_fnv1a16: str_clr = config.getValue<std::string>("gui.magenta", "!#ff11cc"); break;
+            case "cyan"_fnv1a16:    str_clr = config.getValue<std::string>("gui.cyan",    "!#00ffff"); break;
+            case "white"_fnv1a16:   str_clr = config.getValue<std::string>("gui.white",   "!#ffffff"); break;
             default:                str_clr = color; break;
         }
 
@@ -594,14 +594,14 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 #else
         switch (fnv1a16::hash(color))
         {
-            case "black"_fnv1a16:   str_clr = config.getThemeValue("config.black",   "\033[1;30m"); break;
-            case "red"_fnv1a16:     str_clr = config.getThemeValue("config.red",     "\033[1;31m"); break;
-            case "green"_fnv1a16:   str_clr = config.getThemeValue("config.green",   "\033[1;32m"); break;
-            case "yellow"_fnv1a16:  str_clr = config.getThemeValue("config.yellow",  "\033[1;33m"); break;
-            case "blue"_fnv1a16:    str_clr = config.getThemeValue("config.blue",    "\033[1;34m"); break;
-            case "magenta"_fnv1a16: str_clr = config.getThemeValue("config.magenta", "\033[1;35m"); break;
-            case "cyan"_fnv1a16:    str_clr = config.getThemeValue("config.cyan",    "\033[1;36m"); break;
-            case "white"_fnv1a16:   str_clr = config.getThemeValue("config.white",   "\033[1;37m"); break;
+            case "black"_fnv1a16:   str_clr = config.getValue<std::string>("config.black",   "\033[1;30m"); break;
+            case "red"_fnv1a16:     str_clr = config.getValue<std::string>("config.red",     "\033[1;31m"); break;
+            case "green"_fnv1a16:   str_clr = config.getValue<std::string>("config.green",   "\033[1;32m"); break;
+            case "yellow"_fnv1a16:  str_clr = config.getValue<std::string>("config.yellow",  "\033[1;33m"); break;
+            case "blue"_fnv1a16:    str_clr = config.getValue<std::string>("config.blue",    "\033[1;34m"); break;
+            case "magenta"_fnv1a16: str_clr = config.getValue<std::string>("config.magenta", "\033[1;35m"); break;
+            case "cyan"_fnv1a16:    str_clr = config.getValue<std::string>("config.cyan",    "\033[1;36m"); break;
+            case "white"_fnv1a16:   str_clr = config.getValue<std::string>("config.white",   "\033[1;37m"); break;
             default:                str_clr = color; break;
         }
 
