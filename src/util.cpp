@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -32,23 +32,27 @@
 
 #include <algorithm>
 #include <array>
-#include <cerrno>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <memory>
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <tuple>
 #include <vector>
 
 #include "fmt/color.h"
 #include "fmt/ranges.h"
 #include "pci.ids.hpp"
 #include "platform.hpp"
+#include "tiny-process-library/process.hpp"
+
+#if !CF_ANDROID
+const std::string& all_ids = get_pci_ids();
+#else
+const std::string& all_ids = "";
+#endif
 
 bool hasEnding(const std::string_view fullString, const std::string_view ending)
 {
@@ -133,18 +137,18 @@ std::string read_by_syspath(const std::string_view path, bool report_error)
 
     std::string result;
     std::getline(f, result);
-    
+
     if (!result.empty() && result.back() == '\n')
         result.pop_back();
 
     return result;
 }
 
-byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const std::string_view maxprefix)
+byte_units_t auto_divide_bytes(const double num, const std::uint16_t base, const std::string_view maxprefix)
 {
     double size = num;
 
-    std::array<std::string_view, 10> prefixes;
+    std::array<std::string_view, 9> prefixes;
     if (base == 1024)
         prefixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     else if (base == 1000)
@@ -152,34 +156,44 @@ byte_units_t auto_devide_bytes(const double num, const std::uint16_t base, const
     else
         prefixes = { "B" };
 
-    std::uint16_t counter = 0;
-    if (maxprefix.empty())
+    size_t counter = 0;
+    const auto& max_it = !maxprefix.empty()
+        ? std::find(prefixes.begin(), prefixes.end(), maxprefix)
+        : prefixes.end();
+
+    while (counter + 1 < prefixes.size() && size >= base)
     {
-        for (; counter < prefixes.size() && size >= base; ++counter)
-            size /= base;
-    }
-    else
-    {
-        for (; counter < prefixes.size() && size >= base && prefixes.at(counter) != maxprefix; ++counter)
-            size /= base;
+        if (max_it != prefixes.end() && prefixes[counter] == maxprefix)
+            break;
+        size /= base;
+        ++counter;
     }
 
-    return { prefixes.at(counter).data(), size };
+    return { prefixes[counter].data(), size };
 }
 
-byte_units_t devide_bytes(const double num, const std::string_view prefix)
+byte_units_t divide_bytes(const double num, const std::string_view prefix)
 {
-    if (prefix != "B")
-    {
-        // GiB
-        // 012
-        if (prefix.size() == 3 && prefix.at(1) == 'i')
-            return auto_devide_bytes(num, 1024, prefix);
-        else
-            return auto_devide_bytes(num, 1000, prefix);
-    }
+    if (prefix == "B")
+        return { "B", num };
 
-    return auto_devide_bytes(num, 0);
+    // GiB
+    // 012
+    const std::uint16_t             base = (prefix.size() == 3 && prefix[1] == 'i') ? 1024 : 1000;
+    std::array<std::string_view, 9> prefixes;
+    if (base == 1024)
+        prefixes = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+    else if (base == 1000)
+        prefixes = { "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+
+    const auto& it = std::find(prefixes.begin(), prefixes.end(), prefix);
+    if (it == prefixes.end())
+        return { "B", num };
+
+    const size_t index = std::distance(prefixes.begin(), it);
+    const double value = num / std::pow(static_cast<double>(base), index);
+
+    return { prefix.data(), value };
 }
 
 bool is_file_image(const unsigned char* bytes)
@@ -209,7 +223,7 @@ bool is_file_image(const unsigned char* bytes)
 
 void strip(std::string& input, bool padding_only)
 {
-    if (input.empty()) 
+    if (input.empty())
         return;
 
     if (padding_only)
@@ -220,12 +234,8 @@ void strip(std::string& input, bool padding_only)
     }
     else
     {
-        input.erase(
-            std::remove_if(input.begin(), input.end(),
-                [](unsigned char c) { return std::isspace(c); }
-            ),
-            input.end()
-        );
+        input.erase(std::remove_if(input.begin(), input.end(), [](unsigned char c) { return std::isspace(c); }),
+                    input.end());
     }
 }
 
@@ -252,7 +262,7 @@ std::string shorten_vendor_name(std::string vendor)
 fmt::rgb hexStringToColor(const std::string_view hexstr)
 {
     std::stringstream ss;
-    ss << std::hex << hexstr.substr(1).data();
+    ss << std::hex << ((hexstr[0] == '#') ? hexstr.substr(1).data() : hexstr.data());
 
     uint value;
     ss >> value;
@@ -350,107 +360,28 @@ void replace_str(std::string& str, const std::string_view from, const std::strin
     }
 }
 
-bool read_exec(std::vector<const char*> cmd, std::string& output, bool useStdErr, bool noerror_print)
+bool read_exec(std::vector<std::string> cmd, std::string& output, bool useStdErr, bool noerror_print)
 {
     debug("{} cmd = {}", __func__, cmd);
-    std::array<int, 2> pipeout;
-
-    if (pipe(pipeout.data()) < 0)
-        die(_("pipe() failed: {}"), strerror(errno));
-
-    const pid_t pid = fork();
-
-    // we wait for the command to finish then start executing the rest
-    if (pid > 0)
-    {
-        close(pipeout.at(1));
-
-        int status;
-        waitpid(pid, &status, 0);  // Wait for the child to finish
-
-        if (WIFEXITED(status) && (WEXITSTATUS(status) == 0 || useStdErr))
-        {
-            // read stdout
-            debug("reading stdout");
-            char c;
-            while (read(pipeout.at(0), &c, 1) == 1)
-                output += c;
-
-            close(pipeout.at(0));
-            if (!output.empty() && output.back() == '\n')
-                output.pop_back();
-
-            return true;
-        }
-        else
-        {
-            if (!noerror_print)
+    TinyProcessLib::Process proc(
+        cmd, "",
+        [&](const char* bytes, size_t n) {
+            if (!useStdErr)
+                output += std::string(bytes, n);
+        },
+        [&](const char* bytes, size_t n) {
+            if (useStdErr)
+                output += std::string(bytes, n);
+            else if (!noerror_print)
                 error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
-        }
-    }
-    else if (pid == 0)
-    {
-        int nullFile = open("/dev/null", O_WRONLY | O_CLOEXEC);
-        dup2(pipeout.at(1), useStdErr ? STDERR_FILENO : STDOUT_FILENO);
-        dup2(nullFile, useStdErr ? STDOUT_FILENO : STDERR_FILENO);
+        });
 
-        setenv("LANG", "C", 1);
-        cmd.push_back(nullptr);
-        execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
+    if (!output.empty() && output.back() == '\n')
+        output.pop_back();
 
-        die(_("An error has occurred with execvp: {}"), strerror(errno));
-    }
-    else
-    {
-        close(pipeout.at(0));
-        close(pipeout.at(1));
-        die(_("fork() failed: {}"), strerror(errno));
-    }
-
-    close(pipeout.at(0));
-    close(pipeout.at(1));
-
-    return false;
+    return proc.get_exit_status() == 0;
 }
 
-bool taur_exec(const std::vector<std::string_view> cmd_str, const bool noerror_print)
-{
-    std::vector<const char*> cmd;
-    for (const std::string_view str : cmd_str)
-        cmd.push_back(str.data());
-
-    int pid = fork();
-
-    if (pid < 0)
-    {
-        die(_("fork() failed: {}"), strerror(errno));
-    }
-
-    if (pid == 0)
-    {
-        debug("running {}", cmd);
-        cmd.push_back(nullptr);
-        execvp(cmd.at(0), const_cast<char* const*>(cmd.data()));
-
-        // execvp() returns instead of exiting when failed
-        die(_("An error has occurred: {}: {}"), cmd.at(0), strerror(errno));
-    }
-    else if (pid > 0)
-    {  // we wait for the command to finish then start executing the rest
-        int status;
-        waitpid(pid, &status, 0);  // Wait for the child to finish
-
-        if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
-            return true;
-        else
-        {
-            if (!noerror_print)
-                error(_("Failed to execute the command: {}"), fmt::join(cmd, " "));
-        }
-    }
-
-    return false;
-}
 std::string str_tolower(std::string str)
 {
     for (char& x : str)
@@ -545,32 +476,6 @@ std::string binarySearchPCIArray(const std::string_view vendor_id_s)
     return vendor_from_entry(vendors_location, vendor_id);
 }
 
-std::string read_shell_exec(const std::string_view cmd)
-{
-    std::array<char, 4096> buffer;
-    std::string            result;
-    std::unique_ptr<FILE, void(*)(FILE*)> pipe(popen(cmd.data(), "r"),
-    [](FILE *f) -> void
-    {
-        // wrapper to ignore the return value from pclose().
-        // Is needed with newer versions of gnu g++
-        std::ignore = pclose(f);
-    });
-
-    if (!pipe)
-        die(_("popen() failed: {}"), std::strerror(errno));
-
-    result.reserve(buffer.size());
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-        result += buffer.data();
-
-    // why there is a '\n' at the end??
-    if (!result.empty() && result.back() == '\n')
-        result.pop_back();
-
-    return result;
-}
-
 std::string name_from_entry(size_t dev_entry_pos)
 {
     dev_entry_pos += 6;  // Offset from the first character to the actual name that we want (xxxx  <device name>)
@@ -605,8 +510,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
     return description.substr(first, (last - first + 1));
 }
 
-// clang-format off
-std::string getHomeConfigDir()
+std::filesystem::path getHomeConfigDir()
 {
     const char* dir = std::getenv("XDG_CONFIG_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
@@ -622,9 +526,32 @@ std::string getHomeConfigDir()
         if (home == nullptr)
             die(_("Failed to find $HOME, set it to your home directory!"));
 
-        return std::string(home) + "/.config";
+        return std::filesystem::path(home) / ".config";
     }
 }
 
-std::string getConfigDir()
-{ return getHomeConfigDir() + "/customfetch"; }
+std::filesystem::path getConfigDir()
+{ return getHomeConfigDir() / "customfetch"; }
+
+std::filesystem::path getHomeCacheDir()
+{
+    const char* dir = std::getenv("XDG_CACHE_HOME");
+    if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
+    {
+        std::string str_dir(dir);
+        if (str_dir.back() == '/')
+            str_dir.pop_back();
+        return str_dir;
+    }
+    else
+    {
+        const char* home = std::getenv("HOME");
+        if (home == nullptr)
+            die(_("Failed to find $HOME, set it to your home directory!"));
+
+        return std::filesystem::path(home) / ".cache";
+    }
+}
+
+std::filesystem::path getCacheDir()
+{ return getHomeCacheDir() / "customfetch"; }

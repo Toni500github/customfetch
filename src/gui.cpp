@@ -1,25 +1,25 @@
 /*
  * Copyright 2025 Toni500git
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided with the distribution.
- * 
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -34,11 +34,13 @@
 #include <filesystem>
 #include <fstream>
 
-#include "config.hpp"
 #include "display.hpp"
 #include "fmt/ranges.h"
-#include "parse.hpp"
-#include "query.hpp"
+#include "gdkmm/pixbufanimation.h"
+#include "glibmm/main.h"
+#include "glibmm/refptr.h"
+#include "gtkmm/cssprovider.h"
+#include "gtkmm/enums.h"
 #include "stb_image.h"
 #include "util.hpp"
 
@@ -62,10 +64,10 @@ using namespace GUI;
 }*/
 
 // Display::render but only for images on GUI
-static std::vector<std::string> render_with_image(const Config& config, const colors_t& colors)
+static std::vector<std::string> render_with_image(const Config& config)
 {
     std::string              path{ Display::detect_distro(config) };
-    systemInfo_t             systemInfo{};
+    moduleMap_t              modulesInfo{};
     std::vector<std::string> layout{ config.args_layout.empty() ? config.layout : config.args_layout };
 
     int image_width, image_height, channels;
@@ -89,10 +91,10 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     }
 
     // this is just for parse() to auto add the distro colors
-    std::ifstream file(path, std::ios::binary);
-    std::string   line, _;
+    std::ifstream            file(path, std::ios::binary);
+    std::string              line, _;
     std::vector<std::string> tmp_layout;
-    parse_args_t  parse_args{ systemInfo, _, layout, tmp_layout, config, colors, false };
+    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, false };
     while (std::getline(file, line))
     {
         parse(line, parse_args);
@@ -102,13 +104,14 @@ static std::vector<std::string> render_with_image(const Config& config, const co
     parse_args.parsingLayout = true;
     for (size_t i = 0; i < layout.size(); ++i)
     {
-        layout[i] = parse(layout[i], parse_args);
+        layout[i]                = parse(layout[i], parse_args);
         parse_args.no_more_reset = false;
 
         if (!tmp_layout.empty())
         {
-            layout.erase(layout.begin()+i);
-            layout.insert(layout.begin()+i, tmp_layout.begin(), tmp_layout.end());
+            layout.erase(layout.begin() + i);
+            layout.insert(layout.begin() + i, tmp_layout.begin(), tmp_layout.end());
+            i += tmp_layout.size() - 1;
             tmp_layout.clear();
         }
     }
@@ -118,8 +121,10 @@ static std::vector<std::string> render_with_image(const Config& config, const co
                                 [](const std::string_view str) { return str.find(MAGIC_LINE) != std::string::npos; }),
                  layout.end());
 
-    const unsigned int offset = (config.offset.back() == '%') ? Display::calc_perc(std::stof(config.offset.substr(0,config.offset.size()-1)), image_width, 0) :
-                                                                std::stoi(config.offset);
+    const unsigned int offset =
+        (config.offset.back() == '%')
+            ? Display::calc_perc(std::stof(config.offset.substr(0, config.offset.size() - 1)), image_width, 0)
+            : std::stoi(config.offset);
 
     for (size_t i = 0; i < layout.size(); i++)
         for (size_t _ = 0; _ < offset; _++)  // I use _ because we don't need it
@@ -133,20 +138,17 @@ bool Window::set_layout_markup()
     if (m_isImage)
     {
         if (!m_config.args_print_logo_only)
-            m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(m_config, m_colors), "\n")));
+            m_label.set_markup(fmt::format("{}", fmt::join(render_with_image(m_config), "\n")));
     }
     else
     {
-        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(m_config, m_colors, true, m_path), "\n")));
+        m_label.set_markup(fmt::format("{}", fmt::join(Display::render(m_config, true, m_path, m_moduleMap), "\n")));
     }
     return true;
 }
 
-Window::Window(const Config& config, const colors_t& colors, const std::string_view path) :
-    m_config(config),
-    m_colors(colors),
-    m_path(path),
-    m_isImage(false)
+Window::Window(const Config& config, const std::filesystem::path& path, const moduleMap_t& moduleMap)
+    : m_config(config), m_path(path), m_moduleMap(moduleMap), m_isImage(false)
 {
     set_title("customfetch - Higly customizable and fast neofetch like program");
     set_default_size(1000, 600);
@@ -154,7 +156,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     set_icon_from_file(ICONPREFIX "/customfetch/Thumbnail.png");
 
     debug("Window::Window analyzing file");
-    std::ifstream                 f(path.data());
+    std::ifstream                 f(path.c_str());
     std::array<unsigned char, 32> buffer;
     f.read(reinterpret_cast<char*>(&buffer.at(0)), buffer.size());
     if (is_file_image(buffer.data()))
@@ -163,7 +165,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
     // useImage can be either a gif or an image
     if (m_isImage && !config.args_disable_source)
     {
-        const auto& img = Gdk::PixbufAnimation::create_from_file(path.data());
+        const auto& img = Gdk::PixbufAnimation::create_from_file(path.c_str());
         m_img           = Gtk::manage(new Gtk::Image(img));
         m_img->set(img);
         m_img->set_alignment(Gtk::ALIGN_CENTER);
@@ -203,7 +205,7 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
             die(_("Path to gtk css file '{}' doesn't exist"), config.gui_css_file);
 
         Glib::RefPtr<Gtk::CssProvider> css_provider = Gtk::CssProvider::create();
-        Glib::RefPtr<Gdk::Screen> screen = Gdk::Screen::get_default();
+        Glib::RefPtr<Gdk::Screen>      screen       = Gdk::Screen::get_default();
         try
         {
             css_provider->load_from_path(config.gui_css_file);
@@ -213,12 +215,12 @@ Window::Window(const Config& config, const colors_t& colors, const std::string_v
             die(_("Failed to load CSS: {}"), ex.gobj()->message);
         }
 
-        m_overlay.get_style_context()->add_provider_for_screen(screen, css_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+        m_box.get_style_context()->add_provider_for_screen(screen, css_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
     }
 
     if (Display::ascii_logo_fd != -1)
     {
-        ::remove(path.data());
+        ::remove(path.c_str());
         ::close(Display::ascii_logo_fd);
     }
 

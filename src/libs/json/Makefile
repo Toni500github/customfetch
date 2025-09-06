@@ -1,12 +1,13 @@
 CXX	?= g++
 SRC 	 = json.cpp
 TARGET   = json.o
-CXXFLAGS = -I../../../include -std=c++20
+CXXSTD	?= c++20
+CXXFLAGS = -I../../../include/libs $(LTO_FLAGS) -std=$(CXXSTD) -fPIC
 
 all: $(TARGET)
 
 $(TARGET):
-	${CXX} $(SRC) $(CXXFLAGS) -c -o ../../../$(BUILDDIR)/$@
+	$(CXX) $(SRC) $(CXXFLAGS) -c -o ../../../$(BUILDDIR)/$@
 
 clean:
 	rm -rf ../../$(BUILDDIR)/json/$(TARGET)

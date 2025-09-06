@@ -3,8 +3,8 @@
 BasedOnStyle: Google
 
 # Align assignments and similar statements
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveDeclarations: Consecutive
 
 # Align the * in declarations
 DerivePointerAlignment: false
@@ -23,7 +23,7 @@ BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: true
   AfterClass: true
-  AfterControlStatement: true
+  AfterControlStatement: Always
   AfterEnum: true
   AfterFunction: true
   AfterNamespace: true
@@ -32,6 +32,7 @@ BraceWrapping:
   BeforeCatch: true
   BeforeElse: true
   IndentBraces: false
+  SplitEmptyFunction: false
 
 # Control spaces around various constructs
 #SpacesInParens: Custom
@@ -61,7 +62,7 @@ NamespaceIndentation: None
 ReflowComments: true
 
 # Additional settings to match Source SDK 2013 style
-AllowShortIfStatementsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: All
 

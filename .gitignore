@@ -1,18 +1,18 @@
 build*/
 assets/distro_ascii*
-cufetch
+/cufetch
 /*.txt
 pci.ids
 output/
 useless_stuff/
-customfetch
-customfetch_r
-cufetch_r
+/customfetch
+/customfetch_r
+/cufetch_r
 locale/
 usr/
-scripts/ascii_parser.py
-scripts/dict_to_files.py
-scripts/test*
+/scripts/ascii_parser.py
+/scripts/dict_to_files.py
+/scripts/test*
 tests/test*
 !tests/*.cpp
 

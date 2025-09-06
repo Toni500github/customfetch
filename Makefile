@@ -6,19 +6,30 @@ APPPREFIX 	?= $(PREFIX)/share/applications
 LOCALEDIR	?= $(PREFIX)/share/locale
 ICONPREFIX 	?= $(PREFIX)/share/pixmaps
 VARS  	  	?= -DENABLE_NLS=1
+CXXSTD		?= c++20
 
 DEBUG 		?= 1
 GUI_APP         ?= 0
-VENDOR_TEST 	?= 0
-DEVICE_TEST     ?= 0
-
 USE_DCONF	?= 1
+
+COMPILER := $(shell $(CXX) --version | head -n1)
+
+ifeq ($(findstring GCC,$(COMPILER)),GCC)
+	export LTO_FLAGS = -flto=auto -ffat-lto-objects
+else ifeq ($(findstring clang,$(COMPILER)),clang)
+	export LTO_FLAGS = -flto=thin
+else
+    $(warning Unknown compiler: $(COMPILER). No LTO flags applied.)
+endif
+
 # https://stackoverflow.com/a/1079861
 # WAY easier way to build debug and release builds
 ifeq ($(DEBUG), 1)
-        BUILDDIR  = build/debug
-        CXXFLAGS := -ggdb3 -Wall -Wextra -Wpedantic -Wno-unused-parameter -DDEBUG=1 -fsanitize=address $(DEBUG_CXXFLAGS) $(CXXFLAGS)
-        LDFLAGS	 += -fsanitize=address
+        BUILDDIR  := build/debug
+	LTO_FLAGS  = -fno-lto
+        CXXFLAGS  := -ggdb3 -Wall -Wextra -pedantic -Wno-unused-parameter -fsanitize=address \
+			-DDEBUG=1 -fno-omit-frame-pointer $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+        LDFLAGS	  += -fsanitize=address -fno-lto -Wl,-rpath,$(BUILDDIR)
 else
 	# Check if an optimization flag is not already set
 	ifneq ($(filter -O%,$(CXXFLAGS)),)
@@ -26,15 +37,8 @@ else
 	else
     		CXXFLAGS := -O3 $(CXXFLAGS)
 	endif
-        BUILDDIR  = build/release
-endif
-
-ifeq ($(VENDOR_TEST), 1)
-	VARS += -DVENDOR_TEST=1
-endif
-
-ifeq ($(DEVICE_TEST), 1)
-	VARS += -DDEVICE_TEST=1
+	LDFLAGS   += $(LTO_FLAGS)
+        BUILDDIR  := build/release
 endif
 
 ifeq ($(GUI_APP), 1)
@@ -56,30 +60,47 @@ NAME		 = customfetch
 TARGET		?= $(NAME)
 OLDVERSION	 = 0.10.2
 VERSION    	 = 1.0.0
-SRC 	   	 = $(wildcard src/*.cpp src/query/linux/*.cpp src/query/android/*.cpp src/query/macos/*.cpp src/query/linux/utils/*.cpp)
-OBJ 	   	 = $(SRC:.cpp=.o)
-LDFLAGS   	+= -L./$(BUILDDIR)/fmt -lfmt -ldl
+SRC_CPP 	 = $(wildcard src/*.cpp)
+SRC_CC  	 = $(wildcard src/core-modules/*.cc src/core-modules/linux/*.cc src/core-modules/linux/utils/*.cc src/core-modules/android/*.cc src/core-modules/macos/*.cc)
+OBJ_CPP 	 = $(SRC_CPP:.cpp=.o)
+OBJ_CC  	 = $(SRC_CC:.cc=.o)
+OBJ		 = $(OBJ_CPP) $(OBJ_CC)
+LDFLAGS   	+= -L$(BUILDDIR)
+LDLIBS		+= $(BUILDDIR)/libfmt.a $(BUILDDIR)/libtiny-process-library.a -lcufetch -ldl
 CXXFLAGS  	?= -mtune=generic -march=native
-CXXFLAGS        += -fvisibility=hidden -Iinclude -std=c++20 $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
+CXXFLAGS        += $(LTO_FLAGS) -fvisibility-inlines-hidden -fvisibility=hidden -Iinclude -Iinclude/libcufetch -Iinclude/libs -std=$(CXXSTD) $(VARS) -DVERSION=\"$(VERSION)\" -DLOCALEDIR=\"$(LOCALEDIR)\" -DICONPREFIX=\"$(ICONPREFIX)\"
 
-all: genver fmt toml json $(TARGET)
+all: genver fmt toml tpl getopt-port json libcufetch $(TARGET)
+
+libcufetch: fmt tpl toml
+ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
+	$(MAKE) -C libcufetch BUILDDIR=$(BUILDDIR) GUI_APP=$(GUI_APP) CXXSTD=$(CXXSTD)
+endif
 
 fmt:
-ifeq ($(wildcard $(BUILDDIR)/fmt/libfmt.a),)
-	mkdir -p $(BUILDDIR)/fmt
-	make -C src/libs/fmt BUILDDIR=$(BUILDDIR)/fmt
+ifeq ($(wildcard $(BUILDDIR)/libfmt.a),)
+	mkdir -p $(BUILDDIR)
+	$(MAKE) -C src/libs/fmt BUILDDIR=$(BUILDDIR) CXXSTD=$(CXXSTD)
 endif
 
 toml:
-ifeq ($(wildcard $(BUILDDIR)/toml++/toml.o),)
-	mkdir -p $(BUILDDIR)/toml++
-	make -C src/libs/toml++ BUILDDIR=$(BUILDDIR)/toml++
+ifeq ($(wildcard $(BUILDDIR)/toml.o),)
+	$(MAKE) -C src/libs/toml++ BUILDDIR=$(BUILDDIR) CXXSTD=$(CXXSTD)
+endif
+
+tpl:
+ifeq ($(wildcard $(BUILDDIR)/libtiny-process-library.a),)
+	$(MAKE) -C src/libs/tiny-process-library BUILDDIR=$(BUILDDIR) CXXSTD=$(CXXSTD)
+endif
+
+getopt-port:
+ifeq ($(wildcard $(BUILDDIR)/getopt.o),)
+	$(MAKE) -C src/libs/getopt_port BUILDDIR=$(BUILDDIR)
 endif
 
 json:
-ifeq ($(wildcard $(BUILDDIR)/json/json.o),)
-	mkdir -p $(BUILDDIR)/json
-	make -C src/libs/json BUILDDIR=$(BUILDDIR)/json
+ifeq ($(wildcard $(BUILDDIR)/json.o),)
+	$(MAKE) -C src/libs/json BUILDDIR=$(BUILDDIR) CXXSTD=$(CXXSTD)
 endif
 
 genver: ./scripts/generateVersion.sh
@@ -87,10 +108,10 @@ ifeq ($(wildcard include/version.h),)
 	./scripts/generateVersion.sh
 endif
 
-$(TARGET): genver fmt toml json $(OBJ)
+$(TARGET): genver fmt toml tpl getopt-port json libcufetch $(OBJ)
 	mkdir -p $(BUILDDIR)
 	sh ./scripts/generateVersion.sh
-	$(CXX) $(OBJ) $(BUILDDIR)/toml++/toml.o $(BUILDDIR)/json/json.o -o $(BUILDDIR)/$(TARGET) $(LDFLAGS)
+	$(CXX) -o $(BUILDDIR)/$(TARGET) $(OBJ) $(BUILDDIR)/*.o $(LDFLAGS) $(LDLIBS)
 	cd $(BUILDDIR)/ && ln -sf $(TARGET) cufetch
 
 locale:
@@ -105,24 +126,24 @@ endif
 
 usr-dist: $(TARGET) locale
 	mkdir -p $(PWD)/usr
-	make install DESTDIR=$(PWD) PREFIX=/usr
+	$(MAKE) install DESTDIR=$(PWD) PREFIX=/usr
 	$(TAR) -zcf $(NAME)-v$(VERSION).tar.gz usr/
 	rm -rf usr/
 
 clean:
-	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/lib$(NAME).a $(OBJ)
+	rm -rf $(BUILDDIR)/$(TARGET) $(BUILDDIR)/libcufetch.so $(OBJ) libcufetch/*.o
 
 distclean:
 	rm -rf $(BUILDDIR) ./tests/$(BUILDDIR) $(OBJ)
-	find . -type f -name "*.tar.gz" -exec rm -rf "{}" \;
-	find . -type f -name "*.o" -exec rm -rf "{}" \;
-	find . -type f -name "*.a" -exec rm -rf "{}" \;
+	find . -type f -name "*.tar.gz" -delete
+	find . -type f -name "*.o" -delete
+	find . -type f -name "*.a" -delete
 
 install: install-common $(TARGET)
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 	cd $(DESTDIR)$(PREFIX)/bin/ && ln -sf $(TARGET) cufetch
 
-install-common: locale
+install-common: libcufetch locale
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
@@ -131,6 +152,10 @@ install-common: locale
 	cd assets/icons && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(ICONPREFIX)/$(NAME)/{}" \;
 	find examples/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/$(NAME)/{}" \;
 	find locale/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
+	mkdir -p $(DESTDIR)$(PREFIX)/include/libcufetch/
+	cd include/libcufetch && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/libcufetch/{}" \;
+	install -Dm 755 $(BUILDDIR)/libcufetch.so $(DESTDIR)$(PREFIX)/lib/libcufetch.so.1
+	install -Dm 755 $(BUILDDIR)/libfmt.a $(DESTDIR)$(PREFIX)/lib/libcufetch-fmt.a
 ifeq ($(GUI_APP), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
 	cp -f $(NAME).desktop $(DESTDIR)$(APPPREFIX)/$(NAME).desktop
@@ -142,6 +167,7 @@ uninstall:
 	rm -f  $(DESTDIR)$(APPPREFIX)/$(NAME).desktop
 	rm -rf $(DESTDIR)$(PREFIX)/share/licenses/$(NAME)/
 	rm -rf $(DESTDIR)$(PREFIX)/share/$(NAME)/
+	rm -rf $(DESTDIR)$(PREFIX)/include/cufetch/
 	rm -rf $(DESTDIR)$(ICONPREFIX)/$(NAME)/
 	find   $(DESTDIR)$(LOCALEDIR) -type f -path "$(DESTDIR)$(LOCALEDIR)/*/LC_MESSAGES/$(NAME).mo" -exec rm -f {} \;
 
@@ -152,4 +178,4 @@ updatever:
 	sed -i "s#$(OLDVERSION)#$(VERSION)#g" $(wildcard .github/workflows/*.yml) compile_flags.txt
 	sed -i "s#Project-Id-Version: $(NAME) $(OLDVERSION)#Project-Id-Version: $(NAME) $(VERSION)#g" po/*
 
-.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml install all locale
+.PHONY: $(TARGET) updatever remove uninstall delete dist distclean fmt toml libcufetch install all locale
