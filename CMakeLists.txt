@@ -60,6 +60,10 @@ endif()
 add_executable(${TARGET_NAME} ${SRC})
 enable_lto(${TARGET_NAME})
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "-Wl,-rpath,${ORIGIN}/")
+endif()
+
 # Get git info hash and branch
 execute_process(COMMAND ./scripts/generateVersion.sh
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
@@ -85,16 +89,19 @@ add_option(VARS "Add additional flags at CXXFLAGS" "" 1)
 message(STATUS "=================")
 
 if(GUI_APP)
-	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(GTKMM REQUIRED gtkmm-3.0 gdkmm-3.0)
-	target_link_libraries(${TARGET_NAME} PUBLIC ${GTKMM_LIBRARIES})
-	target_include_directories(${TARGET_NAME} PUBLIC ${GTKMM_INCLUDE_DIRS})
-	target_compile_options(${TARGET_NAME} PUBLIC ${GTKMM_CFLAGS_OTHER})
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GTKMM REQUIRED gtkmm-3.0 gdkmm-3.0)
+
+    target_include_directories(${TARGET_NAME} PUBLIC ${GTKMM_INCLUDE_DIRS})
+    target_compile_options(${TARGET_NAME} PUBLIC ${GTKMM_CFLAGS_OTHER})
+    target_link_directories(${TARGET_NAME} PUBLIC ${GTKMM_LIBRARY_DIRS})
+    target_link_libraries(${TARGET_NAME} PUBLIC ${GTKMM_LIBRARIES})
 endif()
 
 if(USE_DCONF)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(DCONF dconf)
+
     if(DCONF_FOUND)
         message(STATUS "Found dconf - enabling dconf support")
         target_compile_definitions(${TARGET_NAME} PRIVATE USE_DCONF=1)
