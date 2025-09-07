@@ -174,8 +174,8 @@ add_library(cufetch SHARED
 )
 
 set_target_properties(cufetch PROPERTIES
-    VERSION 1.0.0
-    SOVERSION 1
+    VERSION 2.0.0-beta1
+    SOVERSION 2
     OUTPUT_NAME "cufetch"
     POSITION_INDEPENDENT_CODE ON
 )
@@ -199,7 +199,7 @@ set(APPPREFIX "${CMAKE_INSTALL_PREFIX}/share/applications" CACHE PATH "Applicati
 set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale" CACHE PATH "Locale files directory")
 set(ICONPREFIX "${CMAKE_INSTALL_PREFIX}/share/pixmaps" CACHE PATH "Icon installation directory")
 target_compile_definitions(${TARGET_NAME} PRIVATE
-    VERSION="1.0.0"
+    VERSION="2.0.0-beta1"
     MANPREFIX="${MANPREFIX}"
     APPPREFIX="${APPPREFIX}"
     LOCALEDIR="${LOCALEDIR}"
@@ -258,10 +258,10 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/locale/
 
 install(CODE "
     execute_process(
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libcufetch.so.1 ${CMAKE_INSTALL_PREFIX}/lib/libcufetch.so
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libcufetch.so.2 ${CMAKE_INSTALL_PREFIX}/lib/libcufetch.so
     )
     execute_process(
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libcufetch.so.1.0.0 ${CMAKE_INSTALL_PREFIX}/lib/libcufetch.so.1
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libcufetch.so.2.0.0 ${CMAKE_INSTALL_PREFIX}/lib/libcufetch.so.2
     )
 ")
 

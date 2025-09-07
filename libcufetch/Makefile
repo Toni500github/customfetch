@@ -7,8 +7,8 @@ ifeq ($(UNAME_S),Darwin)
     SHARED_FLAG  := -dynamiclib
     SONAME_FLAGS :=
 else
-    LIBNAME      := libcufetch.so.1.0.0
-    INSTALL_NAME := -Wl,-soname,libcufetch.so.1
+    LIBNAME      := libcufetch.so.2.0.0
+    INSTALL_NAME := -Wl,-soname,libcufetch.so.2
     SHARED_FLAG  := -shared
     SONAME_FLAGS := -Wl,--export-dynamic
 endif
@@ -23,11 +23,11 @@ CXXFLAGS 	+= -fvisibility-inlines-hidden -fvisibility=hidden -std=$(CXXSTD) -I..
 
 all: $(OUTPUT)
 	@if [ "$(UNAME_S)" = "Linux" ]; then \
-		ln -sf libcufetch.so.1.0.0 ../$(BUILDDIR)/libcufetch.so.1; \
-		ln -sf libcufetch.so.1.0.0 ../$(BUILDDIR)/libcufetch.so; \
+		ln -sf libcufetch.so.2.0.0 ../$(BUILDDIR)/libcufetch.so.2; \
+		ln -sf libcufetch.so.2.0.0 ../$(BUILDDIR)/libcufetch.so; \
 	elif [ "$(UNAME_S)" = "Darwin" ]; then \
-		ln -sf libcufetch.dylib ../$(BUILDDIR)/libcufetch.1.dylib; \
-		ln -sf libcufetch.dylib ../$(BUILDDIR)/libcufetch.1.0.0.dylib; \
+		ln -sf libcufetch.dylib ../$(BUILDDIR)/libcufetch.2.dylib; \
+		ln -sf libcufetch.dylib ../$(BUILDDIR)/libcufetch.2.0.0.dylib; \
 	fi
 
 %.o: %.cc

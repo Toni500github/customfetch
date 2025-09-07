@@ -51,8 +51,8 @@ TEST_DIR = .
 
 NAME		 = customfetch
 TARGET		?= $(NAME)
-OLDVERSION	 = 0.10.2
-VERSION    	 = 1.0.0
+OLDVERSION	 = 1.0.0
+VERSION    	 = 2.0.0-beta1
 SRC              = $(filter-out $(SRC_DIR)/main.cpp, $(wildcard $(SRC_DIR)/*.cpp $(SRC_DIR)/query/linux/*.cpp $(SRC_DIR)/query/android/*.cpp $(SRC_DIR)/query/macos/*.cpp $(SRC_DIR)/query/linux/utils/*.cpp))
 OBJ              = $(patsubst $(SRC_DIR)/%.cpp, $(BUILDDIR)/%.o, $(SRC))
 TESTS 		 = $(patsubst $(TEST_DIR)/%.cpp, $(TEST_DIR)/%, $(wildcard $(TEST_DIR)/test*.cpp))
