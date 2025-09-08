@@ -26,7 +26,7 @@ NAME		 = cufetchpm
 TARGET		?= $(NAME)
 OLDVERSION	 = 0.0.0
 VERSION    	 = 0.0.1
-SRC 	   	 = $(wildcard src/*.cpp src/manager/*.cpp  ../src/util.cpp)
+SRC 	   	 = $(wildcard src/*.cpp ../src/util.cpp)
 OBJ 	   	 = $(SRC:.cpp=.o)
 LDLIBS   	+= $(BUILDDIR)/libfmt.a $(BUILDDIR)/libtiny-process-library.a
 CXXFLAGS  	?= -mtune=generic -march=native

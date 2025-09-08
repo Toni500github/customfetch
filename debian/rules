@@ -19,9 +19,15 @@ export DH_VERBOSE = 1
 
 override_dh_auto_build:
 	dh_auto_build -- all DEBUG=0 GUI_APP=0
+	cp -f build/release/customfetch customfetch-terminal
+
+	# Clean and build GUI version
+	$(MAKE) clean
+	dh_auto_build -- all DEBUG=0 GUI_APP=1
 
 override_dh_auto_install:
-	dh_auto_install -- all DEBUG=0 GUI_APP=0
+	dh_auto_install -- all DEBUG=0 GUI_APP=1
+	install -Dm755 customfetch-terminal debian/customfetch/usr/bin/customfetch
 
 # dh_make generated override targets
 # This is example for Cmake (See https://bugs.debian.org/641051 )

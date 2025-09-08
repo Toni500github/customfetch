@@ -1,14 +1,14 @@
 Source: customfetch
 Section: utils
 Priority: optional
-Maintainer: toni500 <toni500minecraft@gmail.com>
+Maintainer: toni500 <tonino512@linuxmail.org>
 Build-Depends: pkg-config,libgtkmm-3.0-dev,libwayland-dev,libdconf-dev,libglib2.0-dev
 Standards-Version: 4.5.1
 Homepage: https://github.com/Toni500github/customfetch
 
 Package: customfetch
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgtkmm-3.0-1v5, libgtk-3-0
 Suggests: libwayland-client0,libdconf1,libglib2.0-0
-Description: Highly customizable and fast information fetcher program
- Inspired by neofetch and fastfetch
+Description: A modular information fetching (neofetch-like) tool.
+ Which its focus point is the performance and customizability.
