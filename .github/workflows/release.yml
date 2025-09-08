@@ -34,48 +34,29 @@ jobs:
         sudo apt-get update && sudo apt upgrade -y
         sudo apt-get install build-essential g++-11 libwayland-dev gettext libgtk-3-dev pkg-config libdconf-dev libglib2.0-dev libgtkmm-3.0-dev libarchive-tools -y
 
-    - name: Clean
-      run: make distclean
-
     - name: Compile
       run: make DEBUG=0 GUI_APP=0 CXX=x86_64-linux-gnu-g++-11
 
+    - name: Install to ./usr
+      run: mkdir -p ./usr && make install DESTDIR=. PREFIX=/usr
+
+    - name: Compile (GUI app)
+      run: make clean && make DEBUG=0 GUI_APP=1 CXX=x86_64-linux-gnu-g++-11
+
+    - name: Install the GUI components
+      run: |
+        install ./build/release/customfetch-gui -Dm 755 -v ./usr/bin/
+        mkdir -p ./usr/share/applications
+        cp -f customfetch.desktop ./usr/share/applications/
+
     - name: Make Release
-      run: make usr-dist DEBUG=0 && mv ./customfetch-*.tar.gz ./customfetch.tar.gz
+      run: tar -zcf ./customfetch.tar.gz ./usr/
 
     - name: Upload to github artifacts
       uses: actions/upload-artifact@v4
       with:
         name: customfetch-linux
         path: ./customfetch.tar.gz
-
-  build-linux-tar-gui:
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install Packages
-      run: |
-        sudo apt-get update && sudo apt upgrade -y
-        sudo apt-get install build-essential g++-11 libwayland-dev gettext libgtk-3-dev pkg-config libdconf-dev libglib2.0-dev libgtkmm-3.0-dev libarchive-tools  -y
-
-    - name: Clean
-      run: make clean
-
-    - name: Compile
-      run: make DEBUG=0 GUI_APP=1 CXX=x86_64-linux-gnu-g++-11
-
-    - name: Make Release
-      run: make usr-dist DEBUG=0 GUI_APP=1 && mv ./customfetch-*.tar.gz ./customfetch-gui.tar.gz
-
-    - name: Upload to github artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: customfetch-gui-linux
-        path: ./customfetch-gui.tar.gz
 
   build-deb:
     runs-on: ubuntu-22.04
@@ -84,7 +65,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: create tmp directory
       run: mkdir /tmp/customfetch-2.0.0-beta1.orig
 
@@ -121,7 +102,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: create tmp directory
       run: mkdir /tmp/customfetch-2.0.0-beta1.orig
 
@@ -161,13 +142,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install the packages
-        run: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install --overwrite fastfetch neofetch pkg-config tree llvm@19
+        run: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install --overwrite fastfetch neofetch pkg-config gtkmm3 tree llvm@19
 
       - name: uname -a && clang++ --version
         run: uname -a && echo "\n" && $(brew --prefix llvm@19)/bin/clang++ --version
-
-      - name: Clean
-        run: make distclean
 
       - name: Compile and install
         run: |
@@ -177,7 +155,20 @@ jobs:
           make
           make install
           cd ..
-          tar -zcf ./customfetch.tar.gz usr/
+
+      - name: Compile (GUI app)
+        run: |
+          export CXX=$(brew --prefix llvm@19)/bin/clang++
+          export PKG_CONFIG_PATH="$(brew --prefix)/lib/pkgconfig:$(brew --prefix)/opt/gtkmm3/lib/pkgconfig:$(brew --prefix)/opt/gtk+3/lib/pkgconfig"
+          rm -rf build && mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Debug -DGUI_APP=1 -DCMAKE_INSTALL_PREFIX=../usr
+          make
+          mv -f customfetch-gui ../usr/bin/
+          mkdir -p ../usr/share/applications
+          mv -f ../customfetch.desktop ../usr/share/applications
+
+      - name: Make release
+        run: tar -zcf ./customfetch.tar.gz usr/
 
       - name: Upload to github artifacts
         uses: actions/upload-artifact@v4
@@ -186,44 +177,9 @@ jobs:
           name: customfetch-macos
           path: ./customfetch.tar.gz
 
-  build-macos-tar-gui:
-    runs-on: macos-latest
-    permissions:
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install the packages
-        run: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install --overwrite fastfetch neofetch tree pkg-config gtkmm3 llvm@19
-
-      - name: uname -a && clang++ --version
-        run: uname -a && echo "\n" && $(brew --prefix llvm@19)/bin/clang++ --version
-
-      - name: Clean
-        run: make distclean
-
-      - name: Compile and install
-        run: |
-          export CXX=$(brew --prefix llvm@19)/bin/clang++
-          export PKG_CONFIG_PATH="$(brew --prefix)/lib/pkgconfig:$(brew --prefix)/opt/gtkmm3/lib/pkgconfig:$(brew --prefix)/opt/gtk+3/lib/pkgconfig"
-          mkdir build && cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Debug -DGUI_APP=1 -DCMAKE_INSTALL_PREFIX=../usr
-          make
-          make install
-          cd ..
-          tar -zcf ./customfetch-gui.tar.gz usr/
-
-      - name: Upload to github artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: customfetch-macos-gui
-          path: ./customfetch-gui.tar.gz
-
   release:
     name: Create GitHub Release
-    needs: [build-linux-tar, build-linux-tar-gui, build-macos-tar, build-macos-tar-gui, build-deb-gui, build-deb, get-version]
+    needs: [build-linux-tar, build-macos-tar, build-deb-gui, build-deb, get-version]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -267,26 +223,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.release-url }}
-          asset_path: customfetch-linux-gui/customfetch-gui.tar.gz
-          asset_name: customfetch-linux-gui-${{ needs.get-version.outputs.version }}.tar.gz
-          asset_content_type: application/tar+gz
-
-      - uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.release-url }}
           asset_path: customfetch-macos/customfetch.tar.gz
           asset_name: customfetch-macos-${{ needs.get-version.outputs.version }}.tar.gz
-          asset_content_type: application/tar+gz
-
-      - uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.release-url }}
-          asset_path: customfetch-macos-gui/customfetch-gui.tar.gz
-          asset_name: customfetch-maacos-gui-${{ needs.get-version.outputs.version }}.tar.gz
           asset_content_type: application/tar+gz
 
       - uses: actions/upload-release-asset@v1

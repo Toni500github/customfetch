@@ -14,7 +14,7 @@ USE_DCONF	?= 1
 
 COMPILER := $(shell $(CXX) --version | head -n1)
 
-ifeq ($(findstring GCC,$(COMPILER)),GCC)
+ifeq ($(findstring g++,$(COMPILER)),g++)
 	export LTO_FLAGS = -flto=auto -ffat-lto-objects
 else ifeq ($(findstring clang,$(COMPILER)),clang)
 	export LTO_FLAGS = -flto=thin
@@ -143,7 +143,9 @@ install: install-common $(TARGET)
 	install $(BUILDDIR)/$(TARGET) -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 	cd $(DESTDIR)$(PREFIX)/bin/ && ln -sf $(TARGET) cufetch
 
-install-common: libcufetch locale
+install-common: genver libcufetch locale
+	$(MAKE) -C cufetchpm DEBUG=$(DEBUG) GUI_APP=$(GUI_APP) CXXSTD=$(CXXSTD)
+	install cufetchpm/$(BUILDDIR)/cufetchpm -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/cufetchpm
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
 	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
@@ -154,7 +156,7 @@ install-common: libcufetch locale
 	find locale/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/{}" \;
 	mkdir -p $(DESTDIR)$(PREFIX)/include/libcufetch/
 	cd include/libcufetch && find . -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/include/libcufetch/{}" \;
-	install -Dm 755 $(BUILDDIR)/libcufetch.so $(DESTDIR)$(PREFIX)/lib/libcufetch.so.1
+	cd $(BUILDDIR) && find . -name "libcufetch*" -exec install -Dm 755 "{}" "$(DESTDIR)$(PREFIX)/lib/{}" \;
 	install -Dm 755 $(BUILDDIR)/libfmt.a $(DESTDIR)$(PREFIX)/lib/libcufetch-fmt.a
 ifeq ($(GUI_APP), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)

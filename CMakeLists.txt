@@ -174,15 +174,44 @@ add_library(cufetch SHARED
 )
 
 set_target_properties(cufetch PROPERTIES
-    VERSION 2.0.0-beta1
+    VERSION 2.0.0
     SOVERSION 2
     OUTPUT_NAME "cufetch"
     POSITION_INDEPENDENT_CODE ON
 )
 
-target_link_libraries(cufetch PUBLIC tiny-process-library)
-target_link_libraries(cufetch PUBLIC fmt)
+target_link_libraries(cufetch PUBLIC tiny-process-library fmt)
 target_link_libraries(${TARGET_NAME} PUBLIC cufetch)
+
+# cufetchpm
+add_executable(cufetchpm
+    cufetchpm/src/main.cpp
+    cufetchpm/src/pluginManager.cpp
+    cufetchpm/src/manifest.cpp
+    cufetchpm/src/stateManager.cpp
+    src/util.cpp
+    src/libs/toml++/toml.cpp
+    src/libs/getopt_port/getopt.c
+)
+
+set_target_properties(cufetchpm PROPERTIES
+    OUTPUT_NAME "cufetchpm"
+)
+
+target_include_directories(cufetchpm PUBLIC
+    cufetchpm/include
+    ../include
+    ../include/libs
+)
+
+target_compile_definitions(cufetchpm PRIVATE
+    VERSION="2.0.0-beta1"
+)
+
+target_link_libraries(cufetchpm
+    fmt
+    tiny-process-library
+)
 
 # locale
 add_custom_target(locale
@@ -209,6 +238,10 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
 
 # Install executable
 install(TARGETS ${TARGET_NAME}
+        RUNTIME DESTINATION bin
+        COMPONENT runtime)
+
+install(TARGETS cufetchpm
         RUNTIME DESTINATION bin
         COMPONENT runtime)
 
@@ -256,6 +289,7 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/locale/
         DESTINATION share/locale
         COMPONENT runtime)
 
+if(NOT APPLE)
 install(CODE "
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E create_symlink libcufetch.so.2 ${CMAKE_INSTALL_PREFIX}/lib/libcufetch.so
@@ -264,6 +298,7 @@ install(CODE "
         COMMAND ${CMAKE_COMMAND} -E create_symlink libcufetch.so.2.0.0 ${CMAKE_INSTALL_PREFIX}/lib/libcufetch.so.2
     )
 ")
+endif()
 
 install(CODE "
     execute_process(
