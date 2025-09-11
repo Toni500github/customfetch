@@ -245,7 +245,7 @@ void core_plugins_start(const Config& config)
 
     term_pid  = get_terminal_pid();
     term_name = get_terminal_name();
-    if (hasStart(str_tolower(term_name), "login") || hasStart(term_name, "init") || hasStart(term_name, "(init)"))
+    if (hasStart(str_tolower(term_name), "login") || hasStart(term_name, "/dev/tty") || hasStart(term_name, "init") || hasStart(term_name, "(init)"))
     {
         is_tty    = true;
         term_name = ttyname(STDIN_FILENO);

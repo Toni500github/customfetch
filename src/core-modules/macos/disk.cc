@@ -75,7 +75,7 @@ static bool get_disk_info(const callbackInfo_t* callbackInfo, struct statfs* fs)
         die("Module disk doesn't have an argmument to the path/device to query");
 
     const std::string& path = callbackInfo->moduleArgs->value;
-    return (statfs(path.c_str(), fs) != 0);
+    return (statfs(path.c_str(), fs) == 0);
 }
 
 MODFUNC(disk_fsname)

@@ -16,7 +16,7 @@ HASH=${HASH-$(git rev-parse HEAD)}
 BRANCH=${BRANCH-$(git branch --show-current)}
 MESSAGE=${MESSAGE-$(git log -1 --pretty=%B | head -n 1 | sed -e 's/#//g' -e 's/\"//g')}
 DATE=${DATE-$(git show --no-patch --format=%cd --date=local)}
-DIRTY=${DIRTY-$(git diff-index --quiet HEAD && echo -n clean || echo -n dirty)}
+DIRTY=${DIRTY-$(git diff-index --quiet HEAD && echo clean || echo dirty)}
 TAG=${TAG-$(git describe --tags)}
 COMMITS=${COMMITS-$(git rev-list --count HEAD)}
 
