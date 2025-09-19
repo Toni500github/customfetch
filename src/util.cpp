@@ -515,10 +515,7 @@ std::filesystem::path getHomeConfigDir()
     const char* dir = std::getenv("XDG_CONFIG_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
     {
-        std::string str_dir(dir);
-        if (str_dir.back() == '/')
-            str_dir.pop_back();
-        return str_dir;
+        return std::filesystem::path(dir);
     }
     else
     {
@@ -538,10 +535,7 @@ std::filesystem::path getHomeCacheDir()
     const char* dir = std::getenv("XDG_CACHE_HOME");
     if (dir != NULL && dir[0] != '\0' && std::filesystem::exists(dir))
     {
-        std::string str_dir(dir);
-        if (str_dir.back() == '/')
-            str_dir.pop_back();
-        return str_dir;
+        return std::filesystem::path(dir);
     }
     else
     {

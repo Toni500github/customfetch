@@ -273,6 +273,7 @@ MODFUNC(user_term_version)
     const size_t pos = ret.find(' ');
     if (pos != std::string::npos)
         ret.erase(pos);
+    strip(ret);
 
     debug("get_term_version ret after = {}", ret);
     return ret;

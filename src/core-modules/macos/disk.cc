@@ -24,12 +24,14 @@
  */
 
 #include "platform.hpp"
+#include "switch_fnv1a.hpp"
 #if CF_MACOS
 
 #include <sys/mount.h>
 #include <sys/param.h>
 #include <sys/types.h>
 
+#include <cstring>
 #include <string>
 
 #include "core-modules.hh"
@@ -106,7 +108,53 @@ MODFUNC(disk_mountdir)
 }
 
 MODFUNC(auto_disk)
-{ return MAGIC_LINE; }
+{
+    const ConfigBase&  config         = callbackInfo->parse_args.config;
+    const std::string& auto_disks_fmt = config.getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
+
+    static int auto_disks_types = 0;
+    if (auto_disks_types == 0)
+    {
+        for (const std::string& str :
+             config.getValueArrayStr("auto.disk.display-types", { "external", "regular", "read-only" }))
+        {
+            switch (fnv1a16::hash(str))
+            {
+                case "removable"_fnv1a16:  // deprecated
+                case "external"_fnv1a16:  auto_disks_types |= DISK_VOLUME_TYPE_EXTERNAL; break;
+                case "regular"_fnv1a16:   auto_disks_types |= DISK_VOLUME_TYPE_REGULAR; break;
+                case "read-only"_fnv1a16: auto_disks_types |= DISK_VOLUME_TYPE_READ_ONLY; break;
+                case "hidden"_fnv1a16:    auto_disks_types |= DISK_VOLUME_TYPE_HIDDEN; break;
+            }
+        }
+    }
+
+    const int size = getfsstat(NULL, 0, MNT_WAIT);
+    if (size <= 0)
+        die(_("Failed to get Disk infos"));
+
+    struct statfs* buf = reinterpret_cast<struct statfs*>(malloc(sizeof(*buf) * (unsigned)size));
+    if (getfsstat(buf, (int)(sizeof(*buf) * (unsigned)size), MNT_NOWAIT) <= 0)
+        die(_("Failed to get Disk infos"));
+
+    for (struct statfs* fs = buf; fs < buf + size; ++fs)
+    {
+        if (strcmp(fs->f_mntonname, "/") != 0 && !hasStart(fs->f_mntfromname, "/dev") &&
+            strcmp(fs->f_fstypename, "zfs") != 0 && strcmp(fs->f_fstypename, "fusefs.sshfs") != 0)
+            continue;
+
+        if (!(auto_disks_types & get_disk_type(fs->f_flags)))
+            continue;
+
+        debug("AUTO: fs->f_mntonname = {} && fs->f_fstypename = {}", fs->f_mntonname, fs->f_fstypename);
+        callbackInfo->parse_args.no_more_reset = false;
+        callbackInfo->parse_args.tmp_layout.push_back(
+            parse(format_auto_query_string(auto_disks_fmt, fs), callbackInfo->parse_args));
+    }
+
+    free(buf);
+    return "";
+}
 
 MODFUNC(disk_types)
 {
