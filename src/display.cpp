@@ -404,7 +404,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
             origin += asciiArt.at(i).length();
         }
 
-        const size_t spaces = (maxLineLength + (config.args_disable_source ? 1 : offset)) -
+        const size_t spaces = (maxLineLength + (config.args_disable_source ? 0 : offset)) -
                               (i < asciiArt.size() ? pureAsciiArtLens.at(i) : 0);
 
         debug("spaces: {}", spaces);

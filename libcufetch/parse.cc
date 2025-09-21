@@ -37,12 +37,12 @@
 #include <string_view>
 #include <vector>
 
-#include "tiny-process-library/process.hpp"
+#include "fmt/format.h"
 #include "libcufetch/common.hh"
 #include "libcufetch/config.hh"
 #include "libcufetch/cufetch.hh"
-#include "fmt/format.h"
 #include "switch_fnv1a.hpp"
+#include "tiny-process-library/process.hpp"
 #include "util.hpp"
 
 class Parser
@@ -194,10 +194,11 @@ EXPORT std::string parse(const std::string& input, parse_args_t& parse_args)
                  parse_args.config, parse_args.parsingLayout, parse_args.no_more_reset);
 }
 
-std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args, const bool invert)
+EXPORT std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args, const bool invert)
 {
-    const std::vector<std::string>& percentage_colors = parse_args.config.getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
-    const float                     result = n1 / n2 * static_cast<float>(100);
+    const std::vector<std::string>& percentage_colors =
+        parse_args.config.getValueArrayStr("config.percentage-colors", { "green", "yellow", "red" });
+    const float result = n1 / n2 * static_cast<float>(100);
 
     std::string color;
     if (!invert)
@@ -222,82 +223,135 @@ std::string get_and_color_percentage(const float n1, const float n2, parse_args_
     return parse(fmt::format("{}{:.2f}%${{0}}", color, result), _, parse_args);
 }
 
-std::string getInfoFromName(parse_args_t& parse_args, const std::string& moduleName)
+static std::string parse(Parser& parser, moduleArgs_t* moduleArg, bool collecting = false, const char until = 0);
+
+static std::optional<std::string> parse_module(Parser& p)
 {
-    std::string name;
-    name.reserve(moduleName.size());
+    if (!p.try_read('('))
+        return {};
 
-    /* true when we find a '(' */
-    bool collecting = false;
-
-    /* current position */
-    size_t i                   = -1;
-    size_t stripped_char_count = 0; /* amount of chars stripped from `name` */
-
-    /* position of start, resets every separator */
-    size_t start_pos = 0;
-
-    moduleArgs_t* moduleArgs = new moduleArgs_t;
-
-    /* argument that's collected from what's between the parenthesis in "module(...).test" */
+    // collect everything up to the matching ')', allowing '.' inside
     std::string arg;
-    arg.reserve(moduleName.size());
-    for (const char c : moduleName)
+    int         depth = 1;
+    while (!p.is_eof() && depth > 0)
     {
-        i++;
-        if (c == '(' && !collecting)
-        {
-            collecting = true;
-            continue;
+        char c = p.read_char();
+        if (c == '\\')
+        {  // escaped char
+            if (!p.is_eof())
+                arg.push_back(p.read_char());
         }
-
-        if ((c == '.' || i + 1 == moduleName.size()))
+        else if (c == '(')
         {
-            if (collecting)
-            {
-                if (arg.back() != ')' && c != ')')
-                    die("Module name `{}` is invalid. Arguments must end with )", moduleName);
-
-                if (arg.back() == ')')
-                    arg.pop_back();
-
-                moduleArgs_t* moduleArg = moduleArgs;
-                while (moduleArg->next != nullptr)
-                    moduleArg = moduleArg->next;
-
-                moduleArg->name       = std::string{ name.begin() + start_pos, name.end() };
-                moduleArg->value      = arg;
-                moduleArg->next       = new moduleArgs_t;
-                moduleArg->next->prev = moduleArg;
-
-                if (c == '.')
-                {
-                    name.push_back('.');
-                    stripped_char_count++;
-                }
-            }
-            else
-            {
-                name.push_back(c);
-            }
-
-            start_pos  = i + 1 - stripped_char_count;
-            arg        = "";
-            collecting = false;
-
-            continue;
+            ++depth;
+            arg.push_back('(');
         }
-
-        if (!collecting)
+        else if (c == ')')
         {
-            name.push_back(c);
+            --depth;
+            if (depth > 0)
+                arg.push_back(')');
         }
         else
         {
-            stripped_char_count++;
             arg.push_back(c);
         }
     }
+
+    if (depth != 0)
+    {
+        error(_("PARSER: Missing closing ')' in string '{}'"), p.src);
+    }
+    return arg;
+}
+
+// Parse module path with optional arguments
+static std::string parse(Parser& p, moduleArgs_t* m, bool collecting, char until)
+{
+    std::string token;
+
+    while (until ? !p.try_read(until) : !p.is_eof())
+    {
+        if (until && p.is_eof())
+        {
+            error(_("PARSER: Missing closing '{}' in string '{}'"), until, p.src);
+            break;
+        }
+
+        if (p.try_read('\\'))
+        {  // escape
+            if (!p.is_eof())
+                token.push_back(p.read_char());
+        }
+        else if (auto arg = parse_module(p))
+        {  // found (...) argument
+            m->name       = token;
+            m->value      = *arg;
+            m->next       = new moduleArgs_t;
+            m->next->prev = m;
+            m             = m->next;
+            token.clear();
+        }
+        else if (!collecting && p.try_read('.'))
+        {  // separator
+            if (!token.empty())
+            {
+                m->name       = token;
+                m->value      = "";
+                m->next       = new moduleArgs_t;
+                m->next->prev = m;
+                m             = m->next;
+                token.clear();
+            }
+        }
+        else
+        {
+            token.push_back(p.read_char());
+        }
+    }
+
+    if (!collecting && !token.empty())
+    {
+        m->name  = token;
+        m->value = "";
+        m->next  = nullptr;  // end of list
+    }
+    else if (!collecting)
+    {
+        m->next = nullptr;
+    }
+
+    return token;
+}
+
+std::string getInfoFromName(parse_args_t& parse_args, const std::string& moduleName)
+{
+    Parser        parser(moduleName, _);
+    moduleArgs_t* moduleArgs = new moduleArgs_t;
+    parse(parser, moduleArgs);
+
+    if (debug_print)
+    {
+        debug("moduleName = {}", moduleName);
+        auto*  debug_arg = moduleArgs;
+        size_t i         = 0;
+        while (debug_arg->next)
+        {
+            debug("moduleArg[{}]\tname = '{}' && arg = '{}'", i, debug_arg->name, debug_arg->value);
+            debug_arg = debug_arg->next;
+            i++;
+        }
+    }
+
+    std::string   name;
+    moduleArgs_t* moduleArg = moduleArgs;
+    while (moduleArg->next)
+    {
+        name += moduleArg->name + ".";
+        moduleArg = moduleArg->next;
+    }
+    name.pop_back();
+    debug("name = {}", name);
 
     std::string result = "(unknown/invalid module)";
     if (const auto& it = parse_args.modulesInfo.find(name); it != parse_args.modulesInfo.end())
@@ -354,8 +408,8 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     if (removetag)
         command.erase(0, 1);
 
-    std::string cmd_output;
-    TinyProcessLib::Process proc(command, "", [&](const char* bytes, size_t n){cmd_output.assign(bytes, n);});
+    std::string             cmd_output;
+    TinyProcessLib::Process proc(command, "", [&](const char* bytes, size_t n) { cmd_output.assign(bytes, n); });
     if (!parse_args.parsingLayout && !removetag && parser.dollar_pos != std::string::npos)
         parse_args.pureOutput.replace(parser.dollar_pos, command.length() + "$()"_len, cmd_output);
 
@@ -396,7 +450,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     if (output[0] == '$')
         output += ' ';
 #endif
-    
+
     static std::vector<std::string> alias_colors_name, alias_colors_value;
     const std::vector<std::string>& alias_colors = config.getValueArrayStr("config.alias-colors", {});
     if (!alias_colors.empty() && (alias_colors_name.empty() && alias_colors_value.empty()))
@@ -406,7 +460,8 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
             const size_t pos = str.find('=');
             if (pos == std::string::npos)
                 die(_("alias color '{}' does NOT have an equal sign '=' for separating color name and value\n"
-                    "For more check with --help"), str);
+                      "For more check with --help"),
+                    str);
 
             alias_colors_name.push_back(str.substr(0, pos));
             alias_colors_value.push_back(str.substr(pos + 1));
@@ -793,10 +848,10 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
 }
 
 EXPORT std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
-                  std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const ConfigBase& config,
-                  const bool parsingLayout, bool& no_more_reset)
+                         std::vector<std::string>& layout, std::vector<std::string>& tmp_layout,
+                         const ConfigBase& config, const bool parsingLayout, bool& no_more_reset)
 {
-    const std::string& sep_reset = config.getValue<std::string>("config.sep-reset", ":");
+    static const std::string& sep_reset = config.getValue<std::string>("config.sep-reset", ":");
     if (!sep_reset.empty() && parsingLayout && !no_more_reset)
     {
         if (config.getValue("config.sep-reset-after", false))

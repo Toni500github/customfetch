@@ -166,7 +166,7 @@ static struct mntent* get_disk_info(const callbackInfo_t* callbackInfo)
 
     const std::string& path = callbackInfo->moduleArgs->value;
     if (access(path.c_str(), F_OK) != 0 || !mountsFile)
-        die("Failed to query disk at path: '{}", path);
+        die("Failed to query disk at path: '{}'", path);
 
     struct mntent* pDevice;
     while ((pDevice = getmntent(mountsFile)))
@@ -192,18 +192,31 @@ static bool get_disk_usage_info(const callbackInfo_t* callbackInfo, struct statv
 // clang-format off
 // don't get confused by the name pls
 MODFUNC(disk_fsname)
-{ return get_disk_info(callbackInfo)->mnt_type; }
+{
+    mntent* d = get_disk_info(callbackInfo);
+    return d ? d->mnt_type : MAGIC_LINE;
+}
 
 MODFUNC(disk_device)
-{ return get_disk_info(callbackInfo)->mnt_fsname; }
+{
+    mntent* d = get_disk_info(callbackInfo);
+    return d ? d->mnt_fsname : MAGIC_LINE;
+}
 
 MODFUNC(disk_mountdir)
-{ return get_disk_info(callbackInfo)->mnt_dir; }
+{
+    mntent* d = get_disk_info(callbackInfo);
+    return d ? d->mnt_dir : MAGIC_LINE;
+}
 
 // clang-format on
 MODFUNC(disk_types)
 {
-    const int   types = get_disk_type(get_disk_info(callbackInfo));
+    mntent* d = get_disk_info(callbackInfo);
+    if (!d)
+        return MAGIC_LINE;
+
+    const int   types = get_disk_type(d);
     std::string str;
     if (types & DISK_VOLUME_TYPE_EXTERNAL)
         str += "External, ";

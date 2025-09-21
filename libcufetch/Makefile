@@ -1,3 +1,30 @@
+CXX	?= g++
+CXXSTD	?= c++20
+VARS	?= -DENABLE_NLS=1
+
+DEBUG	?= 1
+GUI_APP ?= 0
+
+# https://stackoverflow.com/a/1079861
+# WAY easier way to build debug and release builds
+ifeq ($(DEBUG), 1)
+        BUILDDIR  := build/debug
+        LTO_FLAGS  = -fno-lto
+        CXXFLAGS  := -ggdb3 -Wall -Wextra -pedantic -Wno-unused-parameter \
+                        -DDEBUG=1 -fno-omit-frame-pointer $(DEBUG_CXXFLAGS) $(CXXFLAGS)
+        LDFLAGS   += -fsanitize=address -fno-lto
+else
+        # Check if an optimization flag is not already set
+        ifneq ($(filter -O%,$(CXXFLAGS)),)
+                $(info Keeping the existing optimization flag in CXXFLAGS)
+        else
+                CXXFLAGS := -O3 $(CXXFLAGS)
+        endif
+        LDFLAGS   += $(LTO_FLAGS)
+        BUILDDIR  := build/release
+endif
+
+
 UNAME_S := $(shell uname -s)
 
 # is macos?
@@ -13,8 +40,6 @@ else
     SONAME_FLAGS := -Wl,--export-dynamic
 endif
 
-CXX		?= g++
-GUI_APP         ?= 0
 SRC              = $(wildcard *.cc)
 OBJ              = $(SRC:.cc=.o) ../$(BUILDDIR)/toml.o
 LDLIBS	        := ../$(BUILDDIR)/libfmt.a ../$(BUILDDIR)/libtiny-process-library.a

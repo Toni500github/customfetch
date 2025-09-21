@@ -74,7 +74,7 @@ all: genver fmt toml tpl getopt-port json libcufetch $(TARGET)
 
 libcufetch: fmt tpl toml
 ifeq ($(wildcard $(BUILDDIR)/libcufetch.so),)
-	$(MAKE) -C libcufetch BUILDDIR=$(BUILDDIR) GUI_APP=$(GUI_APP) CXXSTD=$(CXXSTD)
+	$(MAKE) -C libcufetch BUILDDIR=$(BUILDDIR) GUI_APP=$(GUI_APP) CXXSTD=$(CXXSTD) DEBUG=$(DEBUG)
 endif
 
 fmt:
