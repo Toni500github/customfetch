@@ -330,26 +330,15 @@ std::string getInfoFromName(parse_args_t& parse_args, const std::string& moduleN
     moduleArgs_t* moduleArgs = new moduleArgs_t;
     parse(parser, moduleArgs);
 
-    if (debug_print)
-    {
-        debug("moduleName = {}", moduleName);
-        auto*  debug_arg = moduleArgs;
-        size_t i         = 0;
-        while (debug_arg->next)
-        {
-            debug("moduleArg[{}]\tname = '{}' && arg = '{}'", i, debug_arg->name, debug_arg->value);
-            debug_arg = debug_arg->next;
-            i++;
-        }
-    }
-
     std::string   name;
     moduleArgs_t* moduleArg = moduleArgs;
-    while (moduleArg->next)
-    {
-        name += moduleArg->name + ".";
+    do {
+        name += moduleArg->name;
+        if (name.back() != '.')
+            name.push_back('.');
         moduleArg = moduleArg->next;
-    }
+    } while (moduleArg);
+
     name.pop_back();
     debug("name = {}", name);
 
