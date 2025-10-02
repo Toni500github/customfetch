@@ -35,7 +35,8 @@
 ## Key Features
 * Run customfetch as a **terminal** or **GTK3 application** or even as an [android widget](https://github.com/Toni500github/customfetch-android-app)
 * Really easy to [customize](#How-to-customize)
-* Incredibly extensible information fetchings via external plugins
+* Flexible [plugin](#Plugins) system
+* Incredibly extensible information fetchings
 * Super lightweight, 3.3MB max (GTK3 application)
 
 # Dependencies
@@ -208,14 +209,23 @@ They can be used in the ascii art text file and layout, but how to use them?
  If you're using the GUI app and the source path is an image, all the auto colors will be the same colors as the distro ascii art.
 
 * **The Percentage tag (`$%%`)** is used for displaying the percentage between 2 numbers.\
-  It **Must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
+  It **must** contain a comma for separating the 2. They can be either be taken from a tag or it put yourself.\
   For example: $%10,5%
   For inverting colors of bad and great (red and green), before the first `%` a put `!`
 
 Any `$` or brackets can be escaped with a backslash `\`. You need to escape backslashes too :(\
 **NOTE:** For having compatibility with the GUI app, you need to escape `<` (EXCEPT if you are using in a info tag, like `$<os.name>`) and `&`\
-e.g `the number 50 is \\< than 100 \\&\\& 98`
+e.g `the number 50 is \\< 100 \\&\\& 98`
 Won't affect the printing in terminal.
+
+## Plugins
+Thanks to plugins, `customfetch` is able to query way more information than just system information, unlike regular neofetch-like programs.
+
+You can easily install community-made plugins by using `cufetchpm`, example: `cufetchpm install https://github.com/Toni500github/customfetch-plugins-github`.
+This example installs a repository, which can have multiple plugins. read `cufetchpm --help` for more information.
+
+## Writing your own plugins
+Plugins are mostly just shared libraries, so you could easily write your own plugin! there's an [example](https://github.com/Toni500github/customfetch/blob/main/examples/mod-library.cc) with detailed comments that explain everything!
 
 ## Star History
 
