@@ -46,11 +46,7 @@
 
 #if (defined(__MACOS__) || defined(__MACH__) || defined(TARGET_OS_MAC) || defined(TARGET_OS_OSX) || \
      __is_target_vendor(apple) || __is_target_os(darwin) || __is_target_os(MacOSX))
-# ifdef ENABLE_MACOS_SUPPORT
-#  define CF_MACOS 1
-# else
-#  error "MacOS build has been disabled because of incomplete support. add '-DENABLE_MACOS_SUPPORT' flag to enable it."
-# endif
+# define CF_MACOS 1
 #else
 # define CF_MACOS 0
 #endif
@@ -64,7 +60,7 @@
 
 #if !(CF_LINUX || CF_ANDROID || CF_MACOS) || CF_WINDOWS
 # warning \
-    "Platform currently may not be supported, only Linux, Android. Please feel free to report any compilation errors"
+    "Platform currently may not be supported, only Linux, Android and MacOS. Please feel free to report any compilation errors"
 #endif
 
 #endif  // _PLATFORM_H_
