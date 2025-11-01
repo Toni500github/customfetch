@@ -7,11 +7,11 @@
 #if !CF_ANDROID
 
 #include <array>
-#include <string>
+#include <string_view>
 
-inline constexpr std::array<std::string_view, 2424> get_pci_vendors_array()
-{
-    return {
+using namespace std::string_view_literals;
+
+inline constexpr std::array<std::string_view, 2424> pci_vendors_array = {
         "0001", "0010", "0014", "0018", "001c", "003d", "0059", "0070", "0071", "0095", "00a7", "0100", "0123", "0128",
         "018a", "01de", "0200", "021b", "025e", "0270", "0291", "02ac", "02e0", "0303", "0308", "0315", "0357", "0432",
         "0497", "060e", "0675", "0709", "0721", "0731", "0777", "0795", "07d1", "0824", "0911", "0925", "0a89", "0b0b",
@@ -187,11 +187,8 @@ inline constexpr std::array<std::string_view, 2424> get_pci_vendors_array()
         "f111", "f117", "f15e", "f1d0", "f5f5", "f849", "fa57", "fab7", "fe19", "febd", "feda", "fede", "ffe1", "fffd",
         "fffe", "ffff"
     };
-}
 
-inline constexpr std::array<int, 2424> get_pci_vendors_location_array()
-{
-    return {
+inline constexpr std::array<int, 2424> pci_vendors_location_array = {
         842,     867,     965,     1987,    2075,    2240,    2340,    2380,    2442,    2472,    2624,    2650,
         2673,    2696,    2776,    2833,    3020,    3098,    3184,    4801,    4848,    4953,    5021,    5058,
         5099,    5149,    5180,    5255,    5345,    5372,    5415,    5557,    5632,    5653,    6374,    6404,
@@ -395,11 +392,8 @@ inline constexpr std::array<int, 2424> get_pci_vendors_location_array()
         1491995, 1492053, 1492083, 1493844, 1493884, 1493921, 1494051, 1494090, 1494135, 1494165, 1494271, 1494349,
         1495118, 1495199, 1495237, 1495291, 1495319, 1495387, 1495423, 1495512, 1495551, 1495649, 1495777, 1495829
     };
-}
 
-inline std::string get_pci_ids()
-{
-    return R"(#
+inline constexpr std::string_view all_ids = R"(#
 #	List of PCI ID's
 #
 #	Version: 2025.02.12
@@ -39890,16 +39884,11 @@ C 12  Processing accelerators
 C 13  Non-Essential Instrumentation
 C 40  Coprocessor
 C ff  Unassigned class
-)";
-}
-
-extern const 	 std::string& 			    all_ids;
-inline constexpr std::array<std::string_view, 2424> pci_vendors_array          = get_pci_vendors_array();
-inline constexpr std::array<int, 2424>              pci_vendors_location_array = get_pci_vendors_location_array();
+)"sv;
 
 #else
 
-extern const     std::string&                       all_ids;
+inline constexpr std::string_view                   all_ids                    = {};
 inline constexpr std::array<std::string_view, 2424> pci_vendors_array          = {};
 inline constexpr std::array<int, 2424>              pci_vendors_location_array = {};
 

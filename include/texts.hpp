@@ -164,21 +164,22 @@ For details, see `man customfetch` or run `--how-it-works`.
 )");
 
 constexpr std::string_view explain_customfetch = (R"(
-customfetch is designed for maximum customizability, allowing users to display system information exactly how they want it.
-The layout and logo is controlled through special tags that can output system info, execute commands, apply conditional logic, add colors, and calculate percentages with some colors.
+customfetch is designed for super customizability, allowing users to display fetched information the way they want.
+The layout and logo is controlled through special tags that can output fetched infos, execute commands, apply conditional logic, add colors, and calculate percentages with some colors.
 
 Tag References:
 1. Information Tag ($<>)
-    Retrieves system information from modules.
+    Retrieves fetched information from modules.
+    Information can be from installed plugins or builtin system-information fetching.
 
-    Syntax: $<module.submodule.sub...> or $<module>
+    Syntax: $<module.submodule.recurisve..> or $<module>
 
     Examples:
-    - $<user.name>       # Displays login username
+    - $<user.name>       # Shows login username
     - $<os.kernel.name>  # Shows kernel name only
     - $<ram>             # Shows formatted RAM usage
 
-    Use `--list-modules` to see all available modules and members.
+    Use `--list-modules` to see all available modules and recursive submodules.
 
 2. Bash Command Tag ($())
     Executes shell commands and outputs the result.
@@ -188,13 +189,12 @@ Tag References:
 
     Examples:
     - $(echo "hello")             # Outputs: hello
-    - $(date +%F)                 # Shows current date
     - $(uname -r | cut -d'-' -f1) # Shows kernel version number only
 
 3. Conditional Tag ($[])
     Displays different outputs based on conditions.
 
-    Syntax: $[condition,comparison,true_output,false_output]
+    Syntax: $[something,something_else,if_equal,if_not_equal]
 
     Examples:
     - $[$<user.name>,toni,Welcome back!,Access denied]
@@ -202,15 +202,15 @@ Tag References:
     - $[$<os.name.id>,arch,${green}I use arch btw,${red}Non-arch user]
 
 4. Color Tag (${})
-    Applies colors and text formatting.
+    Applies colors and text formatting for following text.
 
     Basic syntax: ${color} or ${modifiers#RRGGBB}
 
     Color options:
-    - Named colors from config
+    - Named colors from config (cyan, from alias-colors, ...)
     - Hex colors: ${#ff00cc}
     - Special colors: ${auto} (uses logo colors)
-    - Reset styles: ${0} (normal), ${1} (bold reset)
+    - Reset styles: ${0} (normal reset), ${1} (bold reset)
 
     Formatting modifiers (prefix before hexcolor):
     - ! = Bold
@@ -232,18 +232,18 @@ Tag References:
     - w(value) = Font weight (light/normal/bold/ultrabold or 100-1000)
 
     Examples:
-GUI App only:
+    GUI App only:
         ${oU(#ff0000)L(double)}Error            # Double red underline
         ${a(50%)#00ff00}Semi-transparent green
-    Cross-platform:
+    GUI and Terminal:
         ${\e[1;33m}Bold yellow
         ${b#222222}${white}White on gray
         ${auto3}The 3rd logo color
 
     Notes:
-    - customfetch will try to convert ANSI escape codes to GUI app equivalent
     - customfetch will ignore GUI-specific modifiers on terminal.
-    - if you're using the GUI app and want to display a custom logo that's an image, all the auto colors will be the same colors as the distro ones.
+    - if you're using the GUI app and want to display a custom logo that's an image,
+      all the ${auto} colors will be the same colors as the auto-detected distro ASCII art.
 
 5. Percentage Tag ($%%)
     Calculates and displays colored percentages.
@@ -261,13 +261,13 @@ Pro Tip:
 
 FAQ:
 Q: Why do special characters (&, <) break the GUI display?
-A: Escape these characters with \\ (e.g replace "<" with "\\<" from both config and ASCII art):
+A: Escape these characters with \\ (e.g replace "<" with "\\<"):
    This doesn't affect terminal output.
 
 Q: How can I use cbonsai as ASCII art?
 A: 1. Create a text file containing: $(!cbonsai -p)
    2. Use: customfetch -s "/path/to/file.txt"
-   3. Adjust offset for proper alignment
+   3. Adjust offset for proper alignment (not dynamic)
 
 Q: Does customfetch support nested tags?
 A: Yes! Complex nesting is supported, for example:

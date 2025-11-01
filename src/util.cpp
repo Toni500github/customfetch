@@ -48,12 +48,6 @@
 #include "platform.hpp"
 #include "tiny-process-library/process.hpp"
 
-#if !CF_ANDROID
-const std::string& all_ids = get_pci_ids();
-#else
-const std::string& all_ids = "";
-#endif
-
 bool hasEnding(const std::string_view fullString, const std::string_view ending)
 {
     if (ending.length() > fullString.length())
@@ -480,7 +474,7 @@ std::string name_from_entry(size_t dev_entry_pos)
 {
     dev_entry_pos += 6;  // Offset from the first character to the actual name that we want (xxxx  <device name>)
 
-    std::string name = all_ids.substr(dev_entry_pos, all_ids.find('\n', dev_entry_pos) - dev_entry_pos);
+    std::string name = std::string(all_ids.substr(dev_entry_pos, all_ids.find('\n', dev_entry_pos) - dev_entry_pos));
 
     const size_t bracket_open_pos  = name.find('[');
     const size_t bracket_close_pos = name.find(']');
@@ -496,7 +490,7 @@ std::string vendor_from_entry(const size_t vendor_entry_pos, const std::string_v
     if (end_line_pos == std::string::npos)
         end_line_pos = all_ids.length();  // If no newline is found, set to end of string
 
-    const std::string& line = all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos);
+    const std::string& line = std::string(all_ids.substr(vendor_entry_pos, end_line_pos - vendor_entry_pos));
 
     const size_t       after_id_pos = line.find(vendor_id_s) + 4;
     const std::string& description  = line.substr(after_id_pos);

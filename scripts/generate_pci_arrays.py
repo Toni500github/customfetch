@@ -96,35 +96,29 @@ with open("pci.ids.hpp", 'w+') as f:
     f.write("""#ifndef _PCI_IDS_HPP
 #define _PCI_IDS_HPP
 
+/* TODO: delete any subdevices (what the fuck man this REALLY needs a rewrite) */
+
 #include "platform.hpp"
 #if !CF_ANDROID
 
 #include <array>
-#include <string>
+#include <string_view>
 
-inline constexpr std::array<std::string_view, %s> get_pci_vendors_array() {
-    return %s;
-}
+using namespace std::string_view_literals;
 
-inline constexpr std::array<int, %s> get_pci_vendors_location_array() {
-    return %s;
-}
+inline constexpr std::array<std::string_view, %s> pci_vendors_array = %s;
 
-inline std::string get_pci_ids() {
-    return R"(%s)";
-}
+inline constexpr std::array<int, %s> pci_vendors_location_array = %s;
 
-inline const std::string& all_ids = get_pci_ids();
-inline constexpr std::array<std::string_view, %s> pci_vendors_array = get_pci_vendors_array();
-inline constexpr std::array<int, %s> pci_vendors_location_array = get_pci_vendors_location_array();
+inline constexpr std::string_view all_ids = R"(%s)"sv;
 
 #else
 
-inline const std::string& all_ids = {}
-inline constexpr std::array<std::string_view, %s> pci_vendors_array = {}
-inline constexpr std::array<int, %s> pci_vendors_location_array = {}
+inline constexpr std::string_view                   all_ids                    = {};
+inline constexpr std::array<std::string_view, %s>   pci_vendors_array          = {};
+inline constexpr std::array<int, %s>                pci_vendors_location_array = {};
 
-#endif // !CF_ANDROID
+#endif  // !CF_ANDROID
 
 #endif  // _PCI_IDS_HPP""" % (len(vendor_array), repr(vendor_array).replace("'", '"').replace('[', '{').replace(']', '}'), len(location_array), repr(location_array).replace("'", '"').replace('[', '{').replace(']', '}'), file, len(vendor_array), len(location_array)))
 

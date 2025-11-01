@@ -402,6 +402,8 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     if (!parse_args.parsingLayout && !removetag && parser.dollar_pos != std::string::npos)
         parse_args.pureOutput.replace(parser.dollar_pos, command.length() + "$()"_len, cmd_output);
 
+    if (!cmd_output.empty() && cmd_output.back() == '\n')
+        cmd_output.pop_back();
     return cmd_output;
 }
 
