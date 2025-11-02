@@ -117,12 +117,14 @@ $(TARGET): genver fmt toml tpl getopt-port json libcufetch $(OBJ)
 locale:
 	scripts/make_mo.sh locale/
 
-dist: $(TARGET) locale
-ifeq ($(GUI_APP), 1)
-	$(TAR) -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).desktop locale/ $(NAME).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
-else
-	$(TAR) -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).1 locale/ assets/ascii/ -C $(BUILDDIR) $(TARGET)
-endif
+#dist: $(TARGET) locale
+#ifeq ($(GUI_APP), 1)
+#	$(TAR) -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).desktop locale/ $(NAME).1 assets/ascii/ -C $(BUILDDIR) $(TARGET)
+#else
+#	$(TAR) -zcf $(NAME)-v$(VERSION).tar.gz LICENSE $(NAME).1 locale/ assets/ascii/ -C $(BUILDDIR) $(TARGET)
+#endif
+dist:
+	$(warning `make dist` is deprecated, use `make usr-dist` instead)
 
 usr-dist: $(TARGET) locale
 	mkdir -p $(PWD)/usr
@@ -147,7 +149,7 @@ install-common: genver libcufetch locale
 	$(MAKE) -C cufetchpm DEBUG=$(DEBUG) GUI_APP=$(GUI_APP) CXXSTD=$(CXXSTD)
 	install cufetchpm/$(BUILDDIR)/cufetchpm -Dm 755 -v $(DESTDIR)$(PREFIX)/bin/cufetchpm
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1/
-	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < $(NAME).1 > $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
+	sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@BRANCH@/$(BRANCH)/g" < docs/man/$(NAME).1 > $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/$(NAME).1
 	install LICENSE -Dm 644 $(DESTDIR)$(PREFIX)/share/licenses/$(NAME)/LICENSE
 	cd assets/ && find ascii/ -type f -exec install -Dm 644 "{}" "$(DESTDIR)$(PREFIX)/share/$(NAME)/{}" \;
@@ -160,7 +162,7 @@ install-common: genver libcufetch locale
 	install -Dm 755 $(BUILDDIR)/libfmt.a $(DESTDIR)$(PREFIX)/lib/libcufetch-fmt.a
 ifeq ($(GUI_APP), 1)
 	mkdir -p $(DESTDIR)$(APPPREFIX)
-	cp -f $(NAME).desktop $(DESTDIR)$(APPPREFIX)/$(NAME).desktop
+	cp -f assets/$(NAME).desktop $(DESTDIR)$(APPPREFIX)/$(NAME).desktop
 endif
 
 uninstall:

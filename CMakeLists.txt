@@ -249,7 +249,7 @@ install(TARGETS cufetchpm
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${TARGET_NAME} \${CMAKE_INSTALL_PREFIX}/bin/cufetch)")
 
 # Install the rest
-install(FILES ${CMAKE_SOURCE_DIR}/customfetch.1
+install(FILES ${CMAKE_SOURCE_DIR}/docs/man/customfetch.1
         DESTINATION share/man/man1
         COMPONENT documentation)
 
@@ -308,7 +308,7 @@ install(CODE "
 " COMPONENT runtime)
 
 if(GUI_APP)
-    install(FILES ${CMAKE_SOURCE_DIR}/customfetch.desktop
+    install(FILES ${CMAKE_SOURCE_DIR}/assets/customfetch.desktop
             DESTINATION share/applications
             COMPONENT runtime)
 endif()
