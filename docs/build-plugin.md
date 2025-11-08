@@ -1,34 +1,49 @@
-# How to develop a customfetch plugin (still WIP)
+# Developing a Customfetch Plugin
 
-Thanks to the new update since `v2.0.0-beta1`, customfetch is no longer just another neofetch-like program that fetches only system information. But it was made possible to develop and load user-made plugins for fetching any other information the user would like. 
+> [!Note]
+> This guide is a work in progress and may change as customfetch continues to develop.
 
-Instead of installing different neofetch-like tools for different info fetching, e.g [onefetch](https://github.com/o2sh/onefetch) for viewing git tree infos or [githubfetch](https://github.com/isa-programmer/githubfetch) for viewing a GitHub user infos, you can use one neofetch-like tool (customfetch) and be able to view as many different infos as you would like to.
+Since version `v2.0.0-beta1`, **customfetch** has evolved beyond being just another neofetch-like program that displays system information.  
+It now supports **user-made plugins**, allowing developers to fetch and display any type of information they want directly within customfetch.
 
-It's required having a knowledge about C++ programming (basic/mid) for creating a customfetch plugin.
+This means you no longer need separate tools like [onefetch](https://github.com/o2sh/onefetch) (for Git information) or [githubfetch](https://github.com/isa-programmer/githubfetch) (for GitHub profile information).  
+With customfetch, you can display as much and different fetched infos you'd like in one single config.
 
-## What are customfetch plugins used for?
+Developing a customfetch plugin requires **basic to intermediate C++ knowledge**, as also Git.
 
-Customfetch plugins are used for loading info tag `$<>` external modules, where at parsing it calls the module function automatically.  For now, it doesn't let the user modify more the aspect of customfetch generally, but just fetching external infos other than system ones.
+---
 
-## Developing and building the plugin
+## What Are Customfetch Plugins?
 
-### Initializing
+Customfetch plugins are dynamically loaded modules that provide external info fetching, used in the info tag `$<>`.  
+When the configuration is parsed, customfetch automatically calls the corresponding plugin function to fetch and display the data.
 
-To make your plugins installable through customfetch's own plugin manager `cufetchpm`, you'll need to first create a git repository and a manifest file called `cufetchpm.toml`.
+Currently, plugins can only extend **data fetching** capabilities — they cannot modify the overall appearance or behavior of customfetch itself.
 
-1. Create a git repository (`git init`)
 
-2. run `cufetchpm gen-manifest` for generating a manifest template with comments explaning each config
+## 1. Initializing Your Plugin Project
 
+If you want your plugin to be installable through customfetch’s plugin manager, `cufetchpm`, start by setting up your repository and manifest.
+
+1. **Create a new Git repository**
+
+2. **Generate a template manifest file:**
+
+```bash
+$ cufetchpm gen-manifest
+```
+This command creates a `cufetchpm.toml` file with explanatory comments for each configuration option.
 After doing that, modify the manifest template with your repository name and url and other changes if needed.
 
-### Developing
+## 2. Developing the Plugin
+Currently, plugins are only supported via the C++ API. Bindings for other languages like C, Rust, or Go are not yet available.
 
-Now it's time to actually start developing the plugin. At the moment it's only compatible with C++ API, thus external languages such as C or Rust or Go, cannot create a binding of the libcufetch API.
+For this example, we will create a simple repository containing one plugin.  
+If you want to see how to include multiple plugins in a single repository, refer to the [customfetch-plugin-github](https://github.com/Toni500github/customfetch-plugin-github/) example.
 
-In this example, we gonna create repository that contains only one plugin, but `cufetchpm` supports installing multiple plugins in the same repository, you can checkout https://github.com/Toni500github/customfetch-plugin-github/ for creating a repository with multiple plguins.
+### Example Plugin Source
 
-Let's create a simple `test-plugin.cc` source file. We're going to include the required libcufetch headers
+Create a new file called `test-plugin.cc` and include the required headers:
 
 ```c++
 #include <libcufetch/common.hh>
@@ -37,55 +52,130 @@ Let's create a simple `test-plugin.cc` source file. We're going to include the r
 ```
 
 <details>
-  <summary><b>Click to expand for details about each header</b></summary>
+<summary><b>About the headers</b></summary>
 
-  * `<libcufetch/common.hh>` will include logging calls `die`, `error`, `warn`, `info` and `debug` (only if customfetch is run with `--debug=1`)
-    and also macros such as `APICALL`, `EXPORT`, `PLUGIN_INIT` and `PLUGIN_FINISH`, which can be useful for facilitating the plugin development.
-  * `<libcufetch/config.hh>` will include the `ConfigBase` class which is used for accessing the configs of the config file customfetch uses.
-  * `<libcufetch/cufetch.hh>` will include the important structs `moduleArgs_t`, `callbackInfo_t`, `module_t` and `cfRegisterModule()` for creating/registering modules that will be called from the config file.
+* `<libcufetch/common.hh>` — includes logging utilities (`die`, `error`, `warn`, `info`, `debug`) and helpful macros such as `APICALL`, `EXPORT`, `PLUGIN_INIT`, and `PLUGIN_FINISH`.
+* `<libcufetch/config.hh>` — provides access to the `ConfigBase` class for reading configuration values.
+* `<libcufetch/cufetch.hh>` — defines important structs like `moduleArgs_t`, `callbackInfo_t`, `module_t`, and the `cfRegisterModule()` function used for module registration.
 </details>
 
-And let's create our handler callback function:
+---
+
+### Defining a Handler Function
+
+A handler function must return a `std::string` and take a `const callbackInfo_t*` parameter.  
+Let’s create a simple submodule handler:
 
 ```c++
 std::string test_submod_func(const callbackInfo_t* cb) {
     return "Sub module";
 }
 ```
+<details>
+<summary><b>About callbackInfo_t</b></summary>
+  
+  The struct `callbackInfo_t` contains:
+  * `const moduleArgs_t* moduleArgs`: A linked list including module arguments. An argument may be specified for any part of the module path (e.g. `disk(/).used(GiB)`, `test.hi(a)`)
+  * `parse_args_t& parse_args`: a context struct that can be used in the `parse()` function, for parsing strings with tags.
+      ```c++
+      /* Context struct used when parsing tags in strings.
+       * @param modules_info The modules fetched infos
+       * @param config The config instance
+       * @param pure_output The output of the string but without tags
+       * @param layout The layout of customfetch
+       * @param tmp_layout The temponary layout to be used for multiple-line modules
+       * @param no_more_reset uhh let me see
+       * @param parsing_layout Are we parsing the layout or the ASCII art logo?
+       */
+      struct EXPORT parse_args_t
+      {
+          const moduleMap_t&        modules_info;
+          const ConfigBase&         config;
+          std::string&              pure_output;
+          std::vector<std::string>& layout;
+          std::vector<std::string>& tmp_layout;
+          bool                      parsing_layout;
+          bool                      no_more_reset = false;
+          bool                      firstrun_clr  = true; // don't use it. Internal "flag"
+      };
+      ```
+</details>
 
-An handler function must return a `std::string` and take in parameters a `const callbackInfo_t*`.
+---
 
+### Plugin Initialization Function
 
-
-Now the important part starts here. We going to create our plugin main start entry function, which will be called once the plugin got loaded successfully:
+Next, define the plugin’s main initialization entry point.  
+This function is automatically called when the plugin is successfully loaded.
 
 ```c++
 APICALL EXPORT PLUGIN_INIT(void *handle, const ConfigBase& config) {
-    
+ 
 }
 ```
+* `handle` — The plugin (shared library) handle, as returned by `dlopen()`.
+* `config` — An instance of the parsed customfetch config file.
 
-* `handle` is the plugin (library) main handler from `dlopen()`.
+Inside this function, you will declare and register the modules your plugin provides.
 
-* `config` is the instance of the parsed config file from customfetch, where you can get parsed values of the whole file. 
+---
 
-Inside the main start entry (canonically `void start()`) we're going to declare and register all the modules the user can use.
+### Defining and Registering Modules
 
-Since it's possible to create recursive modules, we're going to start defining modules from bottom to top
+customfetch allows defining **nested modules** (submodules).  
+For this reason, it’s best to define modules from the bottom up.
 
 ```c++
-/* Here we create the 'submod' submodule. in customfetch there's no practical difference between a parent module and a submodule. So we just define it like any other module. */
-/* We will not register this, it will be implicitly added through its parent module (so we can't directly invoke `submod`, we can only invoke `root.submod`) */
-module_t submod_module = {"submod", "a generic submodule description", {}, test_submod_func};
+// Define a submodule. There’s no practical difference between a module and a submodule in customfetch.
+module_t submod_module = { "submod", "A generic submodule description", {}, test_submod_func };
 
-/* And here we create the 'root' module. This is what we're actually going to register and it will include the 'submod' module as a submodule. */
-/* This module doesn't have a handler, so it can't be used in the config (`root` won't work). We'll instead use `root.submod` in the config (which does have a handler). */
-module_t root_module = { "root", "root module description", { std::move(submod_module) }, NULL };
+// Define a root module that contains the submodule.
+module_t root_module = { "root", "Root module description", { std::move(submod_module) }, NULL };
 
-/* Register the module. */
-/* This will take the root module, recursively add it and its submodules to the list, and continue until its finished everything. */
+// Register the root module (and all its submodules recursively).
 cfRegisterModule(root_module);
 ```
 
-### Building
-Building a customfetch plugin doesn't require any specific build-system such as cmake or meson, heck you can straight just put `c++ test-plugin.cc -std=c++17 -shared -fPIC -o test-plugin.so -Wl,--export-dynamic -Wl,-undefined,dynamic_lookup` in your plugin table `build-steps` section if it's a super simple Linux/android plugin.
+In this example:
+- `root.submod` can be used in the customfetch configuration file.
+- The parent module `root` does not have a handler, so it will return `(unknown/invalid module)`
+
+---
+
+## 3. Building the Plugin
+> [!Note]
+> The build command shown is for Linux/Unix systems. Windows and macOS may require different compiler flags and file extensions (`.dll` for Windows, `.dylib` for macOS).
+
+You can build a plugin using any build system, but a simple compiler command works fine:
+
+```bash
+c++ test-plugin.cc -std=c++17 -shared -fPIC -o test-plugin.so -Wl,--export-dynamic -Wl,-undefined,dynamic_lookup
+```
+
+If you defined this in your manifest’s `build-steps` plugin section, `cufetchpm` can build it automatically when installing.
+
+---
+
+## 4. Trying Out the Plugin
+Now save and commit all your changes and `git push` to the remote repository.
+To install your plugin, you need to run:
+```bash
+$ cufetchpm install <your-git-repo-url>
+```
+
+If `cufetchpm` doesn't report any errors, congratulations!
+To try out your plugin, run:
+```bash
+$ customfetch -nm "\$<root.submod>"
+Sub module
+```
+
+## Tips and Troubleshooting
+
+- Ensure your handler functions strictly match the required signature.
+- Always call `cfRegisterModule()` for your top-level modules.
+- When debugging, use `--debug=1` to view additional logs from your plugin.
+- If your plugin doesn't load, verify symbol exports with:
+```bash
+nm -D test-plugin.so | grep "start"
+```
