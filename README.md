@@ -72,17 +72,17 @@ Grab the latest `.deb` file from the [releases page](https://github.com/Toni500g
 
 ### Arch (AUR)
 ```bash
-# Binary versions
-yay -S customfetch-bin          # Terminal only
-yay -S customfetch-gui-bin      # GUI version
+# Binary 
+yay -S customfetch-bin       # Terminal only
+yay -S customfetch-gui-bin   # GUI version
 
-# Source versions
-yay -S customfetch              # Terminal only
-yay -S customfetch-gui          # GUI version
+# Compile from source (stable)
+yay -S customfetch           # Terminal only
+yay -S customfetch-gui       # GUI version
 
 # Unstable / git versions
-yay -S customfetch-git
-yay -S customfetch-gui-git
+yay -S customfetch-git       # Terminal only
+yay -S customfetch-gui-git   # GUI version
 ```
 
 ### Manual installation (for other distros)
@@ -155,8 +155,7 @@ Run `customfetch -w` or `man customfetch` for full syntax reference.\
 Escape `<` or `&` when needed (especially for GUI compatibility).
 
 ## Plugins
-Plugins are what make Customfetch so flexible.  
-They let you extend it beyond system information and fetch anything — weather, GitHub data, APIs, or whatever else you can imagine.
+Thanks to plugins, customfetch is able to fetch beyond system information and be able to fetch anything — weather, GitHub data, APIs, etc.
 
 You can easily install plugins from repositories using `cufetchpm`.  
 For example:
