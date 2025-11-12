@@ -94,14 +94,14 @@ static std::vector<std::string> render_with_image(const Config& config)
     std::ifstream            file(path, std::ios::binary);
     std::string              line, _;
     std::vector<std::string> tmp_layout;
-    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, false };
+    parse_args_t             parse_args{ modulesInfo, config, _, layout, tmp_layout, false };
     while (std::getline(file, line))
     {
         parse(line, parse_args);
         parse_args.no_more_reset = false;
     }
 
-    parse_args.parsingLayout = true;
+    parse_args.parsing_layout = true;
     for (size_t i = 0; i < layout.size(); ++i)
     {
         layout[i]                = parse(layout[i], parse_args);

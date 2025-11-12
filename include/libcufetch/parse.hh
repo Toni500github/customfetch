@@ -45,47 +45,31 @@ struct module_t;
 using moduleMap_t = std::unordered_map<std::string, const module_t&>;
 
 /* Context struct used when parsing tags in strings.
- * @param input The string to parse
- * @param modulesInfo The system infos
- * @param pureOutput The output of the string but without tags
- * @param layout The layout of customfetch
- * @param tmp_layout The temponary layout to be used for multiple-line modules
- * @param config The config
- * @param no_more_reset If we are recursively parsing, e.g we are inside tags
+ * @param modules_info The modules fetched infos
+ * @param config The config instance
+ * @param pure_output The output of the string but without tags
+ * @param layout The layout array of customfetch
+ * @param tmp_layout A temponary layout to be used for multiple-line modules
+ * @param parsing_layout Are we parsing the layout or the ASCII art logo?
  */
 struct EXPORT parse_args_t
 {
-    const moduleMap_t&        modulesInfo;
-    std::string&              pureOutput;
+    const moduleMap_t&        modules_info;
+    const ConfigBase&         config;
+    std::string&              pure_output;
     std::vector<std::string>& layout;
     std::vector<std::string>& tmp_layout;
-    const ConfigBase&         config;
-    bool                      parsingLayout;
-    bool                      firstrun_clr  = true;
+    bool                      parsing_layout;
     bool                      no_more_reset = false;
+    bool                      firstrun_clr  = true; // don't use it. Internal "flag"
 };
 
-/* Parse input, in-place, with data from modulesInfo.
- * Documentation on formatting is in the flag -w or the customfetch.1 manual.
- * @param input The string to parse
- * @param modulesInfo The system infos
- * @param pureOutput The output of the string but without tags
- * @param layout The layout of customfetch
- * @param tmp_layout The temponary layout to be used for multiple-line modules
- * @param config The config
- * @param parsingLayout If we are parsing layout or not
- * @param no_more_reset If we are recursively parsing, e.g we are inside tags
- */
-std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
-                  std::vector<std::string>& layout, std::vector<std::string>& tmp_layout, const ConfigBase& config,
-                  const bool parsingLayout, bool& no_more_reset);
-
-/* Parse input, in-place, with data from modulesInfo.
+/* Parse input, in-place, with data from modules_info.
  * Documentation on formatting is in the flag -w or the customfetch.1 manual.
  * @param input The string to parse
  * @param parse_args The parse arguments to be used (parse_args_t)
  */
-APICALL EXPORT std::string parse(const std::string& input, parse_args_t& parse_args);
+APICALL EXPORT std::string parse(std::string input, parse_args_t& parse_args);
 
 /*
  * Create a colored percentage from parse()

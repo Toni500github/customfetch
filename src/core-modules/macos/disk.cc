@@ -24,7 +24,6 @@
  */
 
 #include "platform.hpp"
-#include "switch_fnv1a.hpp"
 #if CF_MACOS
 
 #include <sys/mount.h>
@@ -37,6 +36,7 @@
 #include "core-modules.hh"
 #include "fmt/format.h"
 #include "libcufetch/common.hh"
+#include "switch_fnv1a.hpp"
 #include "util.hpp"
 
 static std::string format_auto_query_string(std::string str, const struct statfs* fs)
@@ -72,11 +72,11 @@ static int get_disk_type(const int flags)
 
 static bool get_disk_info(const callbackInfo_t* callbackInfo, struct statfs* fs)
 {
-    if (callbackInfo->moduleArgs->name != "disk" ||
-        (callbackInfo->moduleArgs->name == "disk" && callbackInfo->moduleArgs->value.empty()))
+    if (callbackInfo->module_args->name != "disk" ||
+        (callbackInfo->module_args->name == "disk" && callbackInfo->module_args->value.empty()))
         die("Module disk doesn't have an argmument to the path/device to query");
 
-    const std::string& path = callbackInfo->moduleArgs->value;
+    const std::string& path = callbackInfo->module_args->value;
     return (statfs(path.c_str(), fs) == 0);
 }
 

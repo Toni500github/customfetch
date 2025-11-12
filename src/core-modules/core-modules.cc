@@ -92,7 +92,7 @@ static std::string get_auto_uptime(const std::uint16_t days, const std::uint16_t
 static std::string get_colors_symbol(const callbackInfo_t* callback, bool is_light)
 {
     const moduleArgs_t* symbolArg;
-    for (symbolArg = callback->moduleArgs; symbolArg && symbolArg->name != "symbol"; symbolArg = symbolArg->next)
+    for (symbolArg = callback->module_args; symbolArg && symbolArg->name != "symbol"; symbolArg = symbolArg->next)
         ;
     if (symbolArg->value.empty())
         die(
@@ -161,8 +161,8 @@ MODFUNC(disk_fmt)
 
     // clang-format off
     std::string result {fmt::format("{} / {} {}",
-                        amount(used, callback->moduleArgs),
-                        amount(total, callback->moduleArgs), 
+                        amount(used, callback->module_args),
+                        amount(total, callback->module_args), 
                         parse("${0}(" + perc + ")", callback->parse_args))
                         };
     // clang-format on
@@ -186,8 +186,8 @@ MODFUNC(ram_fmt)
 
     // clang-format off
     return fmt::format("{} / {} {}",
-                        amount(used, callback->moduleArgs),
-                        amount(total, callback->moduleArgs), 
+                        amount(used, callback->module_args),
+                        amount(total, callback->module_args), 
                         parse("${0}(" + perc + ")", callback->parse_args))
                         ;
     // clang-format on
@@ -205,8 +205,8 @@ MODFUNC(swap_fmt)
 
     // clang-format off
     return fmt::format("{} / {} {}",
-                        amount(used, callback->moduleArgs),
-                        amount(total, callback->moduleArgs), 
+                        amount(used, callback->module_args),
+                        amount(total, callback->module_args), 
                         parse("${0}(" + perc + ")", callback->parse_args))
                         ;
     // clang-format on
@@ -407,9 +407,9 @@ void core_plugins_start(const Config& config)
     // $<ram>
     module_t ram_free_perc_module  = {"perc", "percentage of available amount of RAM in total [82.31%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_free(), ram_total(), callback->parse_args, true);}};
     module_t ram_used_perc_module  = {"perc", "percentage of used amount of RAM in total [17.69%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(ram_used(), ram_total(), callback->parse_args, false);}};
-    module_t ram_free_module  = {"free", "available amount of RAM (auto) [10.46 GiB]", {std::move(ram_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_free() * 1024,  callback->moduleArgs);  }};
-    module_t ram_used_module  = {"used", "used amount of RAM (auto) [2.81 GiB]", {std::move(ram_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_used() * 1024,  callback->moduleArgs);  }};
-    module_t ram_total_module = {"total", "total amount of RAM (auto) [15.88 GiB]", {}, [](const callbackInfo_t *callback) { return amount(ram_total() * 1024, callback->moduleArgs); }};
+    module_t ram_free_module  = {"free", "available amount of RAM (auto) [10.46 GiB]", {std::move(ram_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_free() * 1024,  callback->module_args);  }};
+    module_t ram_used_module  = {"used", "used amount of RAM (auto) [2.81 GiB]", {std::move(ram_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(ram_used() * 1024,  callback->module_args);  }};
+    module_t ram_total_module = {"total", "total amount of RAM (auto) [15.88 GiB]", {}, [](const callbackInfo_t *callback) { return amount(ram_total() * 1024, callback->module_args); }};
         
     module_t ram_module = {"ram", "used and total amount of RAM (auto) with used percentage [2.81 GiB / 15.88 GiB (5.34%)]", {
         std::move(ram_free_module),
@@ -421,9 +421,9 @@ void core_plugins_start(const Config& config)
     // $<swap>
     module_t swap_free_perc_module  = {"perc", "percentage of available amount of the swapfile in total [6.71%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_free(), swap_total(), callback->parse_args, true);}};
     module_t swap_used_perc_module  = {"perc", "percentage of used amount of the swapfile in total [93.29%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(swap_used(), swap_total(), callback->parse_args, false);}};
-    module_t swap_free_module  = {"free", "available amount of the swapfile (auto) [34.32 MiB]", {std::move(swap_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_free() * 1024,  callback->moduleArgs);  }};
-    module_t swap_used_module  = {"used", "used amount of the swapfile (auto) [477.68 MiB]", {std::move(swap_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_used() * 1024,  callback->moduleArgs);  }};
-    module_t swap_total_module = {"total", "total amount of the swapfile (auto) [512.00 MiB]", {}, [](const callbackInfo_t *callback) { return amount(swap_total() * 1024, callback->moduleArgs); }};
+    module_t swap_free_module  = {"free", "available amount of the swapfile (auto) [34.32 MiB]", {std::move(swap_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_free() * 1024,  callback->module_args);  }};
+    module_t swap_used_module  = {"used", "used amount of the swapfile (auto) [477.68 MiB]", {std::move(swap_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(swap_used() * 1024,  callback->module_args);  }};
+    module_t swap_total_module = {"total", "total amount of the swapfile (auto) [512.00 MiB]", {}, [](const callbackInfo_t *callback) { return amount(swap_total() * 1024, callback->module_args); }};
 
     module_t swap_module = {"swap", "used and total amount of the swapfile (auto) with used percentage [477.68 MiB / 512.00 MiB (88.45%)]", {
         std::move(swap_free_module),
@@ -440,9 +440,9 @@ void core_plugins_start(const Config& config)
 
     module_t disk_free_perc_module  = {"perc", "percentage of available amount of the disk in total [17.82%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_free(callback), disk_total(callback), callback->parse_args, true);}};
     module_t disk_used_perc_module  = {"perc", "percentage of used amount of the disk in total [82.18%]", {}, [](const callbackInfo_t *callback) {return get_and_color_percentage(disk_used(callback), disk_total(callback), callback->parse_args, false);}};
-    module_t disk_free_module  = {"free", "available amount of disk space (auto) [438.08 GiB]", {std::move(disk_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_free(callback),  callback->moduleArgs);  }};
-    module_t disk_used_module  = {"used", "used amount of disk space (auto) [360.02 GiB]", {std::move(disk_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_used(callback),  callback->moduleArgs);  }};
-    module_t disk_total_module = {"total", "total amount of disk space (auto) [100.08 GiB]", {}, [](const callbackInfo_t *callback) { return amount(disk_total(callback), callback->moduleArgs); }};
+    module_t disk_free_module  = {"free", "available amount of disk space (auto) [438.08 GiB]", {std::move(disk_free_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_free(callback),  callback->module_args);  }};
+    module_t disk_used_module  = {"used", "used amount of disk space (auto) [360.02 GiB]", {std::move(disk_used_perc_module)}, [](const callbackInfo_t *callback) { return amount(disk_used(callback),  callback->module_args);  }};
+    module_t disk_total_module = {"total", "total amount of disk space (auto) [100.08 GiB]", {}, [](const callbackInfo_t *callback) { return amount(disk_total(callback), callback->module_args); }};
 
     module_t disk_module = {"disk", "used and total amount of disk space (auto) with type of filesystem and used percentage [379.83 GiB / 438.08 GiB (86.70%) - ext4]", {
         std::move(disk_fsname_module),

@@ -74,8 +74,8 @@ static std::string get_gpu_syspath(const std::string& id)
 
 MODFUNC(gpu_name)
 {
-    const std::string& id = (callbackInfo && callbackInfo->moduleArgs->name.length() > 3)
-        ? callbackInfo->moduleArgs->name.substr(3)
+    const std::string& id = (callbackInfo && callbackInfo->module_args->name.length() > 3)
+        ? callbackInfo->module_args->name.substr(3)
         : "0";
     const std::string& sys_path = get_gpu_syspath(id);
     return get_name(read_by_syspath(sys_path + "/device/vendor"), read_by_syspath(sys_path + "/device/device"));
@@ -83,8 +83,8 @@ MODFUNC(gpu_name)
 
 MODFUNC(gpu_vendor)
 {
-    const std::string& id = (callbackInfo && callbackInfo->moduleArgs->name.length() > 3)
-        ? callbackInfo->moduleArgs->name.substr(3)
+    const std::string& id = (callbackInfo && callbackInfo->module_args->name.length() > 3)
+        ? callbackInfo->module_args->name.substr(3)
         : "0";
     const std::string& sys_path = get_gpu_syspath(id);
     return get_vendor(read_by_syspath(sys_path + "/device/vendor"));

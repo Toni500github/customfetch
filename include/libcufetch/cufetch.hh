@@ -46,7 +46,7 @@ struct moduleArgs_t
 // Struct used in modules callback functions (handler in module_t)
 struct callbackInfo_t
 {
-    const moduleArgs_t* moduleArgs;
+    const moduleArgs_t* module_args;
     parse_args_t&       parse_args;
 };
 

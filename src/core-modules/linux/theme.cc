@@ -402,7 +402,7 @@ const std::string& wmde_name =
 
 MODFUNC(theme_gtk_name)
 {
-    const moduleArgs_t* moduleArg = callbackInfo->moduleArgs;
+    const moduleArgs_t* moduleArg = callbackInfo->module_args;
     for (; moduleArg && moduleArg->name != "gtk"; moduleArg = moduleArg->next)
         ;
     if (!moduleArg)
@@ -416,7 +416,7 @@ MODFUNC(theme_gtk_name)
 
 MODFUNC(theme_gtk_icon)
 {
-    const moduleArgs_t* moduleArg = callbackInfo->moduleArgs;
+    const moduleArgs_t* moduleArg = callbackInfo->module_args;
     for (; moduleArg && moduleArg->name != "gtk"; moduleArg = moduleArg->next)
         ;
     if (!moduleArg)
@@ -430,7 +430,7 @@ MODFUNC(theme_gtk_icon)
 
 MODFUNC(theme_gtk_font)
 {
-    const moduleArgs_t* moduleArg = callbackInfo->moduleArgs;
+    const moduleArgs_t* moduleArg = callbackInfo->module_args;
     for (; moduleArg && moduleArg->name != "gtk"; moduleArg = moduleArg->next)
         ;
     if (!moduleArg)

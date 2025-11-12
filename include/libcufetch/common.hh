@@ -73,13 +73,13 @@ void die(const std::string_view fmt, Args&&... args) noexcept
 }
 
 // std::format function arguments
-// Print to stdout a debug msg with header '[DEBUG]' in hot-pink color
-// only if debug_print is set (do not modify it).
+// Print to stdout a debug msg with header '[DEBUG]' in pink color
+// only if customfetch is run with --debug=1
 template <typename... Args>
 void debug(const std::string_view fmt, Args&&... args) noexcept
 {
     if (debug_print)
-        fmt::print(stdout, "\033[1;38;2;255;105;180m[DEBUG]:\033[0m {}\n",
+        fmt::print(stdout, "\033[1;35m[DEBUG]:\033[0m {}\n",
                    fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 

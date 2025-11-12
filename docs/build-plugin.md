@@ -82,9 +82,8 @@ std::string test_submod_func(const callbackInfo_t* cb) {
        * @param modules_info The modules fetched infos
        * @param config The config instance
        * @param pure_output The output of the string but without tags
-       * @param layout The layout of customfetch
-       * @param tmp_layout The temponary layout to be used for multiple-line modules
-       * @param no_more_reset uhh let me see
+       * @param layout The layout array of customfetch
+       * @param tmp_layout A temponary layout to be used for multiple-line modules
        * @param parsing_layout Are we parsing the layout or the ASCII art logo?
        */
       struct EXPORT parse_args_t

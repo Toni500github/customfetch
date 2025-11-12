@@ -48,7 +48,7 @@
 class Parser
 {
 public:
-    Parser(const std::string_view src, std::string& pureOutput) : src{ src }, pureOutput{ pureOutput } {}
+    Parser(const std::string_view src, std::string& pure_output) : src{ src }, pure_output{ pure_output } {}
 
     bool try_read(const char c)
     {
@@ -64,13 +64,13 @@ public:
         return false;
     }
 
-    char read_char(const bool add_pureOutput = false)
+    char read_char(const bool add_pure_output = false)
     {
         if (is_eof())
             return 0;
 
-        if (add_pureOutput)
-            pureOutput += src[pos];
+        if (add_pure_output)
+            pure_output += src[pos];
 
         ++pos;
         return src[pos - 1];
@@ -83,13 +83,13 @@ public:
     { pos -= std::min(pos, count); }
 
     const std::string_view src;
-    std::string&           pureOutput;
+    std::string&           pure_output;
     size_t                 dollar_pos = 0;
     size_t                 pos        = 0;
 };
 
 // useless useful tmp string for parse() without using the original
-// pureOutput
+// pure_output
 std::string _;
 
 #if GUI_APP
@@ -184,14 +184,8 @@ static std::string convert_ansi_escape_rgb(const std::string_view noesc_str)
 
 EXPORT std::string parse(const std::string& input, std::string& _, parse_args_t& parse_args)
 {
-    return parse(input, parse_args.modulesInfo, _, parse_args.layout, parse_args.tmp_layout, parse_args.config,
-                 parse_args.parsingLayout, parse_args.no_more_reset);
-}
-
-EXPORT std::string parse(const std::string& input, parse_args_t& parse_args)
-{
-    return parse(input, parse_args.modulesInfo, parse_args.pureOutput, parse_args.layout, parse_args.tmp_layout,
-                 parse_args.config, parse_args.parsingLayout, parse_args.no_more_reset);
+    parse_args.pure_output = _;
+    return parse(input, parse_args);
 }
 
 EXPORT std::string get_and_color_percentage(const float n1, const float n2, parse_args_t& parse_args, const bool invert)
@@ -343,7 +337,7 @@ std::string getInfoFromName(parse_args_t& parse_args, const std::string& moduleN
     debug("name = {}", name);
 
     std::string result = "(unknown/invalid module)";
-    if (const auto& it = parse_args.modulesInfo.find(name); it != parse_args.modulesInfo.end())
+    if (const auto& it = parse_args.modules_info.find(name); it != parse_args.modules_info.end())
     {
         struct callbackInfo_t callbackInfo = { moduleArgs, parse_args };
 
@@ -399,8 +393,8 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
 
     std::string             cmd_output;
     TinyProcessLib::Process proc(command, "", [&](const char* bytes, size_t n) { cmd_output.assign(bytes, n); });
-    if (!parse_args.parsingLayout && !removetag && parser.dollar_pos != std::string::npos)
-        parse_args.pureOutput.replace(parser.dollar_pos, command.length() + "$()"_len, cmd_output);
+    if (!parse_args.parsing_layout && !removetag && parser.dollar_pos != std::string::npos)
+        parse_args.pure_output.replace(parser.dollar_pos, command.length() + "$()"_len, cmd_output);
 
     if (!cmd_output.empty() && cmd_output.back() == '\n')
         cmd_output.pop_back();
@@ -431,7 +425,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     if (config.getValue("intern.args.disable-colors", false))
     {
         if (parser.dollar_pos != std::string::npos)
-            parse_args.pureOutput.erase(parser.dollar_pos, taglen);
+            parse_args.pure_output.erase(parser.dollar_pos, taglen);
         return "";
     }
 
@@ -631,8 +625,8 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
         else
         {
             error(_("PARSER: failed to parse line with color '{}'"), str_clr);
-            if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
-                parse_args.pureOutput.erase(parser.dollar_pos, taglen);
+            if (!parse_args.parsing_layout && parser.dollar_pos != std::string::npos)
+                parse_args.pure_output.erase(parser.dollar_pos, taglen);
             return output;
         }
 
@@ -725,18 +719,18 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
         else
         {
             error(_("PARSER: failed to parse line with color '{}'"), str_clr);
-            if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
-                parse_args.pureOutput.erase(parser.dollar_pos, taglen);
+            if (!parse_args.parsing_layout && parser.dollar_pos != std::string::npos)
+                parse_args.pure_output.erase(parser.dollar_pos, taglen);
             return output;
         }
 #endif
 
-        if (!parse_args.parsingLayout && std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
+        if (!parse_args.parsing_layout && std::find(auto_colors.begin(), auto_colors.end(), color) == auto_colors.end())
             auto_colors.push_back(color);
     }
 
-    if (!parse_args.parsingLayout && parser.dollar_pos != std::string::npos)
-        parse_args.pureOutput.erase(parser.dollar_pos, taglen);
+    if (!parse_args.parsing_layout && parser.dollar_pos != std::string::npos)
+        parse_args.pure_output.erase(parser.dollar_pos, taglen);
 
     parse_args.firstrun_clr = false;
 
@@ -756,7 +750,7 @@ std::optional<std::string> parse_info_tag(Parser& parser, parse_args_t& parse_ar
     const std::string& info = getInfoFromName(parse_args, module);
 
     if (parser.dollar_pos != std::string::npos)
-        parse_args.pureOutput.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
+        parse_args.pure_output.replace(parser.dollar_pos, module.length() + "$<>"_len, info);
     return info;
 }
 
@@ -788,7 +782,7 @@ std::optional<std::string> parse_tags(Parser& parser, parse_args_t& parse_args, 
         return {};
 
     if (parser.dollar_pos != std::string::npos)
-        parser.dollar_pos = parser.pureOutput.find('$', parser.dollar_pos);
+        parser.dollar_pos = parser.pure_output.find('$', parser.dollar_pos);
 
     if (const auto& color_tag = parse_color_tag(parser, parse_args, evaluate))
         return color_tag;
@@ -838,31 +832,27 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
     return result;
 }
 
-EXPORT std::string parse(std::string input, const moduleMap_t& modulesInfo, std::string& pureOutput,
-                         std::vector<std::string>& layout, std::vector<std::string>& tmp_layout,
-                         const ConfigBase& config, const bool parsingLayout, bool& no_more_reset)
+EXPORT std::string parse(std::string input, parse_args_t& parse_args)
 {
-    static const std::string& sep_reset = config.getValue<std::string>("config.sep-reset", ":");
-    if (!sep_reset.empty() && parsingLayout && !no_more_reset)
+    static const std::string& sep_reset = parse_args.config.getValue<std::string>("config.sep-reset", ":");
+    if (!sep_reset.empty() && parse_args.parsing_layout && !parse_args.no_more_reset)
     {
-        if (config.getValue("config.sep-reset-after", false))
+        if (parse_args.config.getValue("config.sep-reset-after", false))
             replace_str(input, sep_reset, sep_reset + "${0}");
         else
             replace_str(input, sep_reset, "${0}" + sep_reset);
 
-        no_more_reset = true;
+        parse_args.no_more_reset = true;
     }
 
-    parse_args_t parse_args{ modulesInfo, pureOutput, layout, tmp_layout, config, parsingLayout, true, no_more_reset };
-    Parser       parser{ input, pureOutput };
-
+    Parser parser{ input, parse_args.pure_output };
     std::string ret{ parse(parser, parse_args) };
 
 #if GUI_APP
     if (!parse_args.firstrun_clr)
         ret += "</span>";
 
-    replace_str(parse_args.pureOutput, "&nbsp;", " ");
+    replace_str(parse_args.pure_output, "&nbsp;", " ");
 
     // escape pango markup
     // https://gitlab.gnome.org/GNOME/glib/-/blob/main/glib/gmarkup.c#L2150

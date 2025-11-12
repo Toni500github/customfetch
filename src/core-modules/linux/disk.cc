@@ -160,11 +160,11 @@ static std::string format_auto_query_string(std::string str, const struct mntent
 
 static struct mntent* get_disk_info(const callbackInfo_t* callbackInfo)
 {
-    if (callbackInfo->moduleArgs->name != "disk" ||
-        (callbackInfo->moduleArgs->name == "disk" && callbackInfo->moduleArgs->value.empty()))
+    if (callbackInfo->module_args->name != "disk" ||
+        (callbackInfo->module_args->name == "disk" && callbackInfo->module_args->value.empty()))
         die("Module disk doesn't have an argmument to the path/device to query");
 
-    const std::string& path = callbackInfo->moduleArgs->value;
+    const std::string& path = callbackInfo->module_args->value;
     if (access(path.c_str(), F_OK) != 0 || !mountsFile)
         die("Failed to query disk at path: '{}'", path);
 
@@ -183,7 +183,7 @@ static struct mntent* get_disk_info(const callbackInfo_t* callbackInfo)
 static bool get_disk_usage_info(const callbackInfo_t* callbackInfo, struct statvfs* fs)
 {
     struct mntent*     pDevice  = get_disk_info(callbackInfo);
-    const std::string& path     = callbackInfo->moduleArgs->value;
+    const std::string& path     = callbackInfo->module_args->value;
     const std::string& statpath = (hasStart(path, "/dev") && pDevice) ? pDevice->mnt_dir : path;
 
     return (statvfs(statpath.c_str(), fs) == 0);

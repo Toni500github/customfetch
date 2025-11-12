@@ -116,7 +116,7 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
 
     std::string              _;
     std::vector<std::string> tmp_layout;
-    parse_args_t             parse_args{ modulesInfo, _, layout, tmp_layout, config, true };
+    parse_args_t             parse_args{ modulesInfo, config, _, layout, tmp_layout, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
         layout[i]                = parse(layout[i], parse_args);
@@ -270,7 +270,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
         std::ifstream            distro_file(distro_path);
         std::string              line, _;
         std::vector<std::string> tmp_layout;
-        parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, false };
+        parse_args_t             parse_args{ moduleMap, config, _, layout, tmp_layout, false, true };
 
         while (std::getline(distro_file, line))
         {
@@ -323,7 +323,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
     {
         std::string              pureOutput;
         std::vector<std::string> tmp_layout;
-        parse_args_t             parse_args{ moduleMap, pureOutput, layout, tmp_layout, config, false };
+        parse_args_t             parse_args{ moduleMap, config, pureOutput, layout, tmp_layout, false };
 
         std::string asciiArt_s   = parse(line, parse_args);
         parse_args.no_more_reset = false;
@@ -352,7 +352,7 @@ std::vector<std::string> Display::render(const Config& config, const bool alread
 
     std::string              _;
     std::vector<std::string> tmp_layout;
-    parse_args_t             parse_args{ moduleMap, _, layout, tmp_layout, config, true };
+    parse_args_t             parse_args{ moduleMap, config, _, layout, tmp_layout, true };
     for (size_t i = 0; i < layout.size(); ++i)
     {
         layout[i]                = parse(layout[i], parse_args);
