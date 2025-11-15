@@ -283,7 +283,8 @@ void PluginManager::build_plugins(const fs::path& working_dir)
             const fs::path& library_config_path = manifest_config_path / library.path().filename();
             if (fs::exists(library_config_path) && (!options.install_force || !is_update))
             {
-                if (options.install_shut_up || askUserYorN(false, "Plugin '{}' already exists. Replace it?", library_config_path.string()))
+                if (options.install_shut_up ||
+                    askUserYorN(false, "Plugin '{}' already exists. Replace it?", library_config_path.string()))
                     fs::remove_all(library_config_path);
                 else
                     continue;

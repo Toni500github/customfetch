@@ -261,7 +261,7 @@ void switch_plugin(StateManager&& state, bool switch_)
         if (pos == arg.npos)
             die("Plugin to {}e '{}' doesn't have a slash '/' to separate repository and plugin", switch_str, arg);
 
-        const std::string& repo = arg.substr(0, pos);
+        const std::string& repo   = arg.substr(0, pos);
         const std::string& plugin = arg.substr(pos + 1);
 
         const auto* repo_tbl = tbl["repositories"][repo].as_table();

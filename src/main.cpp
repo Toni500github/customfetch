@@ -27,8 +27,6 @@
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
-#include <termios.h>
-#include <stdlib.h>
 
 #include <algorithm>
 #include <cerrno>
@@ -39,16 +37,16 @@
 #include <thread>
 #include <vector>
 
-#include "libcufetch/fmt/compile.h"
-#include "texts.hpp"
-#include "getopt_port/getopt.h"
 #include "core-modules.hh"
 #include "display.hpp"
 #include "fmt/base.h"
 #include "fmt/ranges.h"
+#include "getopt_port/getopt.h"
 #include "gui.hpp"
+#include "libcufetch/fmt/compile.h"
 #include "platform.hpp"
 #include "switch_fnv1a.hpp"
+#include "texts.hpp"
 #include "util.hpp"
 
 #if (!__has_include("version.h"))
@@ -459,7 +457,7 @@ int main(int argc, char* argv[])
         return 1;
     config.loadConfigFile(configFile);
 
-    std::vector<void*> plugins_handle;
+    std::vector<void*>          plugins_handle;
     const std::filesystem::path pluginDir = configDir / "plugins";
     std::filesystem::create_directories(pluginDir);
     for (const auto& entry : std::filesystem::recursive_directory_iterator{ pluginDir })

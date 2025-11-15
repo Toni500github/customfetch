@@ -44,12 +44,6 @@
 #include "stb_image.h"
 #include "util.hpp"
 
-#include "gdkmm/pixbufanimation.h"
-#include "glibmm/refptr.h"
-#include "gtkmm/cssprovider.h"
-#include "glibmm/main.h"
-#include "gtkmm/enums.h"
-
 using namespace GUI;
 
 // https://www.codespeedy.com/convert-rgb-to-hex-color-code-in-cpp/

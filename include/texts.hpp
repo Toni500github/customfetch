@@ -26,8 +26,9 @@
 #ifndef _TEXTS_HPP_
 #define _TEXTS_HPP_
 
-#include "platform.hpp"
 #include <string_view>
+
+#include "platform.hpp"
 
 // cufetchpm
 inline constexpr std::string_view cufetchpm_help = (R"(Usage: cufetchpm <COMMAND> [OPTIONS]...
@@ -533,4 +534,4 @@ build-steps = [
     "mv ./test-plugin-entry/library.so ./build/plugin-dir/library.so"
 ])";
 
-#endif // !_TEXTS_HPP_
+#endif  // !_TEXTS_HPP_

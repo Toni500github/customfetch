@@ -149,7 +149,8 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
                     "--align", (config.logo_position == "top" ? "center" : config.logo_position),
                     "--place", fmt::format("{}x{}@0x0", width, height), path.string() });
     else if (config.args_image_backend == "viu")
-        TinyProcessLib::Process({ "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path.string() });
+        TinyProcessLib::Process(
+            { "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path.string() });
     else
         die(_("The image backend '{}' isn't supported, only 'kitty' and 'viu'.\n"
               "Please currently use the GUI mode for rendering the image/gif (use -h for more details)"),

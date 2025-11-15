@@ -30,6 +30,7 @@
 #define TOML_HEADER_ONLY 0
 
 #include <filesystem>
+
 #include "libcufetch/config.hh"
 
 class Config : public ConfigBase
