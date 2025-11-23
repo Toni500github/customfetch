@@ -50,8 +50,66 @@ struct override_configs_types
 class EXPORT ConfigBase
 {
 public:
+
     /**
-     * Get value of config variables
+     * Get array string value of a config variable
+     * @param value The config variable "path" (e.g "config.layout")
+     * @param fallback Default value if couldn't retrive value
+     */
+    std::vector<std::string> getValueArrayStr(const std::string_view          value,
+                                              const std::vector<std::string>& fallback) const
+    {
+        std::vector<std::string> ret;
+
+        // https://stackoverflow.com/a/78266628
+        if (const toml::array* array_it = tbl.at_path(value).as_array())
+        {
+            array_it->for_each([&ret](auto&& el) {
+                if (const toml::value<std::string>* str_elem = el.as_string())
+                    ret.push_back((*str_elem)->data());
+            });
+
+            return ret;
+        }
+        else
+        {
+            return fallback;
+        }
+    }
+
+    /**
+     * Get string value of a config variables
+     * @param value The config variable "path" (e.g "config.data-dir")
+     * @param fallback Default value if couldn't retrive value
+     */
+    std::string getValueStr(const std::string_view value, const std::string& fallback) const
+    {
+        return getValue<std::string>(value, fallback);
+    }
+
+    /**
+     * Get integer value of a config variables
+     * @param value The config variable "path" (e.g "config.offset")
+     * @param fallback Default value if couldn't retrive value
+     */
+    int getValueInt(const std::string_view value, const int& fallback) const
+    {
+        return getValue<int>(value, fallback);
+    }
+
+    /**
+     * Get boolean value of a config variables
+     * @param value The config variable "path" (e.g "config.wrap-lines")
+     * @param fallback Default value if couldn't retrive value
+     */
+    bool getValueBool(const std::string_view value, const bool fallback) const
+    {
+        return getValue<bool>(value, fallback);
+    }
+
+private:
+    /**
+     * Get value of a config variables
      * @param value The config variable "path" (e.g "config.source-path")
      * @param fallback Default value if couldn't retrive value
      */
@@ -77,35 +135,10 @@ public:
         return ret.value_or(fallback);
     }
 
-    /**
-     * Get value of config array of string variables
-     * @param value The config variable "path" (e.g "config.gui-red")
-     * @param fallback Default value if couldn't retrive value
-     */
-    std::vector<std::string> getValueArrayStr(const std::string_view          value,
-                                              const std::vector<std::string>& fallback) const
-    {
-        std::vector<std::string> ret;
-
-        // https://stackoverflow.com/a/78266628
-        if (const toml::array* array_it = tbl.at_path(value).as_array())
-        {
-            array_it->for_each([&ret](auto&& el) {
-                if (const toml::value<std::string>* str_elem = el.as_string())
-                    ret.push_back((*str_elem)->data());
-            });
-
-            return ret;
-        }
-        else
-        {
-            return fallback;
-        }
-    }
-
 protected:
     std::unordered_map<std::string, override_configs_types> overrides;
 
     // Parsed config from loadConfigFile()
     toml::table tbl;
+
 };

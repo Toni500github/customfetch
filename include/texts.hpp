@@ -347,7 +347,7 @@ logo-position = "left"
 
 # Offset between the ascii art and the layout
 # Can also be rapresented as a %, but super unstable sometimes.
-offset = "5"
+offset = 5
 
 # Padding between the start and the ascii art
 logo-padding-left = 0
@@ -363,7 +363,6 @@ layout-padding-top = 0
 # Enable/Disable if you want this
 wrap-lines = false
 
-# Used in disk, ram and swap modules.
 # If true, we're going to use the SI standard byte unit (1kB == 1000 bytes)
 # Else if false, we using the IEC byte unit (1KiB == 1024 bibytes)
 # Really nerdy stuff

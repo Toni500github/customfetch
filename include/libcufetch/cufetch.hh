@@ -52,15 +52,15 @@ struct callbackInfo_t
 
 /* Main struct for declaring a customfetch module.
  *
- * Submodules are referenced with '.' in their path.  
+ * Submodules are referenced with '.' in their path.
  * Example: $<parent.child> -> parent = `name`, child = `submodules[x].name`.
  *
- * WARN: Do not pass submodules to cfRegisterModule.  
+ * WARN: Do not pass submodules to cfRegisterModule.
  * It registers recursively and will include them automatically.
  *
- * Real example: $<github.profile.following>  
- *   - github = root module  
- *   - profile = submodule of github  
+ * Real example: $<github.profile.following>
+ *   - github = root module
+ *   - profile = submodule of github
  *   - following = submodule of profile
  *
  * The handler is executed when the module is invoked in the layout.
@@ -73,9 +73,9 @@ struct callbackInfo_t
  */
 struct module_t
 {
-    std::string           name;
-    std::string           description;
-    std::vector<module_t> submodules; /* Use std::move() for efficiency when adding. */
+    std::string                                       name;
+    std::string                                       description;
+    std::vector<module_t>                             submodules; /* Use std::move() for efficiency when adding. */
     std::function<std::string(const callbackInfo_t*)> handler;
 };
 

@@ -61,7 +61,7 @@ struct EXPORT parse_args_t
     std::vector<std::string>& tmp_layout;
     bool                      parsing_layout;
     bool                      no_more_reset = false;
-    bool                      firstrun_clr  = true; // don't use it. Internal "flag"
+    bool                      firstrun_clr  = true;  // don't use it. Internal "flag"
 };
 
 /* Parse input, in-place, with data from modules_info.

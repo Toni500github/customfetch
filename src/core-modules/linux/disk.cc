@@ -235,7 +235,7 @@ static int auto_disks_types = 0;
 MODFUNC(auto_disk)
 {
     const ConfigBase&  config         = callbackInfo->parse_args.config;
-    const std::string& auto_disks_fmt = config.getValue<std::string>("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
+    const std::string& auto_disks_fmt = config.getValueStr("auto.disk.fmt", "${auto}Disk (%1): $<disk(%1)>");
 
     if (auto_disks_types == 0)
     {

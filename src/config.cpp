@@ -29,8 +29,8 @@
 #include <filesystem>
 #include <string>
 
-#include "texts.hpp"
 #include "fmt/os.h"
+#include "texts.hpp"
 #include "util.hpp"
 
 Config::Config(const std::filesystem::path& configFile, const std::filesystem::path& configDir)
@@ -67,27 +67,27 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     // Idk but with `this->` looks more readable
     this->layout              = getValueArrayStr("config.layout", {});
     this->percentage_colors   = getValueArrayStr("config.percentage-colors", {"green", "yellow", "red"});
-    this->slow_query_warnings = getValue<bool>("config.slow-query-warnings", false);
-    this->sep_reset_after     = getValue<bool>("config.sep-reset-after", false);
-    this->use_SI_unit         = getValue<bool>("config.use-SI-byte-unit", false);
-    this->wrap_lines          = getValue<bool>("config.wrap-lines", false);
-    this->logo_padding_left   = getValue<std::uint16_t>("config.logo-padding-left", 0);
-    this->layout_padding_top  = getValue<std::uint16_t>("config.layout-padding-top", 0);
-    this->logo_padding_top    = getValue<std::uint16_t>("config.logo-padding-top", 0);
-    this->offset              = expandVar(getValue<std::string>("config.offset", "5"));
-    this->sep_reset           = expandVar(getValue<std::string>("config.sep-reset", ":"));
-    this->ascii_logo_type     = expandVar(getValue<std::string>("config.ascii-logo-type", ""));
-    this->source_path         = expandVar(getValue<std::string>("config.source-path", "os"));
-    this->logo_position       = expandVar(getValue<std::string>("config.logo-position", "left"));
-    this->data_dir            = expandVar(getValue<std::string>("config.data-dir", get_data_dir("customfetch")));
-    this->title_sep           = expandVar(getValue<std::string>("config.title-sep", "-"));
-    this->gui_bg_image        = expandVar(getValue<std::string>("gui.bg-image", "disable"));
-    this->gui_css_file        = expandVar(getValue<std::string>("gui.gtk-css",  "disable"));
+    this->slow_query_warnings = getValueBool("config.slow-query-warnings", false);
+    this->sep_reset_after     = getValueBool("config.sep-reset-after", false);
+    this->use_SI_unit         = getValueBool("config.use-SI-byte-unit", false);
+    this->wrap_lines          = getValueBool("config.wrap-lines", false);
+    this->logo_padding_left   = getValueInt("config.logo-padding-left", 0);
+    this->layout_padding_top  = getValueInt("config.layout-padding-top", 0);
+    this->logo_padding_top    = getValueInt("config.logo-padding-top", 0);
+    this->offset              = expandVar(getValueStr("config.offset", "5"));
+    this->sep_reset           = expandVar(getValueStr("config.sep-reset", ":"));
+    this->ascii_logo_type     = expandVar(getValueStr("config.ascii-logo-type", ""));
+    this->source_path         = expandVar(getValueStr("config.source-path", "os"));
+    this->logo_position       = expandVar(getValueStr("config.logo-position", "left"));
+    this->data_dir            = expandVar(getValueStr("config.data-dir", get_data_dir("customfetch")));
+    this->title_sep           = expandVar(getValueStr("config.title-sep", "-"));
+    this->gui_bg_image        = expandVar(getValueStr("gui.bg-image", "disable"));
+    this->gui_css_file        = expandVar(getValueStr("gui.gtk-css",  "disable"));
 
-    this->uptime_d_fmt = expandVar(getValue<std::string>("os.uptime.days", " days"));
-    this->uptime_h_fmt = expandVar(getValue<std::string>("os.uptime.hours", " hours"));
-    this->uptime_m_fmt = expandVar(getValue<std::string>("os.uptime.mins", " mins"));
-    this->uptime_s_fmt = expandVar(getValue<std::string>("os.uptime.secs", " secs"));
+    this->uptime_d_fmt = expandVar(getValueStr("os.uptime.days", " days"));
+    this->uptime_h_fmt = expandVar(getValueStr("os.uptime.hours", " hours"));
+    this->uptime_m_fmt = expandVar(getValueStr("os.uptime.mins", " mins"));
+    this->uptime_s_fmt = expandVar(getValueStr("os.uptime.secs", " secs"));
 
     this->pkgs_managers= getValueArrayStr("os.pkgs.pkg-managers", {});
     this->pacman_dirs  = getValueArrayStr("os.pkgs.pacman-dirs",  {"/var/lib/pacman/local"});
@@ -95,23 +95,23 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->flatpak_dirs = getValueArrayStr("os.pkgs.flatpak-dirs", {"/var/lib/flatpak/app", "~/.local/share/flatpak/app"});
     this->apk_files    = getValueArrayStr("os.pkgs.apk-files",    {"/var/lib/apk/db/installed"});
 
-    colors.black       = getValue<std::string>("config.black",   "\033[1;30m");
-    colors.red         = getValue<std::string>("config.red",     "\033[1;31m");
-    colors.green       = getValue<std::string>("config.green",   "\033[1;32m");
-    colors.yellow      = getValue<std::string>("config.yellow",  "\033[1;33m");
-    colors.blue        = getValue<std::string>("config.blue",    "\033[1;34m");
-    colors.magenta     = getValue<std::string>("config.magenta", "\033[1;35m");
-    colors.cyan        = getValue<std::string>("config.cyan",    "\033[1;36m");
-    colors.white       = getValue<std::string>("config.white",   "\033[1;37m");
+    colors.black       = getValueStr("config.black",   "\033[1;30m");
+    colors.red         = getValueStr("config.red",     "\033[1;31m");
+    colors.green       = getValueStr("config.green",   "\033[1;32m");
+    colors.yellow      = getValueStr("config.yellow",  "\033[1;33m");
+    colors.blue        = getValueStr("config.blue",    "\033[1;34m");
+    colors.magenta     = getValueStr("config.magenta", "\033[1;35m");
+    colors.cyan        = getValueStr("config.cyan",    "\033[1;36m");
+    colors.white       = getValueStr("config.white",   "\033[1;37m");
 
-    colors.gui_black   = getValue<std::string>("gui.black",   "!#000005");
-    colors.gui_red     = getValue<std::string>("gui.red",     "!#ff2000");
-    colors.gui_green   = getValue<std::string>("gui.green",   "!#00ff00");
-    colors.gui_blue    = getValue<std::string>("gui.blue",    "!#00aaff");
-    colors.gui_cyan    = getValue<std::string>("gui.cyan",    "!#00ffff");
-    colors.gui_yellow  = getValue<std::string>("gui.yellow",  "!#ffff00");
-    colors.gui_magenta = getValue<std::string>("gui.magenta", "!#ff11cc");
-    colors.gui_white   = getValue<std::string>("gui.white",   "!#ffffff");
+    colors.gui_black   = getValueStr("gui.black",   "!#000005");
+    colors.gui_red     = getValueStr("gui.red",     "!#ff2000");
+    colors.gui_green   = getValueStr("gui.green",   "!#00ff00");
+    colors.gui_blue    = getValueStr("gui.blue",    "!#00aaff");
+    colors.gui_cyan    = getValueStr("gui.cyan",    "!#00ffff");
+    colors.gui_yellow  = getValueStr("gui.yellow",  "!#ffff00");
+    colors.gui_magenta = getValueStr("gui.magenta", "!#ff11cc");
+    colors.gui_white   = getValueStr("gui.white",   "!#ffffff");
 
     if (this->percentage_colors.size() < 3)
     {

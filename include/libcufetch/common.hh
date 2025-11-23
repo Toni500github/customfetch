@@ -33,7 +33,7 @@ constexpr const char NOCOLOR[]      = "\033[0m";
 constexpr const char NOCOLOR_BOLD[] = "\033[0m\033[1m";
 
 // Didn't find what you were looking for.
-constexpr const char UNKNOWN[]      = "(unknown)";
+constexpr const char UNKNOWN[] = "(unknown)";
 
 // Usually in neofetch/fastfetch when some infos couldn't be queried, they remove it from the display.
 // With customfetch is kinda difficult to know when to remove the info to display,
@@ -58,8 +58,7 @@ inline bool debug_print = false;
 template <typename... Args>
 void error(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(stderr, "\033[1;31mERROR: {}\033[0m\n",
-               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+    fmt::print(stderr, "\033[1;31mERROR: {}\033[0m\n", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 // std::format function arguments
@@ -67,8 +66,7 @@ void error(const std::string_view fmt, Args&&... args) noexcept
 template <typename... Args>
 void die(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(stderr, "\033[1;31mFATAL: {}\033[0m\n",
-               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+    fmt::print(stderr, "\033[1;31mFATAL: {}\033[0m\n", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
     std::exit(EXIT_FAILURE);
 }
 
@@ -88,8 +86,7 @@ void debug(const std::string_view fmt, Args&&... args) noexcept
 template <typename... Args>
 void warn(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(stderr, "\033[1;33mWARNING: {}\033[0m\n",
-               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+    fmt::print(stderr, "\033[1;33mWARNING: {}\033[0m\n", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }
 
 // std::format function arguments
@@ -97,6 +94,5 @@ void warn(const std::string_view fmt, Args&&... args) noexcept
 template <typename... Args>
 void info(const std::string_view fmt, Args&&... args) noexcept
 {
-    fmt::print(stdout, "\033[1;36mINFO: {}\033[0m\n",
-               fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
+    fmt::print(stdout, "\033[1;36mINFO: {}\033[0m\n", fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
 }

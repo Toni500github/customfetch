@@ -123,14 +123,14 @@ static std::array<std::string, 3> get_ansi_color(const std::string_view noesc_st
     // clang-format off
     switch (col.back())
     {
-        case '0': col = config.getValue<std::string>("gui.black",   "!#000005"); break;
-        case '1': col = config.getValue<std::string>("gui.red",     "!#ff2000"); break;
-        case '2': col = config.getValue<std::string>("gui.green",   "!#00ff00"); break;
-        case '3': col = config.getValue<std::string>("gui.yellow",  "!#ffff00"); break;
-        case '4': col = config.getValue<std::string>("gui.blue",    "!#00aaff"); break;
-        case '5': col = config.getValue<std::string>("gui.magenta", "!#ff11cc"); break;
-        case '6': col = config.getValue<std::string>("gui.cyan",    "!#00ffff"); break;
-        case '7': col = config.getValue<std::string>("gui.white",   "!#ffffff"); break;
+        case '0': col = config.getValueStr("gui.black",   "!#000005"); break;
+        case '1': col = config.getValueStr("gui.red",     "!#ff2000"); break;
+        case '2': col = config.getValueStr("gui.green",   "!#00ff00"); break;
+        case '3': col = config.getValueStr("gui.yellow",  "!#ffff00"); break;
+        case '4': col = config.getValueStr("gui.blue",    "!#00aaff"); break;
+        case '5': col = config.getValueStr("gui.magenta", "!#ff11cc"); break;
+        case '6': col = config.getValueStr("gui.cyan",    "!#00ffff"); break;
+        case '7': col = config.getValueStr("gui.white",   "!#ffffff"); break;
     }
 
     if (col.at(0) != '#')
@@ -326,7 +326,8 @@ std::string getInfoFromName(parse_args_t& parse_args, const std::string& moduleN
 
     std::string   name;
     moduleArgs_t* moduleArg = moduleArgs;
-    do {
+    do
+    {
         name += moduleArg->name;
         if (name.back() != '.')
             name.push_back('.');
@@ -384,7 +385,7 @@ std::optional<std::string> parse_command_tag(Parser& parser, parse_args_t& parse
     if (!evaluate)
         return {};
 
-    if (parse_args.config.getValue("intern.args.disallow-commands", false))
+    if (parse_args.config.getValueBool("intern.args.disallow-commands", false))
         die(_("Trying to execute command $({}) but --disallow-command-tag is set"), command);
 
     const bool removetag = (command.front() == '!');
@@ -422,7 +423,7 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
     const ConfigBase& config  = parse_args.config;
     const std::string endspan = !parse_args.firstrun_clr ? "</span>" : "";
 
-    if (config.getValue("intern.args.disable-colors", false))
+    if (config.getValueBool("intern.args.disable-colors", false))
     {
         if (parser.dollar_pos != std::string::npos)
             parse_args.pure_output.erase(parser.dollar_pos, taglen);
@@ -499,14 +500,14 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 #if GUI_APP
         switch (fnv1a16::hash(color))
         {
-            case "black"_fnv1a16:   str_clr = config.getValue<std::string>("gui.black",   "!#000005"); break;
-            case "red"_fnv1a16:     str_clr = config.getValue<std::string>("gui.red",     "!#ff2000"); break;
-            case "green"_fnv1a16:   str_clr = config.getValue<std::string>("gui.green",   "!#00ff00"); break;
-            case "yellow"_fnv1a16:  str_clr = config.getValue<std::string>("gui.yellow",  "!#ffff00"); break;
-            case "blue"_fnv1a16:    str_clr = config.getValue<std::string>("gui.blue",    "!#00aaff"); break;
-            case "magenta"_fnv1a16: str_clr = config.getValue<std::string>("gui.magenta", "!#ff11cc"); break;
-            case "cyan"_fnv1a16:    str_clr = config.getValue<std::string>("gui.cyan",    "!#00ffff"); break;
-            case "white"_fnv1a16:   str_clr = config.getValue<std::string>("gui.white",   "!#ffffff"); break;
+            case "black"_fnv1a16:   str_clr = config.getValueStr("gui.black",   "!#000005"); break;
+            case "red"_fnv1a16:     str_clr = config.getValueStr("gui.red",     "!#ff2000"); break;
+            case "green"_fnv1a16:   str_clr = config.getValueStr("gui.green",   "!#00ff00"); break;
+            case "yellow"_fnv1a16:  str_clr = config.getValueStr("gui.yellow",  "!#ffff00"); break;
+            case "blue"_fnv1a16:    str_clr = config.getValueStr("gui.blue",    "!#00aaff"); break;
+            case "magenta"_fnv1a16: str_clr = config.getValueStr("gui.magenta", "!#ff11cc"); break;
+            case "cyan"_fnv1a16:    str_clr = config.getValueStr("gui.cyan",    "!#00ffff"); break;
+            case "white"_fnv1a16:   str_clr = config.getValueStr("gui.white",   "!#ffffff"); break;
             default:                str_clr = color; break;
         }
 
@@ -634,14 +635,14 @@ std::optional<std::string> parse_color_tag(Parser& parser, parse_args_t& parse_a
 #else
         switch (fnv1a16::hash(color))
         {
-            case "black"_fnv1a16:   str_clr = config.getValue<std::string>("config.black",   "\033[1;30m"); break;
-            case "red"_fnv1a16:     str_clr = config.getValue<std::string>("config.red",     "\033[1;31m"); break;
-            case "green"_fnv1a16:   str_clr = config.getValue<std::string>("config.green",   "\033[1;32m"); break;
-            case "yellow"_fnv1a16:  str_clr = config.getValue<std::string>("config.yellow",  "\033[1;33m"); break;
-            case "blue"_fnv1a16:    str_clr = config.getValue<std::string>("config.blue",    "\033[1;34m"); break;
-            case "magenta"_fnv1a16: str_clr = config.getValue<std::string>("config.magenta", "\033[1;35m"); break;
-            case "cyan"_fnv1a16:    str_clr = config.getValue<std::string>("config.cyan",    "\033[1;36m"); break;
-            case "white"_fnv1a16:   str_clr = config.getValue<std::string>("config.white",   "\033[1;37m"); break;
+            case "black"_fnv1a16:   str_clr = config.getValueStr("config.black",   "\033[1;30m"); break;
+            case "red"_fnv1a16:     str_clr = config.getValueStr("config.red",     "\033[1;31m"); break;
+            case "green"_fnv1a16:   str_clr = config.getValueStr("config.green",   "\033[1;32m"); break;
+            case "yellow"_fnv1a16:  str_clr = config.getValueStr("config.yellow",  "\033[1;33m"); break;
+            case "blue"_fnv1a16:    str_clr = config.getValueStr("config.blue",    "\033[1;34m"); break;
+            case "magenta"_fnv1a16: str_clr = config.getValueStr("config.magenta", "\033[1;35m"); break;
+            case "cyan"_fnv1a16:    str_clr = config.getValueStr("config.cyan",    "\033[1;36m"); break;
+            case "white"_fnv1a16:   str_clr = config.getValueStr("config.white",   "\033[1;37m"); break;
             default:                str_clr = color; break;
         }
 
@@ -834,10 +835,10 @@ std::string parse(Parser& parser, parse_args_t& parse_args, const bool evaluate,
 
 EXPORT std::string parse(std::string input, parse_args_t& parse_args)
 {
-    static const std::string& sep_reset = parse_args.config.getValue<std::string>("config.sep-reset", ":");
+    static const std::string& sep_reset = parse_args.config.getValueStr("config.sep-reset", ":");
     if (!sep_reset.empty() && parse_args.parsing_layout && !parse_args.no_more_reset)
     {
-        if (parse_args.config.getValue("config.sep-reset-after", false))
+        if (parse_args.config.getValueBool("config.sep-reset-after", false))
             replace_str(input, sep_reset, sep_reset + "${0}");
         else
             replace_str(input, sep_reset, "${0}" + sep_reset);
@@ -845,7 +846,7 @@ EXPORT std::string parse(std::string input, parse_args_t& parse_args)
         parse_args.no_more_reset = true;
     }
 
-    Parser parser{ input, parse_args.pure_output };
+    Parser      parser{ input, parse_args.pure_output };
     std::string ret{ parse(parser, parse_args) };
 
 #if GUI_APP
