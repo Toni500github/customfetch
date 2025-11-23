@@ -50,7 +50,6 @@ struct override_configs_types
 class EXPORT ConfigBase
 {
 public:
-
     /**
      * Get array string value of a config variable
      * @param value The config variable "path" (e.g "config.layout")
@@ -140,5 +139,4 @@ protected:
 
     // Parsed config from loadConfigFile()
     toml::table tbl;
-
 };

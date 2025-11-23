@@ -28,6 +28,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "gui.hpp"
 
+#include <gdkmm/pixbufanimation.h>
+#include <glibmm/main.h>
+#include <glibmm/refptr.h>
+#include <gtkmm/cssprovider.h>
+#include <gtkmm/enums.h>
 #include <unistd.h>
 
 #include <array>
@@ -36,12 +41,7 @@
 
 #include "display.hpp"
 #include "fmt/ranges.h"
-#include "gdkmm/pixbufanimation.h"
-#include "glibmm/main.h"
-#include "glibmm/refptr.h"
-#include "gtkmm/cssprovider.h"
-#include "gtkmm/enums.h"
-#include "stb_image.h"
+#include "libs/stb_image.h"
 #include "util.hpp"
 
 using namespace GUI;
