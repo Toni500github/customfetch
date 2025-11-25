@@ -145,9 +145,9 @@ static std::vector<std::string> render_with_image(const moduleMap_t& modulesInfo
     const size_t height = image_height / font_height;
 
     if (config.args_image_backend == "kitty")
-        TinyProcessLib::Process({ "kitty", "+kitten", "icat",
-                    "--align", (config.logo_position == "top" ? "center" : config.logo_position),
-                    "--place", fmt::format("{}x{}@0x0", width, height), path.string() });
+        TinyProcessLib::Process({ "kitty", "+kitten", "icat", "--align",
+                                  (config.logo_position == "top" ? "center" : config.logo_position), "--place",
+                                  fmt::format("{}x{}@0x0", width, height), path.string() });
     else if (config.args_image_backend == "viu")
         TinyProcessLib::Process(
             { "viu", "-t", "-w", fmt::to_string(width), "-h", fmt::to_string(height), path.string() });

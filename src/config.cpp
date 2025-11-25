@@ -59,8 +59,7 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
         die(_("Parsing config file '{}' failed:\n"
               "{}\n"
               "\t(error occurred at line {} column {})"),
-            filename.string(), err.description(),
-            err.source().begin.line, err.source().begin.column);
+            filename.string(), err.description(), err.source().begin.line, err.source().begin.column);
     }
 
     // clang-format off
@@ -95,23 +94,23 @@ void Config::loadConfigFile(const std::filesystem::path& filename)
     this->flatpak_dirs = getValueArrayStr("os.pkgs.flatpak-dirs", {"/var/lib/flatpak/app", "~/.local/share/flatpak/app"});
     this->apk_files    = getValueArrayStr("os.pkgs.apk-files",    {"/var/lib/apk/db/installed"});
 
-    colors.black       = getValueStr("config.black",   "\033[1;30m");
-    colors.red         = getValueStr("config.red",     "\033[1;31m");
-    colors.green       = getValueStr("config.green",   "\033[1;32m");
-    colors.yellow      = getValueStr("config.yellow",  "\033[1;33m");
-    colors.blue        = getValueStr("config.blue",    "\033[1;34m");
-    colors.magenta     = getValueStr("config.magenta", "\033[1;35m");
-    colors.cyan        = getValueStr("config.cyan",    "\033[1;36m");
-    colors.white       = getValueStr("config.white",   "\033[1;37m");
+    this->colors.black       = getValueStr("config.black",   "\033[1;30m");
+    this->colors.red         = getValueStr("config.red",     "\033[1;31m");
+    this->colors.green       = getValueStr("config.green",   "\033[1;32m");
+    this->colors.yellow      = getValueStr("config.yellow",  "\033[1;33m");
+    this->colors.blue        = getValueStr("config.blue",    "\033[1;34m");
+    this->colors.magenta     = getValueStr("config.magenta", "\033[1;35m");
+    this->colors.cyan        = getValueStr("config.cyan",    "\033[1;36m");
+    this->colors.white       = getValueStr("config.white",   "\033[1;37m");
 
-    colors.gui_black   = getValueStr("gui.black",   "!#000005");
-    colors.gui_red     = getValueStr("gui.red",     "!#ff2000");
-    colors.gui_green   = getValueStr("gui.green",   "!#00ff00");
-    colors.gui_blue    = getValueStr("gui.blue",    "!#00aaff");
-    colors.gui_cyan    = getValueStr("gui.cyan",    "!#00ffff");
-    colors.gui_yellow  = getValueStr("gui.yellow",  "!#ffff00");
-    colors.gui_magenta = getValueStr("gui.magenta", "!#ff11cc");
-    colors.gui_white   = getValueStr("gui.white",   "!#ffffff");
+    this->colors.gui_black   = getValueStr("gui.black",   "!#000005");
+    this->colors.gui_red     = getValueStr("gui.red",     "!#ff2000");
+    this->colors.gui_green   = getValueStr("gui.green",   "!#00ff00");
+    this->colors.gui_blue    = getValueStr("gui.blue",    "!#00aaff");
+    this->colors.gui_cyan    = getValueStr("gui.cyan",    "!#00ffff");
+    this->colors.gui_yellow  = getValueStr("gui.yellow",  "!#ffff00");
+    this->colors.gui_magenta = getValueStr("gui.magenta", "!#ff11cc");
+    this->colors.gui_white   = getValueStr("gui.white",   "!#ffffff");
 
     if (this->percentage_colors.size() < 3)
     {
